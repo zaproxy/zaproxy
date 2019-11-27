@@ -27,8 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-/** Unit test for {@link HirshbergMatcher} */
-public class HirshbergMatcherUnitTest {
+/** Unit test for {@link HirschbergMatcher} */
+public class HirschbergMatcherUnitTest {
 
     private static final String EMPTY_STRING = "";
     private static final String NON_EMPTY_STRING = "Non Empty String";
@@ -36,7 +36,7 @@ public class HirshbergMatcherUnitTest {
     @Test
     public void shouldFailToGetLCSIfStringAIsNull() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         String strA = null;
         String strB = NON_EMPTY_STRING;
         // When / Then
@@ -46,7 +46,7 @@ public class HirshbergMatcherUnitTest {
     @Test
     public void shouldFailToGetLCSIfStringBIsNull() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         String strA = NON_EMPTY_STRING;
         String strB = null;
         // When / Then
@@ -56,7 +56,7 @@ public class HirshbergMatcherUnitTest {
     @Test
     public void shouldReturnEmptyStringWhenGettingLCSIfStringAIsEmpty() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         String lcs = matcher.getLCS(EMPTY_STRING, NON_EMPTY_STRING);
         // Then
@@ -66,7 +66,7 @@ public class HirshbergMatcherUnitTest {
     @Test
     public void shouldReturnEmptyStringWhenGettingLCSIfStringBIsEmpty() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         String lcs = matcher.getLCS(NON_EMPTY_STRING, EMPTY_STRING);
         // Then
@@ -76,7 +76,7 @@ public class HirshbergMatcherUnitTest {
     @Test
     public void shouldReturnEmptyStringWhenGettingLCSOfEmptyStrings() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         String lcs = matcher.getLCS(EMPTY_STRING, EMPTY_STRING);
         // Then
@@ -88,7 +88,7 @@ public class HirshbergMatcherUnitTest {
         // Given
         String stringA = "GTCGTTCGGAATGCCGTTGCTCTGTAAA";
         String stringB = "ACCGGTCGAGTGCGCGGAAGCCGGCCGAA";
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         String lcs = matcher.getLCS(stringA, stringB);
         // Then
@@ -100,7 +100,7 @@ public class HirshbergMatcherUnitTest {
         // Given
         String stringA = "human";
         String stringB = "chimpanzee";
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         String lcs1 = matcher.getLCS(stringA, stringB);
         String lcs2 = matcher.getLCS(stringB, stringA);
@@ -114,7 +114,7 @@ public class HirshbergMatcherUnitTest {
         // Given
         String stringA = "ABC";
         String stringB = stringA;
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         String lcs = matcher.getLCS(stringA, stringB);
         // Then
@@ -126,7 +126,7 @@ public class HirshbergMatcherUnitTest {
         // Given
         String stringA = "man";
         String stringB = "pig";
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         String lcs = matcher.getLCS(stringA, stringB);
         // Then
@@ -136,61 +136,61 @@ public class HirshbergMatcherUnitTest {
     @Test
     public void shouldReturnMinMatchRatioIfStringAIsNull() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         double ratio = matcher.getMatchRatio(null, NON_EMPTY_STRING);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MIN_RATIO)));
+        assertThat(ratio, is(equalTo(HirschbergMatcher.MIN_RATIO)));
     }
 
     @Test
     public void shouldReturnMinMatchRatioIfStringBIsNull() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         double ratio = matcher.getMatchRatio(NON_EMPTY_STRING, null);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MIN_RATIO)));
+        assertThat(ratio, is(equalTo(HirschbergMatcher.MIN_RATIO)));
     }
 
     @Test
     public void shouldReturnMaxMatchRatioIfBothStringsAreNull() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         double ratio = matcher.getMatchRatio(null, null);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MAX_RATIO)));
+        assertThat(ratio, is(equalTo(HirschbergMatcher.MAX_RATIO)));
     }
 
     @Test
     public void shouldReturnMinMatchRatioIfStringAIsEmpty() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         double ratio = matcher.getMatchRatio(EMPTY_STRING, NON_EMPTY_STRING);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MIN_RATIO)));
+        assertThat(ratio, is(equalTo(HirschbergMatcher.MIN_RATIO)));
     }
 
     @Test
     public void shouldReturnMinMatchRatioIfStringBIsEmpty() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         double ratio = matcher.getMatchRatio(NON_EMPTY_STRING, EMPTY_STRING);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MIN_RATIO)));
+        assertThat(ratio, is(equalTo(HirschbergMatcher.MIN_RATIO)));
     }
 
     @Test
     public void shouldReturnMaxMatchRatioIfBothStringsAreEmpty() {
         // Given
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         double ratio = matcher.getMatchRatio(EMPTY_STRING, EMPTY_STRING);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MAX_RATIO)));
+        assertThat(ratio, is(equalTo(HirschbergMatcher.MAX_RATIO)));
     }
 
     @Test
@@ -198,7 +198,7 @@ public class HirshbergMatcherUnitTest {
         // Given
         String stringA = "capital";
         String stringB = "apple";
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         double ratio = matcher.getMatchRatio(stringA, stringB);
         // Then
@@ -210,11 +210,11 @@ public class HirshbergMatcherUnitTest {
         // Given
         String stringA = "ca";
         String stringB = stringA;
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         double ratio = matcher.getMatchRatio(stringA, stringB);
         // Then
-        assertThat(ratio, is(equalTo(HirshbergMatcher.MAX_RATIO)));
+        assertThat(ratio, is(equalTo(HirschbergMatcher.MAX_RATIO)));
     }
 
     @Test
@@ -222,7 +222,7 @@ public class HirshbergMatcherUnitTest {
         // Given
         String stringA = "ABC";
         String stringB = "XYZ";
-        HirshbergMatcher matcher = new HirshbergMatcher();
+        HirschbergMatcher matcher = new HirschbergMatcher();
         // When
         double ratio = matcher.getMatchRatio(stringA, stringB);
         // Then
