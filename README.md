@@ -22,9 +22,9 @@ An ongoing series of up to 10 minute videos about ZAP, starting with the basics.
 
 The first episode and the full series are available via:
 
-[![](https://play.vidyard.com/RyTy22GZV6UccW41UCghC8.jpg?email=1)](http://play.sonatype.com/watch/RyTy22GZV6UccW41UCghC8?)
+[![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/01-ZAP-in-Ten.png)](http://play.sonatype.com/watch/RyTy22GZV6UccW41UCghC8?)
 
-[![](https://www.zaproxy.org/images/02-ZAP-in-Ten.png)](https://www.alldaydevops.com/zap-in-ten)
+[![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/02-ZAP-in-Ten.png)](https://www.alldaydevops.com/zap-in-ten)
 
 
 ### For general information about ZAP:
