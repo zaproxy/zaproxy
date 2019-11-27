@@ -126,7 +126,7 @@ public class URLResolverUnitTest {
     }
 
     @Test
-    public void shouldRemoveAllSlashPointSlashOccurencesFromResolvedUrl() {
+    public void shouldRemoveAllSlashPointSlashOccurrencesFromResolvedUrl() {
         assertThat(
                 URLResolver.resolveUrl("http://abc.de/./", "test/./xyz/./123"),
                 is("http://abc.de/test/xyz/123"));

@@ -139,7 +139,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveUnkownStatusByDefault() {
+    public void shouldRetrieveUnknownStatusByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then

@@ -186,7 +186,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shoudAvailableLocalesBeNonEmpty() {
+    public void shouldAvailableLocalesBeNonEmpty() {
         // Given
         List<String> locales = LocaleUtils.getAvailableLocales();
 
