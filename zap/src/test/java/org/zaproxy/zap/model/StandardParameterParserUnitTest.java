@@ -121,7 +121,7 @@ public class StandardParameterParserUnitTest {
      * @throws URIException if an error occurred while accessing the provided uri
      */
     @Test
-    public void ansestorPath() throws Exception {
+    public void ancestorPath() throws Exception {
         // standard urls
         assertEquals(
                 "", spp.getAncestorPath(new URI("http://example.org/path/to/element", true), 0));
