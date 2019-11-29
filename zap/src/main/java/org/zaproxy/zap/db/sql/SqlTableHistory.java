@@ -134,7 +134,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                 DbUtils.execute(connection, DbSQL.getSQL("history.ps.addnote"));
             }
 
-            /* TODO how to handle HSQLDB dependancy?? Need to parameterize somehow.. vvvvvvvvvvvv */
+            /* TODO how to handle HSQLDB dependency?? Need to parameterize somehow.. vvvvvvvvvvvv */
             if (DbUtils.getColumnType(connection, TABLE_NAME, REQBODY)
                     != 61 /*Types.SQL_VARBINARY*/) {
                 bodiesAsBytes = false;

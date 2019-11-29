@@ -677,7 +677,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                     getAddCustomButton().setEnabled(false);
 
                 } else if (userDefStart < headerLength && userDefEnd > headerLength) {
-                    // The users selection cross the header / body boundry - thats never going to
+                    // The users selection cross the header / body boundary - thats never going to
                     // work well
                     getAddCustomButton().setEnabled(false);
                     getRemoveCustomButton().setEnabled(false);

@@ -74,7 +74,7 @@ public abstract class PopupContextMenuItemHolder extends ExtensionPopupMenuMessa
      * @param parentName the parent menu's name
      */
     public PopupContextMenuItemHolder(String parentName) {
-        super("ContexMenuItemHolder");
+        super("ContextMenuItemHolder");
         this.parentName = parentName;
         this.visibleItself = false;
     }

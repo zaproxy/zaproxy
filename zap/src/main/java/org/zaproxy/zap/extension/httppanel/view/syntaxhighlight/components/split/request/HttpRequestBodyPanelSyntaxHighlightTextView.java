@@ -109,7 +109,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 
         private static RequestBodyTokenMakerFactory tokenMakerFactory = null;
 
-        private CaretVisibilityEnforcerOnFocusGain caretVisiblityEnforcer;
+        private CaretVisibilityEnforcerOnFocusGain caretVisibilityEnforcer;
 
         public HttpRequestBodyPanelSyntaxHighlightTextArea() {
             addSyntaxStyle(X_WWW_FORM_URLENCODED, SYNTAX_STYLE_X_WWW_FORM);
@@ -117,7 +117,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
             addSyntaxStyle(JSON, SyntaxConstants.SYNTAX_STYLE_JSON);
             addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
 
-            caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
+            caretVisibilityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
 
             setCodeFoldingAllowed(true);
         }
@@ -136,7 +136,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
         public void setMessage(Message aMessage) {
             super.setMessage(aMessage);
 
-            caretVisiblityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
+            caretVisibilityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
         }
 
         protected MessageLocation getSelection() {

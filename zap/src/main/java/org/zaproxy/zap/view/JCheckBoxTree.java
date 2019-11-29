@@ -44,7 +44,7 @@ import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
 /**
- * Orignially based on code from
+ * Originally based on code from
  * http://stackoverflow.com/questions/21847411/java-swing-need-a-good-quality-developed-jtree-with-checkboxes
  * Applied the JCheckBoxTree.this fix suggested in the comments Also added expandAll(),
  * collapseAll() and setCheckBoxEnabled(..)

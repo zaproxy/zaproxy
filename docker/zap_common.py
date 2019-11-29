@@ -272,7 +272,7 @@ def start_zap(port, extra_zap_params):
 def wait_for_zap_start(zap, timeout_in_secs = 600):
     version = None
     if not timeout_in_secs:
-        # if ZAP doesnt start in 10 mins then its probably not going to start
+        # if ZAP doesn't start in 10 mins then its probably not going to start
         timeout_in_secs = 600
 
     for x in range(0, timeout_in_secs):

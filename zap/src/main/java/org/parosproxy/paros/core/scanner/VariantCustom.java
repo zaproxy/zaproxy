@@ -234,7 +234,7 @@ public class VariantCustom implements Variant {
      * @param msg the message that need to be modified
      * @param originalPair the original {@code NameValuePair} being tested.
      * @param paramName the name of the parameter
-     * @param value the value thta should be set for this parameter
+     * @param value the value that should be set for this parameter
      * @param escaped true if the parameter has been already escaped
      * @return the value set as parameter
      */

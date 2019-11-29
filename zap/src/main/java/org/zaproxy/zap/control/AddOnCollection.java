@@ -205,7 +205,7 @@ public class AddOnCollection {
                                                                     + addOn.getId()
                                                                     + " version "
                                                                     + addOn.getVersion()
-                                                                    + " superceeded by "
+                                                                    + " superseded by "
                                                                     + ao.getVersion());
                                                     addOns.remove(addOn);
                                                 } else {

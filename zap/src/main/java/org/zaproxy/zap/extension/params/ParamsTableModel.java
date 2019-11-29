@@ -79,7 +79,7 @@ public class ParamsTableModel extends AbstractTableModel {
         if (row >= paramStats.size()) {
             return null;
         }
-        // TODO this doesnt work if resorted??
+        // TODO this doesn't work if resorted??
         HtmlParameterStats param = paramStats.get(row);
         switch (col) {
             case 0:
@@ -115,7 +115,7 @@ public class ParamsTableModel extends AbstractTableModel {
     }
 
     public HtmlParameterStats getHtmlParameterStatsAtRow(int row) {
-        // TODO this doesnt work if resorted??
+        // TODO this doesn't work if resorted??
         return paramStats.get(row);
     }
 

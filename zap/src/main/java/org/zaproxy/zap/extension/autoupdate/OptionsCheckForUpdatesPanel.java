@@ -308,7 +308,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
                     new TableModelListener() {
                         @Override
                         public void tableChanged(TableModelEvent e) {
-                            repopulatDownloadDirs();
+                            repopulateDownloadDirs();
                         }
                     });
         }
@@ -318,12 +318,12 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
     private JComboBox<String> getDownloadDirCombo() {
         if (downloadDir == null) {
             downloadDir = new JComboBox<String>();
-            repopulatDownloadDirs();
+            repopulateDownloadDirs();
         }
         return downloadDir;
     }
 
-    private void repopulatDownloadDirs() {
+    private void repopulateDownloadDirs() {
         // Save for later
         Object selectedItem = getDownloadDirCombo().getSelectedItem();
         getDownloadDirCombo().removeAllItems();

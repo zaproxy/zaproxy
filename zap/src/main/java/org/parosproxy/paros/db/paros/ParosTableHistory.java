@@ -142,7 +142,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
             psRead =
                     conn.prepareStatement(
                             "SELECT TOP 1 * FROM HISTORY WHERE " + HISTORYID + " = ?");
-            // updatable recordset does not work in hsqldb jdbc impelementation!
+            // updatable recordset does not work in hsqldb jdbc implementation!
             // psWrite = mConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
             // ResultSet.CONCUR_UPDATABLE);
             psDelete = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTORYID + " = ?");

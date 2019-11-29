@@ -96,7 +96,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
         }
 
         // Load the Session Management methods
-        this.loadSesssionManagementMethodTypes(extensionHook);
+        this.loadSessionManagementMethodTypes(extensionHook);
 
         // Register the api
         this.api = new SessionManagementAPI(this);
@@ -127,7 +127,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
      *
      * @param extensionHook the extension hook
      */
-    private void loadSesssionManagementMethodTypes(ExtensionHook extensionHook) {
+    private void loadSessionManagementMethodTypes(ExtensionHook extensionHook) {
         this.sessionManagementMethodTypes = new ArrayList<>();
         this.sessionManagementMethodTypes.add(new CookieBasedSessionManagementMethodType());
         this.sessionManagementMethodTypes.add(new HttpAuthSessionManagementMethodType());

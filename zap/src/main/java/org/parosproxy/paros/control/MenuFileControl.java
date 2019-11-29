@@ -35,7 +35,7 @@
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/08/05 Proper call for starting Session Properties dialog
-// ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
+// ZAP: 2013/08/28 Issue 695: Sites tree doesn't clear on new session created by API
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/01/29 Issue 1489: Version number in window title

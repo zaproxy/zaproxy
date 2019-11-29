@@ -366,7 +366,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     @Override
     public void run() {
-        // ZAP : set skipped to false otherwise the plugin shoud stop continously
+        // ZAP : set skipped to false otherwise the plugin should stop continuously
         // this.skipped = false;
 
         try {

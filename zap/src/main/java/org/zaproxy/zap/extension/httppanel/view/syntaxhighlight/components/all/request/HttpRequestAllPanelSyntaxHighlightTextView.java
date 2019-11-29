@@ -104,13 +104,13 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 
         private static RequestAllTokenMakerFactory tokenMakerFactory = null;
 
-        private CaretVisibilityEnforcerOnFocusGain caretVisiblityEnforcer;
+        private CaretVisibilityEnforcerOnFocusGain caretVisibilityEnforcer;
 
         public HttpRequestAllPanelSyntaxHighlightTextArea() {
             // addSyntaxStyle(HTTP_REQUEST_HEADER_AND_BODY,
             // SYNTAX_STYLE_HTTP_REQUEST_HEADER_AND_BODY);
 
-            caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
+            caretVisibilityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
         }
 
         @Override
@@ -122,7 +122,7 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
         public void setMessage(Message aMessage) {
             super.setMessage(aMessage);
 
-            caretVisiblityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
+            caretVisibilityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
         }
 
         protected MessageLocation getSelection() {

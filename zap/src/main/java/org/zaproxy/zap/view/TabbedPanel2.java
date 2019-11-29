@@ -621,7 +621,7 @@ public class TabbedPanel2 extends TabbedPanel {
 
     /**
      * Returns true if the tab is 'active' - ie is being used for anything. This method always
-     * returns false so must be overriden to be changed
+     * returns false so must be overridden to be changed
      *
      * @return {@code true} if the tab is active, {@code false} otherwise
      */

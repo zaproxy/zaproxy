@@ -78,7 +78,7 @@ public class OptionsParam extends AbstractParam {
     private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
     private OptionsParamApi apiParam = new OptionsParamApi();
     private GlobalExcludeURLParam globalExcludeURLParam = new GlobalExcludeURLParam();
-    private OptionsParamExperimentalSliSupport experimentalFeatuesParam =
+    private OptionsParamExperimentalSliSupport experimentalFeaturesParam =
             new OptionsParamExperimentalSliSupport();
 
     /** The database configurations. */
@@ -254,7 +254,7 @@ public class OptionsParam extends AbstractParam {
     }
 
     public OptionsParamExperimentalSliSupport getExperimentalFeaturesParam() {
-        return experimentalFeatuesParam;
+        return experimentalFeaturesParam;
     }
 
     /**

@@ -33,7 +33,7 @@ public class TimeDurationStringValue implements StringValue {
             new MessageFormat(
                     Constant.messages.getString("generic.value.time.duration.value.unit"));
 
-    // Use the same NumberFormat instance since the renderes are used in EDT only.
+    // Use the same NumberFormat instance since the renderers are used in EDT only.
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
 
     static {

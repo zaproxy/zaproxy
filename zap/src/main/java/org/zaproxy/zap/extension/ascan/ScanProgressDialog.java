@@ -188,7 +188,7 @@ public class ScanProgressDialog extends AbstractDialog {
             dataset.addSeries(series500);
 
             chart = createChart(dataset);
-            // Set up some vaguesly sensible colours
+            // Set up some vaguely sensible colours
             chart.getXYPlot().getRenderer(0).setSeriesPaint(0, Color.BLACK); // Totals
             chart.getXYPlot().getRenderer(0).setSeriesPaint(1, Color.GRAY); // 100: Info
             chart.getXYPlot().getRenderer(0).setSeriesPaint(2, Color.GREEN); // 200: OK

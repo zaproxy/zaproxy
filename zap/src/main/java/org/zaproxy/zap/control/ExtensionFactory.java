@@ -165,14 +165,14 @@ public class ExtensionFactory {
             log.debug(
                     "Not loading extension "
                             + extension.getName()
-                            + ": doesnt support "
+                            + ": doesn't support "
                             + Model.getSingleton().getDb().getType());
             extension.setEnabled(false);
         } else if (extension.supportsLowMemory() || !Constant.isLowMemoryOptionSet()) {
             log.debug(
                     "Not loading extension "
                             + extension.getName()
-                            + ": doesnt support low memory option");
+                            + ": doesn't support low memory option");
             extension.setEnabled(false);
         }
     }
