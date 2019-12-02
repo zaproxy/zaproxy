@@ -150,11 +150,6 @@ public class WikiAPIGenerator extends AbstractAPIGenerator {
         out.write(" | ");
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overridden by the getDescriptionTag method if
-            // required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
         try {
             out.write(getMessages().getString(descTag));
         } catch (Exception e) {

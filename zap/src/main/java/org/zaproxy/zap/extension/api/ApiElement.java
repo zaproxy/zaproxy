@@ -25,7 +25,7 @@ import java.util.List;
 public class ApiElement {
 
     private String name = null;
-    private String descriptionTag = null;
+    private String descriptionTag = "";
     private List<String> mandatoryParamNames = new ArrayList<>();
     private List<String> optionalParamNames = new ArrayList<>();
 
@@ -100,12 +100,17 @@ public class ApiElement {
         return mandatoryParamNames;
     }
 
+    /**
+     * Gets the description's resource key.
+     *
+     * @return the resource key, never {@code null} (since TODO add version).
+     */
     public String getDescriptionTag() {
         return descriptionTag;
     }
 
     public void setDescriptionTag(String descriptionTag) {
-        this.descriptionTag = descriptionTag;
+        this.descriptionTag = descriptionTag == null ? "" : descriptionTag;
     }
 
     public List<String> getOptionalParamNames() {
