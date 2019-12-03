@@ -107,11 +107,6 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
 
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overridden by the getDescriptionTag method if
-            // required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
         try {
             String desc = getMessages().getString(descTag);
             out.write("\t\t/// <summary>\n");

@@ -157,11 +157,6 @@ public class WebUI {
             }
 
             String descTag = element.getDescriptionTag();
-            if (descTag == null) {
-                // This is the default, but it can be overridden by the getDescriptionTag method if
-                // required
-                descTag = component + ".api." + type + "." + element.getName();
-            }
             if (Constant.messages.containsKey(descTag)) {
                 sb.append(Constant.messages.getString(descTag));
             } else {
@@ -250,13 +245,7 @@ public class WebUI {
                 sb.append(Constant.messages.getString("api.html." + reqType.name()));
                 sb.append(element.getName());
                 sb.append("</h3>\n");
-                // Handle the (optional) description
                 String descTag = element.getDescriptionTag();
-                if (descTag == null) {
-                    // This is the default, but it can be overridden by the getDescriptionTag method
-                    // if required
-                    descTag = component + ".api." + reqType.name() + "." + name;
-                }
                 if (Constant.messages.containsKey(descTag)) {
                     sb.append(Constant.messages.getString(descTag));
                 }
@@ -338,8 +327,7 @@ public class WebUI {
                     sb.append("</tr>\n");
                 }
 
-                String descKeyPrefix =
-                        component + ".api." + reqType.name() + "." + name + ".param.";
+                String descKeyPrefix = descTag + ".param.";
                 appendParams(descKeyPrefix, sb, mandatoryParams, true);
                 appendParams(descKeyPrefix, sb, optionalParams, false);
 
