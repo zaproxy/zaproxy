@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -622,12 +621,14 @@ public class API {
             return;
         }
 
-        List<String> mandatoryParams = element.getMandatoryParamNames();
-        if (mandatoryParams != null) {
-            for (String param : mandatoryParams) {
-                if (!params.has(param) || params.getString(param).length() == 0) {
-                    throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
-                }
+        for (ApiParameter parameter : element.getParameters()) {
+            if (!parameter.isRequired()) {
+                continue;
+            }
+
+            String name = parameter.getName();
+            if (!params.has(name) || params.getString(name).length() == 0) {
+                throw new ApiException(ApiException.Type.MISSING_PARAMETER, name);
             }
         }
     }

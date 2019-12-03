@@ -29,6 +29,7 @@ import java.nio.file.Paths;
 import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -113,14 +114,7 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
                 out.write(" */\n");
             }
         }
-        int paramCount = 0;
-        if (element.getMandatoryParamNames() != null) {
-            paramCount += element.getMandatoryParamNames().size();
-        }
-        if (element.getOptionalParamNames() != null) {
-            paramCount += element.getOptionalParamNames().size();
-        }
-
+        int paramCount = element.getParameters().size();
         if (paramCount > 6) {
             // Clippy defaults to 6, but we also have the service parameter
             out.write("#[allow(clippy::too_many_arguments)]\n");
@@ -128,19 +122,10 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
 
         out.write("pub fn " + getSafeName(element.getName()) + "(service: &ZapService");
 
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                out.write(", ");
-                out.write(getSafeName(param.toLowerCase()));
-                out.write(": String");
-            }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                out.write(", ");
-                out.write(getSafeName(param.toLowerCase()));
-                out.write(": String");
-            }
+        for (ApiParameter parameter : element.getParameters()) {
+            out.write(", ");
+            out.write(getSafeName(parameter.getName().toLowerCase(Locale.ROOT)));
+            out.write(": String");
         }
         out.write(") -> Result<Value, ZapApiError> {\n");
 
@@ -150,25 +135,10 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
             out.write("    let params = HashMap::new();\n");
         }
 
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                out.write(
-                        "    params.insert(\""
-                                + param
-                                + "\".to_string(), "
-                                + getSafeName(param.toLowerCase())
-                                + ");\n");
-            }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                out.write(
-                        "    params.insert(\""
-                                + param
-                                + "\".to_string(), "
-                                + getSafeName(param.toLowerCase())
-                                + ");\n");
-            }
+        for (ApiParameter parameter : element.getParameters()) {
+            String name = parameter.getName();
+            String varName = getSafeName(name.toLowerCase(Locale.ROOT));
+            out.write("    params.insert(\"" + name + "\".to_string(), " + varName + ");\n");
         }
 
         out.write(
