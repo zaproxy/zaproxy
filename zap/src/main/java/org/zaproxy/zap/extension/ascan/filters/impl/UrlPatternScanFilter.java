@@ -35,20 +35,18 @@ public class UrlPatternScanFilter extends AbstractGenericScanFilter<Pattern> {
 
     private static final String FILTER_TYPE = "scan.filter.filterType.URLPattern";
 
-    @Override
-    public FilterResult isFiltered(StructuralNode node) {
-        HistoryReference hRef = node.getHistoryReference();
-        if (hRef == null) {
-            return FilterResult.NOT_FILTERED;
-        }
-        return this.isFiltered(
-                this.getGenericFilterDataCollection(),
+    public UrlPatternScanFilter() {
+        super(
                 (patterns, value) ->
                         patterns.stream()
                                 .anyMatch(
-                                        (pattern) ->
-                                                pattern.matcher(hRef.getURI().toString())
-                                                        .matches()));
+                                        (pattern) -> pattern.matcher(value.toString()).matches()));
+    }
+
+    @Override
+    public FilterResult isFiltered(StructuralNode node) {
+        HistoryReference hRef = node.getHistoryReference();
+        return this.isFiltered(Pattern.compile(hRef.getURI().toString()));
     }
 
     public String getFilterType() {

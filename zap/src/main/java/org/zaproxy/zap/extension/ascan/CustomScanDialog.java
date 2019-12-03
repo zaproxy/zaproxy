@@ -34,7 +34,6 @@ import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.PatternSyntaxException;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -66,7 +65,6 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel.ScanPolicyChangedEventListener;
 import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
@@ -882,19 +880,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             contextSpecificObjects.add(scannerParam);
             contextSpecificObjects.add(techTreeState);
-            try {
-                List<ScanFilter> scanFilterList = filterPanel.getScanFilters();
-                for (ScanFilter scanFilter : scanFilterList) {
-                    contextSpecificObjects.add(scanFilter);
-                }
-            } catch (PatternSyntaxException e1) {
-                // Invalid regex
-                View.getSingleton()
-                        .showWarningDialog(
-                                this,
-                                Constant.messages.getString(
-                                        "scan.filter.badregex.warning", e1.getMessage()));
-                throw e1;
+            List<ScanFilter> scanFilterList = filterPanel.getScanFilters();
+            for (ScanFilter scanFilter : scanFilterList) {
+                contextSpecificObjects.add(scanFilter);
             }
 
             if (this.customPanels != null) {
@@ -932,6 +920,13 @@ public class CustomScanDialog extends StandardFieldsDialog {
         if (Control.Mode.safe == Control.getSingleton().getMode()) {
             // The dialogue shouldn't be shown when in safe mode but if it is warn.
             return Constant.messages.getString("ascan.custom.notSafe.error");
+        }
+
+        if (this.filterPanel != null) {
+            String fail = this.filterPanel.validateFields();
+            if (fail != null) {
+                return fail;
+            }
         }
 
         if (this.customPanels != null) {

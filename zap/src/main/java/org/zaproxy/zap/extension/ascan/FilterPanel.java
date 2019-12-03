@@ -469,28 +469,35 @@ public class FilterPanel extends JPanel {
         this.setAllTags(new ArrayList<String>(tags));
     }
 
+    public String validateFields() {
+        try {
+            strToRegexList(regexInc.getText());
+            strToRegexList(regexExc.getText());
+        } catch (PatternSyntaxException e1) {
+            // Invalid regex
+            return Constant.messages.getString("scan.filter.badregex.warning", e1.getMessage());
+        }
+        return null;
+    }
+
     public List<ScanFilter> getScanFilters() {
         List<ScanFilter> scanFilterList = new ArrayList<>();
-        try {
-            scanFilterList.addAll(
-                    GenericFilterUtility.getScanFilter(
-                            incTagList.getSelectedValuesList(),
-                            excTagList.getSelectedValuesList(),
-                            TagScanFilter::new));
-            scanFilterList.addAll(
-                    GenericFilterUtility.getScanFilter(
-                            methodList.getSelectedValuesList(), null, MethodScanFilter::new));
-            scanFilterList.addAll(
-                    GenericFilterUtility.getScanFilter(
-                            codeList.getSelectedValuesList(), null, HttpStatusCodeScanFilter::new));
-            scanFilterList.addAll(
-                    GenericFilterUtility.getScanFilter(
-                            strToRegexList(regexInc.getText()),
-                            strToRegexList(regexExc.getText()),
-                            UrlPatternScanFilter::new));
-        } catch (PatternSyntaxException e1) {
-            throw e1;
-        }
+        scanFilterList.addAll(
+                GenericFilterUtility.createScanFilter(
+                        incTagList.getSelectedValuesList(),
+                        excTagList.getSelectedValuesList(),
+                        TagScanFilter::new));
+        scanFilterList.addAll(
+                GenericFilterUtility.createScanFilter(
+                        methodList.getSelectedValuesList(), null, MethodScanFilter::new));
+        scanFilterList.addAll(
+                GenericFilterUtility.createScanFilter(
+                        codeList.getSelectedValuesList(), null, HttpStatusCodeScanFilter::new));
+        scanFilterList.addAll(
+                GenericFilterUtility.createScanFilter(
+                        strToRegexList(regexInc.getText()),
+                        strToRegexList(regexExc.getText()),
+                        UrlPatternScanFilter::new));
         return scanFilterList;
     }
 }

@@ -37,12 +37,8 @@ public class HttpStatusCodeScanFilter extends AbstractGenericScanFilter<Integer>
     @Override
     public FilterResult isFiltered(StructuralNode node) {
         HistoryReference href = node.getHistoryReference();
-        if (href != null) {
-            int statusCode = href.getStatusCode();
-            return this.isFiltered(statusCode, null);
-        } else {
-            return FilterResult.NOT_FILTERED;
-        }
+        int statusCode = href.getStatusCode();
+        return this.isFiltered(statusCode);
     }
 
     @Override

@@ -37,12 +37,9 @@ public class MethodScanFilter extends AbstractGenericScanFilter<String> {
     @Override
     public FilterResult isFiltered(StructuralNode node) {
         HistoryReference href = node.getHistoryReference();
-        if (href != null) {
-            String httpMethod = href.getMethod();
-            return this.isFiltered(httpMethod, null);
-        } else {
-            return FilterResult.NOT_FILTERED;
-        }
+
+        String httpMethod = href.getMethod();
+        return this.isFiltered(httpMethod);
     }
 
     @Override

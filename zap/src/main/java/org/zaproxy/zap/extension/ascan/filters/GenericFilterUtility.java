@@ -40,20 +40,20 @@ public class GenericFilterUtility {
      * @param constructor of the ScanFilter to be populated
      * @return List of <R> type
      */
-    public static <T, R extends AbstractGenericScanFilter<T>> List<R> getScanFilter(
+    public static <T, R extends AbstractGenericScanFilter<T>> List<R> createScanFilter(
             List<T> incList, List<T> excList, Supplier<R> constructor) {
         List<R> scanFilterList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(incList)) {
             R abstractScanFilter = constructor.get();
             abstractScanFilter.setFilterCriteria(FilterCriteria.INCLUDE);
-            abstractScanFilter.getGenericFilterDataCollection().addAll(incList);
+            abstractScanFilter.getFilterData().addAll(incList);
             scanFilterList.add(abstractScanFilter);
         }
 
         if (!CollectionUtils.isEmpty(excList)) {
             R abstractScanFilter = constructor.get();
             abstractScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
-            abstractScanFilter.getGenericFilterDataCollection().addAll(excList);
+            abstractScanFilter.getFilterData().addAll(excList);
             scanFilterList.add(abstractScanFilter);
         }
         return scanFilterList;

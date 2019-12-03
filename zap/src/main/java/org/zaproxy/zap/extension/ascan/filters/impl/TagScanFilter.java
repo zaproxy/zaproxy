@@ -26,7 +26,7 @@ import org.zaproxy.zap.extension.ascan.filters.FilterResult;
 import org.zaproxy.zap.model.StructuralNode;
 
 /**
- * ScanFilter implementation for filtering based on Tags associated with the Node.
+ * ScanFilter implementation for filtering based on Tags associated with the Message.
  *
  * @author KSASAN preetkaran20@gmail.com
  * @since 2.9.0
@@ -38,12 +38,9 @@ public class TagScanFilter extends AbstractGenericScanFilter<String> {
     @Override
     public FilterResult isFiltered(StructuralNode node) {
         HistoryReference href = node.getHistoryReference();
-        if (href != null) {
-            List<String> nodeTags = href.getTags();
-            return this.isFiltered(nodeTags, null);
-        } else {
-            return FilterResult.NOT_FILTERED;
-        }
+
+        List<String> nodeTags = href.getTags();
+        return this.isFiltered(nodeTags);
     }
 
     @Override

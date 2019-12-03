@@ -42,13 +42,22 @@ public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
     public static final String EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY =
             "scan.filter.filtercriteria.exclude";
 
-    private BiPredicate<Collection<T>, T> matcher =
-            (genericFilterDataCollection, value) -> {
-                return genericFilterDataCollection.contains(value);
-            };
+    private BiPredicate<Collection<T>, T> matcher;
+
     private FilterCriteria filterCriteria = FilterCriteria.INCLUDE;
 
-    private Collection<T> genericFilterDataCollection = new LinkedHashSet<>();
+    private Collection<T> filterData = new LinkedHashSet<>();
+
+    public AbstractGenericScanFilter() {
+        this.matcher =
+                (filterData, value) -> {
+                    return filterData.contains(value);
+                };
+    }
+
+    public AbstractGenericScanFilter(BiPredicate<Collection<T>, T> matcher) {
+        this.matcher = matcher;
+    }
 
     public abstract String getFilterType();
 
@@ -61,29 +70,27 @@ public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
         this.filterCriteria = filterCriteria;
     }
 
-    public Collection<T> getGenericFilterDataCollection() {
-        return genericFilterDataCollection;
+    public Collection<T> getFilterData() {
+        return filterData;
     }
 
-    public void setGenericFilterDataCollection(Collection<T> genericFilterDataCollection) {
-        Objects.requireNonNull(genericFilterDataCollection);
-        this.genericFilterDataCollection.addAll(genericFilterDataCollection);
+    public void setFilterData(Collection<T> filterData) {
+        Objects.requireNonNull(filterData);
+        this.filterData = filterData;
     }
 
-    public <R extends BiPredicate<Collection<T>, T>> FilterResult isFiltered(
-            Collection<T> values, R providedMatcher) {
+    protected <R extends BiPredicate<Collection<T>, T>> FilterResult isFiltered(
+            Collection<T> values) {
         Objects.requireNonNull(values);
-        FilterCriteria filterCriteria = this.getFilterCriteria();
-        if (providedMatcher != null) {
-            matcher = providedMatcher;
+
+        if (filterData.isEmpty()) {
+            return FilterResult.NOT_FILTERED;
         }
+
+        FilterCriteria filterCriteria = this.getFilterCriteria();
         switch (filterCriteria) {
             case INCLUDE:
-                if (genericFilterDataCollection.isEmpty()) {
-                    return FilterResult.NOT_FILTERED;
-                }
-                if (values.stream()
-                        .anyMatch(value -> matcher.test(genericFilterDataCollection, value))) {
+                if (values.stream().anyMatch(value -> matcher.test(filterData, value))) {
                     return FilterResult.NOT_FILTERED;
                 }
 
@@ -91,10 +98,10 @@ public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
                         Constant.messages.getString(
                                 INCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
                                 this.getFilterType(),
-                                genericFilterDataCollection));
+                                filterData));
             case EXCLUDE:
                 for (T value : values) {
-                    if (matcher.test(genericFilterDataCollection, value)) {
+                    if (matcher.test(filterData, value)) {
                         return new FilterResult(
                                 Constant.messages.getString(
                                         EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY,
@@ -108,10 +115,10 @@ public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
         }
     }
 
-    public <R extends BiPredicate<Collection<T>, T>> FilterResult isFiltered(T value, R matcher) {
+    protected <R extends BiPredicate<Collection<T>, T>> FilterResult isFiltered(T value) {
         Objects.requireNonNull(value);
         Set<T> nodeValues = new LinkedHashSet<>();
         nodeValues.add(value);
-        return this.isFiltered(nodeValues, matcher);
+        return this.isFiltered(nodeValues);
     }
 }
