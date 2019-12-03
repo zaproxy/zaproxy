@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.anticsrf;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.configuration.ConversionException;
@@ -87,14 +88,24 @@ public class AntiCsrfParam extends AbstractParam {
             this.enabledTokensNames = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
         }
 
-        if (this.tokens.size() == 0) {
-            for (String tokenName : DEFAULT_TOKENS_NAMES) {
-                this.tokens.add(new AntiCsrfParamToken(tokenName));
-                this.enabledTokensNames.add(tokenName);
-            }
-        }
+        addMissingTokens();
 
         this.confirmRemoveToken = getBoolean(CONFIRM_REMOVE_TOKEN_KEY, true);
+    }
+
+    /**
+     * Adds Anti-CSRF tokens if the existing list doesn't already contain all the defaults.
+     *
+     * @see #addToken(String)
+     */
+    private void addMissingTokens() {
+        List<String> defaultTokensNames = Arrays.asList(DEFAULT_TOKENS_NAMES);
+        if (getTokensNames().containsAll(defaultTokensNames)) {
+            return;
+        }
+        defaultTokensNames.forEach((token) -> addToken(token));
+
+        setTokens(tokens);
     }
 
     @ZapApiIgnore
