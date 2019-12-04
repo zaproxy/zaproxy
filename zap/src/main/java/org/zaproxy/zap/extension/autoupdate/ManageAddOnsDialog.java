@@ -273,9 +273,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
             } else {
                 corePanel.add(
                         new JLabel(
-                                this.currentVersion
-                                        + " : "
-                                        + Constant.messages.getString("cfu.check.zap.latest")),
+                                Constant.messages.getString(
+                                        "cfu.check.zap.latest", this.currentVersion)),
                         LayoutHelper.getGBC(0, 0, 1, 1.0D));
             }
             installedPanel.validate();
