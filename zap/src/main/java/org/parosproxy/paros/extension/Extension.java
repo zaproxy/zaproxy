@@ -296,9 +296,9 @@ public interface Extension {
 
     /**
      * Implement this method to perform tasks after the add-on is installed. Note that this will
-     * only be called if the user adds the add-on via ZAP, e.g. file the File menu or the Marketplace.
-     * If the add-on is installed by copying the file to the plugins directory then it will not be
-     * called.
+     * only be called if the user adds the add-on via ZAP, e.g. file the File menu or the
+     * Marketplace. If the add-on is installed by copying the file to the plugins directory then it
+     * will not be called.
      *
      * @since 2.3.0
      * @see #postInit()

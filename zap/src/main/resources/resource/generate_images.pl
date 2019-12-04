@@ -21,8 +21,8 @@ use File::Glob qw(bsd_glob);
 	16, 32, 64, 128, 256, 512, 1024, # the standard sizes of .png files.
 );
 
-$base="zap";     # basename of png files, ex; zap16x16_bw.png --> zap
-$suffix="";      # suffix of png files, ex; zap16x16_bw.png --> _bw
+$base="zap";     # basename of png files, e.g.; zap16x16_bw.png --> zap
+$suffix="";      # suffix of png files, e.g.; zap16x16_bw.png --> _bw
 
 $final_icns_name="ZAP";  # ZAP in caps
 $final_ico_name="zap";   # ZAP in lower case
