@@ -179,7 +179,7 @@ public class HttpInputStream extends BufferedInputStream {
                 body.append(mBuffer, len);
             }
         } catch (IOException e) {
-            // read until IO error occur - eg connection close
+            // read until IO error occur - e.g. connection close
         }
     }
 

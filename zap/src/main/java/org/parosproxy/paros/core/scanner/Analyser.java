@@ -313,7 +313,7 @@ public class Analyser {
      *
      * @param node the node used to construct the random path
      * @param uri The uri of the current entity.
-     * @return A random path (eg /folder1/folder2/1234567.chm) relative the entity.
+     * @return A random path (e.g. /folder1/folder2/1234567.chm) relative the entity.
      * @throws URIException if unable to decode the path of the given URI
      */
     private String getRandomPathSuffix(StructuralNode node, URI uri) throws URIException {

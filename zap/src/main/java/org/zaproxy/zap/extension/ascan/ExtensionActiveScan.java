@@ -649,7 +649,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor
             policyManagerDialog = new PolicyManagerDialog(getView().getMainFrame());
             policyManagerDialog.init(this);
         }
-        // The policy names _may_ have changed, eg via the api
+        // The policy names _may_ have changed, e.g. via the api
         policyManagerDialog.policyNamesChanged();
         policyManagerDialog.setVisible(true);
     }

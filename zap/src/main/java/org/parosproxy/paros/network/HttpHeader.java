@@ -281,7 +281,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Return the HTTP version (eg HTTP/1.0, HTTP/1.1)
+     * Return the HTTP version (e.g. HTTP/1.0, HTTP/1.1)
      *
      * @return
      */

@@ -123,10 +123,10 @@ public interface Extension {
 
     ViewDelegate getView();
 
-    /** Start the plugin eg if there is a running server. */
+    /** Start the plugin e.g. if there is a running server. */
     void start();
 
-    /** stop the plugin eg if there is a running server. */
+    /** stop the plugin e.g. if there is a running server. */
     void stop();
 
     /**
@@ -296,7 +296,7 @@ public interface Extension {
 
     /**
      * Implement this method to perform tasks after the add-on is installed. Note that this will
-     * only be called if the user adds the add-on via ZAP, eg file the File menu or the Marketplace.
+     * only be called if the user adds the add-on via ZAP, e.g. file the File menu or the Marketplace.
      * If the add-on is installed by copying the file to the plugins directory then it will not be
      * called.
      *

@@ -32,7 +32,7 @@ mkdir $dir;
 
 @square_sizes = ( 16, 32, 64, 128, 256, 512, 1024);
 while ( $i = shift @square_sizes ) {
-	#$orig = sprintf "%s%d%s.png", $base, $i, $suffix;  # ex: zap16bw.png
+	#$orig = sprintf "%s%d%s.png", $base, $i, $suffix;  # e.g.: zap16bw.png
 	$orig = sprintf "%s%dx%d%s.png", $base, $i, $i, $suffix;
 	$new = sprintf "%s/icon_%dx%d.png", $dir, $i, $i;
 	copy $orig, $new;

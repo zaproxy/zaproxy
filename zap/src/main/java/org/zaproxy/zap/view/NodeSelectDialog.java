@@ -72,7 +72,7 @@ public class NodeSelectDialog extends AbstractDialog {
      * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
      */
     public NodeSelectDialog(Window parent) throws HeadlessException {
-        super(parent, true); // Modal, ie always on top
+        super(parent, true); // Modal, i.e. always on top
         initialize();
     }
 
