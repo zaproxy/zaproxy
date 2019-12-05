@@ -149,7 +149,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                         extension,
                         Constant.messages.getString("ascan.custom.tab.policy"),
                         new ScanPolicy());
-
+        this.filterPanel = new FilterPanel(null);
         addWindowListener(
                 new WindowAdapter() {
 
@@ -260,7 +260,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.setCustomTabPanel(4, policyPanel);
 
         // Filter panel
-        this.setCustomTabPanel(5, getFilterJPanel(target));
+        this.filterPanel.resetFilterPanel(target);
+        this.setCustomTabPanel(5, this.filterPanel);
 
         // add custom panels
         int cIndex = 6;
@@ -647,16 +648,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
         return techPanel;
     }
 
-    private JPanel getFilterJPanel(Target target) {
-        if (this.filterPanel == null) {
-            filterPanel = new FilterPanel(target);
-        } else {
-            filterPanel.resetFilterPanel(target);
-        }
-
-        return filterPanel;
-    }
-
     private TechnologyTreePanel getTechTree() {
         if (techTree == null) {
             techTree =
@@ -921,17 +912,15 @@ public class CustomScanDialog extends StandardFieldsDialog {
             return Constant.messages.getString("ascan.custom.notSafe.error");
         }
 
-        if (this.filterPanel != null) {
-            String errorMessage = this.filterPanel.validateFields();
-            if (errorMessage != null) {
-                return errorMessage;
-            }
+        String errorMessage = this.filterPanel.validateFields();
+        if (errorMessage != null) {
+            return errorMessage;
         }
 
         if (this.customPanels != null) {
             // Check all custom panels validate ok
             for (CustomScanPanel customPanel : this.customPanels) {
-                String errorMessage = customPanel.validateFields();
+                errorMessage = customPanel.validateFields();
                 if (errorMessage != null) {
                     return errorMessage;
                 }
