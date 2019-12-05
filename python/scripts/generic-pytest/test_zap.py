@@ -26,7 +26,7 @@
 # However its more effective if you start ZAP, then proxy existing functional
 # test via ZAP before running the spider and scanner.
 # That means you might need to start ZAP in one test, run your functional tests
-# and then run the spider and scanner etc in another (sequential) test.
+# and then run the spider and scanner, etc. in another (sequential) test.
 
 import ast
 import copy

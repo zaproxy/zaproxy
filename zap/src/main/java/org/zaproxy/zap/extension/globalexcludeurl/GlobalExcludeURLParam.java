@@ -163,7 +163,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
                 "Site - Firefox h264 codec download", // https://support.mozilla.org/t5/Firefox/Where-is-a-check-that-http-ciscobinary-openh264-org-openh264-is/m-p/1316497#M1005892
                 "false"
             },
-            {"^https?://fonts.*$", "Site - Fonts CDNs such as fonts.gstatic.com, etc", "false"},
+            {"^https?://fonts.*$", "Site - Fonts CDNs such as fonts.gstatic.com, etc.", "false"},
             {
                 "^https?://.*\\.cdn\\.mozilla\\.(?:com|org|net)/.*$",
                 "Site - Mozilla CDN (requests such as getpocket)",

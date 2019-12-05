@@ -229,7 +229,7 @@ public class SessionStructure {
         if (sn.isLeaf()) {
             int colonIndex = name.indexOf(":");
             if (colonIndex > 0) {
-                // Strip the GET/POST etc off
+                // Strip the GET/POST/etc. off
                 name = name.substring(colonIndex + 1);
             }
         }

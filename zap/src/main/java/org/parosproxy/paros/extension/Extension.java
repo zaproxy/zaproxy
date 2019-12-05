@@ -130,7 +130,7 @@ public interface Extension {
     void stop();
 
     /**
-     * Plugin cleanup, finalize etc when program shutdown. Stop() will be called before shutdown.
+     * Plugin cleanup, finalize, etc. when program shutdown. Stop() will be called before shutdown.
      */
     void destroy();
 

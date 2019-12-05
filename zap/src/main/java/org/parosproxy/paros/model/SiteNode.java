@@ -265,7 +265,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         if (this.isLeaf()) {
             int colonIndex = name.indexOf(":");
             if (colonIndex > 0) {
-                // Strip the GET/POST etc off
+                // Strip the GET/POST/etc. off
                 name = name.substring(colonIndex + 1);
             }
         }
@@ -285,7 +285,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         } else if (this.isLeaf()) {
             int colonIndex = name.indexOf(":");
             if (colonIndex > 0) {
-                // Strip the GET/POST etc off
+                // Strip the GET/POST/etc. off
                 name = name.substring(colonIndex + 1);
             }
             int bracketIndex = name.lastIndexOf("(");
