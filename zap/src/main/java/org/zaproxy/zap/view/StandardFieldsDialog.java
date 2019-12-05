@@ -332,10 +332,10 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                 contentPanel.add(getHelpButton(helpIndex), LayoutHelper.getGBC(0, 1, 1, 0.0D));
             }
             contentPanel.add(new JLabel(), LayoutHelper.getGBC(1, 1, 1, 1.0D)); // spacer
+            contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
             if (hasCancelSaveButtons()) {
-                contentPanel.add(getCancelButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
+                contentPanel.add(getCancelButton(), LayoutHelper.getGBC(3, 1, 1, 0.0D));
             }
-            contentPanel.add(getSaveButton(), LayoutHelper.getGBC(3, 1, 1, 0.0D));
         } else {
             contentPanel.add(
                     component, LayoutHelper.getGBC(0, 0, 4 + extraButtons.length, 1.0D, 1.0D));
@@ -343,15 +343,15 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                 contentPanel.add(getHelpButton(helpIndex), LayoutHelper.getGBC(0, 1, 1, 0.0D));
             }
             contentPanel.add(new JLabel(), LayoutHelper.getGBC(1, 1, 1, 1.0D)); // spacer
-            if (hasCancelSaveButtons()) {
-                contentPanel.add(getCancelButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
-            }
+            contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
             int x = 3;
             for (JButton button : extraButtons) {
                 contentPanel.add(button, LayoutHelper.getGBC(x, 1, 1, 0.0D));
                 x++;
             }
-            contentPanel.add(getSaveButton(), LayoutHelper.getGBC(x, 1, 1, 0.0D));
+            if (hasCancelSaveButtons()) {
+                contentPanel.add(getCancelButton(), LayoutHelper.getGBC(x, 1, 1, 0.0D));
+            }
         }
     }
 
