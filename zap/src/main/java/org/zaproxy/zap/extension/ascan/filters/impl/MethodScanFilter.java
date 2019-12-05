@@ -30,7 +30,7 @@ import org.zaproxy.zap.model.StructuralNode;
  * @author KSASAN preetkaran20@gmail.com
  * @since 2.9.0
  */
-public class MethodScanFilter extends AbstractGenericScanFilter<String> {
+public class MethodScanFilter extends AbstractGenericScanFilter<String, String> {
 
     private static final String FILTER_TYPE = "scan.filter.filterType.HttpMethod";
 

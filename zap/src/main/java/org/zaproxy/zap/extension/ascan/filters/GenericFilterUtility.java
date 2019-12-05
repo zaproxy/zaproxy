@@ -40,7 +40,7 @@ public class GenericFilterUtility {
      * @param constructor of the ScanFilter to be populated
      * @return List of <R> type
      */
-    public static <T, R extends AbstractGenericScanFilter<T>> List<R> createScanFilter(
+    public static <T, V, R extends AbstractGenericScanFilter<T, V>> List<R> createScanFilter(
             List<T> incList, List<T> excList, Supplier<R> constructor) {
         List<R> scanFilterList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(incList)) {

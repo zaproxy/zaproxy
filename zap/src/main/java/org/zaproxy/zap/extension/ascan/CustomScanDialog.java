@@ -158,7 +158,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
                         scanPolicy = null;
                     }
                 });
-
         // The first time init to the default options set, after that keep own copies
         reset(false);
     }
@@ -923,18 +922,18 @@ public class CustomScanDialog extends StandardFieldsDialog {
         }
 
         if (this.filterPanel != null) {
-            String fail = this.filterPanel.validateFields();
-            if (fail != null) {
-                return fail;
+            String errorMessage = this.filterPanel.validateFields();
+            if (errorMessage != null) {
+                return errorMessage;
             }
         }
 
         if (this.customPanels != null) {
             // Check all custom panels validate ok
             for (CustomScanPanel customPanel : this.customPanels) {
-                String fail = customPanel.validateFields();
-                if (fail != null) {
-                    return fail;
+                String errorMessage = customPanel.validateFields();
+                if (errorMessage != null) {
+                    return errorMessage;
                 }
             }
             // Check if they support a custom target

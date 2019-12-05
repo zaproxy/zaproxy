@@ -63,7 +63,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * @author KSASAN preetkaran20@gmail.com
  * @since TODO add version
  */
-public class FilterPanel extends JPanel {
+class FilterPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
@@ -474,7 +474,6 @@ public class FilterPanel extends JPanel {
             strToRegexList(regexInc.getText());
             strToRegexList(regexExc.getText());
         } catch (PatternSyntaxException e1) {
-            // Invalid regex
             return Constant.messages.getString("scan.filter.badregex.warning", e1.getMessage());
         }
         return null;

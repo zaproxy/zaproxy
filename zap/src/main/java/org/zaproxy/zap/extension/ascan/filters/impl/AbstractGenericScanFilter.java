@@ -35,27 +35,27 @@ import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
  * @author KSASAN preetkaran20@gmail.com
  * @since 2.9.0
  */
-public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
+public abstract class AbstractGenericScanFilter<T, V> implements ScanFilter {
 
     public static final String INCLUDE_FILTER_CRITERIA_MESSAGE_KEY =
             "scan.filter.filtercriteria.include";
     public static final String EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY =
             "scan.filter.filtercriteria.exclude";
 
-    private BiPredicate<Collection<T>, T> matcher;
+    private BiPredicate<Collection<T>, V> matcher;
 
     private FilterCriteria filterCriteria = FilterCriteria.INCLUDE;
 
     private Collection<T> filterData = new LinkedHashSet<>();
 
     public AbstractGenericScanFilter() {
-        this.matcher =
+        this(
                 (filterData, value) -> {
-                    return filterData.contains(value);
-                };
+                    return filterData.contains((Object) value);
+                });
     }
 
-    public AbstractGenericScanFilter(BiPredicate<Collection<T>, T> matcher) {
+    public AbstractGenericScanFilter(BiPredicate<Collection<T>, V> matcher) {
         this.matcher = matcher;
     }
 
@@ -79,8 +79,7 @@ public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
         this.filterData = filterData;
     }
 
-    protected <R extends BiPredicate<Collection<T>, T>> FilterResult isFiltered(
-            Collection<T> values) {
+    protected FilterResult isFiltered(Collection<V> values) {
         Objects.requireNonNull(values);
 
         if (filterData.isEmpty()) {
@@ -100,7 +99,7 @@ public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
                                 this.getFilterType(),
                                 filterData));
             case EXCLUDE:
-                for (T value : values) {
+                for (V value : values) {
                     if (matcher.test(filterData, value)) {
                         return new FilterResult(
                                 Constant.messages.getString(
@@ -115,9 +114,9 @@ public abstract class AbstractGenericScanFilter<T> implements ScanFilter {
         }
     }
 
-    protected <R extends BiPredicate<Collection<T>, T>> FilterResult isFiltered(T value) {
+    protected FilterResult isFiltered(V value) {
         Objects.requireNonNull(value);
-        Set<T> nodeValues = new LinkedHashSet<>();
+        Set<V> nodeValues = new LinkedHashSet<>();
         nodeValues.add(value);
         return this.isFiltered(nodeValues);
     }

@@ -31,22 +31,20 @@ import org.zaproxy.zap.model.StructuralNode;
  * @author KSASAN preetkaran20@gmail.com
  * @since 2.9.0
  */
-public class UrlPatternScanFilter extends AbstractGenericScanFilter<Pattern> {
+public class UrlPatternScanFilter extends AbstractGenericScanFilter<Pattern, String> {
 
     private static final String FILTER_TYPE = "scan.filter.filterType.URLPattern";
 
     public UrlPatternScanFilter() {
         super(
                 (patterns, value) ->
-                        patterns.stream()
-                                .anyMatch(
-                                        (pattern) -> pattern.matcher(value.toString()).matches()));
+                        patterns.stream().anyMatch((pattern) -> pattern.matcher(value).matches()));
     }
 
     @Override
     public FilterResult isFiltered(StructuralNode node) {
         HistoryReference hRef = node.getHistoryReference();
-        return this.isFiltered(Pattern.compile(hRef.getURI().toString()));
+        return this.isFiltered(hRef.getURI().toString());
     }
 
     public String getFilterType() {

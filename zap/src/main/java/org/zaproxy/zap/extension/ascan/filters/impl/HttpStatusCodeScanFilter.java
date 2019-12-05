@@ -30,7 +30,7 @@ import org.zaproxy.zap.model.StructuralNode;
  * @author KSASAN preetkaran20@gmail.com
  * @since 2.9.0
  */
-public class HttpStatusCodeScanFilter extends AbstractGenericScanFilter<Integer> {
+public class HttpStatusCodeScanFilter extends AbstractGenericScanFilter<Integer, Integer> {
 
     private static final String FILTER_TYPE = "scan.filter.filterType.HttpStatusCode";
 

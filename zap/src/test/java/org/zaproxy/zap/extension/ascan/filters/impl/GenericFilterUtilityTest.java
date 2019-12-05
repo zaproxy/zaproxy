@@ -34,12 +34,12 @@ import org.zaproxy.zap.model.StructuralNode;
 /** @author KSASAN preetkaran20@gmail.com */
 public class GenericFilterUtilityTest extends WithConfigsTest {
 
-    private AbstractGenericScanFilter<String> abstractGenericScanFilter;
+    private AbstractGenericScanFilter<String, String> abstractGenericScanFilter;
 
     @Before
     public void init() {
         abstractGenericScanFilter =
-                new AbstractGenericScanFilter<String>() {
+                new AbstractGenericScanFilter<String, String>() {
 
                     @Override
                     public FilterResult isFiltered(StructuralNode node) {
@@ -54,21 +54,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testEmptyMessageValuesAndFilterValuesIncludeCriteria() {
-        // Given
-        List<String> genericFilterData = new ArrayList<String>();
-        abstractGenericScanFilter.setFilterData(genericFilterData);
-
-        Set<String> messageValues = new HashSet<>();
-        // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
-
-        // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
-    }
-
-    @Test
-    public void testEmptyMessageValuesIncludeCriteria() {
+    public void testEmptyFilterValuesIncludeCriteria() {
         // Given
         List<String> genericFilterData = new ArrayList<String>();
         abstractGenericScanFilter.setFilterData(genericFilterData);
