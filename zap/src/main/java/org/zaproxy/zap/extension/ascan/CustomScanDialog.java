@@ -149,7 +149,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                         extension,
                         Constant.messages.getString("ascan.custom.tab.policy"),
                         new ScanPolicy());
-        this.filterPanel = new FilterPanel(null);
+        this.filterPanel = new FilterPanel();
         addWindowListener(
                 new WindowAdapter() {
 

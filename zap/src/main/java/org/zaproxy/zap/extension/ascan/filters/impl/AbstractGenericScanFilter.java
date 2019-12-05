@@ -49,10 +49,7 @@ public abstract class AbstractGenericScanFilter<T, V> implements ScanFilter {
     private Collection<T> filterData = new LinkedHashSet<>();
 
     public AbstractGenericScanFilter() {
-        this(
-                (filterData, value) -> {
-                    return filterData.contains((Object) value);
-                });
+        this((filterData, value) -> filterData.contains((Object) value));
     }
 
     public AbstractGenericScanFilter(BiPredicate<Collection<T>, V> matcher) {

@@ -90,7 +90,7 @@ class FilterPanel extends JPanel {
     private JScrollPane urlRegxExcScroller = null;
 
     // Constructs and Initializes the Panel
-    public FilterPanel(Target target) {
+    public FilterPanel() {
         GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
         java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 
@@ -129,7 +129,6 @@ class FilterPanel extends JPanel {
         this.add(descLabel, gridBagConstraints11);
         this.add(getJPanel2(), gridBagConstraints12);
         this.add(getJPanel1(), gridBagConstraints6);
-        this.populateTagsInFilterPanel(target);
     }
 
     private List<Pattern> strToRegexList(String str) throws PatternSyntaxException {
