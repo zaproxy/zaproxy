@@ -42,7 +42,7 @@ public abstract class AbstractGenericScanFilter<T, V> implements ScanFilter {
     public static final String EXCLUDE_FILTER_CRITERIA_MESSAGE_KEY =
             "scan.filter.filtercriteria.exclude";
 
-    private BiPredicate<Collection<T>, V> matcher;
+    private final BiPredicate<Collection<T>, V> matcher;
 
     private FilterCriteria filterCriteria = FilterCriteria.INCLUDE;
 
