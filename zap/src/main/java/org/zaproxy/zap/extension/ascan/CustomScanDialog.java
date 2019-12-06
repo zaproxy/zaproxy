@@ -66,6 +66,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
 import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel.ScanPolicyChangedEventListener;
+import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
@@ -85,7 +86,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
         "ascan.custom.tab.input",
         "ascan.custom.tab.custom",
         "ascan.custom.tab.tech",
-        "ascan.custom.tab.policy"
+        "ascan.custom.tab.policy",
+        "ascan.custom.tab.filter"
     };
 
     private static final String FIELD_START = "ascan.custom.label.start";
@@ -114,6 +116,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     private JPanel customPanel = null;
     private JPanel techPanel = null;
+    private FilterPanel filterPanel = null;
     private ZapTextArea requestField = null;
     private JButton addCustomButton = null;
     private JButton removeCustomButton = null;
@@ -146,7 +149,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                         extension,
                         Constant.messages.getString("ascan.custom.tab.policy"),
                         new ScanPolicy());
-
+        this.filterPanel = new FilterPanel();
         addWindowListener(
                 new WindowAdapter() {
 
@@ -155,7 +158,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
                         scanPolicy = null;
                     }
                 });
-
         // The first time init to the default options set, after that keep own copies
         reset(false);
     }
@@ -257,8 +259,12 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         this.setCustomTabPanel(4, policyPanel);
 
+        // Filter panel
+        this.filterPanel.resetFilterPanel(target);
+        this.setCustomTabPanel(5, this.filterPanel);
+
         // add custom panels
-        int cIndex = 5;
+        int cIndex = 6;
         if (this.customPanels != null) {
             for (CustomScanPanel customPanel : this.customPanels) {
                 this.setCustomTabPanel(cIndex, customPanel.getPanel(true));
@@ -864,6 +870,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             contextSpecificObjects.add(scannerParam);
             contextSpecificObjects.add(techTreeState);
+            List<ScanFilter> scanFilterList = filterPanel.getScanFilters();
+            for (ScanFilter scanFilter : scanFilterList) {
+                contextSpecificObjects.add(scanFilter);
+            }
 
             if (this.customPanels != null) {
                 for (CustomScanPanel customPanel : this.customPanels) {
@@ -902,12 +912,17 @@ public class CustomScanDialog extends StandardFieldsDialog {
             return Constant.messages.getString("ascan.custom.notSafe.error");
         }
 
+        String errorMessage = this.filterPanel.validateFields();
+        if (errorMessage != null) {
+            return errorMessage;
+        }
+
         if (this.customPanels != null) {
             // Check all custom panels validate ok
             for (CustomScanPanel customPanel : this.customPanels) {
-                String fail = customPanel.validateFields();
-                if (fail != null) {
-                    return fail;
+                errorMessage = customPanel.validateFields();
+                if (errorMessage != null) {
+                    return errorMessage;
                 }
             }
             // Check if they support a custom target
