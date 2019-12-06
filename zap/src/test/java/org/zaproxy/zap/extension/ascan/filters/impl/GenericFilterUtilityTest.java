@@ -59,36 +59,36 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         List<String> genericFilterData = new ArrayList<String>();
         abstractGenericScanFilter.setFilterData(genericFilterData);
 
-        Set<String> messageValues = new HashSet<>();
-        messageValues.add("Dummy");
+        Set<String> values = new HashSet<>();
+        values.add("Dummy");
 
         // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
-    public void testMessageValuesIncludeCriteriaWithSameValues() {
+    public void testIncludeCriteriaWithSameValues() {
         // Given
         List<String> genericFilterData = new ArrayList<String>();
         genericFilterData.add("Dummy");
 
         abstractGenericScanFilter.setFilterData(genericFilterData);
 
-        Set<String> messageValues = new HashSet<>();
-        messageValues.add("Dummy");
+        Set<String> values = new HashSet<>();
+        values.add("Dummy");
 
         // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
-    public void testMessageValuesIncludeCriteriaMoreFilterValues() {
+    public void testIncludeCriteriaWithMoreFilterValues() {
         // Given
         List<String> genericFilterData = new ArrayList<String>();
         genericFilterData.add("Dummy");
@@ -96,54 +96,54 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
 
         abstractGenericScanFilter.setFilterData(genericFilterData);
 
-        Set<String> messageValues = new HashSet<>();
-        messageValues.add("Dummy");
+        Set<String> values = new HashSet<>();
+        values.add("Dummy");
 
         // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
-    public void testMessageValuesIncludeCriteriaMoreMessageValues() {
+    public void testIncludeCriteriaWithMoreValues() {
         // Given
         List<String> genericFilterData = new ArrayList<String>();
         genericFilterData.add("Dummy");
 
         abstractGenericScanFilter.setFilterData(genericFilterData);
-        Set<String> messageValues = new HashSet<>();
-        messageValues.add("Dummy");
-        messageValues.add("Dummy1");
+        Set<String> values = new HashSet<>();
+        values.add("Dummy");
+        values.add("Dummy1");
 
         // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
-    public void testShouldFailMessageValuesFilterValuesMismatchIncludeCriteria() {
+    public void testShouldFailWhenValuesAndFilterDataValuesMismatchIncludeCriteria() {
         // Given
         List<String> genericFilterData = new ArrayList<String>();
         genericFilterData.add("Dummy");
 
         abstractGenericScanFilter.setFilterData(genericFilterData);
 
-        Set<String> messageValues = new HashSet<>();
-        messageValues.add("Dummy1");
+        Set<String> values = new HashSet<>();
+        values.add("Dummy1");
 
         // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), true);
     }
 
     @Test
-    public void testEmptyMessageValuesExcludeCriteria() {
+    public void testEmptyValuesInExcludeCriteria() {
         // Given
         List<String> genericFilterData = new ArrayList<String>();
         genericFilterData.add("Dummy");
@@ -151,17 +151,17 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         abstractGenericScanFilter.setFilterData(genericFilterData);
         abstractGenericScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
 
-        Set<String> messageValues = new HashSet<>();
+        Set<String> values = new HashSet<>();
 
         // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
     }
 
     @Test
-    public void testShouldFailMessageValuesExcludeCriteriaWithSameValues() {
+    public void testShouldFailWhenSameValuesInExcludeCriteria() {
         // Given
         List<String> genericFilterData = new ArrayList<String>();
         genericFilterData.add("Dummy");
@@ -169,18 +169,18 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         abstractGenericScanFilter.setFilterData(genericFilterData);
         abstractGenericScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
 
-        Set<String> messageValues = new HashSet<>();
-        messageValues.add("Dummy");
+        Set<String> values = new HashSet<>();
+        values.add("Dummy");
 
         // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), true);
     }
 
     @Test
-    public void testShouldFailMessageValuesExcludeCriteriaWithMoreFilterValues() {
+    public void testShouldFailInExcludeCriteriaWithMoreFilterValues() {
         // Given
         List<String> genericFilterData = new ArrayList<String>();
         genericFilterData.add("Dummy");
@@ -189,18 +189,18 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         abstractGenericScanFilter.setFilterData(genericFilterData);
         abstractGenericScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
 
-        Set<String> messageValues = new HashSet<>();
-        messageValues.add("Dummy");
+        Set<String> values = new HashSet<>();
+        values.add("Dummy");
 
         // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), true);
     }
 
     @Test
-    public void testShouldFailMessageValuesExcludeCriteriaWithMoreMessageValues() {
+    public void testShouldFailWhenExcludeCriteriaWithMoreValues() {
         // Given
         List<String> genericFilterData = new ArrayList<String>();
         genericFilterData.add("Dummy");
@@ -208,19 +208,19 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         abstractGenericScanFilter.setFilterData(genericFilterData);
         abstractGenericScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
 
-        Set<String> messageValues = new HashSet<>();
-        messageValues.add("Dummy");
-        messageValues.add("Dummy1");
+        Set<String> values = new HashSet<>();
+        values.add("Dummy");
+        values.add("Dummy1");
 
         // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), true);
     }
 
     @Test
-    public void testShouldPassForMessageValuesAndFilterValuesMismatchExcludeCriteria() {
+    public void testShouldPassForValuesAndFilterValuesMismatchInExcludeCriteria() {
         // Given
         List<String> genericFilterData = new ArrayList<String>();
         genericFilterData.add("Dummy");
@@ -228,11 +228,11 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         abstractGenericScanFilter.setFilterData(genericFilterData);
         abstractGenericScanFilter.setFilterCriteria(FilterCriteria.EXCLUDE);
 
-        Set<String> messageValues = new HashSet<>();
-        messageValues.add("Dummy1");
+        Set<String> values = new HashSet<>();
+        values.add("Dummy1");
 
         // When
-        FilterResult filterResult = abstractGenericScanFilter.isFiltered(messageValues);
+        FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
         Assert.assertEquals(filterResult.isFiltered(), false);
