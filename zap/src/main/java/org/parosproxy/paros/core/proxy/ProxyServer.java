@@ -168,13 +168,13 @@ public class ProxyServer implements Runnable {
                 if (View.isInitialised()) {
                     View.getSingleton()
                             .showWarningDialog(
-                                    Constant.messages.getString("proxy.error.host.unknow")
+                                    Constant.messages.getString("proxy.error.host.unknown")
                                             + " "
                                             + ip);
 
                 } else {
                     System.out.println(
-                            Constant.messages.getString("proxy.error.host.unknow") + " " + ip);
+                            Constant.messages.getString("proxy.error.host.unknown") + " " + ip);
                 }
 
                 return -1;
