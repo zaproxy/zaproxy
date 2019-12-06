@@ -69,26 +69,14 @@ public class VerifyApiImplementors {
             ApiImplementor api, List<? extends ApiElement> elements, RequestType type) {
         elements.sort((a, b) -> a.getName().compareTo(b.getName()));
         for (ApiElement element : elements) {
-            String key = element.getDescriptionTag();
             assertThat(
                     "API element: " + api.getPrefix() + "/" + element.getName(),
-                    key,
+                    element.getDescriptionTag(),
                     not(isEmptyString()));
-
-            checkKey(key);
-
-            checkParameters(key + ".param.", element.getMandatoryParamNames());
-            checkParameters(key + ".param.", element.getOptionalParamNames());
-        }
-    }
-
-    private static void checkParameters(String keyPrefix, List<String> params) {
-        if (params == null || params.isEmpty()) {
-            return;
-        }
-
-        for (String param : params) {
-            checkKey(keyPrefix + param);
+            checkKey(element.getDescriptionTag());
+            element.getParameters().stream()
+                    .map(ApiParameter::getDescriptionKey)
+                    .forEach(VerifyApiImplementors::checkKey);
         }
     }
 

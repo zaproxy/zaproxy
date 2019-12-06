@@ -137,15 +137,12 @@ public class WikiAPIGenerator extends AbstractAPIGenerator {
             out.write("| " + component);
         }
         out.write("| " + element.getName() + "| " + type + " | ");
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                out.write(param + "* ");
+        for (ApiParameter parameter : element.getParameters()) {
+            out.write(parameter.getName());
+            if (parameter.isRequired()) {
+                out.write('*');
             }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                out.write(param + " ");
-            }
+            out.write(' ');
         }
         out.write(" | ");
         // Add description if defined

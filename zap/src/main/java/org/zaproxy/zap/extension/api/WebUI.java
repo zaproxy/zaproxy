@@ -113,8 +113,6 @@ public class WebUI {
 
         sb.append("\n<table>\n");
         for (ApiElement element : elementList) {
-            List<String> mandatoryParams = element.getMandatoryParamNames();
-            List<String> optionalParams = element.getOptionalParamNames();
             sb.append("<tr>");
             sb.append("<td>");
             sb.append("<a href=\"/");
@@ -127,19 +125,14 @@ public class WebUI {
             sb.append(element.getName());
             sb.append("/\">");
             sb.append(element.getName());
-            if (mandatoryParams != null || optionalParams != null) {
+            if (!element.getParameters().isEmpty()) {
                 sb.append(" (");
-                if (mandatoryParams != null) {
-                    for (String param : mandatoryParams) {
-                        sb.append(param);
-                        sb.append("* ");
+                for (ApiParameter parameter : element.getParameters()) {
+                    sb.append(parameter.getName());
+                    if (parameter.isRequired()) {
+                        sb.append('*');
                     }
-                }
-                if (optionalParams != null) {
-                    for (String param : optionalParams) {
-                        sb.append(param);
-                        sb.append(" ");
-                    }
+                    sb.append(' ');
                 }
                 sb.append(") ");
             }
@@ -239,8 +232,6 @@ public class WebUI {
             if (name != null) {
                 ApiElement element = this.getElement(impl, name, reqType);
 
-                List<String> mandatoryParams = element.getMandatoryParamNames();
-                List<String> optionalParams = element.getOptionalParamNames();
                 sb.append("<h3>");
                 sb.append(Constant.messages.getString("api.html." + reqType.name()));
                 sb.append(element.getName());
@@ -327,9 +318,7 @@ public class WebUI {
                     sb.append("</tr>\n");
                 }
 
-                String descKeyPrefix = descTag + ".param.";
-                appendParams(descKeyPrefix, sb, mandatoryParams, true);
-                appendParams(descKeyPrefix, sb, optionalParams, false);
+                appendParams(sb, element.getParameters());
 
                 sb.append("<tr>");
                 sb.append("<td>");
@@ -448,30 +437,25 @@ public class WebUI {
         return sb.toString();
     }
 
-    private static void appendParams(
-            String keyPrefix, StringBuilder sb, List<String> params, boolean mandatory) {
-        if (params == null || params.isEmpty()) {
-            return;
-        }
-
-        for (String param : params) {
+    private static void appendParams(StringBuilder sb, List<ApiParameter> params) {
+        for (ApiParameter param : params) {
             sb.append("<tr>");
             sb.append("<td>");
-            sb.append(param);
-            if (mandatory) {
+            sb.append(param.getName());
+            if (param.isRequired()) {
                 sb.append('*');
             }
             sb.append("</td>");
             sb.append("<td>");
             sb.append("<input id=\"");
-            sb.append(param);
+            sb.append(param.getName());
             sb.append("\" name=\"");
-            sb.append(param);
+            sb.append(param.getName());
             sb.append("\"/>");
             sb.append("</td><td>");
-            String descTag = keyPrefix + param;
-            if (Constant.messages.containsKey(descTag)) {
-                sb.append(Constant.messages.getString(descTag));
+            String descKey = param.getDescriptionKey();
+            if (Constant.messages.containsKey(descKey)) {
+                sb.append(Constant.messages.getString(descKey));
             }
             sb.append("</td>");
             sb.append("</tr>\n");

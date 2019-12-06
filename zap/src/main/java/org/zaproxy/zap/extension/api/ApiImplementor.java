@@ -89,11 +89,20 @@ public abstract class ApiImplementor {
 
     private <T extends ApiElement> void addApiElement(
             List<T> elements, T element, RequestType type) {
-        validateApiElement(apiViews, element);
-        if (StringUtils.isEmpty(element.getDescriptionTag())) {
-            element.setDescriptionTag(
-                    getPrefix() + ".api." + type.name() + "." + element.getName());
+        validateApiElement(elements, element);
+        String descKey = element.getDescriptionTag();
+        if (StringUtils.isEmpty(descKey)) {
+            descKey = getPrefix() + ".api." + type.name() + "." + element.getName();
+            element.setDescriptionTag(descKey);
         }
+
+        String descParamKeyPrefix = descKey + ".param.";
+        for (ApiParameter parameter : element.getParameters()) {
+            if (parameter.getDescriptionKey().isEmpty()) {
+                parameter.setDescriptionKey(descParamKeyPrefix + parameter.getName());
+            }
+        }
+
         elements.add(element);
     }
 
