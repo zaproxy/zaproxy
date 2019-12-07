@@ -42,6 +42,6 @@ public interface ScannerListener {
     // ZAP: Added notifyNewMessage
     void notifyNewMessage(HttpMessage msg);
 
-    // Added to notify reason for filtering nodes from scanning.
+    // Added to notify reason for filtering message from scanning.
     default void filteredMessage(HttpMessage msg, String reason) {};
 }

@@ -297,11 +297,11 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     }
 
     private ZapTable getFilterMessageTable() {
-    	if (filterMessageTable == null) {
-    		 this.filterMessageTable = new ZapTable(EMPTY_FILTER_MESSAGE_MODEL);
-    	     this.filterMessageTable.setName("FilterMessageTable");
-    	     this.filterMessageTable.setAutoCreateColumnsFromModel(false);
-    	}
+        if (filterMessageTable == null) {
+            this.filterMessageTable = new ZapTable(EMPTY_FILTER_MESSAGE_MODEL);
+            this.filterMessageTable.setName("FilterMessageTable");
+            this.filterMessageTable.setAutoCreateColumnsFromModel(false);
+        }
         return this.filterMessageTable;
     }
 

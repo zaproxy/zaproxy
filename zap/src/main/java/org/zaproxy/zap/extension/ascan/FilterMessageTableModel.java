@@ -30,7 +30,7 @@ class FilterMessageTableModel extends AbstractTableModel {
     private static final long serialVersionUID = -6380136823410869457L;
 
     private static final String[] COLUMN_NAMES = {
-        Constant.messages.getString("ascan.filter.table.header.uri"),
+        Constant.messages.getString("ascan.filter.table.header.url"),
         Constant.messages.getString("ascan.filter.table.header.reason")
     };
 
@@ -62,7 +62,7 @@ class FilterMessageTableModel extends AbstractTableModel {
         FilteredMessageResult result = filteredMessageResults.get(row);
         switch (col) {
             case 0:
-                return result.uri;
+                return result.url;
             case 1:
                 return result.reason;
             default:
@@ -73,19 +73,19 @@ class FilterMessageTableModel extends AbstractTableModel {
     /**
      * Adds a new filtered message result.
      *
-     * @param uri the uri
+     * @param url
      * @param reason for filtering message
      */
-    public void addScanResult(String uri, String reason) {
-        FilteredMessageResult result = new FilteredMessageResult(uri, reason);
+    public void addScanResult(String url, String reason) {
+        FilteredMessageResult result = new FilteredMessageResult(url, reason);
         filteredMessageResults.add(result);
         fireTableRowsInserted(filteredMessageResults.size() - 1, filteredMessageResults.size() - 1);
     }
 
     public void removeAllElements() {
-    	filteredMessageResults.clear();
-    	fireTableDataChanged();
-    	}
+        filteredMessageResults.clear();
+        fireTableDataChanged();
+    }
 
     /**
      * Returns the type of column for given column index.
@@ -110,8 +110,8 @@ class FilterMessageTableModel extends AbstractTableModel {
      */
     private static class FilteredMessageResult {
 
-        /** The uri */
-        protected String uri;
+        /** The url */
+        protected String url;
 
         /** reason for Filtering */
         protected String reason;
@@ -119,12 +119,12 @@ class FilterMessageTableModel extends AbstractTableModel {
         /**
          * Instantiates a new filtered message result.
          *
-         * @param uri the uri
+         * @param url
          * @param reason for filtering message
          */
-        protected FilteredMessageResult(String uri, String reason) {
+        protected FilteredMessageResult(String url, String reason) {
             super();
-            this.uri = uri;
+            this.url = url;
             this.reason = reason;
         }
 
@@ -133,7 +133,7 @@ class FilterMessageTableModel extends AbstractTableModel {
             final int prime = 31;
             int result = 1;
             result = prime * result + ((reason == null) ? 0 : reason.hashCode());
-            result = prime * result + ((uri == null) ? 0 : uri.hashCode());
+            result = prime * result + ((url == null) ? 0 : url.hashCode());
             return result;
         }
 
@@ -146,17 +146,17 @@ class FilterMessageTableModel extends AbstractTableModel {
             if (reason == null) {
                 if (other.reason != null) return false;
             } else if (!reason.equals(other.reason)) return false;
-            if (uri == null) {
-                if (other.uri != null) return false;
-            } else if (!uri.equals(other.uri)) return false;
+            if (url == null) {
+                if (other.url != null) return false;
+            } else if (!url.equals(other.url)) return false;
             return true;
         }
     }
 
-    public List<String> getFilteredMessagesUri() {
+    public List<String> getFilteredMessageUrls() {
         List<String> list = new ArrayList<String>(this.filteredMessageResults.size());
         for (FilteredMessageResult res : this.filteredMessageResults) {
-            list.add(res.uri);
+            list.add(res.url);
         }
         return list;
     }

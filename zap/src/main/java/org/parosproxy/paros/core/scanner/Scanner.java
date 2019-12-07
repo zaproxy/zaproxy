@@ -408,10 +408,10 @@ public class Scanner implements Runnable {
         }
     }
 
-    void notifyFilteredMessage(HttpMessage node, String reason) {
+    void notifyFilteredMessage(HttpMessage msg, String reason) {
         for (int i = 0; i < listenerList.size(); i++) {
             ScannerListener listener = listenerList.get(i);
-            listener.filteredMessage(node, reason);
+            listener.filteredMessage(msg, reason);
         }
     }
 
