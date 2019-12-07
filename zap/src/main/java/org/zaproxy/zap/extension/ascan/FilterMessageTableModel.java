@@ -24,7 +24,10 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 import org.parosproxy.paros.Constant;
 
-/** The Class FilterMessageTableModel is used as a TableModel for the Active Scan Panel. */
+/**
+ * @author KSASAN preetkaran20@gmail.com
+ * @since TODO add version
+ */
 class FilterMessageTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -6380136823410869457L;
@@ -82,11 +85,6 @@ class FilterMessageTableModel extends AbstractTableModel {
         fireTableRowsInserted(filteredMessageResults.size() - 1, filteredMessageResults.size() - 1);
     }
 
-    public void removeAllElements() {
-        filteredMessageResults.clear();
-        fireTableDataChanged();
-    }
-
     /**
      * Returns the type of column for given column index.
      *
@@ -95,30 +93,16 @@ class FilterMessageTableModel extends AbstractTableModel {
      */
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        switch (columnIndex) {
-            case 0:
-                return String.class;
-            case 1:
-                return String.class;
-        }
-        return null;
+        return String.class;
     }
 
-    /**
-     * The Class FilteredMessageResult that stores an entry in the table (a result for the filtered
-     * messages in Active Scan).
-     */
     private static class FilteredMessageResult {
 
-        /** The url */
         protected String url;
 
-        /** reason for Filtering */
         protected String reason;
 
         /**
-         * Instantiates a new filtered message result.
-         *
          * @param url
          * @param reason for filtering message
          */
@@ -151,13 +135,5 @@ class FilterMessageTableModel extends AbstractTableModel {
             } else if (!url.equals(other.url)) return false;
             return true;
         }
-    }
-
-    public List<String> getFilteredMessageUrls() {
-        List<String> list = new ArrayList<String>(this.filteredMessageResults.size());
-        for (FilteredMessageResult res : this.filteredMessageResults) {
-            list.add(res.url);
-        }
-        return list;
     }
 }

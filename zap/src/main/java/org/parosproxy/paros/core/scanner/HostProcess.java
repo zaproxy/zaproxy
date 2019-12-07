@@ -507,7 +507,6 @@ public class HostProcess implements Runnable {
             try {
                 FilterResult filterResult = scanFilter.isFiltered(node);
                 if (filterResult.isFiltered()) {
-                    // Notify Parent Scanner.
                     try {
                         HttpMessage msg = node.getHistoryReference().getHttpMessage();
                         parentScanner.notifyFilteredMessage(msg, filterResult.getReason());
