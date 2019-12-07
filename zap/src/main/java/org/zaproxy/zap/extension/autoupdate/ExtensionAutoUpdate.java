@@ -525,7 +525,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     private static void showWarningMessageAddOnFileAlreadyExists(String file, String targetFile) {
         String message =
-                Constant.messages.getString("cfu.warn.addOnAlreadExists", file, targetFile);
+                Constant.messages.getString("cfu.warn.addOnAlreadyExists", file, targetFile);
         View.getSingleton().showWarningDialog(message);
     }
 

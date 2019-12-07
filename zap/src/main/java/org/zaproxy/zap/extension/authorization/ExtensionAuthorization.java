@@ -71,7 +71,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor
 
     @Override
     public String getUIName() {
-        return Constant.messages.getString("autorization.name");
+        return Constant.messages.getString("authorization.name");
     }
 
     @Override

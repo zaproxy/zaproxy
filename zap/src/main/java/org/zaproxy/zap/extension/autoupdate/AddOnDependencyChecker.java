@@ -262,7 +262,7 @@ class AddOnDependencyChecker {
             AddOnTableModel model = new AddOnTableModel(updates);
             issues += model.getMinimumJavaVersionIssues();
             tabs.add(
-                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.updats"),
+                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.updates"),
                     createScrollableTable(model));
         }
 
