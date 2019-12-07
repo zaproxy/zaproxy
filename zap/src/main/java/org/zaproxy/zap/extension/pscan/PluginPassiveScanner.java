@@ -80,14 +80,16 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 
     private PassiveScanThread parent;
     private HttpMessage message;
+    private PassiveScanData passiveScanData;
 
     public PluginPassiveScanner() {
         super(true);
     }
 
-    void init(PassiveScanThread parent, HttpMessage message) {
+    void init(PassiveScanThread parent, HttpMessage message, PassiveScanData psd) {
         this.parent = parent;
         this.message = message;
+        this.passiveScanData = psd;
 
         setParent(parent);
     }
@@ -95,6 +97,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
     void clean() {
         parent = null;
         message = null;
+        passiveScanData = null;
     }
 
     /**
@@ -353,6 +356,17 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
     @Override
     public boolean appliesToHistoryType(int historyType) {
         return getDefaultHistoryTypes().contains(historyType);
+    }
+
+    /**
+     * Gets a helper object to be used by scan rules in order to retrieve {@code Context}
+     * information.
+     *
+     * @return the {@code PassiveScanData} related to the message being scanned.
+     * @since TODO add version
+     */
+    public PassiveScanData getHelper() {
+        return passiveScanData;
     }
 
     /**

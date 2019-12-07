@@ -45,6 +45,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -572,7 +573,10 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 setBorder(BORDER);
                 ScriptWrapper item = (ScriptWrapper) value;
                 if (panel.loadedScript == item)
-                    setText("<html><b>" + item.getName() + " (loaded)</b></html>");
+                    setText(
+                            "<html><b>"
+                                    + StringEscapeUtils.unescapeHtml(item.getName())
+                                    + " (loaded)</b></html>");
                 else setText(item.getName());
             }
             return this;

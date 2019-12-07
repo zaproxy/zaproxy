@@ -224,7 +224,7 @@ def main(argv):
 
 
 	uniqueUrls = set([])
-	# alertsPerUrl is a disctionary of urlsummary to a dictionary of type to set of alertshortnames ;)
+	# alertsPerUrl is a dictionary of urlsummary to a dictionary of type to set of alertshortnames ;)
 	alertsPerUrl = {}
 	plugins = set([])
 

@@ -80,7 +80,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldNotExtractAnyParameterIfTheCookieHeadersDontHaveCoookies() {
+    public void shouldNotExtractAnyParameterIfTheCookieHeadersDontHaveCookies() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies = createMessageWithCookies("", "");

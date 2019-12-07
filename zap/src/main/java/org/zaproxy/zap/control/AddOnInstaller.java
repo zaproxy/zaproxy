@@ -24,13 +24,23 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -57,6 +67,9 @@ import org.zaproxy.zap.utils.ZapResourceBundleControl;
 public final class AddOnInstaller {
 
     private static final Logger logger = Logger.getLogger(AddOnInstaller.class);
+
+    /** The base directory to where add-on data (e.g. libraries) is copied. */
+    private static final String ADD_ON_DATA_DIR = "addOnData";
 
     private AddOnInstaller() {}
 
@@ -442,6 +455,160 @@ public final class AddOnInstaller {
         }
 
         return uninstalledWithoutErrors;
+    }
+
+    /**
+     * Installs the libraries declared by the given add-on.
+     *
+     * <p>The libraries are copied to the directory with the following path: {@code
+     * <zapHome>/addOnData/<addOnId>/libs/}
+     *
+     * @param addOn the add-on that will have the declared libraries installed.
+     * @return {@code true} if no error occurred while installing the libraries, {@code false}
+     *     otherwise.
+     * @see #uninstallAddOnLibs(AddOn)
+     * @see #installMissingAddOnLibs(AddOn)
+     * @see #getAddOnDataDir(AddOn)
+     */
+    static boolean installAddOnLibs(AddOn addOn) {
+        return installAddOnLibs(addOn, true);
+    }
+
+    private static boolean installAddOnLibs(AddOn addOn, boolean overwrite) {
+        List<AddOn.Lib> libs = addOn.getLibs();
+        if (libs.isEmpty()) {
+            return true;
+        }
+
+        Path targetDir = getAddOnDataDir(addOn).resolve("libs");
+        try {
+            Files.createDirectories(targetDir);
+        } catch (IOException e) {
+            logger.warn("Failed to create libs directory for " + addOn.getId(), e);
+            return false;
+        }
+
+        try (ZipFile zip = new ZipFile(addOn.getFile())) {
+            for (AddOn.Lib lib : libs) {
+                String name = lib.getName();
+                if (logger.isDebugEnabled()) {
+                    logger.debug("Installing library for " + addOn + ": " + name);
+                }
+
+                Path targetFile = targetDir.resolve(name);
+                try {
+                    lib.setFileSystemUrl(targetFile.toUri().toURL());
+                } catch (MalformedURLException e) {
+                    logger.warn(
+                            "Failed to convert lib's filesystem path to URL for " + addOn.getId(),
+                            e);
+                    return false;
+                }
+
+                if (!overwrite && Files.exists(targetFile)) {
+                    continue;
+                }
+
+                ZipEntry libZipEntry = zip.getEntry(lib.getJarPath());
+                if (libZipEntry == null) {
+                    logger.warn("Library not found in " + addOn + " add-on: " + lib);
+                    return false;
+                }
+
+                try (InputStream in = zip.getInputStream(libZipEntry)) {
+                    Files.copy(in, targetFile, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    logger.warn("Failed to copy the library for " + addOn + ": " + targetFile, e);
+                    return false;
+                }
+            }
+        } catch (IOException e) {
+            logger.error("An error occurred while installing libraries for " + addOn, e);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Gets the path to the data directory of the given add-on.
+     *
+     * <p>The path is built as: {@code <zapHome>/addOnData/<addOnId>/}
+     *
+     * @param addOn the add-on.
+     * @return the path to the directory.
+     * @see #ADD_ON_DATA_DIR
+     */
+    private static Path getAddOnDataDir(AddOn addOn) {
+        return Paths.get(Constant.getZapHome(), ADD_ON_DATA_DIR, addOn.getId());
+    }
+
+    /**
+     * Installs all the missing libraries declared by the given add-on.
+     *
+     * @param addOn the add-on that will have the missing declared libraries installed.
+     * @return {@code true} if no error occurred while installing the libraries, {@code false}
+     *     otherwise.
+     * @see #uninstallAddOnLibs(AddOn)
+     * @see #installAddOnLibs(AddOn, boolean)
+     */
+    static boolean installMissingAddOnLibs(AddOn addOn) {
+        return installAddOnLibs(addOn, false);
+    }
+
+    /**
+     * Uninstalls the libraries declared by the given add-on.
+     *
+     * @param addOn the add-on that will have the declared libraries uninstalled.
+     * @see #installAddOnLibs(AddOn)
+     * @see #installMissingAddOnLibs(AddOn)
+     */
+    static void uninstallAddOnLibs(AddOn addOn) {
+        List<AddOn.Lib> libs = addOn.getLibs();
+        if (libs.isEmpty()) {
+            return;
+        }
+
+        try {
+            deleteDir(getAddOnDataDir(addOn));
+        } catch (IOException e) {
+            logger.error("An error occurred while uninstalling libraries for " + addOn, e);
+        }
+    }
+
+    /**
+     * Deletes the given directory and all files/directories under it.
+     *
+     * @param dir the directory to delete.
+     * @throws IOException if an error occurred while deleting the directory or any file/directory
+     *     under it.
+     */
+    private static void deleteDir(Path dir) throws IOException {
+        if (Files.notExists(dir)) {
+            return;
+        }
+
+        Files.walkFileTree(
+                dir,
+                new SimpleFileVisitor<Path>() {
+
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                            throws IOException {
+                        Files.delete(file);
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException e)
+                            throws IOException {
+                        if (e != null) {
+                            throw e;
+                        }
+                        Files.delete(dir);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
     }
 
     /**

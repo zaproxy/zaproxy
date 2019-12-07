@@ -137,24 +137,16 @@ public class WikiAPIGenerator extends AbstractAPIGenerator {
             out.write("| " + component);
         }
         out.write("| " + element.getName() + "| " + type + " | ");
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                out.write(param + "* ");
+        for (ApiParameter parameter : element.getParameters()) {
+            out.write(parameter.getName());
+            if (parameter.isRequired()) {
+                out.write('*');
             }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                out.write(param + " ");
-            }
+            out.write(' ');
         }
         out.write(" | ");
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overriden by the getDescriptionTag method if
-            // required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
         try {
             out.write(getMessages().getString(descTag));
         } catch (Exception e) {

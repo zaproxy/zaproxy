@@ -29,6 +29,7 @@ import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -107,11 +108,6 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
 
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overriden by the getDescriptionTag method if
-            // required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
         try {
             String desc = getMessages().getString(descTag);
             out.write("\t\t/// <summary>\n");
@@ -158,38 +154,20 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
             out.write("\t\tpublic IApiResponse " + createMethodName(element.getName()) + "(");
         }
 
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                if (!hasParams) {
-                    hasParams = true;
-                } else {
-                    out.write(", ");
-                }
-                if (param.equalsIgnoreCase("boolean")) {
-                    out.write("bool boolean");
-                } else if (param.equalsIgnoreCase("integer")) {
-                    out.write("int i");
-                } else {
-                    out.write("string ");
-                    out.write(createParameterName(param.toLowerCase()));
-                }
+        for (ApiParameter parameter : element.getParameters()) {
+            if (!hasParams) {
+                hasParams = true;
+            } else {
+                out.write(", ");
             }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                if (!hasParams) {
-                    hasParams = true;
-                } else {
-                    out.write(", ");
-                }
-                if (param.equalsIgnoreCase("boolean")) {
-                    out.write("bool boolean");
-                } else if (param.equalsIgnoreCase("integer")) {
-                    out.write("int i");
-                } else {
-                    out.write("string ");
-                    out.write(createParameterName(param.toLowerCase()));
-                }
+            String name = parameter.getName();
+            if (name.equalsIgnoreCase("boolean")) {
+                out.write("bool boolean");
+            } else if (name.equalsIgnoreCase("integer")) {
+                out.write("int i");
+            } else {
+                out.write("string ");
+                out.write(createParameterName(name));
             }
         }
         out.write(")\n\t\t{\n");
@@ -199,31 +177,17 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
         if (hasParams) {
             out.write("\t\t\tparameters = new Dictionary<string, string>();\n");
 
-            if (element.getMandatoryParamNames() != null) {
-                for (String param : element.getMandatoryParamNames()) {
-                    out.write("\t\t\tparameters.Add(\"" + param + "\", ");
-                    if (param.equalsIgnoreCase("boolean")) {
-                        out.write("Convert.ToString(boolean)");
-                    } else if (param.equalsIgnoreCase("integer")) {
-                        out.write("Convert.ToString(i)");
-                    } else {
-                        out.write(createParameterName(param.toLowerCase()));
-                    }
-                    out.write(");\n");
+            for (ApiParameter parameter : element.getParameters()) {
+                String name = parameter.getName();
+                out.write("\t\t\tparameters.Add(\"" + name + "\", ");
+                if (name.equalsIgnoreCase("boolean")) {
+                    out.write("Convert.ToString(boolean)");
+                } else if (name.equalsIgnoreCase("integer")) {
+                    out.write("Convert.ToString(i)");
+                } else {
+                    out.write(createParameterName(name));
                 }
-            }
-            if (element.getOptionalParamNames() != null) {
-                for (String param : element.getOptionalParamNames()) {
-                    out.write("\t\t\tparameters.Add(\"" + param + "\", ");
-                    if (param.equalsIgnoreCase("boolean")) {
-                        out.write("Convert.ToString(boolean)");
-                    } else if (param.equalsIgnoreCase("integer")) {
-                        out.write("Convert.ToString(i)");
-                    } else {
-                        out.write(createParameterName(param.toLowerCase()));
-                    }
-                    out.write(");\n");
-                }
+                out.write(");\n");
             }
         }
 
@@ -261,7 +225,8 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
         return string.replaceAll("\\.", "");
     }
 
-    private static String createParameterName(String name) {
+    private static String createParameterName(String paramName) {
+        String name = paramName.toLowerCase(Locale.ROOT);
         if (nameMap.containsKey(name)) {
             name = nameMap.get(name);
         }

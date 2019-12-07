@@ -149,7 +149,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                         extension,
                         Constant.messages.getString("ascan.custom.tab.policy"),
                         new ScanPolicy());
-
+        this.filterPanel = new FilterPanel();
         addWindowListener(
                 new WindowAdapter() {
 
@@ -158,7 +158,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
                         scanPolicy = null;
                     }
                 });
-
         // The first time init to the default options set, after that keep own copies
         reset(false);
     }
@@ -261,7 +260,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.setCustomTabPanel(4, policyPanel);
 
         // Filter panel
-        this.setCustomTabPanel(5, getFilterJPanel(target));
+        this.filterPanel.resetFilterPanel(target);
+        this.setCustomTabPanel(5, this.filterPanel);
 
         // add custom panels
         int cIndex = 6;
@@ -648,16 +648,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
         return techPanel;
     }
 
-    private JPanel getFilterJPanel(Target target) {
-        if (this.filterPanel == null) {
-            filterPanel = new FilterPanel(target);
-        } else {
-            filterPanel.resetFilterPanel(target);
-        }
-
-        return filterPanel;
-    }
-
     private TechnologyTreePanel getTechTree() {
         if (techTree == null) {
             techTree =
@@ -693,7 +683,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                     getAddCustomButton().setEnabled(false);
 
                 } else if (userDefStart < headerLength && userDefEnd > headerLength) {
-                    // The users selection cross the header / body boundry - thats never going to
+                    // The users selection cross the header / body boundary - thats never going to
                     // work well
                     getAddCustomButton().setEnabled(false);
                     getRemoveCustomButton().setEnabled(false);
@@ -880,10 +870,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             contextSpecificObjects.add(scannerParam);
             contextSpecificObjects.add(techTreeState);
-            List<ScanFilter> scanFilterList = filterPanel.getFilterPanelVO().getScanFilters();
+            List<ScanFilter> scanFilterList = filterPanel.getScanFilters();
             for (ScanFilter scanFilter : scanFilterList) {
                 contextSpecificObjects.add(scanFilter);
             }
+
             if (this.customPanels != null) {
                 for (CustomScanPanel customPanel : this.customPanels) {
                     Object[] objs = customPanel.getContextSpecificObjects();
@@ -921,12 +912,17 @@ public class CustomScanDialog extends StandardFieldsDialog {
             return Constant.messages.getString("ascan.custom.notSafe.error");
         }
 
+        String errorMessage = this.filterPanel.validateFields();
+        if (errorMessage != null) {
+            return errorMessage;
+        }
+
         if (this.customPanels != null) {
             // Check all custom panels validate ok
             for (CustomScanPanel customPanel : this.customPanels) {
-                String fail = customPanel.validateFields();
-                if (fail != null) {
-                    return fail;
+                errorMessage = customPanel.validateFields();
+                if (errorMessage != null) {
+                    return errorMessage;
                 }
             }
             // Check if they support a custom target

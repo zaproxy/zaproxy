@@ -258,7 +258,7 @@ public class VariantODataIdQuery implements Variant {
         private String resourceName;
         private String originalValue;
         private String pathBeforeParameter;
-        private String pathAfterParamter;
+        private String pathAfterParameter;
 
         /**
          * @param resourceName
@@ -277,7 +277,7 @@ public class VariantODataIdQuery implements Variant {
             this.parameterName = RESOURCE_ID_PREFIX + resourceName;
             this.originalValue = originalValue;
             this.pathBeforeParameter = pathBeforeParameter;
-            this.pathAfterParamter = pathAfterParameter;
+            this.pathAfterParameter = pathAfterParameter;
         }
 
         /** @return */
@@ -296,7 +296,7 @@ public class VariantODataIdQuery implements Variant {
                     .append("(")
                     .append(newIdValue)
                     .append(")")
-                    .append(this.pathAfterParamter);
+                    .append(this.pathAfterParameter);
 
             return builder.toString();
         }

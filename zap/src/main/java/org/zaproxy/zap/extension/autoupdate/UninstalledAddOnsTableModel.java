@@ -165,6 +165,12 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
     }
 
     public void setAddOns(List<AddOn> addOnsNotInstalled, AddOnCollection olderAddOns) {
+        if (!getAddOnWrappers().isEmpty()) {
+            int rows = getAddOnWrappers().size();
+            getAddOnWrappers().clear();
+            fireTableRowsDeleted(0, rows - 1);
+        }
+
         for (AddOn addOn : addOnsNotInstalled) {
             AddOnWrapper.Status status = null;
             if (olderAddOns != null && olderAddOns.getAddOn(addOn.getId()) == null) {

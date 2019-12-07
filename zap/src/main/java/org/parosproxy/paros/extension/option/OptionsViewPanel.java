@@ -721,7 +721,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
         getShowSplashScreen().setSelected(options.getViewParam().isShowSplashScreen());
         getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
         displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
-        selectResponstPanelPosition(options.getViewParam().getResponsePanelPosition());
+        selectResponsePanelPosition(options.getViewParam().getResponsePanelPosition());
         brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
         getChkShowMainToolbar().setSelected(options.getViewParam().isShowMainToolbar());
         chkAdvancedView.setSelected(options.getViewParam().getAdvancedViewOption() > 0);
@@ -744,7 +744,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
         getLookAndFeelSelect().setSelectedItem(options.getViewParam().getLookAndFeel());
     }
 
-    private void selectResponstPanelPosition(String positionName) {
+    private void selectResponsePanelPosition(String positionName) {
         for (int i = 0; i < getResponsePanelPositionComboBox().getItemCount(); i++) {
             ResponsePanelPositionUI item = getResponsePanelPositionComboBox().getItemAt(i);
             if (item.getPosition().name().equals(positionName)) {

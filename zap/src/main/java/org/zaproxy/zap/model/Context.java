@@ -365,7 +365,7 @@ public class Context {
      */
     public void setIncludeInContextRegexs(List<String> includeRegexs) {
         validateRegexs(includeRegexs);
-        // Check if theyve been changed
+        // Check if they've been changed
         if (includeInRegexs.size() == includeRegexs.size()) {
             boolean changed = false;
             for (int i = 0; i < includeInRegexs.size(); i++) {
@@ -418,7 +418,7 @@ public class Context {
      */
     public void setExcludeFromContextRegexs(List<String> excludeRegexs) {
         validateRegexs(excludeRegexs);
-        // Check if theyve been changed
+        // Check if they've been changed
         if (excludeFromRegexs.size() == excludeRegexs.size()) {
             boolean changed = false;
             for (int i = 0; i < excludeFromRegexs.size(); i++) {
@@ -641,7 +641,7 @@ public class Context {
                     // Have to go to the db as POST data can be used in the name
                     sn2 = sitesTree.findNode(href.getHttpMessage());
                 } else {
-                    // This is better as it doesnt require a db read
+                    // This is better as it doesn't require a db read
                     sn2 = sitesTree.findNode(href.getURI());
                 }
 
@@ -660,7 +660,7 @@ public class Context {
                         return true;
                     }
                 }
-                // log.debug("Didnt need to move " + sn.getHierarchicNodeName());	// Useful for
+                // log.debug("Didn't need to move " + sn.getHierarchicNodeName());	// Useful for
                 // debugging
             } catch (Exception e) {
                 log.error(e.getMessage(), e);

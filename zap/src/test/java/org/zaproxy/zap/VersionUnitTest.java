@@ -98,7 +98,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenEqualingToDifferntVersionNumbers() {
+    public void shouldReturnFalseWhenEqualingToDifferentVersionNumbers() {
         // Given
         Version version = new Version("1.0.0");
         Version differentVersion = new Version("2.0.0");

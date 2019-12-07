@@ -128,7 +128,7 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         final BreakpointsParam param = options.getParamSet(BreakpointsParam.class);
 
         getCheckBoxConfirmDropMessage().setSelected(param.isConfirmDropMessage());
-        // Note param.alwaysOnTop will be null if the user hasnt specified a preference yet
+        // Note param.alwaysOnTop will be null if the user hasn't specified a preference yet
         getCheckBoxAlwaysOnTop().setSelected(param.getAlwaysOnTop() != Boolean.FALSE);
         getCheckBoxInScopeOnly().setSelected(param.isInScopeOnly());
         getButtonMode().setSelectedIndex(param.getButtonMode() - 1);

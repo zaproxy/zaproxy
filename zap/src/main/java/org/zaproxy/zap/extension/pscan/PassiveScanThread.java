@@ -181,6 +181,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                         HttpMessage msg = href.getHttpMessage();
                         Source src = new Source(msg.getResponseBody().toString());
                         currentUrl = msg.getRequestHeader().getURI().toString();
+                        PassiveScanData passiveScanData = new PassiveScanData(msg);
 
                         for (PassiveScanner scanner : scannerList.list()) {
                             try {
@@ -193,7 +194,8 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                                                 || optedInHistoryTypes.contains(hrefHistoryType))) {
                                     boolean cleanScanner = false;
                                     if (scanner instanceof PluginPassiveScanner) {
-                                        ((PluginPassiveScanner) scanner).init(this, msg);
+                                        ((PluginPassiveScanner) scanner)
+                                                .init(this, msg, passiveScanData);
                                         cleanScanner = true;
                                     } else {
                                         scanner.setParent(this);

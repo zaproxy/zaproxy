@@ -29,8 +29,10 @@ import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class NodeJSAPIGenerator extends AbstractAPIGenerator {
 
@@ -98,15 +100,10 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
     private void generateNodeJSElement(
             ApiElement element, String component, String type, Writer out) throws IOException {
         String className = createClassName(component);
-        boolean hasParams = false;
+        boolean hasParams = !element.getParameters().isEmpty();
 
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overriden by the getDescriptionTag method if
-            // required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
         try {
             String desc = getMessages().getString(descTag);
             out.write("/**\n");
@@ -128,68 +125,50 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
         out.write(
                 className + ".prototype." + createMethodName(element.getName()) + " = function (");
 
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                if (!hasParams) {
-                    hasParams = true;
-                } else {
-                    out.write(", ");
-                }
-                out.write(safeName(param.toLowerCase()));
-            }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                if (!hasParams) {
-                    hasParams = true;
-                } else {
-                    out.write(", ");
-                }
-                out.write(safeName(param.toLowerCase()));
-            }
-        }
         if (hasParams) {
+            out.write(
+                    element.getParameters().stream()
+                            .map(ApiParameter::getName)
+                            .map(name -> safeName(name.toLowerCase(Locale.ROOT)))
+                            .collect(Collectors.joining(", ")));
             out.write(", ");
         }
         out.write("callback) {\n");
 
         // , {'url': url}))
-        StringBuilder reqParams = new StringBuilder();
+        String reqParams = "";
         if (hasParams) {
-            reqParams.append("{");
-            boolean first = true;
-            if (element.getMandatoryParamNames() != null) {
-                for (String param : element.getMandatoryParamNames()) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        reqParams.append(", ");
-                    }
-                    reqParams.append("'" + param + "' : " + safeName(param.toLowerCase()));
-                }
-            }
-            reqParams.append("}");
+            StringBuilder reqParamsBuilder = new StringBuilder();
+            reqParamsBuilder.append("{");
+            reqParamsBuilder.append(
+                    element.getParameters().stream()
+                            .filter(ApiParameter::isRequired)
+                            .map(ApiParameter::getName)
+                            .map(
+                                    name ->
+                                            "'"
+                                                    + name
+                                                    + "': "
+                                                    + safeName(name.toLowerCase(Locale.ROOT)))
+                            .collect(Collectors.joining(", ")));
+            reqParamsBuilder.append("}");
+            reqParams = reqParamsBuilder.toString();
 
-            if (element.getOptionalParamNames() != null
-                    && !element.getOptionalParamNames().isEmpty()) {
+            List<ApiParameter> optionalParameters =
+                    element.getParameters().stream()
+                            .filter(e -> !e.isRequired())
+                            .collect(Collectors.toList());
+            if (!optionalParameters.isEmpty()) {
                 out.write("  const params = ");
-                out.write(reqParams.toString());
+                out.write(reqParams);
                 out.write(";\n");
-                reqParams.replace(0, reqParams.length(), "params");
+                reqParams = "params";
 
-                for (String param : element.getOptionalParamNames()) {
-                    out.write(
-                            "  if ("
-                                    + safeName(param.toLowerCase())
-                                    + " && "
-                                    + safeName(param.toLowerCase())
-                                    + " !== null) {\n");
-                    out.write(
-                            "    params['"
-                                    + param
-                                    + "'] = "
-                                    + safeName(param.toLowerCase())
-                                    + ";\n");
+                for (ApiParameter parameter : optionalParameters) {
+                    String name = parameter.getName();
+                    String varName = safeName(name.toLowerCase(Locale.ROOT));
+                    out.write("  if (" + varName + " && " + varName + " !== null) {\n");
+                    out.write("    params['" + name + "'] = " + varName + ";\n");
                     out.write("  }\n");
                 }
             }
@@ -212,7 +191,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
                         + "/'");
         if (hasParams) {
             out.write(", ");
-            out.write(reqParams.toString());
+            out.write(reqParams);
         }
         out.write(", callback);\n");
         out.write("    return;\n");
@@ -229,7 +208,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
                         + "/'");
         if (hasParams) {
             out.write(", ");
-            out.write(reqParams.toString());
+            out.write(reqParams);
         }
         out.write(");\n");
 

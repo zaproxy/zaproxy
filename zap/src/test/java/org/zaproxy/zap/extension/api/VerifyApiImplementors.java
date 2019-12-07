@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.api;
 
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.isEmptyString;
+import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
@@ -67,26 +69,14 @@ public class VerifyApiImplementors {
             ApiImplementor api, List<? extends ApiElement> elements, RequestType type) {
         elements.sort((a, b) -> a.getName().compareTo(b.getName()));
         for (ApiElement element : elements) {
-            String baseKey = api.getPrefix() + ".api." + type + "." + element.getName();
-            String key = element.getDescriptionTag();
-            if (key == null || key.isEmpty()) {
-                key = baseKey;
-            }
-
-            checkKey(key);
-
-            checkParameters(baseKey + ".param.", element.getMandatoryParamNames());
-            checkParameters(baseKey + ".param.", element.getOptionalParamNames());
-        }
-    }
-
-    private static void checkParameters(String keyPrefix, List<String> params) {
-        if (params == null || params.isEmpty()) {
-            return;
-        }
-
-        for (String param : params) {
-            checkKey(keyPrefix + param);
+            assertThat(
+                    "API element: " + api.getPrefix() + "/" + element.getName(),
+                    element.getDescriptionTag(),
+                    not(isEmptyString()));
+            checkKey(element.getDescriptionTag());
+            element.getParameters().stream()
+                    .map(ApiParameter::getDescriptionKey)
+                    .forEach(VerifyApiImplementors::checkKey);
         }
     }
 

@@ -1225,7 +1225,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         }
         if (stdDir.exists()) {
             for (File f : stdDir.listFiles()) {
-                // Dont log errors on duplicates - 'local' templates should take presidence
+                // Dont log errors on duplicates - 'local' templates should take precedence
                 loadTemplate(f, type, engine, true);
             }
         }
@@ -1930,7 +1930,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             T iface = script.getInterface(class1);
 
             if (iface != null) {
-                // the script wrapper has overriden the usual scripting mechanism
+                // the script wrapper has overridden the usual scripting mechanism
                 return iface;
             }
         } finally {
@@ -1949,7 +1949,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     }
 
     /**
-     * Gets the interface {@code clasz} from the given {@code script}. Might return {@code null} if
+     * Gets the interface {@code clazz} from the given {@code script}. Might return {@code null} if
      * the {@code script} does not implement the interface.
      *
      * <p>First tries to get the interface directly from the {@code script} by calling the method
@@ -1958,7 +1958,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * Invocable.getInterface(Class)}.
      *
      * @param script the script that will be invoked
-     * @param clasz the interface that will be obtained from the script
+     * @param clazz the interface that will be obtained from the script
      * @return the interface implemented by the script, or {@code null} if the {@code script} does
      *     not implement the interface.
      * @throws ScriptException if the engine of the given {@code script} was not found.
@@ -1968,14 +1968,14 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @see ScriptWrapper#getInterface(Class)
      * @see Invocable#getInterface(Class)
      */
-    public <T> T getInterfaceWithOutAddOnLoader(ScriptWrapper script, Class<T> clasz)
+    public <T> T getInterfaceWithOutAddOnLoader(ScriptWrapper script, Class<T> clazz)
             throws ScriptException, IOException {
-        T iface = script.getInterface(clasz);
+        T iface = script.getInterface(clazz);
         if (iface != null) {
-            // the script wrapper has overriden the usual scripting mechanism
+            // the script wrapper has overridden the usual scripting mechanism
             return iface;
         }
-        return invokeScriptWithOutAddOnLoader(script).getInterface(clasz);
+        return invokeScriptWithOutAddOnLoader(script).getInterface(clazz);
     }
 
     @Override

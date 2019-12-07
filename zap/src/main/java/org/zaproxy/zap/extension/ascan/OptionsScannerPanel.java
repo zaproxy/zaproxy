@@ -53,7 +53,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private ZapNumberSpinner spinnerMaxScanDuration = null;
     private ZapNumberSpinner spinnerMaxResultsList = null;
     private JCheckBox chkInjectPluginIdInHeader = null;
-    private JCheckBox chkHandleAntiCrsfTokens = null;
+    private JCheckBox chkHandleAntiCsrfTokens = null;
     private JCheckBox chkPromptInAttackMode = null;
     private JCheckBox chkRescanInAttackMode = null;
     private JComboBox<String> defaultAscanPolicy = null;
@@ -527,12 +527,12 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     }
 
     private JCheckBox getChkHandleAntiCSRFTokens() {
-        if (chkHandleAntiCrsfTokens == null) {
-            chkHandleAntiCrsfTokens = new JCheckBox();
-            chkHandleAntiCrsfTokens.setText(
+        if (chkHandleAntiCsrfTokens == null) {
+            chkHandleAntiCsrfTokens = new JCheckBox();
+            chkHandleAntiCsrfTokens.setText(
                     Constant.messages.getString("ascan.options.anticsrf.label"));
         }
-        return chkHandleAntiCrsfTokens;
+        return chkHandleAntiCsrfTokens;
     }
 
     private JCheckBox getChkPromptInAttackMode() {

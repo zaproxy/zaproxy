@@ -47,7 +47,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnPatternPassedInCronstructor() {
+    public void shouldReturnPatternPassedInConstructor() {
         // Given
         String pattern = "pattern";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);
@@ -124,7 +124,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldNotFindAnInexistentPattern() {
+    public void shouldNotFindAnNonexistentPattern() {
         // Given
         String pattern = "not in content";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);

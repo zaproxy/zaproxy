@@ -215,7 +215,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
             HttpMessage message, int depth, String action, String baseURL, FormData formData) {
         for (String submitData : formData) {
             log.debug(
-                    "Submiting form with GET method and query with form parameters: " + submitData);
+                    "Submitting form with GET method and query with form parameters: "
+                            + submitData);
             processURL(message, depth, action + submitData, baseURL);
         }
     }
@@ -402,7 +403,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
     private void notifyPostResourceFound(
             HttpMessage message, int depth, String url, String requestBody) {
         log.debug(
-                "Submiting form with POST method and message body with form parameters (normal encoding): "
+                "Submitting form with POST method and message body with form parameters (normal encoding): "
                         + requestBody);
         notifyListenersPostResourceFound(message, depth + 1, url, requestBody);
     }

@@ -31,9 +31,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
-import org.apache.commons.lang.StringUtils;
 
 public class GoAPIGenerator extends AbstractAPIGenerator {
 
@@ -129,19 +129,10 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
             throws IOException {
 
         boolean typeOther = type.equals(OTHER_ENDPOINT);
-        boolean hasParams =
-                (element.getMandatoryParamNames() != null
-                                && element.getMandatoryParamNames().size() > 0)
-                        || (element.getOptionalParamNames() != null
-                                && element.getOptionalParamNames().size() > 0);
+        boolean hasParams = !element.getParameters().isEmpty();
 
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overridden by the getDescriptionTag method if
-            // required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
         try {
             String desc = getMessages().getString(descTag);
             out.write("// " + desc + "\n");
@@ -162,18 +153,8 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
         out.write(toTitleCase(createMethodName(element.getName())));
         out.write("(");
 
-        // Iterate through and write out mandatory function arguments
-        writeOutArgs(element.getMandatoryParamNames(), out, hasParams);
-
-        if (element.getMandatoryParamNames() != null
-                && element.getMandatoryParamNames().size() > 0
-                && element.getOptionalParamNames() != null
-                && element.getOptionalParamNames().size() > 0) {
-            out.write(", ");
-        }
-
-        // Iterate through and write out optional function arguments
-        writeOutArgs(element.getOptionalParamNames(), out, hasParams);
+        // Iterate through and write out the function arguments
+        writeOutArgs(element.getParameters(), out);
 
         out.write(")");
 
@@ -189,11 +170,8 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
         if (hasParams) {
             out.write("\tm := map[string]string{");
 
-            // Iterate through and write out mandatory request parameters
-            writeOutRequestParams(element.getMandatoryParamNames(), out);
-
-            // Iterate through and write out optional request parameters
-            writeOutRequestParams(element.getOptionalParamNames(), out);
+            // Iterate through and write out the request parameters
+            writeOutRequestParams(element.getParameters(), out);
 
             out.write("\n\t}\n");
         }
@@ -236,47 +214,45 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
     }
 
     // Writes the function arguments
-    private void writeOutArgs(List<String> elements, Writer out, boolean hasParams)
-            throws IOException {
-        if (elements != null && elements.size() > 0) {
-            ArrayList<String> args = new ArrayList<String>();
-            for (String param : elements) {
-                if (param.equalsIgnoreCase("boolean")) {
-                    args.add("boolean bool");
-                } else if (param.equalsIgnoreCase("integer")) {
-                    args.add("i int");
-                } else if (param.equalsIgnoreCase("string")) {
-                    args.add("str string");
-                } else if (param.equalsIgnoreCase("type")) {
-                    args.add("t string");
-                } else {
-                    args.add(param.toLowerCase() + " string");
-                }
+    private void writeOutArgs(List<ApiParameter> parameters, Writer out) throws IOException {
+        ArrayList<String> args = new ArrayList<String>();
+        for (ApiParameter parameter : parameters) {
+            String name = parameter.getName();
+            if (name.equalsIgnoreCase("boolean")) {
+                args.add("boolean bool");
+            } else if (name.equalsIgnoreCase("integer")) {
+                args.add("i int");
+            } else if (name.equalsIgnoreCase("string")) {
+                args.add("str string");
+            } else if (name.equalsIgnoreCase("type")) {
+                args.add("t string");
+            } else {
+                args.add(name.toLowerCase(Locale.ROOT) + " string");
             }
-            out.write(StringUtils.join(args, ", "));
         }
+        out.write(String.join(", ", args));
     }
 
     // Writes the request parameters
-    private void writeOutRequestParams(List<String> elements, Writer out) throws IOException {
-        if (elements != null && elements.size() > 0) {
-            for (String param : elements) {
-                out.write("\n\t\t\"" + param + "\": ");
-                if (param.equalsIgnoreCase("boolean")) {
-                    addImports = true;
-                    out.write("strconv.FormatBool(boolean)");
-                } else if (param.equalsIgnoreCase("integer")) {
-                    addImports = true;
-                    out.write("strconv.Itoa(i)");
-                } else if (param.equalsIgnoreCase("string")) {
-                    out.write("str");
-                } else if (param.equalsIgnoreCase("type")) {
-                    out.write("t");
-                } else {
-                    out.write(param.toLowerCase());
-                }
-                out.write(",");
+    private void writeOutRequestParams(List<ApiParameter> parameters, Writer out)
+            throws IOException {
+        for (ApiParameter parameter : parameters) {
+            String name = parameter.getName();
+            out.write("\n\t\t\"" + name + "\": ");
+            if (name.equalsIgnoreCase("boolean")) {
+                addImports = true;
+                out.write("strconv.FormatBool(boolean)");
+            } else if (name.equalsIgnoreCase("integer")) {
+                addImports = true;
+                out.write("strconv.Itoa(i)");
+            } else if (name.equalsIgnoreCase("string")) {
+                out.write("str");
+            } else if (name.equalsIgnoreCase("type")) {
+                out.write("t");
+            } else {
+                out.write(name.toLowerCase(Locale.ROOT));
             }
+            out.write(",");
         }
     }
 

@@ -49,7 +49,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldHaveUnkownStatusByDefault() {
+    public void shouldHaveUnknownStatusByDefault() {
         assertThat(scanner.getStatus(), is(equalTo(AddOn.Status.unknown)));
     }
 

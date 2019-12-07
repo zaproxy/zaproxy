@@ -30,19 +30,15 @@ import org.zaproxy.zap.model.StructuralNode;
  * @author KSASAN preetkaran20@gmail.com
  * @since 2.9.0
  */
-public class HttpStatusCodeScanFilter extends AbstractScanFilter<Integer> {
+public class HttpStatusCodeScanFilter extends AbstractGenericScanFilter<Integer, Integer> {
 
     private static final String FILTER_TYPE = "scan.filter.filterType.HttpStatusCode";
 
     @Override
     public FilterResult isFiltered(StructuralNode node) {
         HistoryReference href = node.getHistoryReference();
-        if (href != null) {
-            int statusCode = href.getStatusCode();
-            return this.isFiltered(statusCode);
-        } else {
-            return FilterResult.NOT_FILTERED;
-        }
+        int statusCode = href.getStatusCode();
+        return this.isFiltered(statusCode);
     }
 
     @Override

@@ -17,6 +17,16 @@ The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free secur
 
 #### Please help us to make ZAP even better for you by answering the [ZAP User Questionnaire](https://docs.google.com/forms/d/1-k-vcj_sSxlil6XLxCFade-m-IQVeE2h9gduA-2ZPPA/viewform)!
 
+#### ZAP in Ten - Video series
+An ongoing series of up to 10 minute videos about ZAP, starting with the basics. 
+
+The first episode and the full series are available via:
+
+[![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/01-ZAP-in-Ten.png)](http://play.sonatype.com/watch/RyTy22GZV6UccW41UCghC8?)
+
+[![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/02-ZAP-in-Ten.png)](https://www.alldaydevops.com/zap-in-ten)
+
+
 ### For general information about ZAP:
   * [Home page](https://www.owasp.org/index.php/ZAP) - the official ZAP page on the OWASP wiki (includes a donate button;)
   * [Twitter](https://twitter.com/zaproxy)	- official ZAP announcements (low volume)
@@ -31,6 +41,7 @@ The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free secur
   * [Frequently Asked Questions](https://github.com/zaproxy/zaproxy/wiki/FAQtoplevel)
   * [User Guide](https://github.com/zaproxy/zap-core-help/wiki) - online version of the User Guide included with ZAP
   * [User Group](https://groups.google.com/group/zaproxy-users) - ask questions about using ZAP
+  * [ZAP API](https://www.zaproxy.org/docs/api/) - comprehensive documentation on how to use the ZAP API
   * IRC: irc.mozilla.org #websectools (eg [using Mibbit](http://chat.mibbit.com/?server=irc.mozilla.org%3A%2B6697&channel=%23websectools)) - chat with core ZAP developers (European office hours usually best)
   * [Add-ons](https://github.com/zaproxy/zap-extensions/wiki) - help for the optional add-ons you can install
   * [StackOverflow](https://stackoverflow.com/questions/tagged/zap) - because some people use this for everything ;)

@@ -55,10 +55,8 @@ public abstract class ApiDynamicActionImplementor extends ApiElement {
      */
     public ApiResponse buildParamsDescription() {
         ApiResponseList configParams = new ApiResponseList("methodConfigParams");
-        for (String param : this.getMandatoryParamNames())
-            configParams.addItem(buildParamMap(param, true));
-        for (String param : this.getOptionalParamNames())
-            configParams.addItem(buildParamMap(param, false));
+        for (ApiParameter param : this.getParameters())
+            configParams.addItem(buildParamMap(param.getName(), param.isRequired()));
         return configParams;
     }
 

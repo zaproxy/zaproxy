@@ -40,7 +40,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
-// ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
+// ZAP: 2013/08/28 Issue 695: Sites tree doesn't clear on new session created by API
 // ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved
 // resources open
 // ZAP: 2013/09/16 Issue 791: Saved sessions are discarded on ZAP's exit
