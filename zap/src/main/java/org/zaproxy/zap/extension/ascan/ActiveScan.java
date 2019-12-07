@@ -65,7 +65,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     private String displayName = null;
     private int progress = 0;
     private ActiveScanTableModel messagesTableModel = new ActiveScanTableModel();
-    private FilteredMessageTableModel filteredMessageTableModel = new FilteredMessageTableModel();
+    private FilterMessageTableModel filterMessageTableModel = new FilterMessageTableModel();
     private SiteNode startNode = null;
     private ResponseCountSnapshot rcTotals = new ResponseCountSnapshot();
     private ResponseCountSnapshot rcLastSnapshot = new ResponseCountSnapshot();
@@ -241,10 +241,11 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     @Override
     public void filteredMessage(HttpMessage msg, String reason) {
         try {
-            filteredMessageTableModel.addScanResult(SessionStructure.getNodeName(msg), reason);
+            filterMessageTableModel.addScanResult(SessionStructure.getNodeName(msg), reason);
         } catch (URIException e) {
             log.error(
-                    "Error while adding node to filtered message table model: " + e.getMessage(),
+                    "Error while adding message information to filter message table model: "
+                            + e.getMessage(),
                     e);
         }
     }
@@ -271,8 +272,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         return null;
     }
 
-    public FilteredMessageTableModel getFilteredMessageTableModel() {
-        return filteredMessageTableModel;
+    public FilterMessageTableModel getFilterMessageTableModel() {
+        return filterMessageTableModel;
     }
 
     public ActiveScanTableModel getMessagesTableModel() {

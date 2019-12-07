@@ -72,14 +72,14 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     private static final String ZERO_NEW_ALERTS_LABEL_TEXT = "0";
 
     private static final ActiveScanTableModel EMPTY_RESULTS_MODEL = new ActiveScanTableModel();
-    private static final FilteredMessageTableModel EMPTY_FILTERED_MESSAGE_MODEL =
-            new FilteredMessageTableModel();
+    private static final FilterMessageTableModel EMPTY_FILTER_MESSAGE_MODEL =
+            new FilterMessageTableModel();
 
     private ExtensionActiveScan extension;
     private JScrollPane jScrollPane;
     private JScrollPane filterPane;
     private HistoryReferencesTable messagesTable;
-    private ZapTable filteredMessageTable;
+    private ZapTable filterMessageTable;
 
     private JButton policyButton = null;
     private JButton scanButton = null;
@@ -110,7 +110,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
                                 getExportButton().setTable(getMessagesTable());
                                 break;
                             case 1:
-                                getExportButton().setTable(getFilteredMessageTable());
+                                getExportButton().setTable(getFilterMessageTable());
                                 break;
                         }
                     }
@@ -266,13 +266,13 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
             }
             if (filterPane == null) {
                 filterPane = new JScrollPane();
-                filterPane.setName("FilteredMessagePane");
-                filterPane.setViewportView(getFilteredMessageTable());
+                filterPane.setName("FilterMessagePane");
+                filterPane.setViewportView(getFilterMessageTable());
             }
             tabbedPane.add(
-                    Constant.messages.getString("ascan.panel.tab.scannedNodes"), jScrollPane);
+                    Constant.messages.getString("ascan.panel.tab.scannedMessages"), jScrollPane);
             tabbedPane.add(
-                    Constant.messages.getString("ascan.panel.tab.filteredNodes"), filterPane);
+                    Constant.messages.getString("ascan.panel.tab.filteredMessages"), filterPane);
             tabbedPane.setSelectedIndex(0);
             mainPanel.add(tabbedPane);
         }
@@ -283,8 +283,8 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
         getMessagesTable().setModel(EMPTY_RESULTS_MODEL);
     }
 
-    private void resetFilteredMessageTable() {
-        getFilteredMessageTable().setModel(EMPTY_FILTERED_MESSAGE_MODEL);
+    private void resetFilterMessageTable() {
+        getFilterMessageTable().setModel(EMPTY_FILTER_MESSAGE_MODEL);
     }
 
     private ZapTable getMessagesTable() {
@@ -296,13 +296,13 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
         return messagesTable;
     }
 
-    private ZapTable getFilteredMessageTable() {
-        if (filteredMessageTable == null) {
-            filteredMessageTable = new ZapTable(EMPTY_FILTERED_MESSAGE_MODEL);
-            filteredMessageTable.setName("FilteredMessageTable");
-            filteredMessageTable.setAutoCreateColumnsFromModel(false);
-        }
-        return filteredMessageTable;
+    private ZapTable getFilterMessageTable() {
+    	if (filterMessageTable == null) {
+    		 this.filterMessageTable = new ZapTable(EMPTY_FILTER_MESSAGE_MODEL);
+    	     this.filterMessageTable.setName("FilterMessageTable");
+    	     this.filterMessageTable.setAutoCreateColumnsFromModel(false);
+    	}
+        return this.filterMessageTable;
     }
 
     @Override
@@ -325,7 +325,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 
         if (scanner != null) {
             getMessagesTable().setModel(scanner.getMessagesTableModel());
-            getFilteredMessageTable().setModel(scanner.getFilteredMessageTableModel());
+            getFilterMessageTable().setModel(scanner.getFilterMessageTableModel());
             this.getNumRequests().setText(Integer.toString(scanner.getTotalRequests()));
             this.getNumNewAlerts().setText(Integer.toString(scanner.getTotalNewAlerts()));
             this.getProgressButton().setEnabled(true);
@@ -339,7 +339,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
             }
         } else {
             resetMessagesTable();
-            resetFilteredMessageTable();
+            resetFilterMessageTable();
             this.getNumRequests().setText(ZERO_REQUESTS_LABEL_TEXT);
             this.getNumNewAlerts().setText(ZERO_NEW_ALERTS_LABEL_TEXT);
             this.getProgressButton().setEnabled(false);
@@ -392,7 +392,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     public void reset() {
         super.reset();
         this.resetMessagesTable();
-        this.resetFilteredMessageTable();
+        this.resetFilterMessageTable();
         this.getProgressButton().setEnabled(false);
     }
 

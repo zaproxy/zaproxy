@@ -24,27 +24,22 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 import org.parosproxy.paros.Constant;
 
-/** The Class FilteredMessageTableModel is used as a TableModel for the Active Scan Panel. */
-public class FilteredMessageTableModel extends AbstractTableModel {
+/** The Class FilterMessageTableModel is used as a TableModel for the Active Scan Panel. */
+class FilterMessageTableModel extends AbstractTableModel {
 
-    /** The Constant serialVersionUID. */
     private static final long serialVersionUID = -6380136823410869457L;
 
-    /** The column names. */
     private static final String[] COLUMN_NAMES = {
         Constant.messages.getString("ascan.filter.table.header.uri"),
         Constant.messages.getString("ascan.filter.table.header.reason")
     };
 
-    /** The Constant defining the COLUMN COUNT. */
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
-    /** The Filtered message results. */
-    private List<FilteredMessageResult> filteredMessageResultList;
+    private List<FilteredMessageResult> filteredMessageResults;
 
-    /** Instantiates a new spider panel table model. */
-    public FilteredMessageTableModel() {
-        filteredMessageResultList = new ArrayList<>();
+    public FilterMessageTableModel() {
+        filteredMessageResults = new ArrayList<>();
     }
 
     @Override
@@ -59,13 +54,12 @@ public class FilteredMessageTableModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-        return filteredMessageResultList.size();
+        return filteredMessageResults.size();
     }
 
     @Override
     public Object getValueAt(int row, int col) {
-        // Get the ScanResult and the required field
-        FilteredMessageResult result = filteredMessageResultList.get(row);
+        FilteredMessageResult result = filteredMessageResults.get(row);
         switch (col) {
             case 0:
                 return result.uri;
@@ -76,39 +70,22 @@ public class FilteredMessageTableModel extends AbstractTableModel {
         }
     }
 
-    /** Removes all the elements. Method is synchronized internally. */
-    public void removeAllElements() {
-        filteredMessageResultList.clear();
-        fireTableDataChanged();
-    }
-
     /**
      * Adds a new filtered message result.
      *
      * @param uri the uri
-     * @param method the reason
+     * @param reason for filtering message
      */
     public void addScanResult(String uri, String reason) {
         FilteredMessageResult result = new FilteredMessageResult(uri, reason);
-        filteredMessageResultList.add(result);
-        fireTableRowsInserted(
-                filteredMessageResultList.size() - 1, filteredMessageResultList.size() - 1);
+        filteredMessageResults.add(result);
+        fireTableRowsInserted(filteredMessageResults.size() - 1, filteredMessageResults.size() - 1);
     }
 
-    /**
-     * Removes the scan result for a particular uri and method. Method is synchronized internally.
-     *
-     * @param uri the uri
-     * @param method the reason
-     */
-    public void removesScanResult(String uri, String reason) {
-        FilteredMessageResult toRemove = new FilteredMessageResult(uri, reason);
-        int index = filteredMessageResultList.indexOf(toRemove);
-        if (index >= 0) {
-            filteredMessageResultList.remove(index);
-            fireTableRowsDeleted(index, index);
-        }
-    }
+    public void removeAllElements() {
+    	filteredMessageResults.clear();
+    	fireTableDataChanged();
+    	}
 
     /**
      * Returns the type of column for given column index.
@@ -143,7 +120,7 @@ public class FilteredMessageTableModel extends AbstractTableModel {
          * Instantiates a new filtered message result.
          *
          * @param uri the uri
-         * @param reason the method
+         * @param reason for filtering message
          */
         protected FilteredMessageResult(String uri, String reason) {
             super();
@@ -176,9 +153,9 @@ public class FilteredMessageTableModel extends AbstractTableModel {
         }
     }
 
-    public List<String> getAddedNodes() {
-        List<String> list = new ArrayList<String>(this.filteredMessageResultList.size());
-        for (FilteredMessageResult res : this.filteredMessageResultList) {
+    public List<String> getFilteredMessagesUri() {
+        List<String> list = new ArrayList<String>(this.filteredMessageResults.size());
+        for (FilteredMessageResult res : this.filteredMessageResults) {
             list.add(res.uri);
         }
         return list;

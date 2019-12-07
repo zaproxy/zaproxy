@@ -508,10 +508,8 @@ public class HostProcess implements Runnable {
                 FilterResult filterResult = scanFilter.isFiltered(node);
                 if (filterResult.isFiltered()) {
                     // Notify Parent Scanner.
-
-                    HttpMessage msg;
                     try {
-                        msg = node.getHistoryReference().getHttpMessage();
+                        HttpMessage msg = node.getHistoryReference().getHttpMessage();
                         parentScanner.notifyFilteredMessage(msg, filterResult.getReason());
                     } catch (HttpMalformedHeaderException | DatabaseException e) {
                         log.error(
