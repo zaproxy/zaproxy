@@ -541,7 +541,7 @@ public class CommandLine {
     }
 
     /**
-     * Returns true if ZAP should not make any unsolicited requests, eg check-for-updates etc
+     * Returns true if ZAP should not make any unsolicited requests, e.g. check-for-updates, etc.
      *
      * @since 2.8.0
      */

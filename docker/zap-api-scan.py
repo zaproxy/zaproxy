@@ -70,7 +70,7 @@ config_msg = {}
 out_of_scope_dict = {}
 min_level = 0
 
-# Scan rules that aren't really relevant, eg the examples rules in the alpha set
+# Scan rules that aren't really relevant, e.g. the examples rules in the alpha set
 blacklist = ['-1', '50003', '60000', '60001']
 
 # Scan rules that are being addressed
@@ -83,7 +83,7 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 def usage():
     print('Usage: zap-api-scan.py -t <target> -f <format> [options]')
-    print('    -t target         target API definition, OpenAPI or SOAP, local file or URL, eg https://www.example.com/openapi.json')
+    print('    -t target         target API definition, OpenAPI or SOAP, local file or URL, e.g. https://www.example.com/openapi.json')
     print('    -f format         either openapi or soap')
     print('Options:')
     print('    -h                print this help message')

@@ -102,7 +102,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
     /** The results model. */
     private SpiderPanelTableModel resultsModel;
 
-    /** The added nodes model, ie the names of the nodes that were added to the sites tree. */
+    /** The added nodes model, i.e. the names of the nodes that were added to the sites tree. */
     private SpiderPanelTableModel addedNodesModel;
 
     /** The start uri. */

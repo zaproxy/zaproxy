@@ -51,7 +51,8 @@ public class ExtensionLog4j extends ExtensionAdaptor {
         this.setOrder(56);
 
         if (Constant.isDevMode() && View.isInitialised()) {
-            // Only enable if this is a developer build, ie build from source, or explicitly enabled
+            // Only enable if this is a developer build, i.e. build from source, or explicitly
+            // enabled
 
             scanStatus =
                     new ScanStatus(

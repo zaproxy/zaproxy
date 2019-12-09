@@ -697,7 +697,7 @@ public class API {
      * @param prefix the prefix of the API implementor
      * @param type the request type
      * @param name the name of the endpoint
-     * @param proxy if true then the URI returned will only work if proxying via ZAP, ie it will
+     * @param proxy if true then the URI returned will only work if proxying via ZAP, i.e. it will
      *     start with http://zap/..
      * @return the URL to access the defined endpoint
      * @see #getBaseURL(boolean)

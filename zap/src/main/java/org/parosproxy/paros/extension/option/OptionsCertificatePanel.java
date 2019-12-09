@@ -998,7 +998,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                     //   - ...
 
                     // Issue 182: Try to instantiate the PKCS11 provider twice if there are
-                    // conflicts with other software (eg. Firefox), that is accessing it too.
+                    // conflicts with other software (e.g.. Firefox), that is accessing it too.
                     if (retry) {
                         // Try two times only
                         retry = false;

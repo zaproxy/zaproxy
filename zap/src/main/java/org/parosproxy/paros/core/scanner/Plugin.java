@@ -211,7 +211,7 @@ public interface Plugin extends Runnable {
     void setDelayInMs(int delay);
 
     /**
-     * The alert threshold for this plugin, ie the level of certainty required to report an alert
+     * The alert threshold for this plugin, i.e. the level of certainty required to report an alert
      *
      * @param incDefault if the DEFAULT level should be returned as DEFAULT as opposed to the value
      *     of the default level
@@ -220,7 +220,7 @@ public interface Plugin extends Runnable {
     AlertThreshold getAlertThreshold(boolean incDefault);
 
     /**
-     * The alert threshold for this plugin, ie the level of certainty required to report an alert.
+     * The alert threshold for this plugin, i.e. the level of certainty required to report an alert.
      * The DEFAULT level will not be returned, instead the value of the default level will be
      * returned, if relevant.
      *
@@ -229,7 +229,7 @@ public interface Plugin extends Runnable {
     AlertThreshold getAlertThreshold();
 
     /**
-     * Set the alert threshold for this plugin, ie the level of certainty required to report an
+     * Set the alert threshold for this plugin, i.e. the level of certainty required to report an
      * alert
      *
      * @param level The alert threshold to set for this plugin
@@ -237,8 +237,8 @@ public interface Plugin extends Runnable {
     void setAlertThreshold(AlertThreshold level);
 
     /**
-     * Set the default alert threshold for this plugin, ie the level of certainty required to report
-     * an alert
+     * Set the default alert threshold for this plugin, i.e. the level of certainty required to
+     * report an alert
      *
      * @param level The alert threshold to set for this plugin
      */
@@ -272,7 +272,7 @@ public interface Plugin extends Runnable {
     AttackStrength getAttackStrength();
 
     /**
-     * Set the attack strength for this plugin, ie the relative number of requests the plugin will
+     * Set the attack strength for this plugin, i.e. the relative number of requests the plugin will
      * make against a given target.
      *
      * @param level The alert threshold to set for this plugin
@@ -280,8 +280,8 @@ public interface Plugin extends Runnable {
     void setAttackStrength(AttackStrength level);
 
     /**
-     * Set the default attack strength for this plugin, ie the relative number of attacks that will
-     * be performed
+     * Set the default attack strength for this plugin, i.e. the relative number of attacks that
+     * will be performed
      *
      * @param strength The attack strength to set for this plugin
      */

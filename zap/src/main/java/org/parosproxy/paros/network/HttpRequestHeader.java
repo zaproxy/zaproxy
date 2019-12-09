@@ -308,7 +308,7 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     /**
-     * Get the HTTP method (GET, POST ... etc).
+     * Get the HTTP method (GET, POST, ..., etc.).
      *
      * @return the request method
      */

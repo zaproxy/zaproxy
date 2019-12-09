@@ -107,7 +107,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.class);
 
     private int headerLength = -1;
-    // The index of the start of the URL path eg after https://www.example.com:1234/ - no point
+    // The index of the start of the URL path e.g. after https://www.example.com:1234/ - no point
     // attacking this
     private int urlPathStart = -1;
     private Target target = null;

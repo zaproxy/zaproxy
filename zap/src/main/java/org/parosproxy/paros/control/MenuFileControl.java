@@ -127,7 +127,7 @@ public class MenuFileControl implements SessionListener {
 
         if (model.getOptionsParam().getDatabaseParam().isNewSessionPrompt()) {
             PersistSessionDialog psd = new PersistSessionDialog(View.getSingleton().getMainFrame());
-            // Set up the default option - ie the same one the user chose last time
+            // Set up the default option - i.e. the same one the user chose last time
             switch (newSessionOption) {
                 case DatabaseParam.NEW_SESSION_TIMESTAMPED:
                     psd.setTimestampChosen();
@@ -517,7 +517,7 @@ public class MenuFileControl implements SessionListener {
             if (file != null) {
                 log.error("Error opening session file " + file.getAbsolutePath(), e);
             } else {
-                // File is null for table based sessions (ie non HSQLDB)
+                // File is null for table based sessions (i.e. non HSQLDB)
                 log.error(e.getMessage(), e);
             }
         }

@@ -112,7 +112,7 @@ public interface Database {
     TableStructure getTableStructure();
 
     /**
-     * The type of the database - eg {@value #DB_TYPE_HSQLDB}
+     * The type of the database - e.g. {@value #DB_TYPE_HSQLDB}
      *
      * @return
      */

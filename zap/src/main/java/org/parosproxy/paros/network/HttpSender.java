@@ -379,7 +379,7 @@ public class HttpSender {
         }
 
         if (this.initiator == CHECK_FOR_UPDATES_INITIATOR) {
-            // Use the 'strict' SSLConnector, ie one that performs all the usual cert checks
+            // Use the 'strict' SSLConnector, i.e. one that performs all the usual cert checks
             // The 'standard' one 'trusts' everything
             // This is to ensure that all 'check-for update' calls are made to the expected https
             // urls

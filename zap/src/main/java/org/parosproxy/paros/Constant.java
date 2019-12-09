@@ -269,7 +269,7 @@ public final class Constant {
     private static final String USER_POLICIES_DIR = "policies";
 
     //
-    // Home dir for ZAP, ie where the config file is. Can be set on cmdline, otherwise will be set
+    // Home dir for ZAP, i.e. where the config file is. Can be set on cmdline, otherwise will be set
     // to default loc
     private static String zapHome = null;
     // Default home dir for 'full' releases - used for copying full conf file when dev/daily release
@@ -1370,7 +1370,7 @@ public final class Constant {
     }
 
     /**
-     * Sets whether or not ZAP should be 'silent' ie not make any unsolicited requests.
+     * Sets whether or not ZAP should be 'silent' i.e. not make any unsolicited requests.
      *
      * <p><strong>Note:</strong> This method should be called only by bootstrap classes.
      *
@@ -1407,9 +1407,9 @@ public final class Constant {
     }
 
     /**
-     * If true then ZAP should not make any unsolicited requests, eg check-for-updates
+     * If true then ZAP should not make any unsolicited requests, e.g. check-for-updates
      *
-     * @return true if ZAP should not make any unsolicited requests, eg check-for-updates
+     * @return true if ZAP should not make any unsolicited requests, e.g. check-for-updates
      * @since 2.8.0
      */
     public static boolean isSilent() {

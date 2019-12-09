@@ -27,7 +27,7 @@
 # * Start ZAP (as this is for testing purposes you might not want the
 #     'standard' ZAP to be started)
 # * Access wavsep via your browser, proxying through ZAP
-# * Vist all of the wavsep top level URLs, eg
+# * Vist all of the wavsep top level URLs, e.g.
 #     http://localhost:8080/wavsep/index-active.jsp
 #     http://localhost:8080/wavsep/index-passive.jsp
 # * Run the Spider against http://localhost:8080

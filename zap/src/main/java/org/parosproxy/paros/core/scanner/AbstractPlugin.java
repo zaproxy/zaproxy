@@ -637,8 +637,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Check if this test should be stopped. It should be checked periodically in Plugin (eg when in
-     * loops) so the HostProcess can stop this Plugin cleanly.
+     * Check if this test should be stopped. It should be checked periodically in Plugin (e.g. when
+     * in loops) so the HostProcess can stop this Plugin cleanly.
      *
      * @return {@code true} if the scanner should stop, {@code false} otherwise
      */

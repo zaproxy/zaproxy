@@ -937,7 +937,7 @@ public class HttpMessage implements Message {
     // Construct new POST Body from parameter in the postParams argument
     // in the Request Body
     public void setFormParams(TreeSet<HtmlParameter> postParams) {
-        // TODO: Maybe update content length etc?
+        // TODO: Maybe update content length, etc.?
         mReqBody.setFormParams(postParams);
     }
 

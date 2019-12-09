@@ -212,7 +212,7 @@ public class AttackModeScanner implements EventConsumer {
 
         long now = System.currentTimeMillis();
         if (now - this.lastUpdated > 200) {
-            // Dont update too frequently, eg using the spider could hammer the UI unnecessarily
+            // Dont update too frequently, e.g. using the spider could hammer the UI unnecessarily
             this.lastUpdated = now;
             SwingUtilities.invokeLater(
                     new Runnable() {

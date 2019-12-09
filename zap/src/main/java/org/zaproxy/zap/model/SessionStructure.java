@@ -160,7 +160,7 @@ public class SessionStructure {
 
     /**
      * Returns a regex pattern that will match the specified StructuralNode, ignoring the parent and
-     * children. For most nodes this will just be the last element in the path, eg URL regex name
+     * children. For most nodes this will just be the last element in the path, e.g. URL regex name
      * https://www.example.com/aaa/bbb bbb https://www.example.com/aaa aaa https://www.example.com/
      * https://www.example.com Datadriven nodes are different, they will always return (.+?) to
      * match anything.
@@ -175,7 +175,7 @@ public class SessionStructure {
     }
 
     /**
-     * Returns the name of the node ignoring the parent and children, ie the last element in the
+     * Returns the name of the node ignoring the parent and children, i.e. the last element in the
      * path. Data driven nodes will return the user specified name surrounded by the double angled
      * brackets.
      *
@@ -229,7 +229,7 @@ public class SessionStructure {
         if (sn.isLeaf()) {
             int colonIndex = name.indexOf(":");
             if (colonIndex > 0) {
-                // Strip the GET/POST etc off
+                // Strip the GET/POST/etc. off
                 name = name.substring(colonIndex + 1);
             }
         }

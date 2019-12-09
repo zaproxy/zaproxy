@@ -92,7 +92,7 @@ public class VariantDirectWebRemotingQuery extends VariantAbstractRPCQuery {
             String paramDetails[] = paramString.split("=", 2);
             // do not interpret the DWR script or method as parameters to be scanned
             // take care to handle the case where a single POST request contains multiple DWR calls
-            // (c0, c1, c2, etc)
+            // (c0, c1, c2, etc.)
             if ((!patternIgnoreScriptName.matcher(paramDetails[0]).matches())
                     && (!patternIgnoreMethodName.matcher(paramDetails[0]).matches())
                     && paramDetails.length == 2) {

@@ -58,7 +58,7 @@ config_msg = {}
 out_of_scope_dict = {}
 min_level = 0
 
-# Pscan rules that aren't really relevant, eg the examples rules in the alpha set
+# Pscan rules that aren't really relevant, e.g. the examples rules in the alpha set
 blacklist = ['-1', '50003', '60000', '60001']
 
 # Pscan rules that are being addressed
@@ -71,7 +71,7 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 def usage():
     print('Usage: zap-baseline.py -t <target> [options]')
-    print('    -t target         target URL including the protocol, eg https://www.example.com')
+    print('    -t target         target URL including the protocol, e.g. https://www.example.com')
     print('Options:')
     print('    -h                print this help message')
     print('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
