@@ -408,6 +408,13 @@ public class Scanner implements Runnable {
         }
     }
 
+    void notifyFilteredMessage(HttpMessage msg, String reason) {
+        for (int i = 0; i < listenerList.size(); i++) {
+            ScannerListener listener = listenerList.get(i);
+            listener.filteredMessage(msg, reason);
+        }
+    }
+
     void notifyAlertFound(Alert alert) {
         for (int i = 0; i < listenerList.size(); i++) {
             // ZAP: Removed unnecessary cast.

@@ -137,7 +137,11 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.parosproxy.paros.extension.ExtensionAdaptor#getAuthor()",
         // Not expected to be used by add-ons
         "org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate#getLatestVersionInfo(org.zaproxy.zap.extension.autoupdate.CheckForUpdateCallback)",
-        "org.zaproxy.zap.extension.autoupdate.ManageAddOnsDialog#checkForUpdates()"
+        "org.zaproxy.zap.extension.autoupdate.ManageAddOnsDialog#checkForUpdates()",
+        // Safe default method
+        "org.parosproxy.paros.core.scanner.ScannerListener#filteredMessage(org.parosproxy.paros.network.HttpMessage,java.lang.String)",
+        // Internal API
+        "org.zaproxy.zap.extension.ascan.ActiveScanPanel#getWorkPanel()"
     )
 
     richReport {
