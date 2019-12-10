@@ -27,7 +27,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 
 import java.util.List;
-import java.util.Vector;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -435,9 +434,9 @@ public class VariantCookieUnitTest {
             @Override
             public boolean matches(Object actualValue) {
                 HttpMessage message = (HttpMessage) actualValue;
-                Vector<String> cookieLines =
-                        message.getRequestHeader().getHeaders(HttpHeader.COOKIE);
-                if (cookieLines == null || cookieLines.size() != 1) {
+                List<String> cookieLines =
+                        message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
+                if (cookieLines.size() != 1) {
                     return false;
                 }
                 return cookies.equals(cookieLines.get(0));
@@ -451,9 +450,9 @@ public class VariantCookieUnitTest {
             @Override
             public void describeMismatch(Object item, Description description) {
                 HttpMessage message = (HttpMessage) item;
-                Vector<String> cookieLines =
-                        message.getRequestHeader().getHeaders(HttpHeader.COOKIE);
-                if (cookieLines == null) {
+                List<String> cookieLines =
+                        message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
+                if (cookieLines.isEmpty()) {
                     description.appendText("has no cookie headers");
                 } else if (cookieLines.size() == 1) {
                     description.appendText("was ").appendValue(cookieLines.get(0));
@@ -470,12 +469,7 @@ public class VariantCookieUnitTest {
             @Override
             public boolean matches(Object actualValue) {
                 HttpMessage message = (HttpMessage) actualValue;
-                Vector<String> cookieLines =
-                        message.getRequestHeader().getHeaders(HttpHeader.COOKIE);
-                if (cookieLines == null || cookieLines.isEmpty()) {
-                    return true;
-                }
-                return false;
+                return message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE).isEmpty();
             }
 
             @Override
@@ -486,8 +480,8 @@ public class VariantCookieUnitTest {
             @Override
             public void describeMismatch(Object item, Description description) {
                 HttpMessage message = (HttpMessage) item;
-                Vector<String> cookieLines =
-                        message.getRequestHeader().getHeaders(HttpHeader.COOKIE);
+                List<String> cookieLines =
+                        message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
                 if (cookieLines.size() == 1) {
                     description
                             .appendText("has one cookie header ")
