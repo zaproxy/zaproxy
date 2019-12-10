@@ -33,8 +33,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -76,8 +74,6 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
             new FilterMessageTableModel();
 
     private ExtensionActiveScan extension;
-    private JScrollPane jScrollPane;
-    private JScrollPane filterPane;
     private HistoryReferencesTable messagesTable;
     private ZapTable filterMessageTable;
 
@@ -102,17 +98,14 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
                 new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")),
                 extension);
         tabbedPane.addChangeListener(
-                new ChangeListener() {
-                    @Override
-                    public void stateChanged(ChangeEvent e) {
-                        switch (tabbedPane.getSelectedIndex()) {
-                            case 0:
-                                getExportButton().setTable(getMessagesTable());
-                                break;
-                            case 1:
-                                getExportButton().setTable(getFilterMessageTable());
-                                break;
-                        }
+                (e) -> {
+                    switch (tabbedPane.getSelectedIndex()) {
+                        case 0:
+                            getExportButton().setTable(getMessagesTable());
+                            break;
+                        case 1:
+                            getExportButton().setTable(getFilterMessageTable());
+                            break;
                     }
                 });
         this.extension = extension;
@@ -259,16 +252,14 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
         if (mainPanel == null) {
             mainPanel = new JPanel(new BorderLayout());
             tabbedPane = new JTabbedPane();
-            if (jScrollPane == null) {
-                jScrollPane = new JScrollPane();
-                jScrollPane.setName("ActiveScanMessagePane");
-                jScrollPane.setViewportView(getMessagesTable());
-            }
-            if (filterPane == null) {
-                filterPane = new JScrollPane();
-                filterPane.setName("FilterMessagePane");
-                filterPane.setViewportView(getFilterMessageTable());
-            }
+
+            JScrollPane jScrollPane = new JScrollPane();
+            jScrollPane.setName("ActiveScanMessagePane");
+            jScrollPane.setViewportView(getMessagesTable());
+            JScrollPane filterPane = new JScrollPane();
+            filterPane.setName("FilterMessagePane");
+            filterPane.setViewportView(getFilterMessageTable());
+
             tabbedPane.add(
                     Constant.messages.getString("ascan.panel.tab.scannedMessages"), jScrollPane);
             tabbedPane.add(
@@ -287,7 +278,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
         getFilterMessageTable().setModel(EMPTY_FILTER_MESSAGE_MODEL);
     }
 
-    private ZapTable getMessagesTable() {
+    private HistoryReferencesTable getMessagesTable() {
         if (messagesTable == null) {
             messagesTable = new HistoryReferencesTable(EMPTY_RESULTS_MODEL);
             messagesTable.setName(MESSAGE_CONTAINER_NAME);

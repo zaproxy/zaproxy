@@ -79,18 +79,12 @@ class FilterMessageTableModel extends AbstractTableModel {
      * @param url
      * @param reason for filtering message
      */
-    public void addScanResult(String url, String reason) {
+    public void addResult(String url, String reason) {
         FilteredMessageResult result = new FilteredMessageResult(url, reason);
         filteredMessageResults.add(result);
         fireTableRowsInserted(filteredMessageResults.size() - 1, filteredMessageResults.size() - 1);
     }
 
-    /**
-     * Returns the type of column for given column index.
-     *
-     * @param columnIndex the column index
-     * @return the column class
-     */
     @Override
     public Class<?> getColumnClass(int columnIndex) {
         return String.class;
@@ -110,30 +104,6 @@ class FilterMessageTableModel extends AbstractTableModel {
             super();
             this.url = url;
             this.reason = reason;
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((reason == null) ? 0 : reason.hashCode());
-            result = prime * result + ((url == null) ? 0 : url.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) return true;
-            if (obj == null) return false;
-            if (getClass() != obj.getClass()) return false;
-            FilteredMessageResult other = (FilteredMessageResult) obj;
-            if (reason == null) {
-                if (other.reason != null) return false;
-            } else if (!reason.equals(other.reason)) return false;
-            if (url == null) {
-                if (other.url != null) return false;
-            } else if (!url.equals(other.url)) return false;
-            return true;
         }
     }
 }

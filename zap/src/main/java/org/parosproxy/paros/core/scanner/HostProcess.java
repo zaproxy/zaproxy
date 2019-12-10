@@ -511,7 +511,7 @@ public class HostProcess implements Runnable {
                         HttpMessage msg = node.getHistoryReference().getHttpMessage();
                         parentScanner.notifyFilteredMessage(msg, filterResult.getReason());
                     } catch (HttpMalformedHeaderException | DatabaseException e) {
-                        log.error(
+                        log.warn(
                                 "Error while getting httpmessage from history reference: "
                                         + e.getMessage(),
                                 e);

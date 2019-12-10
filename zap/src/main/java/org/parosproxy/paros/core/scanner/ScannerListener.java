@@ -42,6 +42,11 @@ public interface ScannerListener {
     // ZAP: Added notifyNewMessage
     void notifyNewMessage(HttpMessage msg);
 
-    // Added to notify reason for filtering message from scanning.
+    /**
+     * Added to notify reason for filtering message from scanning.
+     *
+     * @param msg
+     * @param reason
+     */
     default void filteredMessage(HttpMessage msg, String reason) {};
 }
