@@ -22,7 +22,6 @@ package org.parosproxy.paros.core.scanner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Vector;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -43,8 +42,8 @@ public class VariantCookie implements Variant {
             throw new IllegalArgumentException("Parameter message must not be null.");
         }
 
-        Vector<String> cookieLines = message.getRequestHeader().getHeaders(HttpHeader.COOKIE);
-        if (cookieLines == null) {
+        List<String> cookieLines = message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
+        if (cookieLines.isEmpty()) {
             params = Collections.emptyList();
             return;
         }
