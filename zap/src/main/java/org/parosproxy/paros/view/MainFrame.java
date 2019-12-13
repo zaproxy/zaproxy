@@ -32,6 +32,7 @@
 // ZAP: 2018/02/14 Add button for ResponsePanelPosition.TAB_SIDE_BY_SIDE (Issue 4331).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/12/13 Display the primary proxy details (host:port) in the footer (Issue 2016).
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -587,6 +588,7 @@ public class MainFrame extends AbstractFrame {
         setResponsePanelPosition(position);
 
         setShowTabNames(options.getViewParam().getShowTabNames());
+        getMainFooterPanel().optionsChanged();
     }
 
     /**
