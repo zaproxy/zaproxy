@@ -32,9 +32,6 @@ import org.parosproxy.paros.extension.AbstractDialog;
 public class AboutDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;
-    private JPanel jPanel = null;
-    private AboutPanel aboutPanel = null;
-    private JButton btnOK = null;
 
     /**
      * Constructs an {@code AboutDialog} with no owner and not modal.
@@ -42,8 +39,7 @@ public class AboutDialog extends AbstractDialog {
      * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
      */
     public AboutDialog() {
-        super();
-        initialize();
+        this(null, false);
     }
 
     /**
@@ -52,84 +48,41 @@ public class AboutDialog extends AbstractDialog {
      * @param owner the {@code Frame} from which the dialog is displayed
      * @param modal {@code true} if the dialogue should be modal, {@code false} otherwise
      * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
+     * @see org.zaproxy.zap.view.AboutPanel
      */
     public AboutDialog(Frame owner, boolean modal) {
         super(owner, modal);
-        initialize();
-    }
 
-    /** This method initializes this */
-    private void initialize() {
-        this.setContentPane(getJPanel());
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+
+        GridBagConstraints gbcPanel = new GridBagConstraints();
+        GridBagConstraints gbcButtons = new GridBagConstraints();
+
+        gbcPanel.gridx = 0;
+        gbcPanel.gridy = 0;
+        gbcPanel.insets = new Insets(0, 0, 0, 0);
+        gbcPanel.fill = GridBagConstraints.BOTH;
+        gbcPanel.anchor = GridBagConstraints.NORTHWEST;
+        gbcPanel.weightx = 1.0D;
+        gbcPanel.weighty = 1.0D;
+        gbcPanel.ipady = 2;
+        gbcPanel.gridwidth = 2;
+
+        gbcButtons.gridx = 1;
+        gbcButtons.gridy = 1;
+        gbcButtons.insets = new Insets(2, 2, 2, 2);
+        gbcButtons.anchor = GridBagConstraints.SOUTHEAST;
+
+        mainPanel.add(new AboutPanel(), gbcPanel);
+
+        JButton btnOk = new JButton();
+        btnOk.setText(Constant.messages.getString("all.button.ok"));
+        btnOk.addActionListener(e -> dispose());
+
+        mainPanel.add(btnOk, gbcButtons);
+
+        this.setContentPane(mainPanel);
         this.pack();
-
-        // this.setSize(406, 503);
-
-    }
-
-    /**
-     * This method initializes jPanel
-     *
-     * @return javax.swing.JPanel
-     */
-    private JPanel getJPanel() {
-        if (jPanel == null) {
-            jPanel = new JPanel();
-            jPanel.setLayout(new GridBagLayout());
-
-            GridBagConstraints gbcPanel = new GridBagConstraints();
-            GridBagConstraints gbcButtons = new GridBagConstraints();
-
-            gbcButtons.gridx = 0;
-            gbcButtons.gridy = 0;
-            gbcButtons.insets = new Insets(0, 0, 0, 0);
-            gbcButtons.fill = GridBagConstraints.BOTH;
-            gbcButtons.anchor = GridBagConstraints.NORTHWEST;
-            gbcButtons.weightx = 1.0D;
-            gbcButtons.weighty = 1.0D;
-            gbcButtons.ipady = 2;
-            gbcButtons.gridwidth = 2;
-
-            gbcPanel.gridx = 1;
-            gbcPanel.gridy = 1;
-            gbcPanel.insets = new Insets(2, 2, 2, 2);
-            gbcPanel.anchor = GridBagConstraints.SOUTHEAST;
-
-            jPanel.add(getAboutPanel(), gbcButtons);
-            jPanel.add(getBtnOK(), gbcPanel);
-        }
-        return jPanel;
-    }
-
-    /**
-     * This method initializes aboutPanel
-     *
-     * @return org.parosproxy.paros.view.AboutPanel
-     */
-    private AboutPanel getAboutPanel() {
-        if (aboutPanel == null) {
-            aboutPanel = new AboutPanel();
-        }
-        return aboutPanel;
-    }
-
-    /**
-     * This method initializes btnOK
-     *
-     * @return javax.swing.JButton
-     */
-    private JButton getBtnOK() {
-        if (btnOK == null) {
-            btnOK = new JButton();
-            btnOK.setText(Constant.messages.getString("all.button.ok"));
-            btnOK.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            AboutDialog.this.dispose();
-                        }
-                    });
-        }
-        return btnOK;
     }
 }
