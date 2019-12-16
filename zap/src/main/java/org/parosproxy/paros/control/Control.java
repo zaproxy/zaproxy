@@ -79,6 +79,8 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/30 Reduce View singleton usage and replace null checks with hasView().
 // ZAP: 2019/12/16 Log path of new session.
+// ZAP: 2019/12/13 Enable prompting/suggesting a new port when there's a proxy port conflict (Issue
+// 2016).
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -150,7 +152,10 @@ public class Control extends AbstractControl implements SessionListener {
         model.postInit();
 
         if (startProxy) {
-            return proxy.startServer();
+            proxy.setShouldPrompt(true);
+            boolean started = proxy.startServer();
+            proxy.setShouldPrompt(false);
+            return started;
         }
         return false;
     }

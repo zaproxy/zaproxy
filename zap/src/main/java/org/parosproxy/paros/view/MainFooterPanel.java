@@ -39,6 +39,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.proxy.ProxyParam;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.DisplayUtils;
 
 public class MainFooterPanel extends JPanel {
@@ -50,6 +52,7 @@ public class MainFooterPanel extends JPanel {
     private JLabel alertMedium = null;
     private JLabel alertLow = null;
     private JLabel alertInfo = null;
+    private JLabel primaryProxy = null;
 
     public MainFooterPanel() {
         super();
@@ -106,6 +109,9 @@ public class MainFooterPanel extends JPanel {
         footerToolbarLeft.add(getAlertLow());
 
         footerToolbarLeft.add(getAlertInfo());
+
+        footerToolbarLeft.addSeparator();
+        footerToolbarLeft.add(getPrimaryProxyLabel());
 
         // Current Scans (Right)
         footerToolbarRight.add(new JLabel(Constant.messages.getString("footer.scans.label")));
@@ -223,6 +229,30 @@ public class MainFooterPanel extends JPanel {
         return label;
     }
 
+    private JLabel getPrimaryProxyLabel() {
+        if (primaryProxy == null) {
+            ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
+            primaryProxy =
+                    new JLabel(
+                            Constant.messages.getString(
+                                    "footer.primary.proxy",
+                                    getProxyRepresentation(
+                                            proxyParam.getProxyIp(), proxyParam.getProxyPort())));
+        }
+        return primaryProxy;
+    }
+
+    /**
+     * Set the footer label for the primary proxy, the format should be host:port.
+     *
+     * @param proxyStr the string representation of the proxy setting that should be displayed.
+     * @since TODO Add version
+     */
+    private void setPrimaryProxyLabel(String proxyStr) {
+        getPrimaryProxyLabel()
+                .setText(Constant.messages.getString("footer.primary.proxy", proxyStr));
+    }
+
     // Support for dynamic scanning results in the footer
     public void addFooterToolbarRightLabel(JLabel label) {
         DisplayUtils.scaleIcon(label);
@@ -273,5 +303,16 @@ public class MainFooterPanel extends JPanel {
     // FIXME Still needed?
     public void addFooterSeparator() {
         this.footerToolbarRight.addSeparator();
+    }
+
+    private static String getProxyRepresentation(String address, int port) {
+        return Constant.messages.getString(
+                "footer.proxy.representation", address, String.valueOf(port));
+    }
+
+    void optionsChanged() {
+        ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
+        setPrimaryProxyLabel(
+                getProxyRepresentation(proxyParam.getProxyIp(), proxyParam.getProxyPort()));
     }
 }

@@ -87,6 +87,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
+// ZAP: 2019/12/13 Update new footer proxy label in postInit (Issue 2016)
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -348,6 +349,7 @@ public class View implements ViewDelegate {
                 });
         mainFrame.getMainMenuBar().getMenuView().add(unpinAllMenu);
 
+        mainFrame.getMainFooterPanel().optionsChanged();
         postInitialisation = true;
     }
 

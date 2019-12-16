@@ -35,6 +35,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/17 Remove irrelevant conditional in stopServer().
+// ZAP: 2019/12/13 Save the proxy port if it had to be selected during startup (Issue 2016).
 package org.parosproxy.paros.control;
 
 import java.util.List;
@@ -101,8 +102,11 @@ public class Proxy {
                 proxyPort = model.getOptionsParam().getProxyParam().getProxyPort();
             }
 
-            if (proxyServer.startServer(proxyHost, proxyPort, false) == -1) {
+            int pPort = proxyServer.startServer(proxyHost, proxyPort, false);
+            if (pPort == -1) {
                 return false;
+            } else {
+                model.getOptionsParam().getProxyParam().setProxyPort(pPort);
             }
         }
         return true;
@@ -212,5 +216,16 @@ public class Proxy {
         if (proxyServer != null) {
             proxyServer.setExcludeList(urls);
         }
+    }
+
+    /**
+     * Sets whether or not the {@code ProxyServer} should prompt the user for an alternate port when
+     * there is a conflict.
+     *
+     * @param shouldPrompt {@code true} if the user should be prompted, {@code false} otherwise
+     * @since TODO Add version
+     */
+    public void setShouldPrompt(boolean shouldPrompt) {
+        this.proxyServer.setShouldPrompt(shouldPrompt);
     }
 }
