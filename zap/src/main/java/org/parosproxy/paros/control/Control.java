@@ -78,11 +78,13 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/30 Reduce View singleton usage and replace null checks with hasView().
+// ZAP: 2019/12/16 Log path of new session.
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
@@ -397,7 +399,7 @@ public class Control extends AbstractControl implements SessionListener {
                     });
         }
 
-        log.info("New session file created");
+        log.info("New session file created: " + Paths.get(fileName).toRealPath());
         control.getExtensionLoader().databaseOpen(model.getDb());
         control.getExtensionLoader().sessionChangedAllPlugin(session);
     }
