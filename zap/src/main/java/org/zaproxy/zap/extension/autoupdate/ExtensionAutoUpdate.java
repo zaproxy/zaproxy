@@ -142,6 +142,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     private boolean oldZapAlertAdded = false;
     private boolean noCfuAlertAdded = false;
+    private boolean installsOk = true;
+    private boolean installsCompleted = true;
 
     // Files currently being downloaded
     private List<Downloader> downloadFiles = new ArrayList<>();
@@ -592,15 +594,13 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                             installNewExtensions();
                         }
                     };
+            this.installsOk = true;
+            this.installsCompleted = false;
             this.downloadProgressThread.start();
         }
     }
 
     public void installNewExtensions() {
-        installNewExtensionsImpl();
-    }
-
-    private boolean installNewExtensionsImpl() {
         final OptionsParamCheckForUpdates options =
                 getModel().getOptionsParam().getCheckForUpdatesParam();
         List<Downloader> handledFiles = new ArrayList<>();
@@ -698,7 +698,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             // Cant remove in loop above as we're iterating through the list
             this.downloadFiles.remove(dl);
         }
-        return allInstalled.booleanValue();
+        this.installsCompleted = true;
+        this.installsOk = allInstalled.booleanValue();
     }
 
     public int getDownloadProgressPercent(URL url) throws Exception {
@@ -1987,7 +1988,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
                 processAddOnChanges(null, result);
             }
-            if (!waitAndInstallDownloads()) {
+            waitForDownloadInstalls();
+            if (!this.installsOk) {
                 errorMessages
                         .append(Constant.messages.getString("cfu.cmdline.addoninst.error"))
                         .append("\n");
@@ -2072,7 +2074,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 options.setInstallAddonUpdates(true);
                 checkForAddOnUpdates(aoc, options);
 
-                waitAndInstallDownloads();
+                waitForDownloadInstalls();
                 CommandLine.info(Constant.messages.getString("cfu.cmdline.updated"));
             }
         }
@@ -2130,7 +2132,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
                 processAddOnChanges(null, allResults);
 
-                waitAndInstallDownloads();
+                waitForDownloadInstalls();
             }
         }
         if (arguments[ARG_CFU_INSTALL_IDX].isEnabled()) {
@@ -2168,8 +2170,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         }
     }
 
-    private boolean waitAndInstallDownloads() {
-        while (downloadManager.getCurrentDownloadCount() > 0) {
+    private void waitForDownloadInstalls() {
+        while (downloadManager.getCurrentDownloadCount() > 0 || !this.installsCompleted) {
             try {
                 Thread.sleep(200);
             } catch (InterruptedException e) {
@@ -2189,10 +2191,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                 download.getTargetFile().getName()));
             }
         }
-        if (getView() == null) {
-            return installNewExtensionsImpl();
-        }
-        return true;
     }
 
     @Override
