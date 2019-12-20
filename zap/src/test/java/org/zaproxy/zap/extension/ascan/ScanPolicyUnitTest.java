@@ -19,12 +19,12 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -35,7 +35,7 @@ public class ScanPolicyUnitTest extends WithConfigsTest {
     private static final String DEFAULT_SCANNER_LEVEL_KEY = "scanner.level";
     private static final String DEFAULT_SCANNER_STRENGTH_KEY = "scanner.strength";
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         setUpZap();
     }

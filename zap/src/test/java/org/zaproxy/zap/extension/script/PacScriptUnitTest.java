@@ -19,10 +19,11 @@
  */
 package org.zaproxy.zap.extension.script;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.hasSize;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.net.URL;
 import java.time.Clock;
@@ -38,7 +39,7 @@ import javax.script.ScriptException;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.extension.script.PacScript.Setting;
 import org.zaproxy.zap.extension.script.PacScript.Setting.Type;
 import org.zaproxy.zap.testutils.TestUtils;
@@ -70,34 +71,38 @@ public class PacScriptUnitTest extends TestUtils {
     private static final Clock FIXED_CLOCK_GMT = FIXED_CLOCK.withZone(ZoneId.of("GMT"));
     private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("uuuu-M-d");
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreatePacScriptWithEmptyString() throws Exception {
-        // Given / When
-        new PacScript("");
-        // Then = IllegalArgumentException
+        // Given
+        String script = "";
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> new PacScript(script));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreatePacScriptWithNullString() throws Exception {
-        // Given / When
-        new PacScript((String) null);
-        // Then = IllegalArgumentException
+        // Given
+        String script = null;
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> new PacScript(script));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailToCreatePacScriptWithMalformedStringScript() throws Exception {
-        // Given / When
-        new PacScript("not_a_function FindProxyForURL(url, host) { return \"DIRECT\" }");
-        // Then = ScriptException
+        // Given
+        String script = "not_a_function FindProxyForURL(url, host) { return \"DIRECT\" }";
+        // When / Then
+        assertThrows(ScriptException.class, () -> new PacScript(script));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailToEvaluateIfFindProxyForUrlIsMissing() throws Exception {
         // Given
         PacScript pacScript = new PacScript("function NotFindProxyForURL() { return 1; }");
-        // When
-        pacScript.evaluate("http://example.com/", "example.com");
-        // Then = ScriptException
+        // When / Then
+        assertThrows(
+                ScriptException.class,
+                () -> pacScript.evaluate("http://example.com/", "example.com"));
     }
 
     @Test
@@ -411,85 +416,94 @@ public class PacScriptUnitTest extends TestUtils {
         assertThat(settings.get(0), hasType(Type.DIRECT));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailIfSettingHasUnknownType() throws Exception {
         // Given
         PacScript pacScript = new PacScript(returns("NOTKNOWNTYPE example.com:80"));
-        // When
-        pacScript.findProxyForUrl("http://example.com/", "example.com");
-        // Then = ScriptException
+        // When / Then
+        assertThrows(
+                ScriptException.class,
+                () -> pacScript.findProxyForUrl("http://example.com/", "example.com"));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailIfNonDirectSettingHasNoHostPort() throws Exception {
         // Given
         PacScript pacScript = new PacScript(returns("PROXY "));
-        // When
-        pacScript.findProxyForUrl("http://example.com/", "example.com");
-        // Then = ScriptException
+        // When / Then
+        assertThrows(
+                ScriptException.class,
+                () -> pacScript.findProxyForUrl("http://example.com/", "example.com"));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailIfNonDirectSettingHasEmptyHost() throws Exception {
         // Given
         PacScript pacScript = new PacScript(returns("PROXY :80"));
-        // When
-        pacScript.findProxyForUrl("http://example.com/", "example.com");
-        // Then = ScriptException
+        // When / Then
+        assertThrows(
+                ScriptException.class,
+                () -> pacScript.findProxyForUrl("http://example.com/", "example.com"));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailIfNonDirectSettingHasNoPort() throws Exception {
         // Given
         PacScript pacScript = new PacScript(returns("PROXY host"));
-        // When
-        pacScript.findProxyForUrl("http://example.com/", "example.com");
-        // Then = ScriptException
+        // When / Then
+        assertThrows(
+                ScriptException.class,
+                () -> pacScript.findProxyForUrl("http://example.com/", "example.com"));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailIfNonDirectSettingHasEmptyPort() throws Exception {
         // Given
         PacScript pacScript = new PacScript(returns("PROXY host:"));
-        // When
-        pacScript.findProxyForUrl("http://example.com/", "example.com");
-        // Then = ScriptException
+        // When / Then
+        assertThrows(
+                ScriptException.class,
+                () -> pacScript.findProxyForUrl("http://example.com/", "example.com"));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailIfNonDirectSettingHasNonNumericPort() throws Exception {
         // Given
         PacScript pacScript = new PacScript(returns("PROXY host:a"));
-        // When
-        pacScript.findProxyForUrl("http://example.com/", "example.com");
-        // Then = ScriptException
+        // When / Then
+        assertThrows(
+                ScriptException.class,
+                () -> pacScript.findProxyForUrl("http://example.com/", "example.com"));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailIfNonDirectSettingHasPortLowerThanAllowed() throws Exception {
         // Given
         PacScript pacScript = new PacScript(returns("PROXY host:-1"));
-        // When
-        pacScript.findProxyForUrl("http://example.com/", "example.com");
-        // Then = ScriptException
+        // When / Then
+        assertThrows(
+                ScriptException.class,
+                () -> pacScript.findProxyForUrl("http://example.com/", "example.com"));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailIfNonDirectSettingHasPortHigherThanAllowed() throws Exception {
         // Given
         PacScript pacScript = new PacScript(returns("PROXY host:65536"));
-        // When
-        pacScript.findProxyForUrl("http://example.com/", "example.com");
-        // Then = ScriptException
+        // When / Then
+        assertThrows(
+                ScriptException.class,
+                () -> pacScript.findProxyForUrl("http://example.com/", "example.com"));
     }
 
-    @Test(expected = ScriptException.class)
+    @Test
     public void shouldFailIfDirectSettingHasOtherContents() throws Exception {
         // Given
         PacScript pacScript = new PacScript(returns("DIRECT example.com:80"));
-        // When
-        pacScript.findProxyForUrl("http://example.com/", "example.com");
-        // Then = ScriptException
+        // When / Then
+        assertThrows(
+                ScriptException.class,
+                () -> pacScript.findProxyForUrl("http://example.com/", "example.com"));
     }
 
     private static URL getFileUrl(String fileName) {

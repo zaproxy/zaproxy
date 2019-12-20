@@ -19,21 +19,21 @@
  */
 package org.zaproxy.zap.authentication;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.apache.commons.httpclient.URI;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AuthenticationMethodIndicatorsUnitTest {
 
     private static final String LOGGED_OUT_COMPLEX_INDICATOR = "User [^\\s]* logged out";
@@ -57,7 +57,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     private HttpMessage loginMessage;
     private AuthenticationMethod method;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         loginMessage = new HttpMessage();
         HttpRequestHeader header = new HttpRequestHeader();

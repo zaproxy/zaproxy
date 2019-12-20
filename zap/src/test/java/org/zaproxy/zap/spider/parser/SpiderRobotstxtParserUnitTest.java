@@ -19,16 +19,18 @@
  */
 package org.zaproxy.zap.spider.parser;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
@@ -39,18 +41,17 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     private static final String ROBOTS_TXT_PATH = "/robots.txt";
     private static final int BASE_DEPTH = 0;
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldRequireNonNullSpiderParam() {
         // Given
         SpiderParam spiderParam = null;
-        // When
-        new SpiderRobotstxtParser(spiderParam);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> new SpiderRobotstxtParser(spiderParam));
     }
 
     @Test
@@ -58,9 +59,8 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
         // Given
         String path = null;
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
-        // When
-        spiderParser.canParseResource(null, path, false);
-        // Then = No Exception.
+        // When / Then
+        assertDoesNotThrow(() -> spiderParser.canParseResource(null, path, false));
     }
 
     @Test
@@ -104,14 +104,15 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
         assertThat(canParse, is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
-        // When
-        spiderParser.parseResource(undefinedMessage, null, BASE_DEPTH);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> spiderParser.parseResource(undefinedMessage, null, BASE_DEPTH));
     }
 
     @Test

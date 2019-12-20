@@ -19,17 +19,17 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.api.API.RequestType;
 import org.zaproxy.zap.utils.I18N;
@@ -43,7 +43,7 @@ public class VerifyApiImplementors {
     private static I18N i18n;
     private static List<String> missingKeys;
 
-    @BeforeClass
+    @BeforeAll
     public static void setup() throws Exception {
         i18n = new I18N(Locale.ENGLISH);
         Constant.messages = i18n;

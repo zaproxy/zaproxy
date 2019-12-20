@@ -19,18 +19,20 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.security.InvalidParameterException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URI;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
@@ -43,13 +45,12 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 /** Unit test for {@link AbstractPlugin}. */
 public class AbstractPluginUnitTest extends PluginTestUtils {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetNullTechSet() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
-        // When
-        plugin.setTechSet(null);
-        // Then = IllegalArgumentException.class
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> plugin.setTechSet(null));
     }
 
     @Test
@@ -165,11 +166,12 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailWhenSettingEnabledStateWithoutConfig() {
-        // Given / When
-        createAbstractPlugin().setEnabled(false);
-        // Then = Exception.class
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        // When / Then
+        assertThrows(NullPointerException.class, () -> plugin.setEnabled(false));
     }
 
     @Test
@@ -191,11 +193,14 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(plugin.getAttackStrength(), is(equalTo(Plugin.AttackStrength.MEDIUM)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailWhenSettingAttackStrengthWithoutConfig() {
-        // Given / When
-        createAbstractPlugin().setAttackStrength(Plugin.AttackStrength.INSANE);
-        // Then = Exception.class
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> plugin.setAttackStrength(Plugin.AttackStrength.INSANE));
     }
 
     @Test
@@ -249,11 +254,14 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(plugin.getAlertThreshold(), is(equalTo(Plugin.AlertThreshold.MEDIUM)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailWhenSettingAlertThresholdWithoutConfig() {
-        // Given / When
-        createAbstractPlugin().setAlertThreshold(Plugin.AlertThreshold.DEFAULT);
-        // Then = Exception.class
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> plugin.setAlertThreshold(Plugin.AlertThreshold.DEFAULT));
     }
 
     @Test
@@ -343,24 +351,22 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(plugin.getAlertThreshold(true), is(equalTo(anAlertThreshold)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailToCloneIntoNonAbstractPlugin() {
         // Given
         AbstractPlugin pluginA = createAbstractPluginWithConfig();
         Plugin pluginB = createNonAbstractPlugin();
-        // When
-        pluginA.cloneInto(pluginB);
-        // Then = Exception.class
+        // When / Then
+        assertThrows(InvalidParameterException.class, () -> pluginA.cloneInto(pluginB));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailToCloneIntoPluginWithoutConfig() {
         // Given
         AbstractPlugin pluginA = createAbstractPluginWithConfig();
         AbstractPlugin pluginB = createAbstractPlugin();
-        // When
-        pluginA.cloneInto(pluginB);
-        // Then = Exception.class
+        // When / Then
+        assertThrows(NullPointerException.class, () -> pluginA.cloneInto(pluginB));
     }
 
     @Test
@@ -453,14 +459,13 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(comparisonResult, is(equalTo(1)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailToLoadFromConfigIfConfigNotSet() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         Configuration config = new ZapXmlConfiguration();
-        // When
-        plugin.loadFrom(config);
-        // Then = Exception.class
+        // When / Then
+        assertThrows(NullPointerException.class, () -> plugin.loadFrom(config));
     }
 
     @Test
@@ -1093,13 +1098,12 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(alert.getUri(), is(equalTo(messageUri)));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldFailToRaiseAlertWithNewAlertIfNoMessageProvided() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
-        // When
-        plugin.newAlert().raise();
-        // Then = IllegalStateException
+        // When / Then
+        assertThrows(IllegalStateException.class, () -> plugin.newAlert().raise());
     }
 
     @Test
@@ -1187,14 +1191,13 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(alert.getMessage(), is(sameInstance(alertMessage)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailToSaveToConfigIfConfigNotSet() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         Configuration config = new ZapXmlConfiguration();
-        // When
-        plugin.saveTo(config);
-        // Then = Exception.class
+        // When / Then
+        assertThrows(NullPointerException.class, () -> plugin.saveTo(config));
     }
 
     @Test

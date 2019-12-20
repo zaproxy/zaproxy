@@ -19,13 +19,17 @@
  */
 package org.zaproxy.zap.control;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -47,9 +51,8 @@ import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.zaproxy.zap.control.AddOn.BundleData;
 import org.zaproxy.zap.control.AddOn.HelpSetData;
 import org.zaproxy.zap.control.AddOn.ValidationResult;
@@ -59,7 +62,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 /** Unit test for {@link AddOn}. */
 public class AddOnUnitTest extends TestUtils {
 
-    @Rule public TemporaryFolder tempDir = new TemporaryFolder();
+    @TempDir Path tempDir;
 
     private static final File ZAP_VERSIONS_XML =
             getResourcePath("ZapVersions-deps.xml", AddOnUnitTest.class).toFile();
@@ -140,15 +143,17 @@ public class AddOnUnitTest extends TestUtils {
         assertTrue(addOnA2.isUpdateTo(addOnB1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     @SuppressWarnings("deprecation")
     public void testAlpha2DoesNotUpdateTestyAlpha1() throws Exception {
         // Given
         AddOn addOnA1 = new AddOn("test-alpha-1.zap");
         AddOn addOnA2 = new AddOn("testy-alpha-2.zap");
         // When
-        addOnA2.isUpdateTo(addOnA1);
-        // Then = Exception
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> addOnA2.isUpdateTo(addOnA1));
+        // Then
+        assertThat(e.getMessage(), containsString("Different addons"));
     }
 
     @Test
@@ -335,7 +340,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeAddOnIfPathIsDirectory() throws Exception {
         // Given
-        Path file = tempDir.newFolder("addon.zap").toPath();
+        Path file = Files.createDirectory(tempDir.resolve("addon.zap"));
         // When
         boolean addOnFile = AddOn.isAddOn(file);
         // Then
@@ -405,7 +410,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeValidAddOnIfFileDoesNotHaveZapExtension() throws Exception {
         // Given
-        Path file = tempDir.newFile("addon.zip").toPath();
+        Path file = Files.createFile(tempDir.resolve("addon.zip"));
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
@@ -415,7 +420,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeValidAddOnIfPathIsDirectory() throws Exception {
         // Given
-        Path file = tempDir.newFolder("addon.zap").toPath();
+        Path file = Files.createDirectory(tempDir.resolve("addon.zap"));
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
@@ -427,8 +432,8 @@ public class AddOnUnitTest extends TestUtils {
         // Given
         Path file = createAddOnFile("addon.zap", "alpha", "1");
         assumeTrue(
-                "Test requires support for POSIX file attributes.",
-                Files.getFileStore(file).supportsFileAttributeView(PosixFileAttributeView.class));
+                Files.getFileStore(file).supportsFileAttributeView(PosixFileAttributeView.class),
+                "Test requires support for POSIX file attributes.");
         Set<PosixFilePermission> perms =
                 Files.readAttributes(file, PosixFileAttributes.class).permissions();
         perms.remove(PosixFilePermission.OWNER_READ);
@@ -442,7 +447,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeValidAddOnIfNotZipFile() throws Exception {
         // Given
-        Path file = tempDir.newFile("addon.zap").toPath();
+        Path file = Files.createFile(tempDir.resolve("addon.zap"));
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
@@ -454,7 +459,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeValidAddOnIfItHasNoManifest() throws Exception {
         // Given
-        Path file = tempDir.newFile("addon.zap").toPath();
+        Path file = Files.createFile(tempDir.resolve("addon.zap"));
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file.toFile()))) {
             zos.putNextEntry(new ZipEntry("Not a manifest"));
             zos.closeEntry();
@@ -468,7 +473,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeValidAddOnIfManifestIsMalformed() throws Exception {
         // Given
-        Path file = tempDir.newFile("addon.zap").toPath();
+        Path file = Files.createFile(tempDir.resolve("addon.zap"));
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file.toFile()))) {
             zos.putNextEntry(new ZipEntry(AddOn.MANIFEST_FILE_NAME));
             zos.closeEntry();
@@ -527,23 +532,25 @@ public class AddOnUnitTest extends TestUtils {
         assertThat(result.getManifest(), is(notNullValue()));
     }
 
-    @Test(expected = IOException.class)
-    public void shouldFailToCreateAddOnFromNullFile() throws Exception {
+    @Test
+    public void shouldFailToCreateAddOnFromNullFile() {
         // Given
         Path file = null;
         // When
-        new AddOn(file);
-        // Then = IOException
+        IOException e = assertThrows(IOException.class, () -> new AddOn(file));
+        // Then
+        assertThat(e.getMessage(), is(AddOn.ValidationResult.Validity.INVALID_PATH.name()));
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void shouldFailToCreateAddOnFromFileWithInvalidFileName() throws Exception {
         // Given
         String invalidFileName = "addon.txt";
         Path file = createAddOnFile(invalidFileName, "alpha", "1");
         // When
-        new AddOn(file);
-        // Then = IOException
+        IOException e = assertThrows(IOException.class, () -> new AddOn(file));
+        // Then
+        assertThat(e.getMessage(), is(AddOn.ValidationResult.Validity.INVALID_FILE_NAME.name()));
     }
 
     @Test
@@ -936,9 +943,9 @@ public class AddOnUnitTest extends TestUtils {
         String lib1 = "lib1.jar";
         String lib2 = "lib2.jar";
         AddOn addOn = new AddOn(createAddOnWithLibs(lib1, lib2));
-        File libsDir = tempDir.newFolder();
-        addOn.getLibs().get(0).setFileSystemUrl(new File(libsDir, lib1).toURI().toURL());
-        addOn.getLibs().get(1).setFileSystemUrl(new File(libsDir, lib2).toURI().toURL());
+        Path libsDir = Files.createTempDirectory(tempDir, "libsDir");
+        addOn.getLibs().get(0).setFileSystemUrl(libsDir.resolve(lib1).toUri().toURL());
+        addOn.getLibs().get(1).setFileSystemUrl(libsDir.resolve(lib2).toUri().toURL());
         // When
         AddOn.AddOnRunRequirements reqs = addOn.calculateRunRequirements(Collections.emptyList());
         // Then
@@ -1008,9 +1015,9 @@ public class AddOnUnitTest extends TestUtils {
 
     private Path createEmptyAddOnFile(String fileName) {
         try {
-            File file = tempDir.newFile(fileName);
-            new ZipOutputStream(new FileOutputStream(file)).close();
-            return file.toPath();
+            Path file = tempDir.resolve(fileName);
+            new ZipOutputStream(Files.newOutputStream(file)).close();
+            return file;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -1081,8 +1088,8 @@ public class AddOnUnitTest extends TestUtils {
             Consumer<StringBuilder> manifestConsumer,
             Consumer<ZipOutputStream> addOnConsumer) {
         try {
-            File file = new File(tempDir.newFolder(), fileName);
-            try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file))) {
+            Path file = Files.createTempDirectory(tempDir, "").resolve(fileName);
+            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(file))) {
                 ZipEntry manifest = new ZipEntry(AddOn.MANIFEST_FILE_NAME);
                 zos.putNextEntry(manifest);
                 StringBuilder strBuilder = new StringBuilder(150);
@@ -1105,7 +1112,7 @@ public class AddOnUnitTest extends TestUtils {
                     addOnConsumer.accept(zos);
                 }
             }
-            return file.toPath();
+            return file;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

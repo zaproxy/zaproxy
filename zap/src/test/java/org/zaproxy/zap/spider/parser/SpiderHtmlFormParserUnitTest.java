@@ -19,11 +19,13 @@
  */
 package org.zaproxy.zap.spider.parser;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -37,8 +39,8 @@ import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.model.ValueGenerator;
@@ -58,28 +60,32 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     private static final Path BASE_DIR_HTML_FILES =
             getResourcePath("htmlform", SpiderHtmlFormParserUnitTest.class);
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateParserWithUndefinedSpiderOptions() {
         // Given
         SpiderParam undefinedSpiderOptions = null;
-        // When
-        new SpiderHtmlFormParser(undefinedSpiderOptions, new DefaultValueGenerator());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        new SpiderHtmlFormParser(
+                                undefinedSpiderOptions, new DefaultValueGenerator()));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
-        // When
-        htmlParser.canParseResource(undefinedMessage, ROOT_PATH, false);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> htmlParser.canParseResource(undefinedMessage, ROOT_PATH, false));
     }
 
     @Test
@@ -140,15 +146,16 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(canParse, is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         Source source = createSource(createMessageWith("NoForms.html"));
-        // When
-        htmlParser.parseResource(undefinedMessage, source, BASE_DEPTH);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> htmlParser.parseResource(undefinedMessage, source, BASE_DEPTH));
     }
 
     @Test
@@ -176,9 +183,8 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         Source source = null;
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         HttpMessage messageHtmlResponse = createMessageWith("NoForms.html");
-        // When
-        htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
-        // Then = No exception
+        // When / Then
+        assertDoesNotThrow(() -> htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH));
     }
 
     @Test

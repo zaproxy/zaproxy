@@ -19,16 +19,16 @@
  */
 package org.zaproxy.zap.spider;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
 /**
@@ -40,7 +40,7 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
  */
 public class URLCanonicalizerUnitTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getLogger(URLCanonicalizer.class).addAppender(new NullAppender());
     }

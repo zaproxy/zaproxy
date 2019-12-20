@@ -19,37 +19,38 @@
  */
 package org.zaproxy.zap.extension.script;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.Map;
 import javax.script.ScriptContext;
 import javax.script.SimpleScriptContext;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ScriptVars}. */
 public class ScriptVarsUnitTest {
 
-    @Before
+    @BeforeEach
     public void setUp() {
         ScriptVars.clear();
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldNotAllowToModifyReturnedGlobalVariables() {
         // Given
         Map<String, String> vars = ScriptVars.getGlobalVars();
-        // When
-        vars.put(createKey(), createValue());
-        // Then = UnsupportedOperationException
+        // When / Then
+        assertThrows(
+                UnsupportedOperationException.class, () -> vars.put(createKey(), createValue()));
     }
 
     @Test
@@ -77,24 +78,25 @@ public class ScriptVarsUnitTest {
         assertThat(ScriptVars.getGlobalVar(key), is(nullValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetGlobalVariableWithNullKey() {
         // Given
         String key = null;
-        // When
-        ScriptVars.setGlobalVar(key, createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class, () -> ScriptVars.setGlobalVar(key, createValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetGlobalVariableIfMoreThanAllowed() {
         // Given
         for (int i = 0; i <= ScriptVars.MAX_GLOBAL_VARS; i++) {
             ScriptVars.setGlobalVar(createKey(), createValue());
         }
-        // When
-        ScriptVars.setGlobalVar(createKey(), createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setGlobalVar(createKey(), createValue()));
     }
 
     @Test
@@ -119,14 +121,14 @@ public class ScriptVarsUnitTest {
         assertThat(value, is(nullValue()));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldNotAllowToModifyReturnedScriptVariables() {
         // Given
         String scriptName = "ScriptName";
         Map<String, String> vars = ScriptVars.getScriptVars(scriptName);
-        // When
-        vars.put(createKey(), createValue());
-        // Then = UnsupportedOperationException
+        // When / Then
+        assertThrows(
+                UnsupportedOperationException.class, () -> vars.put(createKey(), createValue()));
     }
 
     @Test
@@ -158,70 +160,81 @@ public class ScriptVarsUnitTest {
         assertThat(ScriptVars.getScriptVar(scriptContext, key), is(nullValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableUsingNullScriptContext() {
         // Given
         ScriptContext scriptContext = null;
-        // When
-        ScriptVars.setScriptVar(scriptContext, createKey(), createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptVar(scriptContext, createKey(), createValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableUsingNullScriptNameInScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName(null);
-        // When
-        ScriptVars.setScriptVar(scriptContext, createKey(), createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptVar(scriptContext, createKey(), createValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableUsingNonStringScriptNameInScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName(10);
-        // When
-        ScriptVars.setScriptVar(scriptContext, createKey(), createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptVar(scriptContext, createKey(), createValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableWithNullKeyUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
-        // When
-        ScriptVars.setScriptVar(scriptContext, null, createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptVar(scriptContext, null, createValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableWithInvalidKeyLengthUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
-        // When
-        ScriptVars.setScriptVar(scriptContext, createKeyWithInvalidLength(), createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        ScriptVars.setScriptVar(
+                                scriptContext, createKeyWithInvalidLength(), createValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableWithInvalidValueLengthUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
-        // When
-        ScriptVars.setScriptVar(scriptContext, createKey(), createValueWithInvalidLength());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        ScriptVars.setScriptVar(
+                                scriptContext, createKey(), createValueWithInvalidLength()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableIfMoreThanAllowedUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
         for (int i = 0; i <= ScriptVars.MAX_SCRIPT_VARS; i++) {
             ScriptVars.setScriptVar(scriptContext, createKey(), createValue());
         }
-        // When
-        ScriptVars.setScriptVar(scriptContext, createKey(), createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptVar(scriptContext, createKey(), createValue()));
     }
 
     @Test
@@ -263,63 +276,68 @@ public class ScriptVarsUnitTest {
         assertThat(ScriptVars.getScriptVar(scriptName, key), is(nullValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableUsingNullScriptName() {
         // Given
         String scriptName = null;
-        // When
-        ScriptVars.setScriptVar(scriptName, createKey(), createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptVar(scriptName, createKey(), createValue()));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldNotAllowToModifyReturnedScriptVariablesSet() {
         // Given
         String scriptName = "ScriptName";
         ScriptVars.setScriptVar(scriptName, createKey(), createValue());
         Map<String, String> vars = ScriptVars.getScriptVars(scriptName);
-        // When
-        vars.put(createKey(), createValue());
-        // Then = UnsupportedOperationException
+        // When / Then
+        assertThrows(
+                UnsupportedOperationException.class, () -> vars.put(createKey(), createValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableWithNullKeyUsingScriptName() {
         // Given
         String key = null;
-        // When
-        ScriptVars.setScriptVar("ScriptName", key, createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptVar("ScriptName", key, createValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableWithInvalidKeyLengthUsingScriptName() {
         // Given
         String key = createKeyWithInvalidLength();
-        // When
-        ScriptVars.setScriptVar("ScriptName", key, createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptVar("ScriptName", key, createValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableWithInvalidValueLengthUsingScriptName() {
         // Given
         String value = createValueWithInvalidLength();
-        // When
-        ScriptVars.setScriptVar("ScriptName", createKey(), value);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptVar("ScriptName", createKey(), value));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptVariableIfMoreThanAllowedUsingScriptName() {
         // Given
         String scriptName = "ScriptName";
         for (int i = 0; i <= ScriptVars.MAX_SCRIPT_VARS; i++) {
             ScriptVars.setScriptVar(scriptName, createKey(), createValue());
         }
-        // When
-        ScriptVars.setScriptVar(scriptName, createKey(), createValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptVar(scriptName, createKey(), createValue()));
     }
 
     @Test
@@ -389,13 +407,14 @@ public class ScriptVarsUnitTest {
         assertThat(ScriptVars.getScriptCustomVars(scriptName2).size(), is(equalTo(1)));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldNotAllowToModifyReturnedGlobalCustomVariables() {
         // Given
         Map<String, Object> vars = ScriptVars.getGlobalCustomVars();
-        // When
-        vars.put(createKey(), createCustomValue());
-        // Then = UnsupportedOperationException
+        // When / Then
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> vars.put(createKey(), createCustomValue()));
     }
 
     @Test
@@ -423,24 +442,26 @@ public class ScriptVarsUnitTest {
         assertThat(ScriptVars.getGlobalCustomVar(key), is(nullValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetGlobalCustomVariableWithNullKey() {
         // Given
         String key = null;
-        // When
-        ScriptVars.setGlobalCustomVar(key, createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setGlobalCustomVar(key, createCustomValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetGlobalCustomVariableIfMoreThanAllowed() {
         // Given
         for (int i = 0; i <= ScriptVars.MAX_GLOBAL_VARS; i++) {
             ScriptVars.setGlobalCustomVar(createKey(), createCustomValue());
         }
-        // When
-        ScriptVars.setGlobalCustomVar(createKey(), createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setGlobalCustomVar(createKey(), createCustomValue()));
     }
 
     @Test
@@ -465,14 +486,15 @@ public class ScriptVarsUnitTest {
         assertThat(value, is(nullValue()));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldNotAllowToModifyReturnedScriptCustomVariables() {
         // Given
         String scriptName = "ScriptName";
         Map<String, Object> vars = ScriptVars.getScriptCustomVars(scriptName);
-        // When
-        vars.put(createKey(), createCustomValue());
-        // Then = UnsupportedOperationException
+        // When / Then
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> vars.put(createKey(), createCustomValue()));
     }
 
     @Test
@@ -504,62 +526,77 @@ public class ScriptVarsUnitTest {
         assertThat(ScriptVars.getScriptCustomVar(scriptContext, key), is(nullValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptCustomVariableUsingNullScriptContext() {
         // Given
         ScriptContext scriptContext = null;
-        // When
-        ScriptVars.setScriptCustomVar(scriptContext, createKey(), createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        ScriptVars.setScriptCustomVar(
+                                scriptContext, createKey(), createCustomValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptCustomVariableUsingNullScriptNameInScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName(null);
-        // When
-        ScriptVars.setScriptCustomVar(scriptContext, createKey(), createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        ScriptVars.setScriptCustomVar(
+                                scriptContext, createKey(), createCustomValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptCustomVariableUsingNonStringScriptNameInScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName(10);
-        // When
-        ScriptVars.setScriptCustomVar(scriptContext, createKey(), createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        ScriptVars.setScriptCustomVar(
+                                scriptContext, createKey(), createCustomValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptCustomVariableWithNullKeyUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
-        // When
-        ScriptVars.setScriptCustomVar(scriptContext, null, createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptCustomVar(scriptContext, null, createCustomValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptCustomVariableWithInvalidKeyLengthUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
-        // When
-        ScriptVars.setScriptCustomVar(
-                scriptContext, createKeyWithInvalidLength(), createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        ScriptVars.setScriptCustomVar(
+                                scriptContext, createKeyWithInvalidLength(), createCustomValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptCustomVariableIfMoreThanAllowedUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
         for (int i = 0; i <= ScriptVars.MAX_SCRIPT_VARS; i++) {
             ScriptVars.setScriptCustomVar(scriptContext, createKey(), createCustomValue());
         }
-        // When
-        ScriptVars.setScriptCustomVar(scriptContext, createKey(), createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        ScriptVars.setScriptCustomVar(
+                                scriptContext, createKey(), createCustomValue()));
     }
 
     @Test
@@ -601,54 +638,59 @@ public class ScriptVarsUnitTest {
         assertThat(ScriptVars.getScriptCustomVar(scriptName, key), is(nullValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptCustomVariableUsingNullScriptName() {
         // Given
         String scriptName = null;
-        // When
-        ScriptVars.setScriptCustomVar(scriptName, createKey(), createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptCustomVar(scriptName, createKey(), createCustomValue()));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldNotAllowToModifyReturnedScriptCustomVariablesSet() {
         // Given
         String scriptName = "ScriptName";
         ScriptVars.setScriptCustomVar(scriptName, createKey(), createCustomValue());
         Map<String, Object> vars = ScriptVars.getScriptCustomVars(scriptName);
-        // When
-        vars.put(createKey(), createCustomValue());
-        // Then = UnsupportedOperationException
+        // When / Then
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> vars.put(createKey(), createCustomValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptCustomVariableWithNullKeyUsingScriptName() {
         // Given
         String key = null;
-        // When
-        ScriptVars.setScriptCustomVar("ScriptName", key, createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptCustomVar("ScriptName", key, createCustomValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptCustomVariableWithInvalidKeyLengthUsingScriptName() {
         // Given
         String key = createKeyWithInvalidLength();
-        // When
-        ScriptVars.setScriptCustomVar("ScriptName", key, createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptCustomVar("ScriptName", key, createCustomValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotSetScriptCustomVariableIfMoreThanAllowedUsingScriptName() {
         // Given
         String scriptName = "ScriptName";
         for (int i = 0; i <= ScriptVars.MAX_SCRIPT_VARS; i++) {
             ScriptVars.setScriptCustomVar(scriptName, createKey(), createCustomValue());
         }
-        // When
-        ScriptVars.setScriptCustomVar(scriptName, createKey(), createCustomValue());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> ScriptVars.setScriptCustomVar(scriptName, createKey(), createCustomValue()));
     }
 
     @Test

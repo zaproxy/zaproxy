@@ -19,62 +19,76 @@
  */
 package org.zaproxy.zap;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link org.zaproxy.zap.Version}. */
 public class VersionUnitTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionIfVersionIsNull() {
         // Given
         String version = null;
         // When
-        new Version(version);
-        // Then = Exception
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> new Version(version));
+        // Then
+        assertThat(e.getMessage(), containsString("null"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionIfVersionIsEmpty() {
         // Given
         String version = "";
         // When
-        new Version(version);
-        // Then = Exception
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> new Version(version));
+        // Then
+        assertThat(e.getMessage(), containsString("empty"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAcceptVersionWithOnlyMajorVersion() {
         // Given
         String versionWithOnlyMajorNumber = "1";
         // When
-        new Version(versionWithOnlyMajorNumber);
-        // Then = Exception
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> new Version(versionWithOnlyMajorNumber));
+        // Then
+        assertThat(e.getMessage(), containsString("is not valid"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAcceptVersionWithOnlyMajorAndMinorVersion() {
         // Given
         String versionWithOnlyMajorAndMinorNumbers = "1.0";
         // When
-        new Version(versionWithOnlyMajorAndMinorNumbers);
-        // Then = Exception
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> new Version(versionWithOnlyMajorAndMinorNumbers));
+        // Then
+        assertThat(e.getMessage(), containsString("is not valid"));
     }
 
     @Test
     public void shouldAcceptVersionWithMajorMinorAndPatchNumbers() {
         // Given
         String versionWithOnlyMajorMinorAndPatchNumbers = "1.0.0";
-        // When
-        new Version(versionWithOnlyMajorMinorAndPatchNumbers);
-        // Then = no exception
+        // When / Then
+        assertDoesNotThrow(() -> new Version(versionWithOnlyMajorMinorAndPatchNumbers));
     }
 
     @Test
@@ -82,8 +96,7 @@ public class VersionUnitTest {
         // Given
         String versionWithPreReleaseIdentifiers = "1.2.3-SNAPSHOT";
         // When
-        new Version(versionWithPreReleaseIdentifiers);
-        // Then = no exception
+        assertDoesNotThrow(() -> new Version(versionWithPreReleaseIdentifiers));
     }
 
     @Test

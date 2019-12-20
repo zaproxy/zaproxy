@@ -19,16 +19,17 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link OptionsParamApi}. */
@@ -60,18 +61,17 @@ public class OptionsParamApiUnitTest {
         assertThat(param.isEnabled(), is(equalTo(true)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToSetEnabledStateWithoutConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = new OptionsParamApi();
-        // When
-        param.setEnabled(true);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> param.setEnabled(true));
     }
 
     @Test
     public void shouldSetEnabledStateWithConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
         param.setEnabled(false);
@@ -88,18 +88,17 @@ public class OptionsParamApiUnitTest {
         assertThat(param.isSecureOnly(), is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToSetSecureOnlyWithoutConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = new OptionsParamApi();
-        // When
-        param.setSecureOnly(true);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> param.setSecureOnly(true));
     }
 
     @Test
     public void shouldSetSecureOnlyWithConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
         param.setSecureOnly(true);
@@ -116,18 +115,17 @@ public class OptionsParamApiUnitTest {
         assertThat(param.isDisableKey(), is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToSetDisableKeyWithoutConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = new OptionsParamApi();
-        // When
-        param.setDisableKey(true);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> param.setDisableKey(true));
     }
 
     @Test
     public void shouldSetDisableKeyWithConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
         param.setDisableKey(true);
@@ -144,18 +142,17 @@ public class OptionsParamApiUnitTest {
         assertThat(param.isIncErrorDetails(), is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToSetIncErrorDetailsWithoutConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = new OptionsParamApi();
-        // When
-        param.setIncErrorDetails(true);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> param.setIncErrorDetails(true));
     }
 
     @Test
     public void shouldSetIncErrorDetailsWithConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
         param.setIncErrorDetails(true);
@@ -172,18 +169,17 @@ public class OptionsParamApiUnitTest {
         assertThat(param.isAutofillKey(), is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToSetAutofillKeyWithoutConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = new OptionsParamApi();
-        // When
-        param.setAutofillKey(true);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> param.setAutofillKey(true));
     }
 
     @Test
     public void shouldSetAutofillKeyWithConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
         param.setAutofillKey(true);
@@ -200,18 +196,17 @@ public class OptionsParamApiUnitTest {
         assertThat(param.isEnableJSONP(), is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToSetEnableJSONPWithoutConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = new OptionsParamApi();
-        // When
-        param.setEnableJSONP(true);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> param.setEnableJSONP(true));
     }
 
     @Test
     public void shouldSetEnableJSONPWithConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
         param.setEnableJSONP(true);
@@ -228,18 +223,17 @@ public class OptionsParamApiUnitTest {
         assertThat(param.isReportPermErrors(), is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToSetReportPermErrorsWithoutConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = new OptionsParamApi();
-        // When
-        param.setReportPermErrors(true);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> param.setReportPermErrors(true));
     }
 
     @Test
     public void shouldSetReportPermErrorsWithConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
         param.setReportPermErrors(true);
@@ -264,18 +258,17 @@ public class OptionsParamApiUnitTest {
         assertThat(param.isNoKeyForSafeOps(), is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToSetNoKeyForViewsOrSafeOthersWithoutConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = new OptionsParamApi();
-        // When
-        param.setNoKeyForSafeOps(true);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> param.setNoKeyForSafeOps(true));
     }
 
     @Test
     public void shouldSetNoKeyForViewsOrSafeOthersWithConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
         param.setNoKeyForSafeOps(true);
@@ -300,18 +293,17 @@ public class OptionsParamApiUnitTest {
         assertThat(param.getKey(), is(not(equalTo(""))));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToSetKeyWithoutConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = new OptionsParamApi();
-        // When
-        param.setKey("");
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> param.setKey(""));
     }
 
     @Test
     public void shouldSetKeyWithConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         String apiKey = "Key";
         // When
@@ -323,7 +315,7 @@ public class OptionsParamApiUnitTest {
 
     @Test
     public void shouldSaveGeneratedKeyWithConfig() {
-        // Given / When
+        // Given
         OptionsParamApi param = new OptionsParamApi();
         Configuration conf = new Configuration();
         param.load(conf);

@@ -19,13 +19,15 @@
  */
 package org.zaproxy.zap.extension.ascan.filters.impl;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.ascan.filters.FilterCriteria;
 import org.zaproxy.zap.extension.ascan.filters.FilterResult;
@@ -36,7 +38,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
 
     private AbstractGenericScanFilter<String, String> abstractGenericScanFilter;
 
-    @Before
+    @BeforeEach
     public void init() {
         abstractGenericScanFilter =
                 new AbstractGenericScanFilter<String, String>() {
@@ -66,7 +68,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
+        assertThat(filterResult.isFiltered(), is(false));
     }
 
     @Test
@@ -84,7 +86,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
+        assertThat(filterResult.isFiltered(), is(false));
     }
 
     @Test
@@ -103,7 +105,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
+        assertThat(filterResult.isFiltered(), is(false));
     }
 
     @Test
@@ -121,7 +123,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
+        assertThat(filterResult.isFiltered(), is(false));
     }
 
     @Test
@@ -139,7 +141,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        assertThat(filterResult.isFiltered(), is(true));
     }
 
     @Test
@@ -157,7 +159,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
+        assertThat(filterResult.isFiltered(), is(false));
     }
 
     @Test
@@ -176,7 +178,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        assertThat(filterResult.isFiltered(), is(true));
     }
 
     @Test
@@ -196,7 +198,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        assertThat(filterResult.isFiltered(), is(true));
     }
 
     @Test
@@ -216,7 +218,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), true);
+        assertThat(filterResult.isFiltered(), is(true));
     }
 
     @Test
@@ -235,6 +237,6 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
         FilterResult filterResult = abstractGenericScanFilter.isFiltered(values);
 
         // Then
-        Assert.assertEquals(filterResult.isFiltered(), false);
+        assertThat(filterResult.isFiltered(), is(false));
     }
 }

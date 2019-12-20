@@ -19,26 +19,27 @@
  */
 package org.zaproxy.zap.model;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.model.Session;
 
 /** Unit test for {@link Context}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ContextUnitTest {
 
     @Mock Session session;
 
     private Context context;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         context = new Context(session, 1);
     }
@@ -58,22 +59,20 @@ public class ContextUnitTest {
         assertThat(context.getName(), is(equalTo(String.valueOf(index))));
     }
 
-    @Test(expected = IllegalContextNameException.class)
+    @Test
     public void shouldNotAllowToSetNullName() {
         // Given
         String name = null;
-        // When
-        context.setName(name);
-        // Then = IllegalContextNameException.class
+        // When / Then
+        assertThrows(IllegalContextNameException.class, () -> context.setName(name));
     }
 
-    @Test(expected = IllegalContextNameException.class)
+    @Test
     public void shouldNotAllowToSetAnEmptyName() {
         // Given
         String name = "";
-        // When
-        context.setName(name);
-        // Then = IllegalContextNameException.class
+        // When / Then
+        assertThrows(IllegalContextNameException.class, () -> context.setName(name));
     }
 
     @Test

@@ -19,17 +19,18 @@
  */
 package org.zaproxy.zap.spider.parser;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Path;
 import net.htmlparser.jericho.Source;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
@@ -42,18 +43,19 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     private static final Path BASE_DIR_TEST_FILES =
             getResourcePath("sitemapxml", SpiderSitemapXMLParserUnitTest.class);
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateParserWithUndefinedSpiderOptions() {
         // Given
         SpiderParam undefinedSpiderOptions = null;
-        // When
-        new SpiderSitemapXMLParser(undefinedSpiderOptions);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new SpiderSitemapXMLParser(undefinedSpiderOptions));
     }
 
     @Test
@@ -67,14 +69,15 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
         assertThat(canParse, is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToEvaluateAnUndefinedPath() {
         // Given
         String undefinedPath = null;
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
-        // When
-        spiderParser.canParseResource(new HttpMessage(), undefinedPath, false);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> spiderParser.canParseResource(new HttpMessage(), undefinedPath, false));
     }
 
     @Test

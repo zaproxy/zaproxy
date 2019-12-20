@@ -19,12 +19,13 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.util;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import javax.swing.JTextArea;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HttpTextViewUtils}. */
 public class HttpTextViewUtilsUnitTest {
@@ -39,29 +40,34 @@ public class HttpTextViewUtilsUnitTest {
     private static final JTextArea VIEW_WITH_BODY = new JTextArea(VIEW.getText() + BODY);
     private static final int VIEW_WITH_BODY_LENGTH = VIEW_WITH_BODY.getDocument().getLength();
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowUndefinedHeaderWhenGettingHeaderToViewPosition() {
         // Given
         String undefinedHeader = null;
-        // When
-        HttpTextViewUtils.getHeaderToViewPosition(VIEW, undefinedHeader, 0, 0);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getHeaderToViewPosition(VIEW, undefinedHeader, 0, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowUndefinedViewWhenGettingHeaderToViewPosition() {
         // Given
         JTextArea undefinedView = null;
-        // When
-        HttpTextViewUtils.getHeaderToViewPosition(undefinedView, HEADER, 0, 0);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getHeaderToViewPosition(undefinedView, HEADER, 0, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowNegativeStartWhenGettingHeaderToViewPosition() {
-        // Given / When
-        HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, -1, 0);
-        // Then = IllegalArgumentException
+        // Given
+        int start = -1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, start, 0));
     }
 
     @Test
@@ -75,11 +81,14 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowNegativeEndWhenGettingHeaderToViewPosition() {
-        // Given / When
-        HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, 0, -1);
-        // Then = IllegalArgumentException
+        // Given
+        int end = -1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, 0, end));
     }
 
     @Test
@@ -90,11 +99,15 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowStartGreaterThanEndWhenGettingHeaderToViewPosition() {
-        // Given / When
-        HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, 2, 1);
-        // Then = IllegalArgumentException
+        // Given
+        int start = 2;
+        int end = 1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, start, end));
     }
 
     @Test
@@ -203,20 +216,24 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowUndefinedViewWhenGettingViewToHeaderPosition() {
         // Given
         JTextArea undefinedView = null;
-        // When
-        HttpTextViewUtils.getViewToHeaderPosition(undefinedView, 0, 0);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getViewToHeaderPosition(undefinedView, 0, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowNegativeStartWhenGettingViewToHeaderPosition() {
-        // Given / When
-        HttpTextViewUtils.getViewToHeaderPosition(VIEW, -1, 0);
-        // Then = IllegalArgumentException
+        // Given
+        int start = -1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getViewToHeaderPosition(VIEW, start, 0));
     }
 
     @Test
@@ -229,11 +246,14 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowNegativeEndWhenGettingViewToHeaderPosition() {
-        // Given / When
-        HttpTextViewUtils.getViewToHeaderPosition(VIEW, 0, -1);
-        // Then = IllegalArgumentException
+        // Given
+        int end = -1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getViewToHeaderPosition(VIEW, 0, end));
     }
 
     @Test
@@ -244,11 +264,15 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowStartGreaterThanEndWhenGettingViewToHeaderPosition() {
-        // Given / When
-        HttpTextViewUtils.getViewToHeaderPosition(VIEW, 2, 1);
-        // Then = IllegalArgumentException
+        // Given
+        int start = 2;
+        int end = 1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getViewToHeaderPosition(VIEW, start, end));
     }
 
     @Test
@@ -328,29 +352,36 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos[1], is(equalTo(HEADER_LENGTH)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowUndefinedHeaderWhenGettingBodyToViewPosition() {
         // Given
         String undefinedHeader = null;
-        // When
-        HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, undefinedHeader, 0, 0);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        HttpTextViewUtils.getBodyToViewPosition(
+                                VIEW_WITH_BODY, undefinedHeader, 0, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowUndefinedViewWhenGettingBodyToViewPosition() {
         // Given
         JTextArea undefinedView = null;
-        // When
-        HttpTextViewUtils.getBodyToViewPosition(undefinedView, HEADER, 0, 0);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getBodyToViewPosition(undefinedView, HEADER, 0, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowNegativeStartWhenGettingBodyToViewPosition() {
-        // Given / When
-        HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, -1, 0);
-        // Then = IllegalArgumentException
+        // Given
+        int start = -1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, start, 0));
     }
 
     @Test
@@ -366,11 +397,14 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowNegativeEndWhenGettingBodyToViewPosition() {
-        // Given / When
-        HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, 0, -1);
-        // Then = IllegalArgumentException
+        // Given
+        int end = -1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, 0, end));
     }
 
     @Test
@@ -383,11 +417,15 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowStartGreaterThanEndWhenGettingBodyToViewPosition() {
-        // Given / When
-        HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, 2, 1);
-        // Then = IllegalArgumentException
+        // Given
+        int start = 2;
+        int end = 1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, start, end));
     }
 
     @Test
@@ -441,29 +479,38 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowUndefinedHeaderWhenGettingViewToHeaderBodyPosition() {
         // Given
         String undefinedHeader = null;
-        // When
-        HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, undefinedHeader, 0, 0);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        HttpTextViewUtils.getViewToHeaderBodyPosition(
+                                VIEW_WITH_BODY, undefinedHeader, 0, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowUndefinedViewWhenGettingViewToHeaderBodyPosition() {
         // Given
         JTextArea undefinedView = null;
-        // When
-        HttpTextViewUtils.getViewToHeaderBodyPosition(undefinedView, HEADER, 0, 0);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> HttpTextViewUtils.getViewToHeaderBodyPosition(undefinedView, HEADER, 0, 0));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowNegativeStartWhenGettingViewToHeaderBodyPosition() {
-        // Given / When
-        HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, -1, 0);
-        // Then = IllegalArgumentException
+        // Given
+        int start = -1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        HttpTextViewUtils.getViewToHeaderBodyPosition(
+                                VIEW_WITH_BODY, HEADER, start, 0));
     }
 
     @Test
@@ -480,11 +527,16 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowNegativeEndWhenGettingViewToHeaderBodyPosition() {
-        // Given / When
-        HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, 0, -1);
-        // Then = IllegalArgumentException
+        // Given
+        int end = -1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        HttpTextViewUtils.getViewToHeaderBodyPosition(
+                                VIEW_WITH_BODY, HEADER, 0, end));
     }
 
     @Test
@@ -498,11 +550,17 @@ public class HttpTextViewUtilsUnitTest {
         assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldNotAllowStartGreaterThanEndWhenGettingViewToHeaderBodyPosition() {
-        // Given / When
-        HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, 2, 1);
-        // Then = IllegalArgumentException
+        // Given
+        int start = 2;
+        int end = 1;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        HttpTextViewUtils.getViewToHeaderBodyPosition(
+                                VIEW_WITH_BODY, HEADER, start, end));
     }
 
     @Test

@@ -19,19 +19,20 @@
  */
 package org.zaproxy.zap.extension.authorization;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.withSettings;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod.LogicalOperator;
 import org.zaproxy.zap.network.HttpResponseBody;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class BasicAuthorizationDetectionMethodUnitTest {
 
     private static final String RESPONSE_TARGET_TEXT = "Unauthorized";
@@ -58,11 +59,13 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     private HttpMessage message;
     private BasicAuthorizationDetectionMethod authorizationMethod;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        message = Mockito.mock(HttpMessage.class);
-        HttpResponseHeader mockedHeader = Mockito.mock(HttpResponseHeader.class);
-        HttpResponseBody mockedBody = Mockito.mock(HttpResponseBody.class);
+        message = Mockito.mock(HttpMessage.class, withSettings().lenient());
+        HttpResponseHeader mockedHeader =
+                Mockito.mock(HttpResponseHeader.class, withSettings().lenient());
+        HttpResponseBody mockedBody =
+                Mockito.mock(HttpResponseBody.class, withSettings().lenient());
         Mockito.when(message.getResponseHeader()).thenReturn(mockedHeader);
         Mockito.when(message.getResponseBody()).thenReturn(mockedBody);
         Mockito.when(mockedBody.toString()).thenReturn(RESPONSE_BODY);

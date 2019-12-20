@@ -19,14 +19,18 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.Vector;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class KbUnitTest {
 
@@ -39,7 +43,7 @@ public class KbUnitTest {
 
     Kb knowledgeBase;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         knowledgeBase = new Kb();
     }
@@ -53,7 +57,7 @@ public class KbUnitTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void shouldStoreValueForGivenUriAndKey() {
         fail("Not yet implemented");
     }
@@ -70,7 +74,7 @@ public class KbUnitTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void shouldRetrieveStoredObjectsForGivenUriAndKey() {
         fail("Not yet implemented");
     }
@@ -84,7 +88,7 @@ public class KbUnitTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void shouldRetrieveStoredBooleanForGivenUriAndKey() {
         fail("Not yet implemented");
     }
@@ -98,7 +102,7 @@ public class KbUnitTest {
     }
 
     @Test
-    @Ignore
+    @Disabled
     public void shouldRetrieveStoredStringForGivenUriAndKey() {
         fail("Not yet implemented");
     }

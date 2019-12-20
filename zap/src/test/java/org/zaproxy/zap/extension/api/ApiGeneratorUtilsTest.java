@@ -19,18 +19,18 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
@@ -46,7 +46,7 @@ public class ApiGeneratorUtilsTest extends WithConfigsTest {
 
     private Map<String, ApiImplementor> coreApis = new HashMap<>();
 
-    @Before
+    @BeforeEach
     public void loadCoreApis() throws Exception {
         ExtensionHook hook =
                 new ExtensionHook(Model.getSingleton(), null) {

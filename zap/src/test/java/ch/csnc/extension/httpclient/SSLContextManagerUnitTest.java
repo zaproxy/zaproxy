@@ -19,18 +19,18 @@
  */
 package ch.csnc.extension.httpclient;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SSLContextManagerUnitTest {
 
     private SSLContextManager sslContextManager;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         sslContextManager = new SSLContextManager();
     }

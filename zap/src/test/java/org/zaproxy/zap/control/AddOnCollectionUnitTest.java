@@ -19,16 +19,16 @@
  */
 package org.zaproxy.zap.control;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import java.io.StringReader;
 import java.util.List;
 import org.apache.commons.configuration.ConfigurationException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.control.AddOnCollection.Platform;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -138,7 +138,7 @@ public class AddOnCollectionUnitTest {
                     + "	</addon_bbb>\n"
                     + "</ZAP>";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         configA = new ZapXmlConfiguration();
         configA.setDelimiterParsingDisabled(true);

@@ -19,38 +19,38 @@
  */
 package org.parosproxy.paros.model;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.apache.commons.io.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
 public class FileCopierUnitTest {
 
     private FileCopier fileCopier;
 
-    @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
+    @TempDir Path tempFolder;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         fileCopier = new FileCopier();
-        tempFolder.create();
     }
 
     @Test
     public void shouldCopyFileViaPreJava7IO() throws Exception {
         // Given
-        File source = tempFolder.newFile();
+        File source = Files.createTempFile(tempFolder, "", "").toFile();
         FileUtils.writeStringToFile(source, "Test", StandardCharsets.UTF_8);
-        File target = tempFolder.newFile();
+        File target = newFile();
         // When
         fileCopier.copyLegacy(source, target);
         // Then
@@ -60,9 +60,9 @@ public class FileCopierUnitTest {
     @Test
     public void shouldCopyFileViaNIO() throws Exception {
         // Given
-        File source = tempFolder.newFile();
+        File source = newFile();
         FileUtils.writeStringToFile(source, "Test", StandardCharsets.UTF_8);
-        File target = tempFolder.newFile();
+        File target = newFile();
         // When
         fileCopier.copyNIO(source, target);
         // Then
@@ -74,12 +74,16 @@ public class FileCopierUnitTest {
         // Given
         FileCopier fileCopierStub = Mockito.spy(fileCopier);
         doThrow(IOException.class).when(fileCopierStub).copyNIO(any(File.class), any(File.class));
-        File source = tempFolder.newFile();
+        File source = newFile();
         FileUtils.writeStringToFile(source, "Test", StandardCharsets.UTF_8);
-        File target = tempFolder.newFile();
+        File target = newFile();
         // When
         fileCopierStub.copy(source, target);
         // Then
         assertTrue(FileUtils.contentEquals(source, target));
+    }
+
+    private File newFile() throws IOException {
+        return Files.createTempFile(tempFolder, "", "").toFile();
     }
 }

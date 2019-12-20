@@ -19,66 +19,64 @@
  */
 package org.zaproxy.zap.spider.filters;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 /** Unit test for {@link HttpPrefixFetchFilter}. */
 public class HttpPrefixFetchFilterUnitTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateFetchFilterWithUndefinedURI() {
-        // Given / When
-        new HttpPrefixFetchFilter(null);
-        // Then = IllegalArgumentException
+        // Given
+        URI undefinedUri = null;
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> new HttpPrefixFetchFilter(undefinedUri));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateFetchFilterWithNoScheme() throws Exception {
         // Given
         URI prefixUri = new URI("example.org/", true);
-        // When
-        new HttpPrefixFetchFilter(prefixUri);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> new HttpPrefixFetchFilter(prefixUri));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateFetchFilterWithNonHttpOrHttpsScheme() throws Exception {
         // Given
         URI prefixUri = new URI("ftp://example.org/", true);
-        // When
-        new HttpPrefixFetchFilter(prefixUri);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> new HttpPrefixFetchFilter(prefixUri));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateFetchFilterWithNoHost() throws Exception {
         // Given
         URI prefixUri = new URI("http://", true);
-        // When
-        new HttpPrefixFetchFilter(prefixUri);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> new HttpPrefixFetchFilter(prefixUri));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateFetchFilterWithMalformedHost() throws Exception {
         // Given
         URI prefixUri = new URI("http://a%0/", true);
-        // When
-        new HttpPrefixFetchFilter(prefixUri);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> new HttpPrefixFetchFilter(prefixUri));
     }
 
     @Test
