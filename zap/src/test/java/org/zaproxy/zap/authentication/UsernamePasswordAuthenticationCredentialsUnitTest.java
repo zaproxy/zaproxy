@@ -26,12 +26,13 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.equalToIgnoringCase;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.List;
 import net.sf.json.JSON;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.extension.api.ApiResponse;
 
 /** @author Vahid Rafiei (@vahid_r) */
@@ -42,7 +43,7 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     private String username = "myUser";
     private String password = "myPass";
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.usernamePasswordAuthenticationCredentials =
                 new UsernamePasswordAuthenticationCredentials(username, password);
@@ -78,7 +79,7 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
         assertThat(isConfigured, is(false));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhileEncodeWithFieldSeparator() {
         // Given
         String fieldSeparator = "~";
@@ -86,9 +87,13 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
                 new UsernamePasswordAuthenticationCredentials(username, password);
 
         // When
-        usernamePasswordAuthenticationCredentials.encode(fieldSeparator);
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> usernamePasswordAuthenticationCredentials.encode(fieldSeparator));
 
-        // Then throw IllegalArgumentException
+        // Then
+        assertThat(e.getMessage(), containsString("separator"));
     }
 
     @Test

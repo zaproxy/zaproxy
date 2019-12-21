@@ -19,26 +19,24 @@
  */
 package ch.csnc.extension.util;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Unit test for {@link DriverConfiguration}. */
 public class DriverConfigurationUnitTest {
-
-    @ClassRule public static TemporaryFolder tempDir = new TemporaryFolder();
 
     @Test
     public void shouldCreateConfigurationFromFile() throws Exception {
@@ -54,9 +52,9 @@ public class DriverConfigurationUnitTest {
     }
 
     @Test
-    public void shouldWriteConfigurationToFile() throws Exception {
+    public void shouldWriteConfigurationToFile(@TempDir Path tempDir) throws Exception {
         // Given
-        File file = tempDir.newFile();
+        File file = Files.createTempFile(tempDir, "conf", "").toFile();
         DriverConfiguration configuration = new DriverConfiguration(file);
         configuration.setNames(vector("Name A", "Name B", "Name C"));
         configuration.setPaths(vector("Path A", "Path B", "Path C"));

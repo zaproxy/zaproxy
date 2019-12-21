@@ -26,7 +26,7 @@ import org.apache.log4j.varia.NullAppender;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 
 /**
  * Class with helper/utility methods to help testing classes involving {@code HttpBody} class and
@@ -76,7 +76,7 @@ public class HttpBodyTestUtils {
     protected static final String BODY_1_AND_2_STRING_UTF_8 =
             BODY_1_STRING_UTF_8 + BODY_2_STRING_UTF_8;
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }

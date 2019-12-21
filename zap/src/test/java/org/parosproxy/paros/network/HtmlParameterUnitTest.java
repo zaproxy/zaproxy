@@ -19,12 +19,13 @@
  */
 package org.parosproxy.paros.network;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.network.HttpBodyTestUtils;
 
 /** Unit test for {@link HtmlParameter}. */
@@ -34,59 +35,66 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     private static final String NON_NULL_NAME = "name";
     private static final String NON_NULL_VALUE = "value";
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateHtmlParameterWithNullCookieLine() {
-        // Given / When
-        new HtmlParameter(null);
-        // Then = IllegalArgumentException
+        // Given
+        String cookieLine = null;
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> new HtmlParameter(cookieLine));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateHtmlParameterWithNullType() {
-        // Given / When
-        new HtmlParameter(null, NON_NULL_NAME, NON_NULL_VALUE);
-        // Then = IllegalArgumentException
+        // Given
+        HtmlParameter.Type type = null;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new HtmlParameter(type, NON_NULL_NAME, NON_NULL_VALUE));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateHtmlParameterWithNullName() {
-        // Given / When
-        new HtmlParameter(NON_NULL_TYPE, null, NON_NULL_VALUE);
-        // Then = IllegalArgumentException
+        // Given
+        String name = null;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new HtmlParameter(NON_NULL_TYPE, name, NON_NULL_VALUE));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateHtmlParameterWithNullValue() {
-        // Given / When
-        new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, null);
-        // Then = IllegalArgumentException
+        // Given
+        String value = null;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, value));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetNullType() {
         // Given
         HtmlParameter parameter = new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, NON_NULL_VALUE);
-        // When
-        parameter.setType(null);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> parameter.setType(null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetNullName() {
         // Given
         HtmlParameter parameter = new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, NON_NULL_VALUE);
-        // When
-        parameter.setName(null);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> parameter.setName(null));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetNullValue() {
         // Given
         HtmlParameter parameter = new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, NON_NULL_VALUE);
-        // When
-        parameter.setValue(null);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> parameter.setValue(null));
     }
 
     @Test

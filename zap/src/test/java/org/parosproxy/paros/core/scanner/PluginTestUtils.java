@@ -23,7 +23,7 @@ import java.util.Date;
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.Status;
@@ -38,7 +38,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  */
 public class PluginTestUtils {
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }

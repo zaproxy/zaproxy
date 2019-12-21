@@ -19,18 +19,18 @@
  */
 package org.zaproxy.zap.network;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
 
 import java.nio.charset.StandardCharsets;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HttpResponseBody}. */
 public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
@@ -38,7 +38,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     private static final byte[] BODY_1_BYTES_UTF_16 =
             BODY_1_STRING.getBytes(StandardCharsets.UTF_16);
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }

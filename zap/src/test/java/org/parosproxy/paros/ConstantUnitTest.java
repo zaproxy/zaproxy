@@ -19,9 +19,9 @@
  */
 package org.parosproxy.paros;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,21 +30,20 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Unit test for {@link Constant}. */
 public class ConstantUnitTest {
 
-    @ClassRule public static TemporaryFolder tempDir = new TemporaryFolder();
+    @TempDir static Path tempDir;
     private Path zapInstallDir;
     private Path zapHomeDir;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
-        Path parentDir = tempDir.newFolder().toPath();
+        Path parentDir = Files.createTempDirectory(tempDir, "zap-");
         zapInstallDir = Files.createDirectories(parentDir.resolve("install"));
         zapHomeDir = Files.createDirectories(parentDir.resolve("home"));
     }

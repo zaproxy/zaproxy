@@ -19,10 +19,10 @@
  */
 package org.zaproxy.zap.extension.dynssl;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
@@ -30,7 +30,7 @@ import java.security.Provider;
 import java.security.Security;
 import java.util.Base64;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link SslCertificateUtils}. */
 public class SslCertificateUtilsUnitTest {

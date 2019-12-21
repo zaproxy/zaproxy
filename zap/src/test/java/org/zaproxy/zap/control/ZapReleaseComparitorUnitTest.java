@@ -19,10 +19,10 @@
  */
 package org.zaproxy.zap.control;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ZapReleaseComparitor}. */
 public class ZapReleaseComparitorUnitTest {
@@ -72,17 +72,11 @@ public class ZapReleaseComparitorUnitTest {
         assertTrue(zrc.compare(new ZapRelease("2.0.1"), new ZapRelease("D-2013-01-07")) < 0);
 
         // Bad versions
-        try {
-            zrc.compare(new ZapRelease("1.4.1.theta"), new ZapRelease("1.4.1.alpha"));
-            fail("Should have thrown an exception");
-        } catch (IllegalArgumentException e) {
-            // worked
-        }
-        try {
-            zrc.compare(new ZapRelease("1.4.1.0"), new ZapRelease("1.4.1.theta"));
-            fail("Should have thrown an exception");
-        } catch (IllegalArgumentException e) {
-            // worked
-        }
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> zrc.compare(new ZapRelease("1.4.1.theta"), new ZapRelease("1.4.1.alpha")));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> zrc.compare(new ZapRelease("1.4.1.0"), new ZapRelease("1.4.1.theta")));
     }
 }

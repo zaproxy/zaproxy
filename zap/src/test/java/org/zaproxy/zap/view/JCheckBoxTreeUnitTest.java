@@ -19,12 +19,14 @@
  */
 package org.zaproxy.zap.view;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.arrayContainingInAnyOrder;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -35,7 +37,7 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link JCheckBoxTree}. */
 public class JCheckBoxTreeUnitTest {
@@ -45,31 +47,28 @@ public class JCheckBoxTreeUnitTest {
         // Given
         TreeModel undefinedTreeModel = null;
         JCheckBoxTree checkBoxTree = new JCheckBoxTree();
-        // When
-        checkBoxTree.setModel(undefinedTreeModel);
-        // Then = No exception.
+        // When / Then
+        assertDoesNotThrow(() -> checkBoxTree.setModel(undefinedTreeModel));
     }
 
-    @Test(expected = ClassCastException.class)
+    @Test
     public void shouldFailToSetATreeModelWithRootNonDefaultMutableTreeNode() {
         // Given
         TreeModel treeModel = new DefaultTreeModel(new TreeNodeImpl());
         JCheckBoxTree checkBoxTree = new JCheckBoxTree();
-        // When
-        checkBoxTree.setModel(treeModel);
-        // Then = ClassCastException
+        // When / Then
+        assertThrows(ClassCastException.class, () -> checkBoxTree.setModel(treeModel));
     }
 
-    @Test(expected = ClassCastException.class)
+    @Test
     public void shouldFailToSetATreeModelWithChildNonDefaultMutableTreeNodes() {
         // Given
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode();
         rootNode.add(new MutableTreeNodeImpl());
         TreeModel treeModel = new DefaultTreeModel(rootNode);
         JCheckBoxTree checkBoxTree = new JCheckBoxTree();
-        // When
-        checkBoxTree.setModel(treeModel);
-        // Then = ClassCastException
+        // When / Then
+        assertThrows(ClassCastException.class, () -> checkBoxTree.setModel(treeModel));
     }
 
     @Test

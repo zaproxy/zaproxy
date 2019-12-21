@@ -19,17 +19,18 @@
  */
 package org.zaproxy.zap.spider.parser;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import net.htmlparser.jericho.Source;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link SpiderTextParser}. */
@@ -39,19 +40,20 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderTextParser spiderParser = new SpiderTextParser();
-        // When
-        spiderParser.canParseResource(undefinedMessage, ROOT_PATH, false);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> spiderParser.canParseResource(undefinedMessage, ROOT_PATH, false));
     }
 
     @Test
@@ -125,15 +127,16 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
         assertThat(canParse, is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderTextParser spiderParser = new SpiderTextParser();
         Source source = createSource(createMessageWith(EMPTY_BODY));
-        // When
-        spiderParser.parseResource(undefinedMessage, source, BASE_DEPTH);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> spiderParser.parseResource(undefinedMessage, source, BASE_DEPTH));
     }
 
     @Test

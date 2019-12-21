@@ -19,10 +19,10 @@
  */
 package org.zaproxy.zap.extension.alert;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.core.scanner.Alert;
 
 public class ExtensionAlertUnitTest {
@@ -41,7 +41,7 @@ public class ExtensionAlertUnitTest {
 
     private ExtensionAlert extAlert;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         extAlert = new ExtensionAlert();
     }

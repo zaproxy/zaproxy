@@ -19,13 +19,14 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -49,24 +50,24 @@ public class VariantMultipartFormParametersUnitTest {
         assertThat(parameters, is(empty()));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldNotAllowToModifyReturnedParametersList() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
-        // When
-        variant.getParamList()
-                .add(new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_PARAM, "name", "fred", 1));
-        // Then = UnsupportedOperationException
+        NameValuePair param =
+                new NameValuePair(NameValuePair.TYPE_MULTIPART_DATA_PARAM, "name", "fred", 1);
+        // When / Then
+        assertThrows(UnsupportedOperationException.class, () -> variant.getParamList().add(param));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToExtractParametersFromUndefinedMessage() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage undefinedMessage = null;
-        // When
-        variant.setMessage(undefinedMessage);
         // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> variant.setMessage(undefinedMessage));
     }
 
     @Test

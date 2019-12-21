@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,15 +27,15 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link StandardParameterParser}. */
 public class StandardParameterParserUnitTest {
 
     private StandardParameterParser spp;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         spp = new StandardParameterParser();
     }

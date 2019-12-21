@@ -19,15 +19,14 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ByteBuilderUnitTest {
 
@@ -35,9 +34,7 @@ public class ByteBuilderUnitTest {
 
     private static final byte[] TEST_ARRAY = {(byte) 1, (byte) 2, (byte) 3};
 
-    @Rule public final ExpectedException thrown = ExpectedException.none();
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         byteBuilder = new ByteBuilder();
     }
@@ -173,10 +170,9 @@ public class ByteBuilderUnitTest {
     public void shouldThrowAnExceptionWhenAppendingValuesToEmptyByteArray() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
-        // when
-        thrown.expect(ArrayIndexOutOfBoundsException.class);
-        // then
-        byteBuilder.append(new byte[0], 2, 3);
+        // When / Then
+        assertThrows(
+                ArrayIndexOutOfBoundsException.class, () -> byteBuilder.append(new byte[0], 2, 3));
     }
 
     @Test
@@ -216,10 +212,9 @@ public class ByteBuilderUnitTest {
     public void shouldThrowAnExceptionWhenAppendingValuesToEmptyCharArray() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
-        // when
-        thrown.expect(ArrayIndexOutOfBoundsException.class);
-        // then
-        byteBuilder.append(new char[0], 2, 3);
+        // When / Then
+        assertThrows(
+                ArrayIndexOutOfBoundsException.class, () -> byteBuilder.append(new char[0], 2, 3));
     }
 
     @Test

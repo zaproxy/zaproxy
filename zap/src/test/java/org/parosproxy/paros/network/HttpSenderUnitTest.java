@@ -19,16 +19,22 @@
  */
 package org.parosproxy.paros.network;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.any;
+import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.matching;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
+import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.VerificationException;
 import com.github.tomakehurst.wiremock.core.Options;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit.WireMockRule;
 import com.github.tomakehurst.wiremock.matching.RequestPattern;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.stubbing.Scenario;
@@ -36,9 +42,9 @@ import com.github.tomakehurst.wiremock.verification.LoggedRequest;
 import com.github.tomakehurst.wiremock.verification.diff.Diff;
 import java.util.List;
 import org.apache.commons.httpclient.URI;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link HttpSender}. */
@@ -47,14 +53,15 @@ public class HttpSenderUnitTest {
     private static final String PROXY_RESPONSE = "Proxy Response";
     private static final String SERVER_RESPONSE = "Server Response";
 
-    @Rule
-    public WireMockSequence proxy =
+    private WireMockSequence proxy =
             new WireMockSequence(defaultOptions().enableBrowserProxying(true));
 
-    @Rule public WireMockSequence server = new WireMockSequence(defaultOptions());
+    private WireMockSequence server = new WireMockSequence(defaultOptions());
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
+        proxy.start();
+        server.start();
         server.stubFor(
                 any(anyUrl())
                         .willReturn(
@@ -62,6 +69,12 @@ public class HttpSenderUnitTest {
                                         .withStatus(200)
                                         .withStatusMessage("OK")
                                         .withBody(SERVER_RESPONSE)));
+    }
+
+    @AfterEach
+    void teardown() {
+        proxy.stop();
+        server.stop();
     }
 
     @Test
@@ -220,7 +233,7 @@ public class HttpSenderUnitTest {
                 .useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.NEVER);
     }
 
-    private static class WireMockSequence extends WireMockRule {
+    private static class WireMockSequence extends WireMockServer {
 
         public WireMockSequence(WireMockConfiguration options) {
             super(options);

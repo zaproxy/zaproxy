@@ -19,13 +19,17 @@
  */
 package org.zaproxy.zap.model;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Locale;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.testutils.TestUtils;
 
 /** Unit test for {@link VulnerabilitiesLoader}. */
@@ -40,49 +44,54 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
 
     public VulnerabilitiesLoader loader;
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrownExceptionIfDirectoryIsNull() {
         // Given
         Path directory = null;
-        // When
-        loader = new VulnerabilitiesLoader(directory, FILE_NAME, FILE_EXTENSION);
-        // Then = Exception
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new VulnerabilitiesLoader(directory, FILE_NAME, FILE_EXTENSION));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrownExceptionIfFileNameIsNull() {
         // Given
         String fileName = null;
-        // When
-        loader = new VulnerabilitiesLoader(DIRECTORY, fileName, FILE_EXTENSION);
-        // Then = Exception
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new VulnerabilitiesLoader(DIRECTORY, fileName, FILE_EXTENSION));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrownExceptionIfFileNameIsEmpty() {
         // Given
         String fileName = "";
-        // When
-        loader = new VulnerabilitiesLoader(DIRECTORY, fileName, FILE_EXTENSION);
-        // Then = Exception
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new VulnerabilitiesLoader(DIRECTORY, fileName, FILE_EXTENSION));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrownExceptionIfFileExtensionIsNull() {
         // Given
         String fileExtension = null;
-        // When
-        loader = new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, fileExtension);
-        // Then = Exception
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, fileExtension));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrownExceptionIfFileExtensionIsEmpty() {
         // Given
         String fileExtension = "";
-        // When
-        loader = new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, fileExtension);
-        // Then = Exception
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, fileExtension));
     }
 
     @Test

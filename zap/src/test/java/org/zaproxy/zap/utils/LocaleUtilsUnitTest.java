@@ -19,12 +19,14 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -36,7 +38,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link LocaleUtils}. */
 public class LocaleUtilsUnitTest {
@@ -49,22 +51,24 @@ public class LocaleUtilsUnitTest {
     private static final String FILE_NAME = "FileName";
     private static final String FILE_EXTENSION = ".extension";
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenGettingResourceFilesRegexWithNullFileName() {
         // Given
         String nullFileName = null;
-        // When
-        LocaleUtils.createResourceFilesRegex(nullFileName, FILE_EXTENSION);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> LocaleUtils.createResourceFilesRegex(nullFileName, FILE_EXTENSION));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenGettingResourceFilesRegexWithNullFileExtension() {
         // Given
         String nullFileExtension = null;
-        // When
-        LocaleUtils.createResourceFilesRegex(FILE_NAME, nullFileExtension);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> LocaleUtils.createResourceFilesRegex(FILE_NAME, nullFileExtension));
     }
 
     @Test
@@ -72,31 +76,32 @@ public class LocaleUtilsUnitTest {
             shouldReturnValidRegexWhenGettingResourceFilesRegexWithNonNullFileNameAndFileExtension() {
         // Given
         String regex = LocaleUtils.createResourceFilesRegex(FILE_NAME, FILE_EXTENSION);
-        // When
-        Pattern.compile(regex);
-        // Then = valid regex
+        // When / Then = valid regex
+        assertDoesNotThrow(() -> Pattern.compile(regex));
     }
 
     @Test
     public void shouldAcceptFileNameWithSpecialRegexCharsWhenGettingResourceFilesRegex() {
         // Given
         String fileNameWithSpecialRegexChars = "?]|*-)(^[:.";
-        // When
-        Pattern.compile(
-                LocaleUtils.createResourceFilesRegex(
-                        fileNameWithSpecialRegexChars, FILE_EXTENSION));
-        // Then = valid regex
+        // When / Then = valid regex
+        assertDoesNotThrow(
+                () ->
+                        Pattern.compile(
+                                LocaleUtils.createResourceFilesRegex(
+                                        fileNameWithSpecialRegexChars, FILE_EXTENSION)));
     }
 
     @Test
     public void shouldAcceptFileExtensionWithSpecialRegexCharsWhenGettingResourceFilesRegex() {
         // Given
         String fileExtensionWithSpecialRegexChars = "?]|*-)(^[:.";
-        // When
-        Pattern.compile(
-                LocaleUtils.createResourceFilesRegex(
-                        FILE_NAME, fileExtensionWithSpecialRegexChars));
-        // Then = valid regex
+        // When / Then = valid regex
+        assertDoesNotThrow(
+                () ->
+                        Pattern.compile(
+                                LocaleUtils.createResourceFilesRegex(
+                                        FILE_NAME, fileExtensionWithSpecialRegexChars)));
     }
 
     @Test

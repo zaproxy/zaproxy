@@ -21,25 +21,20 @@ package org.zaproxy.zap.model;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.parosproxy.paros.Constant;
 
 public class SessionUtilsUnitTest {
 
-    @Rule public TemporaryFolder tempFolder = new TemporaryFolder();
-
-    @Before
-    public void setUp() throws Exception {
-        tempFolder.create();
-    }
+    @TempDir Path tempFolder;
 
     @Test
     public void shouldRetrieveExistingSessionFileFromAbsolutePath() throws Exception {
@@ -91,13 +86,13 @@ public class SessionUtilsUnitTest {
                 is(equalTo(pathWith(zapHome, Constant.FOLDER_SESSION_DEFAULT, "test.session"))));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailOnNullForSessionInput() throws Exception {
-        SessionUtils.getSessionPath(null);
+        assertThrows(NullPointerException.class, () -> SessionUtils.getSessionPath(null));
     }
 
     private Path newFile(String name) throws IOException {
-        return tempFolder.newFile(name).toPath();
+        return Files.createFile(tempFolder.resolve(name));
     }
 
     private static Path pathWith(String baseDir, String... paths) {
@@ -105,7 +100,7 @@ public class SessionUtilsUnitTest {
     }
 
     private String createZapHome() throws IOException {
-        String zapHome = tempFolder.newFolder("zap").toPath().toString();
+        String zapHome = Files.createDirectories(tempFolder.resolve("zap")).toString();
         Constant.setZapHome(zapHome);
         return zapHome;
     }
