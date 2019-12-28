@@ -40,6 +40,7 @@
 // ZAP: 2016/05/24 Add implementation of Database.discardSession(long)
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/12/28 Support Alert Metadata (Issue 1198)
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
@@ -52,6 +53,7 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseListener;
 import org.parosproxy.paros.db.DatabaseServer;
 import org.parosproxy.paros.db.TableAlert;
+import org.parosproxy.paros.db.TableAlertMetadata;
 import org.parosproxy.paros.db.TableContext;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.db.TableParam;
@@ -68,6 +70,7 @@ public class ParosDatabase extends AbstractDatabase {
     private TableHistory tableHistory = null;
     private TableSession tableSession = null;
     private TableAlert tableAlert = null;
+    private TableAlertMetadata tableAlertMetadata = null;
     private TableScan tableScan = null;
     // ZAP: Added TableTag
     private TableTag tableTag = null;
@@ -92,6 +95,7 @@ public class ParosDatabase extends AbstractDatabase {
         tableHistory = new ParosTableHistory();
         tableSession = new ParosTableSession();
         tableAlert = new ParosTableAlert();
+        tableAlertMetadata = new ParosTableAlertMetadata();
         tableScan = new ParosTableScan();
         // ZAP: Added statement.
         tableTag = new ParosTableTag();
@@ -105,6 +109,7 @@ public class ParosDatabase extends AbstractDatabase {
         internalDatabaseListeners.add(tableHistory);
         internalDatabaseListeners.add(tableSession);
         internalDatabaseListeners.add(tableAlert);
+        internalDatabaseListeners.add(tableAlertMetadata);
         internalDatabaseListeners.add(tableScan);
         internalDatabaseListeners.add(tableTag);
         internalDatabaseListeners.add(tableSessionUrl);
@@ -230,6 +235,15 @@ public class ParosDatabase extends AbstractDatabase {
     public void setTableAlert(TableAlert tableAlert) {
         this.tableAlert = tableAlert;
     }
+
+    public TableAlertMetadata getTableAlertMetadata() {
+        return tableAlertMetadata;
+    }
+
+    public void setTableAlertMetadata(TableAlertMetadata tableAlertMetadata) {
+        this.tableAlertMetadata = tableAlertMetadata;
+    }
+
     /* (non-Javadoc)
      * @see org.parosproxy.paros.db.DatabaseIF#getTableScan()
      */

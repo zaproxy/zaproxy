@@ -88,6 +88,10 @@ public interface Database {
     /** @param tableAlert The tableAlert to set. */
     void setTableAlert(TableAlert tableAlert);
 
+    TableAlertMetadata getTableAlertMetadata();
+
+    void setTableAlertMetadata(TableAlertMetadata tableAlertMetadata);
+
     /** @return Returns the tableScan. */
     TableScan getTableScan();
 

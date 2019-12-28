@@ -26,6 +26,7 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseListener;
 import org.parosproxy.paros.db.DatabaseServer;
 import org.parosproxy.paros.db.TableAlert;
+import org.parosproxy.paros.db.TableAlertMetadata;
 import org.parosproxy.paros.db.TableContext;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.db.TableParam;
@@ -41,6 +42,7 @@ public class SqlDatabase extends AbstractDatabase {
     private TableHistory tableHistory = null;
     private TableSession tableSession = null;
     private TableAlert tableAlert = null;
+    private TableAlertMetadata tableAlertMetadata = null;
     private TableScan tableScan = null;
     private TableTag tableTag = null;
     private TableSessionUrl tableSessionUrl = null;
@@ -58,6 +60,7 @@ public class SqlDatabase extends AbstractDatabase {
     public SqlDatabase() {
 
         tableAlert = new SqlTableAlert();
+        tableAlertMetadata = new SqlTableAlertMetadata();
         tableContext = new SqlTableContext();
         tableHistory = new SqlTableHistory();
         tableParam = new SqlTableParam();
@@ -71,6 +74,7 @@ public class SqlDatabase extends AbstractDatabase {
         internalDatabaseListeners.add(tableHistory);
         internalDatabaseListeners.add(tableSession);
         internalDatabaseListeners.add(tableAlert);
+        internalDatabaseListeners.add(tableAlertMetadata);
         internalDatabaseListeners.add(tableScan);
         internalDatabaseListeners.add(tableTag);
         internalDatabaseListeners.add(tableSessionUrl);
@@ -189,6 +193,15 @@ public class SqlDatabase extends AbstractDatabase {
     public void setTableAlert(TableAlert tableAlert) {
         this.tableAlert = tableAlert;
     }
+
+    public TableAlertMetadata getTableAlertMetadata() {
+        return tableAlertMetadata;
+    }
+
+    public void setTableAlertMetadata(TableAlertMetadata tableAlertMetadata) {
+        this.tableAlertMetadata = tableAlertMetadata;
+    }
+
     /* (non-Javadoc)
      * @see org.parosproxy.paros.db.DatabaseIF#getTableScan()
      */
