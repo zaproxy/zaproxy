@@ -21,7 +21,7 @@ package org.zaproxy.zap.extension.proxies;
 
 import org.zaproxy.zap.utils.Enableable;
 
-class ProxiesParamProxy extends Enableable {
+public class ProxiesParamProxy extends Enableable {
 
     private String address = "localhost";
     private int port = 8080;
