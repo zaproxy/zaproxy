@@ -241,6 +241,7 @@ tasks.register<Exec>("distMac") {
             "create",
             "-format", "UDBZ",
             "-megabytes", "800",
+            "-fs", "HFS+",
             "-srcfolder", macOsDistDataDir,
             "-volname", "OWASP ZAP",
             "$outputDir/ZAP_$version.dmg"))
