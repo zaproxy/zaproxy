@@ -100,6 +100,7 @@
 // ZAP: 2019/06/07 Update current version.
 // ZAP: 2019/09/16 Deprecate ZAP_HOMEPAGE and ZAP_EXTENSIONS_PAGE.
 // ZAP: 2019/11/07 Removed constants related to accepting the license.
+// ZAP: 2020/01/02 Updated config version and default user agent
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -138,6 +139,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
@@ -165,9 +167,10 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
 
-    private static final long VERSION_TAG = 2008000;
+    private static final long VERSION_TAG = 2009000;
 
     // Old version numbers - for upgrade
+    private static final long V_2_8_0_TAG = 2008000;
     private static final long V_2_7_0_TAG = 2007000;
     private static final long V_2_5_0_TAG = 2005000;
     private static final long V_2_4_3_TAG = 2004003;
@@ -648,6 +651,9 @@ public final class Constant {
                     if (ver <= V_2_7_0_TAG) {
                         upgradeFrom2_7_0(config);
                     }
+                    if (ver <= V_2_8_0_TAG) {
+                        upgradeFrom2_8_0(config);
+                    }
 
                     // Execute always to pick installer choices.
                     updateCfuFromDefaultConfig(config);
@@ -1061,6 +1067,12 @@ public final class Constant {
         } catch (ConversionException e) {
             LOG.debug("The option " + certUseKey + " is no longer an int.", e);
         }
+    }
+
+    private static void upgradeFrom2_8_0(XMLConfiguration config) {
+        // Update to a newer default user agent
+        config.setProperty(
+                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
     }
 
     private static void updateCfuFromDefaultConfig(XMLConfiguration config) {

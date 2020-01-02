@@ -46,6 +46,7 @@
 // ZAP: 2018/08/10 Set the default user agent to HttpRequestHeader (Issue 4846).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/01/02 Updated default user agent
 package org.parosproxy.paros.network;
 
 import java.security.Security;
@@ -100,10 +101,10 @@ public class ConnectionParam extends AbstractParam {
     private static final String SINGLE_COOKIE_REQUEST_HEADER =
             CONNECTION_BASE_KEY + ".singleCookieRequestHeader";
     private static final String HTTP_STATE_ENABLED = CONNECTION_BASE_KEY + ".httpStateEnabled";
-    private static final String DEFAULT_USER_AGENT = CONNECTION_BASE_KEY + ".defaultUserAgent";
+    public static final String DEFAULT_USER_AGENT = CONNECTION_BASE_KEY + ".defaultUserAgent";
 
-    private static final String DEFAULT_DEFAULT_USER_AGENT =
-            "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0";
+    public static final String DEFAULT_DEFAULT_USER_AGENT =
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0";
 
     /** The security property for TTL of successful DNS queries. */
     private static final String DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY =
