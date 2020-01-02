@@ -44,4 +44,14 @@ class HistoryTable extends HistoryReferencesTable {
         getColumnExt(Constant.messages.getString("view.href.table.header.size.responseheader"))
                 .setVisible(false);
     }
+
+    /**
+     * Sets whether or not the selected message should be displayed in Request/Response tabs.
+     *
+     * @param display {@code true} if the selected message should be displayed, {@code false}
+     *     otherwise.
+     */
+    void setDisplaySelectedMessage(boolean display) {
+        getDefaultSelectionListener().setEnabled(display);
+    }
 }
