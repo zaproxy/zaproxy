@@ -91,6 +91,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/30 Use hasView().
+// ZAP: 2020/01/02 Do not display messages being deleted.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -316,7 +317,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
     public void removeFromHistoryList(final HistoryReference href) {
         if (!hasView() || EventQueue.isDispatchThread()) {
+            if (hasView()) {
+                logPanel.setDisplaySelectedMessage(false);
+            }
             this.historyTableModel.removeEntry(href.getHistoryId());
+            if (hasView()) {
+                logPanel.setDisplaySelectedMessage(true);
+            }
             historyIdToRef.remove(href.getHistoryId());
         } else {
             EventQueue.invokeLater(
