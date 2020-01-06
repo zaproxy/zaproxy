@@ -61,9 +61,6 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
     }
 
     @Override
-    public void init() {}
-
-    @Override
     public boolean supportsDb(String type) {
         return true;
     }

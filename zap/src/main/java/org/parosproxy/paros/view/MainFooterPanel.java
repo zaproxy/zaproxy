@@ -31,6 +31,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.net.URL;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -41,6 +45,9 @@ import javax.swing.JToolBar;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
+import org.zaproxy.zap.extension.proxies.ProxiesParam;
+import org.zaproxy.zap.extension.proxies.ProxiesParamProxy;
 import org.zaproxy.zap.utils.DisplayUtils;
 
 public class MainFooterPanel extends JPanel {
@@ -253,6 +260,45 @@ public class MainFooterPanel extends JPanel {
                 .setText(Constant.messages.getString("footer.primary.proxy", proxyStr));
     }
 
+    private static String getProxyTooltip() {
+        OptionsParam optParam = Model.getSingleton().getOptionsParam();
+        // Primary
+        ProxyParam proxyParam = optParam.getProxyParam();
+        // Alts
+        ProxiesParam proxiesParam = optParam.getParamSet(ProxiesParam.class);
+        List<ProxiesParamProxy> altList =
+                proxiesParam != null ? proxiesParam.getProxies() : Collections.emptyList();
+
+        return Constant.messages.getString(
+                        "footer.proxy.tooltip",
+                        getProxyRepresentation(proxyParam.getProxyIp(), proxyParam.getProxyPort()))
+                + "<br>"
+                + createAlternateProxiesToolTip(
+                        altList, "footer.proxy.tooltip.enabled.alts", ProxiesParamProxy::isEnabled)
+                + createAlternateProxiesToolTip(
+                        altList,
+                        "footer.proxy.tooltip.disabled.alts",
+                        ((Predicate<ProxiesParamProxy>) ProxiesParamProxy::isEnabled).negate());
+    }
+
+    private static String createAlternateProxiesToolTip(
+            List<ProxiesParamProxy> proxies,
+            String labelKey,
+            Predicate<ProxiesParamProxy> predicate) {
+        if (proxies.isEmpty()) {
+            return "";
+        }
+        String altProxies =
+                proxies.stream()
+                        .filter(predicate)
+                        .map(
+                                proxy ->
+                                        getProxyRepresentation(proxy.getAddress(), proxy.getPort())
+                                                + "<br>")
+                        .collect(Collectors.joining(""));
+        return altProxies.isEmpty() ? "" : Constant.messages.getString(labelKey, altProxies);
+    }
+
     // Support for dynamic scanning results in the footer
     public void addFooterToolbarRightLabel(JLabel label) {
         DisplayUtils.scaleIcon(label);
@@ -314,5 +360,6 @@ public class MainFooterPanel extends JPanel {
         ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
         setPrimaryProxyLabel(
                 getProxyRepresentation(proxyParam.getProxyIp(), proxyParam.getProxyPort()));
+        getPrimaryProxyLabel().setToolTipText(getProxyTooltip());
     }
 }
