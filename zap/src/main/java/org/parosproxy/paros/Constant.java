@@ -101,6 +101,7 @@
 // ZAP: 2019/09/16 Deprecate ZAP_HOMEPAGE and ZAP_EXTENSIONS_PAGE.
 // ZAP: 2019/11/07 Removed constants related to accepting the license.
 // ZAP: 2020/01/02 Updated config version and default user agent
+// ZAP: 2020/01/06 Set latest version to default config.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -167,7 +168,10 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
 
-    private static final long VERSION_TAG = 2009000;
+    private static final String VERSION_ELEMENT = "version";
+
+    // Accessible for tests
+    static final long VERSION_TAG = 2009000;
 
     // Old version numbers - for upgrade
     private static final long V_2_8_0_TAG = 2008000;
@@ -445,7 +449,24 @@ public final class Constant {
     }
 
     private void copyDefaultConfigFile() throws IOException {
-        copyFileToHome(Paths.get(FILE_CONFIG), "xml/" + FILE_CONFIG_NAME, PATH_BUNDLED_CONFIG_XML);
+        Path configFile = Paths.get(FILE_CONFIG);
+        copyFileToHome(configFile, "xml/" + FILE_CONFIG_NAME, PATH_BUNDLED_CONFIG_XML);
+        try {
+            setLatestVersion(new ZapXmlConfiguration(configFile.toFile()));
+        } catch (ConfigurationException e) {
+            throw new IOException("Failed to set the latest version:", e);
+        }
+    }
+
+    /**
+     * Sets the latest version ({@link #VERSION_TAG}) to the given configuration and then saves it.
+     *
+     * @param config the configuration to change
+     * @throws ConfigurationException if an error occurred while saving the configuration.
+     */
+    private static void setLatestVersion(XMLConfiguration config) throws ConfigurationException {
+        config.setProperty(VERSION_ELEMENT, VERSION_TAG);
+        config.save();
     }
 
     private static void copyFileToHome(
@@ -578,7 +599,7 @@ public final class Constant {
                 XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
                 config.setAutoSave(false);
 
-                long ver = config.getLong("version");
+                long ver = config.getLong(VERSION_ELEMENT);
 
                 if (ver == VERSION_TAG) {
                     // Nothing to do
@@ -660,9 +681,7 @@ public final class Constant {
 
                     LOG.info("Upgraded from " + ver);
 
-                    // Update the version
-                    config.setProperty("version", VERSION_TAG);
-                    config.save();
+                    setLatestVersion(config);
                 }
 
             } catch (ConfigurationException | ConversionException | NoSuchElementException e) {
@@ -724,7 +743,7 @@ public final class Constant {
 
         try {
             XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
-            if (config.getLong("version") > V_2_7_0_TAG) {
+            if (config.getLong(VERSION_ELEMENT) > V_2_7_0_TAG) {
                 return;
             }
         } catch (Exception ignore) {
