@@ -15,7 +15,7 @@ The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free secur
 
 [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/ZAP-Download.png)](https://github.com/zaproxy/zaproxy/wiki/Downloads)
 
-#### Please help us to make ZAP even better for you by answering the [ZAP User Questionnaire](https://docs.google.com/forms/d/1-k-vcj_sSxlil6XLxCFade-m-IQVeE2h9gduA-2ZPPA/viewform)!
+#### Please help us to make ZAP even better for you by answering the [ZAP User Questionnaire](https://docs.google.com/forms/d/e/1FAIpQLSeJDCJg0M_H0sC666yx4PZwfyBTwnh0HwzTUKdYB7zmSBE0Nw/viewform)!
 
 #### ZAP in Ten - Video series
 An ongoing series of up to 10 minute videos about ZAP, starting with the basics. 
