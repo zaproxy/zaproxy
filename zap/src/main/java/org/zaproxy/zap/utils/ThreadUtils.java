@@ -62,7 +62,7 @@ public class ThreadUtils {
      * InterruptedException} as warning.
      *
      * @param runnable the {@code Runnable} to be run in the EDT.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static void invokeAndWaitHandled(Runnable runnable) {
         try {

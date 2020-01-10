@@ -215,7 +215,7 @@ public abstract class HttpHeader implements java.io.Serializable {
      *
      * @param name
      * @return a vector holding the value as string.
-     * @deprecated since TODO Add version. See {@link #getHeaderValues(String)} instead
+     * @deprecated since 2.9.0. See {@link #getHeaderValues(String)} instead
      */
     @Deprecated
     public Vector<String> getHeaders(String name) {
@@ -227,7 +227,7 @@ public abstract class HttpHeader implements java.io.Serializable {
      *
      * @param name the name of the header(s) to return.
      * @return a {@code List} holding the value(s) as String(s).
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public List<String> getHeaderValues(String name) {
         List<String> values = mHeaderFields.get(normalisedHeaderName(name));

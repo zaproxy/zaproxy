@@ -445,7 +445,7 @@ public abstract class ApiImplementor {
      * <p>Defaults to {@code getPrefix() + ".api.desc"}.
      *
      * @return the key of the description.
-     * @since TODO add version
+     * @since 2.9.0
      * @see org.zaproxy.zap.utils.I18N#getString(String)
      */
     public String getDescriptionKey() {

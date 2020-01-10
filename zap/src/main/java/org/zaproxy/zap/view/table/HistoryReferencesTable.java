@@ -138,7 +138,7 @@ public class HistoryReferencesTable extends ZapTable {
      * Request/Response tabs.
      *
      * @return the default selection listener, or {@code null} if not in use.
-     * @since TODO add version
+     * @since 2.9.0
      */
     protected DisplayMessageOnSelectionValueChange getDefaultSelectionListener() {
         return defaultSelectionListener;
@@ -253,7 +253,7 @@ public class HistoryReferencesTable extends ZapTable {
          *
          * @param enabled {@code true} if the selected message should be displayed, {@code false}
          *     otherwise.
-         * @since TODO add version
+         * @since 2.9.0
          */
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;

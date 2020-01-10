@@ -120,7 +120,7 @@ public class ApiElement {
     /**
      * Gets the description's resource key.
      *
-     * @return the resource key, never {@code null} (since TODO add version).
+     * @return the resource key, never {@code null} (since 2.9.0).
      */
     public String getDescriptionTag() {
         return descriptionTag;
@@ -147,7 +147,7 @@ public class ApiElement {
      * Gets the parameters.
      *
      * @return an unmodifiable list with the parameters, never {@code null}.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public List<ApiParameter> getParameters() {
         return Collections.unmodifiableList(parameters);

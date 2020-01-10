@@ -24,7 +24,7 @@ import java.util.Objects;
 /**
  * A parameter of an {@link ApiElement}.
  *
- * @since TODO add version
+ * @since 2.9.0
  */
 public class ApiParameter {
 

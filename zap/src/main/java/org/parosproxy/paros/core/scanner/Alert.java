@@ -298,7 +298,7 @@ public class Alert implements Comparable<Alert> {
      * Sets the risk of the alert.
      *
      * @param risk the new risk.
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void setRisk(int risk) {
         this.risk = risk;
@@ -308,7 +308,7 @@ public class Alert implements Comparable<Alert> {
      * Sets the confidence of the alert.
      *
      * @param confidence the new confidence.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public void setConfidence(int confidence) {
         this.confidence = confidence;
@@ -922,7 +922,7 @@ public class Alert implements Comparable<Alert> {
      * Returns a new alert builder.
      *
      * @return the alert builder.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static Builder builder() {
         return new Builder();
@@ -931,7 +931,7 @@ public class Alert implements Comparable<Alert> {
     /**
      * A builder of alerts.
      *
-     * @since TODO add version
+     * @since 2.9.0
      * @see #build()
      */
     public static class Builder {
@@ -1100,7 +1100,7 @@ public class Alert implements Comparable<Alert> {
      * #RISK_HIGH} (RISK_HIGH)
      *
      * @return true if the checked risk ({@code int}) is in the range, false otherwise
-     * @since TODO add version
+     * @since 2.9.0
      * @see #RISK_INFO
      * @see #RISK_HIGH
      */
@@ -1114,7 +1114,7 @@ public class Alert implements Comparable<Alert> {
      * (CONFIDENCE_USER_CONFIRMED)
      *
      * @return true if the checked confidence ({@code int}) is in the range, false otherwise
-     * @since TODO add version
+     * @since 2.9.0
      * @see #CONFIDENCE_FALSE_POSITIVE
      * @see #CONFIDENCE_USER_CONFIRMED
      */

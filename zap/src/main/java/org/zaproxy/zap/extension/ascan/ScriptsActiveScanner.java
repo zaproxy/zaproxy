@@ -238,15 +238,15 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
         super.sendAndReceive(msg, isFollowRedirect, handleAntiCSRF);
     }
 
-    /** @since TODO add version */
+    /** @since 2.9.0 */
     @Override
     public AlertBuilder newAlert() {
         return super.newAlert();
     }
 
     /**
-     * @deprecated (TODO add version) Use {@link #newAlert()} to build and {@link
-     *     AlertBuilder#raise() raise} alerts.
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     alerts.
      */
     @Deprecated
     public void raiseAlert(
@@ -280,8 +280,8 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     }
 
     /**
-     * @deprecated (TODO add version) Use {@link #newAlert()} to build and {@link
-     *     AlertBuilder#raise() raise} alerts.
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     alerts.
      */
     @Deprecated
     public void raiseAlert(
