@@ -581,7 +581,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @param type the script type that will be removed
      * @since 2.4.0
      * @see #registerScriptType(ScriptType)
-     * @deprecated (TODO add version) Use {@link #removeScriptType(ScriptType)} instead.
+     * @deprecated (2.9.0) Use {@link #removeScriptType(ScriptType)} instead.
      */
     @Deprecated
     public void removeScripType(ScriptType type) {
@@ -596,7 +596,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * <p>The call to this method has no effect if the given type is not registered.
      *
      * @param type the script type that will be removed
-     * @since TODO add version
+     * @since 2.9.0
      * @see #registerScriptType(ScriptType)
      */
     public void removeScriptType(ScriptType type) {
@@ -1549,7 +1549,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      *
      * @param script the script that caused the error, must not be {@code null}.
      * @param error the error caused by the script, must not be {@code null}.
-     * @since TODO add version
+     * @since 2.9.0
      * @see #setEnabled(ScriptWrapper, boolean)
      * @see #setError(ScriptWrapper, String)
      * @see #handleScriptException(ScriptWrapper, Exception)

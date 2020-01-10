@@ -302,7 +302,7 @@ public class HttpSender {
      * Sets whether or not the requests sent should keep track of cookies.
      *
      * @param shouldUseCookies {@code true} if cookies should be used, {@code false} otherwise.
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void setUseCookies(boolean shouldUseCookies) {
         this.useCookies = shouldUseCookies;

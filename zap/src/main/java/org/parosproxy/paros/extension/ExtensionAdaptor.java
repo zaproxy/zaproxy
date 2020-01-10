@@ -174,7 +174,7 @@ public abstract class ExtensionAdaptor implements Extension {
      * Convenience method that tells whether or not the extension has a view.
      *
      * @return {@code true} if the extension has a view, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.9.0
      * @see #getView()
      */
     protected boolean hasView() {

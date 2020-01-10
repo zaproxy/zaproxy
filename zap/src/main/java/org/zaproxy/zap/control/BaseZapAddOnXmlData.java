@@ -307,7 +307,7 @@ public abstract class BaseZapAddOnXmlData {
      * Gets the URL to the browsable repo.
      *
      * @return the URL to the repo, might be {@code null}.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public String getRepo() {
         return repo;
