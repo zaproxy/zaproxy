@@ -21,8 +21,7 @@
 #
 # To this script:
 # * Install the ZAP Python API: 
-#     Use ''pip install python-owasp-zap' or
-#     download from https://github.com/zaproxy/zaproxy/wiki/Downloads
+#     Use ''pip install python-owasp-zap' 
 # * Start ZAP (as this is for testing purposes you might not want the
 #     'standard' ZAP to be started)
 # * Access http://www.nottrusted.com/watcher/ via your browser, proxying through ZAP
