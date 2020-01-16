@@ -259,7 +259,7 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
                 UsernamePasswordAuthenticationCredentials credentials =
                         new UsernamePasswordAuthenticationCredentials();
                 credentials.username = ApiUtils.getNonEmptyStringParam(params, PARAM_USERNAME);
-                credentials.password = ApiUtils.getNonEmptyStringParam(params, PARAM_PASSWORD);
+                credentials.password = params.optString(PARAM_PASSWORD, "");
                 user.setAuthenticationCredentials(credentials);
             }
         };
