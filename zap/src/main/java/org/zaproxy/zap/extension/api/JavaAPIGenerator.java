@@ -30,6 +30,7 @@ import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
@@ -104,15 +105,9 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 
     private void generateJavaElement(ApiElement element, String component, String type, Writer out)
             throws IOException {
-        boolean hasParams = false;
 
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overriden by the getDescriptionTag method if
-            // required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
         try {
             String desc = getMessages().getString(descTag);
             out.write("\t/**\n");
@@ -151,71 +146,43 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
             out.write("\tpublic ApiResponse " + createMethodName(element.getName()) + "(");
         }
 
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                if (!hasParams) {
-                    hasParams = true;
-                } else {
-                    out.write(", ");
-                }
-                if (param.equalsIgnoreCase("boolean")) {
-                    out.write("boolean bool");
-                } else if (param.equalsIgnoreCase("integer")) {
-                    out.write("int i");
-                } else {
-                    out.write("String ");
-                    out.write(param.toLowerCase());
-                }
+        boolean hasParams = false;
+        for (ApiParameter parameter : element.getParameters()) {
+            if (!hasParams) {
+                hasParams = true;
+            } else {
+                out.write(", ");
             }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                if (!hasParams) {
-                    hasParams = true;
-                } else {
-                    out.write(", ");
-                }
-                if (param.equalsIgnoreCase("boolean")) {
-                    out.write("boolean bool");
-                } else if (param.equalsIgnoreCase("integer")) {
-                    out.write("int i");
-                } else {
-                    out.write("String ");
-                    out.write(param.toLowerCase());
-                }
+            String name = parameter.getName();
+            if (name.equalsIgnoreCase("boolean")) {
+                out.write("boolean bool");
+            } else if (name.equalsIgnoreCase("integer")) {
+                out.write("int i");
+            } else {
+                out.write("String " + name.toLowerCase(Locale.ROOT));
             }
         }
         out.write(") throws ClientApiException {\n");
 
         if (hasParams) {
             out.write("\t\tMap<String, String> map = new HashMap<>();\n");
-            if (element.getMandatoryParamNames() != null) {
-                for (String param : element.getMandatoryParamNames()) {
-                    out.write("\t\tmap.put(\"" + param + "\", ");
-                    if (param.equalsIgnoreCase("boolean")) {
-                        out.write("Boolean.toString(bool)");
-                    } else if (param.equalsIgnoreCase("integer")) {
-                        out.write("Integer.toString(i)");
-                    } else {
-                        out.write(param.toLowerCase());
-                    }
-                    out.write(");\n");
-                }
-            }
-            if (element.getOptionalParamNames() != null) {
-                for (String param : element.getOptionalParamNames()) {
+            for (ApiParameter parameter : element.getParameters()) {
+                String name = parameter.getName();
+                if (!parameter.isRequired()) {
                     out.write("\t\tif (");
-                    out.write(param.toLowerCase());
-                    out.write(" != null) {\n");
-                    out.write("\t\t\tmap.put(\"" + param + "\", ");
-                    if (param.equalsIgnoreCase("boolean")) {
-                        out.write("Boolean.toString(bool)");
-                    } else if (param.equalsIgnoreCase("integer")) {
-                        out.write("Integer.toString(i)");
-                    } else {
-                        out.write(param.toLowerCase());
-                    }
-                    out.write(");\n");
+                    out.write(name.toLowerCase(Locale.ROOT));
+                    out.write(" != null) {\n\t");
+                }
+                out.write("\t\tmap.put(\"" + name + "\", ");
+                if (name.equalsIgnoreCase("boolean")) {
+                    out.write("Boolean.toString(bool)");
+                } else if (name.equalsIgnoreCase("integer")) {
+                    out.write("Integer.toString(i)");
+                } else {
+                    out.write(name.toLowerCase(Locale.ROOT));
+                }
+                out.write(");\n");
+                if (!parameter.isRequired()) {
                     out.write("\t\t}\n");
                 }
             }

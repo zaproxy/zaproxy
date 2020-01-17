@@ -46,6 +46,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -191,6 +192,7 @@ public class AddOnLoader extends URLClassLoader {
         for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext(); ) {
             AddOn addOn = iterator.next();
             if (canLoadAddOn(addOn)) {
+                AddOnInstaller.installMissingAddOnLibs(addOn);
                 AddOnRunRequirements reqs = calculateRunRequirements(addOn, aoc.getAddOns());
                 if (reqs.isRunnable()) {
                     AddOnRunState runState = oldRunnableAddOns.get(addOn);
@@ -302,8 +304,7 @@ public class AddOnLoader extends URLClassLoader {
                 addOnClassLoader =
                         new AddOnClassLoader(
                                 ao.getFile().toURI().toURL(), this, ao.getAddOnClassnames());
-                this.addOnLoaders.put(ao.getId(), addOnClassLoader);
-                ao.setClassLoader(addOnClassLoader);
+                putAddOnClassLoader(ao, addOnClassLoader);
                 return addOnClassLoader;
             }
 
@@ -322,14 +323,33 @@ public class AddOnLoader extends URLClassLoader {
                             this,
                             dependencies,
                             ao.getAddOnClassnames());
-            this.addOnLoaders.put(ao.getId(), addOnClassLoader);
-            ao.setClassLoader(addOnClassLoader);
+            putAddOnClassLoader(ao, addOnClassLoader);
             return addOnClassLoader;
         } catch (MalformedURLException e) {
             logger.error(e.getMessage(), e);
             throw new RuntimeException(
                     "Failed to convert URL for AddOnClassLoader " + ao.getFile().toURI(), e);
         }
+    }
+
+    /**
+     * Puts the given add-on class loader into the {@link #addOnLoaders} map and {@link
+     * AddOn#setClassLoader(ClassLoader) sets it into the add-on}.
+     *
+     * <p>The add-on libraries are added to the add-on class loader before that.
+     *
+     * @param ao the add-on to put in the map.
+     * @param addOnClassLoader the class loader of the add-on.
+     */
+    private void putAddOnClassLoader(AddOn ao, AddOnClassLoader addOnClassLoader) {
+        if (!ao.getLibs().isEmpty()) {
+            addOnClassLoader.addUrls(
+                    ao.getLibs().stream()
+                            .map(AddOn.Lib::getFileSystemUrl)
+                            .collect(Collectors.toList()));
+        }
+        ao.setClassLoader(addOnClassLoader);
+        addOnLoaders.put(ao.getId(), addOnClassLoader);
     }
 
     @Override
@@ -443,6 +463,11 @@ public class AddOnLoader extends URLClassLoader {
         }
 
         if (!isDynamicallyInstallable(ao)) {
+            return;
+        }
+
+        if (!AddOnInstaller.installAddOnLibs(ao)) {
+            ao.setInstallationStatus(AddOn.InstallationStatus.NOT_INSTALLED);
             return;
         }
 
@@ -597,7 +622,7 @@ public class AddOnLoader extends URLClassLoader {
             }
             AddOnInstaller.uninstallAddOnFiles(ao, NULL_CALLBACK, runnableAddOns.keySet());
             removeAddOnClassLoader(ao);
-            deleteAddOnFile(ao, upgrading);
+            deleteAddOn(ao, upgrading);
             ao.setInstallationStatus(AddOn.InstallationStatus.UNINSTALLATION_FAILED);
             Control.getSingleton().getExtensionLoader().addOnUninstalled(ao, false);
             return false;
@@ -613,7 +638,7 @@ public class AddOnLoader extends URLClassLoader {
                 saveAddOnsRunState(runnableAddOns);
             }
 
-            deleteAddOnFile(ao, upgrading);
+            deleteAddOn(ao, upgrading);
 
             return this.aoc.removeAddOn(ao);
         }
@@ -632,7 +657,7 @@ public class AddOnLoader extends URLClassLoader {
             removeAddOnClassLoader(ao);
         }
 
-        deleteAddOnFile(ao, upgrading);
+        deleteAddOn(ao, upgrading);
 
         if (runnableAddOns.remove(ao) != null) {
             saveAddOnsRunState(runnableAddOns);
@@ -647,7 +672,19 @@ public class AddOnLoader extends URLClassLoader {
         return uninstalledWithoutErrors;
     }
 
-    private void deleteAddOnFile(AddOn addOn, boolean upgrading) {
+    /**
+     * Deletes the file and libraries of the given add-on.
+     *
+     * <p>The add-on is added to the {@link #blockList block list} when not able to delete it and if
+     * not updating it.
+     *
+     * @param addOn the add-on to be deleted.
+     * @param upgrading {@code true} if the add-on is being updated, {@code false} otherwise.
+     * @see AddOnInstaller#uninstallAddOnLibs(AddOn)
+     */
+    private void deleteAddOn(AddOn addOn, boolean upgrading) {
+        AddOnInstaller.uninstallAddOnLibs(addOn);
+
         if (addOn.getFile() != null && addOn.getFile().exists()) {
             if (!addOn.getFile().delete() && !upgrading) {
                 logger.debug("Cant delete " + addOn.getFile().getAbsolutePath());
@@ -1024,8 +1061,7 @@ public class AddOnLoader extends URLClassLoader {
         List<ClassNameWrapper> classNames = new ArrayList<>();
         File[] listFile = file.listFiles(fileFilter);
 
-        for (int i = 0; i < listFile.length; i++) {
-            File entry = listFile[i];
+        for (File entry : listFile) {
             if (entry.isDirectory()) {
                 classNames.addAll(parseClassDir(cl, entry, packageName, fileFilter));
                 continue;

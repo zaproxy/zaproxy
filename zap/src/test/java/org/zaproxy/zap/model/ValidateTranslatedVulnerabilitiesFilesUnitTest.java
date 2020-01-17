@@ -19,10 +19,10 @@
  */
 package org.zaproxy.zap.model;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -30,8 +30,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.testutils.TestUtils;
 
@@ -51,7 +51,7 @@ public class ValidateTranslatedVulnerabilitiesFilesUnitTest extends TestUtils {
     private VulnerabilitiesLoader loader =
             new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, FILE_EXTENSION);
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }

@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.stats;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.net.UnknownHostException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -105,15 +103,6 @@ public class ExtensionStats extends ExtensionAdaptor implements OptionsChangedLi
     @Override
     public String getDescription() {
         return Constant.messages.getString("stats.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     /** No database tables used, so all supported */

@@ -41,9 +41,12 @@
 // ZAP: 2018/04/24 Add JSON Content-Type.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/12/09 Added getHeaderValues(String) method (returning List) and deprecated
+// getHeaders(String) method (returning Vector).
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
@@ -199,12 +202,12 @@ public abstract class HttpHeader implements java.io.Serializable {
      * @return the header value. null if not found.
      */
     public String getHeader(String name) {
-        Vector<String> v = getHeaders(name);
-        if (v == null) {
+        List<String> headers = getHeaderValues(name);
+        if (headers.isEmpty()) {
             return null;
         }
 
-        return v.firstElement();
+        return headers.get(0);
     }
 
     /**
@@ -212,9 +215,23 @@ public abstract class HttpHeader implements java.io.Serializable {
      *
      * @param name
      * @return a vector holding the value as string.
+     * @deprecated since 2.9.0. See {@link #getHeaderValues(String)} instead
      */
+    @Deprecated
     public Vector<String> getHeaders(String name) {
         return mHeaderFields.get(normalisedHeaderName(name));
+    }
+
+    /**
+     * Get header(s) with the name. Multiple values can be returned.
+     *
+     * @param name the name of the header(s) to return.
+     * @return a {@code List} holding the value(s) as String(s).
+     * @since 2.9.0
+     */
+    public List<String> getHeaderValues(String name) {
+        List<String> values = mHeaderFields.get(normalisedHeaderName(name));
+        return values == null ? Collections.emptyList() : Collections.unmodifiableList(values);
     }
 
     public List<HttpHeaderField> getHeaders() {
@@ -253,7 +270,7 @@ public abstract class HttpHeader implements java.io.Serializable {
         //		int crlfpos = 0;
         Pattern pattern = null;
 
-        if (getHeaders(name) == null && value != null) {
+        if (getHeaderValues(name).isEmpty() && value != null) {
             // header value not found, append to end
             addHeader(name, value);
         } else {
@@ -281,7 +298,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Return the HTTP version (eg HTTP/1.0, HTTP/1.1)
+     * Return the HTTP version (e.g. HTTP/1.0, HTTP/1.1)
      *
      * @return
      */

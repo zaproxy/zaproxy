@@ -32,4 +32,5 @@ dependencies {
     implementation("de.undercouch:gradle-download-task:3.4.3")
     implementation("edu.sc.seis.launch4j:launch4j:2.4.6")
     implementation("gradle.plugin.install4j.install4j:gradle_plugin:6.1.6")
+    implementation("me.champeau.gradle:japicmp-gradle-plugin:0.2.8")
 }

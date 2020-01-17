@@ -45,9 +45,11 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
+import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
 import org.bouncycastle.asn1.x509.Extension;
 import org.bouncycastle.asn1.x509.GeneralName;
 import org.bouncycastle.asn1.x509.GeneralNames;
+import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
@@ -73,6 +75,18 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
  * @see CachedSslCertifificateServiceImpl for a cached SslCertificateService
  */
 public final class SslCertificateServiceImpl implements SslCertificateService {
+
+    /**
+     * Constant used to define the start validity date for site certificates. Used as 30d before
+     * "now"
+     */
+    private static final int SITE_CERTIFICATE_START_ADJUSTMENT = 30;
+    /**
+     * Constant used to define the end validity date for site certificates. 2years minus start
+     * adjustment. Per: https://cabforum.org/2017/03/17/ballot-193-825-day-certificate-lifetimes/
+     */
+    private static final int SITE_CERTIFICATE_END_VALIDITY_PERIOD =
+            825 - SITE_CERTIFICATE_START_ADJUSTMENT;
 
     private X509Certificate caCert = null;
     private PublicKey caPubKey = null;
@@ -156,12 +170,19 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
         namebld.addRDN(BCStyle.C, "xx");
         namebld.addRDN(BCStyle.EmailAddress, "owasp-zed-attack-proxy@lists.owasp.org");
 
+        long currentTime = System.currentTimeMillis();
         X509v3CertificateBuilder certGen =
                 new JcaX509v3CertificateBuilder(
                         new X509CertificateHolder(caCert.getEncoded()).getSubject(),
                         BigInteger.valueOf(serial.getAndIncrement()),
-                        new Date(System.currentTimeMillis() - Duration.ofDays(30).toMillis()),
-                        new Date(System.currentTimeMillis() + Duration.ofDays(1000).toMillis()),
+                        new Date(
+                                currentTime
+                                        - Duration.ofDays(SITE_CERTIFICATE_START_ADJUSTMENT)
+                                                .toMillis()),
+                        new Date(
+                                currentTime
+                                        + Duration.ofDays(SITE_CERTIFICATE_END_VALIDITY_PERIOD)
+                                                .toMillis()),
                         namebld.build(),
                         pubKey);
 
@@ -170,6 +191,10 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
                 false,
                 new SubjectKeyIdentifier(pubKey.getEncoded()));
         certGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(false));
+        certGen.addExtension(
+                Extension.extendedKeyUsage,
+                false,
+                new ExtendedKeyUsage(new KeyPurposeId[] {KeyPurposeId.id_kp_serverAuth}));
 
         if (subjectAlternativeNames.length > 0) {
             certGen.addExtension(

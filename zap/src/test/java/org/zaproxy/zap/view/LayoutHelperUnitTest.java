@@ -19,11 +19,12 @@
  */
 package org.zaproxy.zap.view;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-import java.awt.*;
-import org.junit.Test;
+import java.awt.GridBagConstraints;
+import java.awt.Insets;
+import org.junit.jupiter.api.Test;
 
 public class LayoutHelperUnitTest {
 

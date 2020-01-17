@@ -113,8 +113,6 @@ public class WebUI {
 
         sb.append("\n<table>\n");
         for (ApiElement element : elementList) {
-            List<String> mandatoryParams = element.getMandatoryParamNames();
-            List<String> optionalParams = element.getOptionalParamNames();
             sb.append("<tr>");
             sb.append("<td>");
             sb.append("<a href=\"/");
@@ -127,19 +125,14 @@ public class WebUI {
             sb.append(element.getName());
             sb.append("/\">");
             sb.append(element.getName());
-            if (mandatoryParams != null || optionalParams != null) {
+            if (!element.getParameters().isEmpty()) {
                 sb.append(" (");
-                if (mandatoryParams != null) {
-                    for (String param : mandatoryParams) {
-                        sb.append(param);
-                        sb.append("* ");
+                for (ApiParameter parameter : element.getParameters()) {
+                    sb.append(parameter.getName());
+                    if (parameter.isRequired()) {
+                        sb.append('*');
                     }
-                }
-                if (optionalParams != null) {
-                    for (String param : optionalParams) {
-                        sb.append(param);
-                        sb.append(" ");
-                    }
+                    sb.append(' ');
                 }
                 sb.append(") ");
             }
@@ -157,11 +150,6 @@ public class WebUI {
             }
 
             String descTag = element.getDescriptionTag();
-            if (descTag == null) {
-                // This is the default, but it can be overriden by the getDescriptionTag method if
-                // required
-                descTag = component + ".api." + type + "." + element.getName();
-            }
             if (Constant.messages.containsKey(descTag)) {
                 sb.append(Constant.messages.getString(descTag));
             } else {
@@ -244,19 +232,11 @@ public class WebUI {
             if (name != null) {
                 ApiElement element = this.getElement(impl, name, reqType);
 
-                List<String> mandatoryParams = element.getMandatoryParamNames();
-                List<String> optionalParams = element.getOptionalParamNames();
                 sb.append("<h3>");
                 sb.append(Constant.messages.getString("api.html." + reqType.name()));
                 sb.append(element.getName());
                 sb.append("</h3>\n");
-                // Handle the (optional) description
                 String descTag = element.getDescriptionTag();
-                if (descTag == null) {
-                    // This is the default, but it can be overriden by the getDescriptionTag method
-                    // if required
-                    descTag = component + ".api." + reqType.name() + "." + name;
-                }
                 if (Constant.messages.containsKey(descTag)) {
                     sb.append(Constant.messages.getString(descTag));
                 }
@@ -278,7 +258,9 @@ public class WebUI {
                     sb.append("<option value=\"HTML\">HTML</option>\n");
                     sb.append("<option value=\"XML\">XML</option>\n");
                     sb.append("</select>\n");
-                    sb.append("</td></tr>\n");
+                    sb.append("</td>");
+                    sb.append("<td></td>");
+                    sb.append("</tr>\n");
                 }
 
                 if (RequestType.action.equals(reqType)
@@ -319,6 +301,7 @@ public class WebUI {
                         }
                         sb.append("\"/>");
                         sb.append("</td>");
+                        sb.append("<td></td>");
                         sb.append("</tr>\n");
                     }
                     sb.append("<tr>");
@@ -331,41 +314,12 @@ public class WebUI {
                     sb.append("<option value=\"POST\">POST</option>\n");
                     sb.append("</select>\n");
                     sb.append("</td>");
+                    sb.append("<td></td>");
                     sb.append("</tr>\n");
                 }
 
-                if (mandatoryParams != null) {
-                    for (String param : mandatoryParams) {
-                        sb.append("<tr>");
-                        sb.append("<td>");
-                        sb.append(param);
-                        sb.append("*</td>");
-                        sb.append("<td>");
-                        sb.append("<input id=\"");
-                        sb.append(param);
-                        sb.append("\" name=\"");
-                        sb.append(param);
-                        sb.append("\"/>");
-                        sb.append("</td>");
-                        sb.append("</tr>\n");
-                    }
-                }
-                if (optionalParams != null) {
-                    for (String param : optionalParams) {
-                        sb.append("<tr>");
-                        sb.append("<td>");
-                        sb.append(param);
-                        sb.append("</td>");
-                        sb.append("<td>");
-                        sb.append("<input id=\"");
-                        sb.append(param);
-                        sb.append("\" name=\"");
-                        sb.append(param);
-                        sb.append("\"/>");
-                        sb.append("</td>");
-                        sb.append("</tr>\n");
-                    }
-                }
+                appendParams(sb, element.getParameters());
+
                 sb.append("<tr>");
                 sb.append("<td>");
                 sb.append("</td>");
@@ -381,11 +335,18 @@ public class WebUI {
                                 + name
                                 + "\"/>\n");
                 sb.append("</td>");
+                sb.append("<td></td>");
                 sb.append("</tr>\n");
                 sb.append("</table>\n");
                 sb.append("</form>\n");
 
             } else {
+                if (Constant.messages.containsKey(impl.getDescriptionKey())) {
+                    sb.append("<p>\n");
+                    sb.append(Constant.messages.getString(impl.getDescriptionKey()));
+                    sb.append("\n</p>\n");
+                }
+
                 List<ApiElement> elementList = new ArrayList<>();
                 List<ApiView> viewList = impl.getApiViews();
                 if (viewList != null && viewList.size() > 0) {
@@ -447,20 +408,25 @@ public class WebUI {
             sb.append("<h3>");
             sb.append(Constant.messages.getString("api.html.components"));
             sb.append("</h3>\n");
-            ArrayList<String> components = new ArrayList<String>(api.getImplementors().keySet());
-            Collections.sort(components);
+            List<ApiImplementor> components = new ArrayList<>(api.getImplementors().values());
+            Collections.sort(components, Comparator.comparing(ApiImplementor::getPrefix));
 
             sb.append("<table>\n");
-            for (String cmp : components) {
+            for (ApiImplementor cmp : components) {
                 sb.append("<tr>");
                 sb.append("<td>");
                 sb.append("<a href=\"/");
                 sb.append(Format.UI.name());
                 sb.append('/');
-                sb.append(cmp);
+                sb.append(cmp.getPrefix());
                 sb.append("/\">");
-                sb.append(cmp);
+                sb.append(cmp.getPrefix());
                 sb.append("</a>");
+                sb.append("</td>");
+                sb.append("<td>");
+                if (Constant.messages.containsKey(cmp.getDescriptionKey())) {
+                    sb.append(Constant.messages.getString(cmp.getDescriptionKey()));
+                }
                 sb.append("</td>");
                 sb.append("</tr>\n");
             }
@@ -469,6 +435,31 @@ public class WebUI {
         sb.append("</body>\n");
 
         return sb.toString();
+    }
+
+    private static void appendParams(StringBuilder sb, List<ApiParameter> params) {
+        for (ApiParameter param : params) {
+            sb.append("<tr>");
+            sb.append("<td>");
+            sb.append(param.getName());
+            if (param.isRequired()) {
+                sb.append('*');
+            }
+            sb.append("</td>");
+            sb.append("<td>");
+            sb.append("<input id=\"");
+            sb.append(param.getName());
+            sb.append("\" name=\"");
+            sb.append(param.getName());
+            sb.append("\"/>");
+            sb.append("</td><td>");
+            String descKey = param.getDescriptionKey();
+            if (Constant.messages.containsKey(descKey)) {
+                sb.append(Constant.messages.getString(descKey));
+            }
+            sb.append("</td>");
+            sb.append("</tr>\n");
+        }
     }
 
     public String handleRequest(URI uri, boolean apiEnabled) {

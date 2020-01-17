@@ -70,7 +70,7 @@ public class ZapNumberSpinner extends JSpinner {
 
     @Override
     public void setValue(Object value) {
-        if ((value == null) || !(value instanceof Number)) {
+        if (!(value instanceof Number)) {
             return;
         }
         setValue(((Number) value).intValue());

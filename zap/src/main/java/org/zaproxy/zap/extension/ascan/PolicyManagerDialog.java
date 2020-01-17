@@ -42,6 +42,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.SingleColumnTableModel;
 import org.zaproxy.zap.view.StandardFieldsDialog;
+import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class PolicyManagerDialog extends StandardFieldsDialog {
 
@@ -222,7 +223,8 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                                                     .getValueAt(
                                                             getParamsTable().getSelectedRow(), 0);
                             if (name != null) {
-                                JFileChooser chooser = new JFileChooser(Constant.getPoliciesDir());
+                                JFileChooser chooser =
+                                        new WritableFileChooser(Constant.getPoliciesDir());
                                 File file =
                                         new File(
                                                 Constant.getZapHome(),

@@ -19,19 +19,19 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
-import java.util.Vector;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -49,23 +49,25 @@ public class VariantCookieUnitTest {
         assertThat(parameters, is(empty()));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldNotAllowToModifyReturnedParametersList() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
-        // When
-        variantCookie.getParamList().add(cookie("Name", "Value", 0));
-        // Then = UnsupportedOperationException
+        NameValuePair cookie = cookie("Name", "Value", 0);
+        // When / Then
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> variantCookie.getParamList().add(cookie));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToExtractParametersFromUndefinedMessage() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage undefinedMessage = null;
-        // When
-        variantCookie.setMessage(undefinedMessage);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class, () -> variantCookie.setMessage(undefinedMessage));
     }
 
     @Test
@@ -80,7 +82,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldNotExtractAnyParameterIfTheCookieHeadersDontHaveCoookies() {
+    public void shouldNotExtractAnyParameterIfTheCookieHeadersDontHaveCookies() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies = createMessageWithCookies("", "");
@@ -435,9 +437,9 @@ public class VariantCookieUnitTest {
             @Override
             public boolean matches(Object actualValue) {
                 HttpMessage message = (HttpMessage) actualValue;
-                Vector<String> cookieLines =
-                        message.getRequestHeader().getHeaders(HttpHeader.COOKIE);
-                if (cookieLines == null || cookieLines.size() != 1) {
+                List<String> cookieLines =
+                        message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
+                if (cookieLines.size() != 1) {
                     return false;
                 }
                 return cookies.equals(cookieLines.get(0));
@@ -448,11 +450,12 @@ public class VariantCookieUnitTest {
                 description.appendText("cookie header ").appendValue(cookies);
             }
 
+            @Override
             public void describeMismatch(Object item, Description description) {
                 HttpMessage message = (HttpMessage) item;
-                Vector<String> cookieLines =
-                        message.getRequestHeader().getHeaders(HttpHeader.COOKIE);
-                if (cookieLines == null) {
+                List<String> cookieLines =
+                        message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
+                if (cookieLines.isEmpty()) {
                     description.appendText("has no cookie headers");
                 } else if (cookieLines.size() == 1) {
                     description.appendText("was ").appendValue(cookieLines.get(0));
@@ -469,12 +472,7 @@ public class VariantCookieUnitTest {
             @Override
             public boolean matches(Object actualValue) {
                 HttpMessage message = (HttpMessage) actualValue;
-                Vector<String> cookieLines =
-                        message.getRequestHeader().getHeaders(HttpHeader.COOKIE);
-                if (cookieLines == null || cookieLines.isEmpty()) {
-                    return true;
-                }
-                return false;
+                return message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE).isEmpty();
             }
 
             @Override
@@ -482,10 +480,11 @@ public class VariantCookieUnitTest {
                 description.appendText("no cookie header");
             }
 
+            @Override
             public void describeMismatch(Object item, Description description) {
                 HttpMessage message = (HttpMessage) item;
-                Vector<String> cookieLines =
-                        message.getRequestHeader().getHeaders(HttpHeader.COOKIE);
+                List<String> cookieLines =
+                        message.getRequestHeader().getHeaderValues(HttpHeader.COOKIE);
                 if (cookieLines.size() == 1) {
                     description
                             .appendText("has one cookie header ")

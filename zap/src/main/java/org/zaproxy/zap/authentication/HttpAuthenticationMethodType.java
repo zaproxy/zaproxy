@@ -377,7 +377,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
             public void handleAction(JSONObject params) throws ApiException {
                 Context context =
                         ApiUtils.getContextByParamId(params, AuthenticationAPI.PARAM_CONTEXT_ID);
-                HttpAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
+                HttpAuthenticationMethod method = createAuthenticationMethod(context.getId());
 
                 method.hostname = ApiUtils.getNonEmptyStringParam(params, PARAM_HOSTNAME);
                 try {

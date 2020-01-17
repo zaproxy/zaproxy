@@ -19,15 +19,15 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 import java.io.File;
 import org.apache.commons.configuration.FileConfiguration;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 

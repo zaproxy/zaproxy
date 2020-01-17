@@ -43,7 +43,6 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.callback.ui.CallbackPanel;
 import org.zaproxy.zap.extension.callback.ui.CallbackRequest;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
@@ -87,7 +86,7 @@ public class ExtensionCallback extends ExtensionAdaptor
         extensionHook.addOptionsParamSet(getCallbackParam());
         extensionHook.addOptionsChangedListener(this);
         extensionHook.addSessionListener(this);
-        if (View.isInitialised()) {
+        if (hasView()) {
             extensionHook.getHookView().addStatusPanel(getCallbackPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsCallbackPanel());
             ExtensionHelp.enableHelpKey(getCallbackPanel(), "ui.tabs.callbacks");
@@ -266,7 +265,7 @@ public class ExtensionCallback extends ExtensionAdaptor
     }
 
     private void invokeIfRequiredAndViewIsInitialised(Runnable runnable) {
-        if (View.isInitialised()) {
+        if (hasView()) {
             if (!EventQueue.isDispatchThread()) {
                 try {
                     EventQueue.invokeAndWait(runnable);
@@ -317,8 +316,8 @@ public class ExtensionCallback extends ExtensionAdaptor
                                     "callback.test.msg",
                                     url,
                                     msg.getRequestHeader().getSenderAddress().toString());
-                    if (View.isInitialised()) {
-                        View.getSingleton().getOutputPanel().appendAsync(str + "\n");
+                    if (hasView()) {
+                        getView().getOutputPanel().appendAsync(str + "\n");
                     }
                     LOGGER.info(str);
                     callbackReceived(

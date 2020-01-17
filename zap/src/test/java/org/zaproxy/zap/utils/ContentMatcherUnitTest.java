@@ -19,13 +19,13 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ContentMatcher}. */
 public class ContentMatcherUnitTest {

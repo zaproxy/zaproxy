@@ -1,0 +1,21 @@
+name: Release Weekly
+
+on:
+  push:
+    tags:
+      - 'w*'
+
+jobs:
+  release:
+    name: Build and Release
+    if: github.actor == 'kingthorin' || github.actor == 'psiinon' || github.actor == 'thc202'
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build and Release
+      uses: docker://openjdk:8
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        entrypoint: ./gradlew
+        args: '"-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createWeeklyReleaseFromGitHubRef'

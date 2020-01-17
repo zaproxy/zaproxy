@@ -19,16 +19,16 @@
  */
 package org.zaproxy.zap.spider;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
 /**
@@ -40,7 +40,7 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
  */
 public class URLCanonicalizerUnitTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getLogger(URLCanonicalizer.class).addAppender(new NullAppender());
     }
@@ -444,103 +444,103 @@ public class URLCanonicalizerUnitTest {
 
     @Test
     public void shouldCanonicalizeODataIDSimpleIn_USE_ALL_mode() throws URIException {
-        HandleParametersOption spiderOpion = HandleParametersOption.USE_ALL;
+        HandleParametersOption spiderOption = HandleParametersOption.USE_ALL;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)");
         String visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(1)"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)/Author");
         visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(1)/Author"));
     }
 
     @Test
     public void shouldCanonicalizeODataIDSimpleIn_IGNORE_COMPLETELY_mode() throws URIException {
-        HandleParametersOption spiderOpion = HandleParametersOption.IGNORE_COMPLETELY;
+        HandleParametersOption spiderOption = HandleParametersOption.IGNORE_COMPLETELY;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)");
         String visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)/Author");
         visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()/Author"));
     }
 
     @Test
     public void shouldCanonicalizeODataIDSimpleIn_IGNORE_VALUE_mode() throws URIException {
-        HandleParametersOption spiderOpion = HandleParametersOption.IGNORE_VALUE;
+        HandleParametersOption spiderOption = HandleParametersOption.IGNORE_VALUE;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)");
         String visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)/Author");
         visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()/Author"));
     }
 
     @Test
     public void shouldCanonicalizeODataIDMultipleIn_USE_ALL_mode() throws URIException {
-        HandleParametersOption spiderOpion = HandleParametersOption.USE_ALL;
+        HandleParametersOption spiderOption = HandleParametersOption.USE_ALL;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)");
         String visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(title='dummy',year=2012)"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)/Author");
         visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(title='dummy',year=2012)/Author"));
     }
 
     @Test
     public void shouldCanonicalizeODataIDMultipleIn_IGNORE_COMPLETELY_mode() throws URIException {
-        HandleParametersOption spiderOpion = HandleParametersOption.IGNORE_COMPLETELY;
+        HandleParametersOption spiderOption = HandleParametersOption.IGNORE_COMPLETELY;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)");
         String visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)/Author");
         visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()/Author"));
     }
 
     @Test
     public void shouldCanonicalizeODataIDMultipleIn_IGNORE_VALUE_mode() throws URIException {
-        HandleParametersOption spiderOpion = HandleParametersOption.IGNORE_VALUE;
+        HandleParametersOption spiderOption = HandleParametersOption.IGNORE_VALUE;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)");
         String visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(title,year)"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)/Author");
         visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, spiderOpion, true /* handleODataParametersVisited */);
+                        uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(title,year)/Author"));
     }
 }

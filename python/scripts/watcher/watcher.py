@@ -21,8 +21,7 @@
 #
 # To this script:
 # * Install the ZAP Python API: 
-#     Use ''pip install python-owasp-zap' or
-#     download from https://github.com/zaproxy/zaproxy/wiki/Downloads
+#     Use ''pip install python-owasp-zap' 
 # * Start ZAP (as this is for testing purposes you might not want the
 #     'standard' ZAP to be started)
 # * Access http://www.nottrusted.com/watcher/ via your browser, proxying through ZAP
@@ -87,7 +86,7 @@ zap = ZAP(proxies={'http': zapUrl, 'https': zapUrl})
 alerts = zap.alerts
 
 uniqueUrls = set([])
-# alertsPerUrl is a disctionary of urlsummary to a dictionary of type to set of alertshortnames ;)
+# alertsPerUrl is a dictionary of urlsummary to a dictionary of type to set of alertshortnames ;)
 alertsPerUrl = {}
 plugins = set([])
 
@@ -103,7 +102,7 @@ for alert in alerts:
 		urlSummary = urlEl[4]
 		short = abbrev.get(alert.get('alert'))
 		if (short is None):
-			print 'No abreviation for: ' + alert.get('alert')  
+			print 'No abbreviation for: ' + alert.get('alert')  
 			short = alert.get('alert')
 		aDict = alertsPerUrl.get(urlSummary, {'pass' : set([]), 'fail' : set([]), 'other' : set([])})
 		added = False

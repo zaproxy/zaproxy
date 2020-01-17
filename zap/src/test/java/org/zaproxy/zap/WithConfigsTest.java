@@ -19,26 +19,29 @@
  */
 package org.zaproxy.zap;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.withSettings;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Locale;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.I18N;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public abstract class WithConfigsTest extends TestUtils {
 
     /**
@@ -46,15 +49,16 @@ public abstract class WithConfigsTest extends TestUtils {
      *
      * <p>Can be used for other temporary files/dirs.
      */
-    @ClassRule public static TemporaryFolder tempDir = new TemporaryFolder();
+    @TempDir protected static Path tempDir;
 
     private static String zapInstallDir;
     private static String zapHomeDir;
 
-    @BeforeClass
+    @BeforeAll
     public static void beforeClass() throws Exception {
-        zapInstallDir = tempDir.newFolder("install").getAbsolutePath();
-        zapHomeDir = tempDir.newFolder("home").getAbsolutePath();
+        zapInstallDir =
+                Files.createDirectories(tempDir.resolve("install")).toAbsolutePath().toString();
+        zapHomeDir = Files.createDirectories(tempDir.resolve("home")).toAbsolutePath().toString();
     }
 
     /**
@@ -63,22 +67,23 @@ public abstract class WithConfigsTest extends TestUtils {
      *
      * @throws Exception if an error occurred while setting up the dirs or core classes.
      */
-    @Before
+    @BeforeEach
     public void setUpZap() throws Exception {
         Constant.setZapInstall(zapInstallDir);
         Constant.setZapHome(zapHomeDir);
 
         ExtensionLoader extLoader = Mockito.mock(ExtensionLoader.class);
-        Control control = Mockito.mock(Control.class);
+        Control control = Mockito.mock(Control.class, withSettings().lenient());
         Mockito.when(control.getExtensionLoader()).thenReturn(extLoader);
 
         // Init all the things
         Constant.getInstance();
-        I18N i18n = Mockito.mock(I18N.class);
+        I18N i18n = Mockito.mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
-        given(i18n.getString(anyString(), anyObject())).willReturn("");
+        given(i18n.getString(anyString(), any())).willReturn("");
         given(i18n.getLocal()).willReturn(Locale.getDefault());
         Constant.messages = i18n;
         Control.initSingletonForTesting(Model.getSingleton());
+        Model.getSingleton().getOptionsParam().load(new ZapXmlConfiguration());
     }
 }

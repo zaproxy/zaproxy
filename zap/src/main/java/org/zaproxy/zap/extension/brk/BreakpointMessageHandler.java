@@ -71,8 +71,8 @@ public class BreakpointMessageHandler {
         }
 
         // Do this outside of the semaphore loop so that the 'continue' button can apply to all
-        // queued break points
-        // but be reset when the next break point is hit
+        // queued breakpoints
+        // but be reset when the next breakpoint is hit
         breakPanel.breakpointHit();
 
         synchronized (semaphore) {
@@ -98,8 +98,8 @@ public class BreakpointMessageHandler {
         }
 
         // Do this outside of the semaphore loop so that the 'continue' button can apply to all
-        // queued break points
-        // but be reset when the next break point is hit
+        // queued breakpoints
+        // but be reset when the next breakpoint is hit
         breakPanel.breakpointHit();
 
         synchronized (semaphore) {
@@ -210,11 +210,11 @@ public class BreakpointMessageHandler {
     protected boolean isBreakOnEnabledBreakpoint(
             Message aMessage, boolean isRequest, boolean onlyIfInScope) {
         if (enabledBreakpoints.isEmpty()) {
-            // No break points
+            // No breakpoints
             return false;
         }
 
-        // match against the break points
+        // match against the breakpoints
         synchronized (enabledBreakpoints) {
             Iterator<BreakpointMessageInterface> it = enabledBreakpoints.iterator();
 

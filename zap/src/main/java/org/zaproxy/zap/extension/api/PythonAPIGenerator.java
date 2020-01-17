@@ -30,8 +30,10 @@ import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class PythonAPIGenerator extends AbstractAPIGenerator {
 
@@ -100,25 +102,17 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
             ApiElement element, String component, String type, Writer out) throws IOException {
 
         out.write("\n\n");
-        boolean hasParams =
-                (element.getMandatoryParamNames() != null
-                                && element.getMandatoryParamNames().size() > 0)
-                        || (element.getOptionalParamNames() != null
-                                && element.getOptionalParamNames().size() > 0);
+        boolean hasParams = !element.getParameters().isEmpty();
 
         if (!hasParams && type.equals(VIEW_ENDPOINT)) {
             out.write("    @property\n");
         }
         out.write("    def " + createFunctionName(element.getName()) + "(self");
 
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                out.write(", " + param.toLowerCase());
-            }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                out.write(", " + param.toLowerCase() + "=None");
+        for (ApiParameter parameter : element.getParameters()) {
+            out.write(", " + parameter.getName().toLowerCase(Locale.ROOT));
+            if (!parameter.isRequired()) {
+                out.write("=None");
             }
         }
 
@@ -132,11 +126,6 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
 
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overriden by the getDescriptionTag method if
-            // required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
         try {
             String desc = getMessages().getString(descTag);
             out.write("        \"\"\"\n");
@@ -165,20 +154,16 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
         StringBuilder reqParams = new StringBuilder();
         if (hasParams) {
             reqParams.append("{");
-            boolean first = true;
-            if (element.getMandatoryParamNames() != null) {
-                for (String param : element.getMandatoryParamNames()) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        reqParams.append(", ");
-                    }
-                    reqParams.append("'" + param + "': " + param.toLowerCase());
-                }
-            }
+            String mandatoryParameters =
+                    element.getParameters().stream()
+                            .filter(ApiParameter::isRequired)
+                            .map(ApiParameter::getName)
+                            .map(name -> "'" + name + "': " + name.toLowerCase(Locale.ROOT))
+                            .collect(Collectors.joining(", "));
+            reqParams.append(mandatoryParameters);
             if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
                 // Always add the API key - we've no way of knowing if it will be required or not
-                if (!first) {
+                if (!mandatoryParameters.isEmpty()) {
                     reqParams.append(", ");
                 }
                 reqParams
@@ -189,17 +174,21 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
             }
             reqParams.append("}");
 
-            if (element.getOptionalParamNames() != null
-                    && !element.getOptionalParamNames().isEmpty()) {
+            List<ApiParameter> optionalParameters =
+                    element.getParameters().stream()
+                            .filter(e -> !e.isRequired())
+                            .collect(Collectors.toList());
+            if (!optionalParameters.isEmpty()) {
                 out.write("        params = ");
                 out.write(reqParams.toString());
                 out.write("\n");
                 reqParams.replace(0, reqParams.length(), "params");
 
-                for (String param : element.getOptionalParamNames()) {
-                    out.write("        if " + param.toLowerCase() + " is not None:\n");
-                    out.write(
-                            "            params['" + param + "'] = " + param.toLowerCase() + "\n");
+                for (ApiParameter parameter : optionalParameters) {
+                    String name = parameter.getName();
+                    String varName = name.toLowerCase(Locale.ROOT);
+                    out.write("        if " + varName + " is not None:\n");
+                    out.write("            params['" + name + "'] = " + varName + "\n");
                 }
             }
         }

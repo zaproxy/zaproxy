@@ -49,6 +49,7 @@
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/01/02 Allow to set if messages are displayed.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -88,7 +89,7 @@ public class LogPanel extends AbstractPanel {
     // ZAP: Added logger.
     private static final Logger logger = Logger.getLogger(LogPanel.class);
     private javax.swing.JScrollPane scrollLog = null;
-    private HistoryReferencesTable historyReferencesTable = null;
+    private HistoryTable historyReferencesTable = null;
     // ZAP: Added history (filter) toolbar
     private javax.swing.JPanel historyPanel = null;
     private javax.swing.JToolBar panelToolbar = null;
@@ -435,5 +436,9 @@ public class LogPanel extends AbstractPanel {
     public void setModel(
             HistoryReferencesTableModel<DefaultHistoryReferencesTableEntry> historyTableModel) {
         getHistoryReferenceTable().setModel(historyTableModel);
+    }
+
+    void setDisplaySelectedMessage(boolean display) {
+        historyReferencesTable.setDisplaySelectedMessage(display);
     }
 }

@@ -19,11 +19,11 @@
  */
 package org.zaproxy.zap.spider.filters;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyString;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,30 +31,30 @@ import java.util.List;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 /** Unit test for {@link DefaultFetchFilter}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class DefaultFetchFilterUnitTest {
 
     @Mock Context context;
 
     private DefaultFetchFilter filter;
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         filter = new DefaultFetchFilter();
     }

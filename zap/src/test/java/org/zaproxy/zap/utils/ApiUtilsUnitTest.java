@@ -19,12 +19,13 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import net.sf.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.extension.api.ApiException;
 
 /** Unit test for {@link ApiUtils}. */
@@ -32,13 +33,12 @@ public class ApiUtilsUnitTest {
 
     private static final String HOST = "example.com";
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldThrowNullPointerExceptionWhenGettingIntFromNullParams() throws Exception {
         // Given
         JSONObject params = null;
-        // When
-        ApiUtils.getIntParam(params, "name");
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> ApiUtils.getIntParam(params, "name"));
     }
 
     @Test
@@ -83,13 +83,12 @@ public class ApiUtilsUnitTest {
         assertThat(obtainedValue, is(equalTo(value)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldThrowNullPointerExceptionWhenGettingBooleanFromNullParams() throws Exception {
         // Given
         JSONObject params = null;
-        // When
-        ApiUtils.getBooleanParam(params, "name");
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> ApiUtils.getBooleanParam(params, "name"));
     }
 
     @Test
@@ -134,13 +133,12 @@ public class ApiUtilsUnitTest {
         assertThat(obtainedValue, is(equalTo(value)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldThrowExceptionWhenGettingAuthorityFromNullSite() {
         // Given
         String nullSite = null;
-        // When
-        ApiUtils.getAuthority(nullSite);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> ApiUtils.getAuthority(nullSite));
     }
 
     @Test

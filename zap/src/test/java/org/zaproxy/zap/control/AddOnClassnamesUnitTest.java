@@ -19,34 +19,44 @@
  */
 package org.zaproxy.zap.control;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link AddOnClassnames}. */
 public class AddOnClassnamesUnitTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateAddOnClassnamesWithNullAllowed() throws Exception {
         // Given
         List<String> allowed = null;
         // When
-        new AddOnClassnames(allowed, Collections.emptyList());
-        // Then = NullPointerException
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> new AddOnClassnames(allowed, Collections.emptyList()));
+        // Then
+        assertThat(e.getMessage(), containsString("allowedClassnames"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateAddOnClassnamesWithNullRestricted() throws Exception {
         // Given
         List<String> restricted = null;
         // When
-        new AddOnClassnames(Collections.emptyList(), restricted);
-        // Then = NullPointerException
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> new AddOnClassnames(Collections.emptyList(), restricted));
+        // Then
+        assertThat(e.getMessage(), containsString("restrictedClassnames"));
     }
 
     @Test
@@ -105,12 +115,12 @@ public class AddOnClassnamesUnitTest {
         assertThat(addOnClassnames.isAllowed("org.example.y.Y"), is(equalTo(true)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailIfClassnameIsNull() throws Exception {
         // Given
         String classname = null;
-        // When
-        AddOnClassnames.ALL_ALLOWED.isAllowed(classname);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class, () -> AddOnClassnames.ALL_ALLOWED.isAllowed(classname));
     }
 }

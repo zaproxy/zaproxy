@@ -29,6 +29,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.AbstractAppParamPlugin;
+import org.parosproxy.paros.core.scanner.AbstractPlugin.AlertBuilder;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.network.HttpMessage;
@@ -237,6 +238,17 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
         super.sendAndReceive(msg, isFollowRedirect, handleAntiCSRF);
     }
 
+    /** @since 2.9.0 */
+    @Override
+    public AlertBuilder newAlert() {
+        return super.newAlert();
+    }
+
+    /**
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     alerts.
+     */
+    @Deprecated
     public void raiseAlert(
             int risk,
             int confidence,
@@ -267,6 +279,11 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
                 msg);
     }
 
+    /**
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     alerts.
+     */
+    @Deprecated
     public void raiseAlert(
             int risk,
             int confidence,

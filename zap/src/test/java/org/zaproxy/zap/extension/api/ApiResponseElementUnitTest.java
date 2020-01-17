@@ -19,15 +19,15 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -105,9 +105,9 @@ public class ApiResponseElementUnitTest {
         // Given
         String name = "name";
         String value = "{\"key\":\"value\"}";
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(name, value);
-        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<>("test", map);
         ApiResponseElement apiResponse = new ApiResponseElement(apiRespSet);
         // When
         String jsonResponse = apiResponse.toJSON().toString();

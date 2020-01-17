@@ -22,8 +22,6 @@ package org.zaproxy.zap.extension.brk;
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -45,7 +43,6 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointManagementDaemonImpl;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location;
@@ -487,7 +484,7 @@ public class ExtensionBreak extends ExtensionAdaptor
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             // Check to see if anything is selected in the main tabs
                             String url = "";
-                            Component c = View.getSingleton().getMainFrame().getFocusOwner();
+                            Component c = getView().getMainFrame().getFocusOwner();
                             if (c != null) {
                                 if (c instanceof JList) {
                                     // Handles the history list and similar
@@ -565,15 +562,6 @@ public class ExtensionBreak extends ExtensionAdaptor
     @Override
     public String getDescription() {
         return Constant.messages.getString("brk.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override

@@ -19,18 +19,18 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 import static org.mockito.BDDMockito.given;
 
 import java.io.ByteArrayOutputStream;
 import java.util.zip.GZIPOutputStream;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -38,7 +38,7 @@ import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class ApiResponseConversionUtilsUnitTest {
 
     @Mock HttpMessage message;
@@ -51,7 +51,7 @@ public class ApiResponseConversionUtilsUnitTest {
 
     @Mock HttpResponseBody responseBody;
 
-    @Before
+    @BeforeEach
     public void prepareMessage() {
         given(message.getRequestHeader()).willReturn(requestHeader);
         given(message.getRequestBody()).willReturn(requestBody);

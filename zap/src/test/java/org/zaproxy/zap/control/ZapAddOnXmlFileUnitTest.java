@@ -19,14 +19,16 @@
  */
 package org.zaproxy.zap.control;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,28 +36,26 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.Version;
 
 /** Unit test for {@link ZapAddOnXmlFile}. */
 public class ZapAddOnXmlFileUnitTest {
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldRequireInputStream() throws Exception {
         // Given
         InputStream manifestData = null;
-        // When
-        new ZapAddOnXmlFile(manifestData);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> new ZapAddOnXmlFile(manifestData));
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void shouldFailToLoadEmptyData() throws Exception {
         // Given
         InputStream manifestData = manifestData("");
-        // When
-        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
-        // Then = IOException
+        // When / Then
+        assertThrows(IOException.class, () -> new ZapAddOnXmlFile(manifestData));
     }
 
     @Test
@@ -72,6 +72,7 @@ public class ZapAddOnXmlFileUnitTest {
         assertThat(manifest.getAuthor(), isEmptyString());
         assertThat(manifest.getUrl(), isEmptyString());
         assertThat(manifest.getChanges(), isEmptyString());
+        assertThat(manifest.getRepo(), isEmptyString());
         assertThat(manifest.getNotBeforeVersion(), isEmptyString());
         assertThat(manifest.getNotFromVersion(), isEmptyString());
         assertThat(manifest.getBundleBaseName(), isEmptyString());
@@ -85,6 +86,7 @@ public class ZapAddOnXmlFileUnitTest {
         assertThat(manifest.getAscanrules(), is(empty()));
         assertThat(manifest.getPscanrules(), is(empty()));
         assertThat(manifest.getFiles(), is(empty()));
+        assertThat(manifest.getLibs(), is(empty()));
     }
 
     @Test
@@ -98,6 +100,7 @@ public class ZapAddOnXmlFileUnitTest {
         String author = "Author";
         String url = "http://example.org";
         String changes = "Changes";
+        String repo = "http://example.org/repo/";
         String notBeforeVersion = "1.2.3";
         String notFromVersion = "3.2.1";
         InputStream manifestData =
@@ -111,6 +114,7 @@ public class ZapAddOnXmlFileUnitTest {
                         "<author>" + author + "</author>",
                         "<url>" + url + "</url>",
                         "<changes>" + changes + "</changes>",
+                        "<repo>" + repo + "</repo>",
                         "<not-before-version>" + notBeforeVersion + "</not-before-version>",
                         "<not-from-version>" + notFromVersion + "</not-from-version>",
                         "</zapaddon>");
@@ -125,6 +129,7 @@ public class ZapAddOnXmlFileUnitTest {
         assertThat(manifest.getAuthor(), is(equalTo(author)));
         assertThat(manifest.getUrl(), is(equalTo(url)));
         assertThat(manifest.getChanges(), is(equalTo(changes)));
+        assertThat(manifest.getRepo(), is(equalTo(repo)));
         assertThat(manifest.getNotBeforeVersion(), is(equalTo(notBeforeVersion)));
         assertThat(manifest.getNotFromVersion(), is(equalTo(notFromVersion)));
     }
@@ -143,15 +148,18 @@ public class ZapAddOnXmlFileUnitTest {
         }
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToLoadManifestWithUnrecognisedStatus() throws Exception {
         // Given
         String status = "unrecognised-status";
         InputStream manifestData =
                 manifestData("<zapaddon>", "<status>" + status + "</status>", "</zapaddon>");
         // When
-        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
-        // Then = IllegalArgumentException
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
+        // Then
+        assertThat(e.getMessage(), containsString("status"));
     }
 
     @Test
@@ -178,6 +186,25 @@ public class ZapAddOnXmlFileUnitTest {
         assertThat(manifest.getBundlePrefix(), is(equalTo(bundlePrefix)));
         assertThat(manifest.getHelpSetBaseName(), is(equalTo(helpSetBaseName)));
         assertThat(manifest.getHelpSetLocaleToken(), is(equalTo(helpSetLocaleToken)));
+    }
+
+    @Test
+    public void shouldLoadManifestWithLibs() throws Exception {
+        // Given
+        String lib1 = "lib1.jar";
+        String lib2 = "dir/lib2.jar";
+        InputStream manifestData =
+                manifestData(
+                        "<zapaddon>",
+                        "<libs>",
+                        "  <lib>" + lib1 + "</lib>",
+                        "  <lib>" + lib2 + "</lib>",
+                        "</libs>",
+                        "</zapaddon>");
+        // When
+        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
+        // Then
+        assertThat(manifest.getLibs(), contains(lib1, lib2));
     }
 
     @Test
@@ -292,7 +319,7 @@ public class ZapAddOnXmlFileUnitTest {
                 is(equalTo(" < 6.0.0")));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToLoadManifestWithAddOnDepWithMissingId() throws Exception {
         // Given
         InputStream manifestData =
@@ -306,11 +333,15 @@ public class ZapAddOnXmlFileUnitTest {
                         "</dependencies>",
                         "</zapaddon>");
         // When
-        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
-        // Then = IllegalArgumentException
+        // When
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
+        // Then
+        assertThat(e.getMessage(), containsString("id"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToLoadManifestWithAddOnDepWithEmptyId() throws Exception {
         // Given
         InputStream manifestData =
@@ -325,11 +356,14 @@ public class ZapAddOnXmlFileUnitTest {
                         "</dependencies>",
                         "</zapaddon>");
         // When
-        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
-        // Then = IllegalArgumentException
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
+        // Then
+        assertThat(e.getMessage(), containsString("id"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToLoadManifestWithAddOnDepWithMalformedVersion() throws Exception {
         // Given
         InputStream manifestData =
@@ -345,11 +379,14 @@ public class ZapAddOnXmlFileUnitTest {
                         "</dependencies>",
                         "</zapaddon>");
         // When
-        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
-        // Then = IllegalArgumentException
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
+        // Then
+        assertThat(e.getMessage(), containsString("version"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToLoadManifestWithAddOnDepWithMalformedSemVer() throws Exception {
         // Given
         InputStream manifestData =
@@ -365,11 +402,14 @@ public class ZapAddOnXmlFileUnitTest {
                         "</dependencies>",
                         "</zapaddon>");
         // When
-        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
-        // Then = IllegalArgumentException
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
+        // Then
+        assertThat(e.getMessage(), containsString("version range"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToLoadManifestWithAddOnDepWithMalformedNotBeforeVersion()
             throws Exception {
         // Given
@@ -386,11 +426,14 @@ public class ZapAddOnXmlFileUnitTest {
                         "</dependencies>",
                         "</zapaddon>");
         // When
-        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
-        // Then = IllegalArgumentException
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
+        // Then
+        assertThat(e.getMessage(), containsString("not-before-version"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToLoadManifestWithAddOnDepWithMalformedNotFromVersion() throws Exception {
         // Given
         InputStream manifestData =
@@ -406,8 +449,11 @@ public class ZapAddOnXmlFileUnitTest {
                         "</dependencies>",
                         "</zapaddon>");
         // When
-        ZapAddOnXmlFile manifest = new ZapAddOnXmlFile(manifestData);
-        // Then = IllegalArgumentException
+        IllegalArgumentException e =
+                assertThrows(
+                        IllegalArgumentException.class, () -> new ZapAddOnXmlFile(manifestData));
+        // Then
+        assertThat(e.getMessage(), containsString("not-from-version"));
     }
 
     @Test

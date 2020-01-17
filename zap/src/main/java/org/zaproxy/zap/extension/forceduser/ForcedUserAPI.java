@@ -75,7 +75,7 @@ public class ForcedUserAPI extends ApiImplementor {
         switch (name) {
             case VIEW_GET_FORCED_USER:
                 Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-                User forcedUser = extension.getForcedUser(context.getIndex());
+                User forcedUser = extension.getForcedUser(context.getId());
                 if (forcedUser != null)
                     return new ApiResponseElement(
                             "forcedUserId", Integer.toString(forcedUser.getId()));
@@ -97,7 +97,7 @@ public class ForcedUserAPI extends ApiImplementor {
                 context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
                 int userId = ApiUtils.getIntParam(params, PARAM_USER_ID);
                 try {
-                    extension.setForcedUser(context.getIndex(), userId);
+                    extension.setForcedUser(context.getId(), userId);
                 } catch (IllegalStateException ex) {
                     throw new ApiException(Type.USER_NOT_FOUND);
                 }

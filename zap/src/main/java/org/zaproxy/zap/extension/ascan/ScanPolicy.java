@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
@@ -28,6 +29,8 @@ import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class ScanPolicy {
+
+    private static final Logger logger = Logger.getLogger(ScanPolicy.class);
 
     private String name;
     private PluginFactory pluginFactory = new PluginFactory();
@@ -49,11 +52,9 @@ public class ScanPolicy {
         pluginFactory.loadAllPlugin(conf);
 
         setDefaultThreshold(
-                AlertThreshold.valueOf(
-                        conf.getString("scanner.level", AlertThreshold.MEDIUM.name())));
+                getEnumFromConfig("scanner.level", AlertThreshold.class, AlertThreshold.MEDIUM));
         setDefaultStrength(
-                AttackStrength.valueOf(
-                        conf.getString("scanner.strength", AttackStrength.MEDIUM.name())));
+                getEnumFromConfig("scanner.strength", AttackStrength.class, AttackStrength.MEDIUM));
     }
 
     public ScanPolicy(FileConfiguration conf) throws ConfigurationException {
@@ -110,5 +111,25 @@ public class ScanPolicy {
 
     public void save() throws ConfigurationException {
         this.conf.save();
+    }
+
+    private <T extends Enum<T>> T getEnumFromConfig(
+            String confKey, Class<T> enumType, T defaultValue) {
+        String name = conf.getString(confKey, "");
+        if (name.isEmpty()) {
+            return defaultValue;
+        }
+        try {
+            return Enum.valueOf(enumType, name);
+        } catch (IllegalArgumentException e) {
+            logger.warn(
+                    "Failed to convert "
+                            + name
+                            + " to enum of "
+                            + enumType
+                            + ", using default instead: "
+                            + defaultValue);
+            return defaultValue;
+        }
     }
 }

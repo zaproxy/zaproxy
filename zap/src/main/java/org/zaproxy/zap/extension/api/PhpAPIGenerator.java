@@ -28,8 +28,10 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class PhpAPIGenerator extends AbstractAPIGenerator {
 
@@ -94,19 +96,10 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
     private void generatePhpElement(ApiElement element, String component, String type, Writer out)
             throws IOException {
 
-        boolean hasParams =
-                (element.getMandatoryParamNames() != null
-                                && element.getMandatoryParamNames().size() > 0)
-                        || (element.getOptionalParamNames() != null
-                                && element.getOptionalParamNames().size() > 0);
+        boolean hasParams = !element.getParameters().isEmpty();
 
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overriden by the getDescriptionTag method if
-            // required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
 
         try {
             String desc = getMessages().getString(descTag);
@@ -128,26 +121,18 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
 
         out.write("\tpublic function " + createMethodName(element.getName()) + "(");
 
-        String paramMan = "";
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                if (!paramMan.isEmpty()) {
-                    paramMan += ", ";
-                }
-                paramMan += "$" + param.toLowerCase();
-            }
-            out.write(paramMan);
-        }
-        String paramOpt = "";
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                if (!paramMan.isEmpty() || !paramOpt.isEmpty()) {
-                    paramOpt += ", ";
-                }
-                paramOpt += "$" + param.toLowerCase() + "=NULL";
-            }
-            out.write(paramOpt);
-        }
+        out.write(
+                element.getParameters().stream()
+                        .map(
+                                parameter -> {
+                                    String varName =
+                                            "$" + parameter.getName().toLowerCase(Locale.ROOT);
+                                    if (parameter.isRequired()) {
+                                        return varName;
+                                    }
+                                    return varName + "=NULL";
+                                })
+                        .collect(Collectors.joining(", ")));
 
         if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
             if (hasParams) {
@@ -163,17 +148,21 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
         StringBuilder reqParams = new StringBuilder();
         if (hasParams) {
             reqParams.append("array(");
-            boolean first = true;
-            if (element.getMandatoryParamNames() != null) {
-                for (String param : element.getMandatoryParamNames()) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        reqParams.append(", ");
-                    }
-                    reqParams.append("'" + param + "' => $" + param.toLowerCase());
-                }
-            }
+            String params =
+                    element.getParameters().stream()
+                            .filter(ApiParameter::isRequired)
+                            .map(
+                                    parameter -> {
+                                        String name = parameter.getName();
+                                        return "'"
+                                                + name
+                                                + "' => $"
+                                                + name.toLowerCase(Locale.ROOT);
+                                    })
+                            .collect(Collectors.joining(", "));
+            reqParams.append(params);
+            boolean first = params.isEmpty();
+
             if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
                 // Always add the API key - we've no way of knowing if it will be required or not
                 if (!first) {
@@ -187,16 +176,21 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
             }
             reqParams.append(")");
 
-            if (element.getOptionalParamNames() != null
-                    && !element.getOptionalParamNames().isEmpty()) {
+            List<ApiParameter> optionalParameters =
+                    element.getParameters().stream()
+                            .filter(e -> !e.isRequired())
+                            .collect(Collectors.toList());
+            if (!optionalParameters.isEmpty()) {
                 out.write("\t\t$params = ");
                 out.write(reqParams.toString());
                 out.write(";\n");
                 reqParams.replace(0, reqParams.length(), "$params");
 
-                for (String param : element.getOptionalParamNames()) {
-                    out.write("\t\tif ($" + param.toLowerCase() + " !== NULL) {\n");
-                    out.write("\t\t\t$params['" + param + "'] = $" + param.toLowerCase() + ";\n");
+                for (ApiParameter parameter : optionalParameters) {
+                    String name = parameter.getName();
+                    String varName = name.toLowerCase(Locale.ROOT);
+                    out.write("\t\tif ($" + varName + " !== NULL) {\n");
+                    out.write("\t\t\t$params['" + name + "'] = $" + varName + ";\n");
                     out.write("\t\t}\n");
                 }
             }

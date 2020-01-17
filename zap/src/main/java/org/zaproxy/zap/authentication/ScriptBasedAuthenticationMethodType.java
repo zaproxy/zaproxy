@@ -45,6 +45,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -294,6 +295,20 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                                 + this.script.getName(),
                         e);
                 getScriptsExtension().handleScriptException(this.script, e);
+                return null;
+            }
+
+            if (msg.getRequestHeader().getURI() == null) {
+                String error =
+                        String.format(
+                                "Auth request returned by the script '%s' does not have the request-target.",
+                                this.script.getName());
+                log.error(error);
+                error = "ERROR: " + error + "\n";
+                getScriptsExtension().handleScriptError(this.script, error);
+                if (View.isInitialised()) {
+                    View.getSingleton().getOutputPanel().appendAsync(error);
+                }
                 return null;
             }
 
@@ -558,7 +573,10 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 setBorder(BORDER);
                 ScriptWrapper item = (ScriptWrapper) value;
                 if (panel.loadedScript == item)
-                    setText("<html><b>" + item.getName() + " (loaded)</b></html>");
+                    setText(
+                            "<html><b>"
+                                    + StringEscapeUtils.unescapeHtml(item.getName())
+                                    + " (loaded)</b></html>");
                 else setText(item.getName());
             }
             return this;
@@ -837,7 +855,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
                 // Prepare the method
                 ScriptBasedAuthenticationMethod method =
-                        createAuthenticationMethod(context.getIndex());
+                        createAuthenticationMethod(context.getId());
 
                 // Load the script and make sure it exists and follows the required interface
                 ScriptWrapper script = getScriptsExtension().getScript(scriptName);

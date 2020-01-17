@@ -566,7 +566,7 @@ public class SpiderParam extends AbstractParam {
     }
 
     /**
-     * Sets the user agent, if diferent from the default one.
+     * Sets the user agent, if different from the default one.
      *
      * @param userAgent the new user agent
      */

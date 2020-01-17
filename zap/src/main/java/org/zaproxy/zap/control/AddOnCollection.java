@@ -64,9 +64,9 @@ public class AddOnCollection {
             while (!checkedAddOns.isEmpty()) {
                 AddOn addOn = checkedAddOns.remove(0);
                 // Shouldn't happen but make sure to not show add-ons that wouldn't run, or one of
-                // its extensions
-                // because of dependency issues or
-                AddOn.AddOnRunRequirements requirements = addOn.calculateRunRequirements(addOns);
+                // its extensions because of dependency issues.
+                AddOn.AddOnRunRequirements requirements =
+                        addOn.calculateInstallRequirements(addOns);
                 if (requirements.hasDependencyIssue()) {
                     if (logger.isDebugEnabled()) {
                         logger.debug(
@@ -205,7 +205,7 @@ public class AddOnCollection {
                                                                     + addOn.getId()
                                                                     + " version "
                                                                     + addOn.getVersion()
-                                                                    + " superceeded by "
+                                                                    + " superseded by "
                                                                     + ao.getVersion());
                                                     addOns.remove(addOn);
                                                 } else {

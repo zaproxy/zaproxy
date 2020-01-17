@@ -91,8 +91,8 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
     /** The container panel for the authentication method's configuration. */
     private JPanel configContainerPanel;
 
-    private ZapTextField loggedInIndicaterRegexField = null;
-    private ZapTextField loggedOutIndicaterRegexField = null;
+    private ZapTextField loggedInIndicatorRegexField = null;
+    private ZapTextField loggedOutIndicatorRegexField = null;
 
     /** Hacked used to make sure a confirmation is not needed if changes where done during init. */
     private boolean needsConfirm = true;
@@ -106,7 +106,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
      * @param context the context
      */
     public ContextAuthenticationPanel(ExtensionAuthentication extension, Context context) {
-        super(context.getIndex());
+        super(context.getId());
         this.extension = extension;
         initialize();
     }
@@ -118,7 +118,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
     /** Initialize the panel. */
     private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(buildName(getContextIndex()));
+        this.setName(buildName(getContextId()));
         this.setLayout(new GridBagLayout());
         this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
@@ -137,9 +137,9 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
         // Logged In/Out indicators
         this.add(new JLabel(FIELD_LABEL_LOGGED_IN_INDICATOR), LayoutHelper.getGBC(0, 4, 1, 1.0D));
-        this.add(getLoggedInIndicaterRegexField(), LayoutHelper.getGBC(0, 5, 1, 1.0D));
+        this.add(getLoggedInIndicatorRegexField(), LayoutHelper.getGBC(0, 5, 1, 1.0D));
         this.add(new JLabel(FIELD_LABEL_LOGGED_OUT_INDICATOR), LayoutHelper.getGBC(0, 6, 1, 1.0D));
-        this.add(getLoggedOutIndicaterRegexField(), LayoutHelper.getGBC(0, 7, 1, 1.0D));
+        this.add(getLoggedOutIndicatorRegexField(), LayoutHelper.getGBC(0, 7, 1, 1.0D));
 
         // Padding
         this.add(new JLabel(), LayoutHelper.getGBC(0, 99, 1, 1.0D, 1.0D));
@@ -232,7 +232,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
                                 if (selectedAuthenticationMethod == null
                                         || !type.isTypeForMethod(selectedAuthenticationMethod)) {
                                     selectedAuthenticationMethod =
-                                            type.createAuthenticationMethod(getContextIndex());
+                                            type.createAuthenticationMethod(getContextId());
                                 }
 
                                 // Show the configuration panel
@@ -315,14 +315,14 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
         return configContainerPanel;
     }
 
-    private ZapTextField getLoggedInIndicaterRegexField() {
-        if (loggedInIndicaterRegexField == null) loggedInIndicaterRegexField = new ZapTextField();
-        return loggedInIndicaterRegexField;
+    private ZapTextField getLoggedInIndicatorRegexField() {
+        if (loggedInIndicatorRegexField == null) loggedInIndicatorRegexField = new ZapTextField();
+        return loggedInIndicatorRegexField;
     }
 
-    private ZapTextField getLoggedOutIndicaterRegexField() {
-        if (loggedOutIndicaterRegexField == null) loggedOutIndicaterRegexField = new ZapTextField();
-        return loggedOutIndicaterRegexField;
+    private ZapTextField getLoggedOutIndicatorRegexField() {
+        if (loggedOutIndicatorRegexField == null) loggedOutIndicatorRegexField = new ZapTextField();
+        return loggedOutIndicatorRegexField;
     }
 
     @Override
@@ -346,19 +346,19 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
         if (selectedAuthenticationMethod != null) {
             // Set logged in/out indicators
             if (selectedAuthenticationMethod.getLoggedInIndicatorPattern() != null)
-                getLoggedInIndicaterRegexField()
+                getLoggedInIndicatorRegexField()
                         .setText(
                                 selectedAuthenticationMethod
                                         .getLoggedInIndicatorPattern()
                                         .pattern());
-            else getLoggedInIndicaterRegexField().setText("");
+            else getLoggedInIndicatorRegexField().setText("");
             if (selectedAuthenticationMethod.getLoggedOutIndicatorPattern() != null)
-                getLoggedOutIndicaterRegexField()
+                getLoggedOutIndicatorRegexField()
                         .setText(
                                 selectedAuthenticationMethod
                                         .getLoggedOutIndicatorPattern()
                                         .pattern());
-            else getLoggedOutIndicaterRegexField().setText("");
+            else getLoggedOutIndicatorRegexField().setText("");
 
             // If the proper type is already selected, just rebind the data
             if (shownMethodType != null
@@ -394,22 +394,22 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
     /**
      * Resets the tool tip and enables the fields of the logged in/out indicators.
      *
-     * @see #getLoggedInIndicaterRegexField()
-     * @see #getLoggedOutIndicaterRegexField()
+     * @see #getLoggedInIndicatorRegexField()
+     * @see #getLoggedOutIndicatorRegexField()
      */
     private void resetLoggedInOutIndicators() {
-        getLoggedInIndicaterRegexField().setToolTipText(null);
-        getLoggedInIndicaterRegexField().setEnabled(true);
-        getLoggedOutIndicaterRegexField().setToolTipText(null);
-        getLoggedOutIndicaterRegexField().setEnabled(true);
+        getLoggedInIndicatorRegexField().setToolTipText(null);
+        getLoggedInIndicatorRegexField().setEnabled(true);
+        getLoggedOutIndicatorRegexField().setToolTipText(null);
+        getLoggedOutIndicatorRegexField().setEnabled(true);
     }
 
     @Override
     public void validateContextData(Session session) throws Exception {
         if (shownConfigPanel != null) shownConfigPanel.validateFields();
         try {
-            Pattern.compile(getLoggedInIndicaterRegexField().getText());
-            Pattern.compile(getLoggedOutIndicaterRegexField().getText());
+            Pattern.compile(getLoggedInIndicatorRegexField().getText());
+            Pattern.compile(getLoggedOutIndicatorRegexField().getText());
         } catch (PatternSyntaxException e) {
             throw new IllegalStateException(
                     Constant.messages.getString(
@@ -422,16 +422,16 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
     private void saveMethod() {
         if (shownConfigPanel != null) shownConfigPanel.saveMethod();
         selectedAuthenticationMethod.setLoggedInIndicatorPattern(
-                getLoggedInIndicaterRegexField().getText());
+                getLoggedInIndicatorRegexField().getText());
         selectedAuthenticationMethod.setLoggedOutIndicatorPattern(
-                getLoggedOutIndicaterRegexField().getText());
+                getLoggedOutIndicatorRegexField().getText());
     }
 
     @Override
     public void saveContextData(Session session) throws Exception {
         saveMethod();
 
-        Context context = session.getContext(getContextIndex());
+        Context context = session.getContext(getContextId());
         // Notify the previously saved method that it's being discarded so the changes can be
         // reflected in the UI
         if (context.getAuthenticationMethod() != null)
@@ -455,42 +455,42 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
         @Override
         public String getLoggedInIndicatorPattern() {
-            return getLoggedInIndicaterRegexField().getText();
+            return getLoggedInIndicatorRegexField().getText();
         }
 
         @Override
         public void setLoggedInIndicatorPattern(String loggedInIndicatorPattern) {
-            getLoggedInIndicaterRegexField().setText(loggedInIndicatorPattern);
+            getLoggedInIndicatorRegexField().setText(loggedInIndicatorPattern);
         }
 
         @Override
         public void setLoggedInIndicatorEnabled(boolean enabled) {
-            getLoggedInIndicaterRegexField().setEnabled(enabled);
+            getLoggedInIndicatorRegexField().setEnabled(enabled);
         }
 
         @Override
         public void setLoggedInIndicatorToolTip(String toolTip) {
-            getLoggedInIndicaterRegexField().setToolTipText(toolTip);
+            getLoggedInIndicatorRegexField().setToolTipText(toolTip);
         }
 
         @Override
         public String getLoggedOutIndicatorPattern() {
-            return getLoggedOutIndicaterRegexField().getText();
+            return getLoggedOutIndicatorRegexField().getText();
         }
 
         @Override
         public void setLoggedOutIndicatorPattern(String loggedOutIndicatorPattern) {
-            getLoggedOutIndicaterRegexField().setText(loggedOutIndicatorPattern);
+            getLoggedOutIndicatorRegexField().setText(loggedOutIndicatorPattern);
         }
 
         @Override
         public void setLoggedOutIndicatorEnabled(boolean enabled) {
-            getLoggedOutIndicaterRegexField().setEnabled(enabled);
+            getLoggedOutIndicatorRegexField().setEnabled(enabled);
         }
 
         @Override
         public void setLoggedOutIndicatorToolTip(String toolTip) {
-            getLoggedOutIndicaterRegexField().setToolTipText(toolTip);
+            getLoggedOutIndicatorRegexField().setToolTipText(toolTip);
         }
     }
 }

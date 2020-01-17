@@ -19,10 +19,10 @@
  */
 package org.parosproxy.paros.extension.report;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -30,15 +30,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import javax.xml.transform.stream.StreamSource;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.zaproxy.zap.testutils.TestUtils;
 
 /** Unit test for {@link ReportGenerator}. */
 public class ReportGeneratorUnitTest extends TestUtils {
 
-    @ClassRule public static TemporaryFolder tempDir = new TemporaryFolder();
+    private static final String NEWLINE = System.getProperty("line.separator");
 
     @Test
     public void shouldNotEntityEncodeHigherUnicodeChars() {
@@ -51,10 +50,10 @@ public class ReportGeneratorUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldWriteReportWithWellformedXml() throws Exception {
+    public void shouldWriteReportWithWellformedXml(@TempDir Path tempDir) throws Exception {
         // Given
-        String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>J/ψ → VP</data>\n";
-        Path report = tempDir.newFile().toPath();
+        String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>J/ψ → VP</data>" + NEWLINE;
+        Path report = Files.createTempFile(tempDir, "", "");
         // When
         ReportGenerator.stringToHtml(data, identityXsl(), report.toString());
         // Then
@@ -62,10 +61,10 @@ public class ReportGeneratorUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldFailToWriteReportWithMalformedXml() throws Exception {
+    public void shouldFailToWriteReportWithMalformedXml(@TempDir Path tempDir) throws Exception {
         // Given
         String data = "J/ψ → VP</data>";
-        Path report = tempDir.newFile().toPath();
+        Path report = Files.createTempFile(tempDir, "", "");
         // When
         ReportGenerator.stringToHtml(data, identityXsl(), report.toString());
         // Then = nothing written.

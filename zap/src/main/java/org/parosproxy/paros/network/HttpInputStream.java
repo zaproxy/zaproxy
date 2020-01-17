@@ -179,7 +179,7 @@ public class HttpInputStream extends BufferedInputStream {
                 body.append(mBuffer, len);
             }
         } catch (IOException e) {
-            // read until IO error occur - eg connection close
+            // read until IO error occur - e.g. connection close
         }
     }
 
@@ -219,7 +219,7 @@ public class HttpInputStream extends BufferedInputStream {
     }
 
     @Override
-    public int available() throws IOException {
+    public synchronized int available() throws IOException {
         int avail = 0;
         //		int oneByte = -1;
         int timeout = 0;

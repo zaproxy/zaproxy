@@ -66,7 +66,8 @@ public class ZapReleaseComparitor implements Comparator<ZapRelease> {
 
         for (int i = 0; i < zr1Array.length; i++) {
             if (i >= zr2Array.length) {
-                // Equal up to now, zr1 longer so more recent (eg 2.0.0.1 is more recent that 2.0.0)
+                // Equal up to now, zr1 longer so more recent (e.g. 2.0.0.1 is more recent that
+                // 2.0.0)
                 return 1;
             }
             if (zr1Array[i].equals(zr2Array[i])) {
@@ -92,7 +93,8 @@ public class ZapReleaseComparitor implements Comparator<ZapRelease> {
                 } else {
                     if (zr2Array[i].equals(Constant.ALPHA_VERSION)
                             || zr2Array[i].equals(Constant.BETA_VERSION)) {
-                        // zr2 element alpha or beta, so before any number (eg 2.0.0 is more recent
+                        // zr2 element alpha or beta, so before any number (e.g. 2.0.0 is more
+                        // recent
                         // than 2.0.alpha)
                         return 1;
                     } else {
@@ -103,7 +105,8 @@ public class ZapReleaseComparitor implements Comparator<ZapRelease> {
                 // zr1 element not a number, zr2 is
                 if (zr1Array[i].equals(Constant.ALPHA_VERSION)
                         || zr1Array[i].equals(Constant.BETA_VERSION)) {
-                    // zr1 element alpha or beta, so before any number (eg 2.0.0 is more recent than
+                    // zr1 element alpha or beta, so before any number (e.g. 2.0.0 is more recent
+                    // than
                     // 2.0.alpha)
                     return -1;
                 } else {

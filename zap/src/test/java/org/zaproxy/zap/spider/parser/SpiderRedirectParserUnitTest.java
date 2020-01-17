@@ -19,19 +19,20 @@
  */
 package org.zaproxy.zap.spider.parser;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -60,19 +61,20 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
                         });
     }
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderRedirectParser redirectParser = new SpiderRedirectParser();
-        // When
-        redirectParser.canParseResource(undefinedMessage, ROOT_PATH, false);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> redirectParser.canParseResource(undefinedMessage, ROOT_PATH, false));
     }
 
     @Test
@@ -113,14 +115,15 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
         assertThat(canParse, is(equalTo(true)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderRedirectParser redirectParser = new SpiderRedirectParser();
-        // When
-        redirectParser.parseResource(undefinedMessage, null, BASE_DEPTH);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> redirectParser.parseResource(undefinedMessage, null, BASE_DEPTH));
     }
 
     @Test

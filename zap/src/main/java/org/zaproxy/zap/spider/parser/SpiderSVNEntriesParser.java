@@ -45,7 +45,7 @@ import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.XmlUtils;
 
 /**
- * The Class SpiderSVNEntriesParser is used for parsing SVN metadata, inclusing SVN "entries" and
+ * The Class SpiderSVNEntriesParser is used for parsing SVN metadata, including SVN "entries" and
  * "wc.db" files.
  *
  * @author 70pointer
@@ -122,7 +122,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
             try {
                 // get the binary data, and put it in a temp file we can use with the SQLite JDBC
                 // driver
-                // Note: File is not AutoClosable, so cannot use a "try with resources" to manage it
+                // Note: File is not AutoCloseable, so cannot use a "try with resources" to manage
+                // it
                 tempSqliteFile = File.createTempFile("sqlite", null);
                 tempSqliteFile.deleteOnExit();
                 OutputStream fos = new FileOutputStream(tempSqliteFile);
@@ -195,6 +196,11 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                     break;
                             }
 
+                            if (rsNodes == null) {
+                                log.error(
+                                        "There was a problem parsing the resource. rsNodes should not be null.");
+                                return false;
+                            }
                             // now get the list of files stored in the SVN repo (or this folder of
                             // the repo, depending the SVN working copy format in use)
                             while (rsNodes.next()) {

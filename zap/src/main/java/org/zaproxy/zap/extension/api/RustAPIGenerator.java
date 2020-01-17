@@ -29,12 +29,13 @@ import java.nio.file.Paths;
 import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 public class RustAPIGenerator extends AbstractAPIGenerator {
 
-    private static final String DEFAULT_OUTPUT_DIR = "../zap-api-rust/";
+    private static final String DEFAULT_OUTPUT_DIR = "../zap-api-rust/src";
 
     private static final String HEADER =
             "/* Zed Attack Proxy (ZAP) and its related class files.\n"
@@ -87,11 +88,6 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
             throws IOException {
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overriden by the getDescriptionTag method
-            // if required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
         try {
             String desc = getMessages().getString(descTag);
             out.write("/**\n");
@@ -113,19 +109,12 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
             // Might not be set, so just print out the ones that are missing
             System.out.println("No i18n for: " + descTag);
             if (isOptional()) {
-                out.write("\t/**\n");
-                out.write("\t * " + OPTIONAL_MESSAGE + "\n");
-                out.write("\t */\n");
+                out.write("/**\n");
+                out.write(" * " + OPTIONAL_MESSAGE + "\n");
+                out.write(" */\n");
             }
         }
-        int paramCount = 0;
-        if (element.getMandatoryParamNames() != null) {
-            paramCount += element.getMandatoryParamNames().size();
-        }
-        if (element.getOptionalParamNames() != null) {
-            paramCount += element.getOptionalParamNames().size();
-        }
-
+        int paramCount = element.getParameters().size();
         if (paramCount > 6) {
             // Clippy defaults to 6, but we also have the service parameter
             out.write("#[allow(clippy::too_many_arguments)]\n");
@@ -133,51 +122,27 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
 
         out.write("pub fn " + getSafeName(element.getName()) + "(service: &ZapService");
 
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                out.write(", ");
-                out.write(getSafeName(param.toLowerCase()));
-                out.write(": String");
-            }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                out.write(", ");
-                out.write(getSafeName(param.toLowerCase()));
-                out.write(": String");
-            }
+        for (ApiParameter parameter : element.getParameters()) {
+            out.write(", ");
+            out.write(getSafeName(parameter.getName().toLowerCase(Locale.ROOT)));
+            out.write(": String");
         }
         out.write(") -> Result<Value, ZapApiError> {\n");
 
         if (paramCount > 0) {
-            out.write("\tlet mut params = HashMap::new();\n");
+            out.write("    let mut params = HashMap::new();\n");
         } else {
-            out.write("\tlet params = HashMap::new();\n");
+            out.write("    let params = HashMap::new();\n");
         }
 
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                out.write(
-                        "\tparams.insert(\""
-                                + param
-                                + "\".to_string(), "
-                                + getSafeName(param.toLowerCase())
-                                + ");\n");
-            }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                out.write(
-                        "\tparams.insert(\""
-                                + param
-                                + "\".to_string(), "
-                                + getSafeName(param.toLowerCase())
-                                + ");\n");
-            }
+        for (ApiParameter parameter : element.getParameters()) {
+            String name = parameter.getName();
+            String varName = getSafeName(name.toLowerCase(Locale.ROOT));
+            out.write("    params.insert(\"" + name + "\".to_string(), " + varName + ");\n");
         }
 
         out.write(
-                "\tsuper::call(service, \""
+                "    super::call(service, \""
                         + component
                         + "\", \""
                         + type
@@ -208,6 +173,7 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
                                 "(?<=[^A-Z])(?=[A-Z])",
                                 "(?<=[A-Za-z])(?=[^A-Za-z])"),
                         "_")
+                .replaceAll("__", "_")
                 .toLowerCase();
     }
 

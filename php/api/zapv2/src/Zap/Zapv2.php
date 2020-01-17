@@ -163,7 +163,7 @@ class Zapv2 {
 	 * Shortcut for a GET request.
 	 *
 	 * @param string $url the url to GET at.
-	 * @param array $get the disctionary to turn into GET variables.
+	 * @param array $get the dictionary to turn into GET variables.
 	 */
 	public function request($url, $get=array()) {
 		$response = $this->sendRequest($url . '?' . $this->urlencode($get));
@@ -175,7 +175,7 @@ class Zapv2 {
 	 * Shortcut for an API OTHER GET request.
 	 *
 	 * @param string $url the url to GET at.
-	 * @param array $getParams the disctionary to turn into GET variables.
+	 * @param array $getParams the dictionary to turn into GET variables.
 	 */
 	public function requestOther($url, $getParams=array()) {
 		return $this->sendRequest($url . '?' . $this->urlencode($getParams));

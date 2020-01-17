@@ -19,32 +19,34 @@
  */
 package org.parosproxy.paros;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link Constant}. */
 public class ConstantUnitTest {
 
-    @ClassRule public static TemporaryFolder tempDir = new TemporaryFolder();
+    @TempDir static Path tempDir;
     private Path zapInstallDir;
     private Path zapHomeDir;
 
-    @Before
+    @BeforeEach
     public void before() throws Exception {
-        Path parentDir = tempDir.newFolder().toPath();
+        Path parentDir = Files.createTempDirectory(tempDir, "zap-");
         zapInstallDir = Files.createDirectories(parentDir.resolve("install"));
         zapHomeDir = Files.createDirectories(parentDir.resolve("home"));
     }
@@ -52,7 +54,13 @@ public class ConstantUnitTest {
     @Test
     public void shouldInitialiseHomeDirFromInstallDir() throws IOException {
         // Given
-        String configContents = "<config><version>0</version></config>";
+        String configContents =
+                String.format(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>%n"
+                                + "<config>%n"
+                                + "    <version>%s</version>%n"
+                                + "</config>%n",
+                        Constant.VERSION_TAG);
         installationFile("xml/config.xml", configContents);
         String log4jContents = "log4j.rootLogger...";
         installationFile("xml/log4j.properties", log4jContents);
@@ -75,7 +83,7 @@ public class ConstantUnitTest {
         // When
         new Constant();
         // Then
-        assertHomeFile("config.xml", defaultContents("config.xml"));
+        assertHomeFile("config.xml", defaultConfigContents());
         assertHomeFile("log4j.properties", defaultContents("log4j.properties"));
         assertHomeDirs();
         assertThat(Files.walk(zapHomeDir).count(), is(equalTo(8L)));
@@ -91,7 +99,7 @@ public class ConstantUnitTest {
         // When
         new Constant();
         // Then
-        assertHomeFile("config.xml", defaultContents("config.xml"));
+        assertHomeFile("config.xml", defaultConfigContents());
         assertHomeFile(getNameBackupMalformedConfig(), malformedConfig);
     }
 
@@ -106,6 +114,19 @@ public class ConstantUnitTest {
         assertThat(Files.isDirectory(zapHomeDir.resolve("fuzzers")), is(true));
         assertThat(Files.isDirectory(zapHomeDir.resolve("plugin")), is(true));
         assertThat(Files.isDirectory(zapHomeDir.resolve("session")), is(true));
+    }
+
+    private static String defaultConfigContents() throws IOException {
+        try (InputStream is =
+                Constant.class.getResourceAsStream("/org/zaproxy/zap/resources/config.xml")) {
+            ZapXmlConfiguration configuration = new ZapXmlConfiguration(is);
+            configuration.setProperty("version", Constant.VERSION_TAG);
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            configuration.save(os);
+            return os.toString(StandardCharsets.UTF_8.name());
+        } catch (ConfigurationException e) {
+            throw new IOException(e);
+        }
     }
 
     private static String defaultContents(String name) throws IOException {

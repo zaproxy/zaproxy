@@ -22,8 +22,6 @@ package org.zaproxy.zap.extension.dynssl;
 import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,7 +49,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
 import org.parosproxy.paros.security.SslCertificateService;
-import org.parosproxy.paros.view.View;
 
 /**
  * Extension enables configuration for Root CA certificate
@@ -146,15 +143,6 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
     @Override
     public String getDescription() {
         return Constant.messages.getString("dynssl.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     public void setRootCa(KeyStore rootca)
@@ -360,7 +348,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
                         "dynssl.warn.cert.expired",
                         cert.getNotAfter().toString(),
                         new Date().toString());
-        if (View.isInitialised()) {
+        if (hasView()) {
             getView().showWarningDialog(warnMsg);
         }
         logger.warn(warnMsg);

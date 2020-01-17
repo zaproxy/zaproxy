@@ -47,12 +47,12 @@ publishing {
                 name.set("OWASP Zed Attack Proxy")
                 packaging = "jar"
                 description.set("The Zed Attack Proxy (ZAP) is an easy to use integrated penetration testing tool for finding vulnerabilities in web applications. It is designed to be used by people with a wide range of security experience and as such is ideal for developers and functional testers who are new to penetration testing. ZAP provides automated scanners as well as a set of tools that allow you to find security vulnerabilities manually.")
-                url.set("https://www.owasp.org/index.php/ZAP")
+                url.set("https://www.zaproxy.org/")
                 inceptionYear.set("2010")
 
                 organization {
                     name.set("OWASP")
-                    url.set("https://www.owasp.org/index.php/ZAP")
+                    url.set("https://www.zaproxy.org/")
                 }
 
                 mailingLists {
@@ -87,7 +87,7 @@ publishing {
                         id.set("AllZapDevs")
                         name.set("Everyone who has contributed to ZAP")
                         email.set("zaproxy-develop@googlegroups.com")
-                        url.set("https://github.com/zaproxy/zap-core-help/wiki/HelpCredits")
+                        url.set("https://www.zaproxy.org/docs/desktop/credits/")
                     }
                 }
             }

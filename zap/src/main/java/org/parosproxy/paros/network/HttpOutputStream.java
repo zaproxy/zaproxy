@@ -65,7 +65,7 @@ public class HttpOutputStream extends BufferedOutputStream {
     }
 
     @Override
-    public void write(byte[] buf, int off, int len) throws IOException {
+    public synchronized void write(byte[] buf, int off, int len) throws IOException {
         if (buf == null) return;
         // out.write(buf, off, len);
         super.write(buf, off, len);

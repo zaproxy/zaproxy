@@ -19,10 +19,11 @@
  */
 package org.zaproxy.zap.extension.ext;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,14 +31,14 @@ import java.util.Map;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link ExtensionParam}. */
 public class ExtensionParamUnitTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
@@ -101,22 +102,22 @@ public class ExtensionParamUnitTest {
         assertThat(clone.isExtensionEnabled("Extension 3"), is(equalTo(false)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToPersistNullExtensionsState() {
         // Given
         ExtensionParam param = new ExtensionParam();
-        // When
-        param.setExtensionsState(null);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> param.setExtensionsState(null));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToPersistExtensionsStateWithoutConfigurationFile() {
         // Given
         ExtensionParam param = new ExtensionParam();
-        // When
-        param.setExtensionsState(Collections.<String, Boolean>emptyMap());
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> param.setExtensionsState(Collections.<String, Boolean>emptyMap()));
     }
 
     @Test

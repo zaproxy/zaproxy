@@ -20,6 +20,10 @@
 package org.zaproxy.zap.view;
 
 import java.awt.event.ActionEvent;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 import org.parosproxy.paros.Constant;
@@ -50,15 +54,24 @@ public abstract class DeleteContextAction extends AbstractAction {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        Context context = getContext();
-        if (context == null) {
+        List<Context> contexts = getContexts();
+        if (contexts.isEmpty()) {
             return;
         }
 
+        String contextList =
+                contexts.stream().map(Context::getName).collect(Collectors.joining("\n"));
+
         if (View.getSingleton()
-                        .showConfirmDialog(Constant.messages.getString("context.delete.warning"))
+                        .showConfirmDialog(
+                                contexts.size() > 1
+                                        ? Constant.messages.getString(
+                                                "context.delete.warning.multiple", contextList)
+                                        : Constant.messages.getString("context.delete.warning"))
                 == JOptionPane.OK_OPTION) {
-            Model.getSingleton().getSession().deleteContext(context);
+            for (Context context : contexts) {
+                Model.getSingleton().getSession().deleteContext(context);
+            }
         }
     }
 
@@ -68,4 +81,15 @@ public abstract class DeleteContextAction extends AbstractAction {
      * @return the {@code Context} to delete, or {@code null} if none.
      */
     protected abstract Context getContext();
+
+    /**
+     * Called when the action is performed to delete one or more selected contexts. Override to
+     * allow for multiple contexts to be deleted
+     *
+     * @return the {@code List} of {@code Context} to delete or empty List if none
+     */
+    protected List<Context> getContexts() {
+        Context ctx = getContext();
+        return ctx == null ? Collections.emptyList() : Arrays.asList(ctx);
+    }
 }

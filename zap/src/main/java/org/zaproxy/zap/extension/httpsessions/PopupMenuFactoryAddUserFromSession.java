@@ -245,8 +245,7 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
             // on an UI shared Context, so changes can be undone by pressing Cancel
             SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
             sessionDialog.recreateUISharedContexts(Model.getSingleton().getSession());
-            final Context uiSharedContext =
-                    sessionDialog.getUISharedContext(this.context.getIndex());
+            final Context uiSharedContext = sessionDialog.getUISharedContext(this.context.getId());
 
             HttpSessionsPanel panel = extension.getHttpSessionsPanel();
             HttpSession session = panel.getSelectedSession();
@@ -267,7 +266,7 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
                                 + uiSharedContext.getName());
                 ManualAuthenticationMethod method =
                         new ManualAuthenticationMethodType()
-                                .createAuthenticationMethod(context.getIndex());
+                                .createAuthenticationMethod(context.getId());
 
                 if (!confirmUsersDeletion(uiSharedContext)) {
                     log.debug("Cancelled change of authentication type.");
@@ -295,7 +294,7 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
             View.getSingleton()
                     .showSessionDialog(
                             Model.getSingleton().getSession(),
-                            ContextUsersPanel.getPanelName(context.getIndex()),
+                            ContextUsersPanel.getPanelName(context.getId()),
                             false,
                             new Runnable() {
 

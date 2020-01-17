@@ -245,6 +245,16 @@ public class ExtensionHookMenu {
         addFileMenuItemImpl(menuItem);
     }
 
+    /**
+     * Add a sub-menu to the File menu
+     *
+     * @param menu the sub-menu to add
+     * @since 2.9.0
+     */
+    public void addFileSubMenu(JMenu menu) {
+        addFileMenuItemImpl(menu);
+    }
+
     private void addFileMenuItemImpl(JMenuItem menuItem) {
         if (fileMenuItemList == null) {
             fileMenuItemList = createList();
@@ -261,6 +271,16 @@ public class ExtensionHookMenu {
     @Deprecated
     public void addEditMenuItem(JMenuItem menuItem) {
         addEditMenuItemImpl(menuItem);
+    }
+
+    /**
+     * Add a sub-menu to the Edit menu
+     *
+     * @param menu the sub-menu to add
+     * @since 2.9.0
+     */
+    public void addEditSubMenu(JMenu menu) {
+        addEditMenuItemImpl(menu);
     }
 
     private void addEditMenuItemImpl(JMenuItem menuItem) {
@@ -281,6 +301,16 @@ public class ExtensionHookMenu {
         addViewMenuItemImpl(menuItem);
     }
 
+    /**
+     * Add a sub-menu to the View menu
+     *
+     * @param menu the sub-menu to add
+     * @since 2.9.0
+     */
+    public void addViewSubMenu(JMenu menu) {
+        addViewMenuItemImpl(menu);
+    }
+
     private void addViewMenuItemImpl(JMenuItem menuItem) {
         if (viewMenuItemList == null) {
             viewMenuItemList = createList();
@@ -299,6 +329,16 @@ public class ExtensionHookMenu {
         addAnalyseMenuItemImpl(menuItem);
     }
 
+    /**
+     * Add a sub-menu to the Analyse menu
+     *
+     * @param menu the sub-menu to add
+     * @since 2.9.0
+     */
+    public void addAnalyseSubMenu(JMenu menu) {
+        addAnalyseMenuItemImpl(menu);
+    }
+
     private void addAnalyseMenuItemImpl(JMenuItem menuItem) {
         if (analyseMenuItemList == null) {
             analyseMenuItemList = createList();
@@ -315,6 +355,16 @@ public class ExtensionHookMenu {
     @Deprecated
     public void addToolsMenuItem(JMenuItem menuItem) {
         addToolsMenuItemImpl(menuItem);
+    }
+
+    /**
+     * Add a sub-menu to the Tools menu
+     *
+     * @param menu the sub-menu to add
+     * @since 2.9.0
+     */
+    public void addToolsSubMenu(JMenu menu) {
+        addToolsMenuItemImpl(menu);
     }
 
     private void addToolsMenuItemImpl(JMenuItem menuItem) {
@@ -343,8 +393,23 @@ public class ExtensionHookMenu {
     public void addToolsMenuItem(ZapMenuItem menuItem) {
         addToolsMenuItemImpl(menuItem);
     }
+
+    /**
+     * Add a sub-menu to the Import menu
+     *
+     * @param menu the sub-menu to add
+     * @since 2.9.0
+     */
+    public void addImportSubMenu(JMenu menu) {
+        addImportMenuItemImpl(menu);
+    }
+
     /** @since 2.8.0 */
     public void addImportMenuItem(ZapMenuItem menuItem) {
+        addImportMenuItemImpl(menuItem);
+    }
+
+    private void addImportMenuItemImpl(JMenuItem menuItem) {
         if (importMenuItemList == null) {
             importMenuItemList = createList();
         }
@@ -391,6 +456,16 @@ public class ExtensionHookMenu {
         addHelpMenuItemImpl(menuItem);
     }
 
+    /**
+     * Add a sub-menu to the Help menu
+     *
+     * @param menu the sub-menu to add
+     * @since 2.9.0
+     */
+    public void addHelpSubMenu(JMenu menu) {
+        addHelpMenuItemImpl(menu);
+    }
+
     private void addHelpMenuItemImpl(JMenuItem menuItem) {
         if (helpMenuList == null) {
             helpMenuList = createList();
@@ -409,6 +484,16 @@ public class ExtensionHookMenu {
         addReportMenuItemImpl(menuItem);
     }
 
+    /**
+     * Add a sub-menu to the Report menu
+     *
+     * @param menu the sub-menu to add
+     * @since 2.9.0
+     */
+    public void addReportSubMenu(JMenu menu) {
+        addReportMenuItemImpl(menu);
+    }
+
     private void addReportMenuItemImpl(JMenuItem menuItem) {
         if (reportMenuList == null) {
             reportMenuList = createList();
@@ -424,7 +509,21 @@ public class ExtensionHookMenu {
         addReportMenuItemImpl(menuItem);
     }
 
+    /**
+     * Add a sub-menu to the Online menu
+     *
+     * @param menu the sub-menu to add
+     * @since 2.9.0
+     */
+    public void addOnlineSubMenu(JMenu menu) {
+        addOnlineMenuItemImpl(menu);
+    }
+
     public void addOnlineMenuItem(ZapMenuItem menuItem) {
+        addOnlineMenuItemImpl(menuItem);
+    }
+
+    private void addOnlineMenuItemImpl(JMenuItem menuItem) {
         if (onlineMenuList == null) {
             onlineMenuList = createList();
         }

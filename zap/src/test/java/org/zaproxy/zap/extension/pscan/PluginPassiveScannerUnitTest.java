@@ -19,15 +19,16 @@
  */
 package org.zaproxy.zap.extension.pscan;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import net.htmlparser.jericho.Source;
 import org.apache.commons.configuration.Configuration;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
@@ -38,7 +39,7 @@ public class PluginPassiveScannerUnitTest {
 
     private PluginPassiveScanner scanner;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         scanner = new TestPluginPassiveScanner();
     }
@@ -49,17 +50,16 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldHaveUnkownStatusByDefault() {
+    public void shouldHaveUnknownStatusByDefault() {
         assertThat(scanner.getStatus(), is(equalTo(AddOn.Status.unknown)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetNullStatus() {
         // Given
         AddOn.Status status = null;
-        // When
-        scanner.setStatus(status);
-        // Then = IllegalArgumentException.
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> scanner.setStatus(status));
     }
 
     @Test
@@ -92,13 +92,13 @@ public class PluginPassiveScannerUnitTest {
         assertThat(scanner.getAlertThreshold(), is(equalTo(AlertThreshold.MEDIUM)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetNullAlertThreshold() {
         // Given
         AlertThreshold alertThreshold = null;
-        // When
-        scanner.setAlertThreshold(alertThreshold);
-        // Then = IllegalArgumentException.
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class, () -> scanner.setAlertThreshold(alertThreshold));
     }
 
     @Test
@@ -111,22 +111,24 @@ public class PluginPassiveScannerUnitTest {
         assertThat(scanner.getAlertThreshold(), is(equalTo(alertThreshold)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetNullDefaultAlertThreshold() {
         // Given
         AlertThreshold alertThreshold = null;
-        // When
-        scanner.setDefaultAlertThreshold(alertThreshold);
-        // Then = IllegalArgumentException.
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> scanner.setDefaultAlertThreshold(alertThreshold));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetDefaultToDefaultAlertThreshold() {
         // Given
         AlertThreshold alertThreshold = AlertThreshold.DEFAULT;
-        // When
-        scanner.setDefaultAlertThreshold(alertThreshold);
-        // Then = IllegalArgumentException.
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> scanner.setDefaultAlertThreshold(alertThreshold));
     }
 
     @Test
@@ -145,13 +147,12 @@ public class PluginPassiveScannerUnitTest {
         assertThat(scanner.getConfig(), is(nullValue()));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetNullConfiguration() {
         // Given
         Configuration configuration = null;
-        // When
-        scanner.setConfig(configuration);
-        // Then = IllegalArgumentException.
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> scanner.setConfig(configuration));
     }
 
     @Test
@@ -271,11 +272,11 @@ public class PluginPassiveScannerUnitTest {
         assertThat(scanner.getAlertThreshold(), is(equalTo(AlertThreshold.MEDIUM)));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldFailToSaveByDefault() {
-        // Given / When
-        scanner.save();
-        // Then = IllegalStateException.
+        // Given scanner
+        // When / Then
+        assertThrows(IllegalStateException.class, () -> scanner.save());
     }
 
     @Test

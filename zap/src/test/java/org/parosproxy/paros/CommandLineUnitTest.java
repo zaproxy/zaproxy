@@ -19,55 +19,72 @@
  */
 package org.parosproxy.paros;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 
 import java.io.File;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Vector;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link CommandLine}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class CommandLineUnitTest {
-
-    @Rule public TemporaryFolder folder = new TemporaryFolder();
 
     private static final Vector<CommandLineArgument[]> NO_EXTENSIONS_CUSTOM_ARGUMENTS =
             new Vector<>();
     private static final Map<String, CommandLineListener> NO_SUPPORTED_FILE_EXTENSIONS =
             Collections.emptyMap();
 
-    @Mock private I18N i18n;
+    @Mock(lenient = true)
+    private I18N i18n;
 
     private CommandLine cmdLine;
 
-    @Before
+    private static final String[][] TEST_CONF_VALUES = {
+        {"aaa(0).aaa", "bbb"},
+        {"aaa(0).bbb", "ccc"},
+        {"aaa(0).ccc", "ddd"},
+        {"aaa(0).ddd", "eee"},
+        {"aaa(1).aaa", "ddd"},
+        {"aaa(1).bbb", "eee"},
+        {"aaa(1).ccc", "fff"},
+        {"aaa(1).ddd", "ggg"}
+    };
+
+    @BeforeEach
     public void setUp() throws Exception {
         given(i18n.getString(anyString())).willReturn("");
-        given(i18n.getString(anyString(), anyObject())).willReturn("");
+        given(i18n.getString(anyString(), any())).willReturn("");
         Constant.messages = i18n;
     }
 
@@ -75,9 +92,8 @@ public class CommandLineUnitTest {
     public void shouldAcceptNullArguments() throws Exception {
         // Given
         String[] args = null;
-        // When
-        cmdLine = new CommandLine(args);
-        // Then = No Exception.
+        // When / Then
+        assertDoesNotThrow(() -> new CommandLine(args));
     }
 
     @Test
@@ -85,9 +101,9 @@ public class CommandLineUnitTest {
         // Given
         String[] args = {null, null};
         cmdLine = new CommandLine(args);
-        // When
-        cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
-        // Then = No Exception.
+        // When / Then
+        assertDoesNotThrow(
+                () -> cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS));
     }
 
     @Test
@@ -117,18 +133,23 @@ public class CommandLineUnitTest {
         assertThat(cmdLine.isGUI(), is(equalTo(false)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailIfDaemonAndCommandLineArgumentsAreSet() throws Exception {
-        // Given / When
-        cmdLine = new CommandLine(new String[] {CommandLine.CMD, CommandLine.DAEMON});
-        // Then = IllegalArgumentException.class
+        // Given
+        String[] args = {CommandLine.CMD, CommandLine.DAEMON};
+        // When
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> new CommandLine(args));
+        // Then
+        assertThat(e.getMessage(), containsString("used at the same time"));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailIfSessionArgumentDoesNotHaveValue() throws Exception {
-        // Given / When
-        cmdLine = new CommandLine(new String[] {CommandLine.SESSION});
-        // Then = Exception.class
+        // Given
+        String[] args = {CommandLine.SESSION};
+        // When / Then
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> new CommandLine(args));
     }
 
     @Test
@@ -141,11 +162,12 @@ public class CommandLineUnitTest {
         assertThat(cmdLine.getArgument(CommandLine.SESSION), is(equalTo(argumentValue)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailIfNewSessionArgumentDoesNotHaveValue() throws Exception {
-        // Given / When
-        cmdLine = new CommandLine(new String[] {CommandLine.NEW_SESSION});
-        // Then = Exception.class
+        // Given
+        String[] args = {CommandLine.NEW_SESSION};
+        // When / Then
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> new CommandLine(args));
     }
 
     @Test
@@ -158,18 +180,20 @@ public class CommandLineUnitTest {
         assertThat(cmdLine.getArgument(CommandLine.NEW_SESSION), is(equalTo(argumentValue)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailIfPortArgumentDoesNotHaveValue() throws Exception {
-        // Given / When
-        cmdLine = new CommandLine(new String[] {CommandLine.PORT});
-        // Then = Exception.class
+        // Given
+        String[] args = {CommandLine.PORT};
+        // When / Then
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> new CommandLine(args));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailToParseInvalidPortArgument() throws Exception {
-        // Given / When
-        cmdLine = new CommandLine(new String[] {CommandLine.PORT, "InvalidPort"});
-        // Then = Exception.class
+        // Given
+        String[] args = {CommandLine.PORT, "InvalidPort"};
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> new CommandLine(args));
     }
 
     @Test
@@ -183,11 +207,12 @@ public class CommandLineUnitTest {
         assertThat(cmdLine.getArgument(CommandLine.PORT), is(equalTo("8080")));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailIfHostArgumentDoesNotHaveValue() throws Exception {
-        // Given / When
-        cmdLine = new CommandLine(new String[] {CommandLine.HOST});
-        // Then = Exception.class
+        // Given
+        String[] args = {CommandLine.HOST};
+        // When / Then
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> new CommandLine(args));
     }
 
     @Test
@@ -239,13 +264,14 @@ public class CommandLineUnitTest {
         assertThat(cmdLine.getArgument(argName), is(equalTo(null)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailIfGivenUnsupportedArgument() throws Exception {
         // Given
         cmdLine = new CommandLine(new String[] {"-unsupported"});
-        // When
-        cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
-        // Then = Exception.class
+        // When / Then
+        assertThrows(
+                Exception.class,
+                () -> cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS));
     }
 
     @Test
@@ -301,12 +327,9 @@ public class CommandLineUnitTest {
                 new CommandLineArgument[] {new CommandLineArgument("-b", 2, null, null, null)});
         customArguments.add(
                 new CommandLineArgument[] {new CommandLineArgument("-c", 3, null, null, null)});
-        try {
-            cmdLine.parse(customArguments, NO_SUPPORTED_FILE_EXTENSIONS);
-            fail("Expected an exception");
-        } catch (Exception e) {
-            // Expected
-        }
+        assertThrows(
+                Exception.class,
+                () -> cmdLine.parse(customArguments, NO_SUPPORTED_FILE_EXTENSIONS));
     }
 
     @Test
@@ -322,50 +345,55 @@ public class CommandLineUnitTest {
         assertThat(customArguments.get(0)[0].getArguments().size(), is(equalTo(3)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailTheParseIfArgumentIsNotSupportedArgumentNorFile() throws Exception {
         // Given
         String notAFile = "NotAFile" + new Random().nextInt();
         cmdLine = new CommandLine(new String[] {notAFile});
-        // When
-        cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
-        // Then = Exception.class
+        // When / Then
+        assertThrows(
+                Exception.class,
+                () -> cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailTheParseIfArgumentIsNotSupportedArgumentNorSupportedFileWithExtension()
             throws Exception {
         // Given
         cmdLine = new CommandLine(new String[] {"notsupported.test"});
-        // When
-        cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
-        // Then = Exception.class
+        // When / Then
+        assertThrows(
+                Exception.class,
+                () -> cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS));
     }
 
     @Test
-    public void shouldAcceptFileArgumentIfHasSupportedFileExtension() throws Exception {
+    public void shouldAcceptFileArgumentIfHasSupportedFileExtension(@TempDir Path folder)
+            throws Exception {
         // Given
         String fileExtension = "test";
-        File testFile = folder.newFile("aaa." + fileExtension);
+        File testFile = Files.createFile(folder.resolve("aaa." + fileExtension)).toFile();
         Map<String, CommandLineListener> supportedExtensions = new HashMap<>();
         supportedExtensions.put(fileExtension, new AcceptAllFilesCommandLineListener());
         cmdLine = new CommandLine(new String[] {testFile.toString()});
-        // When
-        cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, supportedExtensions);
-        // Then = Accepted file argument
+        // When / Then = Accepted file argument
+        assertDoesNotThrow(
+                () -> cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, supportedExtensions));
     }
 
-    @Test(expected = Exception.class)
-    public void shouldNotAcceptFileArgumentIfRejectedBySupportedFileExtension() throws Exception {
+    @Test
+    public void shouldNotAcceptFileArgumentIfRejectedBySupportedFileExtension(@TempDir Path folder)
+            throws Exception {
         // Given
         String fileExtension = "test";
-        File testFile = folder.newFile("aaa." + fileExtension);
+        File testFile = Files.createFile(folder.resolve("aaa." + fileExtension)).toFile();
         Map<String, CommandLineListener> supportedExtensions = new HashMap<>();
         supportedExtensions.put(fileExtension, new RejectAllFilesCommandLineListener());
         cmdLine = new CommandLine(new String[] {testFile.toString()});
-        // When
-        cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, supportedExtensions);
-        // Then = Exception.class
+        // When / Then
+        assertThrows(
+                Exception.class,
+                () -> cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, supportedExtensions));
     }
 
     private static class AcceptAllFilesCommandLineListener implements CommandLineListener {
@@ -398,5 +426,46 @@ public class CommandLineUnitTest {
 
         @Override
         public void execute(CommandLineArgument[] args) {}
+    }
+
+    @Test
+    public void shouldMaintainConfigOrder() throws Exception {
+        List<String> list = new ArrayList<>();
+        for (String[] kv : TEST_CONF_VALUES) {
+            list.add("-config");
+            list.add(kv[0] + "=" + kv[1]);
+        }
+        String[] cl = new String[list.size()];
+        cl = list.toArray(cl);
+        cmdLine = new CommandLine(cl);
+        Map<String, String> map = cmdLine.getOrderedConfigs();
+        assertThat(map.size(), is(equalTo(8)));
+        Iterator<Entry<String, String>> iter = map.entrySet().iterator();
+        Entry<String, String> entry;
+        for (String[] kv : TEST_CONF_VALUES) {
+            entry = iter.next();
+            assertThat(entry.getKey(), is(equalTo(kv[0])));
+            assertThat(entry.getValue(), is(equalTo(kv[1])));
+        }
+    }
+
+    @Test
+    public void shouldMaintainConfigfileOrder(@TempDir Path folder) throws Exception {
+        File testFile = Files.createFile(folder.resolve("text.conf")).toFile();
+        PrintWriter pw = new PrintWriter(testFile);
+        for (String[] kv : TEST_CONF_VALUES) {
+            pw.println(kv[0] + "=" + kv[1]);
+        }
+        pw.close();
+        cmdLine = new CommandLine(new String[] {"-configfile", testFile.toString()});
+        Map<String, String> map = cmdLine.getOrderedConfigs();
+        assertThat(map.size(), is(equalTo(8)));
+        Iterator<Entry<String, String>> iter = map.entrySet().iterator();
+        Entry<String, String> entry;
+        for (String[] kv : TEST_CONF_VALUES) {
+            entry = iter.next();
+            assertThat(entry.getKey(), is(equalTo(kv[0])));
+            assertThat(entry.getValue(), is(equalTo(kv[1])));
+        }
     }
 }

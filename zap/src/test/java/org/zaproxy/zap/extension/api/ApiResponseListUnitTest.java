@@ -19,19 +19,19 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-/** Unit test for {@link ApiResponseElement}. */
+/** Unit test for {@link ApiResponseList}. */
 public class ApiResponseListUnitTest {
 
     @Test
     public void shouldReturnCorrectJsonObjectWithStdStringValues() throws ApiException {
         // Given
-        List<ApiResponse> list = new ArrayList<ApiResponse>();
+        List<ApiResponse> list = new ArrayList<>();
         list.add(new ApiResponseElement("key1", "val1"));
         list.add(new ApiResponseElement("key2", "val2"));
         ApiResponseList apiRespSet = new ApiResponseList("test", list);
@@ -44,7 +44,7 @@ public class ApiResponseListUnitTest {
     @Test
     public void shouldReturnCorrectJsonObjectWithJSONStringValues() throws ApiException {
         // Given
-        List<ApiResponse> list = new ArrayList<ApiResponse>();
+        List<ApiResponse> list = new ArrayList<>();
         list.add(new ApiResponseElement("key1", "{\"name1\":\"value1\"}"));
         list.add(new ApiResponseElement("key2", "{\"name2\":\"value2\"}"));
         ApiResponseList apiRespSet = new ApiResponseList("test", list);

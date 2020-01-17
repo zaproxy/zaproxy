@@ -48,7 +48,7 @@ public interface Database {
      * Closes the database. If the parameter {@code compact} is {@code true}, the database will be
      * compacted, compacting the database ensures a minimal space disk usage but it will also take
      * longer to close. Any necessary cleanups are performed prior to closing the database (the
-     * cleanup removes the temporary {@code HistoryRefernece}s).
+     * cleanup removes the temporary {@code HistoryReference}s).
      *
      * <p><b>Note:</b> Calling this method has the same effects as calling the method {@link
      * #close(boolean, boolean)} with the parameter {@code cleanup} as {@code true}.
@@ -71,7 +71,7 @@ public interface Database {
      * compacted, compacting the database ensures a minimal space disk usage but it will also take
      * longer to close. If the parameter {@code cleanup} is {@code true} any necessary cleanups are
      * performed prior to closing the database (the cleanup removes the temporary {@code
-     * HistoryRefernece}s.)
+     * HistoryReference}s.)
      *
      * @param compact {@code true} if the database should be compacted, {@code false} otherwise.
      * @param cleanup {@code true} if any necessary cleanups should be performed, {@code false}
@@ -112,7 +112,7 @@ public interface Database {
     TableStructure getTableStructure();
 
     /**
-     * The type of the database - eg {@value #DB_TYPE_HSQLDB}
+     * The type of the database - e.g. {@value #DB_TYPE_HSQLDB}
      *
      * @return
      */

@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	xterm \
 	net-tools \
 	python-pip \
+	python3-pip \
 	firefox \
 	xvfb \
 	x11vnc && \
@@ -26,6 +27,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade pip zapcli python-owasp-zap-v2.4
+RUN pip3 install --upgrade pip zapcli python-owasp-zap-v2.4
 
 RUN useradd -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
@@ -61,7 +63,7 @@ ENV ZAP_PATH /zap/zap.sh
 ENV ZAP_PORT 8080
 ENV HOME /home/zap/
 
-COPY zap* /zap/
+COPY zap* CHANGELOG.md /zap/
 COPY webswing.config /zap/webswing/
 COPY policies /home/zap/.ZAP/policies/
 # The scan script loads the scripts from dev home dir.
@@ -71,9 +73,7 @@ COPY .xinitrc /home/zap/
 #Copy doesn't respect USER directives so we need to chown and to do that we need to be root
 USER root
 
-RUN chown zap:zap /zap/zap-x.sh && \
-	chown zap:zap /zap/zap-baseline.py && \
-	chown zap:zap /zap/zap-webswing.sh && \
+RUN chown zap:zap /zap/* && \
 	chown zap:zap /zap/webswing/webswing.config && \
 	chown zap:zap -R /home/zap/.ZAP/ && \
 	chown zap:zap /home/zap/.xinitrc && \

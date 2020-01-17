@@ -173,7 +173,7 @@ public class ScanProgressDialog extends AbstractDialog {
             this.series500 =
                     new TimeSeries(Constant.messages.getString("ascan.progress.chart.5xx"));
 
-            long maxAge = mins * 60;
+            long maxAge = mins * 60L;
             this.seriesTotal.setMaximumItemAge(maxAge);
             this.series100.setMaximumItemAge(maxAge);
             this.series200.setMaximumItemAge(maxAge);
@@ -188,7 +188,7 @@ public class ScanProgressDialog extends AbstractDialog {
             dataset.addSeries(series500);
 
             chart = createChart(dataset);
-            // Set up some vaguesly sensible colours
+            // Set up some vaguely sensible colours
             chart.getXYPlot().getRenderer(0).setSeriesPaint(0, Color.BLACK); // Totals
             chart.getXYPlot().getRenderer(0).setSeriesPaint(1, Color.GRAY); // 100: Info
             chart.getXYPlot().getRenderer(0).setSeriesPaint(2, Color.GREEN); // 200: OK

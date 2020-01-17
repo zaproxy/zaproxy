@@ -45,7 +45,7 @@ public class StatusUI implements Comparable<StatusUI> {
         }
 
         if (stringRepresentation == null || stringRepresentation.isEmpty()) {
-            this.stringRepresentation = status.toString();
+            this.stringRepresentation = this.status.toString();
         } else {
             this.stringRepresentation = stringRepresentation;
         }

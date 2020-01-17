@@ -152,7 +152,7 @@ public final class AddOnRunIssuesUtils {
     }
 
     /**
-     * Returns the textual representations of the running issues (Java version and dependency), if
+     * Returns the textual representations of the running issues (e.g. Java version, dependency), if
      * any.
      *
      * <p>The messages are internationalised thus suitable for UI components.
@@ -166,7 +166,19 @@ public final class AddOnRunIssuesUtils {
      */
     public static List<String> getUiRunningIssues(
             AddOn.BaseRunRequirements requirements, AddOnSearcher addOnSearcher) {
-        List<String> issues = new ArrayList<>(2);
+        List<String> issues = new ArrayList<>(3);
+        if (requirements.hasMissingLibs()) {
+            if (requirements.getAddOn() != requirements.getAddOnMissingLibs()) {
+                issues.add(
+                        Constant.messages.getString(
+                                "cfu.warn.addon.with.missing.requirements.libs.dependency",
+                                requirements.getAddOnMissingLibs().getName()));
+            } else {
+                issues.add(
+                        Constant.messages.getString(
+                                "cfu.warn.addon.with.missing.requirements.libs"));
+            }
+        }
         if (requirements.isNewerJavaVersionRequired()) {
             if (requirements.getAddOn() != requirements.getAddOnMinimumJavaVersion()) {
                 issues.add(
@@ -279,7 +291,7 @@ public final class AddOnRunIssuesUtils {
     }
 
     /**
-     * Returns the textual representations of the running issues (Java version and dependency), if
+     * Returns the textual representations of the running issues (e.g. Java version, dependency), if
      * any.
      *
      * <p>The messages are not internationalised, should be used only for logging and non UI uses.
@@ -291,8 +303,12 @@ public final class AddOnRunIssuesUtils {
      * @see #getUiExtensionsRunningIssues(AddOn.AddOnRunRequirements, AddOnSearcher)
      */
     public static List<String> getRunningIssues(AddOn.BaseRunRequirements requirements) {
-        List<String> issues = new ArrayList<>(2);
-        String issue = getJavaVersionIssue(requirements);
+        List<String> issues = new ArrayList<>(3);
+        String issue = getMissingLibsIssue(requirements);
+        if (issue != null) {
+            issues.add(issue);
+        }
+        issue = getJavaVersionIssue(requirements);
         if (issue != null) {
             issues.add(issue);
         }
@@ -348,6 +364,29 @@ public final class AddOnRunIssuesUtils {
         }
         return MessageFormat.format(
                 "Minimum Java version: {0}", requirements.getMinimumJavaVersion());
+    }
+
+    /**
+     * Returns the textual representation of the missing libraries issue that prevents the add-on or
+     * extension from being run, if any.
+     *
+     * <p>The message is not internationalised, should be used only for logging and non UI uses.
+     *
+     * @param requirements the run requirements of the add-on or extension
+     * @return a {@code String} representing the running issue, {@code null} if none.
+     * @since 2.9.0
+     */
+    public static String getMissingLibsIssue(AddOn.BaseRunRequirements requirements) {
+        if (!requirements.hasMissingLibs()) {
+            return null;
+        }
+
+        if (requirements.getAddOn() != requirements.getAddOnMissingLibs()) {
+            return MessageFormat.format(
+                    "Bundled libraries of dependency: {0}",
+                    requirements.getAddOnMissingLibs().getName());
+        }
+        return "Bundled libraries.";
     }
 
     /**

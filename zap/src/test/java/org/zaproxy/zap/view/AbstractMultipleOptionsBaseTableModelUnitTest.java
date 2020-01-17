@@ -19,26 +19,26 @@
  */
 package org.zaproxy.zap.view;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@code AbstractMultipleOptionsBaseTableModel}. */
 public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTestUtils {
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailToGetNonExistingElement() {
         // Given
         AbstractMultipleOptionsBaseTableModel<Object> tableModel =
                 new MultipleOptionsBaseTableModelImpl();
-        // When
-        tableModel.getElement(1);
-        // Then = Exception
+        // When / Then
+        assertThrows(IndexOutOfBoundsException.class, () -> tableModel.getElement(1));
     }
 
     @Test
@@ -59,14 +59,14 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
         assertThat(listener.isRowInserted(0), is(equalTo(true)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailToModifyNonExistingElement() {
         // Given
         AbstractMultipleOptionsBaseTableModel<Object> tableModel =
                 new MultipleOptionsBaseTableModelImpl();
-        // When
-        tableModel.modifyElement(1, new Object());
-        // Then = Exception
+        // When / Then
+        assertThrows(
+                IndexOutOfBoundsException.class, () -> tableModel.modifyElement(1, new Object()));
     }
 
     @Test
@@ -89,14 +89,13 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
         assertThat(listener.isRowUpdated(0), is(equalTo(true)));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void shouldFailToRemoveNonExistingElement() {
         // Given
         AbstractMultipleOptionsBaseTableModel<Object> tableModel =
                 new MultipleOptionsBaseTableModelImpl();
-        // When
-        tableModel.removeElement(1);
-        // Then = Exception
+        // When / Then
+        assertThrows(IndexOutOfBoundsException.class, () -> tableModel.removeElement(1));
     }
 
     @Test

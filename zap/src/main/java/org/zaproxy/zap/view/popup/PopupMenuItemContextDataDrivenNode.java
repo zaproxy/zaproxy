@@ -58,7 +58,7 @@ public class PopupMenuItemContextDataDrivenNode extends PopupMenuItemSiteNodeCon
 
         SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
         sessionDialog.recreateUISharedContexts(session);
-        Context uiSharedContext = sessionDialog.getUISharedContext(context.getIndex());
+        Context uiSharedContext = sessionDialog.getUISharedContext(context.getId());
 
         // We want to form a regex expression like:
         // https://www.example.com/(aa/bb/cc/)(.+?)(/.*)
@@ -91,7 +91,7 @@ public class PopupMenuItemContextDataDrivenNode extends PopupMenuItemSiteNodeCon
         // Show the session dialog without recreating UI Shared contexts
         View.getSingleton()
                 .showSessionDialog(
-                        session, ContextStructurePanel.getPanelName(context.getIndex()), false);
+                        session, ContextStructurePanel.getPanelName(context.getId()), false);
     }
 
     @Override

@@ -1,7 +1,7 @@
 language: java
+install: if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./gradlew assemble ; fi
 
 jdk:
-  - oraclejdk8
   - openjdk8
   - openjdk11
 
@@ -15,18 +15,10 @@ addons:
     project:
       name: "zaproxy/zaproxy"
       description: "The OWASP ZAP core project"
-    notification_email: bjoern.kimminich@owasp.org
+    notification_email: zaproxy-admin@googlegroups.com
     build_command_prepend: ""
     build_command: "./gradlew compileJava"
     branch_pattern: coverity_scan
-
-notifications:
-  webhooks:
-    urls:
-      - https://webhooks.gitter.im/e/641454d994918ebeef0e
-    on_success: change
-    on_failure: always
-    on_start: false
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock

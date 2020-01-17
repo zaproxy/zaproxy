@@ -50,6 +50,7 @@ public class ExtensionFactory {
     private static Map<Class<? extends Extension>, Extension> mapClassExtension = new HashMap<>();
     private static TreeMap<Integer, Extension> mapOrderToExtension = new TreeMap<>();
     private static List<Extension> unorderedExtensions = new ArrayList<>();
+    private static Map<Extension, Boolean> extensionsWithMessages = new HashMap<>();
 
     private static AddOnLoader addOnLoader = null;
 
@@ -164,14 +165,14 @@ public class ExtensionFactory {
             log.debug(
                     "Not loading extension "
                             + extension.getName()
-                            + ": doesnt support "
+                            + ": doesn't support "
                             + Model.getSingleton().getDb().getType());
             extension.setEnabled(false);
         } else if (extension.supportsLowMemory() || !Constant.isLowMemoryOptionSet()) {
             log.debug(
                     "Not loading extension "
                             + extension.getName()
-                            + ": doesnt support low memory option");
+                            + ": doesn't support low memory option");
             extension.setEnabled(false);
         }
     }
@@ -330,6 +331,7 @@ public class ExtensionFactory {
         ResourceBundle msg = getExtensionResourceBundle(ext);
         if (msg != null) {
             ext.setMessages(msg);
+            extensionsWithMessages.put(ext, Boolean.TRUE);
             Constant.messages.addMessageBundle(ext.getI18nPrefix(), ext.getMessages());
         } else if (addOn.getResourceBundle() != null) {
             ext.setMessages(addOn.getResourceBundle());
@@ -393,6 +395,10 @@ public class ExtensionFactory {
     }
 
     private static void unloadMessages(Extension extension) {
+        if (extensionsWithMessages.remove(extension) == null) {
+            return;
+        }
+
         ResourceBundle msg = extension.getMessages();
         if (msg != null) {
             Constant.messages.removeMessageBundle(extension.getI18nPrefix());

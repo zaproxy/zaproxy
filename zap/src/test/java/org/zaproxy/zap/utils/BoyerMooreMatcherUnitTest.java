@@ -19,35 +19,36 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link BoyerMooreMatcher} */
 public class BoyerMooreMatcherUnitTest {
 
     private static final String CONTENT = "The quick brown fox jumps over the lazy dog.";
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToCreateMatcherIfPatternIsNull() {
-        // Given / When
-        new BoyerMooreMatcher(null);
-        // Then = NullPointerException.class
-    }
-
-    @Test(expected = NullPointerException.class)
-    public void shouldFailToFindInNullContent() {
         // Given
-        BoyerMooreMatcher matcher = new BoyerMooreMatcher("");
-        // When
-        matcher.findInContent(null);
-        // Then = NullPointerException.class
+        String pattern = null;
+        // When / Then
+        assertThrows(NullPointerException.class, () -> new BoyerMooreMatcher(pattern));
     }
 
     @Test
-    public void shouldReturnPatternPassedInCronstructor() {
+    public void shouldFailToFindInNullContent() {
+        // Given
+        BoyerMooreMatcher matcher = new BoyerMooreMatcher("");
+        // When / Then
+        assertThrows(NullPointerException.class, () -> matcher.findInContent(null));
+    }
+
+    @Test
+    public void shouldReturnPatternPassedInConstructor() {
         // Given
         String pattern = "pattern";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);
@@ -124,7 +125,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldNotFindAnInexistentPattern() {
+    public void shouldNotFindAnNonexistentPattern() {
         // Given
         String pattern = "not in content";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);

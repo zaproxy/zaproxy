@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 import org.parosproxy.paros.Constant;
 
 public class WikiAPIGenerator extends AbstractAPIGenerator {
@@ -58,10 +59,14 @@ public class WikiAPIGenerator extends AbstractAPIGenerator {
         try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             out.write(title);
             out.write("## Components\n");
-            for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
-                out.write("  * [" + base + imp.getPrefix() + " " + imp.getPrefix() + "]\n");
+            List<ApiImplementor> apis =
+                    ApiGeneratorUtils.getAllImplementors().stream()
+                            .sorted((a, b) -> a.getPrefix().compareTo(b.getPrefix()))
+                            .collect(Collectors.toList());
+            for (ApiImplementor imp : apis) {
+                out.write("  * [" + imp.getPrefix() + "](" + base + imp.getPrefix() + ")\n");
             }
-            out.write("\n\n[" + base + "Full" + " Full list.]\n\n");
+            out.write("\n[Full list.](" + base + "Full)\n");
             // out.write("Generated on " + new Date() + "\n");
         }
     }
@@ -132,24 +137,16 @@ public class WikiAPIGenerator extends AbstractAPIGenerator {
             out.write("| " + component);
         }
         out.write("| " + element.getName() + "| " + type + " | ");
-        if (element.getMandatoryParamNames() != null) {
-            for (String param : element.getMandatoryParamNames()) {
-                out.write(param + "* ");
+        for (ApiParameter parameter : element.getParameters()) {
+            out.write(parameter.getName());
+            if (parameter.isRequired()) {
+                out.write('*');
             }
-        }
-        if (element.getOptionalParamNames() != null) {
-            for (String param : element.getOptionalParamNames()) {
-                out.write(param + " ");
-            }
+            out.write(' ');
         }
         out.write(" | ");
         // Add description if defined
         String descTag = element.getDescriptionTag();
-        if (descTag == null) {
-            // This is the default, but it can be overriden by the getDescriptionTag method if
-            // required
-            descTag = component + ".api." + type + "." + element.getName();
-        }
         try {
             out.write(getMessages().getString(descTag));
         } catch (Exception e) {

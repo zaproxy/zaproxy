@@ -79,6 +79,9 @@
 // ZAP: 2019/03/24 Removed commented and unused sendAndReceive method.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/08/19 Reinstate proxy auth credentials when HTTP state is changed.
+// ZAP: 2019/09/17 Use remove() instead of set(null) on IN_LISTENER.
+// ZAP: 2019/09/25 Add option to disable cookies
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -176,6 +179,8 @@ public class HttpSender {
     private MultiThreadedHttpConnectionManager httpConnManager = null;
     private MultiThreadedHttpConnectionManager httpConnManagerProxy = null;
     private boolean followRedirect = false;
+    private boolean useCookies;
+    private boolean useGlobalState;
     private int initiator = -1;
 
     /*
@@ -235,6 +240,7 @@ public class HttpSender {
                         defaultUserAgent);
 
         setUseGlobalState(useGlobalState);
+        setUseCookies(true);
     }
 
     private void setClientsCookiePolicy(String policy) {
@@ -247,13 +253,33 @@ public class HttpSender {
     }
 
     private void checkState() {
-        if (param.isHttpStateEnabled()) {
-            client.setState(param.getHttpState());
-            clientViaProxy.setState(param.getHttpState());
-            setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-        } else {
+        if (!useCookies) {
+            resetState();
             setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+        } else if (useGlobalState) {
+            if (param.isHttpStateEnabled()) {
+                client.setState(param.getHttpState());
+                clientViaProxy.setState(param.getHttpState());
+                setProxyAuth(clientViaProxy);
+                setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+            } else {
+                setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+            }
+        } else {
+            resetState();
+
+            setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
         }
+    }
+
+    private void resetState() {
+        HttpState state = new HttpState();
+        HttpState proxyState = new HttpState();
+
+        client.setState(state);
+        clientViaProxy.setState(proxyState);
+
+        setProxyAuth(clientViaProxy);
     }
 
     /**
@@ -267,13 +293,21 @@ public class HttpSender {
      * @since 2.8.0
      */
     public void setUseGlobalState(boolean enableGlobalState) {
-        if (enableGlobalState) {
-            checkState();
-        } else {
-            client.setState(new HttpState());
-            clientViaProxy.setState(new HttpState());
-            setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-        }
+        this.useGlobalState = enableGlobalState;
+
+        checkState();
+    }
+
+    /**
+     * Sets whether or not the requests sent should keep track of cookies.
+     *
+     * @param shouldUseCookies {@code true} if cookies should be used, {@code false} otherwise.
+     * @since 2.9.0
+     */
+    public void setUseCookies(boolean shouldUseCookies) {
+        this.useCookies = shouldUseCookies;
+
+        checkState();
     }
 
     private HttpClient createHttpClient() {
@@ -296,36 +330,29 @@ public class HttpSender {
                 .getHostConfiguration()
                 .setProxy(param.getProxyChainName(), param.getProxyChainPort());
 
-        if (param.isUseProxyChainAuth()) {
-            clientProxy
-                    .getState()
-                    .setProxyCredentials(getAuthScope(param), getNTCredentials(param));
-        }
+        setProxyAuth(clientProxy);
 
         return clientProxy;
     }
 
-    private NTCredentials getNTCredentials(ConnectionParam param) {
-        // NTCredentials credentials = new NTCredentials(
-        // param.getProxyChainUserName(), param.getProxyChainPassword(),
-        // param.getProxyChainName(), param.getProxyChainName());
-        return new NTCredentials(
-                param.getProxyChainUserName(),
-                param.getProxyChainPassword(),
-                "",
-                param.getProxyChainRealm().equals("") ? "" : param.getProxyChainRealm());
+    private void setProxyAuth(HttpClient client) {
+        setProxyAuth(client.getState());
     }
 
-    private AuthScope getAuthScope(ConnectionParam param) {
-        // Below is the original code, but user reported that above code works.
-        // UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
-        // param.getProxyChainUserName(), param.getProxyChainPassword());
-        return new AuthScope(
-                param.getProxyChainName(),
-                param.getProxyChainPort(),
-                param.getProxyChainRealm().equals("")
-                        ? AuthScope.ANY_REALM
-                        : param.getProxyChainRealm());
+    private void setProxyAuth(HttpState state) {
+        if (param.isUseProxyChain() && param.isUseProxyChainAuth()) {
+            String realm = param.getProxyChainRealm();
+            state.setProxyCredentials(
+                    new AuthScope(
+                            param.getProxyChainName(),
+                            param.getProxyChainPort(),
+                            realm.isEmpty() ? AuthScope.ANY_REALM : realm),
+                    new NTCredentials(
+                            param.getProxyChainUserName(),
+                            param.getProxyChainPassword(),
+                            "",
+                            realm));
+        }
     }
 
     public int executeMethod(HttpMethod method, HttpState state) throws IOException {
@@ -343,11 +370,7 @@ public class HttpSender {
                 requestClient
                         .getHostConfiguration()
                         .setProxy(param.getProxyChainName(), param.getProxyChainPort());
-                if (param.isUseProxyChainAuth()) {
-                    requestClient
-                            .getState()
-                            .setProxyCredentials(getAuthScope(param), getNTCredentials(param));
-                }
+                setProxyAuth(requestClient);
             }
         } else if (param.isUseProxy(hostName)) {
             requestClient = clientViaProxy;
@@ -356,7 +379,7 @@ public class HttpSender {
         }
 
         if (this.initiator == CHECK_FOR_UPDATES_INITIATOR) {
-            // Use the 'strict' SSLConnector, ie one that performs all the usual cert checks
+            // Use the 'strict' SSLConnector, i.e. one that performs all the usual cert checks
             // The 'standard' one 'trusts' everything
             // This is to ensure that all 'check-for update' calls are made to the expected https
             // urls
@@ -382,11 +405,7 @@ public class HttpSender {
             if (param.isUseProxy(hostName)) {
                 hc.setProxyHost(
                         new ProxyHost(param.getProxyChainName(), param.getProxyChainPort()));
-                if (param.isUseProxyChainAuth()) {
-                    requestClient
-                            .getState()
-                            .setProxyCredentials(getAuthScope(param), getNTCredentials(param));
-                }
+                setProxyAuth(requestClient);
             }
         }
 
@@ -394,6 +413,7 @@ public class HttpSender {
         if (state != null) {
             // Make sure cookies are enabled
             method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+            setProxyAuth(state);
         }
         responseCode = requestClient.executeMethod(hc, method, state);
 
@@ -517,7 +537,7 @@ public class HttpSender {
                 }
             }
         } finally {
-            IN_LISTENER.set(null);
+            IN_LISTENER.remove();
         }
     }
 
@@ -536,7 +556,7 @@ public class HttpSender {
                 }
             }
         } finally {
-            IN_LISTENER.set(null);
+            IN_LISTENER.remove();
         }
     }
 

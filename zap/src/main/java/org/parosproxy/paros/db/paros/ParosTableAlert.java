@@ -254,7 +254,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             }
 
             if (!DbUtils.hasIndex(connection, TABLE_NAME, ALERT_INDEX)) {
-                // this speads up session loading
+                // this speeds up session loading
                 DbUtils.execute(
                         connection,
                         "CREATE INDEX "

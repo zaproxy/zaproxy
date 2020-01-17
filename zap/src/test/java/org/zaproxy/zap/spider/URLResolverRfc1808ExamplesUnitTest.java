@@ -19,10 +19,10 @@
  */
 package org.zaproxy.zap.spider;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for RFC 1808 compliance of {@link org.zaproxy.zap.spider.URLResolver}. */
 public class URLResolverRfc1808ExamplesUnitTest {

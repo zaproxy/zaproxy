@@ -33,7 +33,6 @@ import java.util.Comparator;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -238,11 +237,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         Message oldMessage = this.message;
         this.message = msg;
 
-        for (Iterator<Entry<String, HttpPanelComponentInterface>> it =
-                        components.entrySet().iterator();
-                it.hasNext(); ) {
-            HttpPanelComponentInterface component = it.next().getValue();
-
+        for (HttpPanelComponentInterface component : components.values()) {
             if (!component.isEnabled(message)) {
                 if (enabledComponents.contains(component)) {
                     disableComponent(component);

@@ -128,8 +128,7 @@ public class RequestPostTableModel extends AbstractTableModel {
         StringBuilder sb = new StringBuilder();
         boolean hasValues = false;
 
-        for (int i = 0; i < listPair.size(); i++) {
-            String[] cell = listPair.get(i);
+        for (String[] cell : listPair) {
             try {
                 String name = URLEncoder.encode(cell[0], "UTF8");
                 String value = URLEncoder.encode(cell[1], "UTF8");

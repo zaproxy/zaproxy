@@ -66,9 +66,9 @@ public class ProxiesParam extends AbstractParam {
                                 sub.getInt(PROXY_PORT_KEY),
                                 sub.getBoolean(PROXY_ENABLED_KEY, true),
                                 sub.getBoolean(PROXY_ANY_LOCAL_KEY),
-                                sub.getBoolean(PROXY_REM_UNSUPPORTED),
-                                sub.getBoolean(PROXY_DECODE_KEY),
-                                sub.getBoolean(PROXY_BEHIND_NAT_KEY)));
+                                sub.getBoolean(PROXY_REM_UNSUPPORTED, true),
+                                sub.getBoolean(PROXY_DECODE_KEY, true),
+                                sub.getBoolean(PROXY_BEHIND_NAT_KEY, false)));
             }
         } catch (ConversionException e) {
             logger.error("Error while loading proxies: " + e.getMessage(), e);

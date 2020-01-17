@@ -21,10 +21,9 @@ package org.zaproxy.zap.extension.search;
 
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JMenu;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
@@ -54,9 +53,10 @@ public class ExtensionSearch extends ExtensionAdaptor {
     private OptionsSearchPanel optionsPanel;
 
     private SearchPanel searchPanel = null;
-    private ZapMenuItem menuSearch = null;
-    private ZapMenuItem menuNext = null;
-    private ZapMenuItem menuPrev = null;
+    private JMenu searchMenu = null;
+    private ZapMenuItem menuItemSearch = null;
+    private ZapMenuItem menuItemNext = null;
+    private ZapMenuItem menuItemPrev = null;
 
     private SearchThread searchThread = null;
     private boolean searchJustInScope = false;
@@ -81,9 +81,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
             extensionHook.addSessionListener(new ViewSessionChangedListener());
             extensionHook.getHookView().addOptionPanel(getOptionsPanel());
             extensionHook.getHookView().addStatusPanel(getSearchPanel());
-            extensionHook.getHookMenu().addEditMenuItem(getMenuSearch());
-            extensionHook.getHookMenu().addEditMenuItem(getMenuNext());
-            extensionHook.getHookMenu().addEditMenuItem(getMenuPrev());
+            extensionHook.getHookMenu().addEditSubMenu(getSearchMenu());
 
             ExtensionHelp.enableHelpKey(getSearchPanel(), "ui.tabs.search");
         }
@@ -296,14 +294,24 @@ public class ExtensionSearch extends ExtensionAdaptor {
         }
     }
 
-    private ZapMenuItem getMenuSearch() {
-        if (menuSearch == null) {
-            menuSearch =
+    private JMenu getSearchMenu() {
+        if (searchMenu == null) {
+            searchMenu = new JMenu(Constant.messages.getString("menu.edit.search"));
+            searchMenu.add(getMenuItemSearch());
+            searchMenu.add(getMenuItemNext());
+            searchMenu.add(getMenuItemPrev());
+        }
+        return searchMenu;
+    }
+
+    private ZapMenuItem getMenuItemSearch() {
+        if (menuItemSearch == null) {
+            menuItemSearch =
                     new ZapMenuItem(
-                            "menu.edit.search",
+                            "menu.edit.search.item",
                             getView().getMenuShortcutKeyStroke(KeyEvent.VK_H, 0, false));
 
-            menuSearch.addActionListener(
+            menuItemSearch.addActionListener(
                     new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -311,17 +319,17 @@ public class ExtensionSearch extends ExtensionAdaptor {
                         }
                     });
         }
-        return menuSearch;
+        return menuItemSearch;
     }
 
-    private ZapMenuItem getMenuNext() {
-        if (menuNext == null) {
-            menuNext =
+    private ZapMenuItem getMenuItemNext() {
+        if (menuItemNext == null) {
+            menuItemNext =
                     new ZapMenuItem(
-                            "menu.edit.next",
+                            "menu.edit.search.next.item",
                             getView().getMenuShortcutKeyStroke(KeyEvent.VK_G, 0, false));
 
-            menuNext.addActionListener(
+            menuItemNext.addActionListener(
                     new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -329,14 +337,19 @@ public class ExtensionSearch extends ExtensionAdaptor {
                         }
                     });
         }
-        return menuNext;
+        return menuItemNext;
     }
 
-    private ZapMenuItem getMenuPrev() {
-        if (menuPrev == null) {
-            menuPrev = new ZapMenuItem("menu.edit.previous");
+    private ZapMenuItem getMenuItemPrev() {
+        if (menuItemPrev == null) {
+            menuItemPrev =
+                    new ZapMenuItem(
+                            "menu.edit.search.previous.item",
+                            getView()
+                                    .getMenuShortcutKeyStroke(
+                                            KeyEvent.VK_G, KeyEvent.SHIFT_DOWN_MASK, false));
 
-            menuPrev.addActionListener(
+            menuItemPrev.addActionListener(
                     new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -344,7 +357,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
                         }
                     });
         }
-        return menuPrev;
+        return menuItemPrev;
     }
 
     @Override
@@ -355,15 +368,6 @@ public class ExtensionSearch extends ExtensionAdaptor {
     @Override
     public String getDescription() {
         return Constant.messages.getString("search.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     public void setSearchJustInScope(boolean searchJustInScope) {

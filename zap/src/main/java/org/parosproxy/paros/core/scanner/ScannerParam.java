@@ -262,7 +262,7 @@ public class ScannerParam extends AbstractParam {
             }
 
         } catch (ConversionException e) {
-            logger.error("Error while loading the exluded parameter list: " + e.getMessage(), e);
+            logger.error("Error while loading the excluded parameter list: " + e.getMessage(), e);
         }
 
         // If the list is null probably we've to use defaults!!!

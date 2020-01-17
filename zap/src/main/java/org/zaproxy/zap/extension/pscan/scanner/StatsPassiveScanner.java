@@ -48,11 +48,6 @@ public class StatsPassiveScanner extends PluginPassiveScanner {
     }
 
     @Override
-    public void scanHttpRequestSend(HttpMessage msg, int id) {
-        // Ignore
-    }
-
-    @Override
     public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
         try {
             String site = SessionStructure.getHostName(msg);

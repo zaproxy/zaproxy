@@ -98,6 +98,12 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/06/07 Update current version.
+// ZAP: 2019/09/16 Deprecate ZAP_HOMEPAGE and ZAP_EXTENSIONS_PAGE.
+// ZAP: 2019/11/07 Removed constants related to accepting the license.
+// ZAP: 2020/01/02 Updated config version and default user agent
+// ZAP: 2020/01/06 Set latest version to default config.
+// ZAP: 2020/01/10 Correct the MailTo autoTagScanner regex pattern when upgrading from 2.8 or
+// earlier.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -130,12 +136,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
@@ -146,8 +154,12 @@ public final class Constant {
     // ZAP: rebrand
     public static final String PROGRAM_NAME = "OWASP ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
-    public static final String ZAP_HOMEPAGE = "http://www.owasp.org/index.php/ZAP";
+    /** @deprecated (2.9.0) Do not use, it will be removed. */
+    @Deprecated public static final String ZAP_HOMEPAGE = "http://www.owasp.org/index.php/ZAP";
+    /** @deprecated (2.9.0) Do not use, it will be removed. */
+    @Deprecated
     public static final String ZAP_EXTENSIONS_PAGE = "https://github.com/zaproxy/zap-extensions";
+
     public static final String ZAP_TEAM = "ZAP Dev Team";
     public static final String PAROS_TEAM = "Chinotec Technologies";
 
@@ -159,9 +171,13 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
 
-    private static final long VERSION_TAG = 2008000;
+    private static final String VERSION_ELEMENT = "version";
+
+    // Accessible for tests
+    static final long VERSION_TAG = 2009000;
 
     // Old version numbers - for upgrade
+    private static final long V_2_8_0_TAG = 2008000;
     private static final long V_2_7_0_TAG = 2007000;
     private static final long V_2_5_0_TAG = 2005000;
     private static final long V_2_4_3_TAG = 2004003;
@@ -241,8 +257,6 @@ public final class Constant {
     public String FOLDER_SESSION = FOLDER_SESSION_DEFAULT;
     public String DBNAME_UNTITLED =
             FOLDER_SESSION + System.getProperty("file.separator") + "untitled";
-    public String ACCEPTED_LICENSE_DEFAULT = "AcceptedLicense";
-    public String ACCEPTED_LICENSE = ACCEPTED_LICENSE_DEFAULT;
 
     public static final String FILE_PROGRAM_SPLASH = "resource/zap128x128.png";
 
@@ -265,7 +279,7 @@ public final class Constant {
     private static final String USER_POLICIES_DIR = "policies";
 
     //
-    // Home dir for ZAP, ie where the config file is. Can be set on cmdline, otherwise will be set
+    // Home dir for ZAP, i.e. where the config file is. Can be set on cmdline, otherwise will be set
     // to default loc
     private static String zapHome = null;
     // Default home dir for 'full' releases - used for copying full conf file when dev/daily release
@@ -438,7 +452,24 @@ public final class Constant {
     }
 
     private void copyDefaultConfigFile() throws IOException {
-        copyFileToHome(Paths.get(FILE_CONFIG), "xml/" + FILE_CONFIG_NAME, PATH_BUNDLED_CONFIG_XML);
+        Path configFile = Paths.get(FILE_CONFIG);
+        copyFileToHome(configFile, "xml/" + FILE_CONFIG_NAME, PATH_BUNDLED_CONFIG_XML);
+        try {
+            setLatestVersion(new ZapXmlConfiguration(configFile.toFile()));
+        } catch (ConfigurationException e) {
+            throw new IOException("Failed to set the latest version:", e);
+        }
+    }
+
+    /**
+     * Sets the latest version ({@link #VERSION_TAG}) to the given configuration and then saves it.
+     *
+     * @param config the configuration to change
+     * @throws ConfigurationException if an error occurred while saving the configuration.
+     */
+    private static void setLatestVersion(XMLConfiguration config) throws ConfigurationException {
+        config.setProperty(VERSION_ELEMENT, VERSION_TAG);
+        config.save();
     }
 
     private static void copyFileToHome(
@@ -487,7 +518,6 @@ public final class Constant {
         FILE_CONFIG = zapHome + FILE_CONFIG;
         FOLDER_SESSION = zapHome + FOLDER_SESSION;
         DBNAME_UNTITLED = zapHome + DBNAME_UNTITLED;
-        ACCEPTED_LICENSE = zapHome + ACCEPTED_LICENSE;
         DIRBUSTER_CUSTOM_DIR = zapHome + DIRBUSTER_DIR;
         FUZZER_DIR = zapHome + FUZZER_DIR;
         FOLDER_LOCAL_PLUGIN = zapHome + FOLDER_PLUGIN;
@@ -572,7 +602,7 @@ public final class Constant {
                 XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
                 config.setAutoSave(false);
 
-                long ver = config.getLong("version");
+                long ver = config.getLong(VERSION_ELEMENT);
 
                 if (ver == VERSION_TAG) {
                     // Nothing to do
@@ -645,15 +675,16 @@ public final class Constant {
                     if (ver <= V_2_7_0_TAG) {
                         upgradeFrom2_7_0(config);
                     }
+                    if (ver <= V_2_8_0_TAG) {
+                        upgradeFrom2_8_0(config);
+                    }
 
                     // Execute always to pick installer choices.
                     updateCfuFromDefaultConfig(config);
 
                     LOG.info("Upgraded from " + ver);
 
-                    // Update the version
-                    config.setProperty("version", VERSION_TAG);
-                    config.save();
+                    setLatestVersion(config);
                 }
 
             } catch (ConfigurationException | ConversionException | NoSuchElementException e) {
@@ -715,7 +746,7 @@ public final class Constant {
 
         try {
             XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
-            if (config.getLong("version") > V_2_7_0_TAG) {
+            if (config.getLong(VERSION_ELEMENT) > V_2_7_0_TAG) {
                 return;
             }
         } catch (Exception ignore) {
@@ -1060,6 +1091,28 @@ public final class Constant {
         }
     }
 
+    private static void upgradeFrom2_8_0(XMLConfiguration config) {
+        // Update to a newer default user agent
+        config.setProperty(
+                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
+        updatePscanTagMailtoPattern(config);
+    }
+
+    private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
+        String autoTagScannersKey = "pscans.autoTagScanners.scanner";
+        List<HierarchicalConfiguration> tagScanners = config.configurationsAt(autoTagScannersKey);
+        String badPattern = "<.*href\\s*['\"]?mailto:";
+        String goodPattern = "<.*href\\s*=\\s*['\"]?mailto:";
+
+        for (int i = 0, size = tagScanners.size(); i < size; ++i) {
+            String currentKeyResBodyRegex = autoTagScannersKey + "(" + i + ").resBodyRegex";
+            if (config.getProperty(currentKeyResBodyRegex).equals(badPattern)) {
+                config.setProperty(currentKeyResBodyRegex, goodPattern);
+                break;
+            }
+        }
+    }
+
     private static void updateCfuFromDefaultConfig(XMLConfiguration config) {
         Path path = getPathDefaultConfigFile();
         if (!Files.exists(path)) {
@@ -1367,7 +1420,7 @@ public final class Constant {
     }
 
     /**
-     * Sets whether or not ZAP should be 'silent' ie not make any unsolicited requests.
+     * Sets whether or not ZAP should be 'silent' i.e. not make any unsolicited requests.
      *
      * <p><strong>Note:</strong> This method should be called only by bootstrap classes.
      *
@@ -1404,9 +1457,9 @@ public final class Constant {
     }
 
     /**
-     * If true then ZAP should not make any unsolicited requests, eg check-for-updates
+     * If true then ZAP should not make any unsolicited requests, e.g. check-for-updates
      *
-     * @return true if ZAP should not make any unsolicited requests, eg check-for-updates
+     * @return true if ZAP should not make any unsolicited requests, e.g. check-for-updates
      * @since 2.8.0
      */
     public static boolean isSilent() {

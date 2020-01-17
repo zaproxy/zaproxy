@@ -81,8 +81,8 @@ public class HtmlContext {
         return parentTags;
     }
 
-    public void setParentTags(List<String> suroundingTags) {
-        this.parentTags = suroundingTags;
+    public void setParentTags(List<String> surroundingTags) {
+        this.parentTags = surroundingTags;
     }
 
     public String getSurroundingQuote() {

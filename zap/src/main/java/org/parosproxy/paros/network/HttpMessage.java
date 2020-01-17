@@ -53,6 +53,7 @@
 // ZAP: 2018/08/10 Use non-deprecated HttpRequestHeader constructor (Issue 4846).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -713,11 +714,11 @@ public class HttpMessage implements Message {
     public String getCookieParamsAsString() {
         List<String> cookies = new LinkedList<>();
         if (!this.getRequestHeader().isEmpty()) {
-            addAll(cookies, this.getRequestHeader().getHeaders(HttpHeader.COOKIE));
+            cookies.addAll(this.getRequestHeader().getHeaderValues(HttpHeader.COOKIE));
         }
         if (!this.getResponseHeader().isEmpty()) {
-            addAll(cookies, this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE));
-            addAll(cookies, this.getResponseHeader().getHeaders(HttpHeader.SET_COOKIE2));
+            cookies.addAll(this.getResponseHeader().getHeaderValues(HttpHeader.SET_COOKIE));
+            cookies.addAll(this.getResponseHeader().getHeaderValues(HttpHeader.SET_COOKIE2));
         }
 
         // Fix error requesting cookies, but there are none
@@ -730,12 +731,6 @@ public class HttpMessage implements Message {
             sb.append(header);
         }
         return sb.toString();
-    }
-
-    private void addAll(List<String> dest, Vector<String> src) {
-        if (src != null) {
-            dest.addAll(src);
-        }
     }
 
     // ZAP: Added getCookieParams
@@ -937,7 +932,7 @@ public class HttpMessage implements Message {
     // Construct new POST Body from parameter in the postParams argument
     // in the Request Body
     public void setFormParams(TreeSet<HtmlParameter> postParams) {
-        // TODO: Maybe update content length etc?
+        // TODO: Maybe update content length, etc.?
         mReqBody.setFormParams(postParams);
     }
 

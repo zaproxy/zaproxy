@@ -44,7 +44,7 @@
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/08/21 Support for shared context for Context Properties Panels.
 // ZAP: 2013/12/13 Disabled the updating of 'Sites' tab, because it has been added elsewhere to
-// accomodate the 'Full Layout' functionality.
+// accommodate the 'Full Layout' functionality.
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/01/19 Added option to execute code after init of the panels when showing the session
 // dialog
@@ -86,6 +86,8 @@
 // ZAP: 2019/01/04 Keep Show Tab menu item in the position it was added.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
+// ZAP: 2019/12/13 Update new footer proxy label in postInit (Issue 2016)
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -347,6 +349,7 @@ public class View implements ViewDelegate {
                 });
         mainFrame.getMainMenuBar().getMenuView().add(unpinAllMenu);
 
+        mainFrame.getMainFooterPanel().optionsChanged();
         postInitialisation = true;
     }
 
@@ -757,7 +760,7 @@ public class View implements ViewDelegate {
         getSessionDialog().createUISharedContext(c);
 
         String contextsNodeName = Constant.messages.getString("context.list");
-        ContextGeneralPanel contextGenPanel = new ContextGeneralPanel(c.getName(), c.getIndex());
+        ContextGeneralPanel contextGenPanel = new ContextGeneralPanel(c.getName(), c.getId());
         contextGenPanel.setSessionDialog(getSessionDialog());
         getSessionDialog().addParamPanel(new String[] {contextsNodeName}, contextGenPanel, false);
         this.contextPanels.add(contextGenPanel);
@@ -821,7 +824,7 @@ public class View implements ViewDelegate {
     public void renameContext(Context c) {
         ContextGeneralPanel ctxPanel = getContextGeneralPanel(c);
         if (ctxPanel != null) {
-            getSessionDialog().renamePanel(ctxPanel, c.getIndex() + ":" + c.getName());
+            getSessionDialog().renamePanel(ctxPanel, c.getId() + ":" + c.getName());
         }
         this.getSiteTreePanel().reloadContextTree();
     }
@@ -836,7 +839,7 @@ public class View implements ViewDelegate {
         for (AbstractParamPanel panel : contextPanels) {
             if (panel instanceof ContextGeneralPanel) {
                 ContextGeneralPanel contextGeneralPanel = (ContextGeneralPanel) panel;
-                if (contextGeneralPanel.getContextIndex() == context.getIndex()) {
+                if (contextGeneralPanel.getContextId() == context.getId()) {
                     return contextGeneralPanel;
                 }
             }
@@ -894,7 +897,7 @@ public class View implements ViewDelegate {
         for (Iterator<AbstractContextPropertiesPanel> it = contextPanels.iterator();
                 it.hasNext(); ) {
             AbstractContextPropertiesPanel panel = it.next();
-            if (panel.getContextIndex() == c.getIndex()) {
+            if (panel.getContextId() == c.getId()) {
                 getSessionDialog().removeParamPanel(panel);
                 it.remove();
                 removedPanels.add(panel);
@@ -998,7 +1001,7 @@ public class View implements ViewDelegate {
         return dialog;
     }
 
-    // ZAP: Added main toolbar mathods
+    // ZAP: Added main toolbar methods
     public void addMainToolbarButton(JButton button) {
         this.getMainFrame().getMainToolbarPanel().addButton(button);
     }

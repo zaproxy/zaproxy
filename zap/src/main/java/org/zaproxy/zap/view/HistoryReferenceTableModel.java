@@ -90,7 +90,7 @@ public class HistoryReferenceTableModel extends AbstractTableModel {
         this.hrefList = new ArrayList<>();
     }
 
-    /** This should be overriden for any custom columns */
+    /** This should be overridden for any custom columns */
     @Override
     public String getColumnName(int column) {
         return COLUMN_NAMES[this.columns[column].ordinal()];
@@ -110,7 +110,7 @@ public class HistoryReferenceTableModel extends AbstractTableModel {
         return hrefList.size();
     }
 
-    /** This should be overriden for any custom columns */
+    /** This should be overridden for any custom columns */
     @Override
     public Object getValueAt(int row, int col) {
         // Get the href and the required field
@@ -230,7 +230,7 @@ public class HistoryReferenceTableModel extends AbstractTableModel {
     }
 
     /**
-     * Returns the type of column for given column index. This should be overriden for any custom
+     * Returns the type of column for given column index. This should be overridden for any custom
      * columns
      *
      * @param columnIndex the column index

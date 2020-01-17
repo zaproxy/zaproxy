@@ -23,7 +23,7 @@
 // ZAP: 2012/08/31 Added support for AttackStrength
 // ZAP: 2013/02/12 Added variant handling the parameters of OData urls
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
-// ZAP: 2013/07/02 Changed Vector to generic List and added new varaints for GWT, JSON and Headers
+// ZAP: 2013/07/02 Changed Vector to generic List and added new variants for GWT, JSON and Headers
 // ZAP: 2013/07/03 Added variant handling attributes and data contained in XML requests
 // ZAP: 2013/07/14 Issue 726: Catch active scan variants' exceptions
 // ZAP: 2013/09/23 Issue 795: Allow param types scanned to be configured via UI

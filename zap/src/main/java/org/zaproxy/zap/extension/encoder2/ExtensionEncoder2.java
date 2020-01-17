@@ -21,8 +21,6 @@ package org.zaproxy.zap.extension.encoder2;
 
 import java.awt.Frame;
 import java.awt.event.KeyEvent;
-import java.net.MalformedURLException;
-import java.net.URL;
 import javax.swing.text.JTextComponent;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -99,7 +97,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
             */
         } else {
             if ((encodeDecodeDialog.getState() & Frame.ICONIFIED) == Frame.ICONIFIED) {
-                // bring up to front if iconfied
+                // bring up to front if iconified
                 encodeDecodeDialog.setState(Frame.NORMAL);
             }
         }
@@ -139,15 +137,6 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
     @Override
     public String getDescription() {
         return Constant.messages.getString("enc2.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     private EncodeDecodeParamPanel getOptionsPanel() {

@@ -36,7 +36,7 @@ public class PopupMenuActiveScanCustomWithContext extends PopupContextTreeMenu {
     private static final long serialVersionUID = 1L;
 
     public PopupMenuActiveScanCustomWithContext(ExtensionActiveScan extension) {
-        super();
+        super(false);
 
         this.setText(extension.getMessages().getString("ascan.custom.popup"));
         this.setIcon(

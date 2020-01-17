@@ -38,9 +38,9 @@ import org.zaproxy.zap.view.ZapToggleButton;
 // Button notes
 // BreakRequest button, if set all requests trapped
 // BreakResponse button, ditto for responses
-// If break point hit, Break tab gets focus and icon goes red
-// Step button, only if break point hit, submits just this req/resp, breaks on next
-// Continue button, only if break point hit, submits this req/resp and continues until next break
+// If breakpoint hit, Break tab gets focus and icon goes red
+// Step button, only if breakpoint hit, submits just this req/resp, breaks on next
+// Continue button, only if breakpoint hit, submits this req/resp and continues until next break
 // point hit
 // If BreakReq & Resp both selected Step and Continue buttons have same effect
 //
@@ -131,7 +131,7 @@ public class BreakPanelToolbarFactory {
             countCaughtMessages++;
         }
 
-        // This could have been via a break point, so force the serialisation
+        // This could have been via a breakpoint, so force the serialisation
         resetRequestSerialization(true);
 
         // Set the active icon and reset the continue button

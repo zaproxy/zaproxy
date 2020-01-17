@@ -19,20 +19,21 @@
  */
 package org.zaproxy.zap.extension.pscan;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 /** Unit test for {@link PassiveScannerList}. */
@@ -40,7 +41,7 @@ public class PassiveScannerListUnitTest {
 
     private PassiveScannerList psl;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         psl = new PassiveScannerList();
     }
@@ -160,14 +161,15 @@ public class PassiveScannerListUnitTest {
         RegexAutoTagScanner scanner2 = mock(RegexAutoTagScanner.class);
         when(scanner2.getName()).thenReturn("RegexAutoTagScanner");
         psl.add(scanner2);
-        // When
-        psl.list()
-                .forEach(
-                        e -> {
-                            psl.removeScanner(e.getClass().getName());
-                            psl.add(e);
-                        });
-        // Then = No exception (but check the state is the expected).
+        // When / Then
+        assertDoesNotThrow(
+                () ->
+                        psl.list()
+                                .forEach(
+                                        e -> {
+                                            psl.removeScanner(e.getClass().getName());
+                                            psl.add(e);
+                                        }));
         assertThat(psl.list(), contains(scanner1, scanner2));
     }
 
@@ -181,14 +183,15 @@ public class PassiveScannerListUnitTest {
         List<RegexAutoTagScanner> autoTagScanners = new ArrayList<>();
         autoTagScanners.add(scanner2);
         psl.setAutoTagScanners(autoTagScanners);
-        // When
-        psl.list()
-                .forEach(
-                        e -> {
-                            psl.removeScanner(e.getClass().getName());
-                            psl.add(e);
-                        });
-        // Then = No exception (but check the state is the expected).
+        // When / Then
+        assertDoesNotThrow(
+                () ->
+                        psl.list()
+                                .forEach(
+                                        e -> {
+                                            psl.removeScanner(e.getClass().getName());
+                                            psl.add(e);
+                                        }));
         assertThat(psl.list(), contains(scanner1, scanner2));
     }
 

@@ -25,6 +25,7 @@
 // ZAP: 2016/10/26 Initialise the panels when added to the dialogue, if shown
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
 package org.parosproxy.paros.view;
 
 import java.awt.Frame;
@@ -70,7 +71,7 @@ public class SessionDialog extends AbstractParamDialog {
     /** This method initializes this dialog. */
     private void initialize() {
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-            this.setSize(650, 500);
+            this.setSize(650, 550);
         } else {
             pack();
         }
@@ -117,7 +118,7 @@ public class SessionDialog extends AbstractParamDialog {
      * @see AbstractContextPropertiesPanel#initContextData(Session, Context)
      */
     private void initContextPanel(AbstractContextPropertiesPanel contextPanel) {
-        Context ctx = uiContexts.get(contextPanel.getContextIndex());
+        Context ctx = uiContexts.get(contextPanel.getContextId());
         if (ctx != null) {
             contextPanel.initContextData(session, ctx);
         }
@@ -149,7 +150,7 @@ public class SessionDialog extends AbstractParamDialog {
         uiContexts.clear();
         for (Context context : session.getContexts()) {
             Context uiContext = context.duplicate();
-            uiContexts.put(context.getIndex(), uiContext);
+            uiContexts.put(context.getId(), uiContext);
         }
     }
 
@@ -163,7 +164,7 @@ public class SessionDialog extends AbstractParamDialog {
      */
     public void createUISharedContext(Context context) {
         if (session != null) {
-            uiContexts.put(context.getIndex(), context.duplicate());
+            uiContexts.put(context.getId(), context.duplicate());
         }
     }
 

@@ -144,8 +144,20 @@ public abstract class AbstractContextPropertiesPanel extends AbstractParamPanel 
      * Gets the index of the context to which this panel corresponds.
      *
      * @return the context index
+     * @deprecated (2.9.0) Use {@link #getContextId()} instead
      */
+    @Deprecated
     public int getContextIndex() {
+        return getContextId();
+    }
+
+    /**
+     * Gets the ID of the context to which this panel corresponds.
+     *
+     * @return the context ID
+     * @since 2.9.0
+     */
+    public int getContextId() {
         return contextId;
     }
 

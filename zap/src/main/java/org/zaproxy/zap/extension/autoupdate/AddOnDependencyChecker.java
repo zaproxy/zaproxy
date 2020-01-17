@@ -119,7 +119,7 @@ class AddOnDependencyChecker {
             Set<AddOn> newVersions,
             Set<AddOn> installs) {
         AddOn.AddOnRunRequirements requirements =
-                addOn.calculateRunRequirements(availableAddOns.getAddOns());
+                addOn.calculateInstallRequirements(availableAddOns.getAddOns());
 
         for (AddOn dep : requirements.getDependencies()) {
             if (selectedAddOns.contains(dep)) {
@@ -262,7 +262,7 @@ class AddOnDependencyChecker {
             AddOnTableModel model = new AddOnTableModel(updates);
             issues += model.getMinimumJavaVersionIssues();
             tabs.add(
-                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.updats"),
+                    Constant.messages.getString("cfu.confirmation.dialogue.tab.header.updates"),
                     createScrollableTable(model));
         }
 
@@ -496,7 +496,7 @@ class AddOnDependencyChecker {
 
         for (AddOn addOn : remainingInstalledAddOns) {
             if (addOn.dependsOn(changedAddOns)
-                    && addOn.calculateRunRequirements(expectedInstalledAddOns)
+                    && addOn.calculateInstallRequirements(expectedInstalledAddOns)
                             .hasDependencyIssue()) {
                 uninstalls.add(addOn);
             }
@@ -519,7 +519,7 @@ class AddOnDependencyChecker {
             AddOn addOn = it.next();
             if (contains(installs, addOn)
                     || contains(newVersions, addOn)
-                    || (addOn.calculateRunRequirements(installedAddOns.getAddOns())
+                    || (addOn.calculateInstallRequirements(installedAddOns.getAddOns())
                                     .hasDependencyIssue()
                             && !containsAny(addOn.getIdsAddOnDependencies(), uninstalls))) {
                 it.remove();
@@ -545,7 +545,8 @@ class AddOnDependencyChecker {
             List<String> extensionsWithDeps = addOn.getExtensionsWithDeps();
             for (Extension extension : addOn.getLoadedExtensionsWithDeps()) {
                 AddOn.AddOnRunRequirements requirements =
-                        addOn.calculateExtensionRunRequirements(extension, expectedInstalledAddOns);
+                        addOn.calculateExtensionInstallRequirements(
+                                extension, expectedInstalledAddOns);
                 AddOn.ExtensionRunRequirements extReqs =
                         requirements.getExtensionRequirements().get(0);
                 if (!extReqs.isRunnable()) {
@@ -558,7 +559,7 @@ class AddOnDependencyChecker {
 
             for (String classname : extensionsWithDeps) {
                 AddOn.AddOnRunRequirements requirements =
-                        addOn.calculateExtensionRunRequirements(
+                        addOn.calculateExtensionInstallRequirements(
                                 classname, availableAddOns.getAddOns());
                 AddOn.ExtensionRunRequirements extReqs =
                         requirements.getExtensionRequirements().get(0);
@@ -602,7 +603,7 @@ class AddOnDependencyChecker {
         while (!addOnsToCheck.isEmpty()) {
             AddOn addOn = addOnsToCheck.remove(0);
             AddOn.AddOnRunRequirements requirements =
-                    addOn.calculateRunRequirements(remainingAddOns);
+                    addOn.calculateInstallRequirements(remainingAddOns);
 
             if (!requirements.hasDependencyIssue()) {
                 addOnsToCheck.removeAll(requirements.getDependencies());
@@ -614,7 +615,7 @@ class AddOnDependencyChecker {
 
         for (Iterator<AddOn> it = uninstallations.iterator(); it.hasNext(); ) {
             AddOn addOn = it.next();
-            if (addOn.calculateRunRequirements(installedAddOns.getAddOns()).hasDependencyIssue()
+            if (addOn.calculateInstallRequirements(installedAddOns.getAddOns()).hasDependencyIssue()
                     && !containsAny(addOn.getIdsAddOnDependencies(), uninstallations)) {
                 it.remove();
             }
@@ -626,7 +627,7 @@ class AddOnDependencyChecker {
             if (addOn.hasExtensionsWithDeps()) {
                 for (Extension ext : addOn.getLoadedExtensions()) {
                     AddOn.AddOnRunRequirements requirements =
-                            addOn.calculateExtensionRunRequirements(ext, remainingAddOns);
+                            addOn.calculateExtensionInstallRequirements(ext, remainingAddOns);
                     if (!requirements.getExtensionRequirements().isEmpty()) {
                         AddOn.ExtensionRunRequirements extReqs =
                                 requirements.getExtensionRequirements().get(0);

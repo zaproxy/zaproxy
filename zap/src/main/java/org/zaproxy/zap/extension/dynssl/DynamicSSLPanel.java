@@ -23,12 +23,12 @@ import java.awt.BorderLayout;
 import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
 import java.security.cert.Certificate;
@@ -58,6 +58,7 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
+import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class DynamicSSLPanel extends AbstractParamPanel {
 
@@ -488,7 +489,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
             logger.error("Illegal state! There seems to be no certificate available.");
             bt_save.setEnabled(false);
         }
-        final JFileChooser fc = new JFileChooser(System.getProperty("user.home"));
+        final JFileChooser fc = new WritableFileChooser(new File(System.getProperty("user.home")));
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setMultiSelectionEnabled(false);
         fc.setSelectedFile(new File(OWASP_ZAP_ROOT_CA_FILENAME));
@@ -506,9 +507,9 @@ public class DynamicSSLPanel extends AbstractParamPanel {
     }
 
     private void writePubCertificateToFile(File file) throws IOException {
-        try (final OutputStreamWriter osw =
-                new OutputStreamWriter(new FileOutputStream(file), "ASCII")) {
-            osw.write(txt_PubCert.getText());
+        try (BufferedWriter bw =
+                Files.newBufferedWriter(file.toPath(), StandardCharsets.US_ASCII)) {
+            bw.write(txt_PubCert.getText());
         }
     }
 

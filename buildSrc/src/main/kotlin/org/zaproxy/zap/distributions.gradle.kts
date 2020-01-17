@@ -241,6 +241,7 @@ tasks.register<Exec>("distMac") {
             "create",
             "-format", "UDBZ",
             "-megabytes", "800",
+            "-fs", "HFS+",
             "-srcfolder", macOsDistDataDir,
             "-volname", "OWASP ZAP",
             "$outputDir/ZAP_$version.dmg"))
@@ -307,10 +308,12 @@ val buildWeeklyAddOns by tasks.registering(GradleBuildWithGitRepos::class) {
 
     repositoriesDirectory.set(temporaryDir)
     repositoriesDataFile.set(file("src/main/weekly-add-ons.json"))
+    clean.set(true)
 
     tasks {
-        register("clean")
-        register("test")
+        if (System.getenv("ZAP_WEEKLY_ADDONS_NO_TEST") != "true") {
+            register("test")
+        }
         register("copyZapAddOn") {
             args.set(listOf("--into=$weeklyAddOnsDir"))
         }
@@ -322,41 +325,43 @@ val buildWeeklyAddOns by tasks.registering(GradleBuildWithGitRepos::class) {
     }
 }
 
-tasks.register<Zip>("distWeekly") {
-    group = "Distribution"
-    description = "Bundles the weekly distribution."
+val prepareDistWeekly by tasks.registering(Sync::class) {
 
     dependsOn(buildWeeklyAddOns)
 
-    archiveFileName.set(dailyVersion.map { "ZAP_WEEKLY_$it.zip" })
-    isPreserveFileTimestamps = false
-    isReproducibleFileOrder = true
-
-    val rootDir = "ZAP_${dailyVersion.get()}"
     val startScripts = listOf("zap.bat", "zap.sh")
 
-    from(jarDaily) {
-        into(rootDir)
-    }
+    from(jarDaily)
     from(distDir) {
-        into(rootDir)
         include(startScripts)
         filesMatching(startScripts) {
             filter<ReplaceTokens>("tokens" to mapOf("zapJar" to jarDaily.get().archiveFileName.get()))
         }
     }
     from(weeklyAddOnsDir) {
-        into("$rootDir/plugin")
+        into("plugin")
     }
     from(distDir) {
-        into(rootDir)
         include("README.weekly")
         rename { "README" }
     }
     from(distFiles) {
-        into(rootDir)
         exclude(jar.get().archiveFileName.get())
         exclude("README")
         exclude(startScripts)
+    }
+    into(file("$buildDir/distFilesWeekly"))
+}
+
+tasks.register<Zip>("distWeekly") {
+    group = "Distribution"
+    description = "Bundles the weekly distribution."
+
+    archiveFileName.set(dailyVersion.map { "ZAP_WEEKLY_$it.zip" })
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+
+    from(prepareDistWeekly) {
+        into("ZAP_${dailyVersion.get()}")
     }
 }

@@ -41,14 +41,14 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
     }
 
     public ContextTechnologyPanel(Context context) {
-        super(context.getIndex());
+        super(context.getId());
         initialize();
     }
 
     /** This method initializes this */
     private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(getPanelName(getContextIndex()));
+        this.setName(getPanelName(getContextId()));
         this.add(getPanelSession(), getPanelSession().getName());
     }
 
@@ -97,7 +97,7 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
     @Override
     public void saveContextData(Session session) throws Exception {
 
-        session.getContext(getContextIndex()).setTechSet(getTechTree().getTechSet());
+        session.getContext(getContextId()).setTechSet(getTechTree().getTechSet());
     }
 
     @Override

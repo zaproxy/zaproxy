@@ -19,18 +19,19 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.lang.mutable.MutableBoolean;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -49,23 +50,28 @@ public class VariantAbstractQueryUnitTest {
         assertThat(parameters, is(empty()));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldNotAllowToModifyReturnedParametersList() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
-        // When
-        variantAbstractQuery.getParamList().add(param("Name", "Value", 0));
-        // Then = UnsupportedOperationException
+        NameValuePair param = param("Name", "Value", 0);
+        // When / Then
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> variantAbstractQuery.getParamList().add(param));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToProcessUndefinedParameters() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
         List<org.zaproxy.zap.model.NameValuePair> undefinedParameters = null;
-        // When
-        variantAbstractQuery.setParameters(NAME_VALUE_PAIR_TYPE, undefinedParameters);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        variantAbstractQuery.setParameters(
+                                NAME_VALUE_PAIR_TYPE, undefinedParameters));
     }
 
     @Test

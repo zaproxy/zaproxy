@@ -5,6 +5,7 @@
  *  - base64.decode.badinput
  *  - base64.decode.invalidlenght
  * Changed to log the exception instead of print the exception stack trace.
+ * Minor formatting tweak and remove useless conditional (per LGTM issues)
  */
 package org.parosproxy.paros.extension.encoder;
 
@@ -88,7 +89,7 @@ import org.parosproxy.paros.Constant;
  *      <a href="http://www.faqs.org/rfcs/rfc3548.html">RFC3548</a>.</li>
  *    <li><em>Throws exceptions instead of returning null values.</em> Because some operations
  *      (especially those that may permit the GZIP option) use IO streams, there
- *      is a possiblity of an java.io.IOException being thrown. After some discussion and
+ *      is a possibility of an java.io.IOException being thrown. After some discussion and
  *      thought, I've changed the behavior of the methods to throw java.io.IOExceptions
  *      rather than return null if ever there's an error. I think this is more
  *      appropriate, though it will require some changes to your code. Sorry,
@@ -489,7 +490,7 @@ public class Base64
      * anywhere along their length by specifying 
      * <var>srcOffset</var> and <var>destOffset</var>.
      * This method does not check to make sure your arrays
-     * are large enough to accomodate <var>srcOffset</var> + 3 for
+     * are large enough to accommodate <var>srcOffset</var> + 3 for
      * the <var>source</var> array or <var>destOffset</var> + 4 for
      * the <var>destination</var> array.
      * The actual number of significant bytes in your array is
@@ -1019,7 +1020,7 @@ public class Base64
      * anywhere along their length by specifying 
      * <var>srcOffset</var> and <var>destOffset</var>.
      * This method does not check to make sure your arrays
-     * are large enough to accomodate <var>srcOffset</var> + 4 for
+     * are large enough to accommodate <var>srcOffset</var> + 4 for
      * the <var>source</var> array or <var>destOffset</var> + 3 for
      * the <var>destination</var> array.
      * This method returns the actual number of bytes that 
@@ -1554,7 +1555,7 @@ public class Base64
         {
             // Set up some useful variables
             java.io.File file = new java.io.File( filename );
-            byte[] buffer = new byte[ Math.max((int)(file.length() * 1.4+1),40) ]; // Need max() for math on small files (v2.2.1); Need +1 for a few corner cases (v2.3.5)
+            byte[] buffer = new byte[Math.max((int)(file.length() * 1.4 + 1), 40)]; // Need max() for math on small files (v2.2.1); Need +1 for a few corner cases (v2.3.5)
             int length   = 0;
             int numBytes = 0;
             
@@ -1778,7 +1779,7 @@ public class Base64
             }   // end else: get data
             
             // Got data?
-            if( position >= 0 ) {
+            else {
                 // End of relevant data?
                 if( /*!encode &&*/ position >= numSigBytes ){
                     return -1;
@@ -1801,7 +1802,7 @@ public class Base64
                 return b & 0xFF; // This is how you "cast" a byte that's
                                  // intended to be unsigned.
                 
-            }   // end if: position >= 0
+            }   // end else (position >= 0)
             
             throw new java.io.IOException( "Error in Base64 code reading stream." );
         }   // end read
@@ -1936,7 +1937,7 @@ public class Base64
             if( suspendEncoding ) {
                 this.out.write( theByte );
                 return;
-            }   // end if: supsended
+            }   // end if: suspended
             
             // Encode?
             if( encode ) {
@@ -1991,7 +1992,7 @@ public class Base64
             if( suspendEncoding ) {
                 this.out.write( theBytes, off, len );
                 return;
-            }   // end if: supsended
+            }   // end if: suspended
             
             for( int i = 0; i < len; i++ ) {
                 write( theBytes[ off + i ] );

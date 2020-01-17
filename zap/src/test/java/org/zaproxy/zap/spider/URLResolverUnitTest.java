@@ -19,10 +19,11 @@
  */
 package org.zaproxy.zap.spider;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Unit test for {@link org.zaproxy.zap.spider.URLResolver}.
@@ -31,14 +32,23 @@ import org.junit.Test;
  */
 public class URLResolverUnitTest {
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionOnMissingBaseUrl() {
-        URLResolver.resolveUrl(null, "notNull");
+        // Given
+        String baseUrl = null;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class, () -> URLResolver.resolveUrl(baseUrl, "notNull"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionOnMissingRelativeUrl() {
-        URLResolver.resolveUrl("notNull", null);
+        // Given
+        String relativeUrl = null;
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> URLResolver.resolveUrl("notNull", relativeUrl));
     }
 
     @Test
@@ -126,7 +136,7 @@ public class URLResolverUnitTest {
     }
 
     @Test
-    public void shouldRemoveAllSlashPointSlashOccurencesFromResolvedUrl() {
+    public void shouldRemoveAllSlashPointSlashOccurrencesFromResolvedUrl() {
         assertThat(
                 URLResolver.resolveUrl("http://abc.de/./", "test/./xyz/./123"),
                 is("http://abc.de/test/xyz/123"));

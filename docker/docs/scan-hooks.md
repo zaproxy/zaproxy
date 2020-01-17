@@ -4,7 +4,7 @@ It enables you to override or modify behaviour of the script components instead 
 to write a new script.
 
 ## Use Cases
-**Modfiying Args**  
+**Modifying Args**  
 For the AJAX crawler you may want to target a suburl with a specific 
 hash (`http://example.com` vs `http://example.com/#/dashboard`). You can use the 
 `zap_ajax_spider` hook to intercept the arguments and modify them.

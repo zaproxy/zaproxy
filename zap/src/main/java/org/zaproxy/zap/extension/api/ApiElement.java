@@ -20,14 +20,17 @@
 package org.zaproxy.zap.extension.api;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class ApiElement {
 
     private String name = null;
-    private String descriptionTag = null;
-    private List<String> mandatoryParamNames = new ArrayList<>();
-    private List<String> optionalParamNames = new ArrayList<>();
+    private String descriptionTag = "";
+    private List<ApiParameter> parameters = new ArrayList<>();
 
     /**
      * Flag that indicates whether or not the API element is deprecated.
@@ -64,12 +67,9 @@ public class ApiElement {
             String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
         super();
         this.name = name;
-        if (this.mandatoryParamNames != null) {
-            this.mandatoryParamNames = mandatoryParamNames;
-        }
-        if (this.optionalParamNames != null) {
-            this.optionalParamNames = optionalParamNames;
-        }
+
+        addParameters(mandatoryParamNames, true);
+        addParameters(optionalParamNames, false);
     }
 
     public ApiElement(String name, String[] mandatoryParamNames) {
@@ -77,52 +77,80 @@ public class ApiElement {
     }
 
     public ApiElement(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
-        super();
-        this.name = name;
-        this.setMandatoryParamNames(mandatoryParamNames);
-        this.setOptionalParamNames(optionalParamNames);
+        this(name, asList(mandatoryParamNames), asList(optionalParamNames));
+    }
+
+    private static List<String> asList(String[] elements) {
+        return elements != null ? Arrays.asList(elements) : null;
     }
 
     public void setMandatoryParamNames(String[] paramNames) {
-        if (paramNames != null) {
-            this.mandatoryParamNames = new ArrayList<>(paramNames.length);
-            for (String param : paramNames) {
-                this.mandatoryParamNames.add(param);
-            }
-        }
+        setMandatoryParamNames(asList(paramNames));
     }
 
     public void setMandatoryParamNames(List<String> paramNames) {
-        this.mandatoryParamNames = paramNames;
+        parameters.removeIf(ApiParameter::isRequired);
+
+        if (paramNames != null) {
+            List<ApiParameter> optionalParameters = parameters;
+            parameters = new ArrayList<>(optionalParameters.size() + paramNames.size());
+            addParameters(paramNames, true);
+            parameters.addAll(optionalParameters);
+        }
+    }
+
+    private void addParameters(List<String> names, boolean required) {
+        if (names == null) {
+            return;
+        }
+        names.forEach(param -> parameters.add(new ApiParameter(param, "", required)));
     }
 
     public List<String> getMandatoryParamNames() {
-        return mandatoryParamNames;
+        return getParametersNames(ApiParameter::isRequired);
     }
 
+    private List<String> getParametersNames(Predicate<ApiParameter> predicate) {
+        return parameters.stream()
+                .filter(predicate)
+                .map(ApiParameter::getName)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Gets the description's resource key.
+     *
+     * @return the resource key, never {@code null} (since 2.9.0).
+     */
     public String getDescriptionTag() {
         return descriptionTag;
     }
 
     public void setDescriptionTag(String descriptionTag) {
-        this.descriptionTag = descriptionTag;
+        this.descriptionTag = descriptionTag == null ? "" : descriptionTag;
     }
 
     public List<String> getOptionalParamNames() {
-        return optionalParamNames;
+        return getParametersNames(e -> !e.isRequired());
     }
 
     public void setOptionalParamNames(String[] optionalParamNames) {
-        if (optionalParamNames != null) {
-            this.optionalParamNames = new ArrayList<>(optionalParamNames.length);
-            for (String param : optionalParamNames) {
-                this.optionalParamNames.add(param);
-            }
-        }
+        setOptionalParamNames(asList(optionalParamNames));
     }
 
     public void setOptionalParamNames(List<String> optionalParamNames) {
-        this.optionalParamNames = optionalParamNames;
+        parameters.removeIf(e -> !e.isRequired());
+        addParameters(optionalParamNames, false);
+    }
+
+    /**
+     * Gets the parameters.
+     *
+     * @return an unmodifiable list with the parameters, never {@code null}.
+     * @since 2.9.0
+     */
+    public List<ApiParameter> getParameters() {
+        return Collections.unmodifiableList(parameters);
     }
 
     /**

@@ -250,7 +250,7 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
                                 .getExtension(ExtensionUserManagement.class);
                 User user =
                         extensionUserManagement
-                                .getContextUserAuthManager(context.getIndex())
+                                .getContextUserAuthManager(context.getId())
                                 .getUserById(userId);
                 if (user == null)
                     throw new ApiException(

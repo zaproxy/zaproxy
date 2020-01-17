@@ -48,6 +48,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  *   <li>description;
  *   <li>author;
  *   <li>url;
+ *   <li>repo (URL of browsable repository);
  *   <li>changes;
  *   <li>not-before-version;
  *   <li>not-from-version;
@@ -103,6 +104,7 @@ public abstract class BaseZapAddOnXmlData {
     private static final String AUTHOR_ELEMENT = "author";
     private static final String URL_ELEMENT = "url";
     private static final String CHANGES_ELEMENT = "changes";
+    private static final String REPO_ELEMENT = "repo";
     private static final String NOT_BEFORE_VERSION_ELEMENT = "not-before-version";
     private static final String NOT_FROM_VERSION_ELEMENT = "not-from-version";
 
@@ -142,6 +144,7 @@ public abstract class BaseZapAddOnXmlData {
     private String author;
     private String url;
     private String changes;
+    private String repo;
 
     private Dependencies dependencies;
 
@@ -224,6 +227,7 @@ public abstract class BaseZapAddOnXmlData {
         author = zapAddOnXml.getString(AUTHOR_ELEMENT, "");
         url = zapAddOnXml.getString(URL_ELEMENT, "");
         changes = zapAddOnXml.getString(CHANGES_ELEMENT, "");
+        repo = zapAddOnXml.getString(REPO_ELEMENT, "");
 
         dependencies = readDependencies(zapAddOnXml, "zapaddon");
 
@@ -297,6 +301,16 @@ public abstract class BaseZapAddOnXmlData {
 
     public String getChanges() {
         return changes;
+    }
+
+    /**
+     * Gets the URL to the browsable repo.
+     *
+     * @return the URL to the repo, might be {@code null}.
+     * @since 2.9.0
+     */
+    public String getRepo() {
+        return repo;
     }
 
     public String getUrl() {

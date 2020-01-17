@@ -19,16 +19,18 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.hex;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class HttpPanelHexModelUnitTest {
 
     private HttpPanelHexModel model;
 
-    @Before
+    @BeforeEach
     public void setup() {
         model = new HttpPanelHexModel();
     }
@@ -38,6 +40,6 @@ public class HttpPanelHexModelUnitTest {
         // setting value 'a0' in Hex view resulted in 'c2 a0'
         model.setData(new byte[] {(byte) 0xa0});
 
-        assertArrayEquals(new byte[] {(byte) 0xa0}, model.getData());
+        assertThat(new byte[] {(byte) 0xa0}, is(equalTo(model.getData())));
     }
 }

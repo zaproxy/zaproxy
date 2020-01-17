@@ -19,12 +19,18 @@
  */
 package ch.csnc.extension.httpclient;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import ch.csnc.extension.httpclient.PKCS11Configuration.PCKS11ConfigurationBuilder;
 import java.io.InputStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ch.csnc.extension.httpclient.PKCS11Configuration} */
 public class PKCS11ConfigurationUnitTest {
@@ -33,54 +39,97 @@ public class PKCS11ConfigurationUnitTest {
     private static final String LIBRARY = "path/to/library";
 
     private PKCS11Configuration configuration;
-    private PCKS11ConfigurationBuilder configurationBuilder;
 
     private static PCKS11ConfigurationBuilder getConfigurationBuilderWithNameAndLibrarySet() {
         return PKCS11Configuration.builder().setName(NAME).setLibrary(LIBRARY);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowExceptionWhenBuildingAConfigurationWithoutNameAndLibrary() {
-        PKCS11Configuration.builder().build();
+        // Given
+        PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
+        // When
+        IllegalStateException e = assertThrows(IllegalStateException.class, builder::build);
+        // Then
+        assertThat(e.getMessage(), containsString("name"));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowExceptionWhenBuildingAConfigurationWithoutName() {
-        PKCS11Configuration.builder().setLibrary(LIBRARY).build();
+        // Given
+        PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder().setLibrary(LIBRARY);
+        // When
+        IllegalStateException e = assertThrows(IllegalStateException.class, builder::build);
+        // Then
+        assertThat(e.getMessage(), containsString("name"));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void shouldThrowExceptionWhenCreatingAConfigurationWithoutLibrary() {
-        PKCS11Configuration.builder().setName(NAME).build();
+        // Given
+        PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder().setName(NAME);
+        // When
+        IllegalStateException e = assertThrows(IllegalStateException.class, builder::build);
+        // Then
+        assertThat(e.getMessage(), containsString("library"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenSettingAnEmptyName() {
-        PKCS11Configuration.builder().setName("");
+        // Given
+        PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
+        String name = "";
+        // When
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> builder.setName(name));
+        // Then
+        assertThat(e.getMessage(), containsString("name"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenSettingANullName() {
-        PKCS11Configuration.builder().setName(null);
+        // Given
+        PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
+        String name = null;
+        // When
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> builder.setName(name));
+        // Then
+        assertThat(e.getMessage(), containsString("name"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenSettingAnEmptyLibrary() {
-        PKCS11Configuration.builder().setLibrary("");
+        // Given
+        PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
+        String library = "";
+        // When
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> builder.setLibrary(library));
+        // Then
+        assertThat(e.getMessage(), containsString("library"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenSettingANullLibrary() {
-        PKCS11Configuration.builder().setLibrary(null);
+        // Given
+        PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
+        String library = null;
+        // When
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> builder.setLibrary(library));
+        // Then
+        assertThat(e.getMessage(), containsString("library"));
     }
 
     @Test
     public void shouldCreateConfigurationWithNonEmptyNameAndNonEmptyLibrary() {
         // Given
+        PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
         String nonEmptyName = "ProviderName";
         String nonEmptyLibrary = "Library";
         // When / Then
-        PKCS11Configuration.builder().setName(nonEmptyName).setLibrary(nonEmptyLibrary).build();
+        assertDoesNotThrow(() -> builder.setName(nonEmptyName).setLibrary(nonEmptyLibrary).build());
     }
 
     @Test
@@ -135,13 +184,15 @@ public class PKCS11ConfigurationUnitTest {
         assertThat(retrievedStringRepresentation, containsString("slotListIndex = 0"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenSettingNegativeSlotListIndex() {
         // Given
-        configurationBuilder = getConfigurationBuilderWithNameAndLibrarySet();
+        PCKS11ConfigurationBuilder builder = getConfigurationBuilderWithNameAndLibrarySet();
         // When
-        configurationBuilder.setSlotListIndex(-1);
-        // Then = IllegalArgumentException.class
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> builder.setSlotListIndex(-1));
+        // Then
+        assertThat(e.getMessage(), containsString("slotListIndex"));
     }
 
     @Test
@@ -234,13 +285,15 @@ public class PKCS11ConfigurationUnitTest {
         assertThat(retrievedSlotListIndexSet, is(equalTo(slotListIndexSet)));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldThrowExceptionWhenSettingNegativeSlotId() {
         // Given
-        configurationBuilder = getConfigurationBuilderWithNameAndLibrarySet();
+        PCKS11ConfigurationBuilder builder = getConfigurationBuilderWithNameAndLibrarySet();
         // When
-        configurationBuilder.setSlotId(-1);
-        // Then = IllegalArgumentException.class
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> builder.setSlotId(-1));
+        // Then
+        assertThat(e.getMessage(), containsString("slotId"));
     }
 
     @Test

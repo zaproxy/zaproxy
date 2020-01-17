@@ -87,7 +87,7 @@ public class ByteBuilder {
 
     @Override
     public String toString() {
-        return new String(array);
+        return new String(array, 0, size);
     }
 
     // all append() methods return this so we can chain calls together, of course :)
@@ -240,13 +240,21 @@ public class ByteBuilder {
     }
 
     public ByteBuilder append(String value) {
-        byte[] b = value.getBytes(Charset.defaultCharset());
+        return append(value, Charset.defaultCharset());
+    }
+
+    public ByteBuilder append(String value, Charset charset) {
+        byte[] b = value.getBytes(charset);
         testAddition(b.length + 4);
         return this.append(b.length).append(b);
     }
 
     public ByteBuilder append(StringBuffer value) {
-        byte[] b = value.toString().getBytes(Charset.defaultCharset());
+        return append(value, Charset.defaultCharset());
+    }
+
+    public ByteBuilder append(StringBuffer value, Charset charset) {
+        byte[] b = value.toString().getBytes(charset);
         testAddition(b.length + 4);
         return this.append(b.length).append(b);
     }

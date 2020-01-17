@@ -90,6 +90,7 @@
 // ZAP: 2019/01/19 Handle counting alerts raised by scan (Issue 3929).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/11/09 Ability to filter to active scan (Issue 5278)
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -114,6 +115,8 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.extension.ascan.filters.FilterResult;
+import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfig;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.SessionStructure;
@@ -499,6 +502,37 @@ public class HostProcess implements Runnable {
         return parentScanner.isInScope(nodeName);
     }
 
+    private boolean filterNode(StructuralNode node) {
+        for (ScanFilter scanFilter : parentScanner.getScanFilters()) {
+            try {
+                FilterResult filterResult = scanFilter.isFiltered(node);
+                if (filterResult.isFiltered()) {
+                    try {
+                        HttpMessage msg = node.getHistoryReference().getHttpMessage();
+                        parentScanner.notifyFilteredMessage(msg, filterResult.getReason());
+                    } catch (HttpMalformedHeaderException | DatabaseException e) {
+                        log.warn(
+                                "Error while getting httpmessage from history reference: "
+                                        + e.getMessage(),
+                                e);
+                    }
+
+                    if (log.isDebugEnabled()) {
+                        log.debug(
+                                "Ignoring filtered node: "
+                                        + node.getName()
+                                        + " Reason: "
+                                        + filterResult.getReason());
+                    }
+                    return true;
+                }
+            } catch (Exception ex) {
+                log.error(ex.getMessage(), ex);
+            }
+        }
+        return false;
+    }
+
     /**
      * Scans the message with the given ID with the given plugin.
      *
@@ -638,6 +672,10 @@ public class HostProcess implements Runnable {
             if (log.isDebugEnabled()) {
                 log.debug("Ignoring node not in scope: " + node.getName());
             }
+            return false;
+        }
+
+        if (filterNode(node)) {
             return false;
         }
 

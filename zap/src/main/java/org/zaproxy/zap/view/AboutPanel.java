@@ -59,11 +59,11 @@ public class AboutPanel extends JPanel {
                     + "<a>http://www.apache.org</a> licensed under Apache License 2.0.  HSQLDB is licensed under BSD "
                     + "license.  JDIC is licensed by Sun Microsystems, Inc under the LGPL license.  "
                     + PRODUCT
-                    + " also contains BeanShell, which is lisenced unter LGPL.  The Copyrights of these softwares "
+                    + " also contains BeanShell, which is licensed under LGPL.  The Copyrights of these softwares "
                     + "belong to their respective owners.</p></body></html>";
 
     private static final String HOMEPAGE =
-            "<html><body><p><a>https://www.owasp.org/index.php/ZAP</a></p></body></html>";
+            "<html><body><p><a>https://www.zaproxy.org/</a></p></body></html>";
 
     /** Constructs an {@code AboutPanel}. */
     public AboutPanel() {

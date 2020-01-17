@@ -43,7 +43,7 @@ public class LargeResponseUtil {
     public static boolean isLargeResponse(Message aMessage) {
         if (aMessage instanceof HttpMessage) {
             HttpMessage httpMessage = (HttpMessage) aMessage;
-            if (httpMessage.getResponseBody() == null || minContentLength <= 0) {
+            if (minContentLength <= 0) {
                 return false;
             }
 

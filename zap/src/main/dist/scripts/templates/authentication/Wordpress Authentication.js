@@ -1,4 +1,4 @@
-// This authentication script can be used to authenticate in a Worpress application.
+// This authentication script can be used to authenticate in a Wordpress application.
 // You need to set the Authentication method to Script-Based and load the script, then set the parameters as follows:
 //	Domain: The domain (without protocol). E.g.: example.com
 //	Path: The path, with a '/' at the end, in which the app is found. E.g.: /wp/

@@ -19,11 +19,14 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Test;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class ByteBuilderUnitTest {
 
@@ -31,7 +34,7 @@ public class ByteBuilderUnitTest {
 
     private static final byte[] TEST_ARRAY = {(byte) 1, (byte) 2, (byte) 3};
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         byteBuilder = new ByteBuilder();
     }
@@ -64,5 +67,344 @@ public class ByteBuilderUnitTest {
         int capacity = byteBuilder.capacity();
         // then
         assertThat(capacity, is(2 * TEST_ARRAY.length));
+    }
+
+    @Test
+    public void shouldIncreaseCapacityWhenBiggerThanActual() {
+        // given
+        byteBuilder = new ByteBuilder(5);
+        // when
+        byteBuilder.ensureCapacity(20);
+        int capacity = byteBuilder.capacity();
+        // then
+        assertThat(capacity, is(20));
+    }
+
+    @Test
+    public void shouldHaveZeroSizeByDefault() {
+        // given
+        byteBuilder = new ByteBuilder();
+        // when
+        int size = byteBuilder.size();
+        // then
+        assertThat(size, is(0));
+    }
+
+    @Test
+    public void shouldHaveSizeOfGivenArray() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        int size = byteBuilder.size();
+        // then
+        assertThat(size, is(3));
+    }
+
+    @Test
+    public void shouldProduceStringFromContents() {
+        // given
+        byteBuilder = new ByteBuilder(new byte[] {65, 45, 90});
+        byteBuilder.ensureCapacity(50);
+        // when
+        String string = byteBuilder.toString();
+        // then
+        assertThat(string, is("A-Z"));
+    }
+
+    @Test
+    public void shouldHaveBytesOfSubSequence() {
+        // given
+        byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+        byteBuilder = new ByteBuilder(bytes);
+        // when
+        byte[] subSequence = byteBuilder.subSequence(3, 6);
+        // then
+        assertThat(subSequence, is(new byte[] {4, 5, 6}));
+    }
+
+    @Test
+    public void shouldBeEqualToTheArrayPassed() {
+        // given
+        byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
+        byteBuilder = new ByteBuilder(bytes);
+        // when
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(bytes));
+    }
+
+    @Test
+    public void shouldAppendByteValue() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append((byte) 2);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 2}));
+    }
+
+    @Test
+    public void shouldAppendByteArray() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(new byte[] {1, 2});
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 1, 2}));
+    }
+
+    @Test
+    public void shouldAppendSpecificValuesOfByteArray() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(new byte[] {1, 2, 3, 4, 5, 6}, 1, 3);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 2, 3, 4}));
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenAppendingValuesToEmptyByteArray() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // When / Then
+        assertThrows(
+                ArrayIndexOutOfBoundsException.class, () -> byteBuilder.append(new byte[0], 2, 3));
+    }
+
+    @Test
+    public void shouldAppendCharValue() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append('3');
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 51}));
+    }
+
+    @Test
+    public void shouldAppendCharArray() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(new char[] {'3', '5'});
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 51, 53}));
+    }
+
+    @Test
+    public void shouldAppendSpecificValuesOfCharArray() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(new char[] {'1', '2', '3', '4', '5', '6'}, 1, 3);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 50, 51, 52}));
+    }
+
+    @Test
+    public void shouldThrowAnExceptionWhenAppendingValuesToEmptyCharArray() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // When / Then
+        assertThrows(
+                ArrayIndexOutOfBoundsException.class, () -> byteBuilder.append(new char[0], 2, 3));
+    }
+
+    @Test
+    public void shouldAppendBooleanValues() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(true);
+        byteBuilder.append(false);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 1, 0}));
+    }
+
+    @Test
+    public void shouldAppendShortValue() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append((short) 3);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 0, 3}));
+    }
+
+    @Test
+    public void shouldAppendIntValue() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(2);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 0, 0, 0, 2}));
+    }
+
+    @Test
+    public void shouldAppendLongValue() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(1234567890123456789L);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 17, 34, 16, -12, 125, -23, -127, 21}));
+    }
+
+    @Test
+    public void shouldAppendFloatValue() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(1234567890123456789.12f);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 93, -119, 16, -120}));
+    }
+
+    @Test
+    public void shouldAppendDoubleValue() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(1234567890123456789.12);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 67, -79, 34, 16, -12, 125, -23, -127}));
+    }
+
+    @Test
+    public void shouldAppendNewObjectValue() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        class FooClass {
+            public byte[] toByteStructure() {
+                return new byte[] {1, 2};
+            }
+        }
+        byteBuilder.append(new FooClass());
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 1, 2}));
+    }
+
+    @Test
+    public void shouldAppendObjectValue() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append((Object) 123456);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 0, 0, 0, 6, 49, 50, 51, 52, 53, 54}));
+    }
+
+    @Test
+    public void shouldAppendStringValueWithGivenCharset() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append("FooBarBaz£$%^&*", StandardCharsets.UTF_8);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(
+                toByteArray,
+                is(
+                        new byte[] {
+                            1, 2, 3, 0, 0, 0, 16, 70, 111, 111, 66, 97, 114, 66, 97, 122, -62, -93,
+                            36, 37, 94, 38, 42
+                        }));
+    }
+
+    @Test
+    public void shouldAppendStringValueWithDefaultCharsetByDefault() {
+        // Given
+        byteBuilder = new ByteBuilder();
+        String value = "FooBarBaz£$%^&*";
+        // When
+        byteBuilder.append(value);
+        // Then
+        assertThat(byteBuilder.toByteArray(), is(lengthAndBytesOf(value)));
+    }
+
+    @Test
+    public void shouldAppendStringBufferWithGivenCharset() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(new StringBuffer("FooBarBaz£$%^&*"), StandardCharsets.UTF_8);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(
+                toByteArray,
+                is(
+                        new byte[] {
+                            1, 2, 3, 0, 0, 0, 16, 70, 111, 111, 66, 97, 114, 66, 97, 122, -62, -93,
+                            36, 37, 94, 38, 42
+                        }));
+    }
+
+    @Test
+    public void shouldAppendStringBufferWithDefaultCharsetByDefault() {
+        // given
+        byteBuilder = new ByteBuilder();
+        String value = "FooBarBaz£$%^&*";
+        // when
+        byteBuilder.append(new StringBuffer(value));
+        // then
+        assertThat(byteBuilder.toByteArray(), is(lengthAndBytesOf(value)));
+    }
+
+    @Test
+    public void shouldAppendByteBuilder() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.append(new ByteBuilder(new byte[] {5, 5}));
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 5, 5}));
+    }
+
+    @Test
+    public void shouldAppendSpecialPositiveLong() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.appendSpecial(1234567890123456789L, 3, true);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, 105, -127, 21}));
+    }
+
+    @Test
+    public void shouldAppendSpecialNegativeLong() {
+        // given
+        byteBuilder = new ByteBuilder(TEST_ARRAY);
+        // when
+        byteBuilder.appendSpecial(-1234567890123456789L, 3, true);
+        byte[] toByteArray = byteBuilder.toByteArray();
+        // then
+        assertThat(toByteArray, is(new byte[] {1, 2, 3, -106, 126, -21}));
+    }
+
+    private static byte[] lengthAndBytesOf(String value) {
+        byte[] bytes = value.getBytes(Charset.defaultCharset());
+        byte[] result = new byte[4 + bytes.length];
+        result[3] = (byte) bytes.length;
+        System.arraycopy(bytes, 0, result, 4, bytes.length);
+        return result;
     }
 }
