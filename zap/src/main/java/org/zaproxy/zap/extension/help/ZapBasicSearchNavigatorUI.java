@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.help;
 
+import java.util.Arrays;
 import java.util.Enumeration;
 import javax.help.HelpSet;
 import javax.help.JHelpSearchNavigator;
@@ -46,10 +47,7 @@ public class ZapBasicSearchNavigatorUI extends BasicSearchNavigatorUI {
         for (Enumeration<?> e = hs.getHelpSets(); e.hasMoreElements(); ) {
             HelpSet ehs = (HelpSet) e.nextElement();
             // merge views
-            NavigatorView[] views = ehs.getNavigatorViews();
-            for (int i = 0; i < views.length; i++) {
-                mergeSearchView(views[i], ehs);
-            }
+            Arrays.stream(ehs.getNavigatorViews()).forEach(view -> mergeSearchView(view, ehs));
             addSubHelpSets(ehs);
         }
     }

@@ -19,24 +19,23 @@
  */
 package org.zaproxy.zap.extension.ruleconfig;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-@RunWith(MockitoJUnitRunner.class)
+/** Unit test for {@link RuleConfigParam}. */
 public class RuleConfigParamUnitTest {
 
     ZapXmlConfiguration configuration;
 
     RuleConfigParam rcp;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         rcp = new RuleConfigParam();
         configuration = new ZapXmlConfiguration();
@@ -67,16 +66,21 @@ public class RuleConfigParamUnitTest {
         assertThat(configuration.getString("key"), is(equalTo("new value")));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToUpdateMissingKey() {
+        // Given
         rcp.addRuleConfig("key", "defaultValue", "value");
-        rcp.setRuleConfigValue("key2", "new value");
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class, () -> rcp.setRuleConfigValue("key2", "new value"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToResetMissingKey() {
+        // Given
         rcp.addRuleConfig("key", "defaultValue", "value");
-        rcp.resetRuleConfigValue("key2");
+        // When / Then
+        assertThrows(IllegalArgumentException.class, () -> rcp.resetRuleConfigValue("key2"));
     }
 
     @Test
@@ -94,7 +98,7 @@ public class RuleConfigParamUnitTest {
         rcp.addRuleConfig("key1", "defaultValue1", "value1");
         rcp.addRuleConfig("key2", "defaultValue2", "value2");
         rcp.resetAllRuleConfigValues();
-        ;
+
         assertThat(rcp.getRuleConfig("key1").getKey(), is(equalTo("key1")));
         assertThat(rcp.getRuleConfig("key1").getDefaultValue(), is(equalTo("defaultValue1")));
         assertThat(rcp.getRuleConfig("key1").getValue(), is(equalTo("defaultValue1")));

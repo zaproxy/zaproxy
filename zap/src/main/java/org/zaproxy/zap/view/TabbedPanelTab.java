@@ -201,7 +201,7 @@ public class TabbedPanelTab extends JPanel {
     }
 
     /*
-     * Temporarily lock/unlock the tab, eg if its active and mustnt be closed.
+     * Temporarily lock/unlock the tab, e.g. if its active and mustn't be closed.
      * Locked (AbstractPanel) tabs will not have the pin/close tab buttons displayed
      */
     public void setLocked(boolean locked) {

@@ -19,50 +19,51 @@
  */
 package org.zaproxy.zap.users;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.event.TableModelListener;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.users.UsersTableModel;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.view.TableModelTestUtils;
 
 /** Unit test for {@code UsersTableModel}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UsersTableModelUnitTest extends TableModelTestUtils {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        I18N i18n = mock(I18N.class);
+        I18N i18n = mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
-        given(i18n.getString(anyString(), anyObject())).willReturn("");
+        given(i18n.getString(anyString(), any())).willReturn("");
         Constant.messages = i18n;
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToCreateInstanceWithUndefinedUsersList() {
         // Given
         List<User> undefinedUsersList = null;
-        // When
-        UsersTableModel usersTableModel = new UsersTableModel(undefinedUsersList);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> new UsersTableModel(undefinedUsersList));
     }
 
     @Test
@@ -118,13 +119,12 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
         assertThat(usersTableModel.getElements(), is(empty()));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void shouldFailToGetValueOfNonExistingRow() {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
-        // When
-        usersTableModel.getValueAt(0, 0);
-        // Then = IndexOutOfBoundsException
+        // When / Then
+        assertThrows(IndexOutOfBoundsException.class, () -> usersTableModel.getValueAt(0, 0));
     }
 
     @Test
@@ -289,13 +289,12 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
         assertThat(listener.getNumberOfEvents(), is(equalTo(0)));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void shouldFailToGetNonExistingElement() {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
-        // When
-        usersTableModel.getElement(1);
-        // Then = IndexOutOfBoundsException
+        // When / Then
+        assertThrows(IndexOutOfBoundsException.class, () -> usersTableModel.getElement(1));
     }
 
     @Test
@@ -333,15 +332,16 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
         assertThat(listener.isRowInserted(0), is(equalTo(true)));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void shouldFailToModifyNonExistingElement() {
         // Given
         List<User> usersList = new ArrayList<>();
         usersList.add(createEnabledUser());
         UsersTableModel usersTableModel = new UsersTableModel(usersList);
-        // When
-        usersTableModel.modifyElement(1, createUser());
-        // Then = IndexOutOfBoundsException
+        // When / Then
+        assertThrows(
+                IndexOutOfBoundsException.class,
+                () -> usersTableModel.modifyElement(1, createUser()));
     }
 
     @Test
@@ -365,13 +365,12 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
         assertThat(listener.isRowUpdated(0), is(equalTo(true)));
     }
 
-    @Test(expected = IndexOutOfBoundsException.class)
+    @Test
     public void shouldFailToRemoveNonExistingElement() {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
-        // When
-        usersTableModel.removeElement(1);
-        // Then = IndexOutOfBoundsException
+        // When / Then
+        assertThrows(IndexOutOfBoundsException.class, () -> usersTableModel.removeElement(1));
     }
 
     @Test

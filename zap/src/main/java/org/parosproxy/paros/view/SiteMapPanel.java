@@ -50,6 +50,8 @@
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
+// ZAP: 2019/09/09 Issue 3491: Add support for selecting multiple contexts
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -61,8 +63,10 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -501,6 +505,30 @@ public class SiteMapPanel extends AbstractPanel {
         return null;
     }
 
+    /**
+     * Returns the List of Context selected in the Site Map panel of the UI or an empty List if
+     * nothing is selected or the selection is the root node.
+     *
+     * @return List of Context selected in the UI
+     * @since 2.9.0
+     */
+    public List<Context> getSelectedContexts() {
+        TreePath[] paths = treeContext.getSelectionPaths();
+        if (paths == null || paths.length == 0) return Collections.emptyList();
+
+        SiteNode[] nodes =
+                Arrays.stream(paths)
+                        .map(p -> (SiteNode) p.getLastPathComponent())
+                        .toArray(SiteNode[]::new);
+
+        // if only the root is selected no contexts are selected
+        if (nodes.length == 1 && nodes[0].isRoot()) return Collections.emptyList();
+
+        Stream<Target> targets = Arrays.stream(nodes).map(n -> (Target) n.getUserObject());
+
+        return Arrays.asList(targets.map(Target::getContext).toArray(Context[]::new));
+    }
+
     private JTree getTreeContext() {
         if (treeContext == null) {
             reloadContextTree();
@@ -510,7 +538,7 @@ public class SiteMapPanel extends AbstractPanel {
             treeContext.setToggleClickCount(1);
             treeContext
                     .getSelectionModel()
-                    .setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+                    .setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 
             treeContext.addMouseListener(
                     new java.awt.event.MouseAdapter() {
@@ -524,14 +552,15 @@ public class SiteMapPanel extends AbstractPanel {
 
                         @Override
                         public void mouseClicked(java.awt.event.MouseEvent e) {
-                            if (treeSite.getLastSelectedPathComponent() != null) {
-                                // They selected a context node, deselect any context
-                                getTreeSite().clearSelection();
-                            }
                             TreePath path =
                                     treeContext.getClosestPathForLocation(e.getX(), e.getY());
-                            if (path != null && !treeContext.isPathSelected(path)) {
-                                treeContext.setSelectionPath(path);
+                            if (treeSite.getLastSelectedPathComponent() != null) {
+                                getTreeSite().clearSelection();
+                            }
+                            if (path != null) {
+                                if (((SiteNode) path.getLastPathComponent()).isRoot()) {
+                                    treeContext.removeSelectionPath(path);
+                                }
                             }
                             if (e.getClickCount() > 1) {
                                 // Its a double click - show the relevant context dialog
@@ -561,6 +590,11 @@ public class SiteMapPanel extends AbstractPanel {
                     new DeleteContextAction() {
 
                         private static final long serialVersionUID = 1L;
+
+                        @Override
+                        protected List<Context> getContexts() {
+                            return getSelectedContexts();
+                        }
 
                         @Override
                         protected Context getContext() {
@@ -626,7 +660,7 @@ public class SiteMapPanel extends AbstractPanel {
         for (int i = 0; i < root.getChildCount(); i++) {
             SiteNode node = (SiteNode) root.getChildAt(i);
             Target target = (Target) node.getUserObject();
-            if (c.getIndex() == target.getContext().getIndex()) {
+            if (c.getId() == target.getContext().getId()) {
                 target.setContext(c);
                 if (node.getNodeName().equals(c.getName())) {
                     this.contextTree.nodeChanged(node);

@@ -19,12 +19,13 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HirshbergMatcher} */
 public class HirshbergMatcherUnitTest {
@@ -32,22 +33,24 @@ public class HirshbergMatcherUnitTest {
     private static final String EMPTY_STRING = "";
     private static final String NON_EMPTY_STRING = "Non Empty String";
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToGetLCSIfStringAIsNull() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
-        // When
-        matcher.getLCS(null, NON_EMPTY_STRING);
-        // Then = NullPointerException.class
+        String strA = null;
+        String strB = NON_EMPTY_STRING;
+        // When / Then
+        assertThrows(NullPointerException.class, () -> matcher.getLCS(strA, strB));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToGetLCSIfStringBIsNull() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
-        // When
-        matcher.getLCS(NON_EMPTY_STRING, null);
-        // Then = NullPointerException.class
+        String strA = NON_EMPTY_STRING;
+        String strB = null;
+        // When / Then
+        assertThrows(NullPointerException.class, () -> matcher.getLCS(strA, strB));
     }
 
     @Test

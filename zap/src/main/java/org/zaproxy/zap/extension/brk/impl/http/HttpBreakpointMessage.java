@@ -125,10 +125,10 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
     @Override
     public boolean match(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
         if (aMessage instanceof HttpMessage) {
-            HttpMessage messge = (HttpMessage) aMessage;
+            HttpMessage message = (HttpMessage) aMessage;
 
             try {
-                String uri = messge.getRequestHeader().getURI().toString();
+                String uri = message.getRequestHeader().getURI().toString();
 
                 if (onlyIfInScope) {
                     if (!Model.getSingleton().getSession().isInScope(uri)) {
@@ -136,8 +136,9 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
                     }
                 }
 
-                String src = null;
+                String src;
                 switch (location) {
+                    default:
                     case url:
                         src = uri;
                         break;
@@ -145,25 +146,25 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
                         if (!isRequest) {
                             return false;
                         }
-                        src = messge.getRequestHeader().toString();
+                        src = message.getRequestHeader().toString();
                         break;
                     case request_body:
                         if (!isRequest) {
                             return false;
                         }
-                        src = messge.getRequestBody().toString();
+                        src = message.getRequestBody().toString();
                         break;
                     case response_header:
                         if (isRequest) {
                             return false;
                         }
-                        src = messge.getResponseHeader().toString();
+                        src = message.getResponseHeader().toString();
                         break;
                     case response_body:
                         if (isRequest) {
                             return false;
                         }
-                        src = messge.getResponseBody().toString();
+                        src = message.getResponseBody().toString();
                         break;
                 }
 

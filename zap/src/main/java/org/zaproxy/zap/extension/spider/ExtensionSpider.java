@@ -22,8 +22,6 @@ package org.zaproxy.zap.extension.spider;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,7 +40,6 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.DefaultValueGenerator;
@@ -220,7 +217,7 @@ public class ExtensionSpider extends ExtensionAdaptor
     public void sessionAboutToChange(Session session) {
         // Shut all of the scans down and remove them
         this.scanController.reset();
-        if (View.isInitialised()) {
+        if (hasView()) {
             this.getSpiderPanel().reset();
             if (spiderDialog != null) {
                 spiderDialog.reset();
@@ -254,7 +251,7 @@ public class ExtensionSpider extends ExtensionAdaptor
      */
     private void sessionChangedEventHandler(Session session) {
         // Clear all scans
-        if (View.isInitialised()) {
+        if (hasView()) {
             this.getSpiderPanel().reset();
         }
         if (session == null) {
@@ -309,17 +306,8 @@ public class ExtensionSpider extends ExtensionAdaptor
     }
 
     @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
-    }
-
-    @Override
     public void sessionScopeChanged(Session session) {
-        if (View.isInitialised()) {
+        if (hasView()) {
             this.getSpiderPanel().sessionScopeChanged(session);
         }
     }
@@ -330,7 +318,7 @@ public class ExtensionSpider extends ExtensionAdaptor
             this.scanController.stopAllScans();
         }
 
-        if (View.isInitialised()) {
+        if (hasView()) {
             this.getSpiderPanel().sessionModeChanged(mode);
             getMenuItemCustomScan().setEnabled(!Mode.safe.equals(mode));
         }
@@ -387,7 +375,7 @@ public class ExtensionSpider extends ExtensionAdaptor
     public void destroy() {
         // Shut all of the scans down
         this.stopAllScans();
-        if (View.isInitialised()) {
+        if (hasView()) {
             this.getSpiderPanel().reset();
         }
     }
@@ -634,7 +622,7 @@ public class ExtensionSpider extends ExtensionAdaptor
         }
 
         int id = this.scanController.startScan(displayName, target, user, customConfigurations);
-        if (View.isInitialised()) {
+        if (hasView()) {
             addScanToUi(this.scanController.getScan(id));
         }
         return id;
@@ -757,7 +745,7 @@ public class ExtensionSpider extends ExtensionAdaptor
     @Override
     public void pauseScan(int id) {
         this.scanController.pauseScan(id);
-        if (View.isInitialised()) {
+        if (hasView()) {
             // Update the UI in case this was initiated from the API
             this.getSpiderPanel().updateScannerUI();
         }
@@ -766,7 +754,7 @@ public class ExtensionSpider extends ExtensionAdaptor
     @Override
     public void pauseAllScans() {
         this.scanController.pauseAllScans();
-        if (View.isInitialised()) {
+        if (hasView()) {
             // Update the UI in case this was initiated from the API
             this.getSpiderPanel().updateScannerUI();
         }
@@ -775,7 +763,7 @@ public class ExtensionSpider extends ExtensionAdaptor
     @Override
     public void resumeScan(int id) {
         this.scanController.resumeScan(id);
-        if (View.isInitialised()) {
+        if (hasView()) {
             // Update the UI in case this was initiated from the API
             this.getSpiderPanel().updateScannerUI();
         }
@@ -784,7 +772,7 @@ public class ExtensionSpider extends ExtensionAdaptor
     @Override
     public void resumeAllScans() {
         this.scanController.resumeAllScans();
-        if (View.isInitialised()) {
+        if (hasView()) {
             // Update the UI in case this was initiated from the API
             this.getSpiderPanel().updateScannerUI();
         }
@@ -839,8 +827,7 @@ public class ExtensionSpider extends ExtensionAdaptor
     public void showSpiderDialog(Target target) {
         if (spiderDialog == null) {
             spiderDialog =
-                    new SpiderDialog(
-                            this, View.getSingleton().getMainFrame(), new Dimension(700, 430));
+                    new SpiderDialog(this, getView().getMainFrame(), new Dimension(700, 430));
         }
         if (spiderDialog.isVisible()) {
             // Its behind you! Actually not needed no the window is alwaysOnTop, but keeping in case

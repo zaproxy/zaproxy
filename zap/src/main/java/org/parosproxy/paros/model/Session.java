@@ -79,6 +79,7 @@
 // ZAP: 2018/07/09 No longer need cast on SiteMap.getRoot
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -144,7 +145,7 @@ public class Session {
     private List<String> excludeFromSpiderRegexs = new ArrayList<>();
 
     private List<Context> contexts = new ArrayList<>();
-    private int nextContextIndex = 1;
+    private int nextContextId = 1;
 
     // parameters in XML
     private long sessionId = 0;
@@ -185,7 +186,7 @@ public class Session {
             View.getSingleton().discardContexts();
         }
         for (OnContextsChangedListener l : contextsChangedListeners) l.contextsChanged();
-        nextContextIndex = 1;
+        nextContextId = 1;
     }
 
     protected void discard() {
@@ -420,15 +421,15 @@ public class Session {
             if (ctx == null) {
                 ctx = new Context(this, data.getContextId());
                 this.addContext(ctx);
-                if (nextContextIndex <= data.getContextId()) {
-                    nextContextIndex = data.getContextId() + 1;
+                if (nextContextId <= data.getContextId()) {
+                    nextContextId = data.getContextId() + 1;
                 }
             }
             switch (data.getType()) {
                 case RecordContext.TYPE_NAME:
                     ctx.setName(data.getData());
                     if (View.isInitialised()
-                            && !ctx.getName().equals(String.valueOf(ctx.getIndex()))) {
+                            && !ctx.getName().equals(String.valueOf(ctx.getId()))) {
                         View.getSingleton().renameContext(ctx);
                     }
                     break;
@@ -457,20 +458,20 @@ public class Session {
                 // Set up the URL parameter parser
                 List<String> strs =
                         this.getContextDataStrings(
-                                ctx.getIndex(), RecordContext.TYPE_URL_PARSER_CLASSNAME);
+                                ctx.getId(), RecordContext.TYPE_URL_PARSER_CLASSNAME);
                 if (strs.size() == 1) {
                     Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
                     if (c == null) {
                         log.error(
                                 "Failed to load URL parser for context "
-                                        + ctx.getIndex()
+                                        + ctx.getId()
                                         + " : "
                                         + strs.get(0));
                     } else {
                         ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
                         strs =
                                 this.getContextDataStrings(
-                                        ctx.getIndex(), RecordContext.TYPE_URL_PARSER_CONFIG);
+                                        ctx.getId(), RecordContext.TYPE_URL_PARSER_CONFIG);
                         if (strs.size() == 1) {
                             parser.init(strs.get(0));
                         }
@@ -479,26 +480,26 @@ public class Session {
                     }
                 }
             } catch (Exception e) {
-                log.error("Failed to load URL parser for context " + ctx.getIndex(), e);
+                log.error("Failed to load URL parser for context " + ctx.getId(), e);
             }
             try {
                 // Set up the URL parameter parser
                 List<String> strs =
                         this.getContextDataStrings(
-                                ctx.getIndex(), RecordContext.TYPE_POST_PARSER_CLASSNAME);
+                                ctx.getId(), RecordContext.TYPE_POST_PARSER_CLASSNAME);
                 if (strs.size() == 1) {
                     Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
                     if (c == null) {
                         log.error(
                                 "Failed to load POST parser for context "
-                                        + ctx.getIndex()
+                                        + ctx.getId()
                                         + " : "
                                         + strs.get(0));
                     } else {
                         ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
                         strs =
                                 this.getContextDataStrings(
-                                        ctx.getIndex(), RecordContext.TYPE_POST_PARSER_CONFIG);
+                                        ctx.getId(), RecordContext.TYPE_POST_PARSER_CONFIG);
                         if (strs.size() == 1) {
                             parser.init(strs.get(0));
                         }
@@ -507,19 +508,19 @@ public class Session {
                     }
                 }
             } catch (Exception e) {
-                log.error("Failed to load POST parser for context " + ctx.getIndex(), e);
+                log.error("Failed to load POST parser for context " + ctx.getId(), e);
             }
 
             try {
                 // Set up the Data Driven Nodes
                 List<String> strs =
                         this.getContextDataStrings(
-                                ctx.getIndex(), RecordContext.TYPE_DATA_DRIVEN_NODES);
+                                ctx.getId(), RecordContext.TYPE_DATA_DRIVEN_NODES);
                 for (String str : strs) {
                     ctx.addDataDrivenNodes(new StructuralNodeModifier(str));
                 }
             } catch (Exception e) {
-                log.error("Failed to load data driven nodes for context " + ctx.getIndex(), e);
+                log.error("Failed to load data driven nodes for context " + ctx.getId(), e);
             }
 
             ctx.restructureSiteTree();
@@ -1210,40 +1211,40 @@ public class Session {
 
     public void saveContext(Context c) {
         try {
-            this.setContextData(c.getIndex(), RecordContext.TYPE_NAME, c.getName());
-            this.setContextData(c.getIndex(), RecordContext.TYPE_DESCRIPTION, c.getDescription());
+            this.setContextData(c.getId(), RecordContext.TYPE_NAME, c.getName());
+            this.setContextData(c.getId(), RecordContext.TYPE_DESCRIPTION, c.getDescription());
             this.setContextData(
-                    c.getIndex(), RecordContext.TYPE_IN_SCOPE, Boolean.toString(c.isInScope()));
+                    c.getId(), RecordContext.TYPE_IN_SCOPE, Boolean.toString(c.isInScope()));
             this.setContextData(
-                    c.getIndex(), RecordContext.TYPE_INCLUDE, c.getIncludeInContextRegexs());
+                    c.getId(), RecordContext.TYPE_INCLUDE, c.getIncludeInContextRegexs());
             this.setContextData(
-                    c.getIndex(), RecordContext.TYPE_EXCLUDE, c.getExcludeFromContextRegexs());
+                    c.getId(), RecordContext.TYPE_EXCLUDE, c.getExcludeFromContextRegexs());
             this.setContextData(
-                    c.getIndex(),
+                    c.getId(),
                     RecordContext.TYPE_INCLUDE_TECH,
                     techListToStringList(c.getTechSet().getIncludeTech()));
             this.setContextData(
-                    c.getIndex(),
+                    c.getId(),
                     RecordContext.TYPE_EXCLUDE_TECH,
                     techListToStringList(c.getTechSet().getExcludeTech()));
             this.setContextData(
-                    c.getIndex(),
+                    c.getId(),
                     RecordContext.TYPE_URL_PARSER_CLASSNAME,
                     c.getUrlParamParser().getClass().getCanonicalName());
             this.setContextData(
-                    c.getIndex(),
+                    c.getId(),
                     RecordContext.TYPE_URL_PARSER_CONFIG,
                     c.getUrlParamParser().getConfig());
             this.setContextData(
-                    c.getIndex(),
+                    c.getId(),
                     RecordContext.TYPE_POST_PARSER_CLASSNAME,
                     c.getPostParamParser().getClass().getCanonicalName());
             this.setContextData(
-                    c.getIndex(),
+                    c.getId(),
                     RecordContext.TYPE_POST_PARSER_CONFIG,
                     c.getPostParamParser().getConfig());
             this.setContextData(
-                    c.getIndex(),
+                    c.getId(),
                     RecordContext.TYPE_DATA_DRIVEN_NODES,
                     snmListToStringList(c.getDataDrivenNodes()));
 
@@ -1289,7 +1290,7 @@ public class Session {
      * @see #getNewContext(String)
      */
     private Context createContext(String name) {
-        Context context = new Context(this, this.nextContextIndex++);
+        Context context = new Context(this, this.nextContextId++);
         context.setName(name);
         return context;
     }
@@ -1345,7 +1346,7 @@ public class Session {
     public void deleteContext(Context c) {
         this.contexts.remove(c);
         try {
-            this.clearContextData(c.getIndex());
+            this.clearContextData(c.getId());
         } catch (DatabaseException e) {
             log.error(e.getMessage(), e);
         }
@@ -1360,9 +1361,9 @@ public class Session {
         }
     }
 
-    public Context getContext(int index) {
+    public Context getContext(int id) {
         for (Context context : contexts) {
-            if (context.getIndex() == index) {
+            if (context.getId() == id) {
                 return context;
             }
         }
@@ -1406,12 +1407,12 @@ public class Session {
     /**
      * Export the specified context to a file
      *
-     * @param contextIndex
-     * @param file
+     * @param contextId the ID of the Context to be exported
+     * @param file the File to which the Context should be exported
      * @throws ConfigurationException
      */
-    public void exportContext(int contextIndex, File file) throws ConfigurationException {
-        this.exportContext(this.getContext(contextIndex), file);
+    public void exportContext(int contextId, File file) throws ConfigurationException {
+        this.exportContext(this.getContext(contextId), file);
     }
 
     /**

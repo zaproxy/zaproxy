@@ -101,7 +101,7 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
     /** Initialize the panel. */
     private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(getContextIndex() + ": " + PANEL_NAME);
+        this.setName(getContextId() + ": " + PANEL_NAME);
         this.setLayout(new GridBagLayout());
         this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
@@ -225,7 +225,7 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
     @Override
     public void saveContextData(Session session) throws Exception {
         saveMethod();
-        session.getContext(getContextIndex()).setAuthorizationDetectionMethod(authorizationMethod);
+        session.getContext(getContextId()).setAuthorizationDetectionMethod(authorizationMethod);
         log.debug("Saving authorization method: " + authorizationMethod);
     }
 

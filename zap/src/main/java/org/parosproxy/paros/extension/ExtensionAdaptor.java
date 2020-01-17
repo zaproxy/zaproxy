@@ -45,9 +45,10 @@
 // ZAP: 2018/04/17 Deprecate ExtensionAdaptor(String, Version) and remove getVersion() override.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/09/12 Remove getURL().
+// ZAP: 2019/09/30 Add hasView().
 package org.parosproxy.paros.extension;
 
-import java.net.URL;
 import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -169,6 +170,17 @@ public abstract class ExtensionAdaptor implements Extension {
         return view;
     }
 
+    /**
+     * Convenience method that tells whether or not the extension has a view.
+     *
+     * @return {@code true} if the extension has a view, {@code false} otherwise.
+     * @since 2.9.0
+     * @see #getView()
+     */
+    protected boolean hasView() {
+        return view != null;
+    }
+
     @Override
     public Model getModel() {
         return model;
@@ -224,11 +236,6 @@ public abstract class ExtensionAdaptor implements Extension {
     @Override
     public boolean isCore() {
         return false;
-    }
-
-    @Override
-    public URL getURL() {
-        return null;
     }
 
     @Override

@@ -25,6 +25,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A {@code URLClassLoader} that search for classes and resources (first) in a given add-on file
@@ -253,6 +254,17 @@ public class AddOnClassLoader extends URLClassLoader {
         this.childClassLoaders = Collections.emptyList();
         this.addOnClassnames = addOnClassnames;
         this.classLoadingLockProvider = parent::getClassLoadingLock;
+    }
+
+    /**
+     * Adds the given URLs to the class loader, to search for classes and resources.
+     *
+     * @param urls the URLs to add to the class loader.
+     * @throws NullPointerException if the given list is {@code null}.
+     */
+    void addUrls(List<URL> urls) {
+        Objects.requireNonNull(urls);
+        urls.forEach(this::addURL);
     }
 
     /**

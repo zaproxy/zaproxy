@@ -38,6 +38,7 @@
 // ZAP: 2018/08/15 Add Server header.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -47,7 +48,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
@@ -303,19 +303,15 @@ public class HttpResponseHeader extends HttpHeader {
     public List<HttpCookie> getHttpCookies(String defaultDomain) {
         List<HttpCookie> cookies = new LinkedList<>();
 
-        Vector<String> cookiesS = getHeaders(HttpHeader.SET_COOKIE);
+        List<String> cookiesS = getHeaderValues(HttpHeader.SET_COOKIE);
 
-        if (cookiesS != null) {
-            for (String c : cookiesS) {
-                cookies.addAll(parseCookieString(c, defaultDomain));
-            }
+        for (String c : cookiesS) {
+            cookies.addAll(parseCookieString(c, defaultDomain));
         }
 
-        cookiesS = getHeaders(HttpHeader.SET_COOKIE2);
-        if (cookiesS != null) {
-            for (String c : cookiesS) {
-                cookies.addAll(parseCookieString(c, defaultDomain));
-            }
+        cookiesS = getHeaderValues(HttpHeader.SET_COOKIE2);
+        for (String c : cookiesS) {
+            cookies.addAll(parseCookieString(c, defaultDomain));
         }
 
         return cookies;
@@ -372,20 +368,14 @@ public class HttpResponseHeader extends HttpHeader {
     public TreeSet<HtmlParameter> getCookieParams() {
         TreeSet<HtmlParameter> set = new TreeSet<>();
 
-        Vector<String> cookies = getHeaders(HttpHeader.SET_COOKIE);
-        if (cookies != null) {
-            Iterator<String> it = cookies.iterator();
-            while (it.hasNext()) {
-                set.add(new HtmlParameter(it.next()));
-            }
+        Iterator<String> cookiesIt = getHeaderValues(HttpHeader.SET_COOKIE).iterator();
+        while (cookiesIt.hasNext()) {
+            set.add(new HtmlParameter(cookiesIt.next()));
         }
 
-        Vector<String> cookies2 = getHeaders(HttpHeader.SET_COOKIE2);
-        if (cookies2 != null) {
-            Iterator<String> it = cookies2.iterator();
-            while (it.hasNext()) {
-                set.add(new HtmlParameter(it.next()));
-            }
+        Iterator<String> cookies2It = getHeaderValues(HttpHeader.SET_COOKIE2).iterator();
+        while (cookies2It.hasNext()) {
+            set.add(new HtmlParameter(cookies2It.next()));
         }
         return set;
     }

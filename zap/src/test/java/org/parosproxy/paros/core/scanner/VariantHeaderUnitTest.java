@@ -19,17 +19,18 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -48,23 +49,25 @@ public class VariantHeaderUnitTest {
         assertThat(parameters, is(empty()));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void shouldNotAllowToModifyReturnedParametersList() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
-        // When
-        variantHeader.getParamList().add(header("Name", "Value", 0));
-        // Then = UnsupportedOperationException
+        NameValuePair header = header("Name", "Value", 0);
+        // When / Then
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> variantHeader.getParamList().add(header));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToExtractParametersFromUndefinedMessage() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage undefinedMessage = null;
-        // When
-        variantHeader.setMessage(undefinedMessage);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class, () -> variantHeader.setMessage(undefinedMessage));
     }
 
     @Test
@@ -313,6 +316,7 @@ public class VariantHeaderUnitTest {
                 description.appendText("header ").appendValue(name + ": " + value);
             }
 
+            @Override
             public void describeMismatch(Object item, Description description) {
                 HttpMessage message = (HttpMessage) item;
                 List<HttpHeaderField> headers = message.getRequestHeader().getHeaders();

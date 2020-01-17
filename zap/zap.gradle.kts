@@ -1,9 +1,14 @@
+import japicmp.model.JApiChangeStatus
 import java.time.LocalDate
 import java.util.stream.Collectors
+import me.champeau.gradle.japicmp.JapicmpTask
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
+import org.zaproxy.zap.japicmp.AcceptMethodAbstractNowDefaultRule
 
 plugins {
     `java-library`
+    jacoco
+    id("me.champeau.gradle.japicmp")
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
@@ -12,7 +17,8 @@ plugins {
 }
 
 group = "org.zaproxy"
-version = "2.8.1"
+version = "2.9.0"
+val versionBC = "2.8.0"
 
 val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
@@ -23,44 +29,43 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 }
 
+jacoco {
+    toolVersion = "0.8.4"
+}
+
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.0.3")
+    api("com.fifesoft:rsyntaxtextarea:3.0.4")
     api("com.github.zafarkhaja:java-semver:0.9.0")
-    api("commons-beanutils:commons-beanutils:1.9.3")
-    api("commons-codec:commons-codec:1.12")
+    api("commons-beanutils:commons-beanutils:1.9.4")
+    api("commons-codec:commons-codec:1.13")
     api("commons-collections:commons-collections:3.2.2")
     api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
     api("commons-io:commons-io:2.6")
     api("commons-lang:commons-lang:2.6")
     api("org.apache.commons:commons-lang3:3.9")
-    api("org.apache.commons:commons-text:1.6")
+    api("org.apache.commons:commons-text:1.8")
     api("edu.umass.cs.benchlab:harlib:1.1.2")
     api("javax.help:javahelp:2.0.05")
     api("log4j:log4j:1.2.17")
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
-    api("org.apache.commons:commons-csv:1.6")
-    api("org.bouncycastle:bcmail-jdk15on:1.61")
-    api("org.bouncycastle:bcprov-jdk15on:1.61")
-    api("org.bouncycastle:bcpkix-jdk15on:1.61")
-    api("org.hsqldb:hsqldb:2.4.1")
+    api("org.apache.commons:commons-csv:1.7")
+    api("org.bouncycastle:bcmail-jdk15on:1.64")
+    api("org.bouncycastle:bcprov-jdk15on:1.64")
+    api("org.bouncycastle:bcpkix-jdk15on:1.64")
+    api("org.hsqldb:hsqldb:2.5.0")
     api("org.jfree:jfreechart:1.0.19")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
-    api("org.xerial:sqlite-jdbc:3.27.2.1")
+    api("org.xerial:sqlite-jdbc:3.28.0")
 
     implementation("commons-validator:commons-validator:1.6")
     // Don't need its dependencies, for now.
     implementation("org.jitsi:ice4j:1.0") {
         setTransitive(false)
     }
-
-    // The following are no longer used by core, remove once
-    // all (known) add-ons are updated accordingly.
-    runtimeOnly("com.googlecode.java-diff-utils:diffutils:1.2.1")
-    runtimeOnly("org.jdom:jdom:1.1.3")
-    // -----------------------
+    implementation("org.javadelight:delight-nashorn-sandbox:0.1.26")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
@@ -68,11 +73,23 @@ dependencies {
         setTransitive(false)
     }
 
-    testImplementation("junit:junit:4.11")
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.25.1") {
+        // Not needed.
+        exclude(group = "org.junit")
+    }
     testImplementation("org.hamcrest:hamcrest-all:1.3")
-    testImplementation("org.mockito:mockito-all:1.10.8")
+    val jupiterVersion = "5.5.2"
+    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testImplementation("org.mockito:mockito-junit-jupiter:3.1.0")
+    testImplementation("org.slf4j:slf4j-log4j12:1.7.28")
 
     testRuntimeOnly(files(distDir))
+}
+
+tasks.withType<Test>().configureEach {
+    useJUnitPlatform()
 }
 
 tasks.register<JavaExec>("run") {
@@ -101,6 +118,52 @@ listOf("jar", "jarDaily").forEach {
             attributes(attrs)
         }
     }
+}
+
+val japicmp by tasks.registering(JapicmpTask::class) {
+    group = LifecycleBasePlugin.VERIFICATION_GROUP
+    description = "Checks ${project.name}.jar binary compatibility with latest version ($versionBC)."
+
+    oldClasspath = files(zapJar(versionBC))
+    newClasspath = files(tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).map { it.archivePath })
+    ignoreMissingClasses = true
+    packageExcludes = listOf(
+        // Should no longer be in use by any add-on
+        "org.parosproxy.paros.extension.filter"
+    )
+    classExcludes = listOf(
+        // Not expected to be used by add-ons
+        "org.parosproxy.paros.view.LicenseFrame",
+        "org.zaproxy.zap.view.LicenseFrame"
+    )
+    fieldExcludes = listOf(
+        // Not expected to be used by add-ons
+        "org.parosproxy.paros.Constant#ACCEPTED_LICENSE",
+        "org.parosproxy.paros.Constant#ACCEPTED_LICENSE_DEFAULT"
+    )
+    methodExcludes = listOf(
+        // Implementation moved to interface
+        "org.parosproxy.paros.extension.ExtensionAdaptor#getURL()",
+        "org.parosproxy.paros.extension.ExtensionAdaptor#getAuthor()",
+        // Not expected to be used by add-ons
+        "org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate#getLatestVersionInfo(org.zaproxy.zap.extension.autoupdate.CheckForUpdateCallback)",
+        "org.zaproxy.zap.extension.autoupdate.ManageAddOnsDialog#checkForUpdates()",
+        // Safe default method
+        "org.parosproxy.paros.core.scanner.ScannerListener#filteredMessage(org.parosproxy.paros.network.HttpMessage,java.lang.String)",
+        // Internal API
+        "org.zaproxy.zap.extension.ascan.ActiveScanPanel#getWorkPanel()"
+    )
+
+    richReport {
+        destinationDir = file("$buildDir/reports/japicmp/")
+        reportName = "japi.html"
+        isAddDefaultRules = true
+        addRule(JApiChangeStatus.MODIFIED, AcceptMethodAbstractNowDefaultRule::class.java)
+    }
+}
+
+tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
+    dependsOn(japicmp)
 }
 
 tasks.named<Javadoc>("javadoc") {
@@ -168,7 +231,8 @@ listOf(
     "org.zaproxy.zap.extension.api.NodeJSAPIGenerator",
     "org.zaproxy.zap.extension.api.PhpAPIGenerator",
     "org.zaproxy.zap.extension.api.PythonAPIGenerator",
-    "org.zaproxy.zap.extension.api.RustAPIGenerator"
+    "org.zaproxy.zap.extension.api.RustAPIGenerator",
+    "org.zaproxy.zap.extension.api.WikiAPIGenerator"
 ).forEach {
     val langName = it.removePrefix("org.zaproxy.zap.extension.api.").removeSuffix("APIGenerator")
     val task = tasks.register<JavaExec>("generate${langName}ApiEndpoints") {
@@ -191,4 +255,17 @@ launch4j {
 
 class ToString(private val callable: Callable<String>) {
     override fun toString() = callable.call()
+}
+
+fun zapJar(version: String): File {
+    val oldGroup = group
+    try {
+        // https://discuss.gradle.org/t/is-the-default-configuration-leaking-into-independent-configurations/2088/6
+        group = "virtual_group_for_japicmp"
+        val conf = configurations.detachedConfiguration(dependencies.create("$oldGroup:$name:$version"))
+        conf.isTransitive = false
+        return conf.singleFile
+    } finally {
+        group = oldGroup
+    }
 }

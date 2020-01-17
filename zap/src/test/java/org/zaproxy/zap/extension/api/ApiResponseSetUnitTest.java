@@ -19,13 +19,13 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-/** Unit test for {@link ApiResponseElement}. */
+/** Unit test for {@link ApiResponseSet}. */
 public class ApiResponseSetUnitTest {
 
     @Test
@@ -33,9 +33,9 @@ public class ApiResponseSetUnitTest {
         // Given
         String name = "name";
         String value = "value";
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(name, value);
-        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<>("test", map);
         // When
         String jsonResponse = apiRespSet.toJSON().toString();
         // Then
@@ -47,9 +47,9 @@ public class ApiResponseSetUnitTest {
         // Given
         String name = "name";
         String value = "'value'";
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(name, value);
-        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<>("test", map);
         // When
         String jsonResponse = apiRespSet.toJSON().toString();
         // Then
@@ -61,9 +61,9 @@ public class ApiResponseSetUnitTest {
         // Given
         String name = "name";
         String value = "\"value\"";
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(name, value);
-        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<>("test", map);
         // When
         String jsonResponse = apiRespSet.toJSON().toString();
         // Then
@@ -75,9 +75,9 @@ public class ApiResponseSetUnitTest {
         // Given
         String name = "name";
         String value = "{\"key\":\"value\"}";
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(name, value);
-        ApiResponseSet<String> apiRespSet = new ApiResponseSet<String>("test", map);
+        ApiResponseSet<String> apiRespSet = new ApiResponseSet<>("test", map);
         // When
         String jsonResponse = apiRespSet.toJSON().toString();
         // Then

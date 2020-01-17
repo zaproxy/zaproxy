@@ -19,9 +19,9 @@
  */
 package org.zaproxy.zap.control;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,15 +30,15 @@ import java.util.List;
 import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 
 /** Unit test for {@link ExtensionFactory}. */
 public class ExtensionFactoryUnitTest {
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getLogger(ExtensionFactory.class).addAppender(new NullAppender());
     }

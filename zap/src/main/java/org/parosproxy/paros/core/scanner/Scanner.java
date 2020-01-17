@@ -46,6 +46,7 @@
 // ZAP: 2018/04/19 Added support for publishing events
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/11/09 Ability to filter to active scan (Issue 5278)
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -58,6 +59,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -71,6 +73,7 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ActiveScanEventPublisher;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.extension.script.ScriptCollection;
 import org.zaproxy.zap.model.ScanEventPublisher;
@@ -103,6 +106,7 @@ public class Scanner implements Runnable {
     private User user = null;
     private TechSet techSet;
     private Set<ScriptCollection> scriptCollections = new HashSet<ScriptCollection>();
+    private List<ScanFilter> scanFilters = new ArrayList<>();
     private int id;
 
     // ZAP: Added scanner pause option
@@ -404,6 +408,13 @@ public class Scanner implements Runnable {
         }
     }
 
+    void notifyFilteredMessage(HttpMessage msg, String reason) {
+        for (int i = 0; i < listenerList.size(); i++) {
+            ScannerListener listener = listenerList.get(i);
+            listener.filteredMessage(msg, reason);
+        }
+    }
+
     void notifyAlertFound(Alert alert) {
         for (int i = 0; i < listenerList.size(); i++) {
             // ZAP: Removed unnecessary cast.
@@ -568,5 +579,13 @@ public class Scanner implements Runnable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    List<ScanFilter> getScanFilters() {
+        return scanFilters;
+    }
+
+    public void addScanFilter(ScanFilter scanFilter) {
+        this.scanFilters.add(Objects.requireNonNull(scanFilter));
     }
 }

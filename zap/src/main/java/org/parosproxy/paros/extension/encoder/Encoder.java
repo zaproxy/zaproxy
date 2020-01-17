@@ -27,6 +27,7 @@
 // ZAP: 2014/03/03 Issue 1012: Support HTML and JavaScript encoding
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/10/28 Support Base64url.
 package org.parosproxy.paros.extension.encoder;
 
 import java.io.IOException;
@@ -121,6 +122,18 @@ public class Encoder {
 
     public String getBase64Decode(String msg) throws IllegalArgumentException, IOException {
         return new String(Base64.decode(msg, Base64.NO_OPTIONS), base64Charset);
+    }
+
+    public String getBase64urlEncode(String msg) throws NullPointerException, IOException {
+        return Base64.encodeBytes(
+                getBytes(msg),
+                base64EncodeOptions == Base64.NO_OPTIONS
+                        ? Base64.URL_SAFE
+                        : base64EncodeOptions | Base64.URL_SAFE);
+    }
+
+    public String getBase64urlDecode(String msg) throws IllegalArgumentException, IOException {
+        return new String(Base64.decode(msg, Base64.URL_SAFE), base64Charset);
     }
 
     public String getIllegalUTF8Encode(String msg, int bytes) {

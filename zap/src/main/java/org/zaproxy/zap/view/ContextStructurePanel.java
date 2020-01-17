@@ -62,7 +62,7 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
      * @param contextId the context index that will be used to create the name of the panel
      * @return the name of the panel "Include in context" for the given context index
      * @since 2.2.0
-     * @see Context#getIndex()
+     * @see Context#getId()
      */
     public static String getPanelName(int contextId) {
         // Panel names hav to be unique, so prefix with the context id
@@ -75,10 +75,10 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
      * @param context the target context, must not be {@code null}.
      */
     public ContextStructurePanel(Context context) {
-        super(context.getIndex());
+        super(context.getId());
 
         this.setLayout(new CardLayout());
-        this.setName(getPanelName(this.getContextIndex()));
+        this.setName(getPanelName(this.getContextId()));
         this.add(getPanel(), getPanel().getName());
     }
 
@@ -282,7 +282,7 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 
     @Override
     public void saveContextData(Session session) throws Exception {
-        Context context = session.getContext(getContextIndex());
+        Context context = session.getContext(getContextId());
         saveToContext(context, true);
     }
 

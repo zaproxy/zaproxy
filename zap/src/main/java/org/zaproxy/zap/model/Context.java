@@ -69,7 +69,7 @@ public class Context {
     private static Logger log = Logger.getLogger(Context.class);
 
     private Session session;
-    private int index;
+    private int id;
     private String name;
     private String description = "";
 
@@ -93,12 +93,12 @@ public class Context {
     private ParameterParser urlParamParser = new StandardParameterParser();
     private ParameterParser postParamParser = new StandardParameterParser();
 
-    public Context(Session session, int index) {
+    public Context(Session session, int id) {
         this.session = session;
-        this.index = index;
-        this.name = String.valueOf(index);
-        this.sessionManagementMethod = new CookieBasedSessionManagementMethod(index);
-        this.authenticationMethod = new ManualAuthenticationMethod(index);
+        this.id = id;
+        this.name = String.valueOf(id);
+        this.sessionManagementMethod = new CookieBasedSessionManagementMethod(id);
+        this.authenticationMethod = new ManualAuthenticationMethod(id);
         this.authorizationDetectionMethod =
                 new BasicAuthorizationDetectionMethod(null, null, null, LogicalOperator.AND);
         this.urlParamParser.setContext(this);
@@ -365,7 +365,7 @@ public class Context {
      */
     public void setIncludeInContextRegexs(List<String> includeRegexs) {
         validateRegexs(includeRegexs);
-        // Check if theyve been changed
+        // Check if they've been changed
         if (includeInRegexs.size() == includeRegexs.size()) {
             boolean changed = false;
             for (int i = 0; i < includeInRegexs.size(); i++) {
@@ -418,7 +418,7 @@ public class Context {
      */
     public void setExcludeFromContextRegexs(List<String> excludeRegexs) {
         validateRegexs(excludeRegexs);
-        // Check if theyve been changed
+        // Check if they've been changed
         if (excludeFromRegexs.size() == excludeRegexs.size()) {
             boolean changed = false;
             for (int i = 0; i < excludeFromRegexs.size(); i++) {
@@ -496,8 +496,23 @@ public class Context {
         this.description = description;
     }
 
+    /**
+     * Returns the ID of the {@code Context}
+     *
+     * @deprecated (2.9.0) Use {@link #getId()} instead.
+     */
+    @Deprecated
     public int getIndex() {
-        return this.index;
+        return getId();
+    }
+
+    /**
+     * Returns the ID of the {@code Context}
+     *
+     * @since 2.9.0
+     */
+    public int getId() {
+        return this.id;
     }
 
     public boolean isInScope() {
@@ -626,7 +641,7 @@ public class Context {
                     // Have to go to the db as POST data can be used in the name
                     sn2 = sitesTree.findNode(href.getHttpMessage());
                 } else {
-                    // This is better as it doesnt require a db read
+                    // This is better as it doesn't require a db read
                     sn2 = sitesTree.findNode(href.getURI());
                 }
 
@@ -645,7 +660,7 @@ public class Context {
                         return true;
                     }
                 }
-                // log.debug("Didnt need to move " + sn.getHierarchicNodeName());	// Useful for
+                // log.debug("Didn't need to move " + sn.getHierarchicNodeName());	// Useful for
                 // debugging
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
@@ -740,7 +755,7 @@ public class Context {
      * @return the context
      */
     public Context duplicate() {
-        Context newContext = new Context(session, getIndex());
+        Context newContext = new Context(session, getId());
         newContext.description = this.description;
         newContext.name = this.name;
         newContext.includeInRegexs = new ArrayList<>(this.includeInRegexs);
@@ -762,7 +777,7 @@ public class Context {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + index;
+        result = prime * result + id;
         return result;
     }
 
@@ -772,7 +787,7 @@ public class Context {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         Context other = (Context) obj;
-        if (index != other.index) return false;
+        if (id != other.id) return false;
         return true;
     }
 }

@@ -41,6 +41,7 @@
 // ZAP: 2017/12/29 Rely on HostProcess to validate the redirections.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/07/26 Remove null check in sendAndReceive(HttpMessage). (LGTM Issue)
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -312,7 +313,7 @@ public class Analyser {
      *
      * @param node the node used to construct the random path
      * @param uri The uri of the current entity.
-     * @return A random path (eg /folder1/folder2/1234567.chm) relative the entity.
+     * @return A random path (e.g. /folder1/folder2/1234567.chm) relative the entity.
      * @throws URIException if unable to decode the path of the given URI
      */
     private String getRandomPathSuffix(StructuralNode node, URI uri) throws URIException {
@@ -516,11 +517,7 @@ public class Analyser {
 
         httpSender.sendAndReceive(msg, parent.getRedirectRequestConfig());
         requestCount++;
-
-        // ZAP: Notify parent
-        if (parent != null) {
-            parent.notifyNewMessage(msg);
-        }
+        parent.notifyNewMessage(msg);
     }
 
     public int getDelayInMs() {

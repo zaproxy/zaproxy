@@ -96,7 +96,7 @@ public class BreakpointsPanel extends AbstractPanel {
             GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 
             // Better without this?
-            // jLabel.setText("Break Points:");
+            // jLabel.setText("Breakpoints:");
             gridBagConstraints1.gridx = 0;
             gridBagConstraints1.gridy = 0;
             gridBagConstraints1.insets = new java.awt.Insets(2, 2, 2, 2);

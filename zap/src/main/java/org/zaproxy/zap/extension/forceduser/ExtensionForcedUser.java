@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.forceduser;
 
 import java.awt.event.ActionEvent;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -282,21 +280,12 @@ public class ExtensionForcedUser extends ExtensionAdaptor
 
     @Override
     public AbstractContextPropertiesPanel getContextPanel(Context context) {
-        ContextForcedUserPanel panel = this.contextPanelsMap.get(context.getIndex());
+        ContextForcedUserPanel panel = this.contextPanelsMap.get(context.getId());
         if (panel == null) {
-            panel = new ContextForcedUserPanel(this, context.getIndex());
-            this.contextPanelsMap.put(context.getIndex(), panel);
+            panel = new ContextForcedUserPanel(this, context.getId());
+            this.contextPanelsMap.put(context.getId(), panel);
         }
         return panel;
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override
@@ -323,8 +312,8 @@ public class ExtensionForcedUser extends ExtensionAdaptor
 
     @Override
     public void discardContext(Context ctx) {
-        this.contextForcedUsersMap.remove(ctx.getIndex());
-        this.contextPanelsMap.remove(ctx.getIndex());
+        this.contextForcedUsersMap.remove(ctx.getId());
+        this.contextPanelsMap.remove(ctx.getId());
         // Make sure the status of the toggle button is properly updated when changing the session
         updateForcedUserModeToggleButtonState();
     }
@@ -338,7 +327,6 @@ public class ExtensionForcedUser extends ExtensionAdaptor
     @Override
     public void onHttpRequestSend(HttpMessage msg, int initiator, HttpSender sender) {
         if (!forcedUserModeEnabled
-                || msg.getResponseBody() == null
                 || msg.getRequestHeader().isImage()
                 || (initiator == HttpSender.AUTHENTICATION_INITIATOR
                         || initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR)) {
@@ -355,8 +343,8 @@ public class ExtensionForcedUser extends ExtensionAdaptor
         for (Context context : contexts) {
             if (context.isInContext(msg.getRequestHeader().getURI().toString())) {
                 // Is there enough info
-                if (contextForcedUsersMap.containsKey(context.getIndex())) {
-                    requestingUser = contextForcedUsersMap.get(context.getIndex());
+                if (contextForcedUsersMap.containsKey(context.getId())) {
+                    requestingUser = contextForcedUsersMap.get(context.getId());
                     break;
                 }
             }
@@ -385,10 +373,10 @@ public class ExtensionForcedUser extends ExtensionAdaptor
             // Load the forced user id for this context
             List<String> forcedUserS =
                     session.getContextDataStrings(
-                            context.getIndex(), RecordContext.TYPE_FORCED_USER_ID);
+                            context.getId(), RecordContext.TYPE_FORCED_USER_ID);
             if (forcedUserS != null && forcedUserS.size() > 0) {
                 int forcedUserId = Integer.parseInt(forcedUserS.get(0));
-                setForcedUser(context.getIndex(), forcedUserId);
+                setForcedUser(context.getId(), forcedUserId);
             }
         } catch (Exception e) {
             log.error("Unable to load forced user.", e);
@@ -399,17 +387,16 @@ public class ExtensionForcedUser extends ExtensionAdaptor
     public void persistContextData(Session session, Context context) {
         try {
             // Save only if we have anything to save
-            if (getForcedUser(context.getIndex()) != null) {
+            if (getForcedUser(context.getId()) != null) {
                 session.setContextData(
-                        context.getIndex(),
+                        context.getId(),
                         RecordContext.TYPE_FORCED_USER_ID,
-                        Integer.toString(getForcedUser(context.getIndex()).getId()));
+                        Integer.toString(getForcedUser(context.getId()).getId()));
                 // Note: Do not persist whether the 'Forced User Mode' is enabled as there's no need
                 // for this and the mode can be easily enabled/disabled directly
             } else {
                 // If we don't have a forced user, force deletion of any previous values
-                session.clearContextDataForType(
-                        context.getIndex(), RecordContext.TYPE_FORCED_USER_ID);
+                session.clearContextDataForType(context.getId(), RecordContext.TYPE_FORCED_USER_ID);
             }
         } catch (Exception e) {
             log.error("Unable to persist forced user.", e);
@@ -418,7 +405,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor
 
     @Override
     public void exportContextData(Context ctx, Configuration config) {
-        User user = getForcedUser(ctx.getIndex());
+        User user = getForcedUser(ctx.getId());
         if (user != null) {
             config.setProperty("context.forceduser", user.getId());
         } else {
@@ -430,7 +417,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor
     public void importContextData(Context ctx, Configuration config) {
         int id = config.getInt("context.forceduser");
         if (id >= 0) {
-            this.setForcedUser(ctx.getIndex(), id);
+            this.setForcedUser(ctx.getId(), id);
         }
     }
 

@@ -60,7 +60,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
     private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(getPanelName(getContextIndex()));
+        this.setName(getPanelName(getContextId()));
         this.setLayout(new GridBagLayout());
 
         this.add(
@@ -69,7 +69,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
         usersTableModel = new UsersTableModel();
         usersOptionsPanel =
-                new UsersMultipleOptionsPanel(this.extension, usersTableModel, getContextIndex());
+                new UsersMultipleOptionsPanel(this.extension, usersTableModel, getContextId());
         this.add(usersOptionsPanel, LayoutHelper.getGBC(0, 1, 1, 1.0d, 1.0d));
     }
 

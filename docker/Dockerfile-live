@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	xterm \
 	net-tools \
 	python-pip \
+	python3-pip \
 	firefox \
 	vim \
 	xvfb \
@@ -27,6 +28,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*  && \
 	pip install --upgrade pip zapcli python-owasp-zap-v2.4 && \
+	pip3 install --upgrade pip zapcli python-owasp-zap-v2.4 && \
 	useradd -d /home/zap -m -s /bin/bash zap && \
 	echo zap:zap | chpasswd && \
 	mkdir /zap  && \
@@ -46,21 +48,12 @@ RUN mkdir /home/zap/.vnc
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
-# Pull the ZAP repos
+# Pull the ZAP repo
 RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
-	git clone --depth 1 https://github.com/zaproxy/zap-extensions.git && \
-	git clone --depth 1 https://github.com/zaproxy/zap-core-help.git && \
-	git clone --depth 1 https://github.com/zaproxy/zap-hud.git && \
-	# Build ZAP
-	cd zap-extensions && \
-	./gradlew copyWeeklyAddOns && \
-	cd ../zap-hud/ && \
-	./gradlew copyZapAddOn && \
-	cd ../zap-core-help/ && \
-	./gradlew copyWeeklyAddOns && \
-	cd ../zaproxy && \
-	ant -f build/build.xml day-stamped-release && \
-	cp -R /zap-src/zaproxy/build/zap/* /zap/ && \
+	# Build ZAP with weekly add-ons
+	cd zaproxy && \
+	ZAP_WEEKLY_ADDONS_NO_TEST=true ./gradlew :zap:prepareDistWeekly && \
+	cp -R /zap-src/zaproxy/zap/build/distFilesWeekly/* /zap/ && \
 	rm -rf /zap-src/* && \
 	cd /zap/ && \
 	# Setup Webswing
@@ -78,7 +71,7 @@ ENV ZAP_PATH /zap/zap.sh
 ENV ZAP_PORT 8080
 ENV HOME /home/zap/
 
-COPY zap* /zap/
+COPY zap* CHANGELOG.md /zap/
 COPY webswing.config /zap/webswing/
 COPY policies /home/zap/.ZAP_D/policies/
 COPY scripts /home/zap/.ZAP_D/scripts/
@@ -87,9 +80,7 @@ COPY .xinitrc /home/zap/
 #Copy doesn't respect USER directives so we need to chown and to do that we need to be root
 USER root
 
-RUN chown zap:zap /zap/zap-x.sh && \
-	chown zap:zap /zap/zap-baseline.py && \
-	chown zap:zap /zap/zap-webswing.sh && \
+RUN chown zap:zap /zap/* && \
 	chown zap:zap /zap/webswing/webswing.config && \
 	chown zap:zap -R /home/zap/.ZAP_D/ && \
 	chown zap:zap /home/zap/.xinitrc && \

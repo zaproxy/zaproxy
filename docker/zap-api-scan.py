@@ -70,7 +70,7 @@ config_msg = {}
 out_of_scope_dict = {}
 min_level = 0
 
-# Scan rules that aren't really relevant, eg the examples rules in the alpha set
+# Scan rules that aren't really relevant, e.g. the examples rules in the alpha set
 blacklist = ['-1', '50003', '60000', '60001']
 
 # Scan rules that are being addressed
@@ -83,7 +83,7 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 def usage():
     print('Usage: zap-api-scan.py -t <target> -f <format> [options]')
-    print('    -t target         target API definition, OpenAPI or SOAP, local file or URL, eg https://www.example.com/openapi.json')
+    print('    -t target         target API definition, OpenAPI or SOAP, local file or URL, e.g. https://www.example.com/openapi.json')
     print('    -f format         either openapi or soap')
     print('Options:')
     print('    -h                print this help message')
@@ -492,19 +492,19 @@ def main(argv):
                         print('SKIP: ' + rule.get('name') + ' [' + plugin_id + ']')
 
             # print out the ignored rules
-            ignore_count, not_used = print_rules(alert_dict, 'IGNORE', config_dict, config_msg, min_level,
+            ignore_count, not_used = print_rules(zap, alert_dict, 'IGNORE', config_dict, config_msg, min_level,
                 inc_ignore_rules, True, detailed_output, {})
 
             # print out the info rules
-            info_count, not_used = print_rules(alert_dict, 'INFO', config_dict, config_msg, min_level,
+            info_count, not_used = print_rules(zap, alert_dict, 'INFO', config_dict, config_msg, min_level,
                 inc_info_rules, info_unspecified, detailed_output, in_progress_issues)
 
             # print out the warning rules
-            warn_count, warn_inprog_count = print_rules(alert_dict, 'WARN', config_dict, config_msg, min_level,
+            warn_count, warn_inprog_count = print_rules(zap, alert_dict, 'WARN', config_dict, config_msg, min_level,
                 inc_warn_rules, not info_unspecified, detailed_output, in_progress_issues)
 
             # print out the failing rules
-            fail_count, fail_inprog_count = print_rules(alert_dict, 'FAIL', config_dict, config_msg, min_level,
+            fail_count, fail_inprog_count = print_rules(zap, alert_dict, 'FAIL', config_dict, config_msg, min_level,
                 inc_fail_rules, True, detailed_output, in_progress_issues)
 
             if report_html:

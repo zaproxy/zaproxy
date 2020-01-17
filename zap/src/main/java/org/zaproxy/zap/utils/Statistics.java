@@ -29,35 +29,19 @@ public class Statistics {
     private Map<String, Long> stats = new HashMap<String, Long>();
 
     public void incCounter(String key) {
-        long value = 1;
-        if (stats.containsKey(key)) {
-            value = stats.get(key);
-        }
-        stats.put(key, value + 1);
+        incCounter(key, 1);
     }
 
     public void incCounter(String key, long inc) {
-        long value = 1;
-        if (stats.containsKey(key)) {
-            value = stats.get(key);
-        }
-        stats.put(key, value + inc);
+        stats.compute(key, (k, v) -> (v != null ? v : 0) + inc);
     }
 
     public void decCounter(String key) {
-        long value = 1;
-        if (stats.containsKey(key)) {
-            value = stats.get(key);
-        }
-        stats.put(key, value - 1);
+        decCounter(key, 1);
     }
 
     public void decCounter(String key, long dec) {
-        long value = 1;
-        if (stats.containsKey(key)) {
-            value = stats.get(key);
-        }
-        stats.put(key, value - dec);
+        stats.compute(key, (k, v) -> (v != null ? v : 0) - dec);
     }
 
     public void setHighwaterMark(String key, long value) {

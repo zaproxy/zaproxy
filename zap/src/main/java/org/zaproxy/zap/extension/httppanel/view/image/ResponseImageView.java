@@ -141,7 +141,7 @@ public class ResponseImageView implements HttpPanelView, HttpPanelViewModelListe
         if (aMessage instanceof HttpMessage) {
             HttpMessage httpMessage = (HttpMessage) aMessage;
 
-            if (httpMessage.getResponseBody() == null) {
+            if (httpMessage.getResponseBody().length() == 0) {
                 return false;
             }
 

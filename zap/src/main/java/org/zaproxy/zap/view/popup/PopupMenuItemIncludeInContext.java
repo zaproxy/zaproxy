@@ -77,7 +77,7 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
         }
 
         Context uiSharedContext =
-                View.getSingleton().getSessionDialog().getUISharedContext(context.getIndex());
+                View.getSingleton().getSessionDialog().getUISharedContext(context.getId());
         uiSharedContext.addIncludeInContextRegex(url);
     }
 
@@ -94,7 +94,7 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
         // Show the session dialog without recreating UI Shared contexts
         View.getSingleton()
                 .showSessionDialog(
-                        session, ContextIncludePanel.getPanelName(context.getIndex()), false);
+                        session, ContextIncludePanel.getPanelName(context.getId()), false);
     }
 
     private void recreateUISharedContexts(Session session) {

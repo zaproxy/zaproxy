@@ -62,6 +62,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
     private final Property<Boolean> cloneRepositories;
     private final Property<Boolean> updateRepositories;
     private final Property<Boolean> quiet;
+    private final Property<Boolean> clean;
     private NamedDomainObjectContainer<Task> tasks;
 
     public GradleBuildWithGitRepos() {
@@ -71,6 +72,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
         this.cloneRepositories = objects.property(Boolean.class).value(true);
         this.updateRepositories = objects.property(Boolean.class).value(true);
         this.quiet = objects.property(Boolean.class).value(true);
+        this.clean = objects.property(Boolean.class).value(false);
         this.tasks = getProject().container(Task.class, name -> new Task(name, getProject()));
     }
 
@@ -97,6 +99,11 @@ public class GradleBuildWithGitRepos extends DefaultTask {
     @Console
     public Property<Boolean> getQuiet() {
         return quiet;
+    }
+
+    @Input
+    public Property<Boolean> getClean() {
+        return clean;
     }
 
     @Nested
@@ -167,19 +174,22 @@ public class GradleBuildWithGitRepos extends DefaultTask {
                 }
             }
 
-            if (repoData.getProjects() == null || repoData.getProjects().isEmpty()) {
-                runTasks(repoDir, Arrays.asList(""));
-            } else {
-                runTasks(repoDir, repoData.getProjects());
+            List<String> projects =
+                    repoData.getProjects() == null || repoData.getProjects().isEmpty()
+                            ? Arrays.asList("")
+                            : repoData.getProjects();
+            if (clean.get()) {
+                // Execute clean separately to avoid Gradle issue:
+                // https://github.com/gradle/gradle/issues/2488
+                getLogger().lifecycle("Running clean task for {}", repoDir.getFileName());
+                runGradle(repoDir, Arrays.asList("clean"));
             }
+            runTasks(repoDir, projects);
         }
     }
 
     private void runTasks(Path repoDir, List<String> projects) {
         List<String> execArgs = new ArrayList<>();
-        if (quiet.get()) {
-            execArgs.add("-q");
-        }
         for (String project : projects) {
             String taskPrefix = project + ":";
             for (Task task : tasks) {
@@ -188,6 +198,15 @@ public class GradleBuildWithGitRepos extends DefaultTask {
             }
         }
         getLogger().lifecycle("Running tasks for {}", repoDir.getFileName());
+        runGradle(repoDir, execArgs);
+    }
+
+    private void runGradle(Path repoDir, List<String> args) {
+        List<String> execArgs = new ArrayList<>();
+        if (quiet.get()) {
+            execArgs.add("-q");
+        }
+        execArgs.addAll(args);
         getProject()
                 .exec(
                         spec -> {

@@ -19,15 +19,15 @@
  */
 package org.parosproxy.paros.network;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.junit.Assert.assertThat;
 
 import java.util.TreeSet;
 import org.apache.commons.httpclient.URI;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HttpRequestHeader}. */
 public class HttpRequestHeaderUnitTest {
@@ -108,7 +108,7 @@ public class HttpRequestHeaderUnitTest {
         header.setCookieParams(cookies);
         // Then
         assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("c1=v1")));
-        assertThat(header.getHeaders(HttpHeader.COOKIE), hasSize(1));
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
     }
 
     @Test
@@ -121,7 +121,7 @@ public class HttpRequestHeaderUnitTest {
         header.setCookieParams(cookies);
         // Then
         assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("v3; c1=v1; c2=v2")));
-        assertThat(header.getHeaders(HttpHeader.COOKIE), hasSize(1));
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
     }
 
     @Test
@@ -133,7 +133,7 @@ public class HttpRequestHeaderUnitTest {
         header.setCookieParams(cookies);
         // Then
         assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("v1")));
-        assertThat(header.getHeaders(HttpHeader.COOKIE), hasSize(1));
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
     }
 
     @Test
@@ -144,7 +144,7 @@ public class HttpRequestHeaderUnitTest {
         // When
         header.setCookieParams(cookies);
         // Then
-        assertThat(header.getHeaders(HttpHeader.COOKIE), is(nullValue()));
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE), is(empty()));
     }
 
     @Test
@@ -155,19 +155,19 @@ public class HttpRequestHeaderUnitTest {
         // When
         header.setCookieParams(noCookies);
         // Then
-        assertThat(header.getHeaders(HttpHeader.COOKIE), is(nullValue()));
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE), is(empty()));
     }
 
     @Test
     public void shouldRemoveCookieHeadersWhenSettingNoCookieTypeParams() {
         // Given
         HttpRequestHeader header = createRequestHeaderWithCookies();
-        TreeSet<HtmlParameter> paramsWithouCookies =
+        TreeSet<HtmlParameter> paramsWithoutCookies =
                 parameters(urlParam("p1", "v1"), formParam("p2", "v2"));
         // When
-        header.setCookieParams(paramsWithouCookies);
+        header.setCookieParams(paramsWithoutCookies);
         // Then
-        assertThat(header.getHeaders(HttpHeader.COOKIE), is(nullValue()));
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE), is(empty()));
     }
 
     @Test
@@ -180,7 +180,7 @@ public class HttpRequestHeaderUnitTest {
         header.setCookieParams(cookies);
         // Then
         assertThat(header.getHeader(HttpHeader.COOKIE), is(equalTo("v3; c1=v1; c2=v2")));
-        assertThat(header.getHeaders(HttpHeader.COOKIE), hasSize(1));
+        assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
     }
 
     private static HtmlParameter urlParam(String name, String value) {

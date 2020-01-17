@@ -46,6 +46,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -99,6 +100,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             CONTEXT_CONFIG_AUTH_FORM + ".loginurl";
     private static final String CONTEXT_CONFIG_AUTH_FORM_LOGINBODY =
             CONTEXT_CONFIG_AUTH_FORM + ".loginbody";
+    private static final String CONTEXT_CONFIG_AUTH_FORM_LOGINPAGEURL =
+            CONTEXT_CONFIG_AUTH_FORM + ".loginpageurl";
 
     private static final String POST_DATA_LABEL =
             Constant.messages.getString("authentication.method.pb.field.label.postData");
@@ -110,6 +113,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             Constant.messages.getString("authentication.method.pb.field.label.passwordParam");
     private static final String LOGIN_URL_LABEL =
             Constant.messages.getString("authentication.method.pb.field.label.loginUrl");
+    private static final String LOGIN_PAGE_URL_LABEL =
+            Constant.messages.getString("authentication.method.pb.field.label.loginPageUrl");
     private static final String AUTH_DESCRIPTION =
             Constant.messages.getString("authentication.method.pb.field.label.description");
 
@@ -163,7 +168,19 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         private HttpSender httpSender;
         private SiteNode markedLoginSiteNode;
         private SiteNode loginSiteNode = null;
+        /** The URL to which credentials are submitted. */
         private String loginRequestURL;
+        /**
+         * The URI of the login page(form). When automatically (re)authenticating, {@code ZAP} may
+         * need to submit fresh cookie or(and) ACSRF token. {@code ZAP} gets those fresh values by
+         * re-requesting the login page. For some web applications URI to get the login page and URI
+         * to submit the login credentials({@code #loginRequestURL}) are different. Thus this
+         * variable is maintained.
+         *
+         * <p>Initially(by default), this is equal to the value of {@code #loginRequestURL}.
+         */
+        private String loginPageUrl;
+
         private String loginRequestBody;
 
         private ExtensionAntiCSRF extAntiCsrf;
@@ -189,6 +206,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 this.loginRequestBody = authenticationMethod.loginRequestBody;
                 this.loginSiteNode = authenticationMethod.loginSiteNode;
                 this.markedLoginSiteNode = authenticationMethod.markedLoginSiteNode;
+                this.loginPageUrl = authenticationMethod.loginPageUrl;
             }
         }
 
@@ -308,7 +326,9 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 if (user.getAuthenticatedSession() == null)
                     user.setAuthenticatedSession(sessionManagementMethod.createEmptyWebSession());
 
-                HttpMessage loginMsgToRenewCookie = new HttpMessage(new URI(loginRequestURL, true));
+                String requestUri =
+                        StringUtils.isBlank(loginPageUrl) ? loginRequestURL : loginPageUrl;
+                HttpMessage loginMsgToRenewCookie = new HttpMessage(new URI(requestUri, true));
                 loginMsgToRenewCookie.setRequestingUser(user);
                 getHttpSender().sendAndReceive(loginMsgToRenewCookie);
                 AuthenticationHelper.addAuthMessageToHistory(loginMsgToRenewCookie);
@@ -400,11 +420,24 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             Map<String, String> parameters = extractParametersFromPostData(postRequestBody);
             if (parameters != null) {
                 String oldAcsrfTokenValue = null;
-                String replacedPostData = null;
+                String replacedPostData = postRequestBody;
                 for (AntiCsrfToken antiCsrfToken : freshAcsrfTokens) {
                     oldAcsrfTokenValue = parameters.get(antiCsrfToken.getName());
+                    if (oldAcsrfTokenValue == null) {
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug(
+                                    "ACSRF token "
+                                            + antiCsrfToken.getName()
+                                            + " not found in the POST data: "
+                                            + postRequestBody);
+                        }
+                        continue;
+                    }
+
                     replacedPostData =
-                            postRequestBody.replace(oldAcsrfTokenValue, antiCsrfToken.getValue());
+                            replacedPostData.replace(
+                                    oldAcsrfTokenValue,
+                                    paramEncoder.apply(antiCsrfToken.getValue()));
 
                     if (LOGGER.isDebugEnabled()) {
                         LOGGER.debug(
@@ -522,6 +555,21 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             }
         }
 
+        protected void setLoginPageUrl(String loginPageUrl) {
+            this.loginPageUrl = loginPageUrl;
+        }
+
+        protected void setLoginPageUrl(SiteNode loginFormSiteNode)
+                throws HttpMalformedHeaderException, DatabaseException {
+            this.loginPageUrl =
+                    loginFormSiteNode
+                            .getHistoryReference()
+                            .getHttpMessage()
+                            .getRequestHeader()
+                            .getURI()
+                            .toString();
+        }
+
         @Override
         public String toString() {
             return getClass().getSimpleName() + " [loginURI=" + loginRequestURL + "]";
@@ -542,6 +590,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             Map<String, String> values = new HashMap<>();
             values.put("methodName", apiMethodName);
             values.put("loginUrl", loginRequestURL);
+            values.put("loginPageUrl", loginPageUrl);
             values.put("loginRequestData", this.loginRequestBody);
             return new AuthMethodApiResponseRepresentation<>(values);
         }
@@ -553,6 +602,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             result =
                     prime * result + ((loginRequestBody == null) ? 0 : loginRequestBody.hashCode());
             result = prime * result + ((loginRequestURL == null) ? 0 : loginRequestURL.hashCode());
+            result = prime * result + ((loginPageUrl == null) ? 0 : loginPageUrl.hashCode());
             return result;
         }
 
@@ -568,6 +618,9 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             if (loginRequestURL == null) {
                 if (other.loginRequestURL != null) return false;
             } else if (!loginRequestURL.equals(other.loginRequestURL)) return false;
+            if (loginPageUrl == null) {
+                if (other.loginPageUrl != null) return false;
+            } else if (!loginPageUrl.equals(other.loginPageUrl)) return false;
             return true;
         }
     }
@@ -618,7 +671,20 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
         private static final long serialVersionUID = 1L;
 
+        /** The URI to which the login credentials are submitted. */
         private ZapTextField loginUrlField;
+        /**
+         * The URI to {@code GET} the login page(form). When automatically (re)authenticating,
+         * {@code ZAP} may need fresh cookie or(and) ACSRF token value. {@code ZAP} gets those fresh
+         * values from the fresh login page. For some web applications URI to get the login page and
+         * URI to submit login credentials({@code #loginUrlField}) are different. So this field is
+         * maintained to allow the pen-tester to provide the login form URI.
+         *
+         * <p>Initially(by default), this is equal to the value of {@code #loginUrlField}. {@code
+         * ZAP} expects the pen-tester to change this value if both URIs are different.
+         */
+        private ZapTextField loginPageUrlField;
+
         private ZapTextField postDataField;
         private JComboBox<NameValuePair> usernameParameterCombo;
         private JComboBox<NameValuePair> passwordParameterCombo;
@@ -646,11 +712,18 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             JPanel urlSelectPanel = new JPanel(new GridBagLayout());
 
             this.loginUrlField = new ZapTextField();
+            this.loginPageUrlField = new ZapTextField();
             this.postDataField = new ZapTextField();
 
             JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
             selectButton.setIcon(
                     new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe
+
+            JButton loginPageUrlSelectButton =
+                    new JButton(Constant.messages.getString("all.button.select"));
+            loginPageUrlSelectButton.setIcon(
+                    new ImageIcon(
+                            View.class.getResource("/resource/icon/16/094.png"))); // Globe Icon
 
             // Add behaviour for Node Select dialog
             selectButton.addActionListener(
@@ -711,6 +784,9 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                                     .getRequestBody()
                                                     .toString());
                                     updateParameters();
+                                    if (StringUtils.isBlank(loginPageUrlField.getText())) {
+                                        loginPageUrlField.setText(loginUrlField.getText());
+                                    }
                                 } catch (Exception e1) {
                                     LOGGER.error(e1.getMessage(), e1);
                                 }
@@ -718,8 +794,56 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                         }
                     });
 
+            loginPageUrlSelectButton.addActionListener(
+                    e -> {
+                        NodeSelectDialog nsd =
+                                new NodeSelectDialog(View.getSingleton().getMainFrame());
+                        // Try to pre-select the node according to what has been inserted in the
+                        // fields
+                        SiteNode node = null;
+                        if (!StringUtils.isBlank(loginPageUrlField.getText())) {
+                            try {
+                                node =
+                                        Model.getSingleton()
+                                                .getSession()
+                                                .getSiteTree()
+                                                .findNode(
+                                                        new URI(
+                                                                loginPageUrlField.getText(),
+                                                                false));
+                            } catch (Exception e1) {
+                                // Ignore. It means we could not properly get a node for the
+                                // existing
+                                // value and does not have any harmful effects
+                            }
+                        }
+
+                        // Show the dialog and wait for input
+                        node = nsd.showDialog(node);
+                        if (node != null && node.getHistoryReference() != null) {
+                            try {
+                                if (LOGGER.isInfoEnabled()) {
+                                    LOGGER.info(
+                                            "Selected URL of the login page via dialog: "
+                                                    + node.getHistoryReference()
+                                                            .getURI()
+                                                            .toString());
+                                }
+
+                                loginPageUrlField.setText(
+                                        node.getHistoryReference().getURI().toString());
+                            } catch (Exception e1) {
+                                LOGGER.error(e1.getMessage(), e1);
+                            }
+                        }
+                    });
+
             urlSelectPanel.add(this.loginUrlField, LayoutHelper.getGBC(0, 0, 1, 1.0D));
             urlSelectPanel.add(selectButton, LayoutHelper.getGBC(1, 0, 1, 0.0D));
+            urlSelectPanel.add(
+                    new JLabel(LOGIN_PAGE_URL_LABEL), LayoutHelper.getGBC(0, 1, 2, 1.0d, 0.0d));
+            urlSelectPanel.add(this.loginPageUrlField, LayoutHelper.getGBC(0, 2, 1, 1.0D));
+            urlSelectPanel.add(loginPageUrlSelectButton, LayoutHelper.getGBC(1, 2, 1, 0.0D));
             this.add(urlSelectPanel, LayoutHelper.getGBC(0, 1, 2, 1.0d, 0.0d));
 
             this.add(
@@ -801,7 +925,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
                     ExtensionUserManagement userExt = getUserExt();
                     if (userExt != null
-                            && userExt.getUIConfiguredUsers(context.getIndex()).size() == 0) {
+                            && userExt.getUIConfiguredUsers(context.getId()).size() == 0) {
                         String username = userParam.getValue();
                         String password = passwdParam.getValue();
                         if (!username.isEmpty()
@@ -813,13 +937,13 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                             String userStr = paramDecoder.apply(username);
                             String passwdStr = paramDecoder.apply(password);
                             if (!userStr.isEmpty() && !passwdStr.isEmpty()) {
-                                User user = new User(context.getIndex(), userStr);
+                                User user = new User(context.getId(), userStr);
                                 UsernamePasswordAuthenticationCredentials upac =
                                         new UsernamePasswordAuthenticationCredentials(
                                                 userStr, passwdStr);
                                 user.setAuthenticationCredentials(upac);
                                 getUserExt()
-                                        .getContextUserAuthManager(context.getIndex())
+                                        .getContextUserAuthManager(context.getId())
                                         .addUser(user);
                             }
                         }
@@ -837,6 +961,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                     PostBasedAuthenticationMethod.MSG_PASS_PATTERN);
                 }
                 getMethod().setLoginRequest(loginUrlField.getText(), postData);
+                getMethod().setLoginPageUrl(loginPageUrlField.getText());
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
             }
@@ -847,6 +972,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             this.authenticationMethod = (PostBasedAuthenticationMethod) method;
             this.loginUrlField.setText(authenticationMethod.loginRequestURL);
             this.postDataField.setText(authenticationMethod.loginRequestBody);
+            this.loginPageUrlField.setText(authenticationMethod.loginPageUrl);
 
             updateParameters();
         }
@@ -1022,8 +1148,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                 sessionDialog.recreateUISharedContexts(
                                         Model.getSingleton().getSession());
                                 uiSharedContext =
-                                        sessionDialog.getUISharedContext(
-                                                this.getContext().getIndex());
+                                        sessionDialog.getUISharedContext(this.getContext().getId());
 
                                 // Do the work/changes on the UI shared context
                                 if (isTypeForMethod(this.getContext().getAuthenticationMethod())) {
@@ -1031,13 +1156,14 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                             "Selected new login request via PopupMenu. Changing existing "
                                                     + methodName
                                                     + " instance for Context "
-                                                    + getContext().getIndex());
+                                                    + getContext().getId());
                                     PostBasedAuthenticationMethod method =
                                             (PostBasedAuthenticationMethod)
                                                     uiSharedContext.getAuthenticationMethod();
 
                                     try {
                                         method.setLoginRequest(sn);
+                                        initializeLoginPageUrl(sn, method);
                                     } catch (Exception e) {
                                         LOGGER.error(
                                                 "Failed to set login request: " + e.getMessage(),
@@ -1050,19 +1176,20 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                             .showSessionDialog(
                                                     Model.getSingleton().getSession(),
                                                     ContextAuthenticationPanel.buildName(
-                                                            this.getContext().getIndex()),
+                                                            this.getContext().getId()),
                                                     false);
                                 } else {
                                     LOGGER.info(
                                             "Selected new login request via PopupMenu. Creating new "
                                                     + methodName
                                                     + " instance for Context "
-                                                    + getContext().getIndex());
+                                                    + getContext().getId());
                                     PostBasedAuthenticationMethod method =
-                                            createAuthenticationMethod(getContext().getIndex());
+                                            createAuthenticationMethod(getContext().getId());
 
                                     try {
                                         method.setLoginRequest(sn);
+                                        initializeLoginPageUrl(sn, method);
                                     } catch (Exception e) {
                                         LOGGER.error(
                                                 "Failed to set login request: " + e.getMessage(),
@@ -1086,7 +1213,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                             .showSessionDialog(
                                                     Model.getSingleton().getSession(),
                                                     ContextAuthenticationPanel.buildName(
-                                                            this.getContext().getIndex()),
+                                                            this.getContext().getId()),
                                                     false,
                                                     new Runnable() {
 
@@ -1102,6 +1229,14 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                                                                                 uiSharedContext);
                                                         }
                                                     });
+                                }
+                            }
+
+                            private void initializeLoginPageUrl(
+                                    SiteNode sn, PostBasedAuthenticationMethod method)
+                                    throws HttpMalformedHeaderException, DatabaseException {
+                                if (method.loginPageUrl == null || method.loginPageUrl.isEmpty()) {
+                                    method.setLoginPageUrl(sn);
                                 }
                             }
                         };
@@ -1133,8 +1268,16 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             postData = postDatas.get(0);
         }
 
+        List<String> loginPageUrls =
+                session.getContextDataStrings(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_3);
+        String loginPageUrl = null;
+        if (loginPageUrls != null && !loginPageUrls.isEmpty()) {
+            loginPageUrl = loginPageUrls.get(0);
+        }
+
         try {
             method.setLoginRequest(url, postData);
+            method.setLoginPageUrl(loginPageUrl);
         } catch (Exception e) {
             LOGGER.error("Unable to load Post based authentication method data:", e);
         }
@@ -1156,6 +1299,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1, method.loginRequestURL);
         session.setContextData(
                 contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_2, method.loginRequestBody);
+        session.setContextData(
+                contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_3, method.loginPageUrl);
     }
 
     @Override
@@ -1176,6 +1321,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
     /* API related constants and methods. */
     private static final String PARAM_LOGIN_URL = "loginUrl";
     private static final String PARAM_LOGIN_REQUEST_DATA = "loginRequestData";
+    private static final String PARAM_LOGIN_PAGE_URL = "loginPageUrl";
 
     @Override
     public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
@@ -1183,10 +1329,10 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         String[] optionalParamNames;
         if (postDataRequired) {
             mandatoryParamNames = new String[] {PARAM_LOGIN_URL, PARAM_LOGIN_REQUEST_DATA};
-            optionalParamNames = null;
+            optionalParamNames = new String[] {PARAM_LOGIN_PAGE_URL};
         } else {
             mandatoryParamNames = new String[] {PARAM_LOGIN_URL};
-            optionalParamNames = new String[] {PARAM_LOGIN_REQUEST_DATA};
+            optionalParamNames = new String[] {PARAM_LOGIN_REQUEST_DATA, PARAM_LOGIN_PAGE_URL};
         }
         return new ApiDynamicActionImplementor(
                 apiMethodName, mandatoryParamNames, optionalParamNames) {
@@ -1199,6 +1345,13 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 if (!isValidLoginUrl(loginUrl)) {
                     throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_LOGIN_URL);
                 }
+                String loginPageUrl = ApiUtils.getOptionalStringParam(params, PARAM_LOGIN_PAGE_URL);
+                if (loginPageUrl == null || loginPageUrl.isEmpty()) {
+                    loginPageUrl = loginUrl;
+                } else if (!isValidLoginUrl(loginPageUrl)) {
+                    throw new ApiException(
+                            ApiException.Type.ILLEGAL_PARAMETER, PARAM_LOGIN_PAGE_URL);
+                }
                 String postData = "";
                 if (postDataRequired) {
                     postData = ApiUtils.getNonEmptyStringParam(params, PARAM_LOGIN_REQUEST_DATA);
@@ -1207,10 +1360,10 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 }
 
                 // Set the method
-                PostBasedAuthenticationMethod method =
-                        createAuthenticationMethod(context.getIndex());
+                PostBasedAuthenticationMethod method = createAuthenticationMethod(context.getId());
                 try {
                     method.setLoginRequest(loginUrl, postData);
+                    method.setLoginPageUrl(loginPageUrl);
                 } catch (Exception e) {
                     throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                 }
@@ -1236,6 +1389,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
         config.setProperty(CONTEXT_CONFIG_AUTH_FORM_LOGINURL, method.loginRequestURL);
         config.setProperty(CONTEXT_CONFIG_AUTH_FORM_LOGINBODY, method.loginRequestBody);
+        config.setProperty(CONTEXT_CONFIG_AUTH_FORM_LOGINPAGEURL, method.loginPageUrl);
     }
 
     @Override
@@ -1252,6 +1406,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             method.setLoginRequest(
                     config.getString(CONTEXT_CONFIG_AUTH_FORM_LOGINURL),
                     config.getString(CONTEXT_CONFIG_AUTH_FORM_LOGINBODY));
+            method.setLoginPageUrl(config.getString(CONTEXT_CONFIG_AUTH_FORM_LOGINPAGEURL));
         } catch (Exception e) {
             throw new ConfigurationException(e);
         }

@@ -20,6 +20,7 @@ System.getenv("GITHUB_REF")?.let { ref ->
 
         title.set("$targetTag")
         body.set("")
+        checksumAlgorithm.set("SHA-256")
         draft.set(true)
 
         val distDebian by tasks.existing(Deb::class)
@@ -78,7 +79,9 @@ System.getenv("GITHUB_REF")?.let { ref ->
 
         title.set("$targetTag")
         body.set("")
+        checksumAlgorithm.set("SHA-256")
         draft.set(true)
+        prerelease.set(true)
 
         assets {
             register("weekly") {

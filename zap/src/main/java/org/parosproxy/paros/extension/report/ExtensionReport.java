@@ -33,6 +33,7 @@
 // ZAP: 2017/06/21 Issue 3559: Support JSON format
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/08/15 Issue 5297: Removed unused model params.
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
@@ -86,8 +87,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
             menuItemHtmlReport.addActionListener(
                     e ->
                             new ReportLastScan()
-                                    .generateReport(
-                                            getView(), getModel(), ReportLastScan.ReportType.HTML));
+                                    .generateReport(getView(), ReportLastScan.ReportType.HTML));
         }
         return menuItemHtmlReport;
     }
@@ -98,8 +98,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
             menuItemXmlReport.addActionListener(
                     e ->
                             new ReportLastScan()
-                                    .generateReport(
-                                            getView(), getModel(), ReportLastScan.ReportType.XML));
+                                    .generateReport(getView(), ReportLastScan.ReportType.XML));
         }
         return menuItemXmlReport;
     }
@@ -110,8 +109,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
             menuItemMdReport.addActionListener(
                     e ->
                             new ReportLastScan()
-                                    .generateReport(
-                                            getView(), getModel(), ReportLastScan.ReportType.MD));
+                                    .generateReport(getView(), ReportLastScan.ReportType.MD));
         }
         return menuItemMdReport;
     }
@@ -122,8 +120,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
             menuItemJsonReport.addActionListener(
                     e ->
                             new ReportLastScan()
-                                    .generateReport(
-                                            getView(), getModel(), ReportLastScan.ReportType.JSON));
+                                    .generateReport(getView(), ReportLastScan.ReportType.JSON));
         }
         return menuItemJsonReport;
     }
@@ -137,7 +134,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
             // ZAP: Removed unnecessary cast.
             String fileName = arg.getArguments().get(0);
             try {
-                report.generate(fileName, getModel(), ReportLastScan.ReportType.HTML);
+                report.generate(fileName, ReportLastScan.ReportType.HTML);
                 CommandLine.info("Last Scan Report generated at " + fileName);
             } catch (Exception e) {
                 CommandLine.error(e.getMessage(), e);

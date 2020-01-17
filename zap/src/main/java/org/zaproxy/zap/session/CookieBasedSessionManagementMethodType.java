@@ -301,8 +301,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
             public void handleAction(JSONObject params) throws ApiException {
                 Context context =
                         ApiUtils.getContextByParamId(params, SessionManagementAPI.PARAM_CONTEXT_ID);
-                context.setSessionManagementMethod(
-                        createSessionManagementMethod(context.getIndex()));
+                context.setSessionManagementMethod(createSessionManagementMethod(context.getId()));
             }
         };
     }

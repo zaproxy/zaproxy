@@ -37,6 +37,8 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
     private static final String PSCANRULES_ALL_ELEMENTS = "pscanrules/" + PSCANRULE_ELEMENT;
     private static final String FILE_ELEMENT = "file";
     private static final String FILES_ALL_ELEMENTS = "files/" + FILE_ELEMENT;
+    private static final String LIB_ELEMENT = "lib";
+    private static final String LIBS_ALL_ELEMENTS = "libs/" + LIB_ELEMENT;
     private static final String BUNDLE_ELEMENT = "bundle";
     private static final String BUNDLE_PREFIX_ATT = "bundle/@prefix";
     private static final String HELPSET_ELEMENT = "helpset";
@@ -45,6 +47,7 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
     private List<String> ascanrules;
     private List<String> pscanrules;
     private List<String> files;
+    private List<String> libs;
 
     private String bundleBaseName;
     private String bundlePrefix;
@@ -60,6 +63,7 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
         ascanrules = getStrings(zapAddOnXml, ASCANRULES_ALL_ELEMENTS, ASCANRULE_ELEMENT);
         pscanrules = getStrings(zapAddOnXml, PSCANRULES_ALL_ELEMENTS, PSCANRULE_ELEMENT);
         files = getStrings(zapAddOnXml, FILES_ALL_ELEMENTS, FILE_ELEMENT);
+        libs = getStrings(zapAddOnXml, LIBS_ALL_ELEMENTS, LIB_ELEMENT);
 
         bundleBaseName = zapAddOnXml.getString(BUNDLE_ELEMENT, "");
         bundlePrefix = zapAddOnXml.getString(BUNDLE_PREFIX_ATT, "");
@@ -77,6 +81,16 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
 
     public List<String> getFiles() {
         return files;
+    }
+
+    /**
+     * Gets the libraries of the add-on.
+     *
+     * @return the libraries, never {@code null}.
+     * @since 2.9.0
+     */
+    public List<String> getLibs() {
+        return libs;
     }
 
     /**

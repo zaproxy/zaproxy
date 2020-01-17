@@ -73,6 +73,7 @@ public class HistoryReferencesTable extends ZapTable {
 
     private static final int MAXIMUM_ROWS_FOR_TABLE_CONFIG = 75;
 
+    private final DisplayMessageOnSelectionValueChange defaultSelectionListener;
     private int maximumRowsForTableConfig;
 
     public HistoryReferencesTable() {
@@ -106,8 +107,10 @@ public class HistoryReferencesTable extends ZapTable {
         setRowSelectionAllowed(true);
 
         if (useDefaultSelectionListener) {
-            getSelectionModel()
-                    .addListSelectionListener(new DisplayMessageOnSelectionValueChange());
+            defaultSelectionListener = new DisplayMessageOnSelectionValueChange();
+            getSelectionModel().addListSelectionListener(defaultSelectionListener);
+        } else {
+            defaultSelectionListener = null;
         }
 
         setComponentPopupMenu(new CustomPopupMenu());
@@ -128,6 +131,17 @@ public class HistoryReferencesTable extends ZapTable {
 
     protected void displayMessage(final HttpMessage msg) {
         View.getSingleton().displayMessage(msg);
+    }
+
+    /**
+     * Gets the default selection listener, responsible to display the selected message in the
+     * Request/Response tabs.
+     *
+     * @return the default selection listener, or {@code null} if not in use.
+     * @since 2.9.0
+     */
+    protected DisplayMessageOnSelectionValueChange getDefaultSelectionListener() {
+        return defaultSelectionListener;
     }
 
     public HistoryReference getSelectedHistoryReference() {
@@ -228,23 +242,42 @@ public class HistoryReferencesTable extends ZapTable {
 
     protected class DisplayMessageOnSelectionValueChange implements ListSelectionListener {
 
+        private boolean enabled;
+
+        public DisplayMessageOnSelectionValueChange() {
+            enabled = true;
+        }
+
+        /**
+         * Sets whether or not the selected message should be displayed.
+         *
+         * @param enabled {@code true} if the selected message should be displayed, {@code false}
+         *     otherwise.
+         * @since 2.9.0
+         */
+        public void setEnabled(boolean enabled) {
+            this.enabled = enabled;
+        }
+
         @Override
         public void valueChanged(final ListSelectionEvent evt) {
-            if (!evt.getValueIsAdjusting()) {
-                HistoryReference hRef = getSelectedHistoryReference();
-                if (hRef == null) {
-                    return;
-                }
+            if (!enabled || evt.getValueIsAdjusting()) {
+                return;
+            }
 
-                boolean focusOwner = isFocusOwner();
-                try {
-                    displayMessage(hRef.getHttpMessage());
-                } catch (HttpMalformedHeaderException | DatabaseException e) {
-                    LOGGER.error(e.getMessage(), e);
-                } finally {
-                    if (focusOwner) {
-                        requestFocusInWindow();
-                    }
+            HistoryReference hRef = getSelectedHistoryReference();
+            if (hRef == null) {
+                return;
+            }
+
+            boolean focusOwner = isFocusOwner();
+            try {
+                displayMessage(hRef.getHttpMessage());
+            } catch (HttpMalformedHeaderException | DatabaseException e) {
+                LOGGER.error(e.getMessage(), e);
+            } finally {
+                if (focusOwner) {
+                    requestFocusInWindow();
                 }
             }
         }

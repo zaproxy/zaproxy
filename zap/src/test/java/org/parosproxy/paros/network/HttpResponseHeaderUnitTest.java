@@ -19,11 +19,13 @@
  */
 package org.parosproxy.paros.network;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HttpResponseHeader}. */
 public class HttpResponseHeaderUnitTest {
@@ -70,31 +72,37 @@ public class HttpResponseHeaderUnitTest {
         assertThat(header.getPrimeHeader(), is(equalTo("HTTP/1.1 100 OK")));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSetNegative3DigitStatusCode() throws Exception {
         // Given
         HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
         // When
-        header.setStatusCode(-200);
-        // Then = IllegalArgumentException
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> header.setStatusCode(-200));
+        // Then
+        assertThat(e.getMessage(), containsString("positive"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSet2DigitStatusCode() throws Exception {
         // Given
         HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
         // When
-        header.setStatusCode(99);
-        // Then = IllegalArgumentException
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> header.setStatusCode(99));
+        // Then
+        assertThat(e.getMessage(), containsString("3 digit number"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToSet4DigitStatusCode() throws Exception {
         // Given
         HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
         // When
-        header.setStatusCode(1000);
-        // Then = IllegalArgumentException
+        IllegalArgumentException e =
+                assertThrows(IllegalArgumentException.class, () -> header.setStatusCode(1000));
+        // Then
+        assertThat(e.getMessage(), containsString("3 digit number"));
     }
 
     @Test

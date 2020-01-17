@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.view;
 
-import java.util.Iterator;
 import javax.swing.event.TableModelEvent;
 import org.zaproxy.zap.utils.EnableableInterface;
 
@@ -35,10 +34,7 @@ public abstract class AbstractMultipleOptionsTableModel<E extends EnableableInte
     public void setAllEnabled(boolean enabled) {
         final int size = getElements().size();
         if (size > 0) {
-            for (Iterator<E> it = getElements().iterator(); it.hasNext(); ) {
-                it.next().setEnabled(enabled);
-            }
-
+            getElements().forEach(e -> e.setEnabled(enabled));
             fireTableColumnUpdated(0, size - 1, 0);
         }
     }

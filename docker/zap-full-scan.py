@@ -61,8 +61,8 @@ config_msg = {}
 out_of_scope_dict = {}
 min_level = 0
 
-# Scan rules that aren't really relevant, eg the examples rules in the alpha set
-blacklist = ['-1', '50003', '60000', '60001']
+# Scan rules that aren't really relevant, e.g. the examples rules in the alpha set
+blacklist = ['-1', '50003', '60000', '60001', '60100', '60101']
 
 # Scan rules that are being addressed
 in_progress_issues = {}
@@ -74,7 +74,7 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 
 def usage():
     print('Usage: zap-full-scan.py -t <target> [options]')
-    print('    -t target         target URL including the protocol, eg https://www.example.com')
+    print('    -t target         target URL including the protocol, e.g. https://www.example.com')
     print('Options:')
     print('    -h                print this help message')
     print('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
@@ -85,7 +85,7 @@ def usage():
     print('    -w report_md      file to write the full ZAP Wiki(Markdown) report')
     print('    -x report_xml     file to write the full ZAP XML report')
     print('    -J report_json    file to write the full ZAP JSON document')
-    print('    -a                include the alpha passive scan rules as well')
+    print('    -a                include the alpha active and passive scan rules as well')
     print('    -d                show debug messages')
     print('    -P                specify listen port')
     print('    -D                delay in seconds to wait for passive scanning ')
@@ -265,11 +265,12 @@ def main(argv):
             params = [
                       '-config', 'spider.maxDuration=' + str(mins),
                       '-addonupdate',
-                      '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
+                      '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
+                      '-addoninstall', 'ascanrulesBeta']
 
             if zap_alpha:
-                params.append('-addoninstall')
-                params.append('pscanrulesAlpha')
+                params.extend(['-addoninstall', 'pscanrulesAlpha'])
+                params.extend(['-addoninstall', 'ascanrulesAlpha'])
 
             add_zap_options(params, zap_options)
 
@@ -288,10 +289,12 @@ def main(argv):
         params = [
                   '-config', 'spider.maxDuration=' + str(mins),
                   '-addonupdate',
-                  '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
+                  '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
+                  '-addoninstall', 'ascanrulesBeta']
 
         if (zap_alpha):
             params.extend(['-addoninstall', 'pscanrulesAlpha'])
+            params.extend(['-addoninstall', 'ascanrulesAlpha'])
 
         add_zap_options(params, zap_options)
 
@@ -417,19 +420,19 @@ def main(argv):
                         print('SKIP: ' + rule.get('name') + ' [' + plugin_id + ']')
 
             # print out the ignored rules
-            ignore_count, not_used = print_rules(alert_dict, 'IGNORE', config_dict, config_msg, min_level,
+            ignore_count, not_used = print_rules(zap, alert_dict, 'IGNORE', config_dict, config_msg, min_level,
                 inc_ignore_rules, True, detailed_output, {})
 
             # print out the info rules
-            info_count, not_used = print_rules(alert_dict, 'INFO', config_dict, config_msg, min_level,
+            info_count, not_used = print_rules(zap, alert_dict, 'INFO', config_dict, config_msg, min_level,
                 inc_info_rules, info_unspecified, detailed_output, in_progress_issues)
 
             # print out the warning rules
-            warn_count, warn_inprog_count = print_rules(alert_dict, 'WARN', config_dict, config_msg, min_level,
+            warn_count, warn_inprog_count = print_rules(zap, alert_dict, 'WARN', config_dict, config_msg, min_level,
                 inc_warn_rules, not info_unspecified, detailed_output, in_progress_issues)
 
             # print out the failing rules
-            fail_count, fail_inprog_count = print_rules(alert_dict, 'FAIL', config_dict, config_msg, min_level,
+            fail_count, fail_inprog_count = print_rules(zap, alert_dict, 'FAIL', config_dict, config_msg, min_level,
                 inc_fail_rules, True, detailed_output, in_progress_issues)
 
             if report_html:

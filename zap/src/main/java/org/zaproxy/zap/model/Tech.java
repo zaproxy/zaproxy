@@ -44,8 +44,12 @@ public class Tech implements Comparable<Tech> {
     public static final Tech Lang = new Tech("Language", "technologies.lang");
     public static final Tech ASP = new Tech(Lang, "ASP");
     public static final Tech C = new Tech(Lang, "C");
+    public static final Tech JAVA = new Tech(Lang, "Java");
+    public static final Tech JAVASCRIPT = new Tech(Lang, "JavaScript");
     public static final Tech JSP_SERVLET = new Tech(Lang, "JSP/Servlet");
     public static final Tech PHP = new Tech(Lang, "PHP");
+    public static final Tech PYTHON = new Tech(Lang, "Python");
+    public static final Tech RUBY = new Tech(Lang, "Ruby");
     public static final Tech XML = new Tech(Lang, "XML");
 
     public static final Tech OS = new Tech("OS", "technologies.os");
@@ -80,8 +84,12 @@ public class Tech implements Comparable<Tech> {
         Lang,
         ASP,
         C,
+        JAVA,
+        JAVASCRIPT,
         JSP_SERVLET,
         PHP,
+        PYTHON,
+        RUBY,
         XML,
         OS,
         Linux,
@@ -139,10 +147,9 @@ public class Tech implements Comparable<Tech> {
 
     @Override
     public boolean equals(Object tech) {
-        if (tech == null) {
+        if (!(tech instanceof Tech)) {
             return false;
         }
-
         return this.toString().equals(tech.toString());
     }
 

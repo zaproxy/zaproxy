@@ -19,15 +19,15 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ZapXmlConfiguration}. */
 public class ZapXmlConfigurationUnitTest {

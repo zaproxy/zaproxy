@@ -26,7 +26,7 @@
 # However its more effective if you start ZAP, then proxy existing functional
 # test via ZAP before running the spider and scanner.
 # That means you might need to start ZAP in one test, run your functional tests
-# and then run the spider and scanner etc in another (sequencial) test.
+# and then run the spider and scanner, etc. in another (sequential) test.
 
 import ast
 import copy
@@ -67,7 +67,7 @@ def match_alerts (alert, pattern):
 		return False
 	return True
 
-# Returns a list of the alerts which dont match the 'ignoreAlerts' - a disctionary of regex patterns
+# Returns a list of the alerts which dont match the 'ignoreAlerts' - a dictionary of regex patterns
 def strip_alerts (alerts, ignoreAlerts):
 	stripped = []
 	for alert in alerts:

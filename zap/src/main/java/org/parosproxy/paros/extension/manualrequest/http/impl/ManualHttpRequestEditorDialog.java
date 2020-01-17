@@ -29,6 +29,7 @@
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 // ZAP: 2018/08/10 Use non-deprecated HttpRequestHeader constructor (Issue 4846).
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/10/04 Add menu icon.
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
@@ -52,6 +53,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.OptionsChangedListener;
+import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -283,6 +285,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
                     new ZapMenuItem(
                             "menu.tools.manReq",
                             View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_M, 0, false));
+            menuItem.setIcon(ExtensionManualRequestEditor.getIcon());
             menuItem.addActionListener(
                     new ActionListener() {
                         @Override
@@ -314,7 +317,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         try {
             URI uri = new URI("http://www.any_domain_name.org/path", true);
             msg.setRequestHeader(
-                    new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
+                    new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11));
             setMessage(msg);
         } catch (HttpMalformedHeaderException e) {
             logger.error(e.getMessage(), e);

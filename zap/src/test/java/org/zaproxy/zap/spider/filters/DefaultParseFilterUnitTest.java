@@ -19,18 +19,20 @@
  */
 package org.zaproxy.zap.spider.filters;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -46,12 +48,12 @@ public class DefaultParseFilterUnitTest {
 
     private ResourceBundle resourceBundle;
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         resourceBundle =
                 new ResourceBundle() {
@@ -77,42 +79,38 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    @SuppressWarnings({"deprecation", "unused"})
+    @SuppressWarnings("deprecation")
     public void shouldCreateDefaultParseFilterWithDefaultConfigsAndResourceBundleIfNoneSet() {
-        // Given / When
-        new DefaultParseFilter();
-        // Then = No exception.
+        assertDoesNotThrow(() -> new DefaultParseFilter());
     }
 
     @Test
-    @SuppressWarnings("unused")
     public void shouldCreateDefaultParseFilterWithConfigsAndResourceBundleSet() {
         // Given
         SpiderParam configs = new SpiderParam();
-        // When
-        new DefaultParseFilter(configs, resourceBundle);
-        // Then = No exception.
+        // When / Then
+        assertDoesNotThrow(() -> new DefaultParseFilter(configs, resourceBundle));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    @SuppressWarnings("unused")
+    @Test
     public void shouldFailToCreateDefaultParseFilterWithNullConfigs() {
         // Given
         SpiderParam configs = null;
-        // When
-        new DefaultParseFilter(configs, resourceBundle);
-        // Then = IllegalArgumentException.
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new DefaultParseFilter(configs, resourceBundle));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    @SuppressWarnings("unused")
+    @Test
     public void shouldFailToCreateDefaultParseFilterWithNullResourceBundle() {
         // Given
         ResourceBundle resourceBundle = null;
         SpiderParam configs = new SpiderParam();
-        // When
-        new DefaultParseFilter(configs, resourceBundle);
-        // Then = IllegalArgumentException.
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new DefaultParseFilter(configs, resourceBundle));
     }
 
     @Test
@@ -156,9 +154,8 @@ public class DefaultParseFilterUnitTest {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("http://example.com");
-        // When
-        filter.filtered(httpMessage);
-        // Then = No exception.
+        // When / Then
+        assertDoesNotThrow(() -> filter.filtered(httpMessage));
     }
 
     @Test

@@ -134,7 +134,9 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
                                     + file.getAbsolutePath());
         } finally {
             try {
-                fw.close();
+                if (fw != null) {
+                    fw.close();
+                }
             } catch (Exception e2) {
                 log.warn(e2.getStackTrace(), e2);
             }

@@ -35,6 +35,7 @@
 // ZAP: 2018/07/04 Fallback to bundled XSL files.
 // ZAP: 2018/07/09 No longer need cast on SiteMap.getRoot
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/08/15 Issue 5297: Removed unused model params.
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
@@ -84,18 +85,27 @@ public class ReportLastScan {
 
     /**
      * @deprecated generate has been deprecated in favor of using {@link #generate(String fileName,
-     *     Model model, ReportType reportType)}
+     *     ReportType reportType)}
      */
     @Deprecated
     public File generate(String fileName, Model model, String xslFile) throws Exception {
         StringBuilder sb = new StringBuilder(500);
-        this.generate(sb, model);
+        this.generate(sb);
         return ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
     }
 
+    /**
+     * @deprecated generate has been deprecated in favor of using {@link #generate(String filename,
+     *     ReportType reportType)}
+     */
+    @Deprecated
     public File generate(String fileName, Model model, ReportType reportType) throws Exception {
+        return generate(fileName, reportType);
+    }
+
+    public File generate(String fileName, ReportType reportType) throws Exception {
         StringBuilder sb = new StringBuilder(500);
-        this.generate(sb, model);
+        this.generate(sb);
         if (reportType == ReportType.JSON) {
             return ReportGenerator.stringToJson(sb.toString(), fileName);
         }
@@ -125,7 +135,16 @@ public class ReportLastScan {
         }
     }
 
+    /**
+     * @deprecated generate has been deprecated in favor of using {@link #generate(StringBuilder
+     *     report)}
+     */
+    @Deprecated
     public void generate(StringBuilder report, Model model) throws Exception {
+        generate(report);
+    }
+
+    public void generate(StringBuilder report) throws Exception {
         report.append("<?xml version=\"1.0\"?>");
         report.append("<OWASPZAPReport version=\"")
                 .append(Constant.PROGRAM_VERSION)
@@ -181,13 +200,21 @@ public class ReportLastScan {
     }
 
     /**
+     * @deprecated generate has been deprecated in favor of using {@link
+     *     #generateReport(ViewDelegate view, ReportType reportType)}
+     */
+    @Deprecated
+    public void generateReport(ViewDelegate view, Model model, ReportType reportType) {
+        generateReport(view, reportType);
+    }
+
+    /**
      * Generates a report. Defaults to HTML report if reportType is null.
      *
      * @param view
-     * @param model
      * @param reportType
      */
-    public void generateReport(ViewDelegate view, Model model, ReportType reportType) {
+    public void generateReport(ViewDelegate view, ReportType reportType) {
         // ZAP: Allow scan report file name to be specified
 
         final ReportType localReportType;
@@ -268,7 +295,7 @@ public class ReportLastScan {
             if (rc == JFileChooser.APPROVE_OPTION) {
                 file = chooser.getSelectedFile();
 
-                File report = generate(file.getAbsolutePath(), model, localReportType);
+                File report = generate(file.getAbsolutePath(), localReportType);
                 if (report == null) {
                     view.showMessageDialog(
                             Constant.messages.getString(

@@ -116,7 +116,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
     }
 
     /**
-     * Method used to setup the toolbar elements. Should not usually be overriden. Instead, use the
+     * Method used to setup the toolbar elements. Should not usually be overridden. Instead, use the
      * {@link #addToolBarElements(JToolBar, short, int)} method to add elements at various points.
      *
      * @param toolbar the tool bar of the status panel

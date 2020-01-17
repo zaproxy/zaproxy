@@ -1,4 +1,4 @@
-// Targeted scripts can only be invoked by you, the user, eg via a right-click option on the Sites or History tabs
+// Targeted scripts can only be invoked by you, the user, e.g. via a right-click option on the Sites or History tabs
 
 /**
  * A function which will be invoked against a specific "targeted" message.

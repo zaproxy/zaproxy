@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.alert;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -28,14 +29,15 @@ import java.util.Vector;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
@@ -52,6 +54,8 @@ public class AlertAPI extends ApiImplementor {
 
     private static final String ACTION_DELETE_ALL_ALERTS = "deleteAllAlerts";
     private static final String ACTION_DELETE_ALERT = "deleteAlert";
+    private static final String ACTION_UPDATE_ALERT = "updateAlert";
+    private static final String ACTION_ADD_ALERT = "addAlert";
 
     private static final String VIEW_ALERT = "alert";
     private static final String VIEW_ALERTS = "alerts";
@@ -68,6 +72,20 @@ public class AlertAPI extends ApiImplementor {
     private static final String PARAM_RISK = "riskId";
     private static final String PARAM_START = "start";
 
+    private static final String PARAM_MESSAGE_ID = "messageId";
+    private static final String PARAM_ALERT_ID = "id";
+    private static final String PARAM_ALERT_NAME = "name";
+    private static final String PARAM_CONFIDENCE = "confidenceId";
+    private static final String PARAM_ALERT_DESCRIPTION = "description";
+    private static final String PARAM_ALERT_PARAM = "param";
+    private static final String PARAM_ALERT_ATTACK = "attack";
+    private static final String PARAM_ALERT_OTHERINFO = "otherInfo";
+    private static final String PARAM_ALERT_SOLUTION = "solution";
+    private static final String PARAM_ALERT_REFS = "references";
+    private static final String PARAM_ALERT_EVIDENCE = "evidence";
+    private static final String PARAM_CWEID = "cweId";
+    private static final String PARAM_WASCID = "wascId";
+
     /**
      * The constant that indicates that no risk ID is being provided.
      *
@@ -75,6 +93,12 @@ public class AlertAPI extends ApiImplementor {
      * @see #processAlerts(String, int, int, int, Processor)
      */
     private static final int NO_RISK_ID = -1;
+    /**
+     * The constant that indicates that no confidence ID is being provided.
+     *
+     * @see #getConfidenceId(JSONObject)
+     */
+    private static final int NO_CONFIDENCE_ID = -1;
 
     private ExtensionAlert extension = null;
     private static final Logger logger = Logger.getLogger(AlertAPI.class);
@@ -99,6 +123,47 @@ public class AlertAPI extends ApiImplementor {
 
         this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
         this.addApiAction(new ApiAction(ACTION_DELETE_ALERT, new String[] {PARAM_ID}));
+
+        this.addApiAction(
+                new ApiAction(
+                        ACTION_UPDATE_ALERT,
+                        new String[] {
+                            PARAM_ALERT_ID,
+                            PARAM_ALERT_NAME,
+                            PARAM_RISK,
+                            PARAM_CONFIDENCE,
+                            PARAM_ALERT_DESCRIPTION
+                        },
+                        new String[] {
+                            PARAM_ALERT_PARAM,
+                            PARAM_ALERT_ATTACK,
+                            PARAM_ALERT_OTHERINFO,
+                            PARAM_ALERT_SOLUTION,
+                            PARAM_ALERT_REFS,
+                            PARAM_ALERT_EVIDENCE,
+                            PARAM_CWEID,
+                            PARAM_WASCID
+                        }));
+        this.addApiAction(
+                new ApiAction(
+                        ACTION_ADD_ALERT,
+                        new String[] {
+                            PARAM_MESSAGE_ID,
+                            PARAM_ALERT_NAME,
+                            PARAM_RISK,
+                            PARAM_CONFIDENCE,
+                            PARAM_ALERT_DESCRIPTION
+                        },
+                        new String[] {
+                            PARAM_ALERT_PARAM,
+                            PARAM_ALERT_ATTACK,
+                            PARAM_ALERT_OTHERINFO,
+                            PARAM_ALERT_SOLUTION,
+                            PARAM_ALERT_REFS,
+                            PARAM_ALERT_EVIDENCE,
+                            PARAM_CWEID,
+                            PARAM_WASCID
+                        }));
     }
 
     @Override
@@ -203,9 +268,7 @@ public class AlertAPI extends ApiImplementor {
                     list[alert.getRisk()].addItem(alertList);
                 }
             }
-            for (int i = 0; i < list.length; i++) {
-                resultList.addItem(list[i]);
-            }
+            Arrays.stream(list).forEach(resultList::addItem);
         } else if (VIEW_ALERT_COUNTS_BY_RISK.equals(name)) {
             String url = this.getParam(params, PARAM_URL, "");
             boolean recurse = this.getParam(params, PARAM_RECURSE, false);
@@ -255,51 +318,94 @@ public class AlertAPI extends ApiImplementor {
                 throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
             }
 
-            final ExtensionAlert extAlert =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
-            if (extAlert != null) {
-                extAlert.deleteAlert(new Alert(recAlert));
-            } else {
-                try {
-                    Model.getSingleton().getDb().getTableAlert().deleteAlert(alertId);
-                } catch (DatabaseException e) {
-                    logger.error(e.getMessage(), e);
-                    throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
-                }
-            }
+            extension.deleteAlert(new Alert(recAlert));
         } else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
-            final ExtensionAlert extAlert =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
-            if (extAlert != null) {
-                extAlert.deleteAllAlerts();
-            } else {
-                try {
-                    Model.getSingleton().getDb().getTableAlert().deleteAllAlerts();
-                } catch (DatabaseException e) {
-                    logger.error(e.getMessage(), e);
-                }
+            extension.deleteAllAlerts();
+        } else if (ACTION_UPDATE_ALERT.equals(name)) {
+            int alertId = ApiUtils.getIntParam(params, PARAM_ALERT_ID);
+            String alertName = params.getString(PARAM_ALERT_NAME);
+            int riskId = getRiskId(params);
+            int confidenceId = getConfidenceId(params);
+            String desc = params.getString(PARAM_ALERT_DESCRIPTION);
+            String param = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_PARAM);
+            String attack = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_ATTACK);
+            String otherInfo = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_OTHERINFO);
+            String solution = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_SOLUTION);
+            String refs = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_REFS);
+            String evidence = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_EVIDENCE);
+            int cweId = getParam(params, PARAM_CWEID, 0);
+            int wascId = getParam(params, PARAM_WASCID, 0);
 
-                SiteNode rootNode = Model.getSingleton().getSession().getSiteTree().getRoot();
-                rootNode.deleteAllAlerts();
-
-                removeHistoryReferenceAlerts(rootNode);
+            RecordAlert recAlert;
+            try {
+                recAlert = Model.getSingleton().getDb().getTableAlert().read(alertId);
+            } catch (DatabaseException e) {
+                logger.error(e.getMessage(), e);
+                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
             }
+
+            if (recAlert == null) {
+                throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ALERT_ID);
+            }
+
+            Alert updatedAlert = new Alert(recAlert);
+            updatedAlert.setName(alertName);
+            updatedAlert.setRisk(riskId);
+            updatedAlert.setConfidence(confidenceId);
+            updatedAlert.setDescription(desc);
+            updatedAlert.setParam(param);
+            updatedAlert.setAttack(attack);
+            updatedAlert.setOtherInfo(otherInfo);
+            updatedAlert.setSolution(solution);
+            updatedAlert.setReference(refs);
+            updatedAlert.setEvidence(evidence);
+            updatedAlert.setCweId(cweId);
+            updatedAlert.setWascId(wascId);
+            try {
+                extension.updateAlert(updatedAlert);
+            } catch (HttpMalformedHeaderException | DatabaseException e) {
+                logger.error(e.getMessage(), e);
+                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+            }
+        } else if (ACTION_ADD_ALERT.equals(name)) {
+            int messageId = ApiUtils.getIntParam(params, PARAM_MESSAGE_ID);
+            String alertName = ApiUtils.getNonEmptyStringParam(params, PARAM_ALERT_NAME);
+            int riskId = getRiskId(params);
+            int confidenceId = getConfidenceId(params);
+            String desc = params.getString(PARAM_ALERT_DESCRIPTION);
+            String param = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_PARAM);
+            String attack = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_ATTACK);
+            String otherInfo = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_OTHERINFO);
+            String solution = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_SOLUTION);
+            String refs = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_REFS);
+            String evidence = ApiUtils.getOptionalStringParam(params, PARAM_ALERT_EVIDENCE);
+            int cweId = getParam(params, PARAM_CWEID, 0);
+            int wascId = getParam(params, PARAM_WASCID, 0);
+
+            HttpMessage msg = getHttpMessage(messageId);
+
+            Alert newAlert = new Alert(-1, riskId, confidenceId, alertName);
+            newAlert.setSource(Alert.Source.MANUAL);
+            newAlert.setMessage(msg);
+            newAlert.setUri(msg.getRequestHeader().getURI().toString());
+            newAlert.setName(alertName);
+            newAlert.setRisk(riskId);
+            newAlert.setConfidence(confidenceId);
+            newAlert.setDescription(desc);
+            newAlert.setParam(param);
+            newAlert.setAttack(attack);
+            newAlert.setOtherInfo(otherInfo);
+            newAlert.setSolution(solution);
+            newAlert.setReference(refs);
+            newAlert.setEvidence(evidence);
+            newAlert.setCweId(cweId);
+            newAlert.setWascId(wascId);
+            extension.alertFound(newAlert, msg.getHistoryRef());
+            return new ApiResponseElement(name, Integer.toString(newAlert.getAlertId()));
         } else {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }
         return ApiResponseElement.OK;
-    }
-
-    private static void removeHistoryReferenceAlerts(SiteNode siteNode) {
-        for (int i = 0; i < siteNode.getChildCount(); i++) {
-            removeHistoryReferenceAlerts((SiteNode) siteNode.getChildAt(i));
-        }
-        if (siteNode.getHistoryReference() != null) {
-            siteNode.getHistoryReference().deleteAllAlerts();
-        }
-        for (HistoryReference hRef : siteNode.getPastHistoryReference()) {
-            hRef.deleteAllAlerts();
-        }
     }
 
     private ApiResponseList filterAlertInstances(AlertNode alertNode, String url, boolean recurse) {
@@ -339,8 +445,7 @@ public class AlertAPI extends ApiImplementor {
             Vector<Integer> v = tableAlert.getAlertList();
 
             PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
-            for (int i = 0; i < v.size(); i++) {
-                int alertId = v.get(i);
+            for (int alertId : v) {
                 RecordAlert recAlert = tableAlert.read(alertId);
                 Alert alert = new Alert(recAlert);
 
@@ -420,9 +525,13 @@ public class AlertAPI extends ApiImplementor {
     private static void throwInvalidRiskId() throws ApiException {
         throw new ApiException(
                 ApiException.Type.ILLEGAL_PARAMETER,
-                "Parameter "
-                        + PARAM_RISK
-                        + " is not a valid risk ID (integer in interval [0, 3]).");
+                Constant.messages.getString("alert.api.param.riskId.illegal", PARAM_RISK));
+    }
+
+    private static void throwInvalidConfidenceId() throws ApiException {
+        throw new ApiException(
+                ApiException.Type.ILLEGAL_PARAMETER,
+                Constant.messages.getString("alert.api.param.confidenceId.illegal", PARAM_RISK));
     }
 
     /**
@@ -451,6 +560,47 @@ public class AlertAPI extends ApiImplementor {
             throwInvalidRiskId();
         }
         return riskId;
+    }
+
+    /**
+     * Gets the confidence ID from the given {@code parameters}, using {@link #PARAM_CONFIDENCE} as
+     * parameter name.
+     *
+     * @param parameters the parameters of the API request.
+     * @return the ID of the confidence, or {@link #NO_CONFIDENCE_ID} if none provided.
+     * @throws ApiException if the provided confidence ID is not valid (not an integer nor a valid
+     *     confidence ID).
+     */
+    private int getConfidenceId(JSONObject parameters) throws ApiException {
+        String confidenceIdParam = getParam(parameters, PARAM_CONFIDENCE, "").trim();
+        if (confidenceIdParam.isEmpty()) {
+            return NO_CONFIDENCE_ID;
+        }
+
+        int confidenceId = NO_CONFIDENCE_ID;
+        try {
+            confidenceId = Integer.parseInt(confidenceIdParam);
+        } catch (NumberFormatException e) {
+            throwInvalidConfidenceId();
+        }
+
+        if (confidenceId < Alert.CONFIDENCE_FALSE_POSITIVE
+                || confidenceId > Alert.CONFIDENCE_USER_CONFIRMED) {
+            throwInvalidConfidenceId();
+        }
+        return confidenceId;
+    }
+
+    private static HttpMessage getHttpMessage(int id) throws ApiException {
+        try {
+            return new HistoryReference(id, true).getHttpMessage();
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
+            if (e.getMessage() == null) {
+                throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_MESSAGE_ID);
+            }
+            logger.error("Failed to read the history record:", e);
+            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+        }
     }
 
     private interface Processor<T> {

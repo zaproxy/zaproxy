@@ -63,6 +63,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     private String displayName = null;
     private int progress = 0;
     private ActiveScanTableModel messagesTableModel = new ActiveScanTableModel();
+    private FilterMessageTableModel filterMessageTableModel = new FilterMessageTableModel();
     private SiteNode startNode = null;
     private ResponseCountSnapshot rcTotals = new ResponseCountSnapshot();
     private ResponseCountSnapshot rcLastSnapshot = new ResponseCountSnapshot();
@@ -234,6 +235,11 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         }
     }
 
+    @Override
+    public void filteredMessage(HttpMessage msg, String reason) {
+        filterMessageTableModel.addResult(msg.getRequestHeader().getURI().toString(), reason);
+    }
+
     /**
      * @deprecated (2.5.0) No longer used/needed, the request count is automatically
      *     updated/maintained by {@link HostProcess}.
@@ -254,6 +260,10 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     // @Override
     public DefaultListModel<HistoryReference> getList() {
         return null;
+    }
+
+    FilterMessageTableModel getFilterMessageTableModel() {
+        return filterMessageTableModel;
     }
 
     public ActiveScanTableModel getMessagesTableModel() {

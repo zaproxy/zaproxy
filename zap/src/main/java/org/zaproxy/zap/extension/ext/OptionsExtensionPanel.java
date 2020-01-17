@@ -159,11 +159,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
                                         addOnName.setText(
                                                 addOnExtension ? ext.getAddOn().getName() : "");
                                         extDescription.setText(ext.getDescription());
-                                        if (ext.getAuthor() != null) {
-                                            extAuthor.setText(ext.getAuthor());
-                                        } else {
-                                            extAuthor.setText("");
-                                        }
+                                        extAuthor.setText(ext.getAuthor());
                                         if (ext.getURL() != null) {
                                             extURL.setText(ext.getURL().toString());
                                             getUrlLaunchButton().setEnabled(true);

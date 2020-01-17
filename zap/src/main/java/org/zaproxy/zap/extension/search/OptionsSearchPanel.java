@@ -49,7 +49,7 @@ public class OptionsSearchPanel extends AbstractParamPanel {
 
     /** The label for the "Maximum search results in GUI" option. */
     private static final String MAX_SEARCH_RESULTS_GUI_LABEL =
-            Constant.messages.getString("search.optionspanel.option.max.resutls.gui");
+            Constant.messages.getString("search.optionspanel.option.max.results.gui");
 
     /**
      * The number spinner that will contain the maximum number of results that should be shown in

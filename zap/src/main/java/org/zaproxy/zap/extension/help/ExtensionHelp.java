@@ -23,7 +23,6 @@ import java.awt.Component;
 import java.awt.EventQueue;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -487,15 +486,6 @@ public class ExtensionHelp extends ExtensionAdaptor {
     @Override
     public String getDescription() {
         return Constant.messages.getString("help.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     /** No database tables used, so all supported */

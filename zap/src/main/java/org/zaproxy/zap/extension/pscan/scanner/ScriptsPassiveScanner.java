@@ -25,7 +25,6 @@ import net.htmlparser.jericho.Source;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
@@ -62,11 +61,6 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
     @Override
     public int getPluginId() {
         return 50001;
-    }
-
-    @Override
-    public void scanHttpRequestSend(HttpMessage msg, int id) {
-        // Ignore
     }
 
     @Override
@@ -127,6 +121,17 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
         }
     }
 
+    /** @since 2.9.0 */
+    @Override
+    public AlertBuilder newAlert() {
+        return super.newAlert();
+    }
+
+    /**
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     alerts.
+     */
+    @Deprecated
     public void raiseAlert(
             int risk,
             int confidence,
@@ -159,6 +164,11 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
                 msg);
     }
 
+    /**
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     alerts.
+     */
+    @Deprecated
     public void raiseAlert(
             int risk,
             int confidence,
@@ -175,22 +185,20 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
             int wascId,
             HttpMessage msg) {
 
-        Alert alert = new Alert(getPluginId(), risk, confidence, name);
-
-        alert.setDetail(
-                description,
-                msg.getRequestHeader().getURI().toString(),
-                param,
-                attack,
-                otherInfo,
-                solution,
-                reference,
-                evidence,
-                cweId,
-                wascId,
-                msg);
-
-        this.parent.raiseAlert(currentHRefId, alert);
+        newAlert()
+                .setRisk(risk)
+                .setConfidence(confidence)
+                .setName(name)
+                .setDescription(description)
+                .setParam(param)
+                .setOtherInfo(otherInfo)
+                .setSolution(solution)
+                .setReference(reference)
+                .setEvidence(evidence)
+                .setCweId(cweId)
+                .setWascId(wascId)
+                .setMessage(msg)
+                .raise();
     }
 
     public void addTag(String tag) {

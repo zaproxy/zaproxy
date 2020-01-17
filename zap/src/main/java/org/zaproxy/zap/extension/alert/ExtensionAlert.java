@@ -23,8 +23,6 @@ import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -340,7 +338,7 @@ public class ExtensionAlert extends ExtensionAdaptor
             return;
         }
 
-        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+        if (!hasView() || EventQueue.isDispatchThread()) {
             addAlertToTreeEventHandler(alert);
 
         } else {
@@ -510,7 +508,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         }
         this.recalcAlerts();
 
-        if (View.isInitialised()) {
+        if (hasView()) {
             JTree alertTree = this.getAlertPanel().getTreeAlert();
             TreePath alertPath = new TreePath(getTreeModel().getAlertNode(alert).getPath());
             alertTree.setSelectionPath(alertPath);
@@ -546,7 +544,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         hrefs = new HashMap<>();
 
         if (session == null) {
-            // Null session indicated we're sutting down
+            // Null session indicated we're shutting down
             return;
         }
 
@@ -565,7 +563,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
-        // TODO this doesnt work, but should be used when its fixed :/
+        // TODO this doesn't work, but should be used when its fixed :/
         // Vector<Integer> v =
         // tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
         Vector<Integer> v = tableAlert.getAlertList();
@@ -662,8 +660,10 @@ public class ExtensionAlert extends ExtensionAdaptor
             logger.error(e.getMessage(), e);
         }
 
-        SiteMap siteTree = this.getModel().getSession().getSiteTree();
-        siteTree.getRoot().deleteAllAlerts();
+        if (!Constant.isLowMemoryOptionSet()) {
+            SiteMap siteTree = this.getModel().getSession().getSiteTree();
+            siteTree.getRoot().deleteAllAlerts();
+        }
 
         for (HistoryReference href : hrefs.values()) {
             href.deleteAllAlerts();
@@ -777,7 +777,7 @@ public class ExtensionAlert extends ExtensionAdaptor
      * @see View#isInitialised()
      */
     void recalcAlerts() {
-        if (!View.isInitialised()) {
+        if (!hasView()) {
             return;
         }
         // Must only be called when View is initialised
@@ -806,7 +806,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                 }
             }
         }
-        MainFooterPanel footer = View.getSingleton().getMainFrame().getMainFooterPanel();
+        MainFooterPanel footer = getView().getMainFrame().getMainFooterPanel();
         footer.setAlertInfo(totalInfo);
         footer.setAlertLow(totalLow);
         footer.setAlertMedium(totalMedium);
@@ -819,7 +819,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         Vector<Integer> v;
         try {
-            // TODO this doesnt work, but should be used when its fixed :/
+            // TODO this doesn't work, but should be used when its fixed :/
             // v =
             // tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
             v = tableAlert.getAlertList();
@@ -909,15 +909,6 @@ public class ExtensionAlert extends ExtensionAdaptor
     @Override
     public String getDescription() {
         return Constant.messages.getString("alerts.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override

@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,7 +29,9 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -43,6 +46,7 @@ import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel2;
+import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<ActiveScan>>
@@ -66,17 +70,21 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     private static final String ZERO_NEW_ALERTS_LABEL_TEXT = "0";
 
     private static final ActiveScanTableModel EMPTY_RESULTS_MODEL = new ActiveScanTableModel();
+    private static final FilterMessageTableModel EMPTY_FILTER_MESSAGE_MODEL =
+            new FilterMessageTableModel();
 
     private ExtensionActiveScan extension;
-    private JScrollPane jScrollPane;
     private HistoryReferencesTable messagesTable;
+    private ZapTable filterMessageTable;
 
     private JButton policyButton = null;
     private JButton scanButton = null;
     private JButton progressButton;
     private JLabel numRequests;
     private JLabel numNewAlerts;
-    private TableExportButton<HistoryReferencesTable> exportButton = null;
+    private JPanel mainPanel;
+    private JTabbedPane tabbedPane;
+    private TableExportButton<ZapTable> exportButton;
 
     /**
      * Constructs an {@code ActiveScanPanel} with the given extension.
@@ -89,6 +97,17 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
                 "ascan",
                 new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")),
                 extension);
+        tabbedPane.addChangeListener(
+                (e) -> {
+                    switch (tabbedPane.getSelectedIndex()) {
+                        case 0:
+                            getExportButton().setTable(getMessagesTable());
+                            break;
+                        case 1:
+                            getExportButton().setTable(getFilterMessageTable());
+                            break;
+                    }
+                });
         this.extension = extension;
         this.setDefaultAccelerator(
                 extension
@@ -202,7 +221,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
         }
     }
 
-    private TableExportButton<HistoryReferencesTable> getExportButton() {
+    private TableExportButton<ZapTable> getExportButton() {
         if (exportButton == null) {
             exportButton = new TableExportButton<>(getMessagesTable());
         }
@@ -229,16 +248,34 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     }
 
     @Override
-    protected JScrollPane getWorkPanel() {
-        if (jScrollPane == null) {
-            jScrollPane = new JScrollPane();
+    protected JPanel getWorkPanel() {
+        if (mainPanel == null) {
+            mainPanel = new JPanel(new BorderLayout());
+            tabbedPane = new JTabbedPane();
+
+            JScrollPane jScrollPane = new JScrollPane();
+            jScrollPane.setName("ActiveScanMessagePane");
             jScrollPane.setViewportView(getMessagesTable());
+            JScrollPane filterPane = new JScrollPane();
+            filterPane.setName("FilterMessagePane");
+            filterPane.setViewportView(getFilterMessageTable());
+
+            tabbedPane.add(
+                    Constant.messages.getString("ascan.panel.tab.scannedMessages"), jScrollPane);
+            tabbedPane.add(
+                    Constant.messages.getString("ascan.panel.tab.filteredMessages"), filterPane);
+            tabbedPane.setSelectedIndex(0);
+            mainPanel.add(tabbedPane);
         }
-        return jScrollPane;
+        return mainPanel;
     }
 
     private void resetMessagesTable() {
         getMessagesTable().setModel(EMPTY_RESULTS_MODEL);
+    }
+
+    private void resetFilterMessageTable() {
+        getFilterMessageTable().setModel(EMPTY_FILTER_MESSAGE_MODEL);
     }
 
     private HistoryReferencesTable getMessagesTable() {
@@ -248,6 +285,15 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
             messagesTable.setAutoCreateColumnsFromModel(false);
         }
         return messagesTable;
+    }
+
+    private ZapTable getFilterMessageTable() {
+        if (filterMessageTable == null) {
+            this.filterMessageTable = new ZapTable(EMPTY_FILTER_MESSAGE_MODEL);
+            this.filterMessageTable.setName("FilterMessageTable");
+            this.filterMessageTable.setAutoCreateColumnsFromModel(false);
+        }
+        return this.filterMessageTable;
     }
 
     @Override
@@ -270,6 +316,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 
         if (scanner != null) {
             getMessagesTable().setModel(scanner.getMessagesTableModel());
+            getFilterMessageTable().setModel(scanner.getFilterMessageTableModel());
             this.getNumRequests().setText(Integer.toString(scanner.getTotalRequests()));
             this.getNumNewAlerts().setText(Integer.toString(scanner.getTotalNewAlerts()));
             this.getProgressButton().setEnabled(true);
@@ -283,6 +330,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
             }
         } else {
             resetMessagesTable();
+            resetFilterMessageTable();
             this.getNumRequests().setText(ZERO_REQUESTS_LABEL_TEXT);
             this.getNumNewAlerts().setText(ZERO_NEW_ALERTS_LABEL_TEXT);
             this.getProgressButton().setEnabled(false);
@@ -335,6 +383,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     public void reset() {
         super.reset();
         this.resetMessagesTable();
+        this.resetFilterMessageTable();
         this.getProgressButton().setEnabled(false);
     }
 

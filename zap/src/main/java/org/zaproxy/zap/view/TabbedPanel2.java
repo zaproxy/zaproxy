@@ -450,7 +450,7 @@ public class TabbedPanel2 extends TabbedPanel {
     }
 
     /**
-     * Temporarily locks/unlocks the specified tab, eg if its active and mustn't be closed.
+     * Temporarily locks/unlocks the specified tab, e.g. if its active and mustn't be closed.
      *
      * <p>Locked (AbstractPanel) tabs will not have the pin/close tab buttons displayed.
      *
@@ -620,8 +620,8 @@ public class TabbedPanel2 extends TabbedPanel {
     }
 
     /**
-     * Returns true if the tab is 'active' - ie is being used for anything. This method always
-     * returns false so must be overriden to be changed
+     * Returns true if the tab is 'active' - i.e. is being used for anything. This method always
+     * returns false so must be overridden to be changed
      *
      * @return {@code true} if the tab is active, {@code false} otherwise
      */

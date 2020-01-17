@@ -32,6 +32,7 @@
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
+import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Window;
@@ -308,7 +309,7 @@ public class FindDialog extends AbstractDialog {
      */
     private JPanel getJPanel1() {
         if (jPanel1 == null) {
-            jPanel1 = new JPanel();
+            jPanel1 = new JPanel(new FlowLayout(FlowLayout.TRAILING));
             jPanel1.add(getBtnFind());
             jPanel1.add(getBtnCancel());
         }

@@ -35,7 +35,7 @@ public class PopupMenuItemSpiderDialogWithContext extends PopupContextTreeMenu {
     private static final long serialVersionUID = 1L;
 
     public PopupMenuItemSpiderDialogWithContext(ExtensionSpider extension) {
-        super();
+        super(false);
 
         this.setText(extension.getMessages().getString("spider.custom.popup"));
         this.setIcon(extension.getIcon());

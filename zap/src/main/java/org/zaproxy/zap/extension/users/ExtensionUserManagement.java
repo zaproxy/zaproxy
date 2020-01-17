@@ -19,8 +19,6 @@
  */
 package org.zaproxy.zap.extension.users;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -160,17 +158,8 @@ public class ExtensionUserManagement extends ExtensionAdaptor
     }
 
     @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
-    }
-
-    @Override
     public AbstractContextPropertiesPanel getContextPanel(Context ctx) {
-        return getContextPanel(ctx.getIndex());
+        return getContextPanel(ctx.getId());
     }
 
     /**
@@ -239,18 +228,18 @@ public class ExtensionUserManagement extends ExtensionAdaptor
 
     @Override
     public void discardContext(Context ctx) {
-        this.contextManagers.remove(ctx.getIndex());
-        this.userPanelsMap.remove(ctx.getIndex());
+        this.contextManagers.remove(ctx.getId());
+        this.userPanelsMap.remove(ctx.getId());
     }
 
     @Override
     public void loadContextData(Session session, Context context) {
         try {
             List<String> encodedUsers =
-                    session.getContextDataStrings(context.getIndex(), RecordContext.TYPE_USER);
-            ContextUserAuthManager usersManager = getContextUserAuthManager(context.getIndex());
+                    session.getContextDataStrings(context.getId(), RecordContext.TYPE_USER);
+            ContextUserAuthManager usersManager = getContextUserAuthManager(context.getId());
             for (String e : encodedUsers) {
-                User u = User.decode(context.getIndex(), e);
+                User u = User.decode(context.getId(), e);
                 usersManager.addUser(u);
             }
         } catch (Exception ex) {
@@ -262,12 +251,12 @@ public class ExtensionUserManagement extends ExtensionAdaptor
     public void persistContextData(Session session, Context context) {
         try {
             List<String> encodedUsers = new ArrayList<>();
-            ContextUserAuthManager m = contextManagers.get(context.getIndex());
+            ContextUserAuthManager m = contextManagers.get(context.getId());
             if (m != null) {
                 for (User u : m.getUsers()) {
                     encodedUsers.add(User.encode(u));
                 }
-                session.setContextData(context.getIndex(), RecordContext.TYPE_USER, encodedUsers);
+                session.setContextData(context.getId(), RecordContext.TYPE_USER, encodedUsers);
             }
         } catch (Exception ex) {
             log.error("Unable to persist Users.", ex);
@@ -281,7 +270,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor
      * @param sharedContext the shared context
      */
     public void removeSharedContextUsers(Context sharedContext) {
-        this.getContextPanel(sharedContext.getIndex()).getUsersTableModel().removeAllUsers();
+        this.getContextPanel(sharedContext.getId()).getUsersTableModel().removeAllUsers();
     }
 
     /**
@@ -292,11 +281,11 @@ public class ExtensionUserManagement extends ExtensionAdaptor
      * @param user the user
      */
     public void addSharedContextUser(Context sharedContext, User user) {
-        this.getContextPanel(sharedContext.getIndex()).getUsersTableModel().addUser(user);
+        this.getContextPanel(sharedContext.getId()).getUsersTableModel().addUser(user);
     }
 
     public List<User> getSharedContextUsers(Context sharedContext) {
-        return getContextPanel(sharedContext.getIndex()).getUsersTableModel().getUsers();
+        return getContextPanel(sharedContext.getId()).getUsersTableModel().getUsers();
     }
 
     /**
@@ -310,7 +299,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor
 
     @Override
     public void exportContextData(Context ctx, Configuration config) {
-        ContextUserAuthManager m = contextManagers.get(ctx.getIndex());
+        ContextUserAuthManager m = contextManagers.get(ctx.getId());
         if (m != null) {
             for (User u : m.getUsers()) {
                 config.addProperty(CONTEXT_CONFIG_USERS_USER, User.encode(u));
@@ -321,9 +310,9 @@ public class ExtensionUserManagement extends ExtensionAdaptor
     @Override
     public void importContextData(Context ctx, Configuration config) {
         List<Object> list = config.getList(CONTEXT_CONFIG_USERS_USER);
-        ContextUserAuthManager m = getContextUserAuthManager(ctx.getIndex());
+        ContextUserAuthManager m = getContextUserAuthManager(ctx.getId());
         for (Object o : list) {
-            User usersManager = User.decode(ctx.getIndex(), o.toString());
+            User usersManager = User.decode(ctx.getId(), o.toString());
             m.addUser(usersManager);
         }
     }

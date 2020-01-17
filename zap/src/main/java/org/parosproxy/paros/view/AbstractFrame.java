@@ -57,7 +57,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  *   <li>Preserves window state, location and size correctly (will survive multiple session)
  * </ul>
  *
- * Hint for implementers: If you use this class, don't use {@link #setSize(Dimension)}, but {@link
+ * Hint for implementors: If you use this class, don't use {@link #setSize(Dimension)}, but {@link
  * #setPreferredSize(Dimension)} instead. Also, don't use {@link #setLocation(Point)}. This abstract
  * class will automatically take care of size and position.
  */
@@ -123,13 +123,13 @@ public abstract class AbstractFrame extends JFrame {
     private void saveWindowState(int windowstate) {
         if ((windowstate & Frame.ICONIFIED) == Frame.ICONIFIED) {
             preferences.put(
-                    prefnzPrefix + PREF_WINDOW_STATE, SimpleWindowState.ICONFIED.toString());
+                    prefnzPrefix + PREF_WINDOW_STATE, SimpleWindowState.ICONIFIED.toString());
             if (logger.isDebugEnabled())
                 logger.debug(
                         "Saving preference "
                                 + PREF_WINDOW_STATE
                                 + "="
-                                + SimpleWindowState.ICONFIED);
+                                + SimpleWindowState.ICONIFIED);
         }
         if ((windowstate & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
             preferences.put(
@@ -169,7 +169,7 @@ public abstract class AbstractFrame extends JFrame {
             }
             if (state != null) {
                 switch (state) {
-                    case ICONFIED:
+                    case ICONIFIED:
                         this.setExtendedState(Frame.ICONIFIED);
                         break;
                     case NORMAL:
@@ -189,7 +189,7 @@ public abstract class AbstractFrame extends JFrame {
 
     /**
      * Saves the size of this frame, but only, if window state is 'normal'. If window state is
-     * iconfied or maximized, the size is not saved!
+     * iconified or maximized, the size is not saved!
      *
      * @param size
      */
@@ -252,7 +252,7 @@ public abstract class AbstractFrame extends JFrame {
 
     /**
      * Saves the location of this frame, but only, if window state is 'normal'. If window state is
-     * iconfied or maximized, the location is not saved!
+     * iconified or maximized, the location is not saved!
      *
      * @param point
      */
@@ -362,7 +362,7 @@ public abstract class AbstractFrame extends JFrame {
 
     /** Simplified version for easier handling of the states ... */
     private enum SimpleWindowState {
-        ICONFIED,
+        ICONIFIED,
         NORMAL,
         MAXIMIZED;
     }

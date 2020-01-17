@@ -19,11 +19,13 @@
  */
 package org.zaproxy.zap.spider.parser;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
@@ -37,8 +39,8 @@ import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.model.ValueGenerator;
@@ -58,28 +60,32 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     private static final Path BASE_DIR_HTML_FILES =
             getResourcePath("htmlform", SpiderHtmlFormParserUnitTest.class);
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateParserWithUndefinedSpiderOptions() {
         // Given
         SpiderParam undefinedSpiderOptions = null;
-        // When
-        new SpiderHtmlFormParser(undefinedSpiderOptions, new DefaultValueGenerator());
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        new SpiderHtmlFormParser(
+                                undefinedSpiderOptions, new DefaultValueGenerator()));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
-        // When
-        htmlParser.canParseResource(undefinedMessage, ROOT_PATH, false);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> htmlParser.canParseResource(undefinedMessage, ROOT_PATH, false));
     }
 
     @Test
@@ -140,15 +146,16 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(canParse, is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         Source source = createSource(createMessageWith("NoForms.html"));
-        // When
-        htmlParser.parseResource(undefinedMessage, source, BASE_DEPTH);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> htmlParser.parseResource(undefinedMessage, source, BASE_DEPTH));
     }
 
     @Test
@@ -176,9 +183,8 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         Source source = null;
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         HttpMessage messageHtmlResponse = createMessageWith("NoForms.html");
-        // When
-        htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
-        // Then = No exception
+        // When / Then
+        assertDoesNotThrow(() -> htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH));
     }
 
     @Test
@@ -1083,7 +1089,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(9)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(8)));
         assertThat(
                 listener.getUrlsFound(),
                 contains(
@@ -1093,8 +1099,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                         "http://example.org/html5/misc?_color=%23ffffff&_email=foo-bar%40example.com&_tel=9999999999&_url=http%3A%2F%2Fwww.example.com&submit=Submit",
                         "http://example.org/unknown?_unknown&submit=Submit",
                         "http://example.org/selects?_select-one-option=first-option&_select-selected-option=selected-option&_select-two-options=last-option&submit=Submit",
-                        "http://example.org/radio?_radio=second-radio&submit=Submit",
-                        "http://example.org/checkbox?_checkbox=second-checkbox&submit=Submit",
+                        "http://example.org/checkbox?_checkbox=first-checkbox&submit=Submit",
                         "http://example.org/html5/date-time?"
                                 + params(
                                         param("_date", formattedDate("yyyy-MM-dd", date)),
@@ -1125,7 +1130,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(9)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(8)));
         assertThat(
                 listener.getResourcesFound(),
                 contains(
@@ -1159,13 +1164,8 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                         postResource(
                                 msg,
                                 1,
-                                "http://example.org/radio",
-                                "_radio=second-radio&submit=Submit"),
-                        postResource(
-                                msg,
-                                1,
                                 "http://example.org/checkbox",
-                                "_checkbox=second-checkbox&submit=Submit"),
+                                "_checkbox=first-checkbox&submit=Submit"),
                         postResource(
                                 msg,
                                 1,
@@ -1266,7 +1266,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                                         "http://example.com/",
                                         "http://example.org/post",
                                         "gender",
-                                        "f",
+                                        "m",
                                         list(("m,f")),
                                         attributes(
                                                 attribute("name", "gender"),
@@ -1710,9 +1710,9 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
 
     private static List<String> list(String preDefValue) {
         if (preDefValue == null || preDefValue.isEmpty()) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
-        List<String> values = new ArrayList<String>();
+        List<String> values = new ArrayList<>();
         String[] value = preDefValue.split(",");
         for (String val : value) {
             values.add(val);

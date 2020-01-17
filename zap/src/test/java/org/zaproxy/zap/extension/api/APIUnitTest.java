@@ -20,26 +20,33 @@
 package org.zaproxy.zap.extension.api;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.startsWith;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.withSettings;
 
 import java.net.Inet4Address;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.core.proxy.ProxyParam;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpOutputStream;
@@ -51,10 +58,12 @@ import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link API}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class APIUnitTest {
 
-    @BeforeClass
+    private static final String CUSTOM_API_PATH = "/custom/api/";
+
+    @BeforeAll
     public static void setUp() throws Exception {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
@@ -353,44 +362,241 @@ public class APIUnitTest {
         assertThat(baseUrl, is(equalTo("https://127.0.0.1:8080/JSON/test/view/test/")));
     }
 
-    @Test(expected = ApiException.class)
+    @Test
+    public void shouldGenerateOneTimeApiNonce() throws Exception {
+        // Given
+        API api = new API();
+        api.setOptionsParamApi(createOptionsParamApi());
+        // When
+        String nonce = api.getOneTimeNonce(CUSTOM_API_PATH);
+        // Then
+        assertThat(nonce, is(notNullValue()));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
+        // Should not be valid more than once
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldConsumeButNotAcceptOneTimeApiNonceIfPathMismatch() throws Exception {
+        // Given
+        API api = new API();
+        api.setOptionsParamApi(createOptionsParamApi());
+        // When
+        String nonce = api.getOneTimeNonce(CUSTOM_API_PATH);
+        // Then
+        assertThat(nonce, is(notNullValue()));
+        assertThat(isApiNonceValid(api, "/not/same/path/", nonce), is(equalTo(false)));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldNotAcceptOneTimeApiNonceIfExpired() throws Exception {
+        // Given
+        int ttlInSecs = 1;
+        OptionsParamApi optionsParamApi = Mockito.mock(OptionsParamApi.class);
+        when(optionsParamApi.getNonceTimeToLiveInSecs()).thenReturn(ttlInSecs);
+        API api = new API();
+        api.setOptionsParamApi(optionsParamApi);
+        String nonce = api.getOneTimeNonce(CUSTOM_API_PATH);
+        // When
+        Thread.sleep(TimeUnit.SECONDS.toMillis(ttlInSecs + 1));
+        // Then
+        assertThat(nonce, is(notNullValue()));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldExpireExistingOneTimeApiNonces() throws Exception {
+        // Given
+        int ttlInSecs = 1;
+        OptionsParamApi optionsParamApi = Mockito.mock(OptionsParamApi.class);
+        when(optionsParamApi.getNonceTimeToLiveInSecs()).thenReturn(ttlInSecs);
+        API api = new API();
+        api.setOptionsParamApi(optionsParamApi);
+        String nonce1 = api.getOneTimeNonce(CUSTOM_API_PATH + "1");
+        String nonce2 = api.getOneTimeNonce(CUSTOM_API_PATH + "2");
+        String nonce3 = api.getOneTimeNonce(CUSTOM_API_PATH + "2");
+        // When
+        Thread.sleep(TimeUnit.SECONDS.toMillis(ttlInSecs + 1));
+        // Then
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH + "1", nonce1), is(equalTo(false)));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH + "2", nonce2), is(equalTo(false)));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH + "3", nonce3), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldGenerateLongLivedApiNonce() {
+        // Given
+        API api = new API();
+        api.setOptionsParamApi(createOptionsParamApi());
+        // When
+        String nonce = api.getLongLivedNonce(CUSTOM_API_PATH);
+        // Then
+        assertThat(nonce, is(notNullValue()));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
+        // Should be valid more than once
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldNotExpireLongLivedApiNonce() throws Exception {
+        // Given
+        int ttlInSecs = 1;
+        OptionsParamApi optionsParamApi = Mockito.mock(OptionsParamApi.class);
+        when(optionsParamApi.getNonceTimeToLiveInSecs()).thenReturn(ttlInSecs);
+        API api = new API();
+        api.setOptionsParamApi(optionsParamApi);
+        String nonce = api.getLongLivedNonce(CUSTOM_API_PATH);
+        // When
+        Thread.sleep(TimeUnit.SECONDS.toMillis(ttlInSecs + 1));
+        // Then
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldNotAcceptLongLivedApiNonceIfPathMismatch() throws Exception {
+        // Given
+        API api = new API();
+        api.setOptionsParamApi(createOptionsParamApi());
+        // When
+        String nonce = api.getLongLivedNonce(CUSTOM_API_PATH);
+        // Then
+        assertThat(nonce, is(notNullValue()));
+        assertThat(isApiNonceValid(api, "/not/same/path/", nonce), is(equalTo(false)));
+        assertThat(isApiNonceValid(api, CUSTOM_API_PATH, nonce), is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldNotHandleShortcutIfNotForcedRequest() throws Exception {
+        // Given
+        API api = createApiWithoutKey();
+        TestApiImplementor apiImplementor = new TestApiImplementor();
+        String shortcut = "shortcut";
+        apiImplementor.addApiShortcut(shortcut);
+        api.registerApiImplementor(apiImplementor);
+        String requestUri = "/" + shortcut;
+        boolean forced = false;
+        // When
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        createApiRequest(new byte[] {127, 0, 0, 1}, "localhost", requestUri),
+                        createMockedHttpInputStream(),
+                        createMockedHttpOutputStream(),
+                        forced);
+        // Then
+        assertThat(requestHandled, is(nullValue()));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldHandleShortcutIfForcedRequest() throws Exception {
+        // Given
+        API api = createApiWithoutKey();
+        TestApiImplementor apiImplementor = new TestApiImplementor();
+        String shortcut = "shortcut";
+        apiImplementor.addApiShortcut(shortcut);
+        api.registerApiImplementor(apiImplementor);
+        String requestUri = "/" + shortcut;
+        boolean forced = true;
+        // When
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        createApiRequest(new byte[] {127, 0, 0, 1}, "localhost", requestUri),
+                        createMockedHttpInputStream(),
+                        createMockedHttpOutputStream(),
+                        forced);
+        // Then
+        assertThat(requestHandled, is(notNullValue()));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldHandleShortcutIfZapRequest() throws Exception {
+        // Given
+        API api = createApiWithoutKey();
+        TestApiImplementor apiImplementor = new TestApiImplementor();
+        String shortcut = "shortcut";
+        apiImplementor.addApiShortcut(shortcut);
+        api.registerApiImplementor(apiImplementor);
+        String requestUri = "/" + shortcut;
+        // When
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        createApiRequest(new byte[] {127, 0, 0, 1}, API.API_DOMAIN, requestUri),
+                        createMockedHttpInputStream(),
+                        createMockedHttpOutputStream());
+        // Then
+        assertThat(requestHandled, is(notNullValue()));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldHandleShortcutIfSecureZapRequest() throws Exception {
+        // Given
+        API api = createApiWithoutKey();
+        TestApiImplementor apiImplementor = new TestApiImplementor();
+        String shortcut = "shortcut";
+        apiImplementor.addApiShortcut(shortcut);
+        api.registerApiImplementor(apiImplementor);
+        String requestUri = "/" + shortcut;
+        HttpRequestHeader apiRequest =
+                createApiRequest(new byte[] {127, 0, 0, 1}, API.API_DOMAIN, requestUri);
+        apiRequest.setSecure(true);
+        // When
+        HttpMessage requestHandled =
+                api.handleApiRequest(
+                        apiRequest, createMockedHttpInputStream(), createMockedHttpOutputStream());
+        // Then
+        assertThat(requestHandled, is(notNullValue()));
+        assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+    }
+
+    @Test
     public void shouldFailToGetXmlFromResponseWithNullEndpointName() throws ApiException {
         // Given
         String endpointName = null;
         ApiResponse response = ApiResponseTest.INSTANCE;
         // When
-        API.responseToXml(endpointName, response);
-        // Then = ApiException
+        ApiException e =
+                assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
+        // Then
+        assertThat(e.getMessage(), containsString("internal_error"));
     }
 
-    @Test(expected = ApiException.class)
+    @Test
     public void shouldFailToGetXmlFromResponseWithEmptyEndpointName() throws ApiException {
         // Given
         String endpointName = "";
         ApiResponse response = ApiResponseTest.INSTANCE;
         // When
-        API.responseToXml(endpointName, response);
-        // Then = ApiException
+        ApiException e =
+                assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
+        // Then
+        assertThat(e.getMessage(), containsString("internal_error"));
     }
 
-    @Test(expected = ApiException.class)
+    @Test
     public void shouldFailToGetXmlFromResponseWithInvalidXmlEndpointName() throws ApiException {
         // Given
         String endpointName = "<";
         ApiResponse response = ApiResponseTest.INSTANCE;
         // When
-        API.responseToXml(endpointName, response);
-        // Then = ApiException
+        ApiException e =
+                assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
+        // Then
+        assertThat(e.getMessage(), containsString("internal_error"));
     }
 
-    @Test(expected = ApiException.class)
+    @Test
     public void shouldFailToGetXmlFromNullResponse() throws ApiException {
         // Given
         String endpointName = "Name";
         ApiResponse response = null;
         // When
-        API.responseToXml(endpointName, response);
-        // Then = ApiException
+        ApiException e =
+                assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
+        // Then
+        assertThat(e.getMessage(), containsString("internal_error"));
     }
 
     @Test
@@ -450,7 +656,7 @@ public class APIUnitTest {
     private static void assertApiNonceMatch(API api, String baseUrl) {
         try {
             // Given
-            URI uri = new URI(baseUrl);
+            URI uri = new URI(baseUrl, true);
             String hostHeader = uri.getHost() + (uri.getPort() != -1 ? ":" + uri.getPort() : "");
             TestApiImplementor apiImplementor = new TestApiImplementor();
             api.registerApiImplementor(apiImplementor);
@@ -464,6 +670,22 @@ public class APIUnitTest {
             // Then
             assertThat(requestHandled, is(notNullValue()));
             assertThat(apiImplementor.wasUsed(), is(equalTo(true)));
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static boolean isApiNonceValid(API api, String requestPath, String nonce) {
+        try {
+            URI requestUri = Mockito.mock(URI.class);
+            when(requestUri.getPath()).thenReturn(requestPath);
+            HttpRequestHeader request =
+                    Mockito.mock(HttpRequestHeader.class, withSettings().lenient());
+            when(request.getURI()).thenReturn(requestUri);
+            when(request.getHeader(HttpHeader.X_ZAP_API_NONCE)).thenReturn(nonce);
+            when(request.getSenderAddress())
+                    .thenReturn(Inet4Address.getByAddress(new byte[] {127, 0, 0, 1}));
+            return api.hasValidKey(request, new JSONObject());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -510,6 +732,14 @@ public class APIUnitTest {
 
     private static HttpOutputStream createMockedHttpOutputStream() {
         return Mockito.mock(HttpOutputStream.class);
+    }
+
+    private static API createApiWithoutKey() {
+        OptionsParamApi options = createOptionsParamApi();
+        options.setDisableKey(true);
+        API api = new API();
+        api.setOptionsParamApi(options);
+        return api;
     }
 
     private static class TestApiImplementor extends ApiImplementor {

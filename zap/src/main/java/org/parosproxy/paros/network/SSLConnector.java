@@ -563,7 +563,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
     /**
      * Create a SSLsocket using an existing connected socket. It can be used such as a tunneled SSL
-     * proxy socket (eg when a CONNECT request is received). This SSLSocket will start server side
+     * proxy socket (e.g. when a CONNECT request is received). This SSLSocket will start server side
      * handshake immediately.
      *
      * @param targethost the host where you want to connect to

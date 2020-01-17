@@ -21,8 +21,8 @@ use File::Glob qw(bsd_glob);
 	16, 32, 64, 128, 256, 512, 1024, # the standard sizes of .png files.
 );
 
-$base="zap";     # basename of png files, ex; zap16x16_bw.png --> zap
-$suffix="";      # suffix of png files, ex; zap16x16_bw.png --> _bw
+$base="zap";     # basename of png files, e.g.; zap16x16_bw.png --> zap
+$suffix="";      # suffix of png files, e.g.; zap16x16_bw.png --> _bw
 
 $final_icns_name="ZAP";  # ZAP in caps
 $final_ico_name="zap";   # ZAP in lower case
@@ -32,7 +32,7 @@ mkdir $dir;
 
 @square_sizes = ( 16, 32, 64, 128, 256, 512, 1024);
 while ( $i = shift @square_sizes ) {
-	#$orig = sprintf "%s%d%s.png", $base, $i, $suffix;  # ex: zap16bw.png
+	#$orig = sprintf "%s%d%s.png", $base, $i, $suffix;  # e.g.: zap16bw.png
 	$orig = sprintf "%s%dx%d%s.png", $base, $i, $i, $suffix;
 	$new = sprintf "%s/icon_%dx%d.png", $dir, $i, $i;
 	copy $orig, $new;

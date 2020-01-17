@@ -19,27 +19,38 @@
  */
 package ch.csnc.extension.httpclient;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.arrayContaining;
+import static org.hamcrest.Matchers.arrayWithSize;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItemInArray;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import java.net.Socket;
-import java.security.*;
+import java.security.Key;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.KeyStoreSpi;
+import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
+import java.security.PrivateKey;
+import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 /**
  * Unit test for {@link ch.csnc.extension.httpclient.AliasKeyManager}
  *
  * @author bjoern.kimminich@gmx.de
  */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class AliasKeyManagerUnitTest {
 
     private static final String ALIAS = "alias";
@@ -51,7 +62,7 @@ public class AliasKeyManagerUnitTest {
 
     @Mock private KeyStoreSpi keyStoreSpi;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         keyStore = new KeyStore(keyStoreSpi, null, null) {};
         keyStore.load(null);
@@ -131,11 +142,11 @@ public class AliasKeyManagerUnitTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
     public void shouldReturnNullAsCertificatesWhenExceptionOccursAccessingKeyStore()
             throws Exception {
         // Given
-        given(keyStoreSpi.engineGetCertificateChain(ALIAS)).willThrow(KeyStoreException.class);
+        given(keyStoreSpi.engineGetCertificateChain(ALIAS))
+                .willAnswer(this::throwKeyStoreException);
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When
         X509Certificate[] certificates = aliasKeyManager.getCertificateChain(ALIAS);
@@ -148,13 +159,11 @@ public class AliasKeyManagerUnitTest {
     public void shouldReturnNullAsKeyWhenExceptionOccursAccessingKeyStore() throws Exception {
         // Given
         given(keyStoreSpi.engineGetKey(ALIAS, PASSWORD.toCharArray()))
-                .willThrow(
-                        KeyStoreException.class,
-                        NoSuchAlgorithmException.class,
-                        UnrecoverableKeyException.class);
+                .willAnswer(this::throwKeyStoreException)
+                .willThrow(NoSuchAlgorithmException.class, UnrecoverableKeyException.class);
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When/Then
-        assertThat(aliasKeyManager.getPrivateKey(ALIAS), is(equalTo(null))); // KeyStoreExcpeption
+        assertThat(aliasKeyManager.getPrivateKey(ALIAS), is(equalTo(null))); // KeyStoreException
         assertThat(
                 aliasKeyManager.getPrivateKey(ALIAS),
                 is(equalTo(null))); // NoSuchAlgorithmException
@@ -171,5 +180,9 @@ public class AliasKeyManagerUnitTest {
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When/Then
         assertThat(aliasKeyManager.getPrivateKey(ALIAS), is(equalTo(originalKey)));
+    }
+
+    private <T> T throwKeyStoreException(T arg) throws KeyStoreException {
+        throw new KeyStoreException();
     }
 }

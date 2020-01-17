@@ -423,7 +423,7 @@ public class PluginFactory {
 
                     if (loadedPlugin.isDepreciated()) {
                         // ZAP: ignore all depreciated plugins
-                        log.info("Plugin " + loadedPlugin.getName() + " depricated");
+                        log.info("Plugin " + loadedPlugin.getName() + " deprecated");
                         continue;
                     }
 
@@ -649,7 +649,7 @@ public class PluginFactory {
     }
 
     /**
-     * Get next test ready to be run. Null = none. Test dependendent on others will not be obtained.
+     * Get next test ready to be run. Null = none. Test dependent on others will not be obtained.
      *
      * @return
      */

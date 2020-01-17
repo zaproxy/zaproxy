@@ -4,7 +4,7 @@ ZAP is a community project, and we are always delighted to welcome new contribut
 There are lots of ways you can contribute:
 
 ## Got a Question or Problem?
-If you have a question or problem relating to using ZAP then the first thing to do is to check the [Frequently Asked Questions](https://github.com/zaproxy/zaproxy/wiki/FAQtoplevel).
+If you have a question or problem relating to using ZAP then the first thing to do is to check the [Frequently Asked Questions](https://www.zaproxy.org/faq/).
 
 We also include a comprehensive User Guide with ZAP which is also available online: https://github.com/zaproxy/zap-core-help/wiki
 
@@ -15,7 +15,7 @@ If you have found a bug then raise an issue on the zaproxy repo: https://github.
 
 Its worth checking to see if its already been reported, and including as much information as you can to help us diagnose your problem.
 
-This FAQ explains some useful steps you can follow: https://github.com/zaproxy/zaproxy/wiki/FAQhelp
+This FAQ explains some useful steps you can follow: https://www.zaproxy.org/faq/somethings-not-working-what-should-i-do/
 
 ## Found a Vulnerability?
 If you think you have found a vulnerability in ZAP then please report it via our [bug bounty program](https://bugcrowd.com/owaspzap).
@@ -33,10 +33,10 @@ You can help translate the ZAP UI via the [Crowdin owasp-zap](https://crowdin.co
 You can help translate the ZAP User Guide via the [Crowdin owasp-zap-help](https://crowdin.com/project/owasp-zap-help) project.
 
 ## Become a ZAP Evangelist
-For information about the ZAP Evangelists and how to join up see the [ZAP Evangelists wiki page](https://github.com/zaproxy/zaproxy/wiki/ZapEvangelists)
+For information about the ZAP Evangelists and how to join up see the [ZAP Evangelists page](https://www.zaproxy.org/evangelists/)
 
 ## Help Improve the Documentation
-The source for the ZAP [User Guide](https://github.com/zaproxy/zap-core-help/wiki) is underneath the zap-core-tree repo [src/help/zaphelp/contents](https://github.com/zaproxy/zap-core-help/tree/master/src/help/zaphelp/contents) directory.
+The source for the ZAP [User Guide](https://github.com/zaproxy/zap-core-help/wiki) is underneath the zap-core-tree repo [addOns/help/src/main/javahelp/contents](https://github.com/zaproxy/zap-core-help/tree/master/addOns/help/src/main/javahelp/contents) directory.
 
 The Java Help included with ZAP and the online version are both generated from these HTML pages. Send Pull Requests to help us improve it.
 

@@ -166,7 +166,7 @@ def is_in_scope(plugin_id, url, out_of_scope_dict):
     return True
 
 
-def print_rule(action, alert_list, detailed_output, user_msg, in_progress_issues):
+def print_rule(zap, action, alert_list, detailed_output, user_msg, in_progress_issues):
     id = alert_list[0].get('pluginId')
     if id in in_progress_issues:
         print (action + '-IN_PROGRESS: ' + alert_list[0].get('alert') + ' [' + id + '] x ' + str(len(alert_list)) + ' ' + user_msg)
@@ -175,13 +175,15 @@ def print_rule(action, alert_list, detailed_output, user_msg, in_progress_issues
     else:
         print (action + '-NEW: ' + alert_list[0].get('alert') + ' [' + id + '] x ' + str(len(alert_list)) + ' ' + user_msg)
     if detailed_output:
-        # Show (up to) first 5 urls
+        # Show (up to) first 5 urls, along with the response code (which we have to perform another request for)
         for alert in alert_list[0:5]:
-            print ('\t' + alert.get('url'))
+            msg = zap.core.message(alert.get('messageId'))
+            respHeader = msg['responseHeader']
+            code = respHeader[respHeader.index(' ') + 1 : respHeader.index('\r\n')]
+            print ('\t' + alert.get('url') + ' (' + code + ')')
 
 
-def print_rules(alert_dict, level, config_dict, config_msg, min_level, inc_rule, inc_extra, detailed_output, in_progress_issues):
-    # print out the ignored rules
+def print_rules(zap, alert_dict, level, config_dict, config_msg, min_level, inc_rule, inc_extra, detailed_output, in_progress_issues):
     count = 0
     inprog_count = 0
     for key, alert_list in sorted(alert_dict.items()):
@@ -191,7 +193,7 @@ def print_rules(alert_dict, level, config_dict, config_msg, min_level, inc_rule,
             if key in config_msg:
                 user_msg = config_msg[key]
             if min_level <= zap_conf_lvls.index(level):
-                print_rule(level, alert_list, detailed_output, user_msg, in_progress_issues)
+                print_rule(zap, level, alert_list, detailed_output, user_msg, in_progress_issues)
             if key in in_progress_issues:
                 inprog_count += 1
             else:
@@ -270,7 +272,7 @@ def start_zap(port, extra_zap_params):
 def wait_for_zap_start(zap, timeout_in_secs = 600):
     version = None
     if not timeout_in_secs:
-        # if ZAP doesnt start in 10 mins then its probably not going to start
+        # if ZAP doesn't start in 10 mins then its probably not going to start
         timeout_in_secs = 600
 
     for x in range(0, timeout_in_secs):

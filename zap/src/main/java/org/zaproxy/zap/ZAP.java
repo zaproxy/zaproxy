@@ -21,6 +21,7 @@ package org.zaproxy.zap;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.Locale;
@@ -63,6 +64,15 @@ public class ZAP {
     private static final Logger logger = Logger.getLogger(ZAP.class);
 
     static {
+        try {
+            // Disable JAR caching to avoid leaking add-on files and use of stale data.
+            URLConnection.class
+                    .getDeclaredMethod("setDefaultUseCaches", String.class, boolean.class)
+                    .invoke(null, "jar", false);
+        } catch (Exception e) {
+            // Nothing to do, Java 9+ API and logger was not yet initialised.
+        }
+
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionLogger());
 
         // set SSLConnector as socketfactory in HttpClient.

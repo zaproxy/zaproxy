@@ -30,7 +30,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.border.EtchedBorder;
 import javax.swing.table.TableModel;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.VerticalLayout;
+import org.jdesktop.swingx.treetable.TreeTableModel;
 
 public class MultipleOptionsTablePanel extends JPanel {
 
@@ -51,7 +53,13 @@ public class MultipleOptionsTablePanel extends JPanel {
 
         this.model = model;
         this.table = createTable();
-        this.table.setModel(model);
+        if (table instanceof JXTreeTable) {
+            if (model instanceof TreeTableModel) {
+                ((JXTreeTable) table).setTreeTableModel((TreeTableModel) model);
+            }
+        } else {
+            this.table.setModel(model);
+        }
 
         JPanel panel = new JPanel(new BorderLayout());
 

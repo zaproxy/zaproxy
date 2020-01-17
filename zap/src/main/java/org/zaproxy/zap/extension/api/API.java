@@ -28,7 +28,7 @@ import java.security.SecureRandom;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -326,8 +326,7 @@ public class API {
             }
         }
 
-        if (shortcutImpl == null
-                && callbackImpl == null
+        if (callbackImpl == null
                 && !url.startsWith(API_URL)
                 && !url.startsWith(API_URL_S)
                 && !force) {
@@ -482,6 +481,14 @@ public class API {
                     }
 
                     ApiResponse res;
+                    if (reqType == null) {
+                        throw new ApiException(
+                                ApiException.Type.BAD_TYPE, "Request Type was not provided.");
+                    }
+                    if (impl == null) {
+                        throw new ApiException(
+                                ApiException.Type.NO_IMPLEMENTOR, "Implementor was not provided.");
+                    }
                     switch (reqType) {
                         case action:
                             if (!getOptionsParamApi().isDisableKey()) {
@@ -537,21 +544,17 @@ public class API {
                             msg = impl.handleApiOther(msg, name, params);
                             break;
                         case pconn:
-                            if (impl != null) {
-                                ApiPersistentConnection pconn =
-                                        impl.getApiPersistentConnection(name);
-                                if (pconn != null) {
-                                    if (!getOptionsParamApi().isDisableKey()
-                                            && !getOptionsParamApi().isNoKeyForSafeOps()) {
-                                        if (!this.hasValidKey(requestHeader, params)) {
-                                            throw new ApiException(ApiException.Type.BAD_API_KEY);
-                                        }
+                            ApiPersistentConnection pconn = impl.getApiPersistentConnection(name);
+                            if (pconn != null) {
+                                if (!getOptionsParamApi().isDisableKey()
+                                        && !getOptionsParamApi().isNoKeyForSafeOps()) {
+                                    if (!this.hasValidKey(requestHeader, params)) {
+                                        throw new ApiException(ApiException.Type.BAD_API_KEY);
                                     }
-                                    validateMandatoryParams(params, pconn);
                                 }
-                                impl.handleApiPersistentConnection(
-                                        msg, httpIn, httpOut, name, params);
+                                validateMandatoryParams(params, pconn);
                             }
+                            impl.handleApiPersistentConnection(msg, httpIn, httpOut, name, params);
                             return new HttpMessage();
                     }
                 } else {
@@ -618,12 +621,14 @@ public class API {
             return;
         }
 
-        List<String> mandatoryParams = element.getMandatoryParamNames();
-        if (mandatoryParams != null) {
-            for (String param : mandatoryParams) {
-                if (!params.has(param) || params.getString(param).length() == 0) {
-                    throw new ApiException(ApiException.Type.MISSING_PARAMETER, param);
-                }
+        for (ApiParameter parameter : element.getParameters()) {
+            if (!parameter.isRequired()) {
+                continue;
+            }
+
+            String name = parameter.getName();
+            if (!params.has(name) || params.getString(name).length() == 0) {
+                throw new ApiException(ApiException.Type.MISSING_PARAMETER, name);
             }
         }
     }
@@ -692,7 +697,7 @@ public class API {
      * @param prefix the prefix of the API implementor
      * @param type the request type
      * @param name the name of the endpoint
-     * @param proxy if true then the URI returned will only work if proxying via ZAP, ie it will
+     * @param proxy if true then the URI returned will only work if proxying via ZAP, i.e. it will
      *     start with http://zap/..
      * @return the URL to access the defined endpoint
      * @see #getBaseURL(boolean)
@@ -1012,9 +1017,9 @@ public class API {
             return true;
         } finally {
             synchronized (nonces) {
-                for (Entry<String, Nonce> entry : nonces.entrySet()) {
-                    if (!entry.getValue().isValid()) {
-                        nonces.remove(entry.getKey());
+                for (Iterator<Nonce> it = nonces.values().iterator(); it.hasNext(); ) {
+                    if (!it.next().isValid()) {
+                        it.remove();
                     }
                 }
             }

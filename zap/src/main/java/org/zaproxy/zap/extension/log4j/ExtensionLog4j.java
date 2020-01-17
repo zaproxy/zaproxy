@@ -20,8 +20,6 @@
 package org.zaproxy.zap.extension.log4j;
 
 import java.awt.EventQueue;
-import java.net.MalformedURLException;
-import java.net.URL;
 import javax.swing.ImageIcon;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -53,7 +51,8 @@ public class ExtensionLog4j extends ExtensionAdaptor {
         this.setOrder(56);
 
         if (Constant.isDevMode() && View.isInitialised()) {
-            // Only enable if this is a developer build, ie build from source, or explicitly enabled
+            // Only enable if this is a developer build, i.e. build from source, or explicitly
+            // enabled
 
             scanStatus =
                     new ScanStatus(
@@ -112,15 +111,6 @@ public class ExtensionLog4j extends ExtensionAdaptor {
     @Override
     public String getDescription() {
         return Constant.messages.getString("log4j.desc");
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     /** No database tables used, so all supported */

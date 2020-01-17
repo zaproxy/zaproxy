@@ -106,8 +106,10 @@ public class ParosTableStructure extends ParosAbstractTable implements TableStru
             psRead.setLong(2, urlId);
 
             try (ResultSet rs = psRead.executeQuery()) {
-                RecordStructure result = build(rs);
-                return result;
+                if (rs.next()) {
+                    return build(rs);
+                }
+                return null;
             }
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -211,19 +213,14 @@ public class ParosTableStructure extends ParosAbstractTable implements TableStru
 
     private RecordStructure build(ResultSet rs) throws DatabaseException {
         try {
-            RecordStructure rt = null;
-            if (rs.next()) {
-                rt =
-                        new RecordStructure(
-                                rs.getLong(SESSIONID),
-                                rs.getLong(STRUCTUREID),
-                                rs.getLong(PARENTID),
-                                rs.getInt(HISTORYID),
-                                rs.getString(NAME),
-                                rs.getString(URL),
-                                rs.getString(METHOD));
-            }
-            return rt;
+            return new RecordStructure(
+                    rs.getLong(SESSIONID),
+                    rs.getLong(STRUCTUREID),
+                    rs.getLong(PARENTID),
+                    rs.getInt(HISTORYID),
+                    rs.getString(NAME),
+                    rs.getString(URL),
+                    rs.getString(METHOD));
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }

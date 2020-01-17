@@ -151,7 +151,7 @@ public class ContextListPanel extends AbstractParamPanel {
         List<Object[]> values = new ArrayList<>();
         List<Context> contexts = session.getContexts();
         for (Context context : contexts) {
-            values.add(new Object[] {context.getIndex(), context.getName(), context.isInScope()});
+            values.add(new Object[] {context.getId(), context.getName(), context.isInScope()});
         }
         this.model.setValues(values);
     }

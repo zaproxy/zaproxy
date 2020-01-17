@@ -55,6 +55,7 @@
 // ZAP: 2019/03/19 Changed the parse method to only parse the authority on CONNECT requests
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -66,7 +67,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.TreeSet;
-import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
@@ -308,7 +308,7 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     /**
-     * Get the HTTP method (GET, POST ... etc).
+     * Get the HTTP method (GET, POST, ..., etc.).
      *
      * @return the request method
      */
@@ -780,26 +780,23 @@ public class HttpRequestHeader extends HttpHeader {
     public TreeSet<HtmlParameter> getCookieParams() {
         TreeSet<HtmlParameter> set = new TreeSet<>();
 
-        Vector<String> cookieLines = getHeaders(HttpHeader.COOKIE);
-        if (cookieLines != null) {
-            for (String cookieLine : cookieLines) {
-                // watch out for the scenario where the first cookie name starts with "cookie"
-                // (uppercase or lowercase)
-                if (cookieLine.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase() + ":")) {
-                    // HttpCookie wont parse lines starting with "Cookie:"
-                    cookieLine = cookieLine.substring(HttpHeader.COOKIE.length() + 1);
-                }
+        for (String cookieLine : getHeaderValues(HttpHeader.COOKIE)) {
+            // watch out for the scenario where the first cookie name starts with "cookie"
+            // (uppercase or lowercase)
+            if (cookieLine.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase() + ":")) {
+                // HttpCookie wont parse lines starting with "Cookie:"
+                cookieLine = cookieLine.substring(HttpHeader.COOKIE.length() + 1);
+            }
 
-                if (cookieLine.isEmpty()) {
-                    // Nothing to parse.
-                    continue;
-                }
+            if (cookieLine.isEmpty()) {
+                // Nothing to parse.
+                continue;
+            }
 
-                // These can be comma separated type=value
-                String[] cookieArray = cookieLine.split(";");
-                for (String cookie : cookieArray) {
-                    set.add(new HtmlParameter(cookie));
-                }
+            // These can be comma separated type=value
+            String[] cookieArray = cookieLine.split(";");
+            for (String cookie : cookieArray) {
+                set.add(new HtmlParameter(cookie));
             }
         }
 

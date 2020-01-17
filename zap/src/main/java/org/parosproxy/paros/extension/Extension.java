@@ -44,6 +44,7 @@
 // ZAP: 2018/04/17 Deprecate getVersion().
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/09/12 Add defaults to getAuthor() and getURL().
 package org.parosproxy.paros.extension;
 
 import java.net.URL;
@@ -122,14 +123,14 @@ public interface Extension {
 
     ViewDelegate getView();
 
-    /** Start the plugin eg if there is a running server. */
+    /** Start the plugin e.g. if there is a running server. */
     void start();
 
-    /** stop the plugin eg if there is a running server. */
+    /** stop the plugin e.g. if there is a running server. */
     void stop();
 
     /**
-     * Plugin cleanup, finalize etc when program shutdown. Stop() will be called before shutdown.
+     * Plugin cleanup, finalize, etc. when program shutdown. Stop() will be called before shutdown.
      */
     void destroy();
 
@@ -183,9 +184,37 @@ public interface Extension {
 
     boolean isCore();
 
-    String getAuthor();
+    /**
+     * Gets the author of the extension.
+     *
+     * <p>Since 2.9.0 defaults to the author of the add-on, if set, otherwise an empty string.
+     *
+     * @return the author of the extension, might be {@code null}.
+     * @since 1.4.0
+     */
+    default String getAuthor() {
+        AddOn addOn = getAddOn();
+        if (addOn != null) {
+            return addOn.getAuthor();
+        }
+        return "";
+    }
 
-    URL getURL();
+    /**
+     * Gets the URL to info about the extension.
+     *
+     * <p>Since 2.9.0 defaults to the info URL of the add-on, if set, otherwise {@code null}.
+     *
+     * @return the URL to info about the extension, might be {@code null}.
+     * @since 1.4.0
+     */
+    default URL getURL() {
+        AddOn addOn = getAddOn();
+        if (addOn != null) {
+            return addOn.getInfo();
+        }
+        return null;
+    }
 
     /**
      * Gets the resource bundle of the extension.
@@ -265,9 +294,9 @@ public interface Extension {
 
     /**
      * Implement this method to perform tasks after the add-on is installed. Note that this will
-     * only be called if the user adds the add-on via ZAP, eg file the File menu or the Marketplace.
-     * If the add-on is installed by copying the file to the plugins directory then it will not be
-     * called.
+     * only be called if the user adds the add-on via ZAP, e.g. file the File menu or the
+     * Marketplace. If the add-on is installed by copying the file to the plugins directory then it
+     * will not be called.
      *
      * @since 2.3.0
      * @see #postInit()
@@ -310,12 +339,12 @@ public interface Extension {
     void setAddOn(AddOn addOn);
 
     /**
-     * Return true if the specified db type is supported by the extension (or if it doesnt use any
+     * Return true if the specified db type is supported by the extension (or if it doesn't use any
      * db) If this method returns false (meaning the db in use is not supported) then the extension
      * will not be loaded.
      *
      * @param type the db type
-     * @return true if the specified db type is supported by the extension (or if it doesnt use any
+     * @return true if the specified db type is supported by the extension (or if it doesn't use any
      *     db)
      * @see org.parosproxy.paros.db.Database#getType()
      */

@@ -44,7 +44,7 @@ public interface SpiderParserListener {
      * required information regarding the page which contains the URI.
      *
      * <p>Also provides a {@code shouldIgnore} boolean that states that this resourceURI should be
-     * ignored in the fetching process, as it's probably a dead end (e.g. binary data, image, etc).
+     * ignored in the fetching process, as it's probably a dead end (e.g. binary data, image, etc.).
      *
      * @param responseMessage the response message
      * @param depth the depth of this resource in the crawling process

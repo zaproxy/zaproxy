@@ -19,16 +19,16 @@
  */
 package org.parosproxy.paros.network;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.network.HttpBodyTestUtils;
 
 /** Unit test for {@link HttpBody}. */

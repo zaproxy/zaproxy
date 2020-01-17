@@ -19,18 +19,20 @@
  */
 package org.zaproxy.zap.spider.parser;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Path;
 import net.htmlparser.jericho.Source;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
@@ -43,28 +45,29 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     private static final Path BASE_DIR_HTML_FILES =
             getResourcePath("html", SpiderHtmlParserUnitTest.class);
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailToCreateParserWithUndefinedSpiderOptions() {
         // Given
         SpiderParam undefinedSpiderOptions = null;
-        // When
-        new SpiderHtmlParser(undefinedSpiderOptions);
-        // Then = IllegalArgumentException
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class, () -> new SpiderHtmlParser(undefinedSpiderOptions));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
-        // When
-        htmlParser.canParseResource(undefinedMessage, ROOT_PATH, false);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> htmlParser.canParseResource(undefinedMessage, ROOT_PATH, false));
     }
 
     @Test
@@ -103,15 +106,16 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         assertThat(canParse, is(equalTo(false)));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         Source source = createSource(createMessageWith("NoURLsSpiderHtmlParser.html"));
-        // When
-        htmlParser.parseResource(undefinedMessage, source, BASE_DEPTH);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(
+                NullPointerException.class,
+                () -> htmlParser.parseResource(undefinedMessage, source, BASE_DEPTH));
     }
 
     @Test
@@ -120,9 +124,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         Source source = null;
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         HttpMessage messageHtmlResponse = createMessageWith("NoURLsSpiderHtmlParser.html");
-        // When
-        htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
-        // Then = No exception
+        // When / Then
+        assertDoesNotThrow(() -> htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH));
     }
 
     @Test
@@ -206,7 +209,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://a.example.com/",
                         "http://ping.example.com/",
                         "http://pong.example.com/",
-                        // Mutiple ping URLs with tab in the middle
+                        // Multiple ping URLs with tab in the middle
                         "http://a.example.com/",
                         "http://ping.example.com/",
                         "http://pong.example.com/")); // Trailing slash is added on host
@@ -254,7 +257,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://a.example.com/",
                         "http://ping.example.com/",
                         "http://pong.example.com/",
-                        // Mutiple ping URLs with tab in the middle
+                        // Multiple ping URLs with tab in the middle
                         "http://a.example.com/",
                         "http://ping.example.com/",
                         "http://pong.example.com/")); // Trailing slash is added on host
@@ -527,7 +530,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                 htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(10)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(12)));
         assertThat(
                 listener.getUrlsFound(),
                 contains(
@@ -535,6 +538,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "https://meta.example.com/refresh",
                         "http://example.com/sample/meta/refresh/relative",
                         "http://example.com/meta/refresh/absolute",
+                        "http://meta.example.com/refresh/url/quoted/single",
+                        "http://meta.example.com/refresh/url/quoted/double",
                         "ftp://meta.example.com/refresh",
                         "http://meta.example.com:8080/location/base/scheme",
                         "https://meta.example.com/location",

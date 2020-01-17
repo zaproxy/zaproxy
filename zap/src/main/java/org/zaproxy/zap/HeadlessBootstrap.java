@@ -30,6 +30,7 @@ import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.control.AddOnRunIssuesUtils;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.model.SessionUtils;
 
 /**
@@ -155,6 +156,14 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
                                     + addOn.getId()
                                     + "\" or its extensions will no longer be run until its requirements are restored: "
                                     + issues);
+        }
+    }
+
+    protected static void checkForUpdates() {
+        ExtensionAutoUpdate eau =
+                Control.getSingleton().getExtensionLoader().getExtension(ExtensionAutoUpdate.class);
+        if (eau != null) {
+            eau.alertIfNewVersions();
         }
     }
 }

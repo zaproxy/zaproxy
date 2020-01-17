@@ -23,7 +23,7 @@ import java.util.Date;
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
-import org.junit.BeforeClass;
+import org.junit.jupiter.api.BeforeAll;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.Status;
@@ -38,7 +38,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  */
 public class PluginTestUtils {
 
-    @BeforeClass
+    @BeforeAll
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
     }
@@ -55,6 +55,10 @@ public class PluginTestUtils {
 
     protected static AbstractPlugin createAbstractPlugin() {
         return createAbstractPlugin(0);
+    }
+
+    protected static AbstractPlugin createDefaultPlugin() {
+        return new TestPlugin(123456789, Alert.RISK_HIGH, 123, 456);
     }
 
     protected static AbstractPlugin createAbstractPlugin(int id) {
@@ -102,6 +106,12 @@ public class PluginTestUtils {
 
         private int id;
         private int risk;
+        private String name;
+        private String description;
+        private String solution;
+        private String reference;
+        private int cweId;
+        private int wascId;
         private String codeName;
         private String[] dependencies;
 
@@ -116,6 +126,16 @@ public class PluginTestUtils {
         public TestPlugin(int id, int risk) {
             this.id = id;
             this.risk = risk;
+            this.name = "Plugin Name";
+            this.description = "Plugin Description";
+            this.solution = "Plugin Solution";
+            this.reference = "Plugin Reference";
+        }
+
+        public TestPlugin(int id, int risk, int cweId, int wascId) {
+            this(id, risk);
+            this.cweId = cweId;
+            this.wascId = wascId;
         }
 
         public TestPlugin(int id, String codeName) {
@@ -135,7 +155,7 @@ public class PluginTestUtils {
 
         @Override
         public String getName() {
-            return null;
+            return name;
         }
 
         @Override
@@ -156,7 +176,7 @@ public class PluginTestUtils {
 
         @Override
         public String getDescription() {
-            return null;
+            return description;
         }
 
         @Override
@@ -166,12 +186,22 @@ public class PluginTestUtils {
 
         @Override
         public String getSolution() {
-            return null;
+            return solution;
         }
 
         @Override
         public String getReference() {
-            return null;
+            return reference;
+        }
+
+        @Override
+        public int getCweId() {
+            return cweId;
+        }
+
+        @Override
+        public int getWascId() {
+            return wascId;
         }
 
         @Override

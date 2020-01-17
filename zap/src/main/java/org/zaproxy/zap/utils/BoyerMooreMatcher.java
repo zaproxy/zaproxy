@@ -26,7 +26,7 @@ import java.util.Map;
  * Reads in two strings, the pattern and the input text, and searches for the pattern in the input
  * text using the bad-character rule part of the Boyer-Moore algorithm.
  *
- * <p>Adapded from the implementation found in:
+ * <p>Adapted from the implementation found in:
  * http://www.params.me/2013/06/boyer-moore-string-search.html
  *
  * @author yhawke 2013

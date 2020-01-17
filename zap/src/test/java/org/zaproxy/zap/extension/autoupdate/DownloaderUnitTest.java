@@ -19,35 +19,34 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.Proxy;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.io.FileUtils;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 /** Unit test for {@link Downloader}. */
 public class DownloaderUnitTest {
 
     private static final String FILE_CONTENTS = "0123456789ABCDEF";
 
-    @ClassRule public static TemporaryFolder tempDir = new TemporaryFolder();
+    @TempDir static Path tempDir;
 
     private static URL downloadUrl;
 
-    @BeforeClass
+    @BeforeAll
     public static void setUp() throws IOException {
-        File file = tempDir.newFile();
-        FileUtils.write(file, FILE_CONTENTS, StandardCharsets.UTF_8);
-        downloadUrl = file.toURI().toURL();
+        Path file = Files.createTempFile(tempDir, "file", "");
+        Files.write(file, FILE_CONTENTS.getBytes(StandardCharsets.UTF_8));
+        downloadUrl = file.toUri().toURL();
     }
 
     @Test
@@ -111,7 +110,8 @@ public class DownloaderUnitTest {
     }
 
     private static Downloader noProxyDownloader(URL url, String hash) throws IOException {
-        return new Downloader(url, Proxy.NO_PROXY, tempDir.newFile(), hash);
+        return new Downloader(
+                url, Proxy.NO_PROXY, Files.createTempFile(tempDir, "download", "").toFile(), hash);
     }
 
     private static void waitDownloadFinish(Downloader downloader) throws InterruptedException {

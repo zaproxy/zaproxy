@@ -53,7 +53,7 @@ public class ZapCookieSpec extends CookieSpecBase {
             throw new MalformedCookieException("Illegal version number " + cookie.getValue());
         }
 
-        // security check... we musn't allow the server to give us an
+        // security check... we mustn't allow the server to give us an
         // invalid domain scope
 
         // Validate the cookies domain attribute.  NOTE:  Domains without

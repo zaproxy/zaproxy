@@ -19,8 +19,6 @@
  */
 package org.zaproxy.zap.extension.authentication;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -121,21 +119,12 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
     @Override
     public AbstractContextPropertiesPanel getContextPanel(Context context) {
-        ContextAuthenticationPanel panel = this.contextPanelsMap.get(context.getIndex());
+        ContextAuthenticationPanel panel = this.contextPanelsMap.get(context.getId());
         if (panel == null) {
             panel = new ContextAuthenticationPanel(this, context);
-            this.contextPanelsMap.put(context.getIndex(), panel);
+            this.contextPanelsMap.put(context.getId(), panel);
         }
         return panel;
-    }
-
-    @Override
-    public URL getURL() {
-        try {
-            return new URL(Constant.ZAP_HOMEPAGE);
-        } catch (MalformedURLException e) {
-            return null;
-        }
     }
 
     @Override
@@ -256,17 +245,17 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         try {
             List<String> typeL =
                     session.getContextDataStrings(
-                            context.getIndex(), RecordContext.TYPE_AUTH_METHOD_TYPE);
+                            context.getId(), RecordContext.TYPE_AUTH_METHOD_TYPE);
             if (typeL != null && typeL.size() > 0) {
                 AuthenticationMethodType t =
                         getAuthenticationMethodTypeForIdentifier(Integer.parseInt(typeL.get(0)));
                 if (t != null) {
                     context.setAuthenticationMethod(
-                            t.loadMethodFromSession(session, context.getIndex()));
+                            t.loadMethodFromSession(session, context.getId()));
 
                     List<String> loginIndicatorL =
                             session.getContextDataStrings(
-                                    context.getIndex(),
+                                    context.getId(),
                                     RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR);
                     if (loginIndicatorL != null && loginIndicatorL.size() > 0)
                         context.getAuthenticationMethod()
@@ -274,7 +263,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
                     List<String> logoutIndicatorL =
                             session.getContextDataStrings(
-                                    context.getIndex(),
+                                    context.getId(),
                                     RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR);
                     if (logoutIndicatorL != null && logoutIndicatorL.size() > 0)
                         context.getAuthenticationMethod()
@@ -290,7 +279,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     @Override
     public void persistContextData(Session session, Context context) {
         try {
-            int contextIdx = context.getIndex();
+            int contextIdx = context.getId();
             AuthenticationMethodType t = context.getAuthenticationMethod().getType();
             session.setContextData(
                     contextIdx,
@@ -332,7 +321,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
     @Override
     public void discardContext(Context ctx) {
-        contextPanelsMap.remove(ctx.getIndex());
+        contextPanelsMap.remove(ctx.getId());
     }
 
     @Override
@@ -358,7 +347,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         ctx.setAuthenticationMethod(
                 getAuthenticationMethodTypeForIdentifier(
                                 config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE))
-                        .createAuthenticationMethod(ctx.getIndex()));
+                        .createAuthenticationMethod(ctx.getId()));
         String str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, "");
         if (str.length() > 0) {
             ctx.getAuthenticationMethod().setLoggedInIndicatorPattern(str);

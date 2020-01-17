@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-	<version>1004000</version>
 
 	<pscans>
 		<autoTagScanners>
@@ -81,7 +80,7 @@
 				<reqUrlRegex/>
 				<reqHeadRegex/>
 				<resHeadRegex/>
-				<resBodyRegex>&lt;.*href\s*['"]?mailto:</resBodyRegex>
+				<resBodyRegex>&lt;.*href\s*=\s*['"]?mailto:</resBodyRegex>
 				<enabled>true</enabled>
 			</scanner>
 			<scanner>

@@ -19,25 +19,27 @@
  */
 package org.zaproxy.zap.view.widgets;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.arrayContaining;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Matchers.anyObject;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.withSettings;
 
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.event.ListDataListener;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.users.UsersTableModel;
 import org.zaproxy.zap.users.User;
@@ -45,24 +47,23 @@ import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.view.ListModelTestUtils;
 
 /** Unit test for {@code UsersListModel}. */
-@RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UsersListModelUnitTest extends ListModelTestUtils {
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
-        I18N i18n = mock(I18N.class);
+        I18N i18n = mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
-        given(i18n.getString(anyString(), anyObject())).willReturn("");
+        given(i18n.getString(anyString(), any())).willReturn("");
         Constant.messages = i18n;
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void shouldFailToCreateInstanceWithUndefinedUsersTableModel() {
         // Given
         UsersTableModel undefinedTableModel = null;
-        // When
-        UsersListModel usersListModel = new UsersListModel(undefinedTableModel);
-        // Then = NullPointerException
+        // When / Then
+        assertThrows(NullPointerException.class, () -> new UsersListModel(undefinedTableModel));
     }
 
     @Test
@@ -98,14 +99,13 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
         assertThat(user, is(nullValue()));
     }
 
-    @Test(expected = ArrayIndexOutOfBoundsException.class)
+    @Test
     public void shouldFailToGetCustomUserIfIndexIsMoreThanAvailableCustomUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
-        // When
-        usersListModel.getElementAt(2);
-        // Then = ArrayIndexOutOfBoundsException
+        // When / Then
+        assertThrows(ArrayIndexOutOfBoundsException.class, () -> usersListModel.getElementAt(2));
     }
 
     @Test

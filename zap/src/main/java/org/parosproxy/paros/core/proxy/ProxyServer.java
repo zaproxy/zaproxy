@@ -39,6 +39,7 @@
 // ZAP: 2017/03/15 Disable API by default and allow thread name to be set
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/12/13 Handle proxy port conflict at startup (issue 2016).
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -54,6 +55,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
+import javax.swing.JOptionPane;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -84,6 +86,7 @@ public class ProxyServer implements Runnable {
     private boolean enableApi = false;
     private static Logger log = Logger.getLogger(ProxyServer.class);
     private String threadName = "ZAP-ProxyServer";
+    private boolean shouldPrompt = false;
 
     /** @return Returns the enableCacheProcessing. */
     public boolean isEnableCacheProcessing() {
@@ -168,13 +171,13 @@ public class ProxyServer implements Runnable {
                 if (View.isInitialised()) {
                     View.getSingleton()
                             .showWarningDialog(
-                                    Constant.messages.getString("proxy.error.host.unknow")
+                                    Constant.messages.getString("proxy.error.host.unknown")
                                             + " "
                                             + ip);
 
                 } else {
                     System.out.println(
-                            Constant.messages.getString("proxy.error.host.unknow") + " " + ip);
+                            Constant.messages.getString("proxy.error.host.unknown") + " " + ip);
                 }
 
                 return -1;
@@ -191,10 +194,18 @@ public class ProxyServer implements Runnable {
                 } else if (message.startsWith("Permission denied")
                         || message.startsWith("Address already in use")) {
                     if (!isDynamicPort) {
-                        showErrorMessage(
-                                Constant.messages.getString(
-                                        "proxy.error.port", ip, Integer.toString(port)));
-                        return -1;
+                        int originalPort = port;
+                        if (shouldPrompt) {
+                            port = promptForPort(ip, port);
+                        }
+                        if (!shouldPrompt || port == -1) {
+                            showErrorMessage(
+                                    Constant.messages.getString(
+                                            "proxy.error.port",
+                                            ip,
+                                            Integer.toString(originalPort)));
+                            return -1;
+                        }
                     } else if (port < 65535) {
                         port++;
                     }
@@ -215,6 +226,40 @@ public class ProxyServer implements Runnable {
         thread.start();
 
         return proxySocket.getLocalPort();
+    }
+
+    private int promptForPort(String ip, int port) {
+        if (!View.isInitialised()) {
+            return -1;
+        }
+        String retryMessage =
+                Constant.messages.getString("proxy.error.port.retry", String.valueOf(port));
+        int tryPort;
+        if (port > 65535 - 20) {
+            port = 1024;
+        }
+        for (tryPort = port + 1; tryPort < port + 21; tryPort++) {
+            try (ServerSocket trySocket = createServerSocket(ip, tryPort)) {
+                if (trySocket != null) {
+                    break;
+                }
+            } catch (IOException ioe) {
+                // Do nothing
+            }
+        }
+        ProxyPortRetryPanel pprp = new ProxyPortRetryPanel(retryMessage, tryPort);
+        int result =
+                JOptionPane.showConfirmDialog(
+                        null,
+                        pprp,
+                        "",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE,
+                        null);
+        if (result == JOptionPane.YES_OPTION) {
+            return pprp.getProxyPort();
+        }
+        return -1;
     }
 
     private static void showErrorMessage(String error) {
@@ -478,5 +523,16 @@ public class ProxyServer implements Runnable {
 
     public boolean isEnableApi() {
         return enableApi;
+    }
+
+    /**
+     * Sets whether or not the {@code ProxyServer} should prompt the user for an alternate port when
+     * there is a conflict.
+     *
+     * @param shouldPrompt {@code true} if the user should be prompted, {@code false} otherwise
+     * @since 2.9.0
+     */
+    public void setShouldPrompt(boolean shouldPrompt) {
+        this.shouldPrompt = shouldPrompt;
     }
 }

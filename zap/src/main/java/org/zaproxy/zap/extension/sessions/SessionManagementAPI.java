@@ -133,7 +133,7 @@ public class SessionManagementAPI extends ApiImplementor {
                     actionParams = API.getParams(params.getString(PARAM_METHOD_CONFIG_PARAMS));
                 else actionParams = new JSONObject();
                 Context context = getContext(params);
-                actionParams.put(PARAM_CONTEXT_ID, context.getIndex());
+                actionParams.put(PARAM_CONTEXT_ID, context.getId());
                 // Run the method
                 getSetMethodActionImplementor(params).handleAction(actionParams);
                 context.save();

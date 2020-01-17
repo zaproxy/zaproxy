@@ -52,7 +52,7 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
     /** Initialize the panel. */
     private void initialize() {
         this.setLayout(new CardLayout());
-        this.setName(getContextIndex() + ": " + PANEL_NAME);
+        this.setName(getContextId() + ": " + PANEL_NAME);
         this.setLayout(new GridBagLayout());
         this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
@@ -72,14 +72,14 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 
     private ContextPanelUsersSelectComboBox getUsersComboBox() {
         if (usersComboBox == null) {
-            usersComboBox = new ContextPanelUsersSelectComboBox(getContextIndex());
+            usersComboBox = new ContextPanelUsersSelectComboBox(getContextId());
         }
         return usersComboBox;
     }
 
     @Override
     public void initContextData(Session session, Context uiSharedContext) {
-        usersComboBox.setSelectedInternalItem(extension.getForcedUser(getContextIndex()));
+        usersComboBox.setSelectedInternalItem(extension.getForcedUser(getContextId()));
     }
 
     @Override
@@ -94,7 +94,7 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 
     @Override
     public void saveContextData(Session session) throws Exception {
-        extension.setForcedUser(getContextIndex(), (User) getUsersComboBox().getSelectedItem());
+        extension.setForcedUser(getContextId(), (User) getUsersComboBox().getSelectedItem());
     }
 
     @Override

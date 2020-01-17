@@ -26,8 +26,11 @@ import java.util.List;
 import java.util.Set;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.core.scanner.Alert.Source;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.Enableable;
 
@@ -75,8 +78,26 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
     private Configuration config = null;
     private AddOn.Status status = AddOn.Status.unknown;
 
+    private PassiveScanThread parent;
+    private HttpMessage message;
+    private PassiveScanData passiveScanData;
+
     public PluginPassiveScanner() {
         super(true);
+    }
+
+    void init(PassiveScanThread parent, HttpMessage message, PassiveScanData psd) {
+        this.parent = parent;
+        this.message = message;
+        this.passiveScanData = psd;
+
+        setParent(parent);
+    }
+
+    void clean() {
+        parent = null;
+        message = null;
+        passiveScanData = null;
     }
 
     /**
@@ -335,5 +356,176 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
     @Override
     public boolean appliesToHistoryType(int historyType) {
         return getDefaultHistoryTypes().contains(historyType);
+    }
+
+    /**
+     * Gets a helper object to be used by scan rules in order to retrieve {@code Context}
+     * information.
+     *
+     * @return the {@code PassiveScanData} related to the message being scanned.
+     * @since 2.9.0
+     */
+    public PassiveScanData getHelper() {
+        return passiveScanData;
+    }
+
+    /**
+     * Returns a new alert builder.
+     *
+     * <p>By default the alert builder sets the following fields of the alert:
+     *
+     * <ul>
+     *   <li>Plugin ID - using {@link #getPluginId()}
+     *   <li>Name - using {@link #getName()}
+     *   <li>Message - the message being scanned
+     *   <li>URI - from the alert message
+     * </ul>
+     *
+     * @return the alert builder.
+     * @since 2.9.0
+     */
+    protected AlertBuilder newAlert() {
+        return new AlertBuilder(this, message);
+    }
+
+    /**
+     * An alert builder to fluently build and {@link #raise() raise alerts}.
+     *
+     * @since 2.9.0
+     */
+    public static final class AlertBuilder extends Alert.Builder {
+
+        private final PluginPassiveScanner plugin;
+        private final HttpMessage message;
+
+        private AlertBuilder(PluginPassiveScanner plugin, HttpMessage message) {
+            this.plugin = plugin;
+            this.message = message;
+
+            setPluginId(plugin.getPluginId());
+            setName(plugin.getName());
+            setMessage(message);
+        }
+
+        @Override
+        public AlertBuilder setAlertId(int alertId) {
+            super.setAlertId(alertId);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setPluginId(int pluginId) {
+            super.setPluginId(pluginId);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setName(String name) {
+            super.setName(name);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setRisk(int risk) {
+            super.setRisk(risk);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setConfidence(int confidence) {
+            super.setConfidence(confidence);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setDescription(String description) {
+            super.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setUri(String uri) {
+            super.setUri(uri);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setParam(String param) {
+            super.setParam(param);
+            return this;
+        }
+
+        /**
+         * @throws IllegalStateException always, passive scanners should not set the attack field.
+         */
+        @Override
+        public AlertBuilder setAttack(String attack) {
+            throw new IllegalStateException("Passive alerts should not have an attack.");
+        }
+
+        @Override
+        public AlertBuilder setOtherInfo(String otherInfo) {
+            super.setOtherInfo(otherInfo);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setSolution(String solution) {
+            super.setSolution(solution);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setReference(String reference) {
+            super.setReference(reference);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setEvidence(String evidence) {
+            super.setEvidence(evidence);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setCweId(int cweId) {
+            super.setCweId(cweId);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setWascId(int wascId) {
+            super.setWascId(wascId);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setMessage(HttpMessage message) {
+            super.setMessage(message);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setSourceHistoryId(int sourceHistoryId) {
+            super.setSourceHistoryId(sourceHistoryId);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setHistoryRef(HistoryReference historyRef) {
+            super.setHistoryRef(historyRef);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setSource(Source source) {
+            super.setSource(source);
+            return this;
+        }
+
+        /** Raises the alert with specified data. */
+        public void raise() {
+            plugin.parent.raiseAlert(message.getHistoryRef().getHistoryId(), build());
+        }
     }
 }

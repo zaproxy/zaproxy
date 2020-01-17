@@ -19,12 +19,12 @@
  */
 package org.zaproxy.zap.utils;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 import net.sf.json.JSONObject;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link JsonUtil}. */
 public class JsonUtilUnitTest {

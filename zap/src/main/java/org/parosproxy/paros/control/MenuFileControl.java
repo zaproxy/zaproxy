@@ -35,7 +35,7 @@
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/08/05 Proper call for starting Session Properties dialog
-// ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
+// ZAP: 2013/08/28 Issue 695: Sites tree doesn't clear on new session created by API
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/01/29 Issue 1489: Version number in window title
@@ -127,7 +127,7 @@ public class MenuFileControl implements SessionListener {
 
         if (model.getOptionsParam().getDatabaseParam().isNewSessionPrompt()) {
             PersistSessionDialog psd = new PersistSessionDialog(View.getSingleton().getMainFrame());
-            // Set up the default option - ie the same one the user chose last time
+            // Set up the default option - i.e. the same one the user chose last time
             switch (newSessionOption) {
                 case DatabaseParam.NEW_SESSION_TIMESTAMPED:
                     psd.setTimestampChosen();
@@ -517,7 +517,7 @@ public class MenuFileControl implements SessionListener {
             if (file != null) {
                 log.error("Error opening session file " + file.getAbsolutePath(), e);
             } else {
-                // File is null for table based sessions (ie non HSQLDB)
+                // File is null for table based sessions (i.e. non HSQLDB)
                 log.error(e.getMessage(), e);
             }
         }

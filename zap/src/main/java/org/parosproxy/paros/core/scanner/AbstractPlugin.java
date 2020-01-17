@@ -63,6 +63,7 @@
 // ZAP: 2019/03/22 Add bingo with references.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2019/10/21 Use and expose Alert builder.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -79,7 +80,9 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.scanner.Alert.Source;
 import org.parosproxy.paros.extension.encoder.Encoder;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
@@ -363,7 +366,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     @Override
     public void run() {
-        // ZAP : set skipped to false otherwise the plugin shoud stop continously
+        // ZAP : set skipped to false otherwise the plugin should stop continuously
         // this.skipped = false;
 
         try {
@@ -391,7 +394,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param attack the attack that shows the issue
      * @param otherInfo other information about the issue
      * @param msg the message that shows the issue
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
      */
+    @Deprecated
     protected void bingo(
             int risk,
             int confidence,
@@ -428,7 +434,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param otherInfo other information about the issue
      * @param solution the solution for the issue
      * @param msg the message that shows the issue
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
      */
+    @Deprecated
     protected void bingo(
             int risk,
             int confidence,
@@ -441,31 +450,18 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             String solution,
             HttpMessage msg) {
 
-        log.debug("New alert pluginid=" + +this.getId() + " " + name + " uri=" + uri);
-
-        Alert alert = new Alert(this.getId(), risk, confidence, name);
-        if (uri == null || uri.equals("")) {
-            uri = msg.getRequestHeader().getURI().toString();
-        }
-
-        if (param == null) {
-            param = "";
-        }
-
-        alert.setDetail(
-                description,
-                uri,
-                param,
-                attack,
-                otherInfo,
-                solution,
-                this.getReference(),
-                "",
-                this.getCweId(),
-                this.getWascId(),
-                msg);
-
-        parent.alertFound(alert);
+        newAlert()
+                .setRisk(risk)
+                .setConfidence(confidence)
+                .setName(name)
+                .setDescription(description)
+                .setUri(uri)
+                .setParam(param)
+                .setAttack(attack)
+                .setOtherInfo(otherInfo)
+                .setSolution(solution)
+                .setMessage(msg)
+                .raise();
     }
 
     /**
@@ -480,7 +476,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param otherInfo other information about the issue
      * @param evidence the evidence (in the response) that shows the issue
      * @param msg the message that shows the issue
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
      */
+    @Deprecated
     protected void bingo(
             int risk,
             int confidence,
@@ -520,7 +519,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param solution the solution for the issue
      * @param evidence the evidence (in the response) that shows the issue
      * @param msg the message that shows the issue
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
      */
+    @Deprecated
     protected void bingo(
             int risk,
             int confidence,
@@ -534,32 +536,26 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             String evidence,
             HttpMessage msg) {
 
-        log.debug("New alert pluginid=" + +this.getId() + " " + name + " uri=" + uri);
-        Alert alert = new Alert(this.getId(), risk, confidence, name);
-        if (uri == null || uri.equals("")) {
-            uri = msg.getRequestHeader().getURI().toString();
-        }
-
-        if (param == null) {
-            param = "";
-        }
-
-        alert.setDetail(
-                description,
-                uri,
-                param,
-                attack,
-                otherInfo,
-                solution,
-                this.getReference(),
-                evidence,
-                this.getCweId(),
-                this.getWascId(),
-                msg);
-
-        parent.alertFound(alert);
+        newAlert()
+                .setRisk(risk)
+                .setConfidence(confidence)
+                .setName(name)
+                .setDescription(description)
+                .setUri(uri)
+                .setParam(param)
+                .setAttack(attack)
+                .setOtherInfo(otherInfo)
+                .setSolution(solution)
+                .setEvidence(evidence)
+                .setMessage(msg)
+                .raise();
     }
 
+    /**
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
+     */
+    @Deprecated
     protected void bingo(
             int risk,
             int confidence,
@@ -591,6 +587,11 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                 msg);
     }
 
+    /**
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
+     */
+    @Deprecated
     protected void bingo(
             int risk,
             int confidence,
@@ -607,31 +608,22 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             int wascId,
             HttpMessage msg) {
 
-        log.debug("New alert pluginid=" + +this.getId() + " " + name + " uri=" + uri);
-        Alert alert = new Alert(this.getId(), risk, confidence, name);
-
-        if (uri == null || uri.equals("")) {
-            uri = msg.getRequestHeader().getURI().toString();
-        }
-
-        if (param == null) {
-            param = "";
-        }
-
-        alert.setDetail(
-                description,
-                uri,
-                param,
-                attack,
-                otherInfo,
-                solution,
-                reference,
-                evidence,
-                cweId,
-                wascId,
-                msg);
-
-        parent.alertFound(alert);
+        newAlert()
+                .setRisk(risk)
+                .setConfidence(confidence)
+                .setName(name)
+                .setDescription(description)
+                .setUri(uri)
+                .setParam(param)
+                .setAttack(attack)
+                .setOtherInfo(otherInfo)
+                .setSolution(solution)
+                .setEvidence(evidence)
+                .setReference(reference)
+                .setCweId(cweId)
+                .setWascId(wascId)
+                .setMessage(msg)
+                .raise();
     }
 
     /**
@@ -645,8 +637,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Check if this test should be stopped. It should be checked periodically in Plugin (eg when in
-     * loops) so the HostProcess can stop this Plugin cleanly.
+     * Check if this test should be stopped. It should be checked periodically in Plugin (e.g. when
+     * in loops) so the HostProcess can stop this Plugin cleanly.
      *
      * @return {@code true} if the scanner should stop, {@code false} otherwise
      */
@@ -1153,5 +1145,192 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     public void setStatus(AddOn.Status status) {
         this.status = status;
+    }
+
+    /**
+     * Returns a new alert builder.
+     *
+     * <p>By default the alert builder sets the following fields of the alert:
+     *
+     * <ul>
+     *   <li>Plugin ID - using {@link #getId()}
+     *   <li>Name - using {@link #getName()}
+     *   <li>Risk - using {@link #getRisk()}
+     *   <li>Description - using {@link #getDescription()}
+     *   <li>Solution - using {@link #getSolution()}
+     *   <li>Reference - using {@link #getReference()}
+     *   <li>CWE ID - using {@link #getCweId()}
+     *   <li>WASC ID - using {@link #getWascId()}
+     *   <li>URI - from the alert message
+     * </ul>
+     *
+     * @return the alert builder.
+     * @since 2.9.0
+     */
+    protected AlertBuilder newAlert() {
+        return new AlertBuilder(this);
+    }
+
+    /**
+     * An alert builder to fluently build and {@link #raise() raise alerts}.
+     *
+     * @since 2.9.0
+     */
+    public static final class AlertBuilder extends Alert.Builder {
+
+        private final AbstractPlugin plugin;
+        private boolean messageSet;
+
+        private AlertBuilder(AbstractPlugin plugin) {
+            this.plugin = plugin;
+
+            setPluginId(plugin.getId());
+            setName(plugin.getName());
+            setRisk(plugin.getRisk());
+            setDescription(plugin.getDescription());
+            setSolution(plugin.getSolution());
+            setReference(plugin.getReference());
+            setCweId(plugin.getCweId());
+            setWascId(plugin.getWascId());
+        }
+
+        @Override
+        public AlertBuilder setAlertId(int alertId) {
+            super.setAlertId(alertId);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setPluginId(int pluginId) {
+            super.setPluginId(pluginId);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setName(String name) {
+            super.setName(name);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setRisk(int risk) {
+            super.setRisk(risk);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setConfidence(int confidence) {
+            super.setConfidence(confidence);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setDescription(String description) {
+            super.setDescription(description);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setUri(String uri) {
+            super.setUri(uri);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setParam(String param) {
+            super.setParam(param);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setAttack(String attack) {
+            super.setAttack(attack);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setOtherInfo(String otherInfo) {
+            super.setOtherInfo(otherInfo);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setSolution(String solution) {
+            super.setSolution(solution);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setReference(String reference) {
+            super.setReference(reference);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setEvidence(String evidence) {
+            super.setEvidence(evidence);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setCweId(int cweId) {
+            super.setCweId(cweId);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setWascId(int wascId) {
+            super.setWascId(wascId);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setMessage(HttpMessage message) {
+            super.setMessage(message);
+            messageSet = message != null;
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setSourceHistoryId(int sourceHistoryId) {
+            super.setSourceHistoryId(sourceHistoryId);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setHistoryRef(HistoryReference historyRef) {
+            super.setHistoryRef(historyRef);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setSource(Source source) {
+            super.setSource(source);
+            return this;
+        }
+
+        /**
+         * Raises the alert with specified data.
+         *
+         * @throws IllegalStateException if the HTTP message was not set.
+         */
+        public void raise() {
+            if (!messageSet) {
+                throw new IllegalStateException(
+                        "A HTTP message must be set before raising the alert.");
+            }
+
+            Alert alert = build();
+            if (plugin.log.isDebugEnabled()) {
+                plugin.log.debug(
+                        "New alert pluginid="
+                                + alert.getPluginId()
+                                + " "
+                                + alert.getName()
+                                + " uri="
+                                + alert.getUri());
+            }
+            plugin.parent.alertFound(alert);
+        }
     }
 }

@@ -136,12 +136,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     }
 
     private static boolean hasColumn(Column[] columns, Column column) {
-        for (int i = 0; i < columns.length; i++) {
-            if (column == columns[i]) {
-                return true;
-            }
-        }
-        return false;
+        return Arrays.stream(columns).anyMatch(value -> column == value);
     }
 
     @Override
