@@ -530,7 +530,7 @@ public class ProxyServer implements Runnable {
      * there is a conflict.
      *
      * @param shouldPrompt {@code true} if the user should be prompted, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void setShouldPrompt(boolean shouldPrompt) {
         this.shouldPrompt = shouldPrompt;

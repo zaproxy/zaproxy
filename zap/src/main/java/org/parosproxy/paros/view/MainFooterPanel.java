@@ -253,7 +253,7 @@ public class MainFooterPanel extends JPanel {
      * Set the footer label for the primary proxy, the format should be host:port.
      *
      * @param proxyStr the string representation of the proxy setting that should be displayed.
-     * @since TODO Add version
+     * @since 2.9.0
      */
     private void setPrimaryProxyLabel(String proxyStr) {
         getPrimaryProxyLabel()

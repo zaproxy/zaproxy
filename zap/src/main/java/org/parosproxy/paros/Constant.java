@@ -102,6 +102,8 @@
 // ZAP: 2019/11/07 Removed constants related to accepting the license.
 // ZAP: 2020/01/02 Updated config version and default user agent
 // ZAP: 2020/01/06 Set latest version to default config.
+// ZAP: 2020/01/10 Correct the MailTo autoTagScanner regex pattern when upgrading from 2.8 or
+// earlier.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -134,6 +136,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -151,9 +154,9 @@ public final class Constant {
     // ZAP: rebrand
     public static final String PROGRAM_NAME = "OWASP ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
-    /** @deprecated (TODO add version) Do not use, it will be removed. */
+    /** @deprecated (2.9.0) Do not use, it will be removed. */
     @Deprecated public static final String ZAP_HOMEPAGE = "http://www.owasp.org/index.php/ZAP";
-    /** @deprecated (TODO add version) Do not use, it will be removed. */
+    /** @deprecated (2.9.0) Do not use, it will be removed. */
     @Deprecated
     public static final String ZAP_EXTENSIONS_PAGE = "https://github.com/zaproxy/zap-extensions";
 
@@ -1092,6 +1095,22 @@ public final class Constant {
         // Update to a newer default user agent
         config.setProperty(
                 ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
+        updatePscanTagMailtoPattern(config);
+    }
+
+    private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
+        String autoTagScannersKey = "pscans.autoTagScanners.scanner";
+        List<HierarchicalConfiguration> tagScanners = config.configurationsAt(autoTagScannersKey);
+        String badPattern = "<.*href\\s*['\"]?mailto:";
+        String goodPattern = "<.*href\\s*=\\s*['\"]?mailto:";
+
+        for (int i = 0, size = tagScanners.size(); i < size; ++i) {
+            String currentKeyResBodyRegex = autoTagScannersKey + "(" + i + ").resBodyRegex";
+            if (config.getProperty(currentKeyResBodyRegex).equals(badPattern)) {
+                config.setProperty(currentKeyResBodyRegex, goodPattern);
+                break;
+            }
+        }
     }
 
     private static void updateCfuFromDefaultConfig(XMLConfiguration config) {

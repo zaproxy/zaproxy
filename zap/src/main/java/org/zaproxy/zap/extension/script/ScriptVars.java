@@ -171,7 +171,7 @@ public final class ScriptVars {
      *           #MAX_GLOBAL_VARS});
      *     </ul>
      *
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static void setGlobalCustomVar(String key, Object value) {
         setVar(globalCustomVars, key, value);
@@ -182,7 +182,7 @@ public final class ScriptVars {
      *
      * @param key the key of the variable.
      * @return the value of the variable, might be {@code null} if no value was previously set.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static Object getGlobalCustomVar(String key) {
         return globalCustomVars.get(key);
@@ -194,7 +194,7 @@ public final class ScriptVars {
      * <p>Iterations should be done in a synchronised block using the returned map.
      *
      * @return an unmodifiable map containing the global variables, never {@code null}.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static Map<String, Object> getGlobalCustomVars() {
         return Collections.unmodifiableMap(globalCustomVars);
@@ -397,7 +397,7 @@ public final class ScriptVars {
      *           #MAX_SCRIPT_VARS});
      *     </ul>
      *
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static void setScriptCustomVar(ScriptContext context, String key, Object value) {
         setScriptCustomVarImpl(getScriptName(context), key, value);
@@ -420,7 +420,7 @@ public final class ScriptVars {
      *           #MAX_SCRIPT_VARS});
      *     </ul>
      *
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static void setScriptCustomVar(String scriptName, String key, Object value) {
         validateScriptName(scriptName);
@@ -446,7 +446,7 @@ public final class ScriptVars {
      * @return the value of the variable, might be {@code null} if no value was previously set.
      * @throws IllegalArgumentException if the {@code context} is {@code null} or it does not
      *     contain the name of the script.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static Object getScriptCustomVar(ScriptContext context, String key) {
         return getScriptCustomVarImpl(getScriptName(context), key);
@@ -459,7 +459,7 @@ public final class ScriptVars {
      * @param key the key of the variable.
      * @return the value of the variable, might be {@code null} if no value was previously set.
      * @throws IllegalArgumentException if the {@code scriptName} is {@code null}.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static Object getScriptCustomVar(String scriptName, String key) {
         validateScriptName(scriptName);
@@ -485,7 +485,7 @@ public final class ScriptVars {
      *
      * @param scriptName the name of the script.
      * @return an unmodifiable map containing the script variables, never {@code null}.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static Map<String, Object> getScriptCustomVars(String scriptName) {
         return Collections.unmodifiableMap(
