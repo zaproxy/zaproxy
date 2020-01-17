@@ -7,7 +7,7 @@
         {
             "name": "ZAP development team",
             "email": "yukisov@gmail.com",
-            "homepage": "https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project"
+            "homepage": "https://www.zaproxy.org/"
         }
     ],
     "require": {

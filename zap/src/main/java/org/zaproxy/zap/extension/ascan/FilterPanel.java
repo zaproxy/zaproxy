@@ -61,7 +61,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * filtering the Active Scan messages based on the selection.
  *
  * @author KSASAN preetkaran20@gmail.com
- * @since TODO add version
+ * @since 2.9.0
  */
 class FilterPanel extends JPanel {
 

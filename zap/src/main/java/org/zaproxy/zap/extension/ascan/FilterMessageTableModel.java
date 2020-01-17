@@ -26,7 +26,7 @@ import org.parosproxy.paros.Constant;
 
 /**
  * @author KSASAN preetkaran20@gmail.com
- * @since TODO add version
+ * @since 2.9.0
  */
 class FilterMessageTableModel extends AbstractTableModel {
 

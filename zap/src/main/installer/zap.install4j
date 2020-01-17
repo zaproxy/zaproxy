@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <install4j version="6.1.6" transformSequenceNumber="5">
-  <application name="OWASP Zed Attack Proxy" distributionSourceDir="" applicationId="OWASP ZAP" mediaDir="" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="ZAP" publisher="OWASP ZAP" publisherWeb="https://www.owasp.org/index.php/ZAP" version="${compiler:version}" allPathsRelative="true" backupOnSave="true" autoSave="false" convertDotsToUnderscores="true" macSignature="????" macVolumeId="1369b1f423bb47f8" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
+  <application name="OWASP Zed Attack Proxy" distributionSourceDir="" applicationId="OWASP ZAP" mediaDir="" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" compression="6" lzmaCompression="false" pack200Compression="false" excludeSignedFromPacking="true" commonExternalFiles="false" createMd5Sums="true" shrinkRuntime="true" shortName="ZAP" publisher="OWASP ZAP" publisherWeb="https://www.zaproxy.org/" version="${compiler:version}" allPathsRelative="true" backupOnSave="true" autoSave="false" convertDotsToUnderscores="true" macSignature="????" macVolumeId="1369b1f423bb47f8" javaMinVersion="1.8" javaMaxVersion="" allowBetaVM="false" jdkMode="runtimeJre" jdkName="">
     <languages skipLanguageSelection="true" languageSelectionInPrincipalLanguage="false">
       <principalLanguage id="en" customLocalizationFile="./resources/Messages.properties" />
       <additionalLanguages>
@@ -944,7 +944,7 @@ return;</preActivation>
                               <string>ZAP homepage</string>
                             </void>
                             <void property="url">
-                              <string>https://www.owasp.org/index.php/ZAP</string>
+                              <string>https://www.zaproxy.org/</string>
                             </void>
                           </object>
                         </void>

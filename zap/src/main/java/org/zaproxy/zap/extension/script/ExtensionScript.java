@@ -100,8 +100,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     public static final String SCRIPTS_DIR = "scripts";
     public static final String TEMPLATES_DIR = SCRIPTS_DIR + File.separator + "templates";
     private static final String LANG_ENGINE_SEP = " : ";
+
+    @Deprecated
     protected static final String SCRIPT_CONSOLE_HOME_PAGE =
             "https://github.com/zaproxy/zaproxy/wiki/ScriptConsole";
+
     protected static final String SCRIPT_NAME_ATT = "zap.script.name";
 
     public static final String TYPE_HTTP_SENDER = "httpsender";
@@ -581,7 +584,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @param type the script type that will be removed
      * @since 2.4.0
      * @see #registerScriptType(ScriptType)
-     * @deprecated (TODO add version) Use {@link #removeScriptType(ScriptType)} instead.
+     * @deprecated (2.9.0) Use {@link #removeScriptType(ScriptType)} instead.
      */
     @Deprecated
     public void removeScripType(ScriptType type) {
@@ -596,7 +599,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * <p>The call to this method has no effect if the given type is not registered.
      *
      * @param type the script type that will be removed
-     * @since TODO add version
+     * @since 2.9.0
      * @see #registerScriptType(ScriptType)
      */
     public void removeScriptType(ScriptType type) {
@@ -1549,7 +1552,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      *
      * @param script the script that caused the error, must not be {@code null}.
      * @param error the error caused by the script, must not be {@code null}.
-     * @since TODO add version
+     * @since 2.9.0
      * @see #setEnabled(ScriptWrapper, boolean)
      * @see #setError(ScriptWrapper, String)
      * @see #handleScriptException(ScriptWrapper, Exception)

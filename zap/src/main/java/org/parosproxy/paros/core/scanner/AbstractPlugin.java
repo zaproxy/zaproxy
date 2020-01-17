@@ -394,8 +394,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param attack the attack that shows the issue
      * @param otherInfo other information about the issue
      * @param msg the message that shows the issue
-     * @deprecated (TODO add version) Use {@link #newAlert()} to build and {@link
-     *     AlertBuilder#raise() raise} the alert.
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
      */
     @Deprecated
     protected void bingo(
@@ -434,8 +434,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param otherInfo other information about the issue
      * @param solution the solution for the issue
      * @param msg the message that shows the issue
-     * @deprecated (TODO add version) Use {@link #newAlert()} to build and {@link
-     *     AlertBuilder#raise() raise} the alert.
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
      */
     @Deprecated
     protected void bingo(
@@ -476,8 +476,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param otherInfo other information about the issue
      * @param evidence the evidence (in the response) that shows the issue
      * @param msg the message that shows the issue
-     * @deprecated (TODO add version) Use {@link #newAlert()} to build and {@link
-     *     AlertBuilder#raise() raise} the alert.
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
      */
     @Deprecated
     protected void bingo(
@@ -519,8 +519,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param solution the solution for the issue
      * @param evidence the evidence (in the response) that shows the issue
      * @param msg the message that shows the issue
-     * @deprecated (TODO add version) Use {@link #newAlert()} to build and {@link
-     *     AlertBuilder#raise() raise} the alert.
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
      */
     @Deprecated
     protected void bingo(
@@ -552,8 +552,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * @deprecated (TODO add version) Use {@link #newAlert()} to build and {@link
-     *     AlertBuilder#raise() raise} the alert.
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
      */
     @Deprecated
     protected void bingo(
@@ -588,8 +588,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * @deprecated (TODO add version) Use {@link #newAlert()} to build and {@link
-     *     AlertBuilder#raise() raise} the alert.
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
+     *     the alert.
      */
     @Deprecated
     protected void bingo(
@@ -1165,7 +1165,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * </ul>
      *
      * @return the alert builder.
-     * @since TODO add version
+     * @since 2.9.0
      */
     protected AlertBuilder newAlert() {
         return new AlertBuilder(this);
@@ -1174,7 +1174,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     /**
      * An alert builder to fluently build and {@link #raise() raise alerts}.
      *
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static final class AlertBuilder extends Alert.Builder {
 
