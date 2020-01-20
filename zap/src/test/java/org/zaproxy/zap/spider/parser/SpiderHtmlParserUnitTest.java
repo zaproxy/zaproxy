@@ -530,7 +530,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                 htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(10)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(12)));
         assertThat(
                 listener.getUrlsFound(),
                 contains(
@@ -538,6 +538,8 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "https://meta.example.com/refresh",
                         "http://example.com/sample/meta/refresh/relative",
                         "http://example.com/meta/refresh/absolute",
+                        "http://meta.example.com/refresh/url/quoted/single",
+                        "http://meta.example.com/refresh/url/quoted/double",
                         "ftp://meta.example.com/refresh",
                         "http://meta.example.com:8080/location/base/scheme",
                         "https://meta.example.com/location",

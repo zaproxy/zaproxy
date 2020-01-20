@@ -17,8 +17,8 @@ plugins {
 }
 
 group = "org.zaproxy"
-version = "2.9.0-SNAPSHOT"
-val versionBC = "2.8.0"
+version = "2.10.0-SNAPSHOT"
+val versionBC = "2.9.0"
 
 val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
@@ -127,32 +127,6 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     oldClasspath = files(zapJar(versionBC))
     newClasspath = files(tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).map { it.archivePath })
     ignoreMissingClasses = true
-    packageExcludes = listOf(
-        // Should no longer be in use by any add-on
-        "org.parosproxy.paros.extension.filter"
-    )
-    classExcludes = listOf(
-        // Not expected to be used by add-ons
-        "org.parosproxy.paros.view.LicenseFrame",
-        "org.zaproxy.zap.view.LicenseFrame"
-    )
-    fieldExcludes = listOf(
-        // Not expected to be used by add-ons
-        "org.parosproxy.paros.Constant#ACCEPTED_LICENSE",
-        "org.parosproxy.paros.Constant#ACCEPTED_LICENSE_DEFAULT"
-    )
-    methodExcludes = listOf(
-        // Implementation moved to interface
-        "org.parosproxy.paros.extension.ExtensionAdaptor#getURL()",
-        "org.parosproxy.paros.extension.ExtensionAdaptor#getAuthor()",
-        // Not expected to be used by add-ons
-        "org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate#getLatestVersionInfo(org.zaproxy.zap.extension.autoupdate.CheckForUpdateCallback)",
-        "org.zaproxy.zap.extension.autoupdate.ManageAddOnsDialog#checkForUpdates()",
-        // Safe default method
-        "org.parosproxy.paros.core.scanner.ScannerListener#filteredMessage(org.parosproxy.paros.network.HttpMessage,java.lang.String)",
-        // Internal API
-        "org.zaproxy.zap.extension.ascan.ActiveScanPanel#getWorkPanel()"
-    )
 
     richReport {
         destinationDir = file("$buildDir/reports/japicmp/")

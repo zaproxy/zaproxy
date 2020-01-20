@@ -374,7 +374,7 @@ public final class AddOnRunIssuesUtils {
      *
      * @param requirements the run requirements of the add-on or extension
      * @return a {@code String} representing the running issue, {@code null} if none.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static String getMissingLibsIssue(AddOn.BaseRunRequirements requirements) {
         if (!requirements.hasMissingLibs()) {

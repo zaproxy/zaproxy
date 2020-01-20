@@ -37,7 +37,7 @@ import org.zaproxy.zap.users.User;
  *
  * @see PassiveScanThread
  * @see PluginPassiveScanner
- * @since TODO add version
+ * @since 2.9.0
  */
 public final class PassiveScanData {
 

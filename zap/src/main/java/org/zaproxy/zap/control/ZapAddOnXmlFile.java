@@ -87,7 +87,7 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
      * Gets the libraries of the add-on.
      *
      * @return the libraries, never {@code null}.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public List<String> getLibs() {
         return libs;

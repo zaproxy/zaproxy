@@ -363,7 +363,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
      * information.
      *
      * @return the {@code PassiveScanData} related to the message being scanned.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public PassiveScanData getHelper() {
         return passiveScanData;
@@ -382,7 +382,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
      * </ul>
      *
      * @return the alert builder.
-     * @since TODO add version
+     * @since 2.9.0
      */
     protected AlertBuilder newAlert() {
         return new AlertBuilder(this, message);
@@ -391,7 +391,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
     /**
      * An alert builder to fluently build and {@link #raise() raise alerts}.
      *
-     * @since TODO add version
+     * @since 2.9.0
      */
     public static final class AlertBuilder extends Alert.Builder {
 

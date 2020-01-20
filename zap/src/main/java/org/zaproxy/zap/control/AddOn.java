@@ -1323,7 +1323,7 @@ public class AddOn {
      * @param availableAddOns the other add-ons available.
      * @return the requirements to install/run the add-on, and if not runnable the reason why it's
      *     not.
-     * @since TODO add version
+     * @since 2.9.0
      * @see #calculateRunRequirements(Collection)
      * @see AddOnRunRequirements
      */
@@ -1516,7 +1516,7 @@ public class AddOn {
      * @param availableAddOns the add-ons available.
      * @return the requirements to install/run the extension, and if not runnable the reason why
      *     it's not.
-     * @since TODO add version
+     * @since 2.9.0
      * @see AddOnRunRequirements#getExtensionRequirements()
      */
     public AddOnRunRequirements calculateExtensionInstallRequirements(
@@ -1555,7 +1555,7 @@ public class AddOn {
      * @param availableAddOns the add-ons available.
      * @return the requirements to install/run the extension, and if not runnable the reason why
      *     it's not.
-     * @since TODO add version
+     * @since 2.9.0
      * @see AddOnRunRequirements#getExtensionRequirements()
      */
     public AddOnRunRequirements calculateExtensionInstallRequirements(
@@ -1736,7 +1736,7 @@ public class AddOn {
      * Gets the URL to the browsable repo.
      *
      * @return the URL to the repo, might be {@code null}.
-     * @since TODO add version
+     * @since 2.9.0
      */
     public URL getRepo() {
         return repo;
@@ -2200,7 +2200,7 @@ public class AddOn {
          * the methods {@link #getAddOn()} and {@link #getAddOnMissingLibs()}.
          *
          * @return {@code true} if the add-on has missing libraries, {@code false} otherwise.
-         * @since TODO add version
+         * @since 2.9.0
          */
         public boolean hasMissingLibs() {
             return addOnMissingLibs != null;
@@ -2212,7 +2212,7 @@ public class AddOn {
          * @return the add-on, or {@code null} if none.
          * @see #hasMissingLibs()
          * @see #getAddOn()
-         * @since TODO add version
+         * @since 2.9.0
          */
         public AddOn getAddOnMissingLibs() {
             return addOnMissingLibs;

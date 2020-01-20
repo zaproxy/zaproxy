@@ -187,8 +187,7 @@ public interface Extension {
     /**
      * Gets the author of the extension.
      *
-     * <p>Since TODO add version defaults to the author of the add-on, if set, otherwise an empty
-     * string.
+     * <p>Since 2.9.0 defaults to the author of the add-on, if set, otherwise an empty string.
      *
      * @return the author of the extension, might be {@code null}.
      * @since 1.4.0
@@ -204,8 +203,7 @@ public interface Extension {
     /**
      * Gets the URL to info about the extension.
      *
-     * <p>Since TODO add version defaults to the info URL of the add-on, if set, otherwise {@code
-     * null}.
+     * <p>Since 2.9.0 defaults to the info URL of the add-on, if set, otherwise {@code null}.
      *
      * @return the URL to info about the extension, might be {@code null}.
      * @since 1.4.0

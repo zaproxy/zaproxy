@@ -249,7 +249,7 @@ public class ExtensionHookMenu {
      * Add a sub-menu to the File menu
      *
      * @param menu the sub-menu to add
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void addFileSubMenu(JMenu menu) {
         addFileMenuItemImpl(menu);
@@ -277,7 +277,7 @@ public class ExtensionHookMenu {
      * Add a sub-menu to the Edit menu
      *
      * @param menu the sub-menu to add
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void addEditSubMenu(JMenu menu) {
         addEditMenuItemImpl(menu);
@@ -305,7 +305,7 @@ public class ExtensionHookMenu {
      * Add a sub-menu to the View menu
      *
      * @param menu the sub-menu to add
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void addViewSubMenu(JMenu menu) {
         addViewMenuItemImpl(menu);
@@ -333,7 +333,7 @@ public class ExtensionHookMenu {
      * Add a sub-menu to the Analyse menu
      *
      * @param menu the sub-menu to add
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void addAnalyseSubMenu(JMenu menu) {
         addAnalyseMenuItemImpl(menu);
@@ -361,7 +361,7 @@ public class ExtensionHookMenu {
      * Add a sub-menu to the Tools menu
      *
      * @param menu the sub-menu to add
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void addToolsSubMenu(JMenu menu) {
         addToolsMenuItemImpl(menu);
@@ -398,7 +398,7 @@ public class ExtensionHookMenu {
      * Add a sub-menu to the Import menu
      *
      * @param menu the sub-menu to add
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void addImportSubMenu(JMenu menu) {
         addImportMenuItemImpl(menu);
@@ -460,7 +460,7 @@ public class ExtensionHookMenu {
      * Add a sub-menu to the Help menu
      *
      * @param menu the sub-menu to add
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void addHelpSubMenu(JMenu menu) {
         addHelpMenuItemImpl(menu);
@@ -488,7 +488,7 @@ public class ExtensionHookMenu {
      * Add a sub-menu to the Report menu
      *
      * @param menu the sub-menu to add
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void addReportSubMenu(JMenu menu) {
         addReportMenuItemImpl(menu);
@@ -513,7 +513,7 @@ public class ExtensionHookMenu {
      * Add a sub-menu to the Online menu
      *
      * @param menu the sub-menu to add
-     * @since TODO Add version
+     * @since 2.9.0
      */
     public void addOnlineSubMenu(JMenu menu) {
         addOnlineMenuItemImpl(menu);

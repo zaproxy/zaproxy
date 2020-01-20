@@ -76,7 +76,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * The type corresponding to a {@link SessionManagementMethod} for web applications that use Session
  * Management Scripts, which can hopefully model any custom behaviour required
  *
- * @since TODO add version
+ * @since 2.9.0
  */
 public class ScriptBasedSessionManagementMethodType extends SessionManagementMethodType {
 

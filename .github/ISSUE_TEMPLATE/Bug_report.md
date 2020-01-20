@@ -23,13 +23,13 @@ If applicable, add screenshots to help explain your problem.
 
 **Software versions**
  - ZAP: [note that we typically only support the latest version of ZAP]
- - Add-on: Name and version [e.g. Passive Scan Rules Alpha v19. https://github.com/zaproxy/zaproxy/wiki/FAQAddonVersions]
+ - Add-on: Name and version [e.g. Passive Scan Rules Alpha v19. https://www.zaproxy.org/faq/how-do-i-see-what-version-of-an-add-on-extension-i-have-installed/]
  - OS: [e.g. Windows 10]
  - Java: [e.g. openjdk version "1.8.0_171"]
  - Browser: [e.g. chrome 66, firefox 59, safari 11.1]
 
 **Errors from the zap.log file**
-See https://github.com/zaproxy/zaproxy/wiki/FAQconfig for the location of the zap.log file for your OS.
+See https://www.zaproxy.org/faq/what-is-the-default-directory-that-zap-uses/ for the location of the zap.log file for your OS.
 
 **Additional context**
 Add any other context about the problem here.
