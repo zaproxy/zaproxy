@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-01-22
+ - Change `live`, `stable`, and `weekly` images to set the locale and lang to `C.UTF-8`,
+ to improve interoperability with Python 3 (e.g. `zap-cli`).
+
 ### 2019-10-16
  - Added response code after each URL reported on standard out:
 
