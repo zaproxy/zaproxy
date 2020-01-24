@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Create a report to help us improve (not for questions - use the User Group for those)
 labels: bug
 
 ---
