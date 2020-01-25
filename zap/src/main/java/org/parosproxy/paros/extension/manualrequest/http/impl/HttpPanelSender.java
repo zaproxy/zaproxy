@@ -17,6 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+// ZAP: 2020/01/25 Issue 111: Provide a button on the resend screen to inject a CSRF token
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.EventQueue;
@@ -67,6 +69,7 @@ public class HttpPanelSender implements MessageSender {
     private JToggleButton followRedirect = null;
     private JToggleButton useTrackingSessionState = null;
     private JToggleButton useCookies = null;
+    private JToggleButton useCsrf = null;
 
     private List<PersistentConnectionListener> persistentConnectionListener = new ArrayList<>();
 
@@ -78,6 +81,7 @@ public class HttpPanelSender implements MessageSender {
         requestPanel.addOptions(getButtonUseCookies(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(
                 getButtonFollowRedirects(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+        requestPanel.addOptions(getButtonUseCsrf(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
 
         final boolean isSessionTrackingEnabled =
                 Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
@@ -274,6 +278,22 @@ public class HttpPanelSender implements MessageSender {
         return useCookies;
     }
 
+    private JToggleButton getButtonUseCsrf() {
+        // TODO: Add resources for icon and tooltip
+        if (useCsrf == null) {
+            useCsrf =
+                    new JToggleButton(
+                            new ImageIcon(
+                                    HttpPanelSender.class.getResource(
+                                            "/resource/icon/fugue/csrf.png")),
+                            true);
+            useCsrf.setToolTipText(Constant.messages.getString("manReq.checkBox.useCSRF"));
+            useCsrf.addItemListener(
+                    e -> setUseCsrf(e.getStateChange() == ItemEvent.SELECTED));
+        }
+        return useCsrf;
+    }
+
     public void addPersistentConnectionListener(PersistentConnectionListener listener) {
         persistentConnectionListener.add(listener);
     }
@@ -354,6 +374,12 @@ public class HttpPanelSender implements MessageSender {
     private void setUseCookies(boolean shouldUseCookies) {
         if (delegate != null) {
             delegate.setUseCookies(shouldUseCookies);
+        }
+    }
+
+    private void setUseCsrf(boolean shouldUseCsrf) {
+        if (delegate != null) {
+            delegate.setUseCsrf(shouldUseCsrf);
         }
     }
 
