@@ -82,7 +82,6 @@
 // ZAP: 2019/08/19 Reinstate proxy auth credentials when HTTP state is changed.
 // ZAP: 2019/09/17 Use remove() instead of set(null) on IN_LISTENER.
 // ZAP: 2019/09/25 Add option to disable cookies
-// ZAP: 2020/01/25 Issue 111: Provide a button on the resend screen to inject a CSRF token
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -182,7 +181,6 @@ public class HttpSender {
     private boolean followRedirect = false;
     private boolean useCookies;
     private boolean useGlobalState;
-    private boolean useCsrf;
     private int initiator = -1;
 
     /*
@@ -298,12 +296,6 @@ public class HttpSender {
         this.useGlobalState = enableGlobalState;
 
         checkState();
-    }
-
-    public void setUseCsrf(boolean shouldUseCsrf) {
-        this.useCsrf = shouldUseCsrf;
-
-        // TODO: What happens here?
     }
 
     /**

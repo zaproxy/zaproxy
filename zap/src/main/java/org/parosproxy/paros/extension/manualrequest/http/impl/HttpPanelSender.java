@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 The ZAP Development Team
+ * Copyright 2020 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,8 +17,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// ZAP: 2020/01/25 Issue 111: Provide a button on the resend screen to inject a CSRF token
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.EventQueue;
@@ -48,6 +46,8 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.ZapGetMethod;
+import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
@@ -94,6 +94,13 @@ public class HttpPanelSender implements MessageSender {
         // Reset the user before sending (e.g. Forced User mode sets the user, if needed).
         httpMessage.setRequestingUser(null);
         try {
+            boolean injectCsrf = getButtonUseCsrf().isSelected();
+            if (injectCsrf) {
+                ExtensionAntiCSRF acsrf =
+                        (ExtensionAntiCSRF) ExtensionFactory.getExtension("ExtensionAntiCSRF");
+                // TODO: Search tokens for matching URI and inject (?)
+            }
+
             final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
             boolean followRedirects = getButtonFollowRedirects().isSelected();
             if (followRedirects) {
@@ -279,17 +286,15 @@ public class HttpPanelSender implements MessageSender {
     }
 
     private JToggleButton getButtonUseCsrf() {
-        // TODO: Add resources for icon and tooltip
         if (useCsrf == null) {
             useCsrf =
                     new JToggleButton(
                             new ImageIcon(
                                     HttpPanelSender.class.getResource(
-                                            "/resource/icon/fugue/csrf.png")),
+                                            "/resource/icon/fugue/target.png")),
                             true);
             useCsrf.setToolTipText(Constant.messages.getString("manReq.checkBox.useCSRF"));
-            useCsrf.addItemListener(
-                    e -> setUseCsrf(e.getStateChange() == ItemEvent.SELECTED));
+            useCsrf.setSelected(true);
         }
         return useCsrf;
     }
@@ -374,12 +379,6 @@ public class HttpPanelSender implements MessageSender {
     private void setUseCookies(boolean shouldUseCookies) {
         if (delegate != null) {
             delegate.setUseCookies(shouldUseCookies);
-        }
-    }
-
-    private void setUseCsrf(boolean shouldUseCsrf) {
-        if (delegate != null) {
-            delegate.setUseCsrf(shouldUseCsrf);
         }
     }
 
