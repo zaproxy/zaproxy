@@ -54,7 +54,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
-// ZAP: 2020/01/27 Added injectCsrfToken method
+// ZAP: 2020/01/27 Added replaceCsrfToken method
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
