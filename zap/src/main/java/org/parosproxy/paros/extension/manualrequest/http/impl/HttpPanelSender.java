@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.net.ssl.SSLException;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JToggleButton;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
@@ -35,6 +36,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.MessageSender;
 import org.parosproxy.paros.model.HistoryReference;
@@ -46,7 +48,7 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.ZapGetMethod;
-import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -63,13 +65,14 @@ public class HttpPanelSender implements MessageSender {
 
     private final HttpPanelResponse responsePanel;
     private ExtensionHistory extension;
+    private ExtensionAntiCSRF extAntiCSRF = null;
 
     private HttpSender delegate;
 
     private JToggleButton followRedirect = null;
     private JToggleButton useTrackingSessionState = null;
     private JToggleButton useCookies = null;
-    private JToggleButton useCsrf = null;
+    private JCheckBox useCsrf = null;
 
     private List<PersistentConnectionListener> persistentConnectionListener = new ArrayList<>();
 
@@ -94,11 +97,25 @@ public class HttpPanelSender implements MessageSender {
         // Reset the user before sending (e.g. Forced User mode sets the user, if needed).
         httpMessage.setRequestingUser(null);
         try {
-            boolean injectCsrf = getButtonUseCsrf().isSelected();
-            if (injectCsrf) {
-                ExtensionAntiCSRF acsrf =
-                        (ExtensionAntiCSRF) ExtensionFactory.getExtension("ExtensionAntiCSRF");
-                // TODO: Search tokens for matching URI and inject (?)
+            boolean useAntiCSRF = useCsrf.isSelected();
+            if (useAntiCSRF) {
+                if (extAntiCSRF == null) {
+                    extAntiCSRF =
+                            Control.getSingleton()
+                                    .getExtensionLoader()
+                                    .getExtension(ExtensionAntiCSRF.class);
+                }
+                if (extAntiCSRF != null) {
+                    List<AntiCsrfToken> tokens = extAntiCSRF.getTokens(httpMessage);
+                    AntiCsrfToken antiCsrfToken = null;
+                    if (tokens.size() > 0) {
+                        antiCsrfToken = tokens.get(0);
+                    }
+
+                    if (antiCsrfToken != null) {
+                        regenerateAntiCsrfToken(httpMessage, antiCsrfToken);
+                    }
+                }
             }
 
             final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
@@ -154,6 +171,28 @@ public class HttpPanelSender implements MessageSender {
 
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    private void regenerateAntiCsrfToken(HttpMessage msg, AntiCsrfToken antiCsrfToken) {
+        if (antiCsrfToken == null) {
+            return;
+        }
+
+        String tokenValue = null;
+        try {
+            HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
+            tokenValue = extAntiCSRF.getTokenValue(tokenMsg, antiCsrfToken.getName());
+
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        if (tokenValue != null) {
+            // Replace token value - only supported in the body right now
+            Encoder encoder = new Encoder();
+            HttpMessage.replaceCsrfToken(
+                    msg, antiCsrfToken, tokenValue, logger, encoder, extAntiCSRF);
         }
     }
 
@@ -285,16 +324,10 @@ public class HttpPanelSender implements MessageSender {
         return useCookies;
     }
 
-    private JToggleButton getButtonUseCsrf() {
+    private JCheckBox getButtonUseCsrf() {
         if (useCsrf == null) {
-            useCsrf =
-                    new JToggleButton(
-                            new ImageIcon(
-                                    HttpPanelSender.class.getResource(
-                                            "/resource/icon/fugue/target.png")),
-                            true);
+            useCsrf = new JCheckBox();
             useCsrf.setToolTipText(Constant.messages.getString("manReq.checkBox.useCSRF"));
-            useCsrf.setSelected(true);
         }
         return useCsrf;
     }

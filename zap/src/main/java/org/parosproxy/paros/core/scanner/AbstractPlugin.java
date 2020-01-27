@@ -64,6 +64,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/21 Use and expose Alert builder.
+// ZAP: 2020/01/27 Extract code from regenerateAntiCSRF into HttpMessage
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -344,23 +345,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         if (tokenValue != null) {
             // Replace token value - only supported in the body right now
-            log.debug(
-                    "regenerateAntiCsrfToken replacing "
-                            + antiCsrfToken.getValue()
-                            + " with "
-                            + encoder.getURLEncode(tokenValue));
-            String replaced = msg.getRequestBody().toString();
-            replaced =
-                    replaced.replace(
-                            encoder.getURLEncode(antiCsrfToken.getValue()),
-                            encoder.getURLEncode(tokenValue));
-            msg.setRequestBody(replaced);
-            extAntiCSRF.registerAntiCsrfToken(
-                    new AntiCsrfToken(
-                            msg,
-                            antiCsrfToken.getName(),
-                            tokenValue,
-                            antiCsrfToken.getFormIndex()));
+            HttpMessage.replaceCsrfToken(msg, antiCsrfToken, tokenValue, log, encoder, extAntiCSRF);
         }
     }
 

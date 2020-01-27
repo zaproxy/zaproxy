@@ -54,6 +54,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
+// ZAP: 2020/01/27 Added injectCsrfToken method
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -71,9 +72,12 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.eventBus.Event;
+import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
+import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.network.HttpRequestBody;
@@ -1089,5 +1093,28 @@ public class HttpMessage implements Message {
      */
     public String getType() {
         return MESSAGE_TYPE;
+    }
+
+    public static void replaceCsrfToken(
+            HttpMessage msg,
+            AntiCsrfToken antiCsrfToken,
+            String tokenValue,
+            Logger log,
+            Encoder encoder,
+            ExtensionAntiCSRF extAntiCSRF) {
+        log.debug(
+                "regenerateAntiCsrfToken replacing "
+                        + antiCsrfToken.getValue()
+                        + " with "
+                        + encoder.getURLEncode(tokenValue));
+        String replaced = msg.getRequestBody().toString();
+        replaced =
+                replaced.replace(
+                        encoder.getURLEncode(antiCsrfToken.getValue()),
+                        encoder.getURLEncode(tokenValue));
+        msg.setRequestBody(replaced);
+        extAntiCSRF.registerAntiCsrfToken(
+                new AntiCsrfToken(
+                        msg, antiCsrfToken.getName(), tokenValue, antiCsrfToken.getFormIndex()));
     }
 }
