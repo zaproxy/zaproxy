@@ -72,6 +72,9 @@ th{
 .summary th{
   color: #FFF;
 }
+.alerts th{
+  color: #FFF;
+}
 </style>
 </head>
 
@@ -119,10 +122,48 @@ ZAP Scanning Report
   </tr>
 </table>
 <div class="spacer-lg"></div>
+
+<h3>Alerts</h3>
+<table width="75%" class="alerts">
+  <tr bgcolor="#666666"> 
+    <th width="60%" height="24">Name</th>
+    <th width="20%" align="center">Risk Level</th>
+    <th width="20%" align="center">Number of Instances</th>
+  </tr>
+  <xsl:key name="alerts-by-name-risk" match="alertitem" use="concat(name, ' ', riskcode)"/>
+  <xsl:for-each select="descendant::alertitem[count(. | key('alerts-by-name-risk', concat(name, ' ', riskcode))[1]) = 1]">
+    <xsl:sort order="descending" data-type="number" select="riskcode"/>
+    <xsl:sort order="ascending" data-type="text" select="name"/>
+    <tr bgcolor="#e8e8e8"> 
+      <td>
+        <xsl:value-of select="name"/>
+      </td>
+      <td align="center">
+        <xsl:value-of select="substring-before(riskdesc, ' ')"/>
+      </td>
+      <td align="center">
+        <xsl:variable name="same-name-alerts" select="key('alerts-by-name-risk', concat(name, ' ', riskcode))"/>
+        <xsl:choose>
+          <!-- Add <count>s when merge is on -->
+          <xsl:when test="$same-name-alerts/count">
+            <xsl:value-of select="sum($same-name-alerts/count)"/>
+          </xsl:when>
+          <!-- Count alerts when merge is off -->
+          <xsl:otherwise>
+            <xsl:value-of select="count($same-name-alerts)"/>
+          </xsl:otherwise>
+        </xsl:choose>
+      </td>
+    </tr>
+  </xsl:for-each>
+</table>
+<div class="spacer-lg"></div>
+
 <h3>Alert Detail</h3>
 
 <xsl:apply-templates select="descendant::alertitem">
   <xsl:sort order="descending" data-type="number" select="riskcode"/>
+  <xsl:sort order="ascending" data-type="text" select="name"/>
   <xsl:sort order="descending" data-type="number" select="confidence"/>
 </xsl:apply-templates>
 </body>

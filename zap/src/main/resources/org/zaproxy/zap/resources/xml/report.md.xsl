@@ -24,10 +24,29 @@
 | Low | <xsl:value-of select="count(descendant::alertitem[riskcode='1'])"/> |
 | Informational | <xsl:value-of select="count(descendant::alertitem[riskcode='0'])"/> |
 
+## Alerts
+
+| Name | Risk Level | Number of Instances |
+| --- | --- | --- | <xsl:key name="alerts-by-name-risk" match="alertitem" use="concat(name, ' ', riskcode)"/>
+<xsl:for-each select="descendant::alertitem[count(. | key('alerts-by-name-risk', concat(name, ' ', riskcode))[1]) = 1]">
+<xsl:sort order="descending" data-type="number" select="riskcode"/>
+<xsl:sort order="ascending" data-type="text" select="name"/>
+| <xsl:value-of select="name"/> | <xsl:value-of select="substring-before(riskdesc, ' ')"/> | <xsl:variable name="same-name-alerts" select="key('alerts-by-name-risk', concat(name, ' ', riskcode))"/>
+<xsl:choose>
+<!-- Add <count>s when merge is on -->
+<xsl:when test="$same-name-alerts/count">
+  <xsl:value-of select="sum($same-name-alerts/count)"/>
+</xsl:when>
+<!-- Count alerts when merge is off -->
+<xsl:otherwise>
+  <xsl:value-of select="count($same-name-alerts)"/>
+</xsl:otherwise></xsl:choose> | </xsl:for-each>
+
 ## Alert Detail
 
 <xsl:apply-templates select="descendant::alertitem">
   <xsl:sort order="descending" data-type="number" select="riskcode"/>
+  <xsl:sort order="ascending" data-type="text" select="name"/>
   <xsl:sort order="descending" data-type="number" select="confidence"/>
 </xsl:apply-templates>
 </xsl:template>
