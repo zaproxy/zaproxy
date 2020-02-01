@@ -1102,11 +1102,6 @@ public class HttpMessage implements Message {
             Logger log,
             Encoder encoder,
             ExtensionAntiCSRF extAntiCSRF) {
-        log.debug(
-                "regenerateAntiCsrfToken replacing "
-                        + antiCsrfToken.getValue()
-                        + " with "
-                        + encoder.getURLEncode(tokenValue));
         String replaced = msg.getRequestBody().toString();
         replaced =
                 replaced.replace(

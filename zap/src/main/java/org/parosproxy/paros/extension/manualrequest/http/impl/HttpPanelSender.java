@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2020 The ZAP Development Team
+ * Copyright 2012 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -191,6 +191,11 @@ public class HttpPanelSender implements MessageSender {
         if (tokenValue != null) {
             // Replace token value - only supported in the body right now
             Encoder encoder = new Encoder();
+            logger.debug(
+                    "regenerateAntiCsrfToken in HttpPanelSender replacing "
+                            + antiCsrfToken.getValue()
+                            + " with "
+                            + encoder.getURLEncode(tokenValue));
             HttpMessage.replaceCsrfToken(
                     msg, antiCsrfToken, tokenValue, logger, encoder, extAntiCSRF);
         }
