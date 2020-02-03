@@ -621,6 +621,9 @@ public class Alert implements Comparable<Alert> {
                 this.solution,
                 this.reference,
                 this.historyRef);
+        item.setEvidence(this.evidence);
+        item.setCweId(this.cweId);
+        item.setWascId(this.wascId);
         item.setSource(this.source);
         return item;
     }

@@ -79,6 +79,7 @@ public class ExtensionAlert extends ExtensionAdaptor
     private RecordScan recordScan = null;
     private PopupMenuAlert popupMenuAlertAdd;
     private PopupMenuAlertEdit popupMenuAlertEdit = null;
+    private PopupMenuAlertSetFalsePositive popupMenuAlertSetFalsePositive = null;
     private PopupMenuAlertDelete popupMenuAlertDelete = null;
     private PopupMenuAlertsRefresh popupMenuAlertsRefresh = null;
     private PopupMenuShowAlerts popupMenuShowAlerts = null;
@@ -105,6 +106,7 @@ public class ExtensionAlert extends ExtensionAdaptor
             extensionHook.getHookView().addOptionPanel(getOptionsPanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertAdd());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertSetFalsePositive());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertsRefresh());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowAlerts());
@@ -616,6 +618,13 @@ public class ExtensionAlert extends ExtensionAdaptor
             popupMenuAlertEdit = new PopupMenuAlertEdit(this);
         }
         return popupMenuAlertEdit;
+    }
+
+    private PopupMenuAlertSetFalsePositive getPopupMenuAlertSetFalsePositive() {
+        if (popupMenuAlertSetFalsePositive == null) {
+            popupMenuAlertSetFalsePositive = new PopupMenuAlertSetFalsePositive();
+        }
+        return popupMenuAlertSetFalsePositive;
     }
 
     private PopupMenuAlertDelete getPopupMenuAlertDelete() {
