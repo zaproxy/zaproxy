@@ -240,6 +240,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
     }
 
     private JPanel getCorePanel(boolean update) {
+        boolean refresh = true;
         if (corePanel == null) {
             corePanel = new JPanel();
             corePanel.setLayout(new GridBagLayout());
@@ -257,30 +258,23 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                 corePanel.add(new JLabel(this.currentVersion), LayoutHelper.getGBC(0, 0, 1, 0.0D));
                 corePanel.add(new JLabel(""), LayoutHelper.getGBC(1, 0, 1, 1.0D));
                 corePanel.add(this.getCheckForUpdatesButton(), LayoutHelper.getGBC(2, 0, 1, 0.0D));
-
-            } else if (this.latestInfo.getZapRelease().isNewerThan(this.currentVersion)) {
-                addNewerVersionComponents(corePanel);
-
-            } else {
-                corePanel.add(
-                        new JLabel(
-                                this.currentVersion
-                                        + " : "
-                                        + Constant.messages.getString("cfu.check.zap.latest")),
-                        LayoutHelper.getGBC(0, 0, 1, 1.0D));
+                refresh = false;
             }
-
-        } else if (update && latestInfo != null && this.latestInfo.getZapRelease() != null) {
-            corePanel.removeAll();
-
+        } else if (latestInfo != null && this.latestInfo.getZapRelease() != null) {
+            if (update) {
+                corePanel.removeAll();
+            }
+        } else {
+            refresh = false;
+        }
+        if (refresh) {
             if (this.latestInfo.getZapRelease().isNewerThan(this.currentVersion)) {
                 addNewerVersionComponents(corePanel);
             } else {
                 corePanel.add(
                         new JLabel(
-                                this.currentVersion
-                                        + " : "
-                                        + Constant.messages.getString("cfu.check.zap.latest")),
+                                Constant.messages.getString(
+                                        "cfu.check.zap.latest", this.currentVersion)),
                         LayoutHelper.getGBC(0, 0, 1, 1.0D));
             }
             installedPanel.validate();
