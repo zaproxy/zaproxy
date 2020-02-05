@@ -37,6 +37,8 @@ public class BreakpointMessageHandler2 {
 
     protected List<BreakpointMessageInterface> enabledBreakpoints;
 
+    protected List<BreakpointMessageInterface> enabledIgnoreRules;
+
     private List<String> enabledKeyBreakpoints = new ArrayList<>();
 
     public List<String> getEnabledKeyBreakpoints() {
@@ -53,6 +55,10 @@ public class BreakpointMessageHandler2 {
 
     public void setEnabledBreakpoints(List<BreakpointMessageInterface> breakpoints) {
         this.enabledBreakpoints = breakpoints;
+    }
+
+    public void setEnabledIgnoreRules(List<BreakpointMessageInterface> IgnoreRules) {
+        this.enabledIgnoreRules = IgnoreRules;
     }
 
     /**
@@ -147,6 +153,10 @@ public class BreakpointMessageHandler2 {
             return true;
         }
 
+        if (isSkipOnIgnoreRules(aMessage, isRequest, onlyIfInScope)) {
+            return false;
+        }
+
         if (onlyIfInScope && !aMessage.isInScope()) {
             return false;
         }
@@ -192,6 +202,30 @@ public class BreakpointMessageHandler2 {
                 BreakpointMessageInterface breakpoint = it.next();
 
                 if (breakpoint.match(aMessage, isRequest, onlyIfInScope)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    protected boolean isSkipOnIgnoreRules(
+            Message aMessage, boolean isRequest, boolean onlyIfInScope) {
+        if (enabledIgnoreRules.isEmpty()) {
+            // No Ignoring rules
+            return false;
+        }
+
+        // match against the ignoring rule
+        synchronized (enabledIgnoreRules) {
+            Iterator<BreakpointMessageInterface> it = enabledIgnoreRules.iterator();
+
+            while (it.hasNext()) {
+                BreakpointMessageInterface ignoreRule = it.next();
+
+                if (ignoreRule.isEnabled()
+                        && ignoreRule.match(aMessage, isRequest, onlyIfInScope)) {
                     return true;
                 }
             }

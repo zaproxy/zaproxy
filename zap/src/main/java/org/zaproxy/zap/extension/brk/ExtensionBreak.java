@@ -142,6 +142,7 @@ public class ExtensionBreak extends ExtensionAdaptor
             breakpointMessageHandler = new BreakpointMessageHandler2(breakPanel);
             breakpointMessageHandler.setEnabledBreakpoints(
                     getBreakpointsModel().getBreakpointsEnabledList());
+            breakpointMessageHandler.setEnabledIgnoreRules(breakPanel.getIgnoreRulesEnableList());
             breakpointManagementInterface = breakPanel;
 
             ExtensionHookView pv = extensionHook.getHookView();
@@ -175,6 +176,8 @@ public class ExtensionBreak extends ExtensionAdaptor
 
             breakpointMessageHandler = new BreakpointMessageHandler2(breakpointManagementInterface);
             breakpointMessageHandler.setEnabledBreakpoints(
+                    new ArrayList<BreakpointMessageInterface>());
+            breakpointMessageHandler.setEnabledIgnoreRules(
                     new ArrayList<BreakpointMessageInterface>());
         }
     }
@@ -675,6 +678,9 @@ public class ExtensionBreak extends ExtensionAdaptor
 
         breakPanel.setButtonsLocation(options.getViewParam().getBrkPanelViewOption());
         breakPanel.setButtonMode(options.getParamSet(BreakpointsParam.class).getButtonMode());
+        breakPanel.setShowIgnoreFilesButtons(
+                options.getParamSet(BreakpointsParam.class).isShowIgnoreFilesButtons());
+        breakPanel.updateIgnoreFileTypesRegexs();
     }
 
     @Override

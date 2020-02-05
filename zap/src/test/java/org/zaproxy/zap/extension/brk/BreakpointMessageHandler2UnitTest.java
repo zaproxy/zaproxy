@@ -27,7 +27,9 @@ import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,6 +51,7 @@ public class BreakpointMessageHandler2UnitTest {
         breakpointManagementInterface = mock(BreakpointManagementInterface.class);
         breakpointMessageHandler = new BreakpointMessageHandler2(breakpointManagementInterface);
         breakpointMessageHandler.setEnabledBreakpoints(Collections.emptyList());
+        breakpointMessageHandler.setEnabledIgnoreRules(Collections.emptyList());
     }
 
     @ParameterizedTest
@@ -59,6 +62,66 @@ public class BreakpointMessageHandler2UnitTest {
         given(message.isForceIntercept()).willReturn(true);
         // When
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, onlyIfInScope);
+        // Then
+        assertThat(breakpoint, is(equalTo(true)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false"})
+    void shouldNotBeBreakpointIfIgnoreRuleMatch(boolean request) {
+        // Given
+        Message message = mock(Message.class);
+        given(message.isInScope()).willReturn(true);
+        given(breakpointManagementInterface.isBreakRequest()).willReturn(true);
+        given(breakpointManagementInterface.isBreakResponse()).willReturn(true);
+
+        BreakpointMessageInterface skipBreakpoint = mock(BreakpointMessageInterface.class);
+        given(skipBreakpoint.isEnabled()).willReturn(true);
+        given(skipBreakpoint.match(message, request, false)).willReturn(true);
+        List<BreakpointMessageInterface> ignoreRules = Arrays.asList(skipBreakpoint);
+        breakpointMessageHandler.setEnabledIgnoreRules(ignoreRules);
+        // When
+        boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
+        // Then
+        assertThat(breakpoint, is(equalTo(false)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false"})
+    void shouldBeBreakpointIfIgnoreRulesDoNotMatch(boolean request) {
+        // Given
+        Message message = mock(Message.class);
+        given(message.isInScope()).willReturn(true);
+        given(breakpointManagementInterface.isBreakRequest()).willReturn(true);
+        given(breakpointManagementInterface.isBreakResponse()).willReturn(true);
+
+        BreakpointMessageInterface skipBreakpoint = mock(BreakpointMessageInterface.class);
+        given(skipBreakpoint.isEnabled()).willReturn(true);
+        given(skipBreakpoint.match(message, request, false)).willReturn(false);
+        List<BreakpointMessageInterface> ignoreRules = Arrays.asList(skipBreakpoint);
+        breakpointMessageHandler.setEnabledIgnoreRules(ignoreRules);
+        // When
+        boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
+        // Then
+        assertThat(breakpoint, is(equalTo(true)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false"})
+    void shouldBeBreakpointIfIgnoreRulesMatchButNotEnable(boolean request) {
+        // Given
+        Message message = mock(Message.class);
+        given(message.isInScope()).willReturn(true);
+        given(breakpointManagementInterface.isBreakRequest()).willReturn(true);
+        given(breakpointManagementInterface.isBreakResponse()).willReturn(true);
+
+        BreakpointMessageInterface skipBreakpoint = mock(BreakpointMessageInterface.class);
+        given(skipBreakpoint.isEnabled()).willReturn(false);
+        given(skipBreakpoint.match(message, request, false)).willReturn(true);
+        List<BreakpointMessageInterface> ignoreRules = Arrays.asList(skipBreakpoint);
+        breakpointMessageHandler.setEnabledIgnoreRules(ignoreRules);
+        // When
+        boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
         // Then
         assertThat(breakpoint, is(equalTo(true)));
     }
