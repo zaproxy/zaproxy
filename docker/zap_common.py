@@ -460,10 +460,6 @@ def get_latest_zap_client_version():
         logging.warning('Error fetching latest ZAP Python API client version: %s' % e)
         return None
 
-    if version_info is None:
-        logging.warning('Error fetching latest ZAP Python API client version: %s' % e)
-        return None
-
     version_json = json.loads(version_info.read().decode('utf-8'))
 
     if 'info' not in version_json:
