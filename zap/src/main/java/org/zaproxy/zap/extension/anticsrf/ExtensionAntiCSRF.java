@@ -46,11 +46,15 @@ import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.history.HistoryFilter;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HtmlParameter;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 /**
  * An {@code Extension} that handles anti-csrf tokens.
@@ -523,5 +527,68 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
         HistoryReference createHistoryReference(int id)
                 throws DatabaseException, HttpMalformedHeaderException;
+    }
+
+    public void injectCsrfToken(HttpMessage message, HttpRequestConfig config) {
+        List<AntiCsrfToken> tokens = getTokens(message);
+        AntiCsrfToken antiCsrfToken = null;
+        if (tokens.size() > 0) {
+            antiCsrfToken = tokens.get(0);
+        }
+
+        if (antiCsrfToken != null) {
+            regenerateAntiCsrfToken(message, antiCsrfToken, config);
+        }
+    }
+
+    private void regenerateAntiCsrfToken(
+            HttpMessage msg, AntiCsrfToken antiCsrfToken, HttpRequestConfig config) {
+        if (antiCsrfToken == null) {
+            return;
+        }
+
+        String tokenValue = null;
+        try {
+            HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
+
+            HttpSender httpSender =
+                    new HttpSender(
+                            Model.getSingleton().getOptionsParam().getConnectionParam(),
+                            true,
+                            HttpSender.ANTI_CSRF_INITIATOR);
+
+            // always get the fresh copy
+            tokenMsg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
+            tokenMsg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
+            tokenMsg.getRequestHeader().setContentLength(tokenMsg.getRequestBody().length());
+
+            httpSender.sendAndReceive(tokenMsg, config);
+
+            tokenValue = getTokenValue(tokenMsg, antiCsrfToken.getName());
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        if (tokenValue != null) {
+            // Replace token value - only supported in the body right now
+            log.debug(
+                    "regenerateAntiCsrfToken replacing "
+                            + antiCsrfToken.getValue()
+                            + " with "
+                            + encoder.getURLEncode(tokenValue));
+            String replaced = msg.getRequestBody().toString();
+            replaced =
+                    replaced.replace(
+                            encoder.getURLEncode(antiCsrfToken.getValue()),
+                            encoder.getURLEncode(tokenValue));
+            msg.setRequestBody(replaced);
+            registerAntiCsrfToken(
+                    new AntiCsrfToken(
+                            msg,
+                            antiCsrfToken.getName(),
+                            tokenValue,
+                            antiCsrfToken.getFormIndex()));
+        }
     }
 }

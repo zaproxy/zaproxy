@@ -82,6 +82,7 @@
 // ZAP: 2019/08/19 Reinstate proxy auth credentials when HTTP state is changed.
 // ZAP: 2019/09/17 Use remove() instead of set(null) on IN_LISTENER.
 // ZAP: 2019/09/25 Add option to disable cookies
+// ZAP: 2020/02/06 Added ANTI_CSRF_INITIATOR.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -140,6 +141,7 @@ public class HttpSender {
     public static final int TOKEN_GENERATOR_INITIATOR = 12;
     public static final int WEB_SOCKET_INITIATOR = 13;
     public static final int AUTHENTICATION_HELPER_INITIATOR = 14;
+    public static final int ANTI_CSRF_INITIATOR = 15;
 
     private static Logger log = Logger.getLogger(HttpSender.class);
 
