@@ -104,11 +104,7 @@ public class HttpPanelSender implements MessageSender {
             boolean followRedirects = getButtonFollowRedirects().isSelected();
 
             if (useAntiCSRF && extAntiCSRF != null) {
-                extAntiCSRF.regenerateAntiCsrfToken(
-                        httpMessage,
-                        HttpRequestConfig.builder()
-                                .setRedirectionValidator(redirectionValidator)
-                                .build());
+                extAntiCSRF.regenerateAntiCsrfToken(httpMessage, getDelegate()::sendAndReceive);
             }
 
             if (followRedirects) {

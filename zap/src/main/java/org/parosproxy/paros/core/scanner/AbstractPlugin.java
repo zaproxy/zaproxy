@@ -66,6 +66,7 @@
 // ZAP: 2019/10/21 Use and expose Alert builder.
 // ZAP: 2020/01/27 Extracted code from sendAndReceive method into regenerateAntiCsrfToken method in
 // ExtensionAntiCSRF.
+// ZAP: 2020/02/07 Added isRegenCsrfCalled to prevent sendAndReceive loop
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -117,6 +118,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private Date started = null;
     private Date finished = null;
     private AddOn.Status status = AddOn.Status.unknown;
+    private boolean isRegenCsrfCalled = false;
 
     /** Default Constructor */
     public AbstractPlugin() {
@@ -275,8 +277,11 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                                 .getExtension(ExtensionAntiCSRF.class);
             }
             if (extAntiCSRF != null) {
-                extAntiCSRF.regenerateAntiCsrfToken(
-                        message, getParent().getRedirectRequestConfig());
+                if (!isRegenCsrfCalled) {
+                    isRegenCsrfCalled = true;
+                    extAntiCSRF.regenerateAntiCsrfToken(message, this::sendAndReceive);
+                }
+                isRegenCsrfCalled = false;
             }
         }
 

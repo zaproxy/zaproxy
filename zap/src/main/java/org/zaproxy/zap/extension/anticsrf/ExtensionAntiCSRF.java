@@ -46,15 +46,12 @@ import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.history.HistoryFilter;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HtmlParameter;
-import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.network.HttpMessageSender;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
-import org.zaproxy.zap.network.HttpRequestConfig;
 
 /**
  * An {@code Extension} that handles anti-csrf tokens.
@@ -529,8 +526,14 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                 throws DatabaseException, HttpMalformedHeaderException;
     }
 
-    // TODO: Add JavaDoc
-    public void regenerateAntiCsrfToken(HttpMessage message, HttpRequestConfig config) {
+    /**
+     * Regenerates the Anti-CSRF Token of a HttpMessage if one exists.
+     *
+     * @param message The {@link HttpMessage} to be checked.
+     * @param httpSender The {@code sendAndReceive} implementation of the caller.
+     * @since 2.9.0
+     */
+    public void regenerateAntiCsrfToken(HttpMessage message, HttpMessageSender httpSender) {
         List<AntiCsrfToken> tokens = getTokens(message);
         AntiCsrfToken antiCsrfToken = null;
         if (tokens.size() > 0) {
@@ -544,18 +547,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         try {
             HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
 
-            HttpSender httpSender =
-                    new HttpSender(
-                            Model.getSingleton().getOptionsParam().getConnectionParam(),
-                            true,
-                            HttpSender.ANTI_CSRF_INITIATOR);
-
-            // always get the fresh copy
-            tokenMsg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
-            tokenMsg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
-            tokenMsg.getRequestHeader().setContentLength(tokenMsg.getRequestBody().length());
-
-            httpSender.sendAndReceive(tokenMsg, config);
+            httpSender.sendAndReceive(tokenMsg);
 
             tokenValue = getTokenValue(tokenMsg, antiCsrfToken.getName());
 
