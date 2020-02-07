@@ -64,7 +64,8 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/21 Use and expose Alert builder.
-// ZAP: 2020/01/27 Extract code from sendAndReceive into injectCsrfToken in ExtensionAntiCSRF.
+// ZAP: 2020/01/27 Extracted code from sendAndReceive method into regenerateAntiCsrfToken method in
+// ExtensionAntiCSRF.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -81,7 +82,6 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert.Source;
-import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
@@ -107,7 +107,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     // ZAP Added delayInMs
     private int delayInMs;
     private ExtensionAntiCSRF extAntiCSRF = null;
-    private Encoder encoder = new Encoder();
     private AlertThreshold defaultAttackThreshold = AlertThreshold.MEDIUM;
     private static final AlertThreshold[] alertThresholdsSupported =
             new AlertThreshold[] {AlertThreshold.MEDIUM};
@@ -276,7 +275,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                                 .getExtension(ExtensionAntiCSRF.class);
             }
             if (extAntiCSRF != null) {
-                extAntiCSRF.injectCsrfToken(message, getParent().getRedirectRequestConfig());
+                extAntiCSRF.regenerateAntiCsrfToken(
+                        message, getParent().getRedirectRequestConfig());
             }
         }
 

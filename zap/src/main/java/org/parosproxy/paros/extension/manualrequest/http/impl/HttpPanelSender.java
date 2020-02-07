@@ -76,12 +76,17 @@ public class HttpPanelSender implements MessageSender {
     public HttpPanelSender(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
         this.responsePanel = responsePanel;
 
+        extAntiCSRF =
+                Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
+
         requestPanel.addOptions(
                 getButtonUseTrackingSessionState(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(getButtonUseCookies(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(
                 getButtonFollowRedirects(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
-        requestPanel.addOptions(getButtonUseCsrf(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+        if (extAntiCSRF.isEnabled()) {
+            requestPanel.addOptions(getButtonUseCsrf(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+        }
 
         final boolean isSessionTrackingEnabled =
                 Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
@@ -95,23 +100,15 @@ public class HttpPanelSender implements MessageSender {
         httpMessage.setRequestingUser(null);
         try {
             final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
-            boolean useAntiCSRF = useCsrf.isSelected();
+            boolean useAntiCSRF = getButtonUseCsrf().isSelected();
             boolean followRedirects = getButtonFollowRedirects().isSelected();
 
-            if (useAntiCSRF) {
-                if (extAntiCSRF == null) {
-                    extAntiCSRF =
-                            Control.getSingleton()
-                                    .getExtensionLoader()
-                                    .getExtension(ExtensionAntiCSRF.class);
-                }
-                if (extAntiCSRF != null) {
-                    extAntiCSRF.injectCsrfToken(
-                            httpMessage,
-                            HttpRequestConfig.builder()
-                                    .setRedirectionValidator(redirectionValidator)
-                                    .build());
-                }
+            if (useAntiCSRF && extAntiCSRF != null) {
+                extAntiCSRF.regenerateAntiCsrfToken(
+                        httpMessage,
+                        HttpRequestConfig.builder()
+                                .setRedirectionValidator(redirectionValidator)
+                                .build());
             }
 
             if (followRedirects) {
@@ -304,7 +301,7 @@ public class HttpPanelSender implements MessageSender {
                                     HttpPanelSender.class.getResource(
                                             "/resource/icon/fugue/document-target.png")));
             useCsrf.setToolTipText(Constant.messages.getString("manReq.checkBox.useCSRF"));
-            useCsrf.setSelected(true);
+            useCsrf.setSelected(false);
         }
         return useCsrf;
     }

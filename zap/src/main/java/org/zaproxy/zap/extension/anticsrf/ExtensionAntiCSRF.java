@@ -529,24 +529,17 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                 throws DatabaseException, HttpMalformedHeaderException;
     }
 
-    public void injectCsrfToken(HttpMessage message, HttpRequestConfig config) {
+    // TODO: Add JavaDoc
+    public void regenerateAntiCsrfToken(HttpMessage message, HttpRequestConfig config) {
         List<AntiCsrfToken> tokens = getTokens(message);
         AntiCsrfToken antiCsrfToken = null;
         if (tokens.size() > 0) {
             antiCsrfToken = tokens.get(0);
         }
 
-        if (antiCsrfToken != null) {
-            regenerateAntiCsrfToken(message, antiCsrfToken, config);
-        }
-    }
-
-    private void regenerateAntiCsrfToken(
-            HttpMessage msg, AntiCsrfToken antiCsrfToken, HttpRequestConfig config) {
         if (antiCsrfToken == null) {
             return;
         }
-
         String tokenValue = null;
         try {
             HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
@@ -577,15 +570,15 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                             + antiCsrfToken.getValue()
                             + " with "
                             + encoder.getURLEncode(tokenValue));
-            String replaced = msg.getRequestBody().toString();
+            String replaced = message.getRequestBody().toString();
             replaced =
                     replaced.replace(
                             encoder.getURLEncode(antiCsrfToken.getValue()),
                             encoder.getURLEncode(tokenValue));
-            msg.setRequestBody(replaced);
+            message.setRequestBody(replaced);
             registerAntiCsrfToken(
                     new AntiCsrfToken(
-                            msg,
+                            message,
                             antiCsrfToken.getName(),
                             tokenValue,
                             antiCsrfToken.getFormIndex()));
