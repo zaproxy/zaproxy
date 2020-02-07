@@ -458,7 +458,7 @@ def main(argv):
                     f.write('# Active scan rules set to IGNORE will not be run which will speed up the scan\n')
                     f.write('# Only the rule identifiers are used - the names are just for info\n')
                     f.write('# You can add your own messages to each rule by appending them after a tab on each line.\n')
-                    for key, rule in sorted(all_dict.iteritems()):
+                    for key, rule in sorted(all_dict.items()):
                         f.write(key + '\tWARN\t(' + rule + ')\n')
 
             # print out the passing rules
@@ -467,17 +467,17 @@ def main(argv):
                 plugin_id = rule.get('id')
                 if plugin_id in blacklist:
                     continue
-                if (not alert_dict.has_key(plugin_id)):
+                if plugin_id not in alert_dict:
                     pass_dict[plugin_id] = rule.get('name')
             for rule in all_ascan_rules:
                 plugin_id = rule.get('id')
                 if plugin_id in blacklist:
                     continue
-                if not alert_dict.has_key(plugin_id) and not(config_dict.has_key(plugin_id) and config_dict[plugin_id] == 'IGNORE'):
+                if plugin_id not in alert_dict and not(plugin_id in config_dict and config_dict[plugin_id] == 'IGNORE'):
                     pass_dict[plugin_id] = rule.get('name')
 
             if min_level == zap_conf_lvls.index("PASS") and detailed_output:
-                for key, rule in sorted(pass_dict.iteritems()):
+                for key, rule in sorted(pass_dict.items()):
                     print('PASS: ' + rule + ' [' + key + ']')
 
             pass_count = len(pass_dict)
@@ -488,7 +488,7 @@ def main(argv):
                     plugin_id = rule.get('id')
                     if plugin_id in blacklist:
                         continue
-                    if config_dict.has_key(plugin_id) and config_dict[plugin_id] == 'IGNORE':
+                    if plugin_id in config_dict and config_dict[plugin_id] == 'IGNORE':
                         print('SKIP: ' + rule.get('name') + ' [' + plugin_id + ']')
 
             # print out the ignored rules
