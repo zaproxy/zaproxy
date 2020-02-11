@@ -220,7 +220,7 @@ Scanners:
 100019  Information Leak - Server Header [Script]
 100020  SQL Injection Detection [Script]
 100021  Telerik Cryptographic Weakness [Script]
-100022  Upload Form Descovery [Script]
+100022  Upload Form Discovery [Script]
 100023  Information Leak - X-Powered-By Header [Script]
 
 110000  Websocket Passive Scan scripts
