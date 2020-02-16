@@ -50,7 +50,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpMessageSender;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 
 /**
@@ -527,11 +526,12 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
     }
 
     /**
-     * Regenerates the Anti-CSRF Token of a HttpMessage if one exists.
+     * Regenerates the {@link AntiCsrfToken} of a {@link HttpMessage} if one exists to obtain the
+     * new {@link AntiCsrfToken}.
      *
      * @param message The {@link HttpMessage} to be checked.
      * @param httpSender The {@code sendAndReceive} implementation of the caller.
-     * @since 2.9.0
+     * @since 2.10.0
      */
     public void regenerateAntiCsrfToken(HttpMessage message, HttpMessageSender httpSender) {
         List<AntiCsrfToken> tokens = getTokens(message);

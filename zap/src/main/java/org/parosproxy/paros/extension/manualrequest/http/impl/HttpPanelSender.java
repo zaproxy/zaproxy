@@ -84,7 +84,7 @@ public class HttpPanelSender implements MessageSender {
         requestPanel.addOptions(getButtonUseCookies(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(
                 getButtonFollowRedirects(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
-        if (extAntiCSRF.isEnabled()) {
+        if (extAntiCSRF != null) {
             requestPanel.addOptions(getButtonUseCsrf(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         }
 
@@ -100,10 +100,9 @@ public class HttpPanelSender implements MessageSender {
         httpMessage.setRequestingUser(null);
         try {
             final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
-            boolean useAntiCSRF = getButtonUseCsrf().isSelected();
             boolean followRedirects = getButtonFollowRedirects().isSelected();
 
-            if (useAntiCSRF && extAntiCSRF != null) {
+            if (extAntiCSRF != null && getButtonUseCsrf().isSelected()) {
                 extAntiCSRF.regenerateAntiCsrfToken(httpMessage, getDelegate()::sendAndReceive);
             }
 
@@ -297,7 +296,6 @@ public class HttpPanelSender implements MessageSender {
                                     HttpPanelSender.class.getResource(
                                             "/resource/icon/fugue/document-target.png")));
             useCsrf.setToolTipText(Constant.messages.getString("manReq.checkBox.useCSRF"));
-            useCsrf.setSelected(false);
         }
         return useCsrf;
     }

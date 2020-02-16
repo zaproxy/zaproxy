@@ -118,7 +118,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private Date started = null;
     private Date finished = null;
     private AddOn.Status status = AddOn.Status.unknown;
-    private boolean isRegenCsrfCalled = false;
 
     /** Default Constructor */
     public AbstractPlugin() {
@@ -277,11 +276,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                                 .getExtension(ExtensionAntiCSRF.class);
             }
             if (extAntiCSRF != null) {
-                if (!isRegenCsrfCalled) {
-                    isRegenCsrfCalled = true;
-                    extAntiCSRF.regenerateAntiCsrfToken(message, this::sendAndReceive);
-                }
-                isRegenCsrfCalled = false;
+                extAntiCSRF.regenerateAntiCsrfToken(
+                        message, tokenMsg -> sendAndReceive(tokenMsg, true, false));
             }
         }
 
