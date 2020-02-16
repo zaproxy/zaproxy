@@ -66,7 +66,6 @@
 // ZAP: 2019/10/21 Use and expose Alert builder.
 // ZAP: 2020/01/27 Extracted code from sendAndReceive method into regenerateAntiCsrfToken method in
 // ExtensionAntiCSRF.
-// ZAP: 2020/02/07 Added isRegenCsrfCalled to prevent sendAndReceive loop
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
