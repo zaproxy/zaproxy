@@ -62,7 +62,7 @@ public class HttpPanelSender implements MessageSender {
 
     private final HttpPanelResponse responsePanel;
     private ExtensionHistory extension;
-    private ExtensionAntiCSRF extAntiCSRF = null;
+    private ExtensionAntiCSRF extAntiCSRF;
 
     private HttpSender delegate;
 
@@ -294,7 +294,7 @@ public class HttpPanelSender implements MessageSender {
                     new JToggleButton(
                             new ImageIcon(
                                     HttpPanelSender.class.getResource(
-                                            "/resource/icon/fugue/document-target.png")));
+                                            "/resource/icon/csrf-button.png")));
             useCsrf.setToolTipText(Constant.messages.getString("manReq.checkBox.useCSRF"));
         }
         return useCsrf;
