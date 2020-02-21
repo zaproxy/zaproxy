@@ -64,6 +64,8 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/21 Use and expose Alert builder.
+// ZAP: 2020/01/27 Extracted code from sendAndReceive method into regenerateAntiCsrfToken method in
+// ExtensionAntiCSRF.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -72,7 +74,6 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -81,12 +82,10 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert.Source;
-import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
-import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
@@ -108,7 +107,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     // ZAP Added delayInMs
     private int delayInMs;
     private ExtensionAntiCSRF extAntiCSRF = null;
-    private Encoder encoder = new Encoder();
     private AlertThreshold defaultAttackThreshold = AlertThreshold.MEDIUM;
     private static final AlertThreshold[] alertThresholdsSupported =
             new AlertThreshold[] {AlertThreshold.MEDIUM};
@@ -277,15 +275,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                                 .getExtension(ExtensionAntiCSRF.class);
             }
             if (extAntiCSRF != null) {
-                List<AntiCsrfToken> tokens = extAntiCSRF.getTokens(message);
-                AntiCsrfToken antiCsrfToken = null;
-                if (tokens.size() > 0) {
-                    antiCsrfToken = tokens.get(0);
-                }
-
-                if (antiCsrfToken != null) {
-                    regenerateAntiCsrfToken(message, antiCsrfToken);
-                }
+                extAntiCSRF.regenerateAntiCsrfToken(
+                        message, tokenMsg -> sendAndReceive(tokenMsg, true, false));
             }
         }
 
@@ -322,46 +313,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         // ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(message, this);
-    }
-
-    private void regenerateAntiCsrfToken(HttpMessage msg, AntiCsrfToken antiCsrfToken) {
-        if (antiCsrfToken == null) {
-            return;
-        }
-
-        String tokenValue = null;
-        try {
-            HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
-
-            // Ensure we dont loop
-            sendAndReceive(tokenMsg, true, false);
-
-            tokenValue = extAntiCSRF.getTokenValue(tokenMsg, antiCsrfToken.getName());
-
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-
-        if (tokenValue != null) {
-            // Replace token value - only supported in the body right now
-            log.debug(
-                    "regenerateAntiCsrfToken replacing "
-                            + antiCsrfToken.getValue()
-                            + " with "
-                            + encoder.getURLEncode(tokenValue));
-            String replaced = msg.getRequestBody().toString();
-            replaced =
-                    replaced.replace(
-                            encoder.getURLEncode(antiCsrfToken.getValue()),
-                            encoder.getURLEncode(tokenValue));
-            msg.setRequestBody(replaced);
-            extAntiCSRF.registerAntiCsrfToken(
-                    new AntiCsrfToken(
-                            msg,
-                            antiCsrfToken.getName(),
-                            tokenValue,
-                            antiCsrfToken.getFormIndex()));
-        }
     }
 
     @Override

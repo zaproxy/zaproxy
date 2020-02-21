@@ -46,6 +46,7 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.ZapGetMethod;
+import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
@@ -61,23 +62,31 @@ public class HttpPanelSender implements MessageSender {
 
     private final HttpPanelResponse responsePanel;
     private ExtensionHistory extension;
+    private ExtensionAntiCSRF extAntiCSRF;
 
     private HttpSender delegate;
 
     private JToggleButton followRedirect = null;
     private JToggleButton useTrackingSessionState = null;
     private JToggleButton useCookies = null;
+    private JToggleButton useCsrf = null;
 
     private List<PersistentConnectionListener> persistentConnectionListener = new ArrayList<>();
 
     public HttpPanelSender(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
         this.responsePanel = responsePanel;
 
+        extAntiCSRF =
+                Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
+
         requestPanel.addOptions(
                 getButtonUseTrackingSessionState(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(getButtonUseCookies(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(
                 getButtonFollowRedirects(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+        if (extAntiCSRF != null) {
+            requestPanel.addOptions(getButtonUseCsrf(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+        }
 
         final boolean isSessionTrackingEnabled =
                 Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
@@ -92,6 +101,11 @@ public class HttpPanelSender implements MessageSender {
         try {
             final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
             boolean followRedirects = getButtonFollowRedirects().isSelected();
+
+            if (extAntiCSRF != null && getButtonUseCsrf().isSelected()) {
+                extAntiCSRF.regenerateAntiCsrfToken(httpMessage, getDelegate()::sendAndReceive);
+            }
+
             if (followRedirects) {
                 getDelegate()
                         .sendAndReceive(
@@ -272,6 +286,18 @@ public class HttpPanelSender implements MessageSender {
                     e -> setUseCookies(e.getStateChange() == ItemEvent.SELECTED));
         }
         return useCookies;
+    }
+
+    private JToggleButton getButtonUseCsrf() {
+        if (useCsrf == null) {
+            useCsrf =
+                    new JToggleButton(
+                            new ImageIcon(
+                                    HttpPanelSender.class.getResource(
+                                            "/resource/icon/csrf-button.png")));
+            useCsrf.setToolTipText(Constant.messages.getString("manReq.checkBox.useCSRF"));
+        }
+        return useCsrf;
     }
 
     public void addPersistentConnectionListener(PersistentConnectionListener listener) {
