@@ -34,6 +34,7 @@
 // ZAP: 2018/06/11 Added options for Work Panels Font.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/02/24 Use LookAndFeelInfo when setting the look and feel option.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -48,6 +49,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.function.Predicate;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JCheckBox;
@@ -57,6 +59,7 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -107,7 +110,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
     private JComboBox<String> displaySelect = null;
     private JComboBox<ResponsePanelPositionUI> responsePanelPositionComboBox;
     private JComboBox<String> timeStampsFormatSelect = null;
-    private JComboBox<String> lookAndFeel = null;
+    private JComboBox<LookAndFeelInfoUi> lookAndFeel = null;
 
     private ZapNumberSpinner largeRequestSize = null;
     private ZapNumberSpinner largeResponseSize = null;
@@ -701,14 +704,14 @@ public class OptionsViewPanel extends AbstractParamPanel {
         return scaleImages;
     }
 
-    private JComboBox<String> getLookAndFeelSelect() {
+    private JComboBox<LookAndFeelInfoUi> getLookAndFeelSelect() {
         if (lookAndFeel == null) {
-            lookAndFeel = new JComboBox<String>();
+            lookAndFeel = new JComboBox<>();
             lookAndFeel.setMaximumRowCount(5);
             UIManager.LookAndFeelInfo[] looks = UIManager.getInstalledLookAndFeels();
-            lookAndFeel.addItem(""); // Default look
+            lookAndFeel.addItem(new LookAndFeelInfoUi(OptionsParamView.DEFAULT_LOOK_AND_FEEL));
             for (UIManager.LookAndFeelInfo look : looks) {
-                lookAndFeel.addItem(look.getName());
+                lookAndFeel.addItem(new LookAndFeelInfoUi(look));
             }
         }
         return lookAndFeel;
@@ -721,7 +724,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
         getShowSplashScreen().setSelected(options.getViewParam().isShowSplashScreen());
         getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
         displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
-        selectResponsePanelPosition(options.getViewParam().getResponsePanelPosition());
+        String panelPosition = options.getViewParam().getResponsePanelPosition();
+        selectItem(
+                getResponsePanelPositionComboBox(),
+                item -> item.getPosition().name().equals(panelPosition));
         brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
         getChkShowMainToolbar().setSelected(options.getViewParam().isShowMainToolbar());
         chkAdvancedView.setSelected(options.getViewParam().getAdvancedViewOption() > 0);
@@ -741,20 +747,23 @@ public class OptionsViewPanel extends AbstractParamPanel {
         }
 
         getScaleImages().setSelected(options.getViewParam().isScaleImages());
-        getLookAndFeelSelect().setSelectedItem(options.getViewParam().getLookAndFeel());
+        String nameLaf = options.getViewParam().getLookAndFeelInfo().getName();
+        selectItem(
+                getLookAndFeelSelect(),
+                item -> item.getLookAndFeelInfo().getName().equals(nameLaf));
     }
 
-    private void selectResponsePanelPosition(String positionName) {
-        for (int i = 0; i < getResponsePanelPositionComboBox().getItemCount(); i++) {
-            ResponsePanelPositionUI item = getResponsePanelPositionComboBox().getItemAt(i);
-            if (item.getPosition().name().equals(positionName)) {
-                getResponsePanelPositionComboBox().setSelectedIndex(i);
+    private static <T> void selectItem(JComboBox<T> comboBox, Predicate<T> predicate) {
+        for (int i = 0; i < comboBox.getItemCount(); i++) {
+            T item = comboBox.getItemAt(i);
+            if (predicate.test(item)) {
+                comboBox.setSelectedIndex(i);
                 break;
             }
         }
 
-        if (getResponsePanelPositionComboBox().getSelectedIndex() == -1) {
-            getResponsePanelPositionComboBox().setSelectedIndex(0);
+        if (comboBox.getSelectedIndex() == -1) {
+            comboBox.setSelectedIndex(0);
         }
     }
 
@@ -788,7 +797,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
                     .setFontName(fontType, (String) getFontName(fontType).getSelectedItem());
         }
         options.getViewParam().setScaleImages(getScaleImages().isSelected());
-        options.getViewParam().setLookAndFeel((String) getLookAndFeelSelect().getSelectedItem());
+        options.getViewParam()
+                .setLookAndFeelInfo(
+                        ((LookAndFeelInfoUi) getLookAndFeelSelect().getSelectedItem())
+                                .getLookAndFeelInfo());
     }
 
     @Override
@@ -836,6 +848,24 @@ public class OptionsViewPanel extends AbstractParamPanel {
         @Override
         public String toString() {
             return name;
+        }
+    }
+
+    private static class LookAndFeelInfoUi {
+
+        private final LookAndFeelInfo lookAndFeelInfo;
+
+        LookAndFeelInfoUi(LookAndFeelInfo lookAndFeelInfo) {
+            this.lookAndFeelInfo = lookAndFeelInfo;
+        }
+
+        LookAndFeelInfo getLookAndFeelInfo() {
+            return lookAndFeelInfo;
+        }
+
+        @Override
+        public String toString() {
+            return lookAndFeelInfo.getName();
         }
     }
 }

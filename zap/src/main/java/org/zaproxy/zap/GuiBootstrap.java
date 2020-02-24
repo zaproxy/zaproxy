@@ -342,7 +342,8 @@ public class GuiBootstrap extends ZapBootstrap {
 
         OptionsParam options = Model.getSingleton().getOptionsParam();
 
-        if (setLookAndFeel(getLookAndFeelClassname(options.getViewParam().getLookAndFeel()))) {
+        if (setLookAndFeel(getLookAndFeelClassname(options.getViewParam().getLookAndFeel()))
+                || setLookAndFeel(options.getViewParam().getLookAndFeelInfo().getClassName())) {
             return;
         }
 
