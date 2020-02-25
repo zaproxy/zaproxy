@@ -50,6 +50,7 @@ and subject to their respective licenses.
 | commons-validator-1.6.jar           | Apache 2.0                |
 | delight-nashorn-sandbox-0.1.26.jar  | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
+| flatlaf-0.27.jar                    | Apache 2.0                |
 | harlib-1.1.2.jar                    | Apache 2.0                |
 | hsqldb-2.5.0.jar                    | BSD                       |
 | ice4j-1.0.jar                       | Apache 2.0                |

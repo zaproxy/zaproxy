@@ -42,11 +42,14 @@
 // ZAP: 2018/06/11 Added options for Work Panels Font.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/02/24 Persist the class of the selected look and feel.
 package org.parosproxy.paros.extension.option;
 
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import javax.swing.UIManager.LookAndFeelInfo;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control.Mode;
@@ -97,6 +100,14 @@ public class OptionsParamView extends AbstractParam {
     public static final String SCALE_IMAGES = "view.scaleImages";
     public static final String SHOW_DEV_WARNING = "view.showDevWarning";
     public static final String LOOK_AND_FEEL = "view.lookAndFeel";
+    public static final String LOOK_AND_FEEL_CLASS = "view.lookAndFeelClass";
+
+    /**
+     * The default look and feel, has empty name and class.
+     *
+     * @since TODO add version
+     */
+    public static final LookAndFeelInfo DEFAULT_LOOK_AND_FEEL = new LookAndFeelInfo("", "");
 
     private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY =
             "view.confirmRemoveProxyExcludeRegex";
@@ -142,7 +153,7 @@ public class OptionsParamView extends AbstractParam {
     private int largeResponseSize = LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH;
     private boolean scaleImages = true;
     private boolean showDevWarning = true;
-    private String lookAndFeel = "";
+    private LookAndFeelInfo lookAndFeelInfo = DEFAULT_LOOK_AND_FEEL;
 
     private boolean confirmRemoveProxyExcludeRegex;
     private boolean confirmRemoveScannerExcludeRegex;
@@ -204,7 +215,9 @@ public class OptionsParamView extends AbstractParam {
 
         scaleImages = getBoolean(SCALE_IMAGES, true);
         showDevWarning = getBoolean(SHOW_DEV_WARNING, true);
-        lookAndFeel = getString(LOOK_AND_FEEL, "");
+        lookAndFeelInfo =
+                new LookAndFeelInfo(
+                        getString(LOOK_AND_FEEL, ""), getString(LOOK_AND_FEEL_CLASS, ""));
 
         // Special cases - set via static methods
         LargeRequestUtil.setMinContentLength(largeRequestSize);
@@ -535,13 +548,52 @@ public class OptionsParamView extends AbstractParam {
         getConfig().setProperty(getFontNameConfKey(fontType), fontName);
     }
 
+    /**
+     * Gets the the name of the selected look and feel.
+     *
+     * @return the name, might be {@code null} or empty if none selected (i.e. using default).
+     * @see #getLookAndFeelInfo()
+     * @since 2.8.0
+     */
     public String getLookAndFeel() {
-        return this.lookAndFeel;
+        return this.lookAndFeelInfo.getName();
     }
 
+    /**
+     * Sets the name of the selected look and feel.
+     *
+     * @param lookAndFeel the name.
+     * @since 2.8.0
+     * @deprecated (TODO add version) Use {@link #setLookAndFeelInfo(LookAndFeelInfo)} instead,
+     *     which preserves the class of the look and feel.
+     */
+    @Deprecated
     public void setLookAndFeel(String lookAndFeel) {
-        this.lookAndFeel = lookAndFeel;
-        getConfig().setProperty(LOOK_AND_FEEL, lookAndFeel);
+        setLookAndFeelInfo(new LookAndFeelInfo(lookAndFeel, ""));
+    }
+
+    /**
+     * Gets the info of the selected look and feel.
+     *
+     * @return the info of the look and feel.
+     * @since TODO add version
+     * @see #getLookAndFeel()
+     */
+    public LookAndFeelInfo getLookAndFeelInfo() {
+        return this.lookAndFeelInfo;
+    }
+
+    /**
+     * Sets the info of the selected look and feel.
+     *
+     * @param lookAndFeelInfo the info of the look and feel.
+     * @throws NullPointerException if the given parameter is null.
+     * @since TODO add version
+     */
+    public void setLookAndFeelInfo(LookAndFeelInfo lookAndFeelInfo) {
+        this.lookAndFeelInfo = Objects.requireNonNull(lookAndFeelInfo);
+        getConfig().setProperty(LOOK_AND_FEEL, lookAndFeelInfo.getName());
+        getConfig().setProperty(LOOK_AND_FEEL_CLASS, lookAndFeelInfo.getClassName());
     }
 
     public boolean isScaleImages() {

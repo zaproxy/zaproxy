@@ -66,6 +66,7 @@ dependencies {
         setTransitive(false)
     }
     implementation("org.javadelight:delight-nashorn-sandbox:0.1.26")
+    implementation("com.formdev:flatlaf:0.27")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
