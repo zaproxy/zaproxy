@@ -82,11 +82,12 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
      */
     private static final int SITE_CERTIFICATE_START_ADJUSTMENT = 30;
     /**
-     * Constant used to define the end validity date for site certificates. 2years minus start
-     * adjustment. Per: https://cabforum.org/2017/03/17/ballot-193-825-day-certificate-lifetimes/
+     * Constant used to define the end validity date for site certificates. 1year minus start
+     * adjustment. Per: https://cabforum.org/2017/02/24/ballot-185-limiting-lifetime-certificates/
+     * and https://www.ssl.com/blogs/apple-limits-ssl-tls-certificate-lifetimes-to-398-days/
      */
     private static final int SITE_CERTIFICATE_END_VALIDITY_PERIOD =
-            825 - SITE_CERTIFICATE_START_ADJUSTMENT;
+            398 - SITE_CERTIFICATE_START_ADJUSTMENT;
 
     private X509Certificate caCert = null;
     private PublicKey caPubKey = null;

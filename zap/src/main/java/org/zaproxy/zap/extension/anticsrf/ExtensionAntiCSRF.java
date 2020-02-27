@@ -524,4 +524,56 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         HistoryReference createHistoryReference(int id)
                 throws DatabaseException, HttpMalformedHeaderException;
     }
+
+    /**
+     * Regenerates the {@link AntiCsrfToken} of a {@link HttpMessage} if one exists to obtain the
+     * new {@link AntiCsrfToken}.
+     *
+     * @param message The {@link HttpMessage} to be checked.
+     * @param httpSender The {@code sendAndReceive} implementation of the caller.
+     * @since 2.10.0
+     */
+    public void regenerateAntiCsrfToken(HttpMessage message, HttpMessageSender httpSender) {
+        List<AntiCsrfToken> tokens = getTokens(message);
+        AntiCsrfToken antiCsrfToken = null;
+        if (tokens.size() > 0) {
+            antiCsrfToken = tokens.get(0);
+        }
+
+        if (antiCsrfToken == null) {
+            return;
+        }
+        String tokenValue = null;
+        try {
+            HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
+
+            httpSender.sendAndReceive(tokenMsg);
+
+            tokenValue = getTokenValue(tokenMsg, antiCsrfToken.getName());
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        if (tokenValue != null) {
+            // Replace token value - only supported in the body right now
+            log.debug(
+                    "regenerateAntiCsrfToken replacing "
+                            + antiCsrfToken.getValue()
+                            + " with "
+                            + encoder.getURLEncode(tokenValue));
+            String replaced = message.getRequestBody().toString();
+            replaced =
+                    replaced.replace(
+                            encoder.getURLEncode(antiCsrfToken.getValue()),
+                            encoder.getURLEncode(tokenValue));
+            message.setRequestBody(replaced);
+            registerAntiCsrfToken(
+                    new AntiCsrfToken(
+                            message,
+                            antiCsrfToken.getName(),
+                            tokenValue,
+                            antiCsrfToken.getFormIndex()));
+        }
+    }
 }
