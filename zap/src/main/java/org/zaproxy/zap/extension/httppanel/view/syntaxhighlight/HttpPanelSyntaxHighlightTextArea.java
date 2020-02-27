@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -39,6 +40,7 @@ import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.parosproxy.paros.Constant;
@@ -48,6 +50,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.menus.SyntaxMenu;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.menus.ViewMenu;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.FontUtils.FontType;
 import org.zaproxy.zap.view.HighlightSearchEntry;
@@ -129,6 +132,17 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
         this.setFont(
                 FontUtils.getFontWithFallback(FontType.workPanels, this.getFont().getFontName()));
 
+        if (DisplayUtils.isDarkLookAndFeel()) {
+            try {
+                Theme theme =
+                        Theme.load(
+                                HttpPanelSyntaxHighlightTextArea.class.getResourceAsStream(
+                                        "/org/fife/ui/rsyntaxtextarea/themes/dark.xml"));
+                theme.apply(this);
+            } catch (IOException e) {
+                log.error("Failed to set RSyntaxTextArea dark theme", e);
+            }
+        }
         initHighlighter();
     }
 

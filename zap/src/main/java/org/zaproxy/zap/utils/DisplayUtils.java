@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
+import com.formdev.flatlaf.FlatLaf;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Insets;
@@ -32,6 +33,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JToggleButton;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
 import org.parosproxy.paros.model.Model;
 
 public class DisplayUtils {
@@ -211,5 +214,19 @@ public class DisplayUtils {
         return new Insets(
                 (int) (top * FontUtils.getScale()), (int) (left * FontUtils.getScale()),
                 (int) (bottom * FontUtils.getScale()), (int) (right * FontUtils.getScale()));
+    }
+
+    /**
+     * Returns true if a known dark LookAndFeel is being used
+     *
+     * @since TODO add version
+     */
+    public static boolean isDarkLookAndFeel() {
+        LookAndFeel laf = UIManager.getLookAndFeel();
+        if (laf instanceof FlatLaf) {
+            FlatLaf flaf = (FlatLaf) laf;
+            return flaf.isDark();
+        }
+        return false;
     }
 }
