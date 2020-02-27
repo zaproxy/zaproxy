@@ -106,6 +106,8 @@ def usage():
     print('    -S                safe mode this will skip the active scan and perform a baseline scan')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
     print('    -O                the hostname to override in the (remote) OpenAPI spec')
+    print('    -C                directory for locating the config file')
+    print('    -B                base directory')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
     print('')
@@ -137,6 +139,7 @@ def main(argv):
     baseline = False
     info_unspecified = False
     base_dir = ''
+    config_file_dir = ''
     zap_ip = 'localhost'
     zap_options = ''
     delay = 0
@@ -152,7 +155,7 @@ def main(argv):
     fail_inprog_count = 0
 
     try:
-        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:O:", ["hook="])
+        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:O:C:B:", ["hook="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -212,6 +215,10 @@ def main(argv):
             timeout = int(arg)
         elif opt == '-O':
             host_override = arg
+        elif opt == '-B':
+            base_dir = arg
+        elif opt == '-C':
+            config_file_dir = arg
         elif opt == '--hook':
             hook_file = arg
 
@@ -230,7 +237,9 @@ def main(argv):
         sys.exit(3)
 
     if running_in_docker():
-        base_dir = '/zap/wrk/'
+        if not base_dir:
+            base_dir = '/zap/wrk/'
+
         if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file or target_file:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
@@ -242,7 +251,10 @@ def main(argv):
         target_url = target
     else:
         # assume its a file
-        if not os.path.exists(base_dir + target):
+        if not config_file_dir:
+            config_file_dir = base_dir
+
+        if not os.path.exists(config_file_dir + target):
             logging.warning('Target must either start with \'http://\' or \'https://\' or be a local file')
             logging.warning('File does not exist: ' + base_dir + target)
             usage()

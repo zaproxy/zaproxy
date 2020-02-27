@@ -96,6 +96,8 @@ def usage():
     print('    -p progress_file  progress file which specifies issues that are being addressed')
     print('    -s                short output format - dont show PASSes or example URLs')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
+    print('    -C                directory for locating the config file')
+    print('    -B                base directory')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
     print('')
@@ -124,6 +126,7 @@ def main(argv):
     info_unspecified = False
     ajax = False
     base_dir = ''
+    config_file_dir = ''
     zap_ip = 'localhost'
     zap_options = ''
     delay = 0
@@ -139,7 +142,7 @@ def main(argv):
     fail_inprog_count = 0
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:", ["hook="])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:C:B:", ["hook="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -197,6 +200,10 @@ def main(argv):
             detailed_output = False
         elif opt == '-T':
             timeout = int(arg)
+        elif opt == '-B':
+            base_dir = arg
+        elif opt == '-C':
+            config_file_dir = arg
         elif opt == '--hook':
             hook_file = arg
 
@@ -216,7 +223,9 @@ def main(argv):
         sys.exit(3)
 
     if running_in_docker():
-        base_dir = '/zap/wrk/'
+        if not base_dir:
+            base_dir = '/zap/wrk/'
+
         if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
@@ -232,7 +241,10 @@ def main(argv):
 
     if config_file:
         # load config file from filestore
-        with open(base_dir + config_file) as f:
+        if not config_file_dir:
+            config_file_dir = base_dir
+
+        with open(config_file_dir + config_file) as f:
             try:
                 load_config(f, config_dict, config_msg, out_of_scope_dict)
             except ValueError as e:
