@@ -97,6 +97,7 @@ Scanners:
 10107   Httpoxy - Proxy Header Misuse
 10108   Blank link target
 10109   Modern Web Application (info)
+10110   Dangerous JS Function Scanner
 
 10200   Beast (via HTTPS Info Extension)
 10201   Crime (via HTTPS Info Extension)
