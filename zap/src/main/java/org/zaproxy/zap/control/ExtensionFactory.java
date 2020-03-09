@@ -341,15 +341,16 @@ public class ExtensionFactory {
     }
 
     private static ResourceBundle getExtensionResourceBundle(Extension ext) {
-        String extensionPackage = ext.getClass().getPackage().getName();
+        Package extPackage = ext.getClass().getPackage();
+        String extensionPackage = extPackage != null ? extPackage.getName() + "." : "";
         ClassLoader classLoader = ext.getClass().getClassLoader();
         try {
             // Try to load a message bundle in the new/default location
-            String name = extensionPackage + ".resources." + Constant.MESSAGES_PREFIX;
+            String name = extensionPackage + "resources." + Constant.MESSAGES_PREFIX;
             return getPropertiesResourceBundle(name, classLoader);
         } catch (MissingResourceException ignore) {
             // Try to load in the old location
-            String oldLocation = extensionPackage + "." + Constant.MESSAGES_PREFIX;
+            String oldLocation = extensionPackage + Constant.MESSAGES_PREFIX;
             try {
                 return getPropertiesResourceBundle(oldLocation, classLoader);
             } catch (MissingResourceException ignoreAgain) {
