@@ -312,13 +312,14 @@ public class ExtensionHelp extends ExtensionAdaptor {
     }
 
     private static URL getExtensionHelpSetUrl(Extension extension) {
-        String extensionPackage = extension.getClass().getPackage().getName();
+        Package extPackage = extension.getClass().getPackage();
+        String extensionPackage = extPackage != null ? extPackage.getName() + "." : "";
         String localeToken = "%LC%";
         Function<String, URL> getResource = extension.getClass().getClassLoader()::getResource;
         URL helpSetUrl =
                 LocaleUtils.findResource(
                         extensionPackage
-                                + ".resources.help"
+                                + "resources.help"
                                 + localeToken
                                 + "."
                                 + HELP_SET_FILE_NAME,
@@ -331,7 +332,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
             helpSetUrl =
                     LocaleUtils.findResource(
                             extensionPackage
-                                    + ".resource.help"
+                                    + "resource.help"
                                     + localeToken
                                     + "."
                                     + HELP_SET_FILE_NAME,
