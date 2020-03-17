@@ -24,7 +24,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -89,7 +88,7 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
     @Override
     public String showAddDialogue() {
         if (addDialog == null) {
-            addDialog = new DialogAddRegex(owner);
+            addDialog = new DialogAddRegex(owner, this.getRegexes());
             addDialog.pack();
         }
         addDialog.setVisible(true);
@@ -103,7 +102,7 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
     @Override
     public String showModifyDialogue(String e) {
         if (modifyDialog == null) {
-            modifyDialog = new DialogModifyRegex(owner);
+            modifyDialog = new DialogModifyRegex(owner, this.getRegexes());
             modifyDialog.pack();
         }
         modifyDialog.setRegex(e);
@@ -161,13 +160,28 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
                 Constant.messages.getString("multiple.options.regexes.dialog.regex.invalid.title");
         private static final String TEXT_INVALID_REGEX_DIALOG =
                 Constant.messages.getString("multiple.options.regexes.dialog.regex.invalid.text");
+        private static final String TEXT_ALREADY_EXIST_INVALID_REGEX_DIALOG =
+                Constant.messages.getString(
+                        "multiple.options.regexes.dialog.regex.invalid.alreadyExist.text");
 
         private ZapTextField regexTextField;
 
         protected String regex;
 
+        private List<String> regexes;
+
+        public DialogAddRegex(Dialog owner, List<String> regexes) {
+            super(owner, DIALOG_TITLE);
+            this.regexes = regexes;
+        }
+
         public DialogAddRegex(Dialog owner) {
             super(owner, DIALOG_TITLE);
+        }
+
+        protected DialogAddRegex(Dialog owner, String title, List<String> regexes) {
+            super(owner, title);
+            this.regexes = regexes;
         }
 
         protected DialogAddRegex(Dialog owner, String title) {
@@ -212,8 +226,13 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
         @Override
         protected boolean validateFields() {
             try {
-                Pattern.compile(getRegexTextField().getText(), Pattern.CASE_INSENSITIVE);
-            } catch (PatternSyntaxException e) {
+                String trimmedRegex = getRegexTextField().getText().trim();
+                if (trimmedRegex.trim().isEmpty()) return false; // to prevent accepting empty regex
+                if (regexes != null && regexes.contains(trimmedRegex)) {
+                    throw new IllegalArgumentException(TEXT_ALREADY_EXIST_INVALID_REGEX_DIALOG);
+                }
+                Pattern.compile(trimmedRegex, Pattern.CASE_INSENSITIVE);
+            } catch (IllegalArgumentException e) {
                 JOptionPane.showMessageDialog(
                         this,
                         MessageFormat.format(TEXT_INVALID_REGEX_DIALOG, e.getLocalizedMessage()),
@@ -288,6 +307,10 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
         private static final String CONFIRM_BUTTON_LABEL =
                 Constant.messages.getString(
                         "multiple.options.regexes.dialog.modify.regex.button.confirm");
+
+        protected DialogModifyRegex(Dialog owner, List<String> regexes) {
+            super(owner, DIALOG_TITLE, regexes);
+        }
 
         protected DialogModifyRegex(Dialog owner) {
             super(owner, DIALOG_TITLE);
