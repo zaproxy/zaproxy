@@ -343,7 +343,7 @@ public class Context {
      * Validates that the given regular expression is not {@code null} nor invalid.
      *
      * @param regex the regular expression to be validated
-     * @throws IllegalArgumentException if the regular expression is {@code null}.
+     * @throws IllegalArgumentException if the regular expression is {@code null} or Empty.
      * @throws PatternSyntaxException if the regular expression is invalid.
      */
     private static void validateRegex(String regex) {
@@ -351,9 +351,10 @@ public class Context {
             throw new IllegalArgumentException("The regular expression must not be null.");
         }
         String trimmedRegex = regex.trim();
-        if (!trimmedRegex.isEmpty()) {
-            Pattern.compile(trimmedRegex, Pattern.CASE_INSENSITIVE);
+        if (trimmedRegex.isEmpty()) {
+            throw new IllegalArgumentException("The regular expression must not be Empty.");
         }
+        Pattern.compile(trimmedRegex, Pattern.CASE_INSENSITIVE);
     }
 
     /**
