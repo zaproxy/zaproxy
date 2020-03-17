@@ -367,18 +367,9 @@ public class Context {
     public void setIncludeInContextRegexs(List<String> includeRegexs) {
         validateRegexs(includeRegexs);
         // Check if they've been changed
-        if (includeInRegexs.size() == includeRegexs.size()) {
-            boolean changed = false;
-            for (int i = 0; i < includeInRegexs.size(); i++) {
-                if (!includeInRegexs.get(i).equals(includeRegexs.get(i))) {
-                    changed = true;
-                    break;
-                }
-            }
-            if (!changed) {
-                // No point reapplying the same regexs
-                return;
-            }
+        if (includeInRegexs.equals(includeRegexs)) {
+            // No point reapplying the same regexs
+            return;
         }
         includeInRegexs.clear();
         includeInPatterns.clear();
@@ -420,18 +411,9 @@ public class Context {
     public void setExcludeFromContextRegexs(List<String> excludeRegexs) {
         validateRegexs(excludeRegexs);
         // Check if they've been changed
-        if (excludeFromRegexs.size() == excludeRegexs.size()) {
-            boolean changed = false;
-            for (int i = 0; i < excludeFromRegexs.size(); i++) {
-                if (!excludeFromRegexs.get(i).equals(excludeRegexs.get(i))) {
-                    changed = true;
-                    break;
-                }
-            }
-            if (!changed) {
-                // No point reapplying the same regexs
-                return;
-            }
+        if (excludeFromRegexs.equals(excludeRegexs)) {
+            // No point reapplying the same regexs
+            return;
         }
 
         excludeFromRegexs.clear();
