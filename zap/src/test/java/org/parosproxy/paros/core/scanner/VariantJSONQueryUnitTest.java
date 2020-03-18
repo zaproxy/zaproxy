@@ -119,6 +119,109 @@ public class VariantJSONQueryUnitTest {
         assertThat(parameters.get(0).getValue(), is("bar\""));
     }
 
+    @Test
+    public void shouldExtractNumbersInJsonObject() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(
+                getMessageWithBody(
+                        "{ \"a\": 1, \"b\": -2, \"c\": 3.4e5, \"d\": -6E+7, \"e\": 8e-9 }"));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters.get(0).getName(), is("a"));
+        assertThat(parameters.get(0).getValue(), is("1"));
+        assertThat(parameters.get(1).getName(), is("b"));
+        assertThat(parameters.get(1).getValue(), is("-2"));
+        assertThat(parameters.get(2).getName(), is("c"));
+        assertThat(parameters.get(2).getValue(), is("3.4e5"));
+        assertThat(parameters.get(3).getName(), is("d"));
+        assertThat(parameters.get(3).getValue(), is("-6E+7"));
+        assertThat(parameters.get(4).getName(), is("e"));
+        assertThat(parameters.get(4).getValue(), is("8e-9"));
+    }
+
+    @Test
+    public void shouldExtractNumbersInJsonArray() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody("[ 1, -2, 3.4e5, -6E+7, 8e-9 ]"));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters.get(0).getName(), is("@items[0]"));
+        assertThat(parameters.get(0).getValue(), is("1"));
+        assertThat(parameters.get(1).getName(), is("@items[1]"));
+        assertThat(parameters.get(1).getValue(), is("-2"));
+        assertThat(parameters.get(2).getName(), is("@items[2]"));
+        assertThat(parameters.get(2).getValue(), is("3.4e5"));
+        assertThat(parameters.get(3).getName(), is("@items[3]"));
+        assertThat(parameters.get(3).getValue(), is("-6E+7"));
+        assertThat(parameters.get(4).getName(), is("@items[4]"));
+        assertThat(parameters.get(4).getValue(), is("8e-9"));
+    }
+
+    @Test
+    public void shouldReplaceNumberInJsonObject() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        HttpMessage message =
+                getMessageWithBody(
+                        "{ \"a\": 1, \"b\": -2, \"c\": 3.4e5, \"d\": -6E+7, \"e\": 8e-9 }");
+        variantJSONQuery.setMessage(message);
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        variantJSONQuery.setParameter(message, parameters.get(2), "c", "injection");
+        // Then
+        assertThat(
+                message.getRequestBody().toString(),
+                is("{ \"a\": 1, \"b\": -2, \"c\": \"injection\", \"d\": -6E+7, \"e\": 8e-9 }"));
+    }
+
+    @Test
+    public void shouldReplaceNumberEscapedInJsonObject() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        HttpMessage message =
+                getMessageWithBody(
+                        "{ \"a\": 1, \"b\": -2, \"c\": 3.4e5, \"d\": -6E+7, \"e\": 8e-9 }");
+        variantJSONQuery.setMessage(message);
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        variantJSONQuery.setEscapedParameter(message, parameters.get(2), "c", "injection");
+        // Then
+        assertThat(
+                message.getRequestBody().toString(),
+                is("{ \"a\": 1, \"b\": -2, \"c\": injection, \"d\": -6E+7, \"e\": 8e-9 }"));
+    }
+
+    @Test
+    public void shouldReplaceNumberInJsonArray() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        HttpMessage message = getMessageWithBody("[ 1, -2, 3.4e5, -6E+7, 8e-9 ]");
+        variantJSONQuery.setMessage(message);
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        variantJSONQuery.setParameter(message, parameters.get(2), "", "injection");
+        // Then
+        assertThat(
+                message.getRequestBody().toString(), is("[ 1, -2, \"injection\", -6E+7, 8e-9 ]"));
+    }
+
+    @Test
+    public void shouldReplaceNumberEscapedInJsonArray() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        HttpMessage message = getMessageWithBody("[ 1, -2, 3.4e5, -6E+7, 8e-9 ]");
+        variantJSONQuery.setMessage(message);
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        variantJSONQuery.setEscapedParameter(message, parameters.get(2), "", "injection");
+        // Then
+        assertThat(message.getRequestBody().toString(), is("[ 1, -2, injection, -6E+7, 8e-9 ]"));
+    }
+
     private static HttpMessage getMessageWithBody(String body) throws HttpMalformedHeaderException {
         return new HttpMessage(
                 new HttpRequestHeader(

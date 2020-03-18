@@ -65,9 +65,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
     @Override
     public String getEscapedValue(String value, boolean toQuote) {
         String result = StringEscapeUtils.escapeJava(value);
-        return (toQuote)
-                ? VariantJSONQuery.QUOTATION_MARK + result + VariantJSONQuery.QUOTATION_MARK
-                : result;
+        return (toQuote) ? (char) QUOTATION_MARK + result + (char) QUOTATION_MARK : result;
     }
 
     @Override
@@ -213,7 +211,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             sr.unreadLastCharacter();
             // Now we have the int object value
             // Put everything inside the parameter array
-            addParameter(fieldName, beginToken, sr.getPosition() - 1, true, false);
+            addParameter(fieldName, beginToken, sr.getPosition(), true, false);
 
         } else if (chr == BEGIN_OBJECT) {
             sr.unreadLastCharacter();
