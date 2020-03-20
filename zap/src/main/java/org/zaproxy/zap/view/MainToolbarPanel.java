@@ -202,6 +202,9 @@ public class MainToolbarPanel extends JPanel {
             modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.attack.select"));
 
             modeSelect.setToolTipText(Constant.messages.getString("view.toolbar.mode.tooltip"));
+            modeSelect
+                    .getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("view.toolbar.mode.tooltip"));
             // Increase the time the tooltip is displayed, to give people a chance to read it!
             ToolTipManager.sharedInstance().setDismissDelay(12000);
             ToolTipManager.sharedInstance().registerComponent(modeSelect);
@@ -275,6 +278,8 @@ public class MainToolbarPanel extends JPanel {
                                     MainToolbarPanel.class.getResource(
                                             "/resource/icon/16/021.png")))); // 'Blank file' icon
             btnNew.setToolTipText(Constant.messages.getString("menu.file.newSession"));
+            btnNew.getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.file.newSession"));
 
             btnNew.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -305,6 +310,8 @@ public class MainToolbarPanel extends JPanel {
                                     MainToolbarPanel.class.getResource(
                                             "/resource/icon/16/047.png")))); // 'open folder' icon
             btnOpen.setToolTipText(Constant.messages.getString("menu.file.openSession"));
+            btnOpen.getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.file.openSession"));
 
             btnOpen.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -335,6 +342,8 @@ public class MainToolbarPanel extends JPanel {
                                     MainToolbarPanel.class.getResource(
                                             "/resource/icon/16/096.png")))); // 'diskette' icon
             btnSave.setToolTipText(Constant.messages.getString("menu.file.persistSession"));
+            btnSave.getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.file.persistSession"));
 
             btnSave.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -372,6 +381,9 @@ public class MainToolbarPanel extends JPanel {
                                     MainToolbarPanel.class.getResource(
                                             "/resource/icon/fugue/camera.png"))));
             btnSnapshot.setToolTipText(Constant.messages.getString("menu.file.snapshotSession"));
+            btnSnapshot
+                    .getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.file.snapshotSession"));
 
             btnSnapshot.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -409,6 +421,9 @@ public class MainToolbarPanel extends JPanel {
                                     MainToolbarPanel.class.getResource(
                                             "/resource/icon/16/024.png")))); // 'spreadsheet' icon
             btnSession.setToolTipText(Constant.messages.getString("menu.file.sessionProperties"));
+            btnSession
+                    .getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.file.sessionProperties"));
 
             btnSession.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -426,6 +441,9 @@ public class MainToolbarPanel extends JPanel {
         if (btnOptions == null) {
             btnOptions = new JButton();
             btnOptions.setToolTipText(Constant.messages.getString("menu.tools.options"));
+            btnOptions
+                    .getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.tools.options"));
             btnOptions.setIcon(
                     DisplayUtils.getScaledIcon(
                             new ImageIcon(
