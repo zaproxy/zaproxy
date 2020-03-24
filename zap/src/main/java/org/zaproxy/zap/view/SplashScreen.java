@@ -23,7 +23,9 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -32,10 +34,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
@@ -81,11 +84,11 @@ public class SplashScreen extends JFrame {
         setTitle(Constant.PROGRAM_NAME);
         setIconImages(DisplayUtils.getZapIconImages());
 
-        BackgroundImagePanel panel = new BackgroundImagePanel();
+        JPanel panel = new JPanel(new GridBagLayout());
         panel.setPreferredSize(DisplayUtils.getScaledDimension(420, 430));
-        panel.setLayout(new GridBagLayout());
-        panel.setBackgroundImage(
-                SplashScreen.class.getResource("/resource/zap-splash-screen.png"), 0.5);
+        if (!DisplayUtils.isDarkLookAndFeel()) {
+            panel.setBackground(Color.decode("#F4FAFF"));
+        }
 
         Border margin = BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED);
         Border padding = BorderFactory.createEmptyBorder(4, 4, 4, 4);
@@ -108,28 +111,47 @@ public class SplashScreen extends JFrame {
         // ProgramName is at the beginning of the panel (0,0)
         panel.add(
                 lblProgramName,
-                LayoutHelper.getGBC(0, 0, 2, 1, DisplayUtils.getScaledInsets(40, 30, 0, 1)));
+                LayoutHelper.getGBC(0, 0, 1, 1, DisplayUtils.getScaledInsets(40, 30, 0, 1)));
         // Version is +8 horizontally respect to the other components
         panel.add(
                 lblVersion,
-                LayoutHelper.getGBC(0, 1, 2, 1, DisplayUtils.getScaledInsets(0, 30, 0, 1)));
+                LayoutHelper.getGBC(0, 1, 1, 1, DisplayUtils.getScaledInsets(0, 30, 0, 1)));
         // Progress bar (height 12) is +56 and then +24
         // vertically respect the other elements (tot + 92)
         panel.add(
                 getLoadingJProgressBar(),
-                LayoutHelper.getGBC(0, 2, 1, 1.0, DisplayUtils.getScaledInsets(20, 30, 64, 70)));
-        panel.add(Box.createHorizontalGlue(), LayoutHelper.getGBC(1, 2, 1, 1.0));
+                LayoutHelper.getGBC(
+                        0,
+                        2,
+                        1,
+                        1.0,
+                        0.0,
+                        GridBagConstraints.HORIZONTAL,
+                        DisplayUtils.getScaledInsets(20, 30, 64, 0)));
+
+        panel.add(
+                new JLabel(createSplashScreenImage()),
+                LayoutHelper.getGBC(1, 0, 1, 3, 0.0, DisplayUtils.getScaledInsets(0, 0, 0, 15)));
+
         // Panels should be with different heights for a good view
         panel.add(getTipsJScrollPane(), LayoutHelper.getGBC(0, 3, 2, 1.0, 1.0));
         panel.add(getLogJScrollPane(), LayoutHelper.getGBC(0, 4, 2, 1.0, 0.5));
 
-        this.add(panel);
+        setContentPane(panel);
         this.pack();
 
         splashOutputWriter = new SplashOutputWriter();
         Logger.getRootLogger().addAppender(splashOutputWriter);
 
         setVisible(true);
+    }
+
+    private static ImageIcon createSplashScreenImage() {
+        ImageIcon image =
+                new ImageIcon(SplashScreen.class.getResource("/resource/zap-splash-screen.png"));
+        int width = DisplayUtils.getScaledSize((int) (image.getIconWidth() * 0.5));
+        int height = DisplayUtils.getScaledSize((int) (image.getIconHeight() * 0.5));
+        return new ImageIcon(image.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
     }
 
     /**
