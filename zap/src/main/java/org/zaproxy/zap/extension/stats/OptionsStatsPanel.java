@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.stats;
 
 import java.awt.CardLayout;
-import java.awt.Color;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -76,8 +75,7 @@ public class OptionsStatsPanel extends AbstractParamPanel {
                             Constant.messages.getString("stats.options.statsd.panel"),
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             statsdPanel.add(
                     new JLabel(Constant.messages.getString("stats.options.label.statsd.host")),

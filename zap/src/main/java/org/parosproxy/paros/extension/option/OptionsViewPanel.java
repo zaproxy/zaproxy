@@ -35,6 +35,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/02/24 Use LookAndFeelInfo when setting the look and feel option.
+// ZAP: 2020/03/25 Remove hardcoded colour in titled border (Issue 5542).
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -363,8 +364,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
                                 fontTypeLabels.get(fontType),
                                 TitledBorder.DEFAULT_JUSTIFICATION,
                                 TitledBorder.DEFAULT_POSITION,
-                                FontUtils.getFont(FontUtils.Size.standard),
-                                Color.black));
+                                FontUtils.getFont(FontUtils.Size.standard)));
 
                 panelMisc.add(
                         fontsPanel,

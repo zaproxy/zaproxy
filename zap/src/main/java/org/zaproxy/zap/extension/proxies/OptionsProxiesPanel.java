@@ -139,8 +139,7 @@ public class OptionsProxiesPanel extends AbstractParamPanel {
                             Constant.messages.getString("options.proxy.additional.title"),
                             javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
         }
         return proxiesOptionsPanel;
     }

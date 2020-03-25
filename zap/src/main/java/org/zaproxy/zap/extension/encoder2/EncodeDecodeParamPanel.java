@@ -82,8 +82,7 @@ public class EncodeDecodeParamPanel extends AbstractParamPanel {
                             NAME_BASE64,
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             gbc.gridx = 0;
             gbc.gridy = 0;

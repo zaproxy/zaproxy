@@ -132,8 +132,7 @@ public class OptionsLocalProxyPanel extends JPanel {
                         Constant.messages.getString("options.proxy.local.title"),
                         javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                         javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard),
-                        java.awt.Color.black));
+                        FontUtils.getFont(FontUtils.Size.standard)));
 
         jLabel.setText(Constant.messages.getString("options.proxy.local.label.address"));
 

@@ -215,8 +215,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
                             Constant.messages.getString("sessionmanagement.panel.config.title"),
                             javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
         }
         return configContainerPanel;
     }
