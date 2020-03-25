@@ -53,8 +53,7 @@ public class SecurityProtocolsPanel extends JPanel {
                                 "generic.options.panel.security.protocols.title"),
                         javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                         javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard),
-                        java.awt.Color.black));
+                        FontUtils.getFont(FontUtils.Size.standard)));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;

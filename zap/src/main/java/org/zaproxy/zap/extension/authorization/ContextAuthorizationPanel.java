@@ -123,8 +123,7 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
                         "",
                         javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                         javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard),
-                        java.awt.Color.black));
+                        FontUtils.getFont(FontUtils.Size.standard)));
         this.add(configContainerPanel, LayoutHelper.getGBC(0, 2, 2, 0.0D));
 
         configContainerPanel.add(

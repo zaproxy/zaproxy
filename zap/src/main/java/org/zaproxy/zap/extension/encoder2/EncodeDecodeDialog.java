@@ -110,8 +110,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
                         title,
                         TitledBorder.DEFAULT_JUSTIFICATION,
                         javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard),
-                        java.awt.Color.black));
+                        FontUtils.getFont(FontUtils.Size.standard)));
 
         parent.add(jsp, gbc);
     }
@@ -289,8 +288,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
                             Constant.messages.getString("enc2.label.text"),
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             // addField(jPanel, 1, getInputField(), "Text to be encoded/decoded/hashed");
             // addField(jPanel, 2, jTabbed, "Text to be encoded/decoded/hashed");

@@ -174,8 +174,7 @@ public class AlertViewPanel extends AbstractPanel {
                         name,
                         TitledBorder.DEFAULT_JUSTIFICATION,
                         javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard),
-                        java.awt.Color.black));
+                        FontUtils.getFont(FontUtils.Size.standard)));
         return jScrollPane;
     }
 
