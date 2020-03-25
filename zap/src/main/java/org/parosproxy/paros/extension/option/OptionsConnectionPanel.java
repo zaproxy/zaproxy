@@ -39,6 +39,7 @@
 // ZAP: 2017/06/19 Use ZapNumberSpinner for connection timeout.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/03/24 Remove hardcoded white background on some fields (part of Issue 5542).
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -607,12 +608,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         getProxyExcludedDomainsPanel().setComponentEnabled(isEnabled);
         chkProxyChainAuth.setEnabled(isEnabled);
         setProxyChainAuthEnabled(isEnabled && chkProxyChainAuth.isSelected());
-        Color color = Color.WHITE;
-        if (!isEnabled) {
-            color = panelProxyChain.getBackground();
-        }
-        txtProxyChainName.setBackground(color);
-        spinnerProxyChainPort.setBackground(color);
     }
 
     private void setProxyChainAuthEnabled(boolean isEnabled) {
@@ -627,28 +622,12 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         if (chkProxyChainPrompt.isSelected()) {
             setProxyChainPromptEnabled(true);
         }
-
-        Color color = Color.WHITE;
-        if (!isEnabled) {
-            // ZAP: Added prompt option
-            color = panelProxyChain.getBackground();
-        }
-        txtProxyChainRealm.setBackground(color);
-        txtProxyChainUserName.setBackground(color);
-        txtProxyChainPassword.setBackground(color);
     }
 
     private void setProxyChainPromptEnabled(boolean isEnabled) {
 
         txtProxyChainPassword.setEnabled(!isEnabled);
         chkShowPassword.setEnabled(!isEnabled);
-
-        Color color = Color.WHITE;
-        if (isEnabled) {
-            txtProxyChainPassword.setText("");
-            color = panelProxyChain.getBackground();
-        }
-        txtProxyChainPassword.setBackground(color);
     }
 
     @Override

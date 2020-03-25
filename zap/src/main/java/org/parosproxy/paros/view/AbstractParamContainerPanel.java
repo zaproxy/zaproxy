@@ -31,6 +31,7 @@
 // ZAP: 2018/04/12 Allow to check if a param panel is selected.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/03/24 Remove hardcoded white background on Headline field (part of Issue 5542).
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -319,7 +320,6 @@ public class AbstractParamContainerPanel extends JSplitPane {
                             javax.swing.border.EtchedBorder.RAISED));
             txtHeadline.setEditable(false);
             txtHeadline.setEnabled(false);
-            txtHeadline.setBackground(java.awt.Color.white);
             txtHeadline.setFont(FontUtils.getFont(Font.BOLD));
         }
 
