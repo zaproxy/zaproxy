@@ -30,7 +30,7 @@ public class TechSet {
 
     public TechSet() {}
 
-    public TechSet(Tech[] include) {
+    public TechSet(Tech... include) {
         this(include, (Tech[]) null);
     }
 
