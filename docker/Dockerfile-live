@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	automake \
 	autoconf \
 	gcc g++ \
-	openjdk-8-jdk \
+	openjdk-11-jdk \
 	wget \
 	curl \
 	xmlstarlet \
@@ -45,7 +45,7 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
 # Pull the ZAP repo
