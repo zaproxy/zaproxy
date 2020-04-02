@@ -327,10 +327,11 @@ public class Context {
     }
 
     /**
-     * Validates that the given regular expressions are not {@code null} nor invalid.
+     * Validates that the given regular expressions are valid and they're not {@code null} nor
+     * empty.
      *
-     * @param regexs the regular expressions to be validated, must not be {@code null}
-     * @throws IllegalArgumentException if one of the regular expressions is {@code null}.
+     * @param regexs the regular expressions to be validated, must not be {@code null} nor empty.
+     * @throws IllegalArgumentException if one of the regular expressions is {@code null} or empty.
      * @throws PatternSyntaxException if one of the regular expressions is invalid.
      */
     private static void validateRegexs(List<String> regexs) {
@@ -340,10 +341,10 @@ public class Context {
     }
 
     /**
-     * Validates that the given regular expression is not {@code null} nor invalid.
+     * Validates that the given regular expression is valid and it's not {@code null} nor empty.
      *
      * @param regex the regular expression to be validated
-     * @throws IllegalArgumentException if the regular expression is {@code null}.
+     * @throws IllegalArgumentException if the regular expression is {@code null} or empty.
      * @throws PatternSyntaxException if the regular expression is invalid.
      */
     private static void validateRegex(String regex) {
@@ -351,33 +352,25 @@ public class Context {
             throw new IllegalArgumentException("The regular expression must not be null.");
         }
         String trimmedRegex = regex.trim();
-        if (!trimmedRegex.isEmpty()) {
-            Pattern.compile(trimmedRegex, Pattern.CASE_INSENSITIVE);
+        if (trimmedRegex.isEmpty()) {
+            throw new IllegalArgumentException("The regular expression must not be empty.");
         }
+        Pattern.compile(trimmedRegex, Pattern.CASE_INSENSITIVE);
     }
 
     /**
      * Sets the regular expressions used to include a URL in context.
      *
      * @param includeRegexs the regular expressions
-     * @throws IllegalArgumentException if one of the regular expressions is {@code null}.
+     * @throws IllegalArgumentException if one of the regular expressions is {@code null} or empty.
      * @throws PatternSyntaxException if one of the regular expressions is invalid.
      */
     public void setIncludeInContextRegexs(List<String> includeRegexs) {
         validateRegexs(includeRegexs);
         // Check if they've been changed
-        if (includeInRegexs.size() == includeRegexs.size()) {
-            boolean changed = false;
-            for (int i = 0; i < includeInRegexs.size(); i++) {
-                if (!includeInRegexs.get(i).equals(includeRegexs.get(i))) {
-                    changed = true;
-                    break;
-                }
-            }
-            if (!changed) {
-                // No point reapplying the same regexs
-                return;
-            }
+        if (includeInRegexs.equals(includeRegexs)) {
+            // No point reapplying the same regexs
+            return;
         }
         includeInRegexs.clear();
         includeInPatterns.clear();
@@ -419,18 +412,9 @@ public class Context {
     public void setExcludeFromContextRegexs(List<String> excludeRegexs) {
         validateRegexs(excludeRegexs);
         // Check if they've been changed
-        if (excludeFromRegexs.size() == excludeRegexs.size()) {
-            boolean changed = false;
-            for (int i = 0; i < excludeFromRegexs.size(); i++) {
-                if (!excludeFromRegexs.get(i).equals(excludeRegexs.get(i))) {
-                    changed = true;
-                    break;
-                }
-            }
-            if (!changed) {
-                // No point reapplying the same regexs
-                return;
-            }
+        if (excludeFromRegexs.equals(excludeRegexs)) {
+            // No point reapplying the same regexs
+            return;
         }
 
         excludeFromRegexs.clear();
