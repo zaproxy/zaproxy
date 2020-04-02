@@ -92,6 +92,8 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
             addDialog = new DialogAddRegex(owner);
             addDialog.pack();
         }
+
+        addDialog.setRegexes(this.getRegexes());
         addDialog.setVisible(true);
 
         String regex = addDialog.getRegex();
@@ -106,6 +108,8 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
             modifyDialog = new DialogModifyRegex(owner);
             modifyDialog.pack();
         }
+
+        modifyDialog.setRegexes(this.getRegexes());
         modifyDialog.setRegex(e);
         modifyDialog.setVisible(true);
 
@@ -161,10 +165,18 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
                 Constant.messages.getString("multiple.options.regexes.dialog.regex.invalid.title");
         private static final String TEXT_INVALID_REGEX_DIALOG =
                 Constant.messages.getString("multiple.options.regexes.dialog.regex.invalid.text");
+        private static final String TEXT_ALREADY_EXIST_INVALID_REGEX_DIALOG =
+                Constant.messages.getString(
+                        "multiple.options.regexes.dialog.regex.invalid.alreadyExist.text");
+        private static final String TITLE_ALREADY_EXIST_INVALID_REGEX_DIALOG =
+                Constant.messages.getString(
+                        "multiple.options.regexes.dialog.regex.invalid.alreadyExist.title");
 
         private ZapTextField regexTextField;
 
         protected String regex;
+
+        private List<String> regexes;
 
         public DialogAddRegex(Dialog owner) {
             super(owner, DIALOG_TITLE);
@@ -211,8 +223,18 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
         @Override
         protected boolean validateFields() {
+            String trimmedRegex = getRegexTextField().getText().trim();
+            if (regexes != null && regexes.contains(trimmedRegex)) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        TEXT_ALREADY_EXIST_INVALID_REGEX_DIALOG,
+                        TITLE_ALREADY_EXIST_INVALID_REGEX_DIALOG,
+                        JOptionPane.INFORMATION_MESSAGE);
+                getRegexTextField().requestFocusInWindow();
+                return false;
+            }
             try {
-                Pattern.compile(getRegexTextField().getText(), Pattern.CASE_INSENSITIVE);
+                Pattern.compile(trimmedRegex, Pattern.CASE_INSENSITIVE);
             } catch (PatternSyntaxException e) {
                 JOptionPane.showMessageDialog(
                         this,
@@ -227,7 +249,7 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
         @Override
         protected void performAction() {
-            regex = getRegexTextField().getText();
+            regex = getRegexTextField().getText().trim();
         }
 
         @Override
@@ -265,7 +287,7 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
                                     private void checkAndEnableConfirmButton() {
                                         setConfirmButtonEnabled(
-                                                getRegexTextField().getDocument().getLength() > 0);
+                                                !getRegexTextField().getText().trim().isEmpty());
                                     }
                                 });
             }
@@ -275,6 +297,10 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
         public void clear() {
             this.regex = null;
+        }
+
+        public void setRegexes(List<String> regexes) {
+            this.regexes = regexes;
         }
     }
 
@@ -306,6 +332,12 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
         protected void init() {
             getRegexTextField().setText(regex);
             getRegexTextField().discardAllEdits();
+        }
+
+        @Override
+        protected boolean validateFields() {
+            String trimmedRegex = getRegexTextField().getText().trim();
+            return regex.equals(trimmedRegex) || super.validateFields();
         }
     }
 
