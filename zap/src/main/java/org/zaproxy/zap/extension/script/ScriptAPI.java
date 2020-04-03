@@ -199,6 +199,10 @@ public class ScriptAPI extends ApiImplementor {
                                 ? Constant.messages.getString(descKey)
                                 : "";
                 data.put("description", description);
+                data.put("enableable", String.valueOf(type.isEnableable()));
+                if (type.isEnableable()) {
+                    data.put("enabledByDefault", String.valueOf(type.isEnabledByDefault()));
+                }
                 result.addItem(new ApiResponseSet<>("type", data));
             }
             return result;
