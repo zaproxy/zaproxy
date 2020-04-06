@@ -69,6 +69,7 @@ ENV LANG=C.UTF-8
 COPY zap* CHANGELOG.md /zap/
 COPY webswing.config /zap/webswing/
 COPY policies /home/zap/.ZAP_D/policies/
+COPY policies /root/.ZAP_D/policies/
 COPY scripts /home/zap/.ZAP_D/scripts/
 COPY .xinitrc /home/zap/
 

@@ -68,6 +68,7 @@ ENV LANG=C.UTF-8
 COPY zap* CHANGELOG.md /zap/
 COPY webswing.config /zap/webswing/
 COPY policies /home/zap/.ZAP/policies/
+COPY policies /root/.ZAP/policies/
 # The scan script loads the scripts from dev home dir.
 COPY scripts /home/zap/.ZAP_D/scripts/
 COPY .xinitrc /home/zap/

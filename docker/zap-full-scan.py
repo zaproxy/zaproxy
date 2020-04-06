@@ -469,6 +469,9 @@ def main(argv):
             logging.warning('I/O error: ' + str(e))
         dump_log_file(cid)
 
+    except ScanNotStartedException:
+        dump_log_file(cid)
+
     except:
         print("ERROR " + str(sys.exc_info()[0]))
         logging.warning('Unexpected error: ' + str(sys.exc_info()[0]))
