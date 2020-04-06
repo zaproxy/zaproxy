@@ -541,7 +541,7 @@ def main(argv):
             logging.warning('I/O error: ' + str(e))
         dump_log_file(cid)
 
-    except NoUrlsException:
+    except (NoUrlsException, ScanNotStartedException):
         dump_log_file(cid)
 
     except:

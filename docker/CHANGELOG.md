@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-04-06
+- Make API scan policy available to the root user, otherwise it would fail to start the active scan.
+
 ### 2020-04-01
 - Changed live and weekly images to use Java 11.
 

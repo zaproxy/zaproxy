@@ -43,6 +43,10 @@ except ImportError:
     logging.warning('Error importing pkg_resources. Is setuptools installed?')
 
 
+class ScanNotStartedException(Exception):
+    pass
+
+
 OLD_ZAP_CLIENT_WARNING = '''A newer version of python_owasp_zap_v2.4
  is available. Please run \'pip install -U python_owasp_zap_v2.4\' to update to
  the latest version.'''.replace('\n', '')
@@ -395,6 +399,10 @@ def zap_ajax_spider(zap, target, max_time):
 def zap_active_scan(zap, target, policy):
     logging.debug('Active Scan ' + target + ' with policy ' + policy)
     ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy)
+    try:
+        int(ascan_scan_id)
+    except ValueError:
+        raise ScanNotStartedException('Failed to start the scan, check the log/output for more details.')
     time.sleep(5)
 
     while(int(zap.ascan.status(ascan_scan_id)) < 100):
