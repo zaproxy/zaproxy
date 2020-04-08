@@ -90,6 +90,7 @@ def usage():
     print('    -P                specify listen port')
     print('    -D                delay in seconds to wait for passive scanning ')
     print('    -i                default rules not in the config file to INFO')
+    print('    -I                do not return failure on warning')
     print('    -j                use the Ajax spider in addition to the traditional one')
     print('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
     print('    -n context_file   context file which will be loaded prior to scanning the target')
@@ -128,6 +129,7 @@ def main(argv):
     zap_options = ''
     delay = 0
     timeout = 0
+    ignore_warn = False
     hook_file = None
 
     pass_count = 0
@@ -139,7 +141,7 @@ def main(argv):
     fail_inprog_count = 0
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:", ["hook="])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:I", ["hook="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -182,6 +184,8 @@ def main(argv):
             zap_alpha = True
         elif opt == '-i':
             info_unspecified = True
+        elif opt == '-I':
+            ignore_warn = True
         elif opt == '-j':
             ajax = True
         elif opt == '-l':
@@ -484,7 +488,7 @@ def main(argv):
 
     if fail_count > 0:
         sys.exit(1)
-    elif warn_count > 0:
+    elif (not ignore_warn) and warn_count > 0:
         sys.exit(2)
     elif pass_count > 0:
         sys.exit(0)
