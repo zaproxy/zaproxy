@@ -1,7 +1,7 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
-### 2020-04-06
+### 2020-04-08
 - Changed zap-full-scan.py and zap-api-scan.py to include the -I option to ignore only warning used by zap-baseline-scan.py
 
 ### 2020-04-06
