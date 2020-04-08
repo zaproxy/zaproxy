@@ -2,6 +2,9 @@
 All notable changes to the docker containers will be documented in this file.
 
 ### 2020-04-06
+- Changed zap-full-scan.py and zap-api-scan.py to include the -I option to ignore only warning used by zap-baseline-scan.py
+
+### 2020-04-06
 - Make API scan policy available to the root user, otherwise it would fail to start the active scan.
 
 ### 2020-04-01
