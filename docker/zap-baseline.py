@@ -321,7 +321,7 @@ def main(argv):
         time.sleep(2)
 
         # Spider target
-        zap_spider(zap, target)
+        zap_spider(zap, target, context_file)
 
         if (ajax):
             zap_ajax_spider(zap, target, mins)

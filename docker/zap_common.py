@@ -370,9 +370,10 @@ def zap_access_target(zap, target):
 
 
 @hook(wrap=True)
-def zap_spider(zap, target):
+def zap_spider(zap, target, context_file):
     logging.debug('Spider ' + target)
-    spider_scan_id = zap.spider.scan(target)
+    contextname = context_file
+    spider_scan_id = zap.spider.scan(target, contextname)
     time.sleep(5)
 
     while (int(zap.spider.status(spider_scan_id)) < 100):
