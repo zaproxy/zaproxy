@@ -82,6 +82,7 @@
 // ZAP: 2019/08/19 Reinstate proxy auth credentials when HTTP state is changed.
 // ZAP: 2019/09/17 Use remove() instead of set(null) on IN_LISTENER.
 // ZAP: 2019/09/25 Add option to disable cookies
+// ZAP: 2020/04/20 Configure if the names should be resolved or not (Issue 29).
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -408,6 +409,11 @@ public class HttpSender {
                 setProxyAuth(requestClient);
             }
         }
+
+        method.getParams()
+                .setBooleanParameter(
+                        HttpMethodDirector.PARAM_RESOLVE_HOSTNAME,
+                        param.shouldResolveRemoteHostname(hostName));
 
         // ZAP: Check if a custom state is being used
         if (state != null) {
