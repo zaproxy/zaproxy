@@ -47,13 +47,16 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/01/02 Updated default user agent
+// ZAP: 2020/04/20 Allow to configure the SOCKS proxy (Issue 29).
 package org.parosproxy.paros.network;
 
+import java.net.PasswordAuthentication;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.httpclient.HttpState;
@@ -61,6 +64,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 import org.zaproxy.zap.network.DomainMatcher;
+import org.zaproxy.zap.network.SocksProxy;
 
 public class ConnectionParam extends AbstractParam {
 
@@ -128,6 +132,33 @@ public class ConnectionParam extends AbstractParam {
      */
     public static final int DEFAULT_TIMEOUT = 20;
 
+    private static final String SOCKS_PROXY_BASE_KEY = CONNECTION_BASE_KEY + ".socksProxy.";
+    private static final String USE_SOCKS_PROXY_KEY = SOCKS_PROXY_BASE_KEY + "enabled";
+    private static final String SOCKS_PROXY_HOST_KEY = SOCKS_PROXY_BASE_KEY + "host";
+    private static final String SOCKS_PROXY_PORT_KEY = SOCKS_PROXY_BASE_KEY + "port";
+    private static final String SOCKS_PROXY_VERSION_KEY = SOCKS_PROXY_BASE_KEY + "version";
+    private static final String SOCKS_PROXY_DNS_KEY = SOCKS_PROXY_BASE_KEY + "dns";
+    private static final String SOCKS_PROXY_USERNAME_KEY = SOCKS_PROXY_BASE_KEY + "username";
+    private static final String SOCKS_PROXY_PASSWORD_KEY = SOCKS_PROXY_BASE_KEY + "password";
+
+    /**
+     * The default SOCKS proxy configuration.
+     *
+     * @since TODO add version
+     */
+    public static final SocksProxy DEFAULT_SOCKS_PROXY = new SocksProxy("localhost", 1080);
+
+    /**
+     * Pattern with loopback names and addresses that should be always resolved (when creating the
+     * {@link java.net.InetSocketAddress}).
+     *
+     * <p>Same pattern used by default proxy selector.
+     *
+     * @see #shouldResolveRemoteHostname(String)
+     */
+    private static final Pattern LOOPBACK_PATTERN =
+            Pattern.compile("\\Qlocalhost\\E|\\Q127.\\E.*|\\Q[::1]\\E|\\Q0.0.0.0\\E|\\Q[::0]\\E");
+
     private boolean useProxyChain;
     private String proxyChainName = "";
     private int proxyChainPort = 8080;
@@ -136,6 +167,12 @@ public class ConnectionParam extends AbstractParam {
     private String proxyChainRealm = "";
     private String proxyChainUserName = "";
     private String proxyChainPassword = "";
+
+    private boolean useSocksProxy;
+    private SocksProxy socksProxy = DEFAULT_SOCKS_PROXY;
+    private PasswordAuthentication socksProxyPasswordAuth =
+            new PasswordAuthentication("", new char[0]);
+
     private HttpState httpState = null;
     private boolean httpStateEnabled = false;
     private List<DomainMatcher> proxyExcludedDomains = new ArrayList<>(0);
@@ -223,6 +260,8 @@ public class ConnectionParam extends AbstractParam {
         HttpRequestHeader.setDefaultUserAgent(defaultUserAgent);
 
         loadSecurityProtocolsEnabled();
+
+        parseSocksProxyOptions();
     }
 
     private void updateOptions() {
@@ -817,5 +856,203 @@ public class ConnectionParam extends AbstractParam {
 
         dnsTtlSuccessfulQueries = ttl;
         getConfig().setProperty(DNS_TTL_SUCCESSFUL_QUERIES_KEY, ttl);
+    }
+
+    private void parseSocksProxyOptions() {
+        String host = System.getProperty("socksProxyHost");
+        int port;
+        String version;
+        boolean useDns = getBoolean(SOCKS_PROXY_DNS_KEY, DEFAULT_SOCKS_PROXY.isUseDns());
+
+        if (host != null && !host.isEmpty()) {
+            port = parseSocksPort(System.getProperty("socksProxyPort"));
+            version = System.getProperty("socksProxyVersion");
+
+            useSocksProxy = true;
+        } else {
+            host = getString(SOCKS_PROXY_HOST_KEY, DEFAULT_SOCKS_PROXY.getHost());
+            port = parseSocksPort(getConfig().getString(SOCKS_PROXY_PORT_KEY));
+            version =
+                    getString(
+                            SOCKS_PROXY_VERSION_KEY,
+                            String.valueOf(DEFAULT_SOCKS_PROXY.getVersion().number()));
+
+            useSocksProxy = getBoolean(USE_SOCKS_PROXY_KEY, false);
+        }
+
+        socksProxy = new SocksProxy(host, port, SocksProxy.Version.from(version), useDns);
+        if (useSocksProxy) {
+            apply(socksProxy);
+        }
+
+        socksProxyPasswordAuth =
+                new PasswordAuthentication(
+                        getString(SOCKS_PROXY_USERNAME_KEY, ""),
+                        getString(SOCKS_PROXY_PASSWORD_KEY, "").toCharArray());
+    }
+
+    private static int parseSocksPort(String value) {
+        if (value == null || value.isEmpty()) {
+            return DEFAULT_SOCKS_PROXY.getPort();
+        }
+
+        int port;
+        try {
+            port = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            log.warn("Failed to parse the SOCKS port: " + value, e);
+            return DEFAULT_SOCKS_PROXY.getPort();
+        }
+
+        if (port > 0 && port <= 65535) {
+            return port;
+        }
+
+        log.warn("Invalid SOCKS port: " + value);
+        return DEFAULT_SOCKS_PROXY.getPort();
+    }
+
+    /**
+     * Applies the given SOCKS proxy configuration to the SOCKS system properties.
+     *
+     * <p>If the SOCKS proxy is not in use (i.e. {@link #useSocksProxy} is {@code false}) the system
+     * properties are cleared.
+     *
+     * @param socksProxy the SOCKS proxy to apply.
+     */
+    private void apply(SocksProxy socksProxy) {
+        String host = "";
+        String port = "";
+        String version = "";
+        if (useSocksProxy) {
+            host = socksProxy.getHost();
+            port = Integer.toString(socksProxy.getPort());
+            version = Integer.toString(socksProxy.getVersion().number());
+        }
+        System.setProperty("socksProxyHost", host);
+        System.setProperty("socksProxyPort", port);
+        System.setProperty("socksProxyVersion", version);
+    }
+
+    /**
+     * Tells whether or not the given hostname should be resolved.
+     *
+     * <p>The names should not be resolved when ZAP is configured to use a SOCKSv5 proxy and rely on
+     * it for resolution.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @param hostname the name to check.
+     * @return {@code true} if the given {@code hostname} should be resolved, {@code false}
+     *     otherwise.
+     */
+    @ZapApiIgnore
+    public boolean shouldResolveRemoteHostname(String hostname) {
+        if (!useSocksProxy
+                || !socksProxy.isUseDns()
+                || socksProxy.getVersion() != SocksProxy.Version.SOCKS5) {
+            return true;
+        }
+        return LOOPBACK_PATTERN.matcher(hostname).matches();
+    }
+
+    /**
+     * Tells whether or not the outgoing connections should use the SOCKS proxy.
+     *
+     * @return {@code true} if outgoing connections should use the SOCKS proxy, {@code false}
+     *     otherwise.
+     * @since TODO add version
+     * @see #setUseSocksProxy(boolean)
+     */
+    public boolean isUseSocksProxy() {
+        return useSocksProxy;
+    }
+
+    /**
+     * Sets whether or not the outgoing connections should use the SOCKS proxy.
+     *
+     * @param useSocksProxy {@code true} if outgoing connections should use the SOCKS proxy, {@code
+     *     false} otherwise.
+     * @since TODO add version
+     * @see #isUseSocksProxy()
+     * @see #setSocksProxy(SocksProxy)
+     */
+    public void setUseSocksProxy(boolean useSocksProxy) {
+        if (this.useSocksProxy == useSocksProxy) {
+            return;
+        }
+
+        this.useSocksProxy = useSocksProxy;
+
+        getConfig().setProperty(USE_SOCKS_PROXY_KEY, useSocksProxy);
+
+        apply(socksProxy);
+    }
+
+    /**
+     * Gets the SOCKS proxy for outgoing connections.
+     *
+     * @return the SOCKS proxy, never {@code null}.
+     * @since TODO add version
+     * @see #isUseSocksProxy()
+     * @see #setSocksProxy(SocksProxy)
+     */
+    @ZapApiIgnore
+    public SocksProxy getSocksProxy() {
+        return socksProxy;
+    }
+
+    /**
+     * Sets the SOCKS proxy for outgoing connections.
+     *
+     * @param socksProxy the SOCKS proxy.
+     * @throws NullPointerException if the given {@code socksProxy} is {@code null}.
+     * @since TODO add version
+     * @see #getSocksProxy()
+     * @see #setUseSocksProxy(boolean)
+     */
+    public void setSocksProxy(SocksProxy socksProxy) {
+        if (this.socksProxy.equals(socksProxy)) {
+            return;
+        }
+
+        this.socksProxy = Objects.requireNonNull(socksProxy);
+
+        getConfig().setProperty(SOCKS_PROXY_HOST_KEY, socksProxy.getHost());
+        getConfig().setProperty(SOCKS_PROXY_PORT_KEY, socksProxy.getPort());
+        getConfig().setProperty(SOCKS_PROXY_VERSION_KEY, socksProxy.getVersion().number());
+        getConfig().setProperty(SOCKS_PROXY_DNS_KEY, socksProxy.isUseDns());
+
+        if (useSocksProxy) {
+            apply(socksProxy);
+        }
+    }
+
+    /**
+     * Gets the SOCKS proxy password authentication.
+     *
+     * @return the SOCKS proxy password authentication, never {@code null}.
+     * @since TODO add version
+     * @see #isUseSocksProxy()
+     * @see #setSocksProxyPasswordAuth(PasswordAuthentication)
+     */
+    @ZapApiIgnore
+    public PasswordAuthentication getSocksProxyPasswordAuth() {
+        return socksProxyPasswordAuth;
+    }
+
+    /**
+     * Sets the SOCKS proxy password authentication.
+     *
+     * @param passwordAuth the password authentication.
+     * @throws NullPointerException if the given {@code passwordAuth} is {@code null}.
+     * @since TODO add version
+     * @see #getSocksProxyPasswordAuth()
+     */
+    public void setSocksProxyPasswordAuth(PasswordAuthentication passwordAuth) {
+        this.socksProxyPasswordAuth = Objects.requireNonNull(passwordAuth);
+
+        getConfig().setProperty(SOCKS_PROXY_USERNAME_KEY, passwordAuth.getUserName());
+        getConfig().setProperty(SOCKS_PROXY_PASSWORD_KEY, new String(passwordAuth.getPassword()));
     }
 }

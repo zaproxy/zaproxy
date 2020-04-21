@@ -39,6 +39,7 @@
 // ZAP: 2019/02/26 Disable TLS 1.3 by default as it currently fails with Java 11
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/04/20 Let SOCKS proxy resolve hosts if set (Issue 29).
 package org.parosproxy.paros.network;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
@@ -83,6 +84,7 @@ import javax.net.ssl.X509KeyManager;
 import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.httpclient.ConnectTimeoutException;
+import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.commons.validator.routines.InetAddressValidator;
@@ -433,7 +435,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
                 return sslSocket;
             } catch (SSLException e) {
-                if (!e.getMessage().contains(CONTENTS_UNRECOGNIZED_NAME_EXCEPTION)) {
+                if (!e.getMessage().contains(CONTENTS_UNRECOGNIZED_NAME_EXCEPTION)
+                        || !params.getBooleanParameter(
+                                HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
                     throw e;
                 }
 
@@ -446,10 +450,19 @@ public class SSLConnector implements SecureProtocolSocketFactory {
         Socket socket = clientSSLSockFactory.createSocket();
         SocketAddress localAddr = new InetSocketAddress(localAddress, localPort);
         socket.bind(localAddr);
-        SocketAddress remoteAddr = new InetSocketAddress(host, port);
+        SocketAddress remoteAddr = createRemoteAddr(params, host, port);
         socket.connect(remoteAddr, timeout);
 
         return socket;
+    }
+
+    private static SocketAddress createRemoteAddr(
+            HttpConnectionParams params, String host, int port) {
+        if (params == null
+                || params.getBooleanParameter(HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
+            return new InetSocketAddress(host, port);
+        }
+        return InetSocketAddress.createUnresolved(host, port);
     }
 
     private static void cacheMisconfiguredHost(String host, int port, InetAddress address) {
@@ -537,6 +550,13 @@ public class SSLConnector implements SecureProtocolSocketFactory {
     @Override
     public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
             throws IOException, UnknownHostException {
+        return createSocket(socket, host, port, autoClose, null);
+    }
+
+    @Override
+    public Socket createSocket(
+            Socket socket, String host, int port, boolean autoClose, HttpConnectionParams params)
+            throws IOException {
         InetAddress inetAddress = getCachedMisconfiguredHost(host, port);
         if (inetAddress != null) {
             return clientSSLSockFactory.createSocket(
@@ -550,7 +570,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
             return socketSSL;
         } catch (SSLException e) {
-            if (e.getMessage().contains(CONTENTS_UNRECOGNIZED_NAME_EXCEPTION)) {
+            if (e.getMessage().contains(CONTENTS_UNRECOGNIZED_NAME_EXCEPTION)
+                    && params.getBooleanParameter(
+                            HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
                 cacheMisconfiguredHost(host, port, InetAddress.getByName(host));
             }
             // Throw the exception anyway because the socket might no longer be usable (e.g.

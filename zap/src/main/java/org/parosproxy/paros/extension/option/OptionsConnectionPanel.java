@@ -41,6 +41,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/03/24 Remove hardcoded white background on some fields (part of Issue 5542).
 // ZAP: 2020/03/25 Remove hardcoded colour in titled borders (Issue 5542).
+// ZAP: 2020/04/20 Add SocksProxyPanel (Issue 29).
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -68,6 +69,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.option.SocksProxyPanel;
 import org.zaproxy.zap.model.CommonUserAgents;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.FontUtils;
@@ -111,8 +113,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     private ProxyExcludedDomainsMultipleOptionsPanel proxyExcludedDomainsPanel;
     private ProxyExcludedDomainsTableModel proxyExcludedDomainsTableModel;
 
+    private final SocksProxyPanel socksProxyPanel;
+
     public OptionsConnectionPanel() {
         super();
+        socksProxyPanel = new SocksProxyPanel();
         initialize();
     }
 
@@ -400,6 +405,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             innerPanel.add(getSecurityProtocolsPanel(), gbc);
             innerPanel.add(getJPanel(), gbc);
             innerPanel.add(getPanelProxyAuth(), gbc);
+            innerPanel.add(socksProxyPanel, gbc);
 
             JScrollPane scrollPane = new JScrollPane(innerPanel);
             scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -597,6 +603,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
         defaultUserAgent.setText(connectionParam.getDefaultUserAgent());
         setUaFromString();
+
+        socksProxyPanel.initParam(connectionParam);
     }
 
     private void setProxyChainEnabled(boolean isEnabled) {
@@ -648,6 +656,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
 
         securityProtocolsPanel.validateSecurityProtocols();
+
+        socksProxyPanel.validateParam();
     }
 
     @Override
@@ -694,6 +704,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         connectionParam.setSecurityProtocolsEnabled(securityProtocolsPanel.getSelectedProtocols());
 
         connectionParam.setDefaultUserAgent(defaultUserAgent.getText());
+
+        socksProxyPanel.saveParam(connectionParam);
     }
 
     /**

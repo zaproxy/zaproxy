@@ -20,9 +20,7 @@
 package org.zaproxy.zap.extension.autoupdate;
 
 import java.io.File;
-import java.net.Authenticator;
 import java.net.InetSocketAddress;
-import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
@@ -44,9 +42,6 @@ public class DownloadManager extends Thread {
         super("ZAP-DownloadManager");
         this.connectionParam = connectionParam;
         setDaemon(true);
-
-        // TODO Remove once the class Downloader uses HttpClient instead of URL to download the file
-        Authenticator.setDefault(new ZapProxyAuthenticator());
     }
 
     public Downloader downloadFile(URL url, File targetFile, long size, String hash) {
@@ -162,36 +157,5 @@ public class DownloadManager extends Thread {
             allDownloads.add(d);
         }
         return allDownloads;
-    }
-
-    // TODO Remove once the class Downloader uses HttpClient instead of URL to download the file
-    private final class ZapProxyAuthenticator extends Authenticator {
-
-        @Override
-        protected PasswordAuthentication getPasswordAuthentication() {
-            if (getRequestorType() != RequestorType.PROXY) {
-                return null;
-            }
-
-            if (getRequestingURL() == null) {
-                return null;
-            }
-
-            if (!connectionParam.isUseProxy(getRequestingURL().getHost())) {
-                return null;
-            }
-
-            if (connectionParam.getProxyChainPort() != getRequestingPort()) {
-                return null;
-            }
-
-            if (!connectionParam.getProxyChainName().equals(getRequestingHost())) {
-                return null;
-            }
-
-            return new PasswordAuthentication(
-                    connectionParam.getProxyChainUserName(),
-                    connectionParam.getProxyChainPassword().toCharArray());
-        }
     }
 }

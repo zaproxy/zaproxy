@@ -61,7 +61,7 @@ import org.apache.commons.logging.LogFactory;
  *  - Remove use of reflection to call Socket.shutdownOutput() in shutdownOutput(), not needed by minimum Java version targeted.
  *  - Add @Deprecated annotations to deprecated methods (by JavaDoc deprecated tag).
  *  - Change method tunnelCreated() to also create the tunnel if requested by calling code.
- * 
+ *  - Pass the HttpConnectionParams when calling SecureProtocolSocketFactory.
  */
 /**
  * An abstraction of an HTTP {@link InputStream} and {@link OutputStream}
@@ -801,7 +801,7 @@ public class HttpConnection {
             SecureProtocolSocketFactory socketFactory =
                 (SecureProtocolSocketFactory) protocolInUse.getSocketFactory();
 
-            socket = socketFactory.createSocket(socket, hostName, portNumber, true);
+            socket = socketFactory.createSocket(socket, hostName, portNumber, true, params);
         }
         
         if (LOG.isDebugEnabled()) {

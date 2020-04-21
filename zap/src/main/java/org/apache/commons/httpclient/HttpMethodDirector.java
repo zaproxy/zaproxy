@@ -72,6 +72,7 @@ import org.apache.commons.logging.LogFactory;
  *  - Added the public modifier to the class.
  *  - Establish a tunnel if the request has a connection upgrade.
  *  - Use neutral Locale when converting to lower case.
+ *  - Add and propagate the parameter PARAM_RESOLVE_HOSTNAME.
  */
 /**
  * Handles the process of executing a method including authentication, redirection and retries.
@@ -91,6 +92,11 @@ public class HttpMethodDirector {
      * {@code User-Agent} is set).
      */
     public static final String PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS = "method.connect.default.user.agent";
+
+    /**
+     * Parameter to configure whether or not the (remote) hostname should be resolved when the socket is created.
+     */
+    public static final String PARAM_RESOLVE_HOSTNAME = "socket.resolve.hostname";
 
     /** The www authenticate challange header. */
     public static final String WWW_AUTH_CHALLENGE = "WWW-Authenticate";
@@ -444,6 +450,8 @@ public class HttpMethodDirector {
                         this.conn.closeIfStale();
                     }
                     if (!this.conn.isOpen()) {
+                        this.conn.getParams().setBooleanParameter(PARAM_RESOLVE_HOSTNAME,
+                                method.getParams().getBooleanParameter(PARAM_RESOLVE_HOSTNAME, true));
                         // this connection must be opened before it can be used
                         // This has nothing to do with opening a secure tunnel
                         this.conn.open();
