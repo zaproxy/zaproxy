@@ -104,6 +104,7 @@
 // ZAP: 2020/01/06 Set latest version to default config.
 // ZAP: 2020/01/10 Correct the MailTo autoTagScanner regex pattern when upgrading from 2.8 or
 // earlier.
+// ZAP: 2020/04/22 Check ControlOverrides when determining the locale.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -146,6 +147,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOnLoader;
+import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -382,7 +384,11 @@ public final class Constant {
     }
 
     public Constant() {
-        initializeFilesAndDirectories();
+        this(null);
+    }
+
+    private Constant(ControlOverrides overrides) {
+        initializeFilesAndDirectories(overrides);
         setAcceleratorKeys();
     }
 
@@ -500,6 +506,10 @@ public final class Constant {
     }
 
     public void initializeFilesAndDirectories() {
+        initializeFilesAndDirectories(null);
+    }
+
+    private void initializeFilesAndDirectories(ControlOverrides overrides) {
 
         FileCopier copier = new FileCopier();
         File f = null;
@@ -698,31 +708,36 @@ public final class Constant {
         }
 
         // ZAP: Init i18n
-        String lang;
-        Locale locale = Locale.ENGLISH;
-
-        try {
-            // Select the correct locale
-            // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when
-            // reading/writing configurations.
-            XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
-            config.setAutoSave(false);
-
-            lang = config.getString(OptionsParamView.LOCALE, OptionsParamView.DEFAULT_LOCALE);
-            if (lang.length() == 0) {
-                lang = OptionsParamView.DEFAULT_LOCALE;
-            }
-
-            String[] langArray = lang.split("_");
-            locale = new Locale(langArray[0], langArray[1]);
-
-        } catch (Exception e) {
-            System.out.println("Failed to initialise locale " + e);
-        }
+        Locale locale = loadLocale(overrides);
 
         Locale.setDefault(locale);
 
         messages = new I18N(locale);
+    }
+
+    private Locale loadLocale(ControlOverrides overrides) {
+        try {
+            String lang = null;
+            if (overrides != null) {
+                lang = overrides.getOrderedConfigs().get(OptionsParamView.LOCALE);
+            }
+            if (lang == null || lang.isEmpty()) {
+                XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
+                config.setAutoSave(false);
+
+                lang = config.getString(OptionsParamView.LOCALE, OptionsParamView.DEFAULT_LOCALE);
+                if (lang.length() == 0) {
+                    lang = OptionsParamView.DEFAULT_LOCALE;
+                }
+            }
+
+            String[] langArray = lang.split("_");
+            return new Locale(langArray[0], langArray[1]);
+
+        } catch (Exception e) {
+            System.out.println("Failed to load locale " + e);
+        }
+        return Locale.ENGLISH;
     }
 
     private void setUpLogging() throws IOException {
@@ -1178,15 +1193,14 @@ public final class Constant {
     public static Constant getInstance() {
         if (instance == null) {
             // ZAP: Changed to use the method createInstance().
-            createInstance();
+            createInstance(null);
         }
         return instance;
     }
 
-    // ZAP: Added method.
-    private static synchronized void createInstance() {
+    public static synchronized void createInstance(ControlOverrides overrides) {
         if (instance == null) {
-            instance = new Constant();
+            instance = new Constant(overrides);
         }
     }
 

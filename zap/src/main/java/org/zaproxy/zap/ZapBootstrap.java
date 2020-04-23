@@ -73,7 +73,7 @@ abstract class ZapBootstrap {
         Logger.getLogger(DefaultFileSystem.class).addAppender(na);
 
         try {
-            Constant.getInstance();
+            Constant.createInstance(controlOverrides);
         } catch (final Throwable e) {
             System.err.println(e.getMessage());
             return 1;
