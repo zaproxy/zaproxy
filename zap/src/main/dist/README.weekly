@@ -39,7 +39,7 @@ Docker
 The weekly release is also available on Docker:
 https://hub.docker.com/r/owasp/zap2docker-weekly/
 For more details of how you can use it see 
-https://github.com/zaproxy/zaproxy/wiki/Docker  
+https://www.zaproxy.org/docs/docker/ 
 
 Headless Environment
 --------------------
