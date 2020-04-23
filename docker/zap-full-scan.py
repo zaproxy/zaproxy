@@ -100,7 +100,7 @@ def usage():
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
     print('')
-    print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Full-Scan')
+    print('For more details see https://www.zaproxy.org/docs/docker/full-scan/')
 
 
 def main(argv):
