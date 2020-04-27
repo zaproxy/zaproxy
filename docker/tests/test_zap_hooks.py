@@ -4,7 +4,7 @@ import tempfile
 import unittest
 from datetime import datetime
 from contextlib import contextmanager
-from unittest.mock import Mock
+from unittest.mock import Mock, PropertyMock
 from unittest.mock import patch
 
 import zap_common
@@ -267,7 +267,9 @@ class TestZapHooks(unittest.TestCase):
 
         context_id = "123"
 
-        zap = Mock(context=Mock(import_context=Mock(return_value=context_id)))
+        zap = Mock()
+        zap.context.import_context.return_value = context_id
+        type(zap.context).context_list = PropertyMock(return_value=["Default Context", "My Context"])
         context_file = "/path/to/context"
 
         zap_common.zap_import_context(zap, context_file)

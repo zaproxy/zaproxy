@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+###  2020-08-28
+ - Packaged scans will use the provided context when spidering and active scanning.
+
 ###  2020-08-27
  - Updated to use webswing 2.5.12
 
