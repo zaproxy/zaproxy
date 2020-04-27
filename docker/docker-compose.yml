@@ -13,5 +13,5 @@ services:
   test:
     build: 
       context: .
-      dockerfile: Dockerfile-zapcli
+      dockerfile: Dockerfile-stable-zapcli
     command:  zap-cli --zap-url http://zap --port 8090 status -t 60  
