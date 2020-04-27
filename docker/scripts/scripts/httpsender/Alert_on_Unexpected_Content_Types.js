@@ -13,6 +13,7 @@ var expectedTypes = [
 		"application/problem+json",
 		"application/problem+xml",
 		"application/soap+xml",
+		"application/vnd.api+json",
 		"application/xml",
 		"application/x-yaml",
 		"text/x-json",
