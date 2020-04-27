@@ -364,11 +364,16 @@ def zap_access_target(zap, target):
     if res.startswith("ZAP Error"):
         raise IOError(errno.EIO, 'ZAP failed to access: {0}'.format(target))
 
-
+'''
+Here, an optional context parameter is given, which will be overwritten, if a context is given.
+'''
 @hook(wrap=True)
-def zap_spider(zap, target):
+def zap_spider(zap, target, context=None):
     logging.debug('Spider ' + target)
-    spider_scan_id = zap.spider.scan(target)
+    if context is not None:
+        spider_scan_id = zap.spider.scan(target, contextname=context)
+    else:
+        spider_scan_id = zap.spider.scan(target)
     time.sleep(5)
 
     while (int(zap.spider.status(spider_scan_id)) < 100):
@@ -378,11 +383,14 @@ def zap_spider(zap, target):
 
 
 @hook(wrap=True)
-def zap_ajax_spider(zap, target, max_time):
+def zap_ajax_spider(zap, target, max_time, context=None):
     logging.debug('AjaxSpider ' + target)
     if max_time:
         zap.ajaxSpider.set_option_max_duration(str(max_time))
-    zap.ajaxSpider.scan(target)
+    if context is not None:
+        spider_scan_id = zap.spider.scan(target, contextname=context)
+    else:
+        spider_scan_id = zap.spider.scan(target)
     time.sleep(5)
 
     while (zap.ajaxSpider.status == 'running'):
@@ -390,11 +398,17 @@ def zap_ajax_spider(zap, target, max_time):
         time.sleep(5)
     logging.debug('Ajax Spider complete')
 
-
+'''
+In zap_active_scan we use the global context_id, which is used in zap.ascan.scan to indicate that there's
+a context.
+'''
 @hook(wrap=True)
 def zap_active_scan(zap, target, policy):
     logging.debug('Active Scan ' + target + ' with policy ' + policy)
-    ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy)
+    if context_id is None:
+        ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy)#, contextid=None)
+    if context_id is not None:
+        ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy, contextid=context_id)
     time.sleep(5)
 
     while(int(zap.ascan.status(ascan_scan_id)) < 100):
@@ -502,8 +516,14 @@ def write_report(file_path, report):
 
         f.write(report)
 
+'''
+zap_import_context imports the context and stores a context_id which will be used by zap_active_scan. Therefore the
+context_id must be global so that zap_active_scan has access to the variable.
+'''
+
 @hook(wrap=True)
 def zap_import_context(zap, context_file):
+    global context_id
     res = context_id = zap.context.import_context(context_file)
     if res.startswith("ZAP Error"):
         context_id = None

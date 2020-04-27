@@ -321,10 +321,23 @@ def main(argv):
         time.sleep(2)
 
         # Spider target
-        zap_spider(zap, target)
+        '''
+        Here the zap spider is supposed to only use a context if a context file is given
+        otherwise the inital spider funcionality without a context is used
+        '''
+        if context_file:
+            zap_spider(zap, target, os.path.splitext(os.path.basename(context_file))[0])
+        else:
+            zap_spider(zap, target)
 
+        '''
+        Similarly the ajax spider will only use a context if a context file is given
+        '''
         if (ajax):
-            zap_ajax_spider(zap, target, mins)
+            if context_file:
+                zap_ajax_spider(zap, target, mins, os.path.splitext(os.path.basename(context_file))[0])
+            else:
+                zap_ajax_spider(zap, target, mins)
 
         if (delay):
             start_scan = datetime.now()
