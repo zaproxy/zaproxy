@@ -44,7 +44,11 @@ class HistoryTableModel extends DefaultHistoryReferencesTableModel {
                     Column.SIZE_RESPONSE_BODY,
                     Column.HIGHEST_ALERT,
                     Column.NOTE,
-                    Column.TAGS
+                    Column.TAGS,
+                    Column.HOSTNAME,
+                    Column.PATH_AND_QUERY,
+                    Column.PATH,
+                    Column.QUERY
                 });
     }
 }

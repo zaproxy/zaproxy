@@ -23,6 +23,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
@@ -58,9 +59,17 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     private final boolean noteColumn;
     private String tags;
     private final boolean tagsColumn;
+    private final String hostname;
+    private final String pathAndQuery;
+    private final String path;
+    private final String query;
 
     public DefaultHistoryReferencesTableEntry(HistoryReference historyReference, Column[] columns) {
         super(historyReference);
+        String pathAndQuery1;
+        String hostname1;
+        String path1;
+        String query1;
 
         Column[] sortedColumns = Arrays.copyOf(columns, columns.length);
         Arrays.sort(sortedColumns);
@@ -119,6 +128,52 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         tagsColumn = hasColumn(sortedColumns, Column.TAGS);
 
         alertRiskCellItem = super.getHighestAlert();
+
+        try {
+            hostname1 =
+                    hasColumn(sortedColumns, Column.HOSTNAME)
+                            ? historyReference.getURI().getHost()
+                            : null;
+        } catch (URIException e) {
+            hostname1 = null;
+            e.printStackTrace();
+        }
+        hostname = hostname1;
+
+        try {
+            pathAndQuery1 =
+                    hasColumn(sortedColumns, Column.PATH_AND_QUERY)
+                            ? historyReference.getURI().getPathQuery()
+                            : null;
+        } catch (URIException e) {
+            pathAndQuery1 = null;
+            e.printStackTrace();
+        }
+        pathAndQuery = pathAndQuery1;
+
+        try {
+            path1 =
+                    hasColumn(sortedColumns, Column.PATH)
+                            ? historyReference.getURI().getPath()
+                            : null;
+
+        } catch (URIException e) {
+            path1 = null;
+            e.printStackTrace();
+        }
+        path = path1;
+
+        try {
+            query1 =
+                    hasColumn(sortedColumns, Column.QUERY)
+                            ? historyReference.getURI().getQuery()
+                            : null;
+
+        } catch (URIException e) {
+            query1 = null;
+            e.printStackTrace();
+        }
+        query = query1;
 
         refreshCachedValues();
     }
@@ -227,6 +282,26 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     @Override
     public String getTags() {
         return tags;
+    }
+
+    @Override
+    public String getHostName() {
+        return hostname;
+    }
+
+    @Override
+    public String getPathAndQuery() {
+        return pathAndQuery;
+    }
+
+    @Override
+    public String getPath() {
+        return path;
+    }
+
+    @Override
+    public String getQuery() {
+        return query;
     }
 
     /**
