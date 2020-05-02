@@ -66,10 +66,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
 
     public DefaultHistoryReferencesTableEntry(HistoryReference historyReference, Column[] columns) {
         super(historyReference);
-        String pathAndQuery1;
         String hostname1;
-        String path1;
-        String query1;
 
         Column[] sortedColumns = Arrays.copyOf(columns, columns.length);
         Arrays.sort(sortedColumns);
@@ -140,40 +137,21 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         }
         hostname = hostname1;
 
-        try {
-            pathAndQuery1 =
-                    hasColumn(sortedColumns, Column.PATH_AND_QUERY)
-                            ? historyReference.getURI().getPathQuery()
-                            : null;
-        } catch (URIException e) {
-            pathAndQuery1 = null;
-            e.printStackTrace();
-        }
-        pathAndQuery = pathAndQuery1;
+        pathAndQuery =
+                hasColumn(sortedColumns, Column.PATH_AND_QUERY)
+                        ? historyReference.getURI().getEscapedPathQuery()
+                        : null;
 
-        try {
-            path1 =
-                    hasColumn(sortedColumns, Column.PATH)
-                            ? historyReference.getURI().getPath()
-                            : null;
+        path =
+                hasColumn(sortedColumns, Column.PATH)
+                        ? historyReference.getURI().getEscapedPath()
+                        : null;
 
-        } catch (URIException e) {
-            path1 = null;
-            e.printStackTrace();
-        }
-        path = path1;
+        query =
+                hasColumn(sortedColumns, Column.QUERY)
+                        ? historyReference.getURI().getEscapedQuery()
+                        : null;
 
-        try {
-            query1 =
-                    hasColumn(sortedColumns, Column.QUERY)
-                            ? historyReference.getURI().getQuery()
-                            : null;
-
-        } catch (URIException e) {
-            query1 = null;
-            e.printStackTrace();
-        }
-        query = query1;
 
         refreshCachedValues();
     }
