@@ -45,6 +45,10 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
         PLACE_HOLDER_VALUES[Column.HREF_TYPE.ordinal()] = Integer.toString(0);
         PLACE_HOLDER_VALUES[Column.METHOD.ordinal()] = STRING_VALUE_NOT_LOADED;
         PLACE_HOLDER_VALUES[Column.URL.ordinal()] = STRING_VALUE_NOT_LOADED;
+        PLACE_HOLDER_VALUES[Column.HOSTNAME.ordinal()] = EMPTY_STRING;
+        PLACE_HOLDER_VALUES[Column.PATH_AND_QUERY.ordinal()] = EMPTY_STRING;
+        PLACE_HOLDER_VALUES[Column.PATH.ordinal()] = EMPTY_STRING;
+        PLACE_HOLDER_VALUES[Column.QUERY.ordinal()] = EMPTY_STRING;
         PLACE_HOLDER_VALUES[Column.STATUS_CODE.ordinal()] = 0;
         PLACE_HOLDER_VALUES[Column.STATUS_REASON.ordinal()] = STRING_VALUE_NOT_LOADED;
         PLACE_HOLDER_VALUES[Column.RTT.ordinal()] = 0;
@@ -59,10 +63,6 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
         PLACE_HOLDER_VALUES[Column.NOTE.ordinal()] = Boolean.FALSE;
         PLACE_HOLDER_VALUES[Column.TAGS.ordinal()] = EMPTY_STRING;
         PLACE_HOLDER_VALUES[Column.CUSTOM.ordinal()] = null;
-        PLACE_HOLDER_VALUES[Column.HOSTNAME.ordinal()] = EMPTY_STRING;
-        PLACE_HOLDER_VALUES[Column.PATH_AND_QUERY.ordinal()] = EMPTY_STRING;
-        PLACE_HOLDER_VALUES[Column.PATH.ordinal()] = EMPTY_STRING;
-        PLACE_HOLDER_VALUES[Column.QUERY.ordinal()] = EMPTY_STRING;
     }
 
     private final HistoryReference historyReference;
@@ -93,6 +93,22 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
     }
 
     public String getUri() {
+        return EMPTY_STRING;
+    }
+
+    public String getHostName() {
+        return EMPTY_STRING;
+    }
+
+    public String getPathAndQuery() {
+        return EMPTY_STRING;
+    }
+
+    public String getPath() {
+        return EMPTY_STRING;
+    }
+
+    public String getQuery() {
         return EMPTY_STRING;
     }
 
@@ -148,22 +164,6 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
         return EMPTY_STRING;
     }
 
-    public String getHostName() {
-        return EMPTY_STRING;
-    }
-
-    public String getPathAndQuery() {
-        return EMPTY_STRING;
-    }
-
-    public String getPath() {
-        return EMPTY_STRING;
-    }
-
-    public String getQuery() {
-        return EMPTY_STRING;
-    }
-
     @Override
     public Object getValue(Column column) {
         switch (column) {
@@ -179,6 +179,14 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return this.getMethod();
             case URL:
                 return this.getUri();
+            case HOSTNAME:
+                return this.getHostName();
+            case PATH_AND_QUERY:
+                return this.getPathAndQuery();
+            case PATH:
+                return this.getPath();
+            case QUERY:
+                return this.getQuery();
             case STATUS_CODE:
                 return this.getStatusCode();
             case STATUS_REASON:
@@ -205,14 +213,6 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return this.getTags();
             case CUSTOM:
                 return null;
-            case HOSTNAME:
-                return this.getHostName();
-            case PATH_AND_QUERY:
-                return this.getPathAndQuery();
-            case PATH:
-                return this.getPath();
-            case QUERY:
-                return this.getQuery();
             default:
                 return EMPTY_STRING;
         }
@@ -232,6 +232,14 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return "GET";
             case URL:
                 return "http://example.com/some/path?param=value";
+            case HOSTNAME:
+                return "example.com";
+            case PATH_AND_QUERY:
+                return "/some/path?param=value";
+            case PATH:
+                return "/some/path";
+            case QUERY:
+                return "param=value";
             case STATUS_CODE:
                 return 200;
             case STATUS_REASON:
@@ -254,14 +262,6 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return "Tag1, Tag2, Tag3";
             case CUSTOM:
                 return null;
-            case HOSTNAME:
-                return "example.com";
-            case PATH_AND_QUERY:
-                return "/some/path?param=value";
-            case PATH:
-                return "/some/path";
-            case QUERY:
-                return "param=value";
             default:
                 return EMPTY_STRING;
         }
@@ -280,6 +280,10 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
             case METHOD:
                 return String.class;
             case URL:
+            case HOSTNAME:
+            case PATH_AND_QUERY:
+            case PATH:
+            case QUERY:
                 return String.class;
             case STATUS_CODE:
                 return Integer.class;
@@ -303,14 +307,6 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return String.class;
             case CUSTOM:
                 return null;
-            case HOSTNAME:
-                return String.class;
-            case PATH_AND_QUERY:
-                return String.class;
-            case PATH:
-                return String.class;
-            case QUERY:
-                return String.class;
             default:
                 return String.class;
         }

@@ -43,6 +43,10 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     private final Long sessionId;
     private final String method;
     private final String uri;
+    private final String hostname;
+    private final String pathAndQuery;
+    private final String path;
+    private final String query;
     private final Integer statusCode;
     private final String reason;
     private final Date timeSentMillis;
@@ -59,10 +63,6 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     private final boolean noteColumn;
     private String tags;
     private final boolean tagsColumn;
-    private final String hostname;
-    private final String pathAndQuery;
-    private final String path;
-    private final String query;
 
     public DefaultHistoryReferencesTableEntry(HistoryReference historyReference, Column[] columns) {
         super(historyReference);
@@ -93,6 +93,28 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         rtt = hasColumn(sortedColumns, Column.RTT) ? historyReference.getRtt() : null;
 
         uri = hasColumn(sortedColumns, Column.URL) ? historyReference.getURI().toString() : null;
+        try {
+            hostname1 =
+                    hasColumn(sortedColumns, Column.HOSTNAME)
+                            ? historyReference.getURI().getHost()
+                            : null;
+        } catch (URIException e) {
+            hostname1 = null;
+            e.printStackTrace();
+        }
+        hostname = hostname1;
+        pathAndQuery =
+                hasColumn(sortedColumns, Column.PATH_AND_QUERY)
+                        ? historyReference.getURI().getEscapedPathQuery()
+                        : null;
+        path =
+                hasColumn(sortedColumns, Column.PATH)
+                        ? historyReference.getURI().getEscapedPath()
+                        : null;
+        query =
+                hasColumn(sortedColumns, Column.QUERY)
+                        ? historyReference.getURI().getEscapedQuery()
+                        : null;
         timeSentMillis =
                 hasColumn(sortedColumns, Column.REQUEST_TIMESTAMP)
                         ? new Date(historyReference.getTimeSentMillis())
@@ -125,33 +147,6 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         tagsColumn = hasColumn(sortedColumns, Column.TAGS);
 
         alertRiskCellItem = super.getHighestAlert();
-
-        try {
-            hostname1 =
-                    hasColumn(sortedColumns, Column.HOSTNAME)
-                            ? historyReference.getURI().getHost()
-                            : null;
-        } catch (URIException e) {
-            hostname1 = null;
-            e.printStackTrace();
-        }
-        hostname = hostname1;
-
-        pathAndQuery =
-                hasColumn(sortedColumns, Column.PATH_AND_QUERY)
-                        ? historyReference.getURI().getEscapedPathQuery()
-                        : null;
-
-        path =
-                hasColumn(sortedColumns, Column.PATH)
-                        ? historyReference.getURI().getEscapedPath()
-                        : null;
-
-        query =
-                hasColumn(sortedColumns, Column.QUERY)
-                        ? historyReference.getURI().getEscapedQuery()
-                        : null;
-
 
         refreshCachedValues();
     }
@@ -195,6 +190,26 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     @Override
     public String getUri() {
         return uri;
+    }
+
+    @Override
+    public String getHostName() {
+        return hostname;
+    }
+
+    @Override
+    public String getPathAndQuery() {
+        return pathAndQuery;
+    }
+
+    @Override
+    public String getPath() {
+        return path;
+    }
+
+    @Override
+    public String getQuery() {
+        return query;
     }
 
     @Override
@@ -260,26 +275,6 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     @Override
     public String getTags() {
         return tags;
-    }
-
-    @Override
-    public String getHostName() {
-        return hostname;
-    }
-
-    @Override
-    public String getPathAndQuery() {
-        return pathAndQuery;
-    }
-
-    @Override
-    public String getPath() {
-        return path;
-    }
-
-    @Override
-    public String getQuery() {
-        return query;
     }
 
     /**

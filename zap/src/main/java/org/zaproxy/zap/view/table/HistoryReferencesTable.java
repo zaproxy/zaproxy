@@ -379,11 +379,6 @@ public class HistoryReferencesTable extends ZapTable {
                     columnExt, hRefModel.getColumnIndex(Column.SIZE_RESPONSE_HEADER), model);
             installSizeBytesRenderer(
                     columnExt, hRefModel.getColumnIndex(Column.SIZE_RESPONSE_BODY), model);
-            installSizeBytesRenderer(columnExt, hRefModel.getColumnIndex(Column.HOSTNAME), model);
-            installSizeBytesRenderer(
-                    columnExt, hRefModel.getColumnIndex(Column.PATH_AND_QUERY), model);
-            installSizeBytesRenderer(columnExt, hRefModel.getColumnIndex(Column.PATH), model);
-            installSizeBytesRenderer(columnExt, hRefModel.getColumnIndex(Column.QUERY), model);
         }
 
         protected void installSizeBytesRenderer(

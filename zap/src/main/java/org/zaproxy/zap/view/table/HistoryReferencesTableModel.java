@@ -46,6 +46,10 @@ public interface HistoryReferencesTableModel<T extends HistoryReferencesTableEnt
         HREF_TYPE,
         METHOD,
         URL,
+        HOSTNAME,
+        PATH_AND_QUERY,
+        PATH,
+        QUERY,
         STATUS_CODE,
         STATUS_REASON,
         RTT,
@@ -58,10 +62,6 @@ public interface HistoryReferencesTableModel<T extends HistoryReferencesTableEnt
         HIGHEST_ALERT,
         NOTE,
         TAGS,
-        HOSTNAME,
-        PATH_AND_QUERY,
-        PATH,
-        QUERY,
         /**
          * Indicates that the column has custom values and that those values should retrieved by
          * other means.

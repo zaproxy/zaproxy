@@ -35,6 +35,10 @@ class HistoryTableModel extends DefaultHistoryReferencesTableModel {
                     Column.RESPONSE_TIMESTAMP,
                     Column.METHOD,
                     Column.URL,
+                    Column.HOSTNAME,
+                    Column.PATH_AND_QUERY,
+                    Column.PATH,
+                    Column.QUERY,
                     Column.STATUS_CODE,
                     Column.STATUS_REASON,
                     Column.RTT,
@@ -44,11 +48,7 @@ class HistoryTableModel extends DefaultHistoryReferencesTableModel {
                     Column.SIZE_RESPONSE_BODY,
                     Column.HIGHEST_ALERT,
                     Column.NOTE,
-                    Column.TAGS,
-                    Column.HOSTNAME,
-                    Column.PATH_AND_QUERY,
-                    Column.PATH,
-                    Column.QUERY
+                    Column.TAGS
                 });
     }
 }

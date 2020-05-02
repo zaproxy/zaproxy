@@ -44,6 +44,10 @@ public abstract class AbstractHistoryReferencesTableModel<T extends HistoryRefer
         Constant.messages.getString("view.href.table.header.hreftype"),
         Constant.messages.getString("view.href.table.header.method"),
         Constant.messages.getString("view.href.table.header.url"),
+        Constant.messages.getString("view.href.table.header.hostname"),
+        Constant.messages.getString("view.href.table.header.pathandquery"),
+        Constant.messages.getString("view.href.table.header.path"),
+        Constant.messages.getString("view.href.table.header.query"),
         Constant.messages.getString("view.href.table.header.code"),
         Constant.messages.getString("view.href.table.header.reason"),
         Constant.messages.getString("view.href.table.header.rtt"),
@@ -55,11 +59,7 @@ public abstract class AbstractHistoryReferencesTableModel<T extends HistoryRefer
         Constant.messages.getString("view.href.table.header.sessionid"),
         Constant.messages.getString("view.href.table.header.highestalert"),
         Constant.messages.getString("view.href.table.header.note"),
-        Constant.messages.getString("view.href.table.header.tags"),
-        Constant.messages.getString("view.href.table.header.hostname"),
-        Constant.messages.getString("view.href.table.header.pathandquery"),
-        Constant.messages.getString("view.href.table.header.path"),
-        Constant.messages.getString("view.href.table.header.query")
+        Constant.messages.getString("view.href.table.header.tags")
     };
 
     private final Column[] columns;
