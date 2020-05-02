@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
@@ -37,6 +38,8 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
 
     private static final String VALUES_SEPARATOR =
             Constant.messages.getString("generic.value.text.separator.comma");
+
+    private static final Logger LOGGER = Logger.getLogger(DefaultHistoryReferencesTableEntry.class);
 
     private final Integer historyId;
     private final Integer historyType;
@@ -98,6 +101,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
                             : null;
         } catch (URIException e) {
             hostname1 = null;
+            LOGGER.error(e);
             e.printStackTrace();
         }
         hostname = hostname1;
