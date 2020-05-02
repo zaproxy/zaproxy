@@ -48,8 +48,6 @@ public interface HistoryReferencesTableModel<T extends HistoryReferencesTableEnt
         URL,
         HOSTNAME,
         PATH_AND_QUERY,
-        PATH,
-        QUERY,
         STATUS_CODE,
         STATUS_REASON,
         RTT,

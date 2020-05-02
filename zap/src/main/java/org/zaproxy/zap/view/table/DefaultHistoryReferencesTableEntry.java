@@ -45,8 +45,6 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     private final String uri;
     private final String hostname;
     private final String pathAndQuery;
-    private final String path;
-    private final String query;
     private final Integer statusCode;
     private final String reason;
     private final Date timeSentMillis;
@@ -106,14 +104,6 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         pathAndQuery =
                 hasColumn(sortedColumns, Column.PATH_AND_QUERY)
                         ? historyReference.getURI().getEscapedPathQuery()
-                        : null;
-        path =
-                hasColumn(sortedColumns, Column.PATH)
-                        ? historyReference.getURI().getEscapedPath()
-                        : null;
-        query =
-                hasColumn(sortedColumns, Column.QUERY)
-                        ? historyReference.getURI().getEscapedQuery()
                         : null;
         timeSentMillis =
                 hasColumn(sortedColumns, Column.REQUEST_TIMESTAMP)
@@ -200,16 +190,6 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     @Override
     public String getPathAndQuery() {
         return pathAndQuery;
-    }
-
-    @Override
-    public String getPath() {
-        return path;
-    }
-
-    @Override
-    public String getQuery() {
-        return query;
     }
 
     @Override
