@@ -102,7 +102,6 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         } catch (URIException e) {
             hostname1 = null;
             LOGGER.error(e);
-            e.printStackTrace();
         }
         hostname = hostname1;
         pathAndQuery =
