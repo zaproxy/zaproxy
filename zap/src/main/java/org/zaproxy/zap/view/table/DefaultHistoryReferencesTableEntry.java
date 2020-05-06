@@ -23,8 +23,6 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
@@ -38,8 +36,6 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
 
     private static final String VALUES_SEPARATOR =
             Constant.messages.getString("generic.value.text.separator.comma");
-
-    private static final Logger LOGGER = Logger.getLogger(DefaultHistoryReferencesTableEntry.class);
 
     private final Integer historyId;
     private final Integer historyType;
@@ -67,7 +63,6 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
 
     public DefaultHistoryReferencesTableEntry(HistoryReference historyReference, Column[] columns) {
         super(historyReference);
-        String hostname1;
 
         Column[] sortedColumns = Arrays.copyOf(columns, columns.length);
         Arrays.sort(sortedColumns);
@@ -94,16 +89,11 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         rtt = hasColumn(sortedColumns, Column.RTT) ? historyReference.getRtt() : null;
 
         uri = hasColumn(sortedColumns, Column.URL) ? historyReference.getURI().toString() : null;
-        try {
-            hostname1 =
-                    hasColumn(sortedColumns, Column.HOSTNAME)
-                            ? historyReference.getURI().getHost()
-                            : null;
-        } catch (URIException e) {
-            hostname1 = null;
-            LOGGER.error(e);
-        }
-        hostname = hostname1;
+
+        hostname =
+                hasColumn(sortedColumns, Column.HOSTNAME)
+                        ? new String(historyReference.getURI().getRawHost())
+                        : null;
         pathAndQuery =
                 hasColumn(sortedColumns, Column.PATH_AND_QUERY)
                         ? historyReference.getURI().getEscapedPathQuery()
