@@ -46,6 +46,8 @@ public interface HistoryReferencesTableModel<T extends HistoryReferencesTableEnt
         HREF_TYPE,
         METHOD,
         URL,
+        HOSTNAME,
+        PATH_AND_QUERY,
         STATUS_CODE,
         STATUS_REASON,
         RTT,

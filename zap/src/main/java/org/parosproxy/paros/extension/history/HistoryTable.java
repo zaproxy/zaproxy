@@ -43,6 +43,10 @@ class HistoryTable extends HistoryReferencesTable {
                 .setVisible(false);
         getColumnExt(Constant.messages.getString("view.href.table.header.size.responseheader"))
                 .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.hostname"))
+                .setVisible(false);
+        getColumnExt(Constant.messages.getString("view.href.table.header.pathandquery"))
+                .setVisible(false);
     }
 
     /**

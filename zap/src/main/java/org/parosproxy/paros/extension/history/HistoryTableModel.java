@@ -35,6 +35,8 @@ class HistoryTableModel extends DefaultHistoryReferencesTableModel {
                     Column.RESPONSE_TIMESTAMP,
                     Column.METHOD,
                     Column.URL,
+                    Column.HOSTNAME,
+                    Column.PATH_AND_QUERY,
                     Column.STATUS_CODE,
                     Column.STATUS_REASON,
                     Column.RTT,

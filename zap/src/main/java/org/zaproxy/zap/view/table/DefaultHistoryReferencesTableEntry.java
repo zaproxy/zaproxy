@@ -42,6 +42,8 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     private final Long sessionId;
     private final String method;
     private final String uri;
+    private final String hostname;
+    private final String pathAndQuery;
     private final Integer statusCode;
     private final String reason;
     private final Date timeSentMillis;
@@ -87,6 +89,15 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         rtt = hasColumn(sortedColumns, Column.RTT) ? historyReference.getRtt() : null;
 
         uri = hasColumn(sortedColumns, Column.URL) ? historyReference.getURI().toString() : null;
+
+        hostname =
+                hasColumn(sortedColumns, Column.HOSTNAME)
+                        ? new String(historyReference.getURI().getRawHost())
+                        : null;
+        pathAndQuery =
+                hasColumn(sortedColumns, Column.PATH_AND_QUERY)
+                        ? historyReference.getURI().getEscapedPathQuery()
+                        : null;
         timeSentMillis =
                 hasColumn(sortedColumns, Column.REQUEST_TIMESTAMP)
                         ? new Date(historyReference.getTimeSentMillis())
@@ -162,6 +173,16 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     @Override
     public String getUri() {
         return uri;
+    }
+
+    @Override
+    public String getHostName() {
+        return hostname;
+    }
+
+    @Override
+    public String getPathAndQuery() {
+        return pathAndQuery;
     }
 
     @Override
