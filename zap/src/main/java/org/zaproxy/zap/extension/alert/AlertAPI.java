@@ -25,7 +25,9 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.Vector;
+import java.util.function.Consumer;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
@@ -56,6 +58,8 @@ public class AlertAPI extends ApiImplementor {
     private static final String ACTION_DELETE_ALERT = "deleteAlert";
     private static final String ACTION_UPDATE_ALERT = "updateAlert";
     private static final String ACTION_ADD_ALERT = "addAlert";
+    private static final String ACTION_UPDATE_ALERTS_CONFIDENCE = "updateAlertsConfidence";
+    private static final String ACTION_UPDATE_ALERTS_RISK = "updateAlertsRisk";
 
     private static final String VIEW_ALERT = "alert";
     private static final String VIEW_ALERTS = "alerts";
@@ -74,6 +78,7 @@ public class AlertAPI extends ApiImplementor {
 
     private static final String PARAM_MESSAGE_ID = "messageId";
     private static final String PARAM_ALERT_ID = "id";
+    private static final String PARAM_ALERT_IDS = "ids";
     private static final String PARAM_ALERT_NAME = "name";
     private static final String PARAM_CONFIDENCE = "confidenceId";
     private static final String PARAM_ALERT_DESCRIPTION = "description";
@@ -124,6 +129,13 @@ public class AlertAPI extends ApiImplementor {
         this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
         this.addApiAction(new ApiAction(ACTION_DELETE_ALERT, new String[] {PARAM_ID}));
 
+        this.addApiAction(
+                new ApiAction(
+                        ACTION_UPDATE_ALERTS_CONFIDENCE,
+                        new String[] {PARAM_ALERT_IDS, PARAM_CONFIDENCE}));
+        this.addApiAction(
+                new ApiAction(
+                        ACTION_UPDATE_ALERTS_RISK, new String[] {PARAM_ALERT_IDS, PARAM_RISK}));
         this.addApiAction(
                 new ApiAction(
                         ACTION_UPDATE_ALERT,
@@ -306,19 +318,7 @@ public class AlertAPI extends ApiImplementor {
         if (ACTION_DELETE_ALERT.equals(name)) {
             int alertId = ApiUtils.getIntParam(params, PARAM_ID);
 
-            RecordAlert recAlert;
-            try {
-                recAlert = Model.getSingleton().getDb().getTableAlert().read(alertId);
-            } catch (DatabaseException e) {
-                logger.error(e.getMessage(), e);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
-            }
-
-            if (recAlert == null) {
-                throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
-            }
-
-            extension.deleteAlert(new Alert(recAlert));
+            extension.deleteAlert(getAlertFromDb(alertId));
         } else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
             extension.deleteAllAlerts();
         } else if (ACTION_UPDATE_ALERT.equals(name)) {
@@ -336,19 +336,7 @@ public class AlertAPI extends ApiImplementor {
             int cweId = getParam(params, PARAM_CWEID, 0);
             int wascId = getParam(params, PARAM_WASCID, 0);
 
-            RecordAlert recAlert;
-            try {
-                recAlert = Model.getSingleton().getDb().getTableAlert().read(alertId);
-            } catch (DatabaseException e) {
-                logger.error(e.getMessage(), e);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
-            }
-
-            if (recAlert == null) {
-                throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ALERT_ID);
-            }
-
-            Alert updatedAlert = new Alert(recAlert);
+            Alert updatedAlert = getAlertFromDb(alertId);
             updatedAlert.setName(alertName);
             updatedAlert.setRisk(riskId);
             updatedAlert.setConfidence(confidenceId);
@@ -361,12 +349,8 @@ public class AlertAPI extends ApiImplementor {
             updatedAlert.setEvidence(evidence);
             updatedAlert.setCweId(cweId);
             updatedAlert.setWascId(wascId);
-            try {
-                extension.updateAlert(updatedAlert);
-            } catch (HttpMalformedHeaderException | DatabaseException e) {
-                logger.error(e.getMessage(), e);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
-            }
+
+            processAlertUpdate(updatedAlert);
         } else if (ACTION_ADD_ALERT.equals(name)) {
             int messageId = ApiUtils.getIntParam(params, PARAM_MESSAGE_ID);
             String alertName = ApiUtils.getNonEmptyStringParam(params, PARAM_ALERT_NAME);
@@ -402,6 +386,14 @@ public class AlertAPI extends ApiImplementor {
             newAlert.setWascId(wascId);
             extension.alertFound(newAlert, msg.getHistoryRef());
             return new ApiResponseElement(name, Integer.toString(newAlert.getAlertId()));
+        } else if (ACTION_UPDATE_ALERTS_CONFIDENCE.equals(name)) {
+            int confidenceId = getConfidenceId(params);
+
+            updateAlerts(params, alert -> alert.setConfidence(confidenceId));
+        } else if (ACTION_UPDATE_ALERTS_RISK.equals(name)) {
+            int riskId = getRiskId(params);
+
+            updateAlerts(params, alert -> alert.setRisk(riskId));
         } else {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }
@@ -589,6 +581,57 @@ public class AlertAPI extends ApiImplementor {
             throwInvalidConfidenceId();
         }
         return confidenceId;
+    }
+
+    private List<Integer> getAlertIds(String alertIds) throws ApiException {
+        List<Integer> idsList = new ArrayList<Integer>();
+        StringTokenizer tokenizer = new StringTokenizer(alertIds, ",");
+        while (tokenizer.hasMoreTokens()) {
+            String alertIdStr = tokenizer.nextToken().trim();
+            try {
+                idsList.add(Integer.parseInt(alertIdStr));
+            } catch (NumberFormatException nfe) {
+                throw new ApiException(
+                        ApiException.Type.ILLEGAL_PARAMETER,
+                        Constant.messages.getString(
+                                "alert.api.param.alertIds.illegal", alertIdStr, alertIds));
+            }
+        }
+        return idsList;
+    }
+
+    private Alert getAlertFromDb(int alertId) throws ApiException {
+        RecordAlert recAlert;
+        try {
+            recAlert = Model.getSingleton().getDb().getTableAlert().read(alertId);
+        } catch (DatabaseException e) {
+            logger.error(e.getMessage(), e);
+            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+        }
+
+        if (recAlert == null) {
+            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, String.valueOf(alertId));
+        }
+        return new Alert(recAlert);
+    }
+
+    private void processAlertUpdate(Alert updatedAlert) throws ApiException {
+        try {
+            extension.updateAlert(updatedAlert);
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
+            logger.error(e.getMessage(), e);
+            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+        }
+    }
+
+    private void updateAlerts(JSONObject params, Consumer<Alert> consumer) throws ApiException {
+        String alertIds = params.getString(PARAM_ALERT_IDS);
+
+        for (int id : getAlertIds(alertIds)) {
+            Alert updatedAlert = getAlertFromDb(id);
+            consumer.accept(updatedAlert);
+            processAlertUpdate(updatedAlert);
+        }
     }
 
     private static HttpMessage getHttpMessage(int id) throws ApiException {
