@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-05-12
+ - Removed python 2, only python 3 will be supported going forward.
+
 ### 2020-04-27
 - Add `application/vnd.api+json` to the list of expected API content types.
 
