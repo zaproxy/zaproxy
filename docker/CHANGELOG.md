@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+###  2020-05-13
+ - Make `python` command use Python 3.
+
 ### 2020-05-12
  - Removed python 2, only python 3 will be supported going forward.
 

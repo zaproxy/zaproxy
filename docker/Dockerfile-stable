@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	xterm \
 	net-tools \
 	python3-pip \
+	python-is-python3
 	firefox \
 	xvfb \
 	x11vnc && \
