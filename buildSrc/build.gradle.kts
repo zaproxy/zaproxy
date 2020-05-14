@@ -20,6 +20,7 @@ spotless {
 }
 
 dependencies {
+    implementation("com.github.javaparser:javaparser-core:3.15.21")
     implementation("commons-codec:commons-codec:1.12")
     implementation("com.google.code.gson:gson:2.8.5")
     val jgitVersion = "5.3.1.201904271842-r"
