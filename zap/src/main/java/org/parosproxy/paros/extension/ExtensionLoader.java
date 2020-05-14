@@ -86,6 +86,7 @@
 // ZAP: 2019/07/25 Relocate null check to be earlier in hookScannerHook(scan) [LGTM issue].
 // ZAP: 2019/08/19 Validate menu and main frame in EDT.
 // ZAP: 2019/09/30 Use instance variable for view checks.
+// ZAP: 2020/05/14 Hook HttpSenderListener when starting single extension.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -817,6 +818,7 @@ public class ExtensionLoader {
 
             hookContextDataFactories(ext, extHook);
             hookApiImplementors(ext, extHook);
+            hookHttpSenderListeners(ext, extHook);
 
             if (hasView()) {
                 // no need to hook view if no GUI
