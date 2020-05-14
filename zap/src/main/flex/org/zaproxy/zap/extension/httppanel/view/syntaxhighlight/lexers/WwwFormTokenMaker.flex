@@ -141,6 +141,22 @@ import org.fife.ui.rsyntaxtextarea.AbstractJFlexTokenMaker;
 		zzFinalHighSurrogate = zzCurrentPos;
 	}
 
+	int errorPos = -1;
+
+	private void handleInvalidToken() {
+		if (errorPos != -1) {
+			int currentZzStartRead = zzStartRead;
+			addToken(errorPos, zzStartRead - 1, Token.IDENTIFIER);
+			zzStartRead = currentZzStartRead;
+			errorPos = -1;
+		}
+	}
+
+	private void startInvalidToken() {
+		if (errorPos == -1) {
+			errorPos = zzMarkedPos - 1;
+		}
+	}
 
 %}
 
@@ -148,43 +164,31 @@ name = ({uchar}+{uchar_value}*)
 separator = ("=")
 pair_separator = ("&")
 
-space = ("+")
+space = ("+")+
 hex = ([0-9A-Fa-f])
 escape = ("%" {hex} {hex})
 
 uchar = ([a-zA-Z0-9\-_.*] | {escape})
 uchar_value = ({uchar} | {space})
 
-%state ERROR
-
-%state NAME
-%state SEPARATOR
 %state VALUE
 
 %%
 
-<YYINITIAL, NAME> {
-	{name} { addToken(Token.RESERVED_WORD); yybegin(SEPARATOR); }
-	[^] { addToken(Token.IDENTIFIER); yybegin(ERROR); }
-}
-
-<SEPARATOR> {
-	{separator} { addToken(Token.SEPARATOR); yybegin(VALUE); }
-	[^] { addToken(Token.IDENTIFIER); yybegin(ERROR); }
+<YYINITIAL> {
+	{name} { handleInvalidToken(); addToken(Token.RESERVED_WORD); }
+	{separator} { handleInvalidToken(); addToken(Token.SEPARATOR); yybegin(VALUE); }
+	[^=] { startInvalidToken(); }
 }
 
 <VALUE> {
-	{uchar}+ { addToken(Token.DATA_TYPE); }
-	{space} { addToken(Token.COMMENT_DOCUMENTATION); }
-	{pair_separator} { addToken(Token.VARIABLE); yybegin(NAME); }
-	[^] { addToken(Token.IDENTIFIER); yybegin(ERROR); }
+	{uchar}+ { handleInvalidToken(); addToken(Token.DATA_TYPE); }
+	{space} { handleInvalidToken(); addToken(Token.COMMENT_DOCUMENTATION); }
+	{pair_separator} { handleInvalidToken(); addToken(Token.VARIABLE); yybegin(YYINITIAL); }
+	[^&] { startInvalidToken(); }
 }
 
-<YYINITIAL, NAME, SEPARATOR, VALUE, ERROR> {
-	<<EOF>> { addNullToken(); return firstToken; }
-}
-
-<ERROR> {
-	[^] { addToken(Token.IDENTIFIER); }
+<YYINITIAL, VALUE> {
+	<<EOF>> { handleInvalidToken(); addNullToken(); return firstToken; }
 }
 

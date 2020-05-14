@@ -29,20 +29,14 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
     // Lexical states.
     public static final int YYINITIAL = 0;
 
-    public static final int ERROR = 2;
-
-    public static final int NAME = 4;
-
-    public static final int SEPARATOR = 6;
-
-    public static final int VALUE = 8;
+    public static final int VALUE = 2;
 
     /**
      * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l ZZ_LEXSTATE[l+1] is the state
      * in the DFA for the lexical state l at the beginning of a line l is of the form l = 2*k, k a
      * non negative integer
      */
-    private static final int[] ZZ_LEXSTATE = {0, 0, 1, 1, 0, 0, 2, 2, 3, 3};
+    private static final int[] ZZ_LEXSTATE = {0, 0, 1, 1};
 
     /** Top-level table for translating characters to character classes */
     private static final int[] ZZ_CMAP_TOP = zzUnpackcmap_top();
@@ -104,11 +98,10 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
     /** Translates DFA states to action switch labels. */
     private static final int[] ZZ_ACTION = zzUnpackAction();
 
-    private static final String ZZ_ACTION_PACKED_0 =
-            "\4\0\2\1\1\2\1\3\1\4\1\1\1\5\1\6" + "\1\7\4\0";
+    private static final String ZZ_ACTION_PACKED_0 = "\2\0\2\1\1\2\1\3\1\1\1\4\1\5\1\6" + "\4\0";
 
     private static int[] zzUnpackAction() {
-        int[] result = new int[17];
+        int[] result = new int[14];
         int offset = 0;
         offset = zzUnpackAction(ZZ_ACTION_PACKED_0, offset, result);
         return result;
@@ -133,12 +126,10 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
     private static final int[] ZZ_ROWMAP = zzUnpackRowMap();
 
     private static final String ZZ_ROWMAP_PACKED_0 =
-            "\0\0\0\7\0\16\0\25\0\34\0\43\0\52\0\34"
-                    + "\0\34\0\61\0\34\0\70\0\34\0\77\0\43\0\106"
-                    + "\0\61";
+            "\0\0\0\7\0\16\0\25\0\34\0\16\0\43\0\16" + "\0\52\0\61\0\70\0\25\0\77\0\43";
 
     private static int[] zzUnpackRowMap() {
-        int[] result = new int[17];
+        int[] result = new int[14];
         int offset = 0;
         offset = zzUnpackRowMap(ZZ_ROWMAP_PACKED_0, offset, result);
         return result;
@@ -161,14 +152,14 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
     private static final int[] ZZ_TRANS = zzUnpackTrans();
 
     private static final String ZZ_TRANS_PACKED_0 =
-            "\1\5\1\6\1\5\1\7\1\5\1\7\1\5\7\10"
-                    + "\6\5\1\11\1\5\1\12\1\13\1\14\1\15\1\14"
-                    + "\1\5\14\0\1\16\2\0\1\17\1\0\3\7\6\0"
-                    + "\1\20\2\0\1\21\1\0\1\14\1\0\1\14\6\0"
-                    + "\1\7\6\0\1\14\1\0";
+            "\1\3\1\4\1\3\1\5\1\3\1\5\1\6\1\3"
+                    + "\1\7\1\10\1\11\1\12\1\11\1\3\14\0\1\13"
+                    + "\2\0\1\14\1\0\3\5\6\0\1\15\2\0\1\16"
+                    + "\1\0\1\11\1\0\1\11\5\0\1\12\7\0\1\5"
+                    + "\6\0\1\11\1\0";
 
     private static int[] zzUnpackTrans() {
-        int[] result = new int[77];
+        int[] result = new int[70];
         int offset = 0;
         offset = zzUnpackTrans(ZZ_TRANS_PACKED_0, offset, result);
         return result;
@@ -212,11 +203,10 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
     /** ZZ_ATTRIBUTE[aState] contains the attributes of state {@code aState} */
     private static final int[] ZZ_ATTRIBUTE = zzUnpackAttribute();
 
-    private static final String ZZ_ATTRIBUTE_PACKED_0 =
-            "\4\0\1\11\2\1\2\11\1\1\1\11\1\1\1\11" + "\4\0";
+    private static final String ZZ_ATTRIBUTE_PACKED_0 = "\2\0\1\11\2\1\1\11\1\1\1\11\2\1\4\0";
 
     private static int[] zzUnpackAttribute() {
-        int[] result = new int[17];
+        int[] result = new int[14];
         int offset = 0;
         offset = zzUnpackAttribute(ZZ_ATTRIBUTE_PACKED_0, offset, result);
         return result;
@@ -399,6 +389,23 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
         zzAtEOF = false;
         zzEOFDone = false;
         zzFinalHighSurrogate = zzCurrentPos;
+    }
+
+    int errorPos = -1;
+
+    private void handleInvalidToken() {
+        if (errorPos != -1) {
+            int currentZzStartRead = zzStartRead;
+            addToken(errorPos, zzStartRead - 1, Token.IDENTIFIER);
+            zzStartRead = currentZzStartRead;
+            errorPos = -1;
+        }
+    }
+
+    private void startInvalidToken() {
+        if (errorPos == -1) {
+            errorPos = zzMarkedPos - 1;
+        }
     }
 
     /**
@@ -602,43 +609,21 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
                 switch (zzLexicalState) {
                     case YYINITIAL:
                         {
+                            handleInvalidToken();
                             addNullToken();
                             return firstToken;
                         }
                         // fall though
-                    case 18:
-                        break;
-                    case ERROR:
-                        {
-                            addNullToken();
-                            return firstToken;
-                        }
-                        // fall though
-                    case 19:
-                        break;
-                    case NAME:
-                        {
-                            addNullToken();
-                            return firstToken;
-                        }
-                        // fall though
-                    case 20:
-                        break;
-                    case SEPARATOR:
-                        {
-                            addNullToken();
-                            return firstToken;
-                        }
-                        // fall though
-                    case 21:
+                    case 15:
                         break;
                     case VALUE:
                         {
+                            handleInvalidToken();
                             addNullToken();
                             return firstToken;
                         }
                         // fall though
-                    case 22:
+                    case 16:
                         break;
                     default:
                         return null;
@@ -647,56 +632,52 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
                 switch (zzAction < 0 ? zzAction : ZZ_ACTION[zzAction]) {
                     case 1:
                         {
-                            addToken(Token.IDENTIFIER);
-                            yybegin(ERROR);
+                            startInvalidToken();
+                        }
+                        // fall through
+                    case 7:
+                        break;
+                    case 2:
+                        {
+                            handleInvalidToken();
+                            addToken(Token.RESERVED_WORD);
                         }
                         // fall through
                     case 8:
                         break;
-                    case 2:
-                        {
-                            addToken(Token.RESERVED_WORD);
-                            yybegin(SEPARATOR);
-                        }
-                        // fall through
-                    case 9:
-                        break;
                     case 3:
                         {
-                            addToken(Token.IDENTIFIER);
-                        }
-                        // fall through
-                    case 10:
-                        break;
-                    case 4:
-                        {
+                            handleInvalidToken();
                             addToken(Token.SEPARATOR);
                             yybegin(VALUE);
                         }
                         // fall through
-                    case 11:
+                    case 9:
+                        break;
+                    case 4:
+                        {
+                            handleInvalidToken();
+                            addToken(Token.VARIABLE);
+                            yybegin(YYINITIAL);
+                        }
+                        // fall through
+                    case 10:
                         break;
                     case 5:
                         {
-                            addToken(Token.VARIABLE);
-                            yybegin(NAME);
-                        }
-                        // fall through
-                    case 12:
-                        break;
-                    case 6:
-                        {
+                            handleInvalidToken();
                             addToken(Token.DATA_TYPE);
                         }
                         // fall through
-                    case 13:
+                    case 11:
                         break;
-                    case 7:
+                    case 6:
                         {
+                            handleInvalidToken();
                             addToken(Token.COMMENT_DOCUMENTATION);
                         }
                         // fall through
-                    case 14:
+                    case 12:
                         break;
                     default:
                         zzScanError(ZZ_NO_MATCH);

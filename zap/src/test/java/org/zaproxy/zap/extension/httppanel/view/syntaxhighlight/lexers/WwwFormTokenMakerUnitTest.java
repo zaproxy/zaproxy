@@ -88,16 +88,23 @@ public class WwwFormTokenMakerUnitTest {
     @Test
     public void shouldReturnTokensEvenIfMalformedContent() {
         // Given
-        Segment text = segment("+x=y");
+        Segment text = segment("+%a%=%b%++%&%");
         // When
         Token tokenList = tokenMaker.getTokenList(text, 0, 0);
         // Then
         assertTokens(
                 tokenList,
-                token(TokenTypes.IDENTIFIER, "+"),
-                token(TokenTypes.IDENTIFIER, "x"),
-                token(TokenTypes.IDENTIFIER, "="),
-                token(TokenTypes.IDENTIFIER, "y"),
+                token(TokenTypes.IDENTIFIER, "+%"),
+                token(TokenTypes.RESERVED_WORD, "a"),
+                token(TokenTypes.IDENTIFIER, "%"),
+                token(TokenTypes.SEPARATOR, "="),
+                token(TokenTypes.IDENTIFIER, "%"),
+                token(TokenTypes.DATA_TYPE, "b"),
+                token(TokenTypes.IDENTIFIER, "%"),
+                token(TokenTypes.COMMENT_DOCUMENTATION, "++"),
+                token(TokenTypes.IDENTIFIER, "%"),
+                token(TokenTypes.VARIABLE, "&"),
+                token(TokenTypes.IDENTIFIER, "%"),
                 token(TokenTypes.NULL));
     }
 
