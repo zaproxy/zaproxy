@@ -23,6 +23,7 @@ Scanners:
 
 10000   Password Autocomplete in browser [Deprecated]
 10001   Secure page browser cache [Deprecated]
+10003   Retire JS
 
 10009   In Page Banner Info Leak
 10010   Cookie set without HttpOnly flag
@@ -235,6 +236,6 @@ Scanners:
 110007  Username Disclosure [Script]
 110008  Suspicious XML Comments Disclosure [Script]
 
-322420463 Retire.js
+322420463 Retire.js (3rd Party)
 
 ```
