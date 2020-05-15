@@ -568,6 +568,18 @@ public class AddOnUnitTest extends TestUtils {
     }
 
     @Test
+    public void shouldCreateAddOnWithDotsInId() throws Exception {
+        // Given
+        Path file = createAddOnFile("addon.x.zap", "release", "1.0.0");
+        // When
+        AddOn addOn = new AddOn(file);
+        // Then
+        assertThat(addOn.getId(), is(equalTo("addon.x")));
+        assertThat(addOn.getStatus(), is(equalTo(AddOn.Status.release)));
+        assertThat(addOn.getVersion().toString(), is(equalTo("1.0.0")));
+    }
+
+    @Test
     public void shouldIgnoreStatusInFileNameWhenCreatingAddOnFromFile() throws Exception {
         // Given
         Path file = createAddOnFile("addon-alpha.zap", "release", "1");

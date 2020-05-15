@@ -555,7 +555,7 @@ public class AddOn {
     }
 
     private static String extractAddOnId(String fileName) {
-        return fileName.substring(0, fileName.indexOf('.')).split("-")[0];
+        return fileName.substring(0, fileName.lastIndexOf('.')).split("-")[0];
     }
 
     private void loadManifestFile() throws IOException {
