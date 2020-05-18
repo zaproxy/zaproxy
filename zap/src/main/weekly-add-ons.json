@@ -8,6 +8,7 @@
       ":addOns:ascanrules",
       ":addOns:ascanrulesBeta",
       ":addOns:bruteforce",
+      ":addOns:commonlib",
       ":addOns:coreLang",
       ":addOns:diff",
       ":addOns:directorylistv1",
