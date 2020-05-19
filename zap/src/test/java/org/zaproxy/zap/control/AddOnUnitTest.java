@@ -34,9 +34,7 @@ import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,22 +45,17 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
-import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
 import org.zaproxy.zap.control.AddOn.BundleData;
 import org.zaproxy.zap.control.AddOn.HelpSetData;
 import org.zaproxy.zap.control.AddOn.ValidationResult;
-import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link AddOn}. */
-public class AddOnUnitTest extends TestUtils {
-
-    @TempDir Path tempDir;
+public class AddOnUnitTest extends AddOnTestUtils {
 
     private static final File ZAP_VERSIONS_XML =
             getResourcePath("ZapVersions-deps.xml", AddOnUnitTest.class).toFile();
@@ -340,7 +333,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeAddOnIfPathIsDirectory() throws Exception {
         // Given
-        Path file = Files.createDirectory(tempDir.resolve("addon.zap"));
+        Path file = Files.createDirectory(newTempDir().resolve("addon.zap"));
         // When
         boolean addOnFile = AddOn.isAddOn(file);
         // Then
@@ -410,7 +403,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeValidAddOnIfFileDoesNotHaveZapExtension() throws Exception {
         // Given
-        Path file = Files.createFile(tempDir.resolve("addon.zip"));
+        Path file = Files.createFile(newTempDir().resolve("addon.zip"));
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
@@ -420,7 +413,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeValidAddOnIfPathIsDirectory() throws Exception {
         // Given
-        Path file = Files.createDirectory(tempDir.resolve("addon.zap"));
+        Path file = Files.createDirectory(newTempDir().resolve("addon.zap"));
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
@@ -447,7 +440,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeValidAddOnIfNotZipFile() throws Exception {
         // Given
-        Path file = Files.createFile(tempDir.resolve("addon.zap"));
+        Path file = Files.createFile(newTempDir().resolve("addon.zap"));
         // When
         ValidationResult result = AddOn.isValidAddOn(file);
         // Then
@@ -459,7 +452,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeValidAddOnIfItHasNoManifest() throws Exception {
         // Given
-        Path file = Files.createFile(tempDir.resolve("addon.zap"));
+        Path file = Files.createFile(newTempDir().resolve("addon.zap"));
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file.toFile()))) {
             zos.putNextEntry(new ZipEntry("Not a manifest"));
             zos.closeEntry();
@@ -473,7 +466,7 @@ public class AddOnUnitTest extends TestUtils {
     @Test
     public void shouldNotBeValidAddOnIfManifestIsMalformed() throws Exception {
         // Given
-        Path file = Files.createFile(tempDir.resolve("addon.zap"));
+        Path file = Files.createFile(newTempDir().resolve("addon.zap"));
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file.toFile()))) {
             zos.putNextEntry(new ZipEntry(AddOn.MANIFEST_FILE_NAME));
             zos.closeEntry();
@@ -955,7 +948,7 @@ public class AddOnUnitTest extends TestUtils {
         String lib1 = "lib1.jar";
         String lib2 = "lib2.jar";
         AddOn addOn = new AddOn(createAddOnWithLibs(lib1, lib2));
-        Path libsDir = Files.createTempDirectory(tempDir, "libsDir");
+        Path libsDir = newTempDir("libsDir");
         addOn.getLibs().get(0).setFileSystemUrl(libsDir.resolve(lib1).toUri().toURL());
         addOn.getLibs().get(1).setFileSystemUrl(libsDir.resolve(lib2).toUri().toURL());
         // When
@@ -1023,116 +1016,5 @@ public class AddOnUnitTest extends TestUtils {
         ZapXmlConfiguration zapVersionsXml = new ZapXmlConfiguration(ZAP_VERSIONS_XML);
         zapVersionsXml.setExpressionEngine(new XPathExpressionEngine());
         return zapVersionsXml;
-    }
-
-    private Path createEmptyAddOnFile(String fileName) {
-        try {
-            Path file = tempDir.resolve(fileName);
-            new ZipOutputStream(Files.newOutputStream(file)).close();
-            return file;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private Path createAddOnWithLibs(String... libs) {
-        String lib1 = "lib1.jar";
-        String lib2 = "dir/lib2.jar";
-        return createAddOnFile(
-                "addon.zap",
-                "release",
-                "1.0.0",
-                manifest ->
-                        manifest.append("<libs>")
-                                .append("<lib>")
-                                .append(lib1)
-                                .append("</lib>")
-                                .append("<lib>")
-                                .append(lib2)
-                                .append("</lib>")
-                                .append("</libs>"),
-                addOnContents -> {
-                    try {
-                        ZipEntry lib = new ZipEntry(lib1);
-                        addOnContents.putNextEntry(lib);
-                        addOnContents.closeEntry();
-
-                        lib = new ZipEntry(lib2);
-                        addOnContents.putNextEntry(lib);
-                        addOnContents.closeEntry();
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                });
-    }
-
-    private Path createAddOnFile(String fileName, String status, String version) {
-        return createAddOnFile(fileName, status, version, (String) null);
-    }
-
-    private Path createAddOnFile(
-            String fileName, String status, String version, String javaVersion) {
-        return createAddOnFile(fileName, status, version, javaVersion, null, null);
-    }
-
-    private Path createAddOnFile(
-            String fileName,
-            String status,
-            String version,
-            Consumer<StringBuilder> manifestConsumer) {
-        return createAddOnFile(fileName, status, version, null, manifestConsumer, null);
-    }
-
-    private Path createAddOnFile(
-            String fileName,
-            String status,
-            String version,
-            Consumer<StringBuilder> manifestConsumer,
-            Consumer<ZipOutputStream> addOnConsumer) {
-        return createAddOnFile(fileName, status, version, null, manifestConsumer, addOnConsumer);
-    }
-
-    private Path createAddOnFile(
-            String fileName,
-            String status,
-            String version,
-            String javaVersion,
-            Consumer<StringBuilder> manifestConsumer,
-            Consumer<ZipOutputStream> addOnConsumer) {
-        try {
-            Path file = Files.createTempDirectory(tempDir, "").resolve(fileName);
-            try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(file))) {
-                ZipEntry manifest = new ZipEntry(AddOn.MANIFEST_FILE_NAME);
-                zos.putNextEntry(manifest);
-                StringBuilder strBuilder = new StringBuilder(150);
-                strBuilder.append("<zapaddon>");
-                strBuilder.append("<version>").append(version).append("</version>");
-                strBuilder.append("<status>").append(status).append("</status>");
-                if (javaVersion != null && !javaVersion.isEmpty()) {
-                    strBuilder.append("<dependencies>");
-                    strBuilder.append("<javaversion>").append(javaVersion).append("</javaversion>");
-                    strBuilder.append("</dependencies>");
-                }
-                if (manifestConsumer != null) {
-                    manifestConsumer.accept(strBuilder);
-                }
-                strBuilder.append("</zapaddon>");
-                byte[] bytes = strBuilder.toString().getBytes(StandardCharsets.UTF_8);
-                zos.write(bytes, 0, bytes.length);
-                zos.closeEntry();
-                if (addOnConsumer != null) {
-                    addOnConsumer.accept(zos);
-                }
-            }
-            return file;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    protected static AddOn createAddOn(String addOnId, ZapXmlConfiguration zapVersions)
-            throws Exception {
-        return new AddOn(
-                addOnId, Paths.get("").toFile(), zapVersions.configurationAt("addon_" + addOnId));
     }
 }
