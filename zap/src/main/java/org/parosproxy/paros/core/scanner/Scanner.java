@@ -47,6 +47,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/11/09 Ability to filter to active scan (Issue 5278)
+// ZAP: 2020/05/19 simplifying duplicate HostProcess for readability
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -233,17 +234,7 @@ public class Scanner implements Runnable {
                 while (iter.hasNext()) {
                     StructuralNode child = iter.next();
                     String hostAndPort = getHostAndPort(child);
-                    hostProcess =
-                            new HostProcess(
-                                    hostAndPort,
-                                    this,
-                                    scannerParam,
-                                    connectionParam,
-                                    scanPolicy,
-                                    ruleConfigParam);
-                    hostProcess.setStartNode(child);
-                    hostProcess.setUser(this.user);
-                    hostProcess.setTechSet(this.techSet);
+                    hostProcess = createHostProcess(hostAndPort, child);
                     this.hostProcesses.add(hostProcess);
                     do {
                         thread = pool.getFreeThreadAndRun(hostProcess);
@@ -260,17 +251,7 @@ public class Scanner implements Runnable {
                     String hostAndPort = getHostAndPort(node);
                     hostProcess = processMap.get(hostAndPort);
                     if (hostProcess == null) {
-                        hostProcess =
-                                new HostProcess(
-                                        hostAndPort,
-                                        this,
-                                        scannerParam,
-                                        connectionParam,
-                                        scanPolicy,
-                                        ruleConfigParam);
-                        hostProcess.setStartNode(node);
-                        hostProcess.setUser(this.user);
-                        hostProcess.setTechSet(this.techSet);
+                        hostProcess = createHostProcess(hostAndPort, node);
                         processMap.put(hostAndPort, hostProcess);
                     } else {
                         hostProcess.addStartNode(node);
@@ -300,19 +281,9 @@ public class Scanner implements Runnable {
             }
             // Loop through all of the top nodes containing children
             for (SiteNode node : nodes) {
-                HostProcess hostProcess = null;
                 String hostAndPort = getHostAndPort(node);
-                hostProcess =
-                        new HostProcess(
-                                hostAndPort,
-                                this,
-                                scannerParam,
-                                connectionParam,
-                                scanPolicy,
-                                ruleConfigParam);
-                hostProcess.setStartNode(new StructuralSiteNode(node));
-                hostProcess.setUser(this.user);
-                hostProcess.setTechSet(this.techSet);
+                HostProcess hostProcess =
+                        createHostProcess(hostAndPort, new StructuralSiteNode(node));
                 this.hostProcesses.add(hostProcess);
                 do {
                     thread = pool.getFreeThreadAndRun(hostProcess);
@@ -323,6 +294,21 @@ public class Scanner implements Runnable {
                 }
             }
         }
+    }
+
+    private HostProcess createHostProcess(String hostAndPort, StructuralNode node) {
+        HostProcess hostProcess =
+                new HostProcess(
+                        hostAndPort,
+                        this,
+                        scannerParam,
+                        connectionParam,
+                        scanPolicy,
+                        ruleConfigParam);
+        hostProcess.setStartNode(node);
+        hostProcess.setUser(this.user);
+        hostProcess.setTechSet(this.techSet);
+        return hostProcess;
     }
 
     public boolean isStop() {
