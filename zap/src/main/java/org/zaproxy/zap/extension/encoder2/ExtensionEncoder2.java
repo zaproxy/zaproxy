@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.encoder2;
 
 import java.awt.Frame;
-import java.awt.event.KeyEvent;
 import javax.swing.text.JTextComponent;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -69,10 +68,7 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
 
     private ZapMenuItem getToolsMenuItemEncoder() {
         if (toolsMenuEncoder == null) {
-            toolsMenuEncoder =
-                    new ZapMenuItem(
-                            "enc2.tools.menu.encdec",
-                            getView().getMenuShortcutKeyStroke(KeyEvent.VK_E, 0, false));
+            toolsMenuEncoder = new ZapMenuItem("enc2.tools.menu.encdec");
 
             toolsMenuEncoder.addActionListener(
                     new java.awt.event.ActionListener() {
