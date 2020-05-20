@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+###  2020-05-20
+ - Make docker stable use ubuntu 20.04
+
 ###  2020-05-13
  - Make `python` command use Python 3.
 
