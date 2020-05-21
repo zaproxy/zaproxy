@@ -1,5 +1,5 @@
 # This dockerfile builds a 'live' zap docker image using the latest files in the repos
-FROM ubuntu:latest
+FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
 ENV DEBIAN_FRONTEND noninteractive
