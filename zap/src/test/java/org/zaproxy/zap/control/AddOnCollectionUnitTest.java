@@ -107,6 +107,7 @@ public class AddOnCollectionUnitTest {
                     + "		<url>https://zap-extensions.googlecode.com/files/ddd-release-3.zap</url>\n"
                     + "		<size>3456</size>\n"
                     + "		<not-before-version>2.4.0</not-before-version>\n"
+                    + "		<date>2020-05-22</date>\n"
                     + "	</addon_ddd>\n"
                     + "</ZAP>";
 
@@ -255,6 +256,17 @@ public class AddOnCollectionUnitTest {
         assertThat(addOnCollection.getAddOn("AddOn3"), is(notNullValue()));
         assertThat(addOnCollection.getAddOn("AddOn8"), is(notNullValue()));
         assertThat(addOnCollection.getAddOn("AddOn9"), is(notNullValue()));
+    }
+
+    @Test
+    public void shouldHaveReleaseDateInAddOn() throws Exception {
+        // Given
+        AddOnCollection coll = new AddOnCollection(configA, Platform.windows);
+        AddOn addOn = coll.getAddOn("ddd");
+        // When
+        String releaseDate = addOn.getReleaseDate();
+        // Then
+        assertThat(releaseDate, is(equalTo("2020-05-22")));
     }
 
     private ZapXmlConfiguration createConfiguration(String file) throws ConfigurationException {

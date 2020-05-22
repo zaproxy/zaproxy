@@ -261,6 +261,7 @@ public class AddOn {
     private String notBeforeVersion = null;
     private String notFromVersion = null;
     private String hash = null;
+    private String releaseDate;
 
     /**
      * The installation status of the add-on.
@@ -651,6 +652,7 @@ public class AddOn {
         this.notFromVersion = addOnData.getNotFromVersion();
         this.info = createUrl(addOnData.getInfo());
         this.repo = createUrl(addOnData.getRepo());
+        this.releaseDate = addOnData.getDate();
         this.hash = addOnData.getHash();
 
         loadManifestFile();
@@ -1744,6 +1746,21 @@ public class AddOn {
 
     public String getHash() {
         return hash;
+    }
+
+    /**
+     * Gets the date when the add-on was released.
+     *
+     * <p>The date has the format {@code YYYY-MM-DD}.
+     *
+     * <p><strong>Note:</strong> The date is only available for add-ons created from the
+     * marketplace.
+     *
+     * @return the release date, or {@code null} if not available.
+     * @since TODO add version
+     */
+    public String getReleaseDate() {
+        return releaseDate;
     }
 
     /**

@@ -606,6 +606,16 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
+    public void shouldHaveNoReleaseDate() throws Exception {
+        // Given
+        AddOn addOn = new AddOn(createAddOnFile("addon.zap"));
+        // When
+        String releaseDate = addOn.getReleaseDate();
+        // Then
+        assertThat(releaseDate, is(nullValue()));
+    }
+
+    @Test
     public void shouldHaveEmptyBundleByDefault() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "release", "1.0.0");
