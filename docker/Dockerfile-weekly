@@ -1,5 +1,5 @@
 # This dockerfile builds the zap weekly release
-FROM ubuntu:latest
+FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
 ENV DEBIAN_FRONTEND noninteractive
