@@ -291,6 +291,12 @@ public class ScriptAPI extends ApiImplementor {
                 throw new ApiException(
                         ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SCRIPT_NAME);
             }
+            if (script.getEngine() == null) {
+                throw new ApiException(
+                        ApiException.Type.BAD_STATE,
+                        "Unable to enable the script, script engine not available: "
+                                + script.getEngineName());
+            }
             extension.setEnabled(script, true);
             return ApiResponseElement.OK;
 
