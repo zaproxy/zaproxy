@@ -464,6 +464,20 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     }
 
     public ScriptEngineWrapper getEngineWrapper(String name) {
+        ScriptEngineWrapper sew = getEngineWrapperImpl(name);
+        if (sew == null) {
+            throw new InvalidParameterException("No such engine: " + name);
+        }
+        return sew;
+    }
+
+    /**
+     * Gets the script engine with the given name.
+     *
+     * @param name the name of the script engine.
+     * @return the engine, or {@code null} if not available.
+     */
+    private ScriptEngineWrapper getEngineWrapperImpl(String name) {
         for (ScriptEngineWrapper sew : this.engineWrappers) {
             if (isSameScriptEngine(name, sew.getEngineName(), sew.getLanguageName())) {
                 return sew;
@@ -484,7 +498,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             this.registerScriptEngineWrapper(dew);
             return dew;
         }
-        throw new InvalidParameterException("No such engine: " + name);
+        return null;
     }
 
     public String getEngineNameForExtension(String ext) {
@@ -684,6 +698,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         if (script == null) {
             return null;
         }
+        setEngine(script);
         ScriptNode node = this.getTreeModel().addScript(script);
 
         for (ScriptEventListener listener : this.listeners) {
@@ -1328,7 +1343,28 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             // may well not have been registered at that stage
             script.setType(this.getScriptType(script.getTypeName()));
         }
+        setEngine(script);
         return script;
+    }
+
+    /**
+     * Sets the engine script to the given script, if not already set.
+     *
+     * <p>Scripts loaded from the configuration file might not have the engine set when used.
+     *
+     * <p>Does nothing if the engine script is not available.
+     *
+     * @param script the script to set the engine.
+     */
+    private void setEngine(ScriptWrapper script) {
+        if (script.getEngine() != null) {
+            return;
+        }
+        ScriptEngineWrapper sew = getEngineWrapperImpl(script.getEngineName());
+        if (sew == null) {
+            return;
+        }
+        script.setEngine(sew);
     }
 
     public List<ScriptWrapper> getScripts(String type) {
@@ -1416,10 +1452,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @see ScriptEventListener#preInvoke(ScriptWrapper)
      */
     private void preInvokeScript(ScriptWrapper script) throws ScriptException {
-        if (script.getEngine() == null) {
-            // Scripts loaded from the configs my have loaded before all of the engines
-            script.setEngine(this.getEngineWrapper(script.getEngineName()));
-        }
+        setEngine(script);
 
         if (script.getEngine() == null) {
             throw new ScriptException("Failed to find script engine: " + script.getEngineName());
