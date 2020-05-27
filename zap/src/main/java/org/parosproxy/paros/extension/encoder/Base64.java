@@ -159,7 +159,10 @@ import org.parosproxy.paros.Constant;
  * @author Robert Harder
  * @author rob@iharder.net
  * @version 2.3.7
+ *
+ * @deprecated (TODO Add version) use {@link java.util.Base64}.
  */
+@Deprecated
 public class Base64
 {
     

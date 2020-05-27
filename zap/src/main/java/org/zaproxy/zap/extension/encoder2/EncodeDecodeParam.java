@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.encoder2;
 
 import org.parosproxy.paros.common.AbstractParam;
 
+/** @deprecated No alternative. */
+@Deprecated
 class EncodeDecodeParam extends AbstractParam {
 
     private static final String PARAM_BASE64_CHARSET = "encode.param.base64charset";

@@ -39,6 +39,8 @@ import java.security.NoSuchAlgorithmException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+/** @deprecated (TODO Add version) */
+@Deprecated
 public class Encoder {
 
     private static final Logger logger = Logger.getLogger(Encoder.class);

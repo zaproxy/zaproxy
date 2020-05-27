@@ -36,12 +36,13 @@ import javax.swing.event.DocumentListener;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 
+/** @deprecated No alternative. */
+@Deprecated
 public class EncodeDecodeDialog extends AbstractFrame {
 
     private static final long serialVersionUID = 1L;
@@ -75,7 +76,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
     private ZapTextArea escapedTextField = null;
     private ZapTextArea unescapedTextField = null;
 
-    private Encoder encoder = null;
+    private org.parosproxy.paros.extension.encoder.Encoder encoder = null;
 
     /** @throws HeadlessException */
     public EncodeDecodeDialog() throws HeadlessException {
@@ -494,9 +495,9 @@ public class EncodeDecodeDialog extends AbstractFrame {
         return unescapedTextField;
     }
 
-    private Encoder getEncoder() {
+    private org.parosproxy.paros.extension.encoder.Encoder getEncoder() {
         if (encoder == null) {
-            encoder = new Encoder();
+            encoder = new org.parosproxy.paros.extension.encoder.Encoder();
         }
         return encoder;
     }
