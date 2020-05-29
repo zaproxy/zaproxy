@@ -5,7 +5,7 @@ OWASP Zed Attack Proxy (ZAP)
 
 The software package is:
 
-    Copyright © 2010-2019 ZAP Development Team
+    Copyright © 2010-2020 ZAP Development Team
 
 Individual contributions, components, and libraries are copyright of their
 respective authors.
