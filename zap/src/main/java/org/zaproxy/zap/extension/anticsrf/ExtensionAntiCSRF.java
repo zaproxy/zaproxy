@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.anticsrf;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,7 +43,6 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.history.HistoryFilter;
 import org.parosproxy.paros.model.HistoryReference;
@@ -68,8 +68,6 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
     private OptionsAntiCsrfPanel optionsAntiCsrfPanel = null;
     private PopupMenuGenerateForm popupMenuGenerateForm = null;
-
-    private Encoder encoder = new Encoder();
 
     private static Logger log = Logger.getLogger(ExtensionAntiCSRF.class);
 
@@ -246,7 +244,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                 }
 
                 token.setHistoryReferenceId(hRef.getHistoryId());
-                valueToToken.put(encoder.getURLEncode(token.getValue()), token);
+                valueToToken.put(getURLEncode(token.getValue()), token);
             } catch (HttpMalformedHeaderException | DatabaseException e) {
                 log.error("Failed to persist the message: ", e);
             }
@@ -561,12 +559,11 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                     "regenerateAntiCsrfToken replacing "
                             + antiCsrfToken.getValue()
                             + " with "
-                            + encoder.getURLEncode(tokenValue));
+                            + getURLEncode(tokenValue));
             String replaced = message.getRequestBody().toString();
             replaced =
                     replaced.replace(
-                            encoder.getURLEncode(antiCsrfToken.getValue()),
-                            encoder.getURLEncode(tokenValue));
+                            getURLEncode(antiCsrfToken.getValue()), getURLEncode(tokenValue));
             message.setRequestBody(replaced);
             registerAntiCsrfToken(
                     new AntiCsrfToken(
@@ -575,5 +572,15 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                             tokenValue,
                             antiCsrfToken.getFormIndex()));
         }
+    }
+
+    private static String getURLEncode(String msg) {
+        String result = "";
+        try {
+            result = URLEncoder.encode(msg, "UTF8");
+        } catch (UnsupportedEncodingException e) {
+            log.error(e.getMessage(), e);
+        }
+        return result;
     }
 }

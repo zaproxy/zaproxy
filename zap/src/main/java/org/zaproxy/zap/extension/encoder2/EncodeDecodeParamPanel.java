@@ -35,6 +35,8 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.FontUtils;
 
+/** @deprecated No alternative. */
+@Deprecated
 public class EncodeDecodeParamPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = -6357927982804314157L;

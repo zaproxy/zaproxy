@@ -28,6 +28,8 @@ import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.view.ZapMenuItem;
 
+/** @deprecated No alternative. */
+@Deprecated
 public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChangedListener {
 
     private static final String NAME = "ExtensionEncode2";
