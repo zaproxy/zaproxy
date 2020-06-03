@@ -733,7 +733,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     /**
      * This method initializes txtProxyChainPassword
      *
-     * @return org.zaproxy.zap.utils.ZapTextField
+     * @return The field that will be used to gather the password from the user
      */
     private JPasswordField getTxtProxyChainPassword() {
         if (txtProxyChainPassword == null) {
