@@ -42,6 +42,7 @@ public abstract class AbstractHistoryReferencesTableModel<T extends HistoryRefer
         Constant.messages.getString("view.href.table.header.timestamp.request"),
         Constant.messages.getString("view.href.table.header.timestamp.response"),
         Constant.messages.getString("view.href.table.header.hreftype"),
+        Constant.messages.getString("view.href.table.header.hreftype.name"),
         Constant.messages.getString("view.href.table.header.method"),
         Constant.messages.getString("view.href.table.header.url"),
         Constant.messages.getString("view.href.table.header.hostname"),
