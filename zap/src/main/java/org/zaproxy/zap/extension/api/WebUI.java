@@ -488,7 +488,7 @@ public class WebUI {
                                 + "="
                                 + API.getInstance()
                                         .getLongLivedNonce("/OTHER/core/other/rootcert/")));
-		sb.append(Constant.messages.getString("api.home.links.header"));
+        sb.append(Constant.messages.getString("api.home.links.header"));
         if (apiEnabled) {
             sb.append(Constant.messages.getString("api.home.links.api.enabled"));
         } else {
