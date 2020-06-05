@@ -22,6 +22,7 @@ package org.zaproxy.zap.view.table;
 import java.util.Date;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.view.HrefTypeInfo;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 
 /**
@@ -43,6 +44,7 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
         PLACE_HOLDER_VALUES[Column.REQUEST_TIMESTAMP.ordinal()] = EMPTY_DATE;
         PLACE_HOLDER_VALUES[Column.RESPONSE_TIMESTAMP.ordinal()] = EMPTY_DATE;
         PLACE_HOLDER_VALUES[Column.HREF_TYPE.ordinal()] = Integer.toString(0);
+        PLACE_HOLDER_VALUES[Column.HREF_TYPE_INFO.ordinal()] = HrefTypeInfo.NO_TYPE;
         PLACE_HOLDER_VALUES[Column.METHOD.ordinal()] = STRING_VALUE_NOT_LOADED;
         PLACE_HOLDER_VALUES[Column.URL.ordinal()] = STRING_VALUE_NOT_LOADED;
         PLACE_HOLDER_VALUES[Column.HOSTNAME.ordinal()] = EMPTY_STRING;
@@ -80,6 +82,10 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
 
     public Integer getHistoryType() {
         return -1;
+    }
+
+    public HrefTypeInfo getHistoryTypeInfo() {
+        return HrefTypeInfo.NO_TYPE;
     }
 
     public Long getSessionId() {
@@ -165,6 +171,8 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return this.getResponseTimestamp();
             case HREF_TYPE:
                 return this.getHistoryType();
+            case HREF_TYPE_INFO:
+                return this.getHistoryTypeInfo();
             case METHOD:
                 return this.getMethod();
             case URL:
@@ -214,6 +222,8 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return new Date(System.currentTimeMillis());
             case HREF_TYPE:
                 return Integer.toString(0);
+            case HREF_TYPE_INFO:
+                return HrefTypeInfo.getFromType(HistoryReference.TYPE_ZAP_USER);
             case METHOD:
                 return "GET";
             case URL:
@@ -259,6 +269,8 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
                 return Date.class;
             case HREF_TYPE:
                 return Integer.class;
+            case HREF_TYPE_INFO:
+                return HrefTypeInfo.class;
             case METHOD:
                 return String.class;
             case URL:

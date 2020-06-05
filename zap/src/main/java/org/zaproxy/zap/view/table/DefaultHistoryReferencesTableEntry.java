@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.view.HrefTypeInfo;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 
 /**
@@ -39,6 +40,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
 
     private final Integer historyId;
     private final Integer historyType;
+    private final HrefTypeInfo hrefTypeInfo;
     private final Long sessionId;
     private final String method;
     private final String uri;
@@ -73,6 +75,10 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
                 hasColumn(sortedColumns, Column.HREF_TYPE)
                         ? historyReference.getHistoryType()
                         : null;
+        hrefTypeInfo =
+                hasColumn(sortedColumns, Column.HREF_TYPE_INFO)
+                        ? HrefTypeInfo.getFromType(historyReference.getHistoryType())
+                        : super.getHistoryTypeInfo();
         sessionId =
                 hasColumn(sortedColumns, Column.SESSION_ID)
                         ? historyReference.getSessionId()
@@ -158,6 +164,11 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     @Override
     public Integer getHistoryType() {
         return historyType;
+    }
+
+    @Override
+    public HrefTypeInfo getHistoryTypeInfo() {
+        return hrefTypeInfo;
     }
 
     @Override

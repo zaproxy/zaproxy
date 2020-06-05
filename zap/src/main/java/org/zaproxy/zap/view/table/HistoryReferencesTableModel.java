@@ -44,6 +44,7 @@ public interface HistoryReferencesTableModel<T extends HistoryReferencesTableEnt
         REQUEST_TIMESTAMP,
         RESPONSE_TIMESTAMP,
         HREF_TYPE,
+        HREF_TYPE_INFO,
         METHOD,
         URL,
         HOSTNAME,

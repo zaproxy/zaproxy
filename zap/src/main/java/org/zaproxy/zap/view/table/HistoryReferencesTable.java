@@ -51,6 +51,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.PagingTableModel;
+import org.zaproxy.zap.view.HrefTypeInfo;
 import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
@@ -59,6 +60,7 @@ import org.zaproxy.zap.view.renderer.SizeBytesStringValue;
 import org.zaproxy.zap.view.renderer.TimeDurationStringValue;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 import org.zaproxy.zap.view.table.decorator.AlertRiskTableCellItemIconHighlighter;
+import org.zaproxy.zap.view.table.decorator.HrefTypeInfoIconHighlighter;
 import org.zaproxy.zap.view.table.decorator.NoteTableCellItemIconHighlighter;
 
 /**
@@ -379,6 +381,15 @@ public class HistoryReferencesTable extends ZapTable {
                     columnExt, hRefModel.getColumnIndex(Column.SIZE_RESPONSE_HEADER), model);
             installSizeBytesRenderer(
                     columnExt, hRefModel.getColumnIndex(Column.SIZE_RESPONSE_BODY), model);
+
+            final int hrefTypeInfoColumnIndex = hRefModel.getColumnIndex(Column.HREF_TYPE_INFO);
+            if (hrefTypeInfoColumnIndex != -1) {
+                if (columnExt.getModelIndex() == hrefTypeInfoColumnIndex
+                        && model.getColumnClass(hrefTypeInfoColumnIndex) == HrefTypeInfo.class) {
+                    columnExt.setHighlighters(
+                            new HrefTypeInfoIconHighlighter(hrefTypeInfoColumnIndex));
+                }
+            }
         }
 
         protected void installSizeBytesRenderer(
