@@ -36,6 +36,7 @@
 // ZAP: 2019/03/15 Issue 3578: Added new menu Import
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/06/07 JavaDoc corrections.
 package org.parosproxy.paros.view;
 
 import java.awt.event.ActionEvent;
@@ -92,6 +93,7 @@ public class MainMenuBar extends JMenuBar {
     // ZAP: Added standard report menu
     private JMenu menuReport = null;
     private JMenu menuOnline = null;
+
     /** This method initializes */
     public MainMenuBar() {
         super();
@@ -218,7 +220,7 @@ public class MainMenuBar extends JMenuBar {
     /**
      * This method initializes menuToolsOptions
      *
-     * @return javax.swing.JMenuItem
+     * @return the 'Options' menu item.
      */
     private ZapMenuItem getMenuToolsOptions() {
         if (menuToolsOptions == null) {
@@ -430,7 +432,7 @@ public class MainMenuBar extends JMenuBar {
     /**
      * This method initializes menuFileProperties
      *
-     * @return javax.swing.JMenuItem
+     * @return the Session Properties menu item.
      */
     private ZapMenuItem getMenuFileProperties() {
         if (menuFileProperties == null) {
@@ -518,7 +520,7 @@ public class MainMenuBar extends JMenuBar {
     /**
      * This method initializes menuHelpAbout
      *
-     * @return javax.swing.ZapMenuItem
+     * @return the 'About' menu item.
      */
     private ZapMenuItem getMenuHelpAbout() {
         if (menuHelpAbout == null) {

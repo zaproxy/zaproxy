@@ -32,6 +32,7 @@
 // ZAP: 2018/07/17 Use ViewDelegate.getMenuShortcutKeyStroke.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/06/05 JavaDoc corrections.
 package org.parosproxy.paros.extension.edit;
 
 import java.awt.Window;
@@ -91,7 +92,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
     /**
      * This method initializes menuFind
      *
-     * @return javax.swing.JMenuItem
+     * @return the 'Find' menu item.
      */
     private ZapMenuItem getMenuFind() {
         if (menuFind == null) {
@@ -127,7 +128,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
     /**
      * This method initializes popupMenuFind
      *
-     * @return org.parosproxy.paros.extension.ExtensionPopupMenu
+     * @return the 'Find' context menu.
      */
     private PopupFindMenu getPopupMenuFind() {
         if (popupFindMenu == null) {
@@ -151,7 +152,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
     /**
      * Gets the ancestor {@code Window} where the given {@code component} is contained.
      *
-     * @param component the component.
+     * @param component the component for which the window ancestor should be found.
      * @return the {@code Window}, or {@code null} if the component is {@code null} or if not
      *     contained inside a {@code Window}.
      */
