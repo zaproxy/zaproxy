@@ -72,7 +72,7 @@
 // ZAP: 2017/02/08 Change CONNECT response to contain just the status line, helps Android emulator
 // consume the response.
 // ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
-// ZAP: 2017/02/23  Issue 3227: Limit API access to whitelisted IP addresses
+// ZAP: 2017/02/23  Issue 3227: Limit API access to permitted IP addresses
 // ZAP: 2017/03/15 Disable API by default
 // ZAP: 2017/03/26 Check the public address when behind NAT.
 // ZAP: 2017/06/12 Do not notify listeners when request is excluded.

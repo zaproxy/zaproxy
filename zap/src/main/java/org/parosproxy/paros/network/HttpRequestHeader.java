@@ -42,7 +42,7 @@
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 // ZAP: 2016/06/17 Remove redundant initialisations of instance variables
 // ZAP: 2016/09/26 JavaDoc tweaks
-// ZAP: 2017/02/23 Issue 3227: Limit API access to whitelisted IP addresses
+// ZAP: 2017/02/23 Issue 3227: Limit API access to permitted IP addresses
 // ZAP: 2017/04/24 Added more HTTP methods
 // ZAP: 2017/10/19 Skip parsing of empty Cookie headers.
 // ZAP: 2017/11/22 Address a NPE in isImage().
