@@ -59,7 +59,7 @@ out_of_scope_dict = {}
 min_level = 0
 
 # Pscan rules that aren't really relevant, e.g. the examples rules in the alpha set
-blacklist = ['-1', '50003', '60000', '60001']
+ignore_scan_rules = ['-1', '50003', '60000', '60001']
 
 # Pscan rules that are being addressed
 in_progress_issues = {}
@@ -342,13 +342,13 @@ def main(argv):
             if detailed_output:
                 print('Total of ' + str(num_urls) + ' URLs')
 
-            alert_dict = zap_get_alerts(zap, target, blacklist, out_of_scope_dict)
+            alert_dict = zap_get_alerts(zap, target, ignore_scan_rules, out_of_scope_dict)
 
             all_rules = zap.pscan.scanners
             all_dict = {}
             for rule in all_rules:
                 plugin_id = rule.get('id')
-                if plugin_id in blacklist:
+                if plugin_id in ignore_scan_rules:
                     continue
                 all_dict[plugin_id] = rule.get('name')
 
@@ -366,7 +366,7 @@ def main(argv):
             pass_dict = {}
             for rule in all_rules:
                 plugin_id = rule.get('id')
-                if plugin_id in blacklist:
+                if plugin_id in ignore_scan_rules:
                     continue
                 if (plugin_id not in alert_dict):
                     pass_dict[plugin_id] = rule.get('name')

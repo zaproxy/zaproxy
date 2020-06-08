@@ -431,7 +431,7 @@ def zap_wait_for_passive_scan(zap, timeout_in_secs = 0):
 
 
 @hook(wrap=True)
-def zap_get_alerts(zap, baseurl, blacklist, out_of_scope_dict):
+def zap_get_alerts(zap, baseurl, ignore_scan_rules, out_of_scope_dict):
     # Retrieve the alerts using paging in case there are lots of them
     st = 0
     pg = 5000
@@ -443,7 +443,7 @@ def zap_get_alerts(zap, baseurl, blacklist, out_of_scope_dict):
         alert_count += len(alerts)
         for alert in alerts:
             plugin_id = alert.get('pluginId')
-            if plugin_id in blacklist:
+            if plugin_id in ignore_scan_rules:
                 continue
             if not is_in_scope(plugin_id, alert.get('url'), out_of_scope_dict):
                 continue

@@ -62,7 +62,7 @@ out_of_scope_dict = {}
 min_level = 0
 
 # Scan rules that aren't really relevant, e.g. the examples rules in the alpha set
-blacklist = ['-1', '50003', '60000', '60001', '60100', '60101']
+ignore_scan_rules = ['-1', '50003', '60000', '60001', '60100', '60101']
 
 # Scan rules that are being addressed
 in_progress_issues = {}
@@ -366,19 +366,19 @@ def main(argv):
             if detailed_output:
                 print('Total of ' + str(num_urls) + ' URLs')
 
-            alert_dict = zap_get_alerts(zap, target, blacklist, out_of_scope_dict)
+            alert_dict = zap_get_alerts(zap, target, ignore_scan_rules, out_of_scope_dict)
 
             all_ascan_rules = zap.ascan.scanners('Default Policy')
             all_pscan_rules = zap.pscan.scanners
             all_dict = {}
             for rule in all_pscan_rules:
                 plugin_id = rule.get('id')
-                if plugin_id in blacklist:
+                if plugin_id in ignore_scan_rules:
                     continue
                 all_dict[plugin_id] = rule.get('name') + ' - Passive/' + rule.get('quality')
             for rule in all_ascan_rules:
                 plugin_id = rule.get('id')
-                if plugin_id in blacklist:
+                if plugin_id in ignore_scan_rules:
                     continue
                 all_dict[plugin_id] = rule.get('name') + ' - Active/' + rule.get('quality')
 
@@ -397,13 +397,13 @@ def main(argv):
             pass_dict = {}
             for rule in all_pscan_rules:
                 plugin_id = rule.get('id')
-                if plugin_id in blacklist:
+                if plugin_id in ignore_scan_rules:
                     continue
                 if plugin_id not in alert_dict:
                     pass_dict[plugin_id] = rule.get('name')
             for rule in all_ascan_rules:
                 plugin_id = rule.get('id')
-                if plugin_id in blacklist:
+                if plugin_id in ignore_scan_rules:
                     continue
                 if plugin_id not in alert_dict and not(plugin_id in config_dict and config_dict[plugin_id] == 'IGNORE'):
                     pass_dict[plugin_id] = rule.get('name')
@@ -418,7 +418,7 @@ def main(argv):
                 # print out the ignored ascan rules(there will be no alerts for these as they were not run)
                 for rule in all_ascan_rules:
                     plugin_id = rule.get('id')
-                    if plugin_id in blacklist:
+                    if plugin_id in ignore_scan_rules:
                         continue
                     if plugin_id in config_dict and config_dict[plugin_id] == 'IGNORE':
                         print('SKIP: ' + rule.get('name') + ' [' + plugin_id + ']')
