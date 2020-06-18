@@ -234,21 +234,29 @@ public class SpiderTask implements Runnable {
         parent.checkPauseAndWait();
 
         // Check the parse filters to see if the resource should be skipped from parsing
+        FilterResult filterResult = FilterResult.NOT_FILTERED;
+        boolean wanted = false;
         for (ParseFilter filter : parent.getController().getParseFilters()) {
-            FilterResult filterResult = filter.filtered(msg);
+            filterResult = filter.filtered(msg);
             if (filterResult.isFiltered()) {
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                            "Resource ["
-                                    + msg.getRequestHeader().getURI()
-                                    + "] fetched, but will not be parsed due to a ParseFilter rule: "
-                                    + filterResult.getReason());
-                }
-
-                parent.notifyListenersSpiderTaskResult(
-                        new SpiderTaskResult(msg, filterResult.getReason()));
-                return;
+                break;
+            } else if (filterResult == FilterResult.WANTED) wanted = true;
+        }
+        if (!wanted && !filterResult.isFiltered()) {
+            filterResult = parent.getController().getDefaultParseFilter().filtered(msg);
+        }
+        if (filterResult.isFiltered()) {
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "Resource ["
+                                + msg.getRequestHeader().getURI()
+                                + "] fetched, but will not be parsed due to a ParseFilter rule: "
+                                + filterResult.getReason());
             }
+
+            parent.notifyListenersSpiderTaskResult(
+                    new SpiderTaskResult(msg, filterResult.getReason()));
+            return;
         }
 
         // Check if the should stop
