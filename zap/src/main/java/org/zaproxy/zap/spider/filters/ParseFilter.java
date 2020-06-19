@@ -71,6 +71,12 @@ public abstract class ParseFilter {
         /** Indicates that the resource was not filtered. */
         public static final FilterResult NOT_FILTERED = new FilterResult();
 
+        /**
+         * Indicates that the resource is wanted by a custom parser. The resource skips the default
+         * filter, if no other filter filters it out.
+         */
+        public static final FilterResult WANTED = new FilterResult();
+
         /** Indicates that the resource was filtered, with no specific reason. */
         public static final FilterResult FILTERED = new FilterResult("");
 

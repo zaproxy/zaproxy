@@ -63,6 +63,8 @@ public class SpiderController implements SpiderParserListener {
      */
     private LinkedList<ParseFilter> parseFilters;
 
+    private ParseFilter defaultParseFilter;
+
     /** The parsers used by the spider. */
     private LinkedList<SpiderParser> parsers;
 
@@ -226,6 +228,15 @@ public class SpiderController implements SpiderParserListener {
     public void addParseFilter(ParseFilter filter) {
         log.debug("Loading parse filter: " + filter.getClass().getSimpleName());
         parseFilters.add(filter);
+    }
+
+    protected void setDefaultParseFilter(ParseFilter filter) {
+        log.debug("Setting Default filter: " + filter.getClass().getSimpleName());
+        defaultParseFilter = filter;
+    }
+
+    protected ParseFilter getDefaultParseFilter() {
+        return defaultParseFilter;
     }
 
     public void init() {

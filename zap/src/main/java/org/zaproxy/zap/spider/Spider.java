@@ -210,7 +210,8 @@ public class Spider {
         }
 
         // Add a default parse filter and any custom ones
-        this.addParseFilter(new DefaultParseFilter(spiderParam, extension.getMessages()));
+        controller.setDefaultParseFilter(
+                new DefaultParseFilter(spiderParam, extension.getMessages()));
         for (ParseFilter filter : extension.getCustomParseFilters()) this.addParseFilter(filter);
 
         // Add the scan context, if any
