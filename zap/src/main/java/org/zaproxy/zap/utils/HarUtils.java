@@ -25,6 +25,7 @@ import edu.umass.cs.benchlab.har.HarCookie;
 import edu.umass.cs.benchlab.har.HarCookies;
 import edu.umass.cs.benchlab.har.HarCreator;
 import edu.umass.cs.benchlab.har.HarCustomFields;
+import edu.umass.cs.benchlab.har.HarEntries;
 import edu.umass.cs.benchlab.har.HarEntry;
 import edu.umass.cs.benchlab.har.HarEntryTimings;
 import edu.umass.cs.benchlab.har.HarHeader;
@@ -40,7 +41,9 @@ import edu.umass.cs.benchlab.har.HarResponse;
 import edu.umass.cs.benchlab.har.tools.HarFileWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpCookie;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
@@ -50,6 +53,8 @@ import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpHeaderField;
@@ -58,6 +63,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.network.HttpRequestBody;
+import org.zaproxy.zap.network.HttpResponseBody;
 
 /**
  * Utility class to parse/create HTTP Archives (HAR) and do conversions between HAR Java classes and
@@ -116,6 +122,64 @@ public final class HarUtils {
 
     public static HttpMessage createHttpMessage(String jsonHarRequest) throws IOException {
         return createHttpMessage(createHarRequest(jsonHarRequest));
+    }
+
+    public static List<HttpMessage> getHttpMessages(HarLog log)
+            throws HttpMalformedHeaderException, UnsupportedEncodingException {
+        List<HttpMessage> result = new ArrayList<HttpMessage>();
+        HarEntries entries = log.getEntries();
+        for (HarEntry entry : entries.getEntries()) {
+            result.add(getHttpMessage(entry));
+        }
+        return result;
+    }
+
+    private static HttpMessage getHttpMessage(HarEntry harEntry)
+            throws HttpMalformedHeaderException, UnsupportedEncodingException {
+        HttpMessage result = createHttpMessage(harEntry.getRequest());
+        setHttpResponse(harEntry.getResponse(), result);
+        setHistoryReference(harEntry, result);
+        return result;
+    }
+
+    private static void setHistoryReference(HarEntry harEntry, HttpMessage httpMessage)
+            throws HttpMalformedHeaderException {
+        Integer historyId =
+                Integer.valueOf(
+                        harEntry.getCustomFields().getCustomFieldValue(MESSAGE_ID_CUSTOM_FIELD));
+        try {
+            httpMessage.setHistoryRef(new HistoryReference(historyId.intValue()));
+        } catch (DatabaseException e) {
+            /*no handler*/
+        }
+    }
+
+    private static void setHttpResponse(HarResponse harResponse, HttpMessage message)
+            throws HttpMalformedHeaderException, UnsupportedEncodingException {
+        StringBuilder strBuilderResHeader = new StringBuilder();
+
+        strBuilderResHeader
+                .append(harResponse.getHttpVersion())
+                .append(' ')
+                .append(harResponse.getStatus())
+                .append(' ')
+                .append(harResponse.getStatusText())
+                .append("\r\n");
+
+        for (HarHeader harHeader : harResponse.getHeaders().getHeaders()) {
+            strBuilderResHeader
+                    .append(harHeader.getName())
+                    .append(": ")
+                    .append(harHeader.getValue())
+                    .append("\r\n");
+        }
+        strBuilderResHeader.append("\r\n");
+
+        final HarContent harContent = harResponse.getContent();
+        message.setResponseHeader(new HttpResponseHeader(strBuilderResHeader.toString()));
+        if (harContent != null)
+            message.setResponseBody(
+                    new HttpResponseBody(harContent.getText().getBytes(harContent.getEncoding())));
     }
 
     public static HarRequest createHarRequest(String jsonHarRequest) throws IOException {
