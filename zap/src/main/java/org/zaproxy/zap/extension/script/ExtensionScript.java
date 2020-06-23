@@ -170,7 +170,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         if (se != null) {
             this.registerScriptEngineWrapper(new JavascriptEngineWrapper(se.getFactory()));
         } else {
-            logger.error("No Javascript/ECMAScript engine found");
+            logger.warn(
+                    "No default JavaScript/ECMAScript engine found, some scripts might no longer work.");
         }
     }
 
