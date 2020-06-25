@@ -1,24 +1,8 @@
 language: java
-install: if [ "${COVERITY_SCAN_BRANCH}" != 1 ]; then ./gradlew assemble ; fi
 
 jdk:
   - openjdk8
   - openjdk11
-
-env:
-  global:
-   # COVERITY_SCAN_TOKEN
-   - secure: "MD+5+8i3406wHS2nj6EiWjyP/OC9fw82yOSmrgVPB4gyUbkHk3683X2LvGrLcoUYwv12L5ZLz6MdmQkNYJBZ62kC8koG2Z14SjitEZvzMgKC3cm1Ggs54jPLn7iU6tnCEJkIRxyDoAP1C9NJ4KRIj1kl+vB5yJkeB3DArrZ3rXoaJTz/y1OKZbeKpJdvRYPPmVJmwbXHI/F5npgN8UPqbWjyJYxMEOiqJS2hj72YFDL9l6fAFT6KphAUO/fuVS/meDJ1+PNDM6AS+SU8w7+EPjFLsh3w+vVTeN+NYyu3NtLMEJL77IcQs5vgVRjwFV3k5yfjXsZxr0hUaumXM7xdUXuitnAAa4vce7NaSIcQC0ez1+hyzH49bK9BhYV/MK3XE5Sigqx9lr1A/0NkRkfnkH8E2yn3mTgRibVJ9R1/cXGQmjb+da1R2qYXCD9hlRqjG53XO6i887e/I2O9IhlXjmFL8c6pBMDi7ULWYH9pK1xZn0cgt6ASpy+ScH61oLb+5VIK/A+YYpsow5BKEO97HVXjCCBVzxQjaHCVkyfZFnRKoEcGQ7WL6ANOWCyeMkffdTLGRHjT/ZMI+Ju++O7Zcd+e4TwF97fYhIHMmKUAMYElAKsiH9kqC7y3fkV7C3KUF5iTbHa7UVxac9zsorNwouKsYN9BP60flsQSoyFabGY="
-
-addons:
-  coverity_scan:
-    project:
-      name: "zaproxy/zaproxy"
-      description: "The OWASP ZAP core project"
-    notification_email: zaproxy-admin@googlegroups.com
-    build_command_prepend: ""
-    build_command: "./gradlew compileJava"
-    branch_pattern: coverity_scan
 
 before_cache:
   - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
