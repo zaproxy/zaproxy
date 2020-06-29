@@ -144,6 +144,8 @@ public final class HarUtils {
 
     private static void setHistoryReference(HarEntry harEntry, HttpMessage httpMessage)
             throws HttpMalformedHeaderException {
+        if (harEntry.getCustomFields().getCustomFieldValue(MESSAGE_ID_CUSTOM_FIELD) == null) return;
+
         Integer historyId =
                 Integer.valueOf(
                         harEntry.getCustomFields().getCustomFieldValue(MESSAGE_ID_CUSTOM_FIELD));
@@ -177,9 +179,7 @@ public final class HarUtils {
 
         final HarContent harContent = harResponse.getContent();
         message.setResponseHeader(new HttpResponseHeader(strBuilderResHeader.toString()));
-        if (harContent != null)
-            message.setResponseBody(
-                    new HttpResponseBody(harContent.getText().getBytes(harContent.getEncoding())));
+        if (harContent != null) message.setResponseBody(new HttpResponseBody(harContent.getText()));
     }
 
     public static HarRequest createHarRequest(String jsonHarRequest) throws IOException {
