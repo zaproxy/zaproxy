@@ -3,7 +3,6 @@
 [![GitHub release](https://img.shields.io/github/release/zaproxy/zaproxy.svg)](https://www.zaproxy.org/download/)
 [![Build Status](https://travis-ci.com/zaproxy/zaproxy.svg?branch=develop)](https://travis-ci.com/zaproxy/zaproxy)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/24/badge)](https://bestpractices.coreinfrastructure.org/projects/24)
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/5559/badge.svg)](https://scan.coverity.com/projects/zaproxy-zaproxy)
 [![Github Releases](https://img.shields.io/github/downloads/zaproxy/zaproxy/latest/total.svg?maxAge=2592000)](https://zapbot.github.io/zap-mgmt-scripts/downloads.html)
 [![Javadocs](https://javadoc.io/badge/org.zaproxy/zap/2.9.0.svg)](https://javadoc.io/doc/org.zaproxy/zap/2.9.0)
 [![OWASP Flagship](https://img.shields.io/badge/owasp-flagship-brightgreen.svg)](https://owasp.org/projects#div-flagships)
