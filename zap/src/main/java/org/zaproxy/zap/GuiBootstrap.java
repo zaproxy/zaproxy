@@ -336,6 +336,10 @@ public class GuiBootstrap extends ZapBootstrap {
         }
         lookAndFeelSet = true;
 
+        if (Constant.isMacOsX()) {
+            OsXGui.setup();
+        }
+
         if (setLookAndFeel(System.getProperty("swing.defaultlaf"))) {
             return;
         }
@@ -347,9 +351,7 @@ public class GuiBootstrap extends ZapBootstrap {
             return;
         }
 
-        if (Constant.isMacOsX()) {
-            OsXGui.setup();
-        } else if (setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
+        if (!Constant.isMacOsX() && setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
             return;
         }
 
