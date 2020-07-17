@@ -244,7 +244,7 @@ def cp_to_docker(cid, file, dir):
 
 
 def running_in_docker():
-    return os.path.exists('/.dockerenv')
+    return os.path.exists('/.dockerenv') or os.path.exists('/run/.containerenv')
 
 
 def add_zap_options(params, zap_options):
