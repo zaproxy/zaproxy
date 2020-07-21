@@ -240,6 +240,49 @@ class ExtensionAntiCSRFUnitTest {
             assertAntiCsrfToken(
                     tokens.get(1), message, KNOWN_TOKEN_2.toLowerCase(Locale.ROOT), "value2", 0);
         }
+
+        @Test
+        void
+                shouldGetTokensFromInputFieldsIfIdAndNameIncludesAKnownTokenAndPartialMatchingEnabled() {
+            // Given
+            given(antiCsrfParam.isPartialMatchingEnabled()).willReturn(true);
+            String stringWithKnownToken1 = "xxx" + KNOWN_TOKEN_1 + "xxx";
+            String stringWithKnownToken2 = "xxx" + KNOWN_TOKEN_2 + "xxx";
+            String stringWithKnownToken3 = "xxx" + KNOWN_TOKEN_3 + "xxx";
+            Source source =
+                    createSource(
+                            form(
+                                    input(UNKOWN_TOKEN, stringWithKnownToken1, "value1"),
+                                    input(stringWithKnownToken2, UNKOWN_TOKEN, "value2")),
+                            form(input(UNKOWN_TOKEN, stringWithKnownToken3, "value3")));
+            // When
+            List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
+            // Then
+            assertThat(tokens, hasSize(3));
+            assertAntiCsrfToken(tokens.get(0), message, stringWithKnownToken1, "value1", 0);
+            assertAntiCsrfToken(tokens.get(1), message, stringWithKnownToken2, "value2", 0);
+            assertAntiCsrfToken(tokens.get(2), message, stringWithKnownToken3, "value3", 1);
+        }
+
+        @Test
+        void
+                shouldNotGetTokensFromInputFieldsIfIdAndNameIncludesAKnownTokenButPartialMatchingNotEnabled() {
+            // Given
+            given(antiCsrfParam.isPartialMatchingEnabled()).willReturn(false);
+            String stringWithKnownToken1 = "xxx" + KNOWN_TOKEN_1 + "xxx";
+            String stringWithKnownToken2 = "xxx" + KNOWN_TOKEN_2 + "xxx";
+            String stringWithKnownToken3 = "xxx" + KNOWN_TOKEN_3 + "xxx";
+            Source source =
+                    createSource(
+                            form(
+                                    input(UNKOWN_TOKEN, stringWithKnownToken1, "value1"),
+                                    input(stringWithKnownToken2, UNKOWN_TOKEN, "value2")),
+                            form(input(UNKOWN_TOKEN, stringWithKnownToken3, "value3")));
+            // When
+            List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
+            // Then
+            assertThat(tokens, hasSize(0));
+        }
     }
 
     private static void assertAntiCsrfToken(
