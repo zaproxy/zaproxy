@@ -1,9 +1,9 @@
 name: Run Sonar
 
 on: 
-  push:
   schedule:
     - cron: '30 15 * * SAT'
+  workflow_dispatch:
 
 jobs:
   sonar:
@@ -30,5 +30,5 @@ jobs:
     - name: Sonarcloud Scan
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.ZAPBOT_SONARCLOUD_TOKEN }}
       run: ./gradlew sonarqube --stacktrace
