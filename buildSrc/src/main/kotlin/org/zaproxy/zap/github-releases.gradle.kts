@@ -30,7 +30,7 @@ System.getenv("GITHUB_REF")?.let { ref ->
         dependsOn(distDebian)
         dependsOn(installers)
 
-        val installersFileTree: Provider<FileTree> = installers.map { fileTree(it.destination) }
+        val installersFileTree: Provider<FileTree> = installers.map { fileTree(it.destination!!) }
 
         assets {
             register("core") {
