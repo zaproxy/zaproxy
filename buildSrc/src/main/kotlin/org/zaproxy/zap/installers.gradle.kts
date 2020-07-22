@@ -15,6 +15,8 @@ var install4jHomeDirValidated = false
 val install4jHomeDir: String? by project
 val install4jLicense: String? by project
 
+val install4jVersion = "8.0.7"
+
 install4j {
     installDir = file("$install4jHomeDir")
     license = System.getenv("INSTALL4J_LICENSE") ?: install4jLicense
@@ -119,13 +121,14 @@ val installers by tasks.registering(Install4jTask::class) {
 }
 
 if (install4jHomeDir == null && Os.isFamily(Os.FAMILY_UNIX)) {
+    val install4jVersionUnderscores = install4jVersion.replace('.', '_')
     val install4jBinDir = file("$buildDir/install4jBin")
     val install4jBinUnpackDir = File(install4jBinDir, "unpacked")
     val install4jBinFile = File(install4jBinDir, "install4j.tar.gz")
-    val install4jDir = File(install4jBinUnpackDir, "install4j6.1.6")
+    val install4jDir = File(install4jBinUnpackDir, "install4j$install4jVersion")
 
     val downloadInstall4jBin by tasks.registering(Download::class) {
-        src("https://download-gcdn.ej-technologies.com/install4j/install4j_unix_6_1_6.tar.gz")
+        src("https://download-gcdn.ej-technologies.com/install4j/install4j_unix_$install4jVersionUnderscores.tar.gz")
         dest(install4jBinFile)
         timeout(60_000)
         onlyIfModified(true)
@@ -135,7 +138,7 @@ if (install4jHomeDir == null && Os.isFamily(Os.FAMILY_UNIX)) {
         dependsOn(downloadInstall4jBin)
         src(install4jBinFile)
         algorithm("SHA-256")
-        checksum("7fbdea6bca1347829f68667df630e0453717f739c51e51dbcfff9a7a5fd8ca45")
+        checksum("24321604dd196ce56eba90642c37437364be75b65138acb43c82503166d4da53")
     }
 
     val unpackInstall4jBin by tasks.registering(Copy::class) {
