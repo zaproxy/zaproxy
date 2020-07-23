@@ -103,8 +103,6 @@ if (Util.isWindows()) {
 
     String baseDir = context.getCompilerVariable("groupName");
     String longName = context.getCompilerVariable("longName");
-    File installationDir = new File((String)context.getVariable("sys.programFilesDir"), baseDir);
-    context.setInstallationDirectory(new File(installationDir, longName));
     context.setVariable("sys.programGroupName", baseDir + "\\" + longName);
     
     String innoKeyName = "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\OWASP ZAP_is1";
@@ -987,7 +985,7 @@ return console.askYesNo(message, true);
         <entry filesetId="679" />
       </exclude>
     </unixInstaller>
-    <windows name="Windows 32bit" id="30" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" installDir="${compiler:longName}" jreBitType="32">
+    <windows name="Windows 32bit" id="30" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" installDir="${compiler:groupName}\${compiler:longName}" jreBitType="32">
       <excludedLaunchers>
         <launcher id="26" />
       </excludedLaunchers>
@@ -996,7 +994,7 @@ return console.askYesNo(message, true);
         <entry filesetId="674" />
       </exclude>
     </windows>
-    <windows name="Windows 64bit" id="529" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_windows" installDir="${compiler:longName}">
+    <windows name="Windows 64bit" id="529" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_windows" installDir="${compiler:groupName}\${compiler:longName}">
       <excludedLaunchers>
         <launcher id="26" />
       </excludedLaunchers>
