@@ -137,7 +137,7 @@ class SpiderMessagesTableModel
                     @Override
                     public void run() {
                         final int row = resources.size();
-                        idsToRows.put(Integer.valueOf(entry.getHistoryId()), row);
+                        idsToRows.put(entry.getHistoryId(), row);
                         resources.add(entry);
                         fireTableRowsInserted(row, row);
                     }

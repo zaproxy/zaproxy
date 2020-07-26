@@ -114,7 +114,7 @@ public class BreakpointsParam extends AbstractParam {
 
     public void setAlwaysOnTop(Boolean alwaysOnTop) {
         this.alwaysOnTop = alwaysOnTop;
-        getConfig().setProperty(PARAM_BRK_ALWAYS_ON_TOP, Boolean.valueOf(alwaysOnTop));
+        getConfig().setProperty(PARAM_BRK_ALWAYS_ON_TOP, alwaysOnTop);
     }
 
     public boolean isInScopeOnly() {
