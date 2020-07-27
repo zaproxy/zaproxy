@@ -292,32 +292,20 @@ public class SpiderAPI extends ApiImplementor {
 
             case ACTION_PAUSE_SCAN:
                 scan = getSpiderScan(params);
-                if (scan == null) {
-                    throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
-                }
                 extension.pauseScan(scan.getScanId());
                 break;
             case ACTION_RESUME_SCAN:
                 scan = getSpiderScan(params);
-                if (scan == null) {
-                    throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
-                }
                 extension.resumeScan(scan.getScanId());
                 break;
             case ACTION_STOP_SCAN:
                 // The action is to stop a pending scan
                 scan = getSpiderScan(params);
-                if (scan == null) {
-                    throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
-                }
                 extension.stopScan(scan.getScanId());
                 break;
             case ACTION_REMOVE_SCAN:
                 // Note that we're removing the scan with this call, not just getting it ;)
                 scan = getSpiderScan(params);
-                if (scan == null) {
-                    throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
-                }
                 extension.removeScan(scan.getScanId());
                 break;
             case ACTION_PAUSE_ALL_SCANS:

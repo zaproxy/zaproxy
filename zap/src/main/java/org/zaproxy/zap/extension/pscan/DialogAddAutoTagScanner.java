@@ -394,7 +394,6 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
                     (getNameTextField().getDocument().getLength() > 0)
                             && (getConfigurationTextField().getDocument().getLength() > 0)
                             && (getRequestUrlRegexTextField().getDocument().getLength() > 0
-                                    || getRequestUrlRegexTextField().getDocument().getLength() > 0
                                     || getRequestHeaderRegexTextField().getDocument().getLength()
                                             > 0
                                     || getResponseHeaderRegexTextField().getDocument().getLength()
