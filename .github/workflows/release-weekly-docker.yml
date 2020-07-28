@@ -1,0 +1,23 @@
+name: Release Weekly Docker
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: 'release-weekly-docker'
+
+jobs:
+  publish:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: echo "::set-env name=REL_DATE::$(date +%F)"
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v1
+        with:
+          username: zapbot
+          password: ${{ secrets.ZAPBOT_DOCKER_TOKEN }}
+          repository: owasp/zap2docker-weekly
+          path: docker
+          dockerfile: docker/Dockerfile-weekly
+          tags: w${{ env.REL_DATE }},latest
