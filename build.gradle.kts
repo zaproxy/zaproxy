@@ -38,3 +38,4 @@ sonarqube {
         property("sonar.host.url", "https://sonarcloud.io")
     }
 }
+
