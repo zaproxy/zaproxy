@@ -66,18 +66,15 @@
 // ZAP: 2018/07/09 Override getRoot method
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/07/31 Tidy up parameter methods
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
 import java.security.InvalidParameterException;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
@@ -87,6 +84,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.network.HtmlParameter;
+import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -95,6 +93,7 @@ import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
+import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.view.SiteTreeFilter;
 
@@ -593,7 +592,7 @@ public class SiteMap extends SortedTreeModel {
         // String leafName = "\u007f" + msg.getRequestHeader().getMethod()+":"+nodeName;
         String leafName = msg.getRequestHeader().getMethod() + ":" + nodeName;
 
-        leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.url));
+        leafName = leafName + getQueryParamString(model.getSession().getParameters(msg, Type.url));
 
         // also handle POST method query in body
         if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
@@ -603,7 +602,9 @@ public class SiteMap extends SortedTreeModel {
             } else {
                 leafName =
                         leafName
-                                + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.form));
+                                + getQueryParamString(
+                                        model.getSession()
+                                                .getParameters(msg, HtmlParameter.Type.form));
             }
         }
 
@@ -620,14 +621,14 @@ public class SiteMap extends SortedTreeModel {
         }
 
         try {
-            leafName = leafName + getQueryParamString(model.getSession().getUrlParams(uri));
+            leafName = leafName + getQueryParamString(model.getSession().getUrlParameters(uri));
 
             // also handle POST method query in body
             if (method != null && method.equalsIgnoreCase(HttpRequestHeader.POST)) {
                 leafName =
                         leafName
                                 + getQueryParamString(
-                                        model.getSession().getFormParams(uri, postData));
+                                        model.getSession().getFormParameters(uri, postData));
             }
         } catch (URIException e) {
             // ZAP: Added error
@@ -636,32 +637,24 @@ public class SiteMap extends SortedTreeModel {
         return leafName;
     }
 
-    private String getQueryParamString(Map<String, String> map) {
-        TreeSet<String> set = new TreeSet<>();
-        for (Entry<String, String> entry : map.entrySet()) {
-            set.add(entry.getKey());
-        }
-        return this.getQueryParamString(set);
-    }
-
-    private String getQueryParamString(SortedSet<String> querySet) {
+    private String getQueryParamString(List<NameValuePair> list) {
         StringBuilder sb = new StringBuilder();
-        Iterator<String> iterator = querySet.iterator();
-        for (int i = 0; iterator.hasNext(); i++) {
-            String name = iterator.next();
-            if (name == null) {
-                continue;
-            }
-            if (i > 0) {
-                sb.append(',');
-            }
-            if (name.length() > 40) {
-                // Truncate
-                name = name.substring(0, 40);
-            }
-            sb.append(name);
-        }
-
+        list.stream()
+                .sorted()
+                .forEach(
+                        entry -> {
+                            String name = entry.getName();
+                            if (name != null) {
+                                if (sb.length() > 0) {
+                                    sb.append(',');
+                                }
+                                if (name.length() > 40) {
+                                    // Truncate
+                                    name = name.substring(0, 40);
+                                }
+                                sb.append(name);
+                            }
+                        });
         String result = "";
         if (sb.length() > 0) {
             result = sb.insert(0, '(').append(')').toString();

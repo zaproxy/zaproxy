@@ -135,8 +135,12 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
             List<NameValuePair> parameters = new ArrayList<>();
             getContext()
                     .getPostParamParser()
-                    .parse(postData)
-                    .forEach((k, v) -> parameters.add(new DefaultNameValuePair(k, v)));
+                    .parseParameters(postData)
+                    .forEach(
+                            (nvp) ->
+                                    parameters.add(
+                                            new DefaultNameValuePair(
+                                                    nvp.getName(), nvp.getValue())));
             return parameters;
         }
 
