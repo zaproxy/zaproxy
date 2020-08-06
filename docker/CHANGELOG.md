@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+###  2020-08-03
+ - Add `IS_CONTAINERIZED` environment variable to the container image, used in the python script to check for containerized environments (e.g. containerd) without relying on container runtime specific files.
+
 ###  2020-07-17
  - Make podman compatible
 
