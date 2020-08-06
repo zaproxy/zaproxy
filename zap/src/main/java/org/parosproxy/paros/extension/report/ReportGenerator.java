@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ZAP: 2018/12/27 Use always an array for sites in JSON format (Issue 5162).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/08/06 Issue 6084: Added date time to html report.
 package org.parosproxy.paros.extension.report;
 
 import java.io.BufferedReader;
@@ -128,6 +129,7 @@ public class ReportGenerator {
                 // Use a Transformer for output
                 TransformerFactory tFactory = TransformerFactory.newInstance();
                 Transformer transformer = tFactory.newTransformer(stylesource);
+                transformer.setParameter("datetime", getCurrentDateTimeString());
 
                 DOMSource source = new DOMSource(doc);
                 StreamResult result = new StreamResult(outfile);
@@ -262,6 +264,7 @@ public class ReportGenerator {
             // Use a Transformer for output
             TransformerFactory tFactory = TransformerFactory.newInstance();
             Transformer transformer = tFactory.newTransformer(stylesource);
+            transformer.setParameter("datetime", getCurrentDateTimeString());
 
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(writer);
@@ -305,6 +308,7 @@ public class ReportGenerator {
             TransformerFactory tFactory = TransformerFactory.newInstance();
             StreamSource stylesource = new StreamSource(stylesheet);
             Transformer transformer = tFactory.newTransformer(stylesource);
+            transformer.setParameter("datetime", getCurrentDateTimeString());
 
             DOMSource source = new DOMSource(doc);
             StreamResult result = new StreamResult(outfile);
