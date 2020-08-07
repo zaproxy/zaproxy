@@ -141,6 +141,10 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers"
     )
 
+    methodExcludes = listOf(
+        "org.parosproxy.paros.network.HttpMessage#getParamNameSet(org.parosproxy.paros.network.HtmlParameter\$Type,java.lang.String)"
+    )
+
     richReport {
         destinationDir = file("$buildDir/reports/japicmp/")
         reportName = "japi.html"

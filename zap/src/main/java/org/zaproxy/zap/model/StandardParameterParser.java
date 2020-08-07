@@ -102,6 +102,11 @@ public class StandardParameterParser implements ParameterParser {
         return json.toString();
     }
 
+    /**
+     * @deprecated TODO add version use #getParameters(String) This method will lose duplicated
+     *     parameter names
+     */
+    @Deprecated
     @Override
     public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
         if (msg == null) {
@@ -222,6 +227,11 @@ public class StandardParameterParser implements ParameterParser {
         this.structuralParameters.addAll(structuralParameters);
     }
 
+    /**
+     * @deprecated TODO add version use #parseParameters(String) This method will lose duplicated
+     *     parameter names
+     */
+    @Deprecated
     @Override
     public Map<String, String> parse(String paramStr) {
         Map<String, String> map = new HashMap<String, String>();
@@ -360,15 +370,12 @@ public class StandardParameterParser implements ParameterParser {
         List<String> list = getTreePath(uri);
 
         // Add any structural params (form params) in key order
-        Map<String, String> formParams = this.parse(msg.getRequestBody().toString());
-        List<String> keys = new ArrayList<String>(formParams.keySet());
-        Collections.sort(keys);
-        for (String key : keys) {
-            if (this.structuralParameters.contains(key)) {
-                list.add(formParams.get(key));
-            }
-        }
-
+        List<NameValuePair> formParams = this.parseParameters(msg.getRequestBody().toString());
+        formParams.stream()
+                .map(NameValuePair::getName)
+                .filter(structuralParameters::contains)
+                .sorted()
+                .forEach(list::add);
         return list;
     }
 

@@ -457,7 +457,11 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             Context context =
                     Model.getSingleton().getSession().getContextsForUrl(loginRequestURL).get(0);
             if (context != null) {
-                return context.getPostParamParser().parse(postRequestBody);
+                Map<String, String> map = new HashMap<String, String>();
+                context.getPostParamParser()
+                        .parseParameters(postRequestBody)
+                        .forEach((nvp) -> map.put(nvp.getName(), nvp.getValue()));
+                return map;
             } else {
                 return null;
             }

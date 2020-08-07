@@ -51,11 +51,24 @@ public class StandardParameterParserUnitTest {
         assertEquals(spp.getKeyValuePairSeparators(), "&");
         assertEquals(spp.getKeyValueSeparators(), "=");
         assertEquals(spp.getStructuralParameters().size(), 0);
+
+        @SuppressWarnings("deprecation")
         Map<String, String> res = spp.parse("a=b&b=c&d=f");
         assertEquals(res.size(), 3);
         assertEquals(res.get("a"), "b");
         assertEquals(res.get("b"), "c");
         assertEquals(res.get("d"), "f");
+
+        List<NameValuePair> res2 = spp.parseParameters("a=b&b=c&d=f&d=g");
+        assertEquals(res2.size(), 4);
+        assertEquals(res2.get(0).getName(), "a");
+        assertEquals(res2.get(0).getValue(), "b");
+        assertEquals(res2.get(1).getName(), "b");
+        assertEquals(res2.get(1).getValue(), "c");
+        assertEquals(res2.get(2).getName(), "d");
+        assertEquals(res2.get(2).getValue(), "f");
+        assertEquals(res2.get(3).getName(), "d");
+        assertEquals(res2.get(3).getValue(), "g");
     }
 
     @Test
@@ -65,7 +78,9 @@ public class StandardParameterParserUnitTest {
         List<String> sps = new ArrayList<>();
         sps.add("page");
         spp.setStructuralParameters(sps);
+        @SuppressWarnings("deprecation")
         Map<String, String> res = spp.parse("a=b&c;b:c");
+        List<NameValuePair> res2 = spp.parseParameters("a=b&c;b:c");
 
         assertEquals(spp.getKeyValuePairSeparators(), ";");
         assertEquals(spp.getKeyValueSeparators(), ":=");
@@ -75,6 +90,12 @@ public class StandardParameterParserUnitTest {
         assertEquals(res.size(), 2);
         assertEquals(res.get("a"), "b&c");
         assertEquals(res.get("b"), "c");
+
+        assertEquals(res2.size(), 2);
+        assertEquals(res2.get(0).getName(), "a");
+        assertEquals(res2.get(0).getValue(), "b&c");
+        assertEquals(res2.get(1).getName(), "b");
+        assertEquals(res2.get(1).getValue(), "c");
     }
 
     @Test
@@ -88,7 +109,9 @@ public class StandardParameterParserUnitTest {
         StandardParameterParser spp2 = new StandardParameterParser();
         spp2.init(spp.getConfig());
 
+        @SuppressWarnings("deprecation")
         Map<String, String> res = spp2.parse("a=b&c;b:c");
+        List<NameValuePair> res2 = spp2.parseParameters("a=b&c;b:c");
 
         assertEquals(spp2.getKeyValuePairSeparators(), ";");
         assertEquals(spp2.getKeyValueSeparators(), ":=");
@@ -98,6 +121,12 @@ public class StandardParameterParserUnitTest {
         assertEquals(res.size(), 2);
         assertEquals(res.get("a"), "b&c");
         assertEquals(res.get("b"), "c");
+        assertEquals(res2.size(), 2);
+
+        assertEquals(res2.get(0).getName(), "a");
+        assertEquals(res2.get(0).getValue(), "b&c");
+        assertEquals(res2.get(1).getName(), "b");
+        assertEquals(res2.get(1).getValue(), "c");
     }
 
     /**

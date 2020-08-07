@@ -54,16 +54,17 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
+// ZAP: 2020/07/31 Tidy up parameter methods
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -76,6 +77,7 @@ import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
+import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 import org.zaproxy.zap.users.User;
@@ -625,18 +627,8 @@ public class HttpMessage implements Message {
     }
 
     /**
-     * @deprecated (2.4.2) Use {@link
-     *     #getParamNameSet(org.parosproxy.paros.network.HtmlParameter.Type)} instead, it will be
-     *     removed in a following release.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public TreeSet<String> getParamNameSet(HtmlParameter.Type type, String params) {
-        return getParamNameSet(type);
-    }
-
-    /**
-     * Returns the names of the parameters of the given {@code type}.
+     * Returns the names of the parameters of the given {@code type}. As a Set is used no names will
+     * be duplicated.
      *
      * @param type the type of the parameters that will be extracted from the message
      * @return a {@code TreeSet} with the names of the parameters of the given {@code type}, never
@@ -645,22 +637,57 @@ public class HttpMessage implements Message {
      */
     public TreeSet<String> getParamNameSet(HtmlParameter.Type type) {
         TreeSet<String> set = new TreeSet<>();
-        Map<String, String> paramMap = Model.getSingleton().getSession().getParams(this, type);
+        List<NameValuePair> paramList = Model.getSingleton().getSession().getParameters(this, type);
 
-        for (Entry<String, String> param : paramMap.entrySet()) {
-            set.add(param.getKey());
+        for (NameValuePair nvp : paramList) {
+            set.add(nvp.getName());
         }
         return set;
     }
 
+    /**
+     * Returns the names of the parameters of the given {@code type} in a List. The List can return
+     * duplicated names.
+     *
+     * @param type the type of the parameters that will be extracted from the message
+     * @return a {@code List} with the names of the parameters of the given {@code type}, never
+     *     {@code null}
+     * @since TODO add version
+     */
+    public List<String> getParameterNames(HtmlParameter.Type type) {
+        List<String> list = new ArrayList<String>();
+        Model.getSingleton()
+                .getSession()
+                .getParameters(this, type)
+                .forEach((nvp) -> list.add(nvp.getName()));
+        return list;
+    }
+
     private TreeSet<HtmlParameter> getParamsSet(HtmlParameter.Type type) {
         TreeSet<HtmlParameter> set = new TreeSet<>();
-        Map<String, String> paramMap = Model.getSingleton().getSession().getParams(this, type);
+        List<NameValuePair> paramList = Model.getSingleton().getSession().getParameters(this, type);
 
-        for (Entry<String, String> param : paramMap.entrySet()) {
-            set.add(new HtmlParameter(type, param.getKey(), param.getValue()));
+        for (NameValuePair nvp : paramList) {
+            set.add(new HtmlParameter(type, nvp.getName(), nvp.getValue()));
         }
         return set;
+    }
+
+    /**
+     * Returns the parameters of the given {@code type} in a List. The List can return duplicated
+     * parameter names.
+     *
+     * @param type the type of the parameters that will be extracted from the message
+     * @return a {@code List} with the parameters of the given {@code type}, never {@code null}
+     * @since TODO add version
+     */
+    public List<HtmlParameter> getParameters(HtmlParameter.Type type) {
+        List<HtmlParameter> list = new ArrayList<HtmlParameter>();
+        Model.getSingleton()
+                .getSession()
+                .getParameters(this, type)
+                .forEach((nvp) -> list.add(new HtmlParameter(type, nvp.getName(), nvp.getValue())));
+        return list;
     }
 
     // ZAP: Added getParamNames

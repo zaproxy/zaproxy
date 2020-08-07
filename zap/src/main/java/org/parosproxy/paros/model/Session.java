@@ -80,6 +80,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
+// ZAP: 2020/07/31 Tidy up parameter methods
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -1583,7 +1584,10 @@ public class Session {
      * @param msg
      * @param type
      * @return
+     * @deprecated TODO add version use #getParameters(String) This method will lose duplicated
+     *     parameter names
      */
+    @Deprecated
     public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
         switch (type) {
             case form:
@@ -1639,7 +1643,9 @@ public class Session {
      * @param uri
      * @return
      * @throws URIException
+     * @deprecated TODO add version use #getUrlParameters(String)
      */
+    @Deprecated
     public Map<String, String> getUrlParams(URI uri) throws URIException {
         Map<String, String> map = new HashMap<>();
         for (NameValuePair parameter :
@@ -1654,16 +1660,45 @@ public class Session {
     }
 
     /**
+     * Returns the URL parameters for the given URL based on the parser associated with the first
+     * context found that includes the URL, or the default parser if it is not in a context
+     *
+     * @param uri
+     * @return the URL parameters for the given URL
+     * @throws URIException
+     * @since TODO add version
+     */
+    public List<NameValuePair> getUrlParameters(URI uri) throws URIException {
+        return getUrlParamParser(uri.toString()).parseParameters(uri.getEscapedQuery());
+    }
+
+    /**
      * Returns the FORM parameters for the given URL based on the parser associated with the first
      * context found that includes the URL, or the default parser if it is not in a context
      *
      * @param uri
      * @param formData
-     * @return
+     * @return the FORM parameters for the given URL
      * @throws URIException
+     * @deprecated TODO add version use #getFormParameters(String)
      */
+    @Deprecated
     public Map<String, String> getFormParams(URI uri, String formData) throws URIException {
         return this.getFormParamParser(uri.toString()).parse(formData);
+    }
+
+    /**
+     * Returns the FORM parameters for the given URL based on the parser associated with the first
+     * context found that includes the URL, or the default parser if it is not in a context
+     *
+     * @param uri
+     * @param formData
+     * @return the FORM parameters for the given URL
+     * @throws URIException
+     * @since TODO add version
+     */
+    public List<NameValuePair> getFormParameters(URI uri, String formData) throws URIException {
+        return this.getFormParamParser(uri.toString()).parseParameters(formData);
     }
 
     public List<String> getTreePath(URI uri) throws URIException {
