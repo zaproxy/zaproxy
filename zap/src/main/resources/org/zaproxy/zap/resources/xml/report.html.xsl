@@ -6,6 +6,8 @@
   >
   <xsl:output method="html"/>
 
+  <xsl:param name="datetime"/>
+
   <xsl:template match="/OWASPZAPReport"> 
 
 <html>
@@ -75,6 +77,12 @@ th{
 .alerts th{
   color: #FFF;
 }
+.left-header{
+  display: inline-block;
+}
+.time-stamp{
+  float: right;
+}
 </style>
 </head>
 
@@ -88,7 +96,8 @@ ZAP Scanning Report
 <p>
 <xsl:apply-templates select="text()"/>
 </p>
-<h3>Summary of Alerts</h3>
+<h3 class="left-header">Summary of Alerts</h3>
+<h3 class="time-stamp">Generated on <xsl:value-of select="$datetime"/></h3>
 <table width="45%" class="summary">
   <tr bgcolor="#666666"> 
     <th width="45%" height="24">Risk 

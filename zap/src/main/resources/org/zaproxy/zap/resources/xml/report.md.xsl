@@ -7,11 +7,15 @@
   >
   <xsl:output method="text"/> 
   
+  <xsl:param name="datetime"/>
+  
   <xsl:variable name='newline'><xsl:text>
 </xsl:text></xsl:variable>
  
   <xsl:template match="/OWASPZAPReport">
 # ZAP Scanning Report
+
+Generated on <xsl:value-of select="$datetime"/>
 
 <xsl:apply-templates select="text()"/>
 
