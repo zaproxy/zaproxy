@@ -111,6 +111,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     public static final String TYPE_PROXY = "proxy";
     public static final String TYPE_STANDALONE = "standalone";
     public static final String TYPE_TARGETED = "targeted";
+    public static final String TYPE_SITE_MODIFIER = "sitemodifier";
 
     private ScriptEngineManager mgr = new ScriptEngineManager();
     private ScriptParam scriptParam = null;
@@ -208,6 +209,12 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                         TYPE_HTTP_SENDER,
                         "script.type.httpsender",
                         createIcon("/resource/icon/16/script-httpsender.png"),
+                        true));
+        this.registerScriptType(
+                new ScriptType(
+                        TYPE_SITE_MODIFIER,
+                        "script.type.sitemodifier",
+                        createIcon("/resource/icon/16/script-sitemodifier.png"),
                         true));
 
         extensionHook.addSessionListener(new ClearScriptVarsOnSessionChange());

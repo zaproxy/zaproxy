@@ -51,6 +51,7 @@ import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.model.ContextDataFactory;
+import org.zaproxy.zap.model.SiteMapModifier;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.SiteMapListener;
 
@@ -149,6 +150,16 @@ public class ExtensionHook {
      * @see #getHttpSenderListeners()
      */
     private List<HttpSenderListener> httpSenderListeners;
+
+    /**
+     * The {@link SiteMapModifier}s added to this extension hook.
+     *
+     * <p>Lazily initialised.
+     *
+     * @see #addSiteMapModifier(SiteMapModifier)
+     * @see #getSiteMapModifiers()
+     */
+    private List<SiteMapModifier> siteMapModifiers;
 
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
@@ -505,5 +516,41 @@ public class ExtensionHook {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(httpSenderListeners);
+    }
+
+    /**
+     * Adds the given {@code siteMapModifier} to the extension hook, to be later added to the {@link
+     * org.parosproxy.paros.model.Session Session}.
+     *
+     * <p>By default, the {@code SiteMapModifier}s added to this extension hook are removed from the
+     * {@code Session} when the extension is unloaded.
+     *
+     * @param siteMapModifier the SiteMapModifier that will be added to the {@code HttpSender}
+     * @throws IllegalArgumentException if the given {@code siteMapModifier} is {@code null}.
+     * @since TODO add version
+     */
+    public void addSiteMapModifier(SiteMapModifier siteMapModifier) {
+        if (siteMapModifier == null) {
+            throw new IllegalArgumentException("Parameter siteMapModifier must not be null.");
+        }
+
+        if (siteMapModifiers == null) {
+            siteMapModifiers = new ArrayList<>();
+        }
+        siteMapModifiers.add(siteMapModifier);
+    }
+
+    /**
+     * Gets the {@link SiteMapModifier}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code SiteMapModifier}s, never
+     *     {@code null}.
+     * @since TODO add version
+     */
+    List<SiteMapModifier> getSiteMapModifiers() {
+        if (siteMapModifiers == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(siteMapModifiers);
     }
 }

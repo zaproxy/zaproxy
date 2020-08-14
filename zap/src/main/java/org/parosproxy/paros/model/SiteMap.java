@@ -67,6 +67,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/07/31 Tidy up parameter methods
+// ZAP: 2020/08/17 Added support for site map modifiers
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -149,7 +150,7 @@ public class SiteMap extends SortedTreeModel {
             if (parent == null) {
                 return null;
             }
-            List<String> path = model.getSession().getTreePath(uri);
+            List<String> path = model.getSession().getTreePath(msg);
             if (path.size() == 0) {
                 // Its a top level node
                 resultNode = parent;

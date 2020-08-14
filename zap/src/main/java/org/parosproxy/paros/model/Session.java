@@ -81,6 +81,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
 // ZAP: 2020/07/31 Tidy up parameter methods
+// ZAP: 2020/08/17 Added support for site map modifiers
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -113,10 +114,14 @@ import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.extension.script.ScriptWrapper;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.ParameterParser;
+import org.zaproxy.zap.model.SiteMapModifier;
+import org.zaproxy.zap.model.SiteMapModifierHelper;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.model.Tech;
@@ -154,6 +159,7 @@ public class Session {
     private SiteMap siteTree = null;
 
     private ParameterParser defaultParamParser = new StandardParameterParser();
+    private ExtensionScript extScript;
 
     /**
      * Constructor for the current session. The current system time will be used as the session ID.
@@ -1601,6 +1607,17 @@ public class Session {
         }
     }
 
+    private List<ScriptWrapper> getSiteModifierScripts() {
+        if (extScript == null) {
+            extScript =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
+        }
+        if (extScript != null) {
+            return extScript.getScripts(ExtensionScript.TYPE_SITE_MODIFIER);
+        }
+        return new ArrayList<ScriptWrapper>();
+    }
+
     /**
      * Gets the parameters of the given {@code type} from the given {@code message}.
      *
@@ -1622,6 +1639,31 @@ public class Session {
         }
         if (type == null) {
             throw new IllegalArgumentException("Parameter type must not be null.");
+        }
+        for (ScriptWrapper script : getSiteModifierScripts()) {
+            if (script.isEnabled()) {
+                try {
+                    SiteMapModifier smm = extScript.getInterface(script, SiteMapModifier.class);
+                    List<NameValuePair> params =
+                            smm.getParameters(msg, type, new SiteMapModifierHelper());
+                    if (params != null) {
+                        return params;
+                    }
+                } catch (Exception e) {
+                    extScript.handleScriptException(script, e);
+                }
+            }
+        }
+        for (SiteMapModifier smm : this.siteMapModifiers) {
+            try {
+                List<NameValuePair> params =
+                        smm.getParameters(msg, type, new SiteMapModifierHelper());
+                if (params != null) {
+                    return params;
+                }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
         }
 
         switch (type) {
@@ -1706,8 +1748,42 @@ public class Session {
     }
 
     public List<String> getTreePath(HttpMessage msg) throws URIException {
+        for (ScriptWrapper script : getSiteModifierScripts()) {
+            if (script.isEnabled()) {
+                try {
+                    SiteMapModifier smm = extScript.getInterface(script, SiteMapModifier.class);
+                    List<String> treePath = smm.getTreePath(msg, new SiteMapModifierHelper());
+                    if (treePath != null) {
+                        return treePath;
+                    }
+                } catch (Exception e) {
+                    extScript.handleScriptException(script, e);
+                }
+            }
+        }
+        for (SiteMapModifier smm : this.siteMapModifiers) {
+            try {
+                List<String> treePath = smm.getTreePath(msg, new SiteMapModifierHelper());
+                if (treePath != null) {
+                    return treePath;
+                }
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+
         URI uri = msg.getRequestHeader().getURI();
         return this.getUrlParamParser(uri.toString()).getTreePath(msg);
+    }
+
+    private List<SiteMapModifier> siteMapModifiers = new ArrayList<SiteMapModifier>();
+
+    public void addSiteMapModifier(SiteMapModifier siteMapModifier) {
+        this.siteMapModifiers.add(siteMapModifier);
+    }
+
+    public void removeSiteMapModifier(SiteMapModifier siteMapModifier) {
+        this.siteMapModifiers.remove(siteMapModifier);
     }
 
     // ZAP: Added listeners for contexts changed events.

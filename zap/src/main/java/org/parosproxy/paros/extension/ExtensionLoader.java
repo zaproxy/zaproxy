@@ -136,6 +136,7 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.httppanel.DisplayedMessageChangedListener;
 import org.zaproxy.zap.model.ContextDataFactory;
+import org.zaproxy.zap.model.SiteMapModifier;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.MainToolbarPanel;
@@ -819,6 +820,7 @@ public class ExtensionLoader {
             hookContextDataFactories(ext, extHook);
             hookApiImplementors(ext, extHook);
             hookHttpSenderListeners(ext, extHook);
+            hookSiteMapModifiers(ext, extHook);
 
             if (hasView()) {
                 // no need to hook view if no GUI
@@ -897,6 +899,7 @@ public class ExtensionLoader {
                 hookContextDataFactories(ext, extHook);
                 hookApiImplementors(ext, extHook);
                 hookHttpSenderListeners(ext, extHook);
+                hookSiteMapModifiers(ext, extHook);
 
                 if (hasView()) {
                     EventQueue.invokeAndWait(
@@ -991,6 +994,19 @@ public class ExtensionLoader {
             } catch (Exception e) {
                 logger.error(
                         "Error while adding an HttpSenderListener from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
+            }
+        }
+    }
+
+    private void hookSiteMapModifiers(Extension extension, ExtensionHook extHook) {
+        for (SiteMapModifier smm : extHook.getSiteMapModifiers()) {
+            try {
+                Model.getSingleton().getSession().addSiteMapModifier(smm);
+            } catch (Exception e) {
+                logger.error(
+                        "Error while adding a SiteMapModifier from "
                                 + extension.getClass().getCanonicalName(),
                         e);
             }
@@ -1509,6 +1525,17 @@ public class ExtensionLoader {
             } catch (Exception e) {
                 logger.error(
                         "Error while removing an HttpSenderListener from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
+            }
+        }
+
+        for (SiteMapModifier smm : hook.getSiteMapModifiers()) {
+            try {
+                model.getSession().removeSiteMapModifier(smm);
+            } catch (Exception e) {
+                logger.error(
+                        "Error while removing a SiteMapModifier from "
                                 + extension.getClass().getCanonicalName(),
                         e);
             }

@@ -35,6 +35,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/30 Use instance variable for view checks.
+// ZAP: 2020/08/04 Changed to use new SessionStructure method
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -91,12 +92,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
         //	    }
 
         try {
-            StructuralNode node =
-                    SessionStructure.find(
-                            model.getSession().getSessionId(),
-                            msg.getRequestHeader().getURI(),
-                            msg.getRequestHeader().getMethod(),
-                            msg.getRequestBody().toString());
+            StructuralNode node = SessionStructure.find(model.getSession(), msg);
             if (node != null) {
                 HttpMessage existingMsg = node.getHistoryReference().getHttpMessage();
                 // check if a msg of the same type exist
