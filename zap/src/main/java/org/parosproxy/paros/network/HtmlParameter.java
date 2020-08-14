@@ -115,10 +115,8 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
      * Sets the value.
      *
      * @param value the new value.
-     * @throws IllegalArgumentException if the given parameter is {@code null}.
      */
     public void setValue(String value) {
-        validateNotNull(value, "value");
         this.value = value;
     }
 
@@ -159,7 +157,12 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
         }
         if (result == 0) {
             // Same type and name
-            result = this.value.compareTo(o.getValue());
+            if (this.value != null && o.getValue() != null) {
+                result = this.value.compareTo(o.getValue());
+            } else if (this.value != null || o.getValue() != null) {
+                // They can't both be null due to previous test
+                return this.value != null ? 1 : -1;
+            }
         }
         return result;
     }

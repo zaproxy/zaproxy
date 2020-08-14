@@ -87,6 +87,7 @@
 // ZAP: 2019/08/19 Validate menu and main frame in EDT.
 // ZAP: 2019/09/30 Use instance variable for view checks.
 // ZAP: 2020/05/14 Hook HttpSenderListener when starting single extension.
+// ZAP: 2020/08/27 Added support for plugable variants
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -115,6 +116,7 @@ import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.core.scanner.Scanner;
 import org.parosproxy.paros.core.scanner.ScannerHook;
+import org.parosproxy.paros.core.scanner.Variant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseUnsupportedException;
@@ -819,6 +821,7 @@ public class ExtensionLoader {
             hookContextDataFactories(ext, extHook);
             hookApiImplementors(ext, extHook);
             hookHttpSenderListeners(ext, extHook);
+            hookVariant(ext, extHook);
 
             if (hasView()) {
                 // no need to hook view if no GUI
@@ -897,6 +900,7 @@ public class ExtensionLoader {
                 hookContextDataFactories(ext, extHook);
                 hookApiImplementors(ext, extHook);
                 hookHttpSenderListeners(ext, extHook);
+                hookVariant(ext, extHook);
 
                 if (hasView()) {
                     EventQueue.invokeAndWait(
@@ -991,6 +995,21 @@ public class ExtensionLoader {
             } catch (Exception e) {
                 logger.error(
                         "Error while adding an HttpSenderListener from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
+            }
+        }
+    }
+
+    private void hookVariant(Extension extension, ExtensionHook extHook) {
+        for (Class<? extends Variant> variant : extHook.getVariants()) {
+            try {
+                // Try to create a new instance just to check its possible
+                variant.getDeclaredConstructor().newInstance();
+                Model.getSingleton().getVariantFactory().addVariant(variant);
+            } catch (Exception e) {
+                logger.error(
+                        "Error while adding a Variant from "
                                 + extension.getClass().getCanonicalName(),
                         e);
             }
@@ -1509,6 +1528,17 @@ public class ExtensionLoader {
             } catch (Exception e) {
                 logger.error(
                         "Error while removing an HttpSenderListener from "
+                                + extension.getClass().getCanonicalName(),
+                        e);
+            }
+        }
+
+        for (Class<? extends Variant> variant : hook.getVariants()) {
+            try {
+                model.getVariantFactory().removeVariant(variant);
+            } catch (Exception e) {
+                logger.error(
+                        "Error while removing a Variant from "
                                 + extension.getClass().getCanonicalName(),
                         e);
             }

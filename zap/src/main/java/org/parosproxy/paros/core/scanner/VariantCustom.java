@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
@@ -226,6 +228,25 @@ public class VariantCustom implements Variant {
     public String setEscapedParameter(
             HttpMessage msg, NameValuePair originalPair, String param, String value) {
         return setParameter(msg, originalPair, param, value, true);
+    }
+
+    /**
+     * The standard name given to nodes in the sites tree for the given parameters
+     *
+     * @param nodeName the name of the node, typically the last element of the path
+     * @param msg the message
+     * @param params the url and post parameters for the given message
+     * @return the name to be used in the Sites Map
+     */
+    public String getStandardLeafName(
+            String nodeName, HttpMessage msg, List<NameValuePair> params) {
+        return Model.getSingleton()
+                .getSession()
+                .getLeafName(
+                        nodeName,
+                        msg.getRequestHeader().getMethod(),
+                        msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE),
+                        params);
     }
 
     /**

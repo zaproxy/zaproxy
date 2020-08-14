@@ -67,6 +67,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/07/31 Tidy up parameter methods
+// ZAP: 2020/08/17 Changed to use getTreePath(msg) method
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -83,8 +84,6 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
-import org.parosproxy.paros.network.HtmlParameter;
-import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -93,7 +92,6 @@ import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
-import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.view.SiteTreeFilter;
 
@@ -149,7 +147,7 @@ public class SiteMap extends SortedTreeModel {
             if (parent == null) {
                 return null;
             }
-            List<String> path = model.getSession().getTreePath(uri);
+            List<String> path = model.getSession().getTreePath(msg);
             if (path.size() == 0) {
                 // Its a top level node
                 resultNode = parent;
@@ -158,7 +156,7 @@ public class SiteMap extends SortedTreeModel {
                 folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
                     if (i == path.size() - 1) {
-                        String leafName = getLeafName(folder, msg);
+                        String leafName = model.getSession().getLeafName(folder, msg);
                         resultNode = findChild(parent, leafName);
                     } else {
                         parent = findChild(parent, folder);
@@ -227,7 +225,7 @@ public class SiteMap extends SortedTreeModel {
                         if (matchStructural) {
                             resultNode = findChild(parent, folder);
                         } else {
-                            String leafName = getLeafName(folder, msg);
+                            String leafName = model.getSession().getLeafName(folder, msg);
                             resultNode = findChild(parent, leafName);
                         }
                     } else {
@@ -277,7 +275,8 @@ public class SiteMap extends SortedTreeModel {
 
                 if (folder != null && !folder.equals("")) {
                     if (i == path.size() - 1) {
-                        String leafName = getLeafName(folder, uri, method, postData);
+                        String leafName =
+                                model.getSession().getLeafName(folder, uri, method, postData);
                         resultNode = findChild(resultNode, leafName);
                     } else {
                         resultNode = findChild(resultNode, folder);
@@ -287,7 +286,7 @@ public class SiteMap extends SortedTreeModel {
                     }
                 }
             }
-        } catch (URIException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
 
@@ -429,7 +428,7 @@ public class SiteMap extends SortedTreeModel {
                 if (folder != null && !folder.equals("")) {
                     if (newOnly) {
                         // Check to see if it already exists
-                        String leafName = getLeafName(folder, msg);
+                        String leafName = model.getSession().getLeafName(folder, msg);
                         isNew = (findChild(parent, leafName) == null);
                     }
                     if (i == path.size() - 1) {
@@ -534,7 +533,7 @@ public class SiteMap extends SortedTreeModel {
         // ZAP: Added debug
         log.debug("findAndAddLeaf " + parent.getNodeName() + " / " + nodeName);
 
-        String leafName = getLeafName(nodeName, msg);
+        String leafName = model.getSession().getLeafName(nodeName, msg);
         SiteNode node = findChild(parent, leafName);
         if (node == null) {
             if (!ref.getCustomIcons().isEmpty()) {
@@ -585,82 +584,6 @@ public class SiteMap extends SortedTreeModel {
             hrefMap.put(ref.getHistoryId(), node);
         }
         return node;
-    }
-
-    private String getLeafName(String nodeName, HttpMessage msg) {
-        // add \u007f to make GET/POST node appear at the end.
-        // String leafName = "\u007f" + msg.getRequestHeader().getMethod()+":"+nodeName;
-        String leafName = msg.getRequestHeader().getMethod() + ":" + nodeName;
-
-        leafName = leafName + getQueryParamString(model.getSession().getParameters(msg, Type.url));
-
-        // also handle POST method query in body
-        if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-            String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-            if (contentType != null && contentType.startsWith("multipart/form-data")) {
-                leafName = leafName + "(multipart/form-data)";
-            } else {
-                leafName =
-                        leafName
-                                + getQueryParamString(
-                                        model.getSession()
-                                                .getParameters(msg, HtmlParameter.Type.form));
-            }
-        }
-
-        return leafName;
-    }
-
-    private String getLeafName(String nodeName, URI uri, String method, String postData) {
-        String leafName;
-
-        if (method != null && !method.isEmpty()) {
-            leafName = method + ":" + nodeName;
-        } else {
-            leafName = nodeName;
-        }
-
-        try {
-            leafName = leafName + getQueryParamString(model.getSession().getUrlParameters(uri));
-
-            // also handle POST method query in body
-            if (method != null && method.equalsIgnoreCase(HttpRequestHeader.POST)) {
-                leafName =
-                        leafName
-                                + getQueryParamString(
-                                        model.getSession().getFormParameters(uri, postData));
-            }
-        } catch (URIException e) {
-            // ZAP: Added error
-            log.error(e.getMessage(), e);
-        }
-        return leafName;
-    }
-
-    private String getQueryParamString(List<NameValuePair> list) {
-        StringBuilder sb = new StringBuilder();
-        list.stream()
-                .sorted()
-                .forEach(
-                        entry -> {
-                            String name = entry.getName();
-                            if (name != null) {
-                                if (sb.length() > 0) {
-                                    sb.append(',');
-                                }
-                                if (name.length() > 40) {
-                                    // Truncate
-                                    name = name.substring(0, 40);
-                                }
-                                sb.append(name);
-                            }
-                        });
-        String result = "";
-        if (sb.length() > 0) {
-            result = sb.insert(0, '(').append(')').toString();
-        }
-
-        return result;
     }
 
     public HistoryReference createReference(
