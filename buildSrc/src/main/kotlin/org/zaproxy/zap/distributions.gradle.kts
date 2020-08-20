@@ -102,6 +102,7 @@ tasks.register<Zip>("distCore") {
     val liteAddOns = listOf(
             "ascanrules",
             "bruteforce",
+            "commonlib",
             "coreLang",
             "diff",
             "gettingStarted",
