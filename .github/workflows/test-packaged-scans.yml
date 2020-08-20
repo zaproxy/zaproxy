@@ -3,7 +3,7 @@ name: Test Packaged Scans
 on:
   pull_request:
     paths:
-    - docker/*
+    - docker/**
 
 jobs:
   test:
