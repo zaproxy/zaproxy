@@ -11,14 +11,18 @@ import zap_common
 
 
 @contextlib.contextmanager
-def custom_hooks_file():
+def custom_hooks_file(content=None):
+    hooks = content if content else "def custom_hook():\n    pass"
     with tempfile.NamedTemporaryFile() as file:
-        file.write(
-            """
-            def custom_hook():
-                pass
-            """.strip().encode())
+        file.write(hooks.encode())
         file.flush()
+        yield file
+
+
+@contextlib.contextmanager
+def custom_hooks_file_malformed():
+    content = """def custom_hook() # missing :\n    pass"""
+    with custom_hooks_file(content) as file:
         yield file
 
 
@@ -88,6 +92,12 @@ class TestZapHooks(unittest.TestCase):
         self.assertIsNotNone(zap_common.zap_hooks)
         self.assertTrue(callable(getattr(zap_common.zap_hooks, "custom_hook")))
 
+    def test_load_custom_hooks_from_file_with_errors(self):
+        """Hooks are not loaded and exception is raised when the file has errors."""
+        with custom_hooks_file_malformed() as file, self.assertRaises(SyntaxError):
+            zap_common.load_custom_hooks(hooks_file=file.name)
+        self.assertIsNone(zap_common.zap_hooks)
+
     def test_load_custom_hooks_from_env_var_file_not_exists(self):
         """Hooks are not loaded from env var defined file when not exists."""
         os.environ['ZAP_HOOKS'] = "/some-dir/not-a-hooks-file"
@@ -100,6 +110,13 @@ class TestZapHooks(unittest.TestCase):
             os.environ['ZAP_HOOKS'] = file.name
             zap_common.load_custom_hooks()
         self.assert_custom_hooks_loaded()
+
+    def test_load_custom_hooks_from_env_var_file_with_errors(self):
+        """Hooks are not loaded and exception is raised when the env var defined file has errors."""
+        with custom_hooks_file_malformed() as file, self.assertRaises(SyntaxError):
+            os.environ['ZAP_HOOKS'] = file.name
+            zap_common.load_custom_hooks()
+        self.assertIsNone(zap_common.zap_hooks)
 
     def test_load_config_triggers_hook(self):
         """Hook is triggered when load_config is called."""

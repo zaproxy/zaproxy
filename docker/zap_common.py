@@ -30,8 +30,9 @@ import sys
 import time
 import traceback
 import errno
-import imp
 import zapv2
+from types import ModuleType
+from importlib.machinery import SourceFileLoader
 from random import randint
 from six.moves.urllib.request import urlopen
 from six import binary_type
@@ -66,7 +67,10 @@ def load_custom_hooks(hooks_file=None):
         logging.debug('Could not find custom hooks file at %s ' % hooks_file)
         return
 
-    zap_hooks = imp.load_source("zap_hooks", hooks_file)
+    loader = SourceFileLoader("zap_hooks", hooks_file)
+    hooks_module = ModuleType(loader.name)
+    loader.exec_module(hooks_module)
+    zap_hooks = hooks_module
 
 
 def hook(hook_name=None, **kwargs):
