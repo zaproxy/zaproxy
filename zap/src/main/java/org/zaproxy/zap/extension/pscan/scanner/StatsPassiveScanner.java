@@ -19,8 +19,12 @@
  */
 package org.zaproxy.zap.extension.pscan.scanner;
 
+import java.util.Arrays;
+import java.util.Locale;
+import java.util.stream.Collectors;
 import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.StringUtils;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
@@ -54,7 +58,8 @@ public class StatsPassiveScanner extends PluginPassiveScanner {
             Stats.incCounter(site, CODE_STATS_PREFIX + msg.getResponseHeader().getStatusCode());
             String contentType = msg.getResponseHeader().getHeader(HttpHeader.CONTENT_TYPE);
             if (contentType != null) {
-                Stats.incCounter(site, CONTENT_TYPE_STATS_PREFIX + contentType);
+                Stats.incCounter(
+                        site, CONTENT_TYPE_STATS_PREFIX + getContentTypePostfix(contentType));
             }
             // Multiply by 2 so we inc the 'next highest' stat
             Stats.incCounter(
@@ -64,6 +69,18 @@ public class StatsPassiveScanner extends PluginPassiveScanner {
         } catch (URIException e) {
             // Ignore
         }
+    }
+
+    private static String getContentTypePostfix(String contentTypeValue) {
+        String[] ctvArray = contentTypeValue.split(";");
+        if (ctvArray.length == 1) {
+            return ctvArray[0].trim();
+        }
+        return Arrays.stream(ctvArray)
+                .filter(StringUtils::isNotBlank)
+                .filter(segment -> !segment.toLowerCase(Locale.ROOT).contains("boundary"))
+                .map(String::trim)
+                .collect(Collectors.joining("; "));
     }
 
     @Override
