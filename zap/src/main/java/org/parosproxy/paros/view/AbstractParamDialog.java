@@ -36,6 +36,7 @@
 // ZAP: 2019/03/19 Log the exception when validating/saving the AbstractParamPanels.
 // ZAP: 2019/04/04 Log NullPointerException as error when validating/saving the AbstractParamPanels.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/08/25 Move NullPointerException log to AbstractParamContainerPanel.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -217,25 +218,20 @@ public class AbstractParamDialog extends AbstractDialog {
 
                                 AbstractParamDialog.this.setVisible(false);
 
-                            } catch (NullPointerException ex) {
-                                LOGGER.error("Failed to validate or save the panels: ", ex);
-                                showSaveErrorDialog(ex.getMessage());
                             } catch (Exception ex) {
                                 if (LOGGER.isDebugEnabled()) {
                                     LOGGER.debug("Failed to validate or save the panels: ", ex);
                                 }
-                                showSaveErrorDialog(ex.getMessage());
+                                View.getSingleton()
+                                        .showWarningDialog(
+                                                Constant.messages.getString(
+                                                        "options.dialog.save.error",
+                                                        ex.getMessage()));
                             }
                         }
                     });
         }
         return btnOK;
-    }
-
-    private static void showSaveErrorDialog(String message) {
-        View.getSingleton()
-                .showWarningDialog(
-                        Constant.messages.getString("options.dialog.save.error", message));
     }
 
     /**
