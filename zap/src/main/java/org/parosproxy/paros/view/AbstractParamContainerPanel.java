@@ -32,6 +32,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/03/24 Remove hardcoded white background on Headline field (part of Issue 5542).
+// ZAP: 2020/08/25 Catch NullPointerException when validating/saving the panel.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -64,6 +65,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -631,11 +634,27 @@ public class AbstractParamContainerPanel extends JSplitPane {
             panel = en.nextElement();
             try {
                 panel.validateParam(paramObject);
+            } catch (NullPointerException e) {
+                log.error("Failed to validate the panel: ", e);
+                showInternalError(e);
             } catch (Exception e) {
                 showParamPanel(panel, panel.getName());
                 throw e;
             }
         }
+    }
+
+    private static void showInternalError(Exception e) {
+        ErrorInfo errorInfo =
+                new ErrorInfo(
+                        Constant.messages.getString("generic.error.internal.title"),
+                        Constant.messages.getString("generic.error.internal.msg"),
+                        null,
+                        null,
+                        e,
+                        null,
+                        null);
+        JXErrorPane.showDialog(null, errorInfo);
     }
 
     /**
@@ -653,7 +672,12 @@ public class AbstractParamContainerPanel extends JSplitPane {
         AbstractParamPanel panel = null;
         while (en.hasMoreElements()) {
             panel = en.nextElement();
-            panel.saveParam(paramObject);
+            try {
+                panel.saveParam(paramObject);
+            } catch (NullPointerException e) {
+                log.error("Failed to save the panel: ", e);
+                showInternalError(e);
+            }
         }
     }
 
