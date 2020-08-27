@@ -394,7 +394,7 @@ def zap_ajax_spider(zap, target, max_time):
     time.sleep(5)
 
     while (zap.ajaxSpider.status == 'running'):
-        logging.debug('Ajax Spider running, found urls: ' + zap.ajaxSpider.number_of_results)
+        logging.debug('Ajax Spider running, found urls: %s', zap.ajaxSpider.number_of_results)
         time.sleep(5)
     logging.debug('Ajax Spider complete')
 
@@ -517,7 +517,9 @@ def write_report(file_path, report):
 @hook(wrap=True)
 def zap_import_context(zap, context_file):
     res = context_id = zap.context.import_context(context_file)
-    if res.startswith("ZAP Error"):
+    try:
+        int(res)
+    except ValueError:
         context_id = None
         logging.error('Failed to load context file ' + context_file + ' : ' + res)
     return context_id
