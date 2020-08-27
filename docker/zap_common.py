@@ -54,6 +54,8 @@ OLD_ZAP_CLIENT_WARNING = '''A newer version of python_owasp_zap_v2.4
 
 zap_conf_lvls = ["PASS", "IGNORE", "INFO", "WARN", "FAIL"]
 zap_hooks = None
+context_id = None
+context_name = None
 
 def load_custom_hooks(hooks_file=None):
     """ Loads a custom python module which modifies zap scripts behaviour
@@ -376,7 +378,7 @@ def zap_access_target(zap, target):
 @hook(wrap=True)
 def zap_spider(zap, target):
     logging.debug('Spider ' + target)
-    spider_scan_id = zap.spider.scan(target)
+    spider_scan_id = zap.spider.scan(target, contextname=context_name)
     time.sleep(5)
 
     while (int(zap.spider.status(spider_scan_id)) < 100):
@@ -390,7 +392,7 @@ def zap_ajax_spider(zap, target, max_time):
     logging.debug('AjaxSpider ' + target)
     if max_time:
         zap.ajaxSpider.set_option_max_duration(str(max_time))
-    zap.ajaxSpider.scan(target)
+    zap.ajaxSpider.scan(target, contextname=context_name)
     time.sleep(5)
 
     while (zap.ajaxSpider.status == 'running'):
@@ -402,7 +404,7 @@ def zap_ajax_spider(zap, target, max_time):
 @hook(wrap=True)
 def zap_active_scan(zap, target, policy):
     logging.debug('Active Scan ' + target + ' with policy ' + policy)
-    ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy)
+    ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy, contextid=context_id)
     try:
         int(ascan_scan_id)
     except ValueError:
@@ -516,9 +518,12 @@ def write_report(file_path, report):
 
 @hook(wrap=True)
 def zap_import_context(zap, context_file):
+    global context_id
+    global context_name
     res = context_id = zap.context.import_context(context_file)
     try:
         int(res)
+        context_name = zap.context.context_list[-1]
     except ValueError:
         context_id = None
         logging.error('Failed to load context file ' + context_file + ' : ' + res)

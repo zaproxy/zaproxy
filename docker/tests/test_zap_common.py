@@ -7,6 +7,10 @@ import zapv2
 
 class TestZapCommon(unittest.TestCase):
 
+    def setUp(self):
+        zap_common.context_id = None
+        zap_common.context_name = None
+
     def test_load_config(self):
         pass
 
@@ -30,7 +34,7 @@ class TestZapCommon(unittest.TestCase):
         with patch("time.sleep"):
             zap_common.zap_spider(zap, target)
 
-        zap.spider.scan.assert_called_once_with(target)
+        zap.spider.scan.assert_called_once_with(target, contextname=None)
         zap.spider.status.assert_called_with(scan_id)
         self.assertEqual(3, zap.spider.status.call_count)
 
@@ -48,7 +52,7 @@ class TestZapCommon(unittest.TestCase):
         with patch("time.sleep"):
             zap_common.zap_ajax_spider(zap, target, max_time)
 
-        zap.ajaxSpider.scan.assert_called_once_with(target)
+        zap.ajaxSpider.scan.assert_called_once_with(target, contextname=None)
         status.assert_called_with()
         self.assertEqual(3, status.call_count)
         number_of_results.assert_called_with()
@@ -79,7 +83,7 @@ class TestZapCommon(unittest.TestCase):
         with patch("time.sleep"):
             zap_common.zap_active_scan(zap, target, scan_policy_name)
 
-        zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name)
+        zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name, contextid=None)
         zap.ascan.status.assert_called_with(scan_id)
         self.assertEqual(3, zap.ascan.status.call_count)
 
@@ -93,7 +97,7 @@ class TestZapCommon(unittest.TestCase):
         with self.assertRaises(zap_common.ScanNotStartedException):
             zap_common.zap_active_scan(zap, target, scan_policy_name)
 
-        zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name)
+        zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name, contextid=None)
         zap.ascan.status.assert_not_called()
 
     def test_zap_wait_for_passive_scan(self):
@@ -128,11 +132,15 @@ class TestZapCommon(unittest.TestCase):
         zap = Mock()
         zap.context.import_context.return_value = context_id
         context_file = "MyContext.context"
+        context_name = "My Context"
+        type(zap.context).context_list = PropertyMock(return_value=["Default Context", context_name])
 
         imported_context_id = zap_common.zap_import_context(zap, context_file)
 
         zap.context.import_context.assert_called_once_with(context_file)
         self.assertEqual(context_id, imported_context_id)
+        self.assertEqual(context_id, zap_common.context_id)
+        self.assertEqual(context_name, zap_common.context_name)
 
     def test_zap_import_context_returns_none_if_not_imported(self):
         """Context not imported returns none."""
@@ -145,54 +153,54 @@ class TestZapCommon(unittest.TestCase):
 
         zap.context.import_context.assert_called_once_with(context_file)
         self.assertIsNone(imported_context_id)
+        self.assertIsNone(zap_common.context_id)
+        self.assertIsNone(zap_common.context_name)
 
-    def test_zap_spider_does_not_use_imported_context(self):
-        """Spider does not use imported context."""
+    def test_zap_spider_uses_imported_context(self):
+        """Spider uses imported context."""
+        context_name = "My Context"
+        zap_common.context_name = context_name
+
         zap = Mock()
-        zap.context.import_context.return_value = "1"
-        context_file = "MyContext.context"
-
         scan_id = 1
         zap.spider.scan.return_value = scan_id
         zap.spider.status.side_effect = ["100"]
         target = "http://target.example.com"
 
-        zap_common.zap_import_context(zap, context_file)
         with patch("time.sleep"):
             zap_common.zap_spider(zap, target)
 
-        zap.spider.scan.assert_called_once_with(target)
+        zap.spider.scan.assert_called_once_with(target, contextname=context_name)
 
-    def test_zap_ajax_spider_does_not_use_imported_context(self):
-        """AJAX Spider does not use imported context."""
+    def test_zap_ajax_spider_uses_imported_context(self):
+        """AJAX Spider uses imported context."""
+        context_name = "My Context"
+        zap_common.context_name = context_name
+
         zap = Mock()
-        zap.context.import_context.return_value = "1"
-        context_file = "MyContext.context"
-
         zap.ajaxSpider.scan.return_value = "OK"
         type(zap.ajaxSpider).status = PropertyMock(side_effect=Mock(side_effect=["stopped"]))
         target = "http://target.example.com"
         max_time = None
 
-        zap_common.zap_import_context(zap, context_file)
         with patch("time.sleep"):
             zap_common.zap_ajax_spider(zap, target, max_time)
 
-        zap.ajaxSpider.scan.assert_called_once_with(target)
+        zap.ajaxSpider.scan.assert_called_once_with(target, contextname=context_name)
 
-    def test_zap_active_scan_does_not_use_imported_context(self):
-        """Active Scan does not use imported context."""
+    def test_zap_active_scan_uses_imported_context(self):
+        """Active Scan uses imported context."""
+        context_id = "1"
+        zap_common.context_id = context_id
+
         zap = Mock()
-        zap.context.import_context.return_value = "1"
-        context_file = "MyContext.context"
-
         zap.ascan.scan.return_value = 1
         zap.ascan.status.side_effect = ["100"]
         target = "http://target.example.com"
         scan_policy_name = "MyScanPolicy.policy"
 
-        zap_common.zap_import_context(zap, context_file)
         with patch("time.sleep"):
             zap_common.zap_active_scan(zap, target, scan_policy_name)
 
-        zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name)
+        zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name,
+                                               contextid=context_id)
