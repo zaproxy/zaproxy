@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.extension.pscan;
+package org.zaproxy.zap.extension.pscan.scanner;
 
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -34,7 +34,7 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.ZAP;
-import org.zaproxy.zap.extension.pscan.scanner.StatsPassiveScanner;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.StatsListener;
 
