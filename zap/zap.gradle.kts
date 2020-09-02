@@ -86,7 +86,7 @@ dependencies {
         exclude(group = "org.junit")
     }
     testImplementation("org.hamcrest:hamcrest-all:1.3")
-    val jupiterVersion = "5.5.2"
+    val jupiterVersion = "5.6.2"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
