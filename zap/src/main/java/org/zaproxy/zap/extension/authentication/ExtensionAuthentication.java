@@ -37,6 +37,8 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
+import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
+import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType;
 import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
@@ -243,31 +245,74 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     @Override
     public void loadContextData(Session session, Context context) {
         try {
-            List<String> typeL =
-                    session.getContextDataStrings(
-                            context.getId(), RecordContext.TYPE_AUTH_METHOD_TYPE);
-            if (typeL != null && typeL.size() > 0) {
+            String type =
+                    session.getContextDataString(
+                            context.getId(), RecordContext.TYPE_AUTH_METHOD_TYPE, null);
+            if (type != null) {
                 AuthenticationMethodType t =
-                        getAuthenticationMethodTypeForIdentifier(Integer.parseInt(typeL.get(0)));
+                        getAuthenticationMethodTypeForIdentifier(Integer.parseInt(type));
                 if (t != null) {
                     context.setAuthenticationMethod(
                             t.loadMethodFromSession(session, context.getId()));
 
-                    List<String> loginIndicatorL =
-                            session.getContextDataStrings(
-                                    context.getId(),
-                                    RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR);
-                    if (loginIndicatorL != null && loginIndicatorL.size() > 0)
-                        context.getAuthenticationMethod()
-                                .setLoggedInIndicatorPattern(loginIndicatorL.get(0));
+                    String strategy =
+                            session.getContextDataString(
+                                    context.getId(), RecordContext.TYPE_AUTH_VERIF_STRATEGY, null);
+                    if (strategy != null) {
+                        try {
+                            context.getAuthenticationMethod()
+                                    .setAuthCheckingStrategy(
+                                            AuthCheckingStrategy.valueOf(strategy));
+                        } catch (Exception e) {
+                            log.error("Failed to parse auth checking strategy " + strategy, e);
+                        }
+                    }
 
-                    List<String> logoutIndicatorL =
-                            session.getContextDataStrings(
-                                    context.getId(),
-                                    RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR);
-                    if (logoutIndicatorL != null && logoutIndicatorL.size() > 0)
-                        context.getAuthenticationMethod()
-                                .setLoggedOutIndicatorPattern(logoutIndicatorL.get(0));
+                    context.getAuthenticationMethod()
+                            .setPollUrl(
+                                    session.getContextDataString(
+                                            context.getId(),
+                                            RecordContext.TYPE_AUTH_POLL_URL,
+                                            null));
+
+                    context.getAuthenticationMethod()
+                            .setPollData(
+                                    session.getContextDataString(
+                                            context.getId(),
+                                            RecordContext.TYPE_AUTH_POLL_DATA,
+                                            null));
+
+                    context.getAuthenticationMethod()
+                            .setPollFrequency(
+                                    session.getContextDataInteger(
+                                            context.getId(), RecordContext.TYPE_AUTH_POLL_FREQ, 0));
+
+                    String freqUnits =
+                            session.getContextDataString(
+                                    context.getId(), RecordContext.TYPE_AUTH_POLL_FREQ_UNITS, null);
+                    if (freqUnits != null) {
+                        try {
+                            context.getAuthenticationMethod()
+                                    .setPollFrequencyUnits(
+                                            AuthPollFrequencyUnits.valueOf(freqUnits));
+                        } catch (Exception e) {
+                            log.error("Failed to parse auth frequency units " + freqUnits, e);
+                        }
+                    }
+
+                    context.getAuthenticationMethod()
+                            .setLoggedInIndicatorPattern(
+                                    session.getContextDataString(
+                                            context.getId(),
+                                            RecordContext.TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR,
+                                            null));
+
+                    context.getAuthenticationMethod()
+                            .setLoggedOutIndicatorPattern(
+                                    session.getContextDataString(
+                                            context.getId(),
+                                            RecordContext.TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR,
+                                            null));
                 }
             }
 
@@ -285,6 +330,45 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                     contextIdx,
                     RecordContext.TYPE_AUTH_METHOD_TYPE,
                     Integer.toString(t.getUniqueIdentifier()));
+
+            if (context.getAuthenticationMethod().getAuthCheckingStrategy() != null) {
+                session.setContextData(
+                        contextIdx,
+                        RecordContext.TYPE_AUTH_VERIF_STRATEGY,
+                        context.getAuthenticationMethod().getAuthCheckingStrategy().name());
+            } else {
+                session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_VERIF_STRATEGY);
+            }
+
+            if (context.getAuthenticationMethod().getPollUrl() != null) {
+                session.setContextData(
+                        contextIdx,
+                        RecordContext.TYPE_AUTH_POLL_URL,
+                        context.getAuthenticationMethod().getPollUrl());
+            } else {
+                session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_POLL_URL);
+            }
+            if (context.getAuthenticationMethod().getPollData() != null) {
+                session.setContextData(
+                        contextIdx,
+                        RecordContext.TYPE_AUTH_POLL_DATA,
+                        context.getAuthenticationMethod().getPollData());
+            } else {
+                session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_POLL_DATA);
+            }
+            session.setContextData(
+                    contextIdx,
+                    RecordContext.TYPE_AUTH_POLL_FREQ,
+                    Integer.toString(context.getAuthenticationMethod().getPollFrequency()));
+
+            if (context.getAuthenticationMethod().getPollFrequencyUnits() != null) {
+                session.setContextData(
+                        contextIdx,
+                        RecordContext.TYPE_AUTH_POLL_FREQ_UNITS,
+                        context.getAuthenticationMethod().getPollFrequencyUnits().name());
+            } else {
+                session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_VERIF_STRATEGY);
+            }
 
             persistLoggedIndicator(
                     session,
@@ -329,6 +413,25 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         config.setProperty(
                 AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE,
                 ctx.getAuthenticationMethod().getType().getUniqueIdentifier());
+        if (ctx.getAuthenticationMethod().getAuthCheckingStrategy() != null) {
+            config.setProperty(
+                    AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY,
+                    ctx.getAuthenticationMethod().getAuthCheckingStrategy().name());
+        }
+        config.setProperty(
+                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL,
+                ctx.getAuthenticationMethod().getPollUrl());
+        config.setProperty(
+                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA,
+                ctx.getAuthenticationMethod().getPollData());
+        config.setProperty(
+                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_FREQ,
+                ctx.getAuthenticationMethod().getPollFrequency());
+        if (ctx.getAuthenticationMethod().getPollFrequencyUnits() != null) {
+            config.setProperty(
+                    AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS,
+                    ctx.getAuthenticationMethod().getPollFrequencyUnits().name());
+        }
         if (ctx.getAuthenticationMethod().getLoggedInIndicatorPattern() != null) {
             config.setProperty(
                     AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN,
@@ -348,7 +451,45 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                 getAuthenticationMethodTypeForIdentifier(
                                 config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE))
                         .createAuthenticationMethod(ctx.getId()));
-        String str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, "");
+        String str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY, "");
+        if (str.length() > 0) {
+            try {
+                ctx.getAuthenticationMethod()
+                        .setAuthCheckingStrategy(AuthCheckingStrategy.valueOf(str));
+            } catch (Exception e) {
+                log.error(
+                        "Failed to parse auth checking strategy "
+                                + str
+                                + " for context "
+                                + ctx.getName(),
+                        e);
+            }
+        }
+        ctx.getAuthenticationMethod()
+                .setPollUrl(
+                        config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL, ""));
+        ctx.getAuthenticationMethod()
+                .setPollData(
+                        config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA, ""));
+        ctx.getAuthenticationMethod()
+                .setPollFrequency(
+                        config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_FREQ, 0));
+        str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS, "");
+        if (str.length() > 0) {
+            try {
+                ctx.getAuthenticationMethod()
+                        .setPollFrequencyUnits(AuthPollFrequencyUnits.valueOf(str));
+            } catch (Exception e) {
+                log.error(
+                        "Failed to parse auth poll freq units strategy "
+                                + str
+                                + " for context "
+                                + ctx.getName(),
+                        e);
+            }
+        }
+
+        str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, "");
         if (str.length() > 0) {
             ctx.getAuthenticationMethod().setLoggedInIndicatorPattern(str);
         }

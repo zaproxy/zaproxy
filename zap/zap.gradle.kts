@@ -92,6 +92,7 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
     testImplementation("org.mockito:mockito-junit-jupiter:3.1.0")
     testImplementation("org.slf4j:slf4j-log4j12:1.7.28")
+    testImplementation("org.nanohttpd:nanohttpd-webserver:2.3.1")
 
     testRuntimeOnly(files(distDir))
 }

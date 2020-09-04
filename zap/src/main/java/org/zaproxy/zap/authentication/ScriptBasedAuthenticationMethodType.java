@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.script.ScriptException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -103,6 +104,14 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             Constant.messages.getString("authentication.method.script.name");
 
     private ExtensionScript extensionScript;
+
+    private ScriptBasedAuthenticationMethod method;
+
+    public ScriptBasedAuthenticationMethodType() {}
+
+    public ScriptBasedAuthenticationMethodType(ScriptBasedAuthenticationMethod method) {
+        this.method = method;
+    }
 
     public class ScriptBasedAuthenticationMethod extends AuthenticationMethod {
 
@@ -242,7 +251,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
         @Override
         public AuthenticationMethodType getType() {
-            return new ScriptBasedAuthenticationMethodType();
+            return new ScriptBasedAuthenticationMethodType(this);
         }
 
         @Override
@@ -312,7 +321,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 return null;
             }
 
-            if (this.isAuthenticated(msg)) {
+            if (this.isAuthenticated(msg, user, true)) {
                 // Let the user know it worked
                 AuthenticationHelper.notifyOutputAuthSuccessful(msg);
             } else {
@@ -797,6 +806,26 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             }
         }
         return null;
+    }
+
+    @Override
+    public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+        if (this.method != null) {
+            AuthenticationHelper.replaceUserDataInRequest(
+                    msg, wrapKeys(this.method.paramValues), NULL_ENCODER);
+        }
+    }
+
+    private static Map<String, String> wrapKeys(Map<String, String> kvPairs) {
+        Map<String, String> map = new HashMap<String, String>();
+        for (Entry<String, String> kv : kvPairs.entrySet()) {
+            map.put(
+                    AuthenticationMethod.TOKEN_PREFIX
+                            + kv.getKey()
+                            + AuthenticationMethod.TOKEN_POSTFIX,
+                    kv.getValue());
+        }
+        return map;
     }
 
     /** The Interface that needs to be implemented by an Authentication Script. */

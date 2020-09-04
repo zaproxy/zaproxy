@@ -81,6 +81,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
 // ZAP: 2020/07/31 Tidy up parameter methods
+// ZAP: 2020/09/04 Added getContextDataString and getContextDataInteger
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -1172,6 +1173,52 @@ public class Session {
             list.add(data.getData());
         }
         return list;
+    }
+
+    /**
+     * Returns a context data string of the given type and using the given default value if the
+     * value is not present
+     *
+     * @param contextId the context Id
+     * @param type the data type required
+     * @param defaultValue the default value to use if the type is not present
+     * @return the context data string
+     * @throws DatabaseException
+     * @since TODO add version
+     */
+    public String getContextDataString(int contextId, int type, String defaultValue)
+            throws DatabaseException {
+        List<RecordContext> dataList =
+                model.getDb().getTableContext().getDataForContextAndType(contextId, type);
+        if (dataList.size() > 0) {
+            return dataList.get(0).getData();
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Returns a context data integer of the given type and using the given default value if the
+     * value is not present
+     *
+     * @param contextId the context Id
+     * @param type the data type required
+     * @param defaultValue the default value to use if the type is not present
+     * @return the context data integer
+     * @throws DatabaseException
+     * @since TODO add version
+     */
+    public int getContextDataInteger(int contextId, int type, int defaultValue)
+            throws DatabaseException {
+        List<RecordContext> dataList =
+                model.getDb().getTableContext().getDataForContextAndType(contextId, type);
+        if (dataList.size() > 0) {
+            try {
+                return Integer.parseInt(dataList.get(0).getData());
+            } catch (NumberFormatException e) {
+                log.error("Failed to parse context value type " + type, e);
+            }
+        }
+        return defaultValue;
     }
 
     public void setContextData(int contextId, int type, String data) throws DatabaseException {

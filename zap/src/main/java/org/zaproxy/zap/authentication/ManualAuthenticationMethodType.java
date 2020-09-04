@@ -40,6 +40,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
@@ -489,6 +490,11 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
     @Override
     public void importData(Configuration config, AuthenticationMethod authMethod)
             throws ConfigurationException {
+        // Nothing to do
+    }
+
+    @Override
+    public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
         // Nothing to do
     }
 }

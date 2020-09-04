@@ -28,9 +28,11 @@ import org.apache.commons.text.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.DefaultNameValuePair;
 import org.zaproxy.zap.model.NameValuePair;
+import org.zaproxy.zap.users.User;
 
 /**
  * An {@link AuthenticationMethodType} where the Users are authenticated by posting a JSON object
@@ -56,6 +58,11 @@ public class JsonBasedAuthenticationMethodType extends PostBasedAuthenticationMe
                 API_METHOD_NAME,
                 "authentication.method.jb.popup.login.request",
                 true);
+    }
+
+    @Override
+    public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+        super.replaceUserCredentialsDataInPollRequest(msg, user, NULL_ENCODER);
     }
 
     /**

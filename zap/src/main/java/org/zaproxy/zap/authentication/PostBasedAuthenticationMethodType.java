@@ -159,8 +159,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
         private static final String LOGIN_ICON_RESOURCE =
                 "/resource/icon/fugue/door-open-green-arrow.png";
-        public static final String MSG_USER_PATTERN = "{%username%}";
-        public static final String MSG_PASS_PATTERN = "{%password%}";
+        public static final String MSG_USER_PATTERN = TOKEN_PREFIX + "username" + TOKEN_POSTFIX;
+        public static final String MSG_PASS_PATTERN = TOKEN_PREFIX + "password" + TOKEN_POSTFIX;
 
         private final String contentType;
         private final UnaryOperator<String> paramEncoder;
@@ -259,12 +259,13 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             // Replace the username and password in the post data of the request, if needed
             String requestBody = null;
             if (loginRequestBody != null && !loginRequestBody.isEmpty()) {
+                Map<String, String> kvMap = new HashMap<>();
+                kvMap.put(
+                        PostBasedAuthenticationMethod.MSG_USER_PATTERN, credentials.getUsername());
+                kvMap.put(
+                        PostBasedAuthenticationMethod.MSG_PASS_PATTERN, credentials.getPassword());
                 requestBody =
-                        replaceUserData(
-                                loginRequestBody,
-                                credentials.getUsername(),
-                                credentials.getPassword(),
-                                paramEncoder);
+                        AuthenticationHelper.replaceUserData(loginRequestBody, kvMap, paramEncoder);
             }
 
             // Prepare the actual message, either based on the existing one, or create a new one
@@ -357,7 +358,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 LOGGER.error("Unable to send authentication message: " + e.getMessage());
                 return null;
             }
-            if (this.isAuthenticated(msg)) {
+            if (this.isAuthenticated(msg, user, true)) {
                 // Let the user know it worked
                 AuthenticationHelper.notifyOutputAuthSuccessful(msg);
             } else {
@@ -631,23 +632,16 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
     private static URI createLoginUrl(String loginData, String username, String password)
             throws URIException {
+        Map<String, String> kvMap = new HashMap<>();
+        kvMap.put(PostBasedAuthenticationMethod.MSG_USER_PATTERN, username);
+        kvMap.put(PostBasedAuthenticationMethod.MSG_PASS_PATTERN, password);
         return new URI(
-                replaceUserData(
-                        loginData,
-                        username,
-                        password,
-                        PostBasedAuthenticationMethodType::encodeParameter),
+                AuthenticationHelper.replaceUserData(
+                        loginData, kvMap, PostBasedAuthenticationMethodType::encodeParameter),
                 true);
     }
 
-    private static String replaceUserData(
-            String loginData, String username, String password, UnaryOperator<String> encoder) {
-        return loginData
-                .replace(PostBasedAuthenticationMethod.MSG_USER_PATTERN, encoder.apply(username))
-                .replace(PostBasedAuthenticationMethod.MSG_PASS_PATTERN, encoder.apply(password));
-    }
-
-    private static String encodeParameter(String parameter) {
+    protected static String encodeParameter(String parameter) {
         try {
             return URLEncoder.encode(parameter, "UTF-8");
         } catch (UnsupportedEncodingException ignore) {
@@ -1413,6 +1407,19 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             method.setLoginPageUrl(config.getString(CONTEXT_CONFIG_AUTH_FORM_LOGINPAGEURL));
         } catch (Exception e) {
             throw new ConfigurationException(e);
+        }
+    }
+
+    public void replaceUserCredentialsDataInPollRequest(
+            HttpMessage msg, User user, UnaryOperator<String> bodyEncoder) {
+        AuthenticationCredentials creds = user.getAuthenticationCredentials();
+        if (user != null && creds instanceof UsernamePasswordAuthenticationCredentials) {
+            Map<String, String> kvMap = new HashMap<>();
+            // Only replace the username - requests really shouldnt be using the password
+            kvMap.put(
+                    PostBasedAuthenticationMethod.MSG_USER_PATTERN,
+                    ((UsernamePasswordAuthenticationCredentials) creds).getUsername());
+            AuthenticationHelper.replaceUserDataInRequest(msg, kvMap, bodyEncoder);
         }
     }
 }
