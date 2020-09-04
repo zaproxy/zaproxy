@@ -30,7 +30,8 @@ public class RequestBodyByteHttpPanelViewModel extends AbstractHttpByteHttpPanel
             return new byte[0];
         }
 
-        return httpMessage.getRequestBody().getBytes();
+        return HttpPanelViewModelUtils.getBodyBytes(
+                httpMessage.getRequestHeader(), httpMessage.getRequestBody());
     }
 
     @Override
@@ -39,7 +40,7 @@ public class RequestBodyByteHttpPanelViewModel extends AbstractHttpByteHttpPanel
             return;
         }
 
-        httpMessage.getRequestBody().setBody(data);
-        HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
+        HttpPanelViewModelUtils.setBody(
+                httpMessage.getRequestHeader(), httpMessage.getRequestBody(), data);
     }
 }

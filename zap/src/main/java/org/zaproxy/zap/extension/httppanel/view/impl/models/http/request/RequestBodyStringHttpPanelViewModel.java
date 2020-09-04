@@ -30,7 +30,8 @@ public class RequestBodyStringHttpPanelViewModel extends AbstractHttpStringHttpP
             return "";
         }
 
-        return httpMessage.getRequestBody().toString();
+        return HttpPanelViewModelUtils.getBodyString(
+                httpMessage.getRequestHeader(), httpMessage.getRequestBody());
     }
 
     @Override
@@ -39,7 +40,7 @@ public class RequestBodyStringHttpPanelViewModel extends AbstractHttpStringHttpP
             return;
         }
 
-        httpMessage.getRequestBody().setBody(data);
-        HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
+        HttpPanelViewModelUtils.setBody(
+                httpMessage.getRequestHeader(), httpMessage.getRequestBody(), data);
     }
 }
