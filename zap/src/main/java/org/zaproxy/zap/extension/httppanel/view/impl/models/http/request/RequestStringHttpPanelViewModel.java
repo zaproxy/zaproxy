@@ -36,11 +36,16 @@ public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanel
         }
 
         return httpMessage.getRequestHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF)
-                + httpMessage.getRequestBody().toString();
+                + HttpPanelViewModelUtils.getBodyString(
+                        httpMessage.getRequestHeader(), httpMessage.getRequestBody());
     }
 
     @Override
     public void setData(String data) {
+        if (httpMessage == null) {
+            return;
+        }
+
         String[] parts = data.split(HttpHeader.LF + HttpHeader.LF);
         String header = parts[0].replaceAll("(?<!\r)\n", HttpHeader.CRLF);
         // Note that if the body has LF, those characters will not be replaced by CRLF.
@@ -51,11 +56,11 @@ public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanel
             logger.warn("Could not Save Header: " + header, e);
         }
 
+        String body = "";
         if (parts.length > 1) {
-            httpMessage.setRequestBody(data.substring(parts[0].length() + 2));
-        } else {
-            httpMessage.setRequestBody("");
+            body = data.substring(parts[0].length() + 2);
         }
-        HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
+        HttpPanelViewModelUtils.setBody(
+                httpMessage.getRequestHeader(), httpMessage.getRequestBody(), body);
     }
 }

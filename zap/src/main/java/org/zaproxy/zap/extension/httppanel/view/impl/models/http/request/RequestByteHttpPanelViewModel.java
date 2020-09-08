@@ -48,6 +48,10 @@ public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelView
 
     @Override
     public void setData(byte[] data) {
+        if (httpMessage == null) {
+            return;
+        }
+
         int pos = findHeaderLimit(data);
 
         if (pos == -1) {
