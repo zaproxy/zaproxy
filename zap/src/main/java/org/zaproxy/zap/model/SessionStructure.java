@@ -82,6 +82,36 @@ public class SessionStructure {
         }
     }
 
+    /**
+     * @param session
+     * @param msg
+     * @return The structural node for the given message
+     * @throws DatabaseException
+     * @throws URIException
+     * @since TODO add version
+     */
+    public static StructuralNode find(Session session, HttpMessage msg)
+            throws DatabaseException, URIException {
+        Model model = Model.getSingleton();
+        if (!Constant.isLowMemoryOptionSet()) {
+            SiteNode node = model.getSession().getSiteTree().findNode(msg);
+            if (node == null) {
+                return null;
+            }
+            return new StructuralSiteNode(node);
+        }
+
+        String nodeName = getNodeName(msg);
+        RecordStructure rs =
+                model.getDb()
+                        .getTableStructure()
+                        .find(session.getSessionId(), nodeName, msg.getRequestHeader().getMethod());
+        if (rs == null) {
+            return null;
+        }
+        return new StructuralTableNode(rs);
+    }
+
     public static StructuralNode find(long sessionId, URI uri, String method, String postData)
             throws DatabaseException, URIException {
         Model model = Model.getSingleton();

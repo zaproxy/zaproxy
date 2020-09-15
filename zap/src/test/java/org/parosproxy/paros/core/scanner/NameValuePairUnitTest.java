@@ -262,4 +262,51 @@ public class NameValuePairUnitTest {
             assertThat(nameValuePairs[i].toString(), is(equalTo(expectedStringRepresentations[i])));
         }
     }
+
+    @Test
+    public void shouldOrderByTypeFirst() {
+        // Given
+        NameValuePair p1 = new NameValuePair(1, NAME, VALUE, 1);
+        NameValuePair p2 = new NameValuePair(2, NAME, VALUE, 1);
+
+        // When / Then
+        assertThat(p1.compareTo(p2), is(equalTo(1)));
+        assertThat(p2.compareTo(p1), is(equalTo(-1)));
+    }
+
+    @Test
+    public void shouldOrderByTypeThenPosition() {
+        // Given
+        NameValuePair p1 = new NameValuePair(1, NAME, VALUE, 1);
+        NameValuePair p2 = new NameValuePair(1, NAME, VALUE, 2);
+        // When / Then
+        assertThat(p1.compareTo(p2), is(equalTo(1)));
+        assertThat(p2.compareTo(p1), is(equalTo(-1)));
+    }
+
+    @Test
+    public void shouldOrderByTypeThenPositionThenName() {
+        // Given
+        NameValuePair pA = new NameValuePair(1, "A", VALUE, 1);
+        NameValuePair pB = new NameValuePair(1, "B", VALUE, 1);
+        NameValuePair pNull = new NameValuePair(1, null, VALUE, 1);
+        // When / Then
+        assertThat(pA.compareTo(pB), is(equalTo(1)));
+        assertThat(pB.compareTo(pA), is(equalTo(-1)));
+        assertThat(pA.compareTo(pNull), is(equalTo(1)));
+        assertThat(pNull.compareTo(pA), is(equalTo(-1)));
+    }
+
+    @Test
+    public void shouldOrderByTypeThenPositionThenNameThenValue() {
+        // Given
+        NameValuePair pA = new NameValuePair(1, NAME, "A", 1);
+        NameValuePair pB = new NameValuePair(1, NAME, "B", 1);
+        NameValuePair pNull = new NameValuePair(1, NAME, null, 1);
+        // When / Then
+        assertThat(pA.compareTo(pB), is(equalTo(1)));
+        assertThat(pB.compareTo(pA), is(equalTo(-1)));
+        assertThat(pA.compareTo(pNull), is(equalTo(1)));
+        assertThat(pNull.compareTo(pA), is(equalTo(-1)));
+    }
 }
