@@ -105,6 +105,8 @@
 // ZAP: 2020/01/10 Correct the MailTo autoTagScanner regex pattern when upgrading from 2.8 or
 // earlier.
 // ZAP: 2020/04/22 Check ControlOverrides when determining the locale.
+// ZAP: 2020/09/17 Correct the Syntax Highlighting markoccurrences config key name when upgrading
+// from 2.9 or earlier.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -179,6 +181,7 @@ public final class Constant {
     static final long VERSION_TAG = 2009000;
 
     // Old version numbers - for upgrade
+    private static final long V_2_9_0_TAG = 2009000;
     private static final long V_2_8_0_TAG = 2008000;
     private static final long V_2_7_0_TAG = 2007000;
     private static final long V_2_5_0_TAG = 2005000;
@@ -688,6 +691,9 @@ public final class Constant {
                     if (ver <= V_2_8_0_TAG) {
                         upgradeFrom2_8_0(config);
                     }
+                    if (ver <= V_2_9_0_TAG) {
+                        upgradeFrom2_9_0(config);
+                    }
 
                     // Execute always to pick installer choices.
                     updateCfuFromDefaultConfig(config);
@@ -1111,6 +1117,21 @@ public final class Constant {
         config.setProperty(
                 ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
         updatePscanTagMailtoPattern(config);
+    }
+
+    static void upgradeFrom2_9_0(XMLConfiguration config) {
+        String oldKeyName = ".markocurrences"; // This is the typo we want to fix
+        String newKeyName = ".markoccurrences";
+        config.getKeys()
+                .forEachRemaining(
+                        key -> {
+                            if (key.endsWith(oldKeyName)) {
+                                config.setProperty(
+                                        key.replace(oldKeyName, newKeyName),
+                                        config.getProperty(key));
+                                config.clearProperty(key);
+                            }
+                        });
     }
 
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {

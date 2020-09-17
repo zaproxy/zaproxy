@@ -73,7 +73,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
     private static final String FADE_CURRENT_HIGHLIGHT_LINE = "fadehighlightline";
     private static final String SHOW_WHITESPACE_CHARACTERS = "whitespaces";
     private static final String SHOW_NEWLINE_CHARACTERS = "newlines";
-    private static final String MARK_OCCURRENCES = "markocurrences";
+    private static final String MARK_OCCURRENCES = "markoccurrences";
     private static final String ROUNDED_SELECTION_EDGES = "roundedselection";
     private static final String BRACKET_MATCHING = "bracketmatch";
     private static final String ANIMATED_BRACKET_MATCHING = "animatedbracketmatch";
