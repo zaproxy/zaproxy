@@ -29,6 +29,8 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.io.IOUtils;
@@ -170,5 +172,31 @@ public class ConstantUnitTest {
             return file.get().getFileName().toString();
         }
         return null;
+    }
+
+    @Test
+    public void shouldUpgradeFrom2_9_0() {
+        // Given
+        List<String> keyPrefixes = Arrays.asList("a.", "a.b.", "c.");
+        ZapXmlConfiguration configuration = new ZapXmlConfiguration();
+        for (String keyPrefix : keyPrefixes) {
+            configuration.setProperty(keyPrefix + "markocurrences", "true");
+        }
+        String unrelatedKey = "a.markocurrences.y";
+        configuration.setProperty(unrelatedKey, "abc");
+        // When
+        Constant.upgradeFrom2_9_0(configuration);
+        // Then
+        for (String keyPrefix : keyPrefixes) {
+            assertThat(
+                    keyPrefix,
+                    configuration.containsKey(keyPrefix + "markocurrences"),
+                    is(equalTo(false)));
+            assertThat(
+                    keyPrefix,
+                    configuration.getProperty(keyPrefix + "markoccurrences"),
+                    is(equalTo("true")));
+        }
+        assertThat(configuration.getProperty(unrelatedKey), is(equalTo("abc")));
     }
 }
