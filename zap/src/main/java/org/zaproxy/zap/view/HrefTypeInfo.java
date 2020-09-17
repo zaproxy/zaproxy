@@ -120,7 +120,8 @@ public class HrefTypeInfo implements Comparable<HrefTypeInfo> {
                 return ExtensionManualRequestEditor.getIcon();
             case HistoryReference.TYPE_AUTHENTICATION:
                 return new ImageIcon(
-                        HrefTypeInfo.class.getResource("/resource/icon/16/181.png")); // Padlock icon
+                        HrefTypeInfo.class.getResource(
+                                "/resource/icon/16/181.png")); // Padlock icon
             default:
                 return null;
         }

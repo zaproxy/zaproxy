@@ -64,16 +64,6 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldFailToCreateHtmlParameterWithNullValue() {
-        // Given
-        String value = null;
-        // When / Then
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, value));
-    }
-
-    @Test
     public void shouldFailToSetNullType() {
         // Given
         HtmlParameter parameter = new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, NON_NULL_VALUE);
@@ -90,11 +80,25 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldFailToSetNullValue() {
+    public void shouldSetNullValue() {
         // Given
         HtmlParameter parameter = new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, NON_NULL_VALUE);
-        // When / Then
-        assertThrows(IllegalArgumentException.class, () -> parameter.setValue(null));
+        // When
+        parameter.setValue(null);
+        // Then
+        assertThat(parameter.getName(), is(equalTo(NON_NULL_NAME)));
+        assertThat(parameter.getValue(), is(equalTo(null)));
+    }
+
+    @Test
+    public void shouldCreateHtmlParameterWithNullValue() {
+        // Given
+        String value = null;
+        // When
+        HtmlParameter parameter = new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, value);
+        // Then
+        assertThat(parameter.getName(), is(equalTo(NON_NULL_NAME)));
+        assertThat(parameter.getValue(), is(equalTo(value)));
     }
 
     @Test
@@ -168,5 +172,39 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
         assertThat(parameter.getName(), is(equalTo("name")));
         assertThat(parameter.getValue(), is(equalTo("value")));
         assertThat(parameter.getFlags(), containsInAnyOrder("attribute1", "attribute2=value2"));
+    }
+
+    @Test
+    public void shouldOrderByTypeFirst() {
+        // Given
+        HtmlParameter p1 =
+                new HtmlParameter(HtmlParameter.Type.cookie, NON_NULL_NAME, NON_NULL_VALUE);
+        HtmlParameter p2 = new HtmlParameter(HtmlParameter.Type.url, NON_NULL_NAME, NON_NULL_VALUE);
+        // When / Then
+        assertThat(p1.compareTo(p2), is(equalTo(-2)));
+        assertThat(p2.compareTo(p1), is(equalTo(2)));
+    }
+
+    @Test
+    public void shouldOrderByTypeThenName() {
+        // Given
+        HtmlParameter pA = new HtmlParameter(HtmlParameter.Type.url, "A", NON_NULL_VALUE);
+        HtmlParameter pB = new HtmlParameter(HtmlParameter.Type.url, "B", NON_NULL_VALUE);
+        // When / Then
+        assertThat(pA.compareTo(pB), is(equalTo(-1)));
+        assertThat(pB.compareTo(pA), is(equalTo(1)));
+    }
+
+    @Test
+    public void shouldOrderByTypeThenNameThenValue() {
+        // Given
+        HtmlParameter pA = new HtmlParameter(HtmlParameter.Type.url, NON_NULL_NAME, "A");
+        HtmlParameter pB = new HtmlParameter(HtmlParameter.Type.url, NON_NULL_NAME, "B");
+        HtmlParameter pNull = new HtmlParameter(HtmlParameter.Type.url, NON_NULL_NAME, null);
+        // When / Then
+        assertThat(pA.compareTo(pB), is(equalTo(-1)));
+        assertThat(pB.compareTo(pA), is(equalTo(1)));
+        assertThat(pA.compareTo(pNull), is(equalTo(1)));
+        assertThat(pNull.compareTo(pA), is(equalTo(-1)));
     }
 }

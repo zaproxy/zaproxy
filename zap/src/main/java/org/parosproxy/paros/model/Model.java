@@ -48,6 +48,7 @@
 // ZAP: 2018/08/15 Deprecated addSessionListener
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/09/15 Added the VariantFactory
 package org.parosproxy.paros.model;
 
 import java.io.File;
@@ -69,6 +70,7 @@ import org.parosproxy.paros.db.paros.ParosDatabase;
 import org.xml.sax.SAXException;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.db.sql.DbSQL;
+import org.zaproxy.zap.extension.ascan.VariantFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 
@@ -88,6 +90,7 @@ public class Model {
     // ZAP: Added logger
     private Logger logger = Logger.getLogger(Model.class);
     private List<ContextDataFactory> contextDataFactories = new ArrayList<>();
+    private VariantFactory variantFactory = new VariantFactory();
 
     private boolean postInitialisation;
 
@@ -589,5 +592,15 @@ public class Model {
      */
     public void postInit() {
         postInitialisation = true;
+    }
+
+    /**
+     * Returns the VariantFactory
+     *
+     * @return the VariantFactory
+     * @since TODO add version
+     */
+    public VariantFactory getVariantFactory() {
+        return this.variantFactory;
     }
 }

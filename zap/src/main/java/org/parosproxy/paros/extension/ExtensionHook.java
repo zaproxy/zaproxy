@@ -34,6 +34,7 @@
 // ZAP: 2017/11/23 Add an add method for OverrideMessageProxyListener.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/08/27 Added support for plugable variants
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.ScannerHook;
+import org.parosproxy.paros.core.scanner.Variant;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
@@ -149,6 +151,16 @@ public class ExtensionHook {
      * @see #getHttpSenderListeners()
      */
     private List<HttpSenderListener> httpSenderListeners;
+
+    /**
+     * The {@link Variant}s added to this extension hook.
+     *
+     * <p>Lazily initialised.
+     *
+     * @see #addVariant(Variant)
+     * @see #getVariants()
+     */
+    private List<Class<? extends Variant>> variants;
 
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
@@ -505,5 +517,41 @@ public class ExtensionHook {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(httpSenderListeners);
+    }
+
+    /**
+     * Adds the given {@code variant} to the extension hook, to be later added to the {@link
+     * org.parosproxy.paros.model.Model Model}.
+     *
+     * <p>By default, the {@code Variant}s added to this extension hook are removed from the {@code
+     * Model} when the extension is unloaded.
+     *
+     * @param variant the Variant that will be added to the {@code Model}
+     * @throws IllegalArgumentException if the given {@code variant} is {@code null}.
+     * @since TODO add version
+     */
+    public void addVariant(Class<? extends Variant> variant) {
+        if (variant == null) {
+            throw new IllegalArgumentException("Parameter variant must not be null.");
+        }
+
+        if (variants == null) {
+            variants = new ArrayList<>();
+        }
+        variants.add(variant);
+    }
+
+    /**
+     * Gets the {@link Variant}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code Variant}s, never {@code
+     *     null}.
+     * @since TODO add version
+     */
+    List<Class<? extends Variant>> getVariants() {
+        if (variants == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(variants);
     }
 }

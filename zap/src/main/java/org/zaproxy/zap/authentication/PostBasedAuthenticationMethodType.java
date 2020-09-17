@@ -1412,14 +1412,16 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
     public void replaceUserCredentialsDataInPollRequest(
             HttpMessage msg, User user, UnaryOperator<String> bodyEncoder) {
-        AuthenticationCredentials creds = user.getAuthenticationCredentials();
-        if (user != null && creds instanceof UsernamePasswordAuthenticationCredentials) {
-            Map<String, String> kvMap = new HashMap<>();
-            // Only replace the username - requests really shouldnt be using the password
-            kvMap.put(
-                    PostBasedAuthenticationMethod.MSG_USER_PATTERN,
-                    ((UsernamePasswordAuthenticationCredentials) creds).getUsername());
-            AuthenticationHelper.replaceUserDataInRequest(msg, kvMap, bodyEncoder);
+        if (user != null) {
+            AuthenticationCredentials creds = user.getAuthenticationCredentials();
+            if (creds instanceof UsernamePasswordAuthenticationCredentials) {
+                Map<String, String> kvMap = new HashMap<>();
+                // Only replace the username - requests really shouldnt be using the password
+                kvMap.put(
+                        PostBasedAuthenticationMethod.MSG_USER_PATTERN,
+                        ((UsernamePasswordAuthenticationCredentials) creds).getUsername());
+                AuthenticationHelper.replaceUserDataInRequest(msg, kvMap, bodyEncoder);
+            }
         }
     }
 }

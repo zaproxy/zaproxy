@@ -27,9 +27,10 @@
 // ZAP: 2018/02/19 Added type constants for application/json handling
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/09/01 Added compareTo method.
 package org.parosproxy.paros.core.scanner;
 
-public class NameValuePair {
+public class NameValuePair implements Comparable<NameValuePair> {
 
     // NOTE: After adding a new type update ScannerParamFilter.
     public static final int TYPE_URL_PATH = ScannerParam.TARGET_URLPATH;
@@ -185,5 +186,37 @@ public class NameValuePair {
         }
         strBuilder.append(']');
         return strBuilder.toString();
+    }
+
+    @Override
+    public int compareTo(NameValuePair nvp) {
+        if (nvp == null) {
+            return -1;
+        }
+        if (nvp.targetType != targetType) {
+            return nvp.targetType - targetType;
+        }
+        if (nvp.position != position) {
+            return nvp.position - position;
+        }
+        int cmp;
+        if (nvp.name != null && name != null) {
+            cmp = nvp.name.compareTo(name);
+            if (cmp != 0) {
+                return cmp;
+            }
+        } else if (nvp.name == null || name == null) {
+            // They can't both be null due to previous test
+            return nvp.name != null ? -1 : 1;
+        }
+        if (nvp.value != null && value != null) {
+            cmp = nvp.value.compareTo(value);
+            if (cmp != 0) {
+                return cmp;
+            }
+        } else if (nvp.value == null || value == null) {
+            return nvp.value != null ? -1 : 1;
+        }
+        return 0;
     }
 }
