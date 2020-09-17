@@ -38,6 +38,18 @@ class TestZapCommon(unittest.TestCase):
         zap.spider.status.assert_called_with(scan_id)
         self.assertEqual(3, zap.spider.status.call_count)
 
+    def test_zap_spider_raises_exception_if_not_started(self):
+        """Spider raises exception if not started."""
+        zap = Mock()
+        zap.spider.scan.return_value = "url_not_in_context"
+        target = "http://target.example.com"
+
+        with self.assertRaises(zap_common.ScanNotStartedException):
+            zap_common.zap_spider(zap, target)
+
+        zap.spider.scan.assert_called_once_with(target, contextname=None)
+        zap.spider.status.assert_not_called()
+
     def test_zap_ajax_spider(self):
         """AJAX Spider is started and waits until finished."""
         zap = Mock()
@@ -57,6 +69,21 @@ class TestZapCommon(unittest.TestCase):
         self.assertEqual(3, status.call_count)
         number_of_results.assert_called_with()
         self.assertEqual(2, number_of_results.call_count)
+
+    def test_zap_ajax_spider_raises_exception_if_not_started(self):
+        """AJAX Spider raises exception if not started."""
+        zap = Mock()
+        zap.ajaxSpider.scan.return_value = "url_not_in_context"
+        status = PropertyMock()
+        type(zap.ajaxSpider).status = status
+        target = "http://target.example.com"
+        max_time = None
+
+        with self.assertRaises(zap_common.ScanNotStartedException):
+            zap_common.zap_ajax_spider(zap, target, max_time)
+
+        zap.ajaxSpider.scan.assert_called_once_with(target, contextname=None)
+        status.assert_not_called()
 
     def test_zap_ajax_spider_with_max_time(self):
         """AJAX Spider is started with specified maximum time."""

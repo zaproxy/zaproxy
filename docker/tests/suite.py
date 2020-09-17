@@ -35,11 +35,11 @@ def run_tests(directory="./"):
     test_load = unittest.TestLoader()
     cases = [test_load.loadTestsFromTestCase(t) for t in test_list]
     test_suite = unittest.TestSuite(cases)
-    unittest.TextTestRunner(verbosity=9).run(test_suite)
+    return unittest.TextTestRunner(verbosity=9).run(test_suite)
 
 if __name__ == '__main__':
     tests_dir = os.path.dirname(os.path.realpath(__file__))
     # Include modules from parent directory
     sys.path.append("{}/..".format(tests_dir))
-    run_tests(tests_dir)
+    sys.exit(run_tests(tests_dir).wasSuccessful() is False)
     
