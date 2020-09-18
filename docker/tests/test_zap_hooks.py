@@ -204,7 +204,9 @@ class TestZapHooks(unittest.TestCase):
         hooks = Mock(zap_spider=Mock(return_value=[]))
         zap_common.zap_hooks = hooks
 
-        zap = Mock(spider=Mock(status=Mock(return_value="100")))
+        zap = Mock()
+        zap.spider.scan.return_value = "1"
+        zap.spider.status.side_effect = ["100"]
         target = "http://target.example.com"
 
         with patch("time.sleep"):
@@ -218,7 +220,8 @@ class TestZapHooks(unittest.TestCase):
         hooks = Mock(zap_ajax_spider=Mock(return_value=[]))
         zap_common.zap_hooks = hooks
 
-        zap = Mock(ascan=Mock(status=Mock(return_value="stopped")))
+        zap = Mock()
+        zap.ajaxSpider.scan.return_value = "OK"
         target = "http://target.example.com"
         max_time = 10
 

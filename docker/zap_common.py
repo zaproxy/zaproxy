@@ -375,10 +375,16 @@ def zap_access_target(zap, target):
         raise IOError(errno.EIO, 'ZAP failed to access: {0}'.format(target))
 
 
+def raise_scan_not_started():
+    raise ScanNotStartedException('Failed to start the scan, check the log/output for more details.')
+
+
 @hook(wrap=True)
 def zap_spider(zap, target):
     logging.debug('Spider ' + target)
     spider_scan_id = zap.spider.scan(target, contextname=context_name)
+    if not str(spider_scan_id).isdigit():
+        raise_scan_not_started()
     time.sleep(5)
 
     while (int(zap.spider.status(spider_scan_id)) < 100):
@@ -392,7 +398,9 @@ def zap_ajax_spider(zap, target, max_time):
     logging.debug('AjaxSpider ' + target)
     if max_time:
         zap.ajaxSpider.set_option_max_duration(str(max_time))
-    zap.ajaxSpider.scan(target, contextname=context_name)
+    result = zap.ajaxSpider.scan(target, contextname=context_name)
+    if result != "OK":
+        raise_scan_not_started()
     time.sleep(5)
 
     while (zap.ajaxSpider.status == 'running'):
@@ -405,10 +413,8 @@ def zap_ajax_spider(zap, target, max_time):
 def zap_active_scan(zap, target, policy):
     logging.debug('Active Scan ' + target + ' with policy ' + policy)
     ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy, contextid=context_id)
-    try:
-        int(ascan_scan_id)
-    except ValueError:
-        raise ScanNotStartedException('Failed to start the scan, check the log/output for more details.')
+    if not str(ascan_scan_id).isdigit():
+        raise_scan_not_started()
     time.sleep(5)
 
     while(int(zap.ascan.status(ascan_scan_id)) < 100):
