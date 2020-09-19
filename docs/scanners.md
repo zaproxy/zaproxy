@@ -182,6 +182,7 @@ Scanners:
 90001   Insecure JSF ViewState
 90002   Java Serialized Object
 90003   Subresource Integrity Attribute Missing
+90004   Cross-Origin Resource Policy
 90011   Charset Mismatch
 90017	XSLT Injection
 90018   SQL Injection SQLMap
