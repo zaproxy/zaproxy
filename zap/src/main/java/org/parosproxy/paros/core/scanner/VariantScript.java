@@ -21,7 +21,6 @@ package org.parosproxy.paros.core.scanner;
 
 import java.util.List;
 import javax.script.ScriptException;
-import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -41,7 +40,7 @@ public interface VariantScript {
         return null;
     }
 
-    default List<String> getTreePath(VariantCustom variant, HttpMessage msg) throws URIException {
+    default List<String> getTreePath(VariantCustom variant, HttpMessage msg) {
         return null;
     }
 }
