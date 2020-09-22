@@ -16,6 +16,7 @@
       ":addOns:formhandler",
       ":addOns:fuzz",
       ":addOns:gettingStarted",
+      ":addOns:graphql",
       ":addOns:importurls",
       ":addOns:invoke",
       ":addOns:onlineMenu",
