@@ -28,6 +28,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/09/01 Added compareTo method.
+// ZAP: 2020/09/22 Added type constant for GraphQL Inline Arguments handling.
 package org.parosproxy.paros.core.scanner;
 
 public class NameValuePair implements Comparable<NameValuePair> {
@@ -68,6 +69,12 @@ public class NameValuePair implements Comparable<NameValuePair> {
      * @since 2.8.0
      */
     public static final int TYPE_JSON = 37;
+    /**
+     * The inline arguments in a GraphQL query
+     *
+     * @since 2.10.0
+     */
+    public static final int TYPE_GRAPHQL_INLINE = 38;
 
     public static final int TYPE_UNDEFINED = -1;
 

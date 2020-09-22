@@ -67,6 +67,9 @@ public class ScannerParamFilter implements Cloneable {
         typeMap.put(
                 NameValuePair.TYPE_JSON, Constant.messages.getString("variant.param.type.json"));
         typeMap.put(
+                NameValuePair.TYPE_GRAPHQL_INLINE,
+                Constant.messages.getString("variant.param.type.graphql.inline"));
+        typeMap.put(
                 NameValuePair.TYPE_MULTIPART_DATA_PARAM,
                 Constant.messages.getString("variant.param.type.multipart.dataparam"));
         typeMap.put(
