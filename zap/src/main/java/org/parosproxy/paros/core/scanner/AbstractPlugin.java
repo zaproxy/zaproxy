@@ -580,17 +580,18 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Tells whether or not the file exists, based on previous analysis.
+     * Tells whether or not the file exists, based on {@code CustomPage} definition or previous
+     * analysis.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the file exists, {@code false} otherwise
      */
     protected boolean isFileExist(HttpMessage msg) {
-        return parent.getAnalyser().isFileExist(msg);
+        return isPage200(msg);
     }
 
     /**
-     * Tells whether or not the message matches the specific {@code CustomPageType}
+     * Tells whether or not the message matches the specific {@code CustomPage.Type}.
      *
      * @param msg the message that will be checked
      * @param cpType the custom page type to be checked
@@ -602,18 +603,20 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPageType.OK_200} definitions.
+     * Tells whether or not the message matches {@code CustomPage.Type.OK_200} definitions. Falls
+     * back to use {@code Analyser}.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since TODO Add version
      */
     protected boolean isPage200(HttpMessage msg) {
-        return isCustomPage(msg, CustomPage.Type.OK_200);
+        boolean is200 = isCustomPage(msg, CustomPage.Type.OK_200);
+        return is200 ? is200 : parent.getAnalyser().isFileExist(msg);
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPageType.ERROR_500} definitions.
+     * Tells whether or not the message matches {@code CustomPage.Type.ERROR_500} definitions.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
@@ -624,18 +627,20 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPageType.NOTFOUND_404} definitions.
+     * Tells whether or not the message matches a {@code CustomPage.Type.NOTFOUND_404} definition.
+     * Falls back to {@code Analyser}.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since TODO Add version
      */
     protected boolean isPage404(HttpMessage msg) {
-        return isCustomPage(msg, CustomPage.Type.NOTFOUND_404);
+        boolean is404 = isCustomPage(msg, CustomPage.Type.NOTFOUND_404);
+        return is404 ? is404 : !parent.getAnalyser().isFileExist(msg);
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPageType.OTHER} definitions.
+     * Tells whether or not the message matches {@code CustomPage.Type.OTHER} definitions.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise

@@ -1289,7 +1289,7 @@ public class HostProcess implements Runnable {
     }
 
     /**
-     * Tells whether or not the message matches the specific {@code CustomPageType}
+     * Tells whether or not the message matches the specific {@code CustomPage.Type}.
      *
      * @param msg the message that will be checked
      * @param cpType the custom page type to be checked

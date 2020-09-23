@@ -102,7 +102,7 @@ public interface CustomPage extends EnableableInterface {
      * Determines if a {@code HttpMessage} is a Custom Page of a particular {@code CustomPage.Type}.
      *
      * @param msg the HTTP message to be evaluated
-     * @param cpt the CustomPageType of the Custom Pages against which the HTTP message should be
+     * @param cpt the CustomPage.Type of the Custom Pages against which the HTTP message should be
      *     evaluated
      * @return {@code true} if the HTTP message is a Custom Page of the type in question, {@code
      *     false} otherwise

@@ -758,7 +758,7 @@ public class Context {
 
     /**
      * Returns {@code true} if the {@code Context} has Custom Page definitions of a specific {@code
-     * CustomPageType}.
+     * CustomPage.Type}.
      *
      * @return {@code true} if this context has Custom Pages, {@code false} otherwise.
      */
