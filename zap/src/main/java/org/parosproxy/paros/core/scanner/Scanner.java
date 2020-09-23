@@ -48,6 +48,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/11/09 Ability to filter to active scan (Issue 5278)
 // ZAP: 2020/05/19 simplifying duplicate HostProcess for readability
+// ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -308,6 +309,7 @@ public class Scanner implements Runnable {
         hostProcess.setStartNode(node);
         hostProcess.setUser(this.user);
         hostProcess.setTechSet(this.techSet);
+        hostProcess.setContext(target.getContext());
         return hostProcess;
     }
 
