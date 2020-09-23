@@ -43,7 +43,10 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 import org.zaproxy.zap.extension.tab.Tab;
+import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.view.ZapToggleButton;
 
 public class BreakPanel extends AbstractPanel implements Tab, BreakpointManagementInterface {
 
@@ -68,6 +71,9 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
     private final JButton toolBarBtnContinue;
     private final JButton toolBarBtnDrop;
     private final JButton toolBarBtnBreakPoint;
+
+    private ZapToggleButton fixRequestContentLength = null;
+    private ZapToggleButton fixResponseContentLength = null;
 
     private Message msg;
     private boolean isAlwaysOnTop = false;
@@ -158,6 +164,24 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
         responseBreakButtons = new BreakButtonsUI("responseBreakButtons", breakToolbarFactory);
         responsePanel.addOptions(
                 responseBreakButtons.getComponent(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+
+        // The options toolbars are always added just to the Break request and response panels
+        JToolBar requestOptionsToolBar = new JToolBar();
+        requestOptionsToolBar.setFloatable(false);
+        requestOptionsToolBar.setBorder(BorderFactory.createEmptyBorder());
+        requestOptionsToolBar.setRollover(true);
+
+        requestOptionsToolBar.add(this.getRequestButtonFixContentLength());
+        requestPanel.addOptions(requestOptionsToolBar, HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+
+        JToolBar responseOptionsToolBar = new JToolBar();
+        responseOptionsToolBar.setFloatable(false);
+        responseOptionsToolBar.setBorder(BorderFactory.createEmptyBorder());
+        responseOptionsToolBar.setRollover(true);
+
+        responseOptionsToolBar.add(this.getResponseButtonFixContentLength());
+        responsePanel.addOptions(
+                responseOptionsToolBar, HttpPanel.OptionsLocation.AFTER_COMPONENTS);
 
         currentButtonsLocation = -1;
     }
@@ -322,10 +346,14 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
                             if (isRequest) {
                                 requestPanel.setMessage(aMessage, true);
                                 requestPanel.setEditable(true);
+                                getRequestButtonFixContentLength()
+                                        .setVisible(msg instanceof HttpMessage);
                                 cl.show(panelContent, REQUEST_PANEL);
                             } else {
                                 responsePanel.setMessage(aMessage, true);
                                 responsePanel.setEditable(true);
+                                getResponseButtonFixContentLength()
+                                        .setVisible(msg instanceof HttpMessage);
                                 cl.show(panelContent, RESPONSE_PANEL);
                             }
                         }
@@ -356,9 +384,21 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
 
                             if (isRequest) {
                                 requestPanel.saveData();
+                                Message msg = getMessage();
+                                if (msg instanceof HttpMessage
+                                        && getRequestButtonFixContentLength().isSelected()) {
+                                    HttpPanelViewModelUtils.updateRequestContentLength(
+                                            (HttpMessage) msg);
+                                }
                                 cl.show(panelContent, REQUEST_PANEL);
                             } else {
                                 responsePanel.saveData();
+                                Message msg = getMessage();
+                                if (msg instanceof HttpMessage
+                                        && getResponseButtonFixContentLength().isSelected()) {
+                                    HttpPanelViewModelUtils.updateResponseContentLength(
+                                            (HttpMessage) msg);
+                                }
                                 cl.show(panelContent, RESPONSE_PANEL);
                             }
                         }
@@ -396,6 +436,7 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
         this.msg = null;
         requestPanel.clearView(false);
         requestPanel.setEditable(false);
+        getRequestButtonFixContentLength().setVisible(false);
         breakpointLeft();
     }
 
@@ -422,6 +463,7 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
         this.msg = null;
         responsePanel.clearView(false);
         responsePanel.setEditable(false);
+        getResponseButtonFixContentLength().setVisible(false);
         breakpointLeft();
     }
 
@@ -507,6 +549,38 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
         mainBreakButtons.setButtonMode(mode);
         requestBreakButtons.setButtonMode(mode);
         responseBreakButtons.setButtonMode(mode);
+    }
+
+    private ZapToggleButton getRequestButtonFixContentLength() {
+        if (fixRequestContentLength == null) {
+            fixRequestContentLength =
+                    new ZapToggleButton(
+                            DisplayUtils.getScaledIcon(
+                                    new ImageIcon(
+                                            BreakPanel.class.getResource(
+                                                    "/resource/icon/fugue/application-resize.png"))),
+                            true);
+            fixRequestContentLength.setToolTipText(
+                    Constant.messages.getString("brk.checkBox.fixLength"));
+            fixRequestContentLength.setVisible(false);
+        }
+        return fixRequestContentLength;
+    }
+
+    private ZapToggleButton getResponseButtonFixContentLength() {
+        if (fixResponseContentLength == null) {
+            fixResponseContentLength =
+                    new ZapToggleButton(
+                            DisplayUtils.getScaledIcon(
+                                    new ImageIcon(
+                                            BreakPanel.class.getResource(
+                                                    "/resource/icon/fugue/application-resize.png"))),
+                            true);
+            fixResponseContentLength.setToolTipText(
+                    Constant.messages.getString("brk.checkBox.fixLength"));
+            fixResponseContentLength.setVisible(false);
+        }
+        return fixResponseContentLength;
     }
 
     /**

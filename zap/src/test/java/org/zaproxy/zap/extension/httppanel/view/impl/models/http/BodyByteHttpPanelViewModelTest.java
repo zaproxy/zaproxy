@@ -24,7 +24,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.ByteArrayOutputStream;
@@ -122,7 +124,7 @@ public abstract class BodyByteHttpPanelViewModelTest<T1 extends HttpHeader, T2 e
         model.setData(otherBodyContent);
         // Then
         verify(body).setBody(otherBodyContent);
-        verify(header).setContentLength(otherBodyContent.length);
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     @Test
@@ -138,7 +140,7 @@ public abstract class BodyByteHttpPanelViewModelTest<T1 extends HttpHeader, T2 e
         model.setData(otherBodyContent);
         // Then
         verify(body).setBody(encodedBody);
-        verify(header).setContentLength(encodedBody.length);
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     private static byte[] gzip(byte[] value) {

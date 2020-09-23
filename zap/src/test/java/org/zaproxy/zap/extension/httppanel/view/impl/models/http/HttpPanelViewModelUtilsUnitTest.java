@@ -22,9 +22,11 @@ package org.zaproxy.zap.extension.httppanel.view.impl.models.http;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.io.ByteArrayOutputStream;
@@ -214,7 +216,7 @@ class HttpPanelViewModelUtilsUnitTest {
         HttpPanelViewModelUtils.setBody(header, body, BODY);
         // Then
         verify(body).setBody(BODY);
-        verify(header).setContentLength(BODY.length());
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     @Test
@@ -226,7 +228,7 @@ class HttpPanelViewModelUtilsUnitTest {
         HttpPanelViewModelUtils.setBody(header, body, BODY);
         // Then
         verify(body).setBody(BODY);
-        verify(header).setContentLength(BODY.length());
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     @Test
@@ -241,7 +243,7 @@ class HttpPanelViewModelUtilsUnitTest {
         // Then
         verify(body).setCharset(charset.name());
         verify(body).setBody(bodyContent);
-        verify(header).setContentLength(bodyContent.length());
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     @ParameterizedTest
@@ -256,7 +258,7 @@ class HttpPanelViewModelUtilsUnitTest {
         HttpPanelViewModelUtils.setBody(header, body, BODY);
         // Then
         verify(body).setBody(gzip);
-        verify(header).setContentLength(gzip.length);
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     @ParameterizedTest
@@ -273,7 +275,7 @@ class HttpPanelViewModelUtilsUnitTest {
         HttpPanelViewModelUtils.setBody(header, body, bodyContent);
         // Then
         verify(body).setBody(gzip);
-        verify(header).setContentLength(gzip.length);
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     @Test
@@ -284,7 +286,7 @@ class HttpPanelViewModelUtilsUnitTest {
         HttpPanelViewModelUtils.setBody(header, body, BODY_BYTES_DEFAULT_CHARSET);
         // Then
         verify(body).setBody(BODY_BYTES_DEFAULT_CHARSET);
-        verify(header).setContentLength(BODY_BYTES_DEFAULT_CHARSET.length);
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     @Test
@@ -296,7 +298,7 @@ class HttpPanelViewModelUtilsUnitTest {
         HttpPanelViewModelUtils.setBody(header, body, BODY_BYTES_DEFAULT_CHARSET);
         // Then
         verify(body).setBody(BODY_BYTES_DEFAULT_CHARSET);
-        verify(header).setContentLength(BODY_BYTES_DEFAULT_CHARSET.length);
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     @Test
@@ -311,7 +313,7 @@ class HttpPanelViewModelUtilsUnitTest {
         // Then
         verify(body).setCharset(charset.name());
         verify(body).setBody(bodyContent);
-        verify(header).setContentLength(bodyContent.length);
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     @ParameterizedTest
@@ -325,7 +327,7 @@ class HttpPanelViewModelUtilsUnitTest {
         HttpPanelViewModelUtils.setBody(header, body, BODY_BYTES_DEFAULT_CHARSET);
         // Then
         verify(body).setBody(gzip);
-        verify(header).setContentLength(gzip.length);
+        verify(header, times(0)).setContentLength(anyInt());
     }
 
     static Stream<String> gzipEncodingProvider() {
