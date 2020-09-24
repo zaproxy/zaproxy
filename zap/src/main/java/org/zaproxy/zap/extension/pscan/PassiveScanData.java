@@ -142,7 +142,7 @@ public final class PassiveScanData {
     }
 
     /**
-     * Tells whether or not the message matches the specific {@code CustomPageType}
+     * Tells whether or not the message matches the specific {@code CustomPage.Type}
      *
      * @param msg the message that will be checked
      * @param cpType the custom page type to be checked
@@ -160,7 +160,7 @@ public final class PassiveScanData {
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPageType.OK_200} definitions.
+     * Tells whether or not the message matches {@code CustomPage.Type.OK_200} definitions.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
@@ -171,7 +171,7 @@ public final class PassiveScanData {
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPageType.ERROR_500} definitions.
+     * Tells whether or not the message matches {@code CustomPage.Type.ERROR_500} definitions.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
@@ -182,7 +182,7 @@ public final class PassiveScanData {
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPageType.NOTFOUND_404} definitions.
+     * Tells whether or not the message matches {@code CustomPage.Type.NOTFOUND_404} definitions.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
@@ -193,7 +193,7 @@ public final class PassiveScanData {
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPageType.OTHER} definitions.
+     * Tells whether or not the message matches {@code CustomPage.Type.OTHER} definitions.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
