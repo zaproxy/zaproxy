@@ -64,7 +64,7 @@ and subject to their respective licenses.
 | json-lib-2.4-jdk15.jar              | MIT + "Good, Not Evil"    |
 | log4j-1.2.17.jar                    | Apache 2.0                |
 | rsyntaxtextarea-3.0.4.jar           | BSD-3 clause              |
-| sqlite-jdbc-3.28.0.jar              | BSD-2 clause              |
+| sqlite-jdbc-3.32.3.2.jar            | BSD-2 clause              |
 | - NestedVM                          | Apache 2.0                |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
 | xom-1.2.10.jar                      | LGPL                      |
