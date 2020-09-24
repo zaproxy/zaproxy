@@ -56,7 +56,7 @@ RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 	rm -rf /zap-src/* && \
 	cd /zap/ && \
 	# Setup Webswing
-	curl -s -L https://bitbucket.org/meszarv/webswing/downloads/webswing-2.5.12.zip > webswing.zip && \
+	curl -s -L https://storage.googleapis.com/builds.webswing.org/releases/webswing-2.5.12.zip > webswing.zip && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
 	mv webswing-* webswing && \
