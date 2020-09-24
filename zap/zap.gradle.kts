@@ -58,7 +58,7 @@ dependencies {
     api("org.jfree:jfreechart:1.0.19")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
-    api("org.xerial:sqlite-jdbc:3.28.0")
+    api("org.xerial:sqlite-jdbc:3.32.3.2")
 
     implementation("commons-validator:commons-validator:1.6")
     // Don't need its dependencies, for now.
