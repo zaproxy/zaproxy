@@ -78,6 +78,9 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
     private static final String BRACKET_MATCHING = "bracketmatch";
     private static final String ANIMATED_BRACKET_MATCHING = "animatedbracketmatch";
 
+    private static final String RESOURCE_DARK = "/org/fife/ui/rsyntaxtextarea/themes/dark.xml";
+    private static final String RESOURCE_LIGHT = "/org/fife/ui/rsyntaxtextarea/themes/default.xml";
+
     private Message message;
     private Vector<SyntaxStyle> syntaxStyles;
     private boolean codeFoldingAllowed;
@@ -91,6 +94,8 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
     private static TextAreaMenuItem undoAction = null;
     private static TextAreaMenuItem redoAction = null;
     private static TextAreaMenuItem selectAllAction = null;
+
+    private Boolean darkLaF;
 
     public HttpPanelSyntaxHighlightTextArea() {
         ((RSyntaxDocument) getDocument()).setTokenMakerFactory(getTokenMakerFactory());
@@ -133,17 +138,36 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
                 FontUtils.getFontWithFallback(FontType.workPanels, this.getFont().getFontName()));
 
         if (DisplayUtils.isDarkLookAndFeel()) {
-            try {
-                Theme theme =
-                        Theme.load(
-                                HttpPanelSyntaxHighlightTextArea.class.getResourceAsStream(
-                                        "/org/fife/ui/rsyntaxtextarea/themes/dark.xml"));
-                theme.apply(this);
-            } catch (IOException e) {
-                log.error("Failed to set RSyntaxTextArea dark theme", e);
-            }
+            darkLaF = true;
+            setLookAndFeel(darkLaF);
+        } else {
+            darkLaF = false;
         }
         initHighlighter();
+    }
+
+    private void setLookAndFeel(boolean dark) {
+        try {
+            Theme theme =
+                    Theme.load(
+                            this.getClass()
+                                    .getResourceAsStream(dark ? RESOURCE_DARK : RESOURCE_LIGHT));
+
+            theme.apply(this);
+        } catch (IOException e) {
+            // Ignore
+        }
+    }
+
+    @Override
+    public void updateUI() {
+
+        if (darkLaF == null || darkLaF == DisplayUtils.isDarkLookAndFeel()) {
+            return;
+        }
+
+        darkLaF = DisplayUtils.isDarkLookAndFeel();
+        setLookAndFeel(darkLaF);
     }
 
     /**

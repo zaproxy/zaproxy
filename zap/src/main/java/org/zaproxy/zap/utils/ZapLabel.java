@@ -44,6 +44,12 @@ public class ZapLabel extends JTextArea {
         setDefaults();
     }
 
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        setDefaults();
+    }
+
     private void setDefaults() {
         this.setEditable(false);
         this.setCursor(null);

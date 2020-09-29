@@ -33,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.apache.commons.configuration.ConfigurationException;
@@ -92,6 +93,14 @@ public class TabbedPanel2 extends TabbedPanel {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        if (hiddenTabs != null) {
+            hiddenTabs.forEach(tab -> SwingUtilities.updateComponentTreeUI(tab));
+        }
     }
 
     /**
