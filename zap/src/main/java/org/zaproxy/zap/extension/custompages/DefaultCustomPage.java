@@ -205,6 +205,7 @@ public class DefaultCustomPage extends Enableable implements CustomPage {
         return pattern.matcher(toMatch).find();
     }
 
+    @Override
     public String toString() {
         StringBuilder cp = new StringBuilder();
         cp.append("ContextId: ").append(this.getContextId());

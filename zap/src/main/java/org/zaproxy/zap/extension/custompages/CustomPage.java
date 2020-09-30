@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.custompages;
 
-import org.apache.commons.lang.Validate;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.utils.EnableableInterface;
@@ -111,21 +110,23 @@ public interface CustomPage extends EnableableInterface {
 
     /** Defines the types supported by the Custom Page package. */
     enum Type {
-        ERROR_500(1, Constant.messages.getString("custompages.type.error")),
-        NOTFOUND_404(2, Constant.messages.getString("custompages.type.notfound")),
-        OK_200(3, Constant.messages.getString("custompages.type.ok")),
+        ERROR_500(1, "custompages.type.error"),
+        NOTFOUND_404(2, "custompages.type.notfound"),
+        OK_200(3, "custompages.type.ok"),
         /**
          * OTHER is intended to provide an option for scan rule scripts for usages that may not yet
          * have been planned.
          */
-        OTHER(4, Constant.messages.getString("custompages.type.other"));
+        OTHER(4, "custompages.type.other");
 
         private final int id;
         private final String name;
+        private final String nameKey;
 
-        Type(int id, String name) {
+        Type(int id, String nameKey) {
             this.id = id;
-            this.name = name;
+            this.name = Constant.messages.getString(nameKey);
+            this.nameKey = nameKey;
         }
 
         /**
@@ -149,6 +150,10 @@ public interface CustomPage extends EnableableInterface {
             return name;
         }
 
+        String getNameKey() {
+            return nameKey;
+        }
+
         /**
          * Gets the custom page type that has the given {@code id}.
          *
@@ -161,8 +166,6 @@ public interface CustomPage extends EnableableInterface {
          * @see #getDefaultType()
          */
         public static Type getCustomPageTypeWithId(int id) {
-            Validate.notNull(id, "Parameter id must not be null.");
-
             for (Type customPageType : values()) {
                 if (customPageType.id == id) {
                     return customPageType;
@@ -176,7 +179,7 @@ public interface CustomPage extends EnableableInterface {
          *
          * @return the default {@code CustomPage.Type}.
          */
-        private static Type getDefaultType() {
+        protected static Type getDefaultType() {
             return ERROR_500;
         }
 
@@ -193,6 +196,9 @@ public interface CustomPage extends EnableableInterface {
 
         @Override
         public String toString() {
+            if (getName() == null) {
+                return name();
+            }
             return getName();
         }
     }

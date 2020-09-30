@@ -19,20 +19,21 @@
  */
 package org.zaproxy.zap.extension.custompages;
 
-import org.apache.commons.lang.Validate;
 import org.parosproxy.paros.Constant;
 
 /** Defines the page matcher locations supported by the Custom Page package. */
 public enum CustomPageMatcherLocation {
-    RESPONSE_CONTENT(1, Constant.messages.getString("custompages.content.location.response")),
-    URL(2, Constant.messages.getString("custompages.content.location.url"));
+    RESPONSE_CONTENT(1, "custompages.content.location.response"),
+    URL(2, "custompages.content.location.url");
 
     private final int id;
     private final String name;
+    private final String nameKey;
 
-    private CustomPageMatcherLocation(int id, String name) {
+    private CustomPageMatcherLocation(int id, String nameKey) {
         this.id = id;
-        this.name = name;
+        this.name = Constant.messages.getString(nameKey);
+        this.nameKey = nameKey;
     }
 
     /**
@@ -50,12 +51,14 @@ public enum CustomPageMatcherLocation {
     /**
      * Gets the name of this custom page page matcher location.
      *
-     * <p>
-     *
      * @return the name of the custom page page matcher location
      */
     public String getName() {
         return name;
+    }
+
+    String getNameKey() {
+        return nameKey;
     }
 
     /**
@@ -70,8 +73,6 @@ public enum CustomPageMatcherLocation {
      * @see #getDefaultLocation()
      */
     public static CustomPageMatcherLocation getCustomPagePageMatcherLocationWithId(int id) {
-        Validate.notNull(id, "Parameter id must not be null or empty.");
-
         for (CustomPageMatcherLocation cpct : values()) {
             if (cpct.getId() == id) {
                 return cpct;
@@ -106,6 +107,9 @@ public enum CustomPageMatcherLocation {
 
     @Override
     public String toString() {
+        if (getName() == null) {
+            return name();
+        }
         return getName();
     }
 }
