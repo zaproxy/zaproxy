@@ -24,8 +24,12 @@ import java.util.List;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.eventBus.Event;
+import org.zaproxy.zap.eventBus.EventConsumer;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.StringUIUtils;
 import org.zaproxy.zap.view.table.AbstractCustomColumnHistoryReferencesTableModel;
@@ -34,7 +38,8 @@ import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
 
 public class SearchResultsTableModel
         extends AbstractCustomColumnHistoryReferencesTableModel<
-                SearchResultsTableModel.SearchResultTableEntry> {
+                SearchResultsTableModel.SearchResultTableEntry>
+        implements EventConsumer {
 
     private static final long serialVersionUID = 5732679524771190690L;
 
@@ -65,6 +70,11 @@ public class SearchResultsTableModel
 
     public SearchResultsTableModel() {
         super(COLUMNS);
+        ZAP.getEventBus()
+                .registerConsumer(
+                        this,
+                        HistoryReferenceEventPublisher.getPublisher().getPublisherName(),
+                        HistoryReferenceEventPublisher.EVENT_REMOVED);
     }
 
     public void addSearchResult(SearchResult sr) {
@@ -100,7 +110,11 @@ public class SearchResultsTableModel
     public void refreshEntryRow(int historyReferenceId) {}
 
     @Override
-    public void removeEntry(int historyReferenceId) {}
+    public void removeEntry(int historyReferenceId) {
+        if (results.removeIf(r -> r.getHistoryId() == historyReferenceId)) {
+            this.fireTableDataChanged();
+        }
+    }
 
     @Override
     public SearchResultTableEntry getEntry(int rowIndex) {
@@ -273,5 +287,13 @@ public class SearchResultsTableModel
                 }
             }
         }
+    }
+
+    @Override
+    public void eventReceived(Event event) {
+        String idStr =
+                event.getParameters()
+                        .get(HistoryReferenceEventPublisher.FIELD_HISTORY_REFERENCE_ID);
+        this.removeEntry(Integer.parseInt(idStr));
     }
 }
