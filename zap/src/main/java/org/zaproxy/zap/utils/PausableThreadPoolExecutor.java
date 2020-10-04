@@ -218,7 +218,9 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor
     }
 
     /**
-     * @return boolean value denoting if there are threads currently being executed.
+     * Get boolean value denoting if there are threads currently being executed
+     *
+     * @return true if it has running threads, false otherwise
      */
     public boolean hasRunningThreads() {
         return runningCount.get() > 0;
