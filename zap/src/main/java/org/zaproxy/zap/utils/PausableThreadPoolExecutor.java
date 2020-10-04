@@ -27,6 +27,7 @@ import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -42,6 +43,7 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor
 
     private final ReentrantLock pauseLock = new ReentrantLock();
     private final Condition unpaused = pauseLock.newCondition();
+    private final AtomicLong runningCount = new AtomicLong(0L);
 
     private boolean paused;
 
@@ -206,6 +208,20 @@ public class PausableThreadPoolExecutor extends ThreadPoolExecutor
         } finally {
             pauseLock.unlock();
         }
+        runningCount.incrementAndGet();
+    }
+
+    @Override
+    protected void afterExecute(Runnable var1, Throwable var2) {
+        super.afterExecute(var1, var2);
+        runningCount.decrementAndGet();
+    }
+
+    /**
+     * @return boolean value denoting if there are threads currently being executed.
+     */
+    public boolean hasRunningThreads() {
+        return runningCount.get() > 0;
     }
 
     @Override
