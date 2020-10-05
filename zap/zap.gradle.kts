@@ -41,39 +41,39 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.0.4")
+    api("com.fifesoft:rsyntaxtextarea:3.1.1")
     api("com.github.zafarkhaja:java-semver:0.9.0")
     api("commons-beanutils:commons-beanutils:1.9.4")
-    api("commons-codec:commons-codec:1.13")
+    api("commons-codec:commons-codec:1.15")
     api("commons-collections:commons-collections:3.2.2")
     api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
-    api("commons-io:commons-io:2.6")
+    api("commons-io:commons-io:2.8.0")
     api("commons-lang:commons-lang:2.6")
-    api("org.apache.commons:commons-lang3:3.9")
-    api("org.apache.commons:commons-text:1.8")
+    api("org.apache.commons:commons-lang3:3.11")
+    api("org.apache.commons:commons-text:1.9")
     api("edu.umass.cs.benchlab:harlib:1.1.2")
     api("javax.help:javahelp:2.0.05")
     api("log4j:log4j:1.2.17")
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
-    api("org.apache.commons:commons-csv:1.7")
-    api("org.bouncycastle:bcmail-jdk15on:1.64")
-    api("org.bouncycastle:bcprov-jdk15on:1.64")
-    api("org.bouncycastle:bcpkix-jdk15on:1.64")
-    api("org.hsqldb:hsqldb:2.5.0")
-    api("org.jfree:jfreechart:1.0.19")
+    api("org.apache.commons:commons-csv:1.8")
+    api("org.bouncycastle:bcmail-jdk15on:1.66")
+    api("org.bouncycastle:bcprov-jdk15on:1.66")
+    api("org.bouncycastle:bcpkix-jdk15on:1.66")
+    api("org.hsqldb:hsqldb:2.5.1")
+    api("org.jfree:jfreechart:1.5.0")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
     api("org.xerial:sqlite-jdbc:3.32.3.2")
 
-    implementation("commons-validator:commons-validator:1.6")
+    implementation("commons-validator:commons-validator:1.7")
     // Don't need its dependencies, for now.
     implementation("org.jitsi:ice4j:1.0") {
         setTransitive(false)
     }
-    implementation("org.javadelight:delight-nashorn-sandbox:0.1.26")
-    implementation("com.formdev:flatlaf:0.36")
+    implementation("org.javadelight:delight-nashorn-sandbox:0.1.28")
+    implementation("com.formdev:flatlaf:0.42")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
@@ -81,16 +81,16 @@ dependencies {
         setTransitive(false)
     }
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.25.1") {
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.27.2") {
         // Not needed.
         exclude(group = "org.junit")
     }
     testImplementation("org.hamcrest:hamcrest-all:1.3")
-    val jupiterVersion = "5.6.2"
+    val jupiterVersion = "5.7.0"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-    testImplementation("org.mockito:mockito-junit-jupiter:3.1.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:3.5.13")
     testImplementation("org.slf4j:slf4j-log4j12:1.7.28")
 
     testRuntimeOnly(files(distDir))
