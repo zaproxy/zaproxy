@@ -185,6 +185,10 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         return antiCsrfParam;
     }
 
+    void setParam(AntiCsrfParam antiCsrfParam) {
+        this.antiCsrfParam = antiCsrfParam;
+    }
+
     /**
      * Gets the names of the anti-csrf tokens handled by this extension.
      *
