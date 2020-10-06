@@ -47,6 +47,7 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
     private final JCheckBox scanOnlyInScopeCheckBox;
     private final JCheckBox scanFuzzerMessagesCheckBox;
     private final ZapNumberSpinner maxAlertsPerRule;
+    private final ZapNumberSpinner maxBodySizeInBytes;
 
     public PassiveScannerOptionsPanel(I18N messages) {
         setName(messages.getString("pscan.options.main.name"));
@@ -56,6 +57,7 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
         scanFuzzerMessagesCheckBox =
                 new JCheckBox(messages.getString("pscan.options.main.label.scanFuzzerMessages"));
         maxAlertsPerRule = new ZapNumberSpinner();
+        maxBodySizeInBytes = new ZapNumberSpinner();
 
         this.setLayout(new GridBagLayout());
 
@@ -67,6 +69,11 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
         maxAlertsLabel.setLabelFor(maxAlertsPerRule);
         this.add(maxAlertsLabel, LayoutHelper.getGBC(0, ++y, 1, 1.0));
         this.add(maxAlertsPerRule, LayoutHelper.getGBC(1, y, 1, 1.0));
+        JLabel maxBodySizeLabel =
+                new JLabel(messages.getString("pscan.options.main.label.maxBodySizeInBytes"));
+        maxBodySizeLabel.setLabelFor(maxBodySizeInBytes);
+        this.add(maxBodySizeLabel, LayoutHelper.getGBC(0, ++y, 1, 1.0));
+        this.add(maxBodySizeInBytes, LayoutHelper.getGBC(1, y, 1, 1.0));
         this.add(new JLabel(""), LayoutHelper.getGBC(0, ++y, 2, 1.0, 1.0));
     }
 
@@ -78,6 +85,7 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
         scanOnlyInScopeCheckBox.setSelected(pscanOptions.isScanOnlyInScope());
         scanFuzzerMessagesCheckBox.setSelected(pscanOptions.isScanFuzzerMessages());
         maxAlertsPerRule.setValue(pscanOptions.getMaxAlertsPerRule());
+        maxBodySizeInBytes.setValue(pscanOptions.getMaxBodySizeInBytesToScan());
     }
 
     @Override
@@ -88,6 +96,7 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
         pscanOptions.setScanOnlyInScope(scanOnlyInScopeCheckBox.isSelected());
         pscanOptions.setScanFuzzerMessages(scanFuzzerMessagesCheckBox.isSelected());
         pscanOptions.setMaxAlertsPerRule(maxAlertsPerRule.getValue());
+        pscanOptions.setMaxBodySizeInBytesToScan(maxBodySizeInBytes.getValue());
     }
 
     @Override
