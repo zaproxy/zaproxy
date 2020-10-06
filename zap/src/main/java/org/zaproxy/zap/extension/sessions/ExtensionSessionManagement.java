@@ -207,13 +207,14 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
 
     @Override
     public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
-        SessionManagementMethodType t =
-                getSessionManagementMethodTypeForIdentifier(
-                        config.getInt(CONTEXT_CONFIG_SESSION_TYPE));
-        if (t != null) {
-            SessionManagementMethod method = t.createSessionManagementMethod(ctx.getId());
-            t.importData(config, method);
-            ctx.setSessionManagementMethod(method);
+        int type = config.getInt(CONTEXT_CONFIG_SESSION_TYPE, -1);
+        if (type > -1) {
+            SessionManagementMethodType t = getSessionManagementMethodTypeForIdentifier(type);
+            if (t != null) {
+                SessionManagementMethod method = t.createSessionManagementMethod(ctx.getId());
+                t.importData(config, method);
+                ctx.setSessionManagementMethod(method);
+            }
         }
     }
 }
