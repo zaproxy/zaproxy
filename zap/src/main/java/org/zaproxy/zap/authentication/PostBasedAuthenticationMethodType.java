@@ -120,6 +120,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
     private static final Logger LOGGER = Logger.getLogger(PostBasedAuthenticationMethodType.class);
 
+    private static ExtensionAntiCSRF extAntiCsrf;
+
     private final String methodName;
     private final int methodIdentifier;
     private final String apiMethodName;
@@ -182,8 +184,6 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         private String loginPageUrl;
 
         private String loginRequestBody;
-
-        private ExtensionAntiCSRF extAntiCsrf;
 
         /**
          * Constructs a {@code PostBasedAuthenticationMethod} with the given data.
@@ -336,7 +336,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 msg = prepareRequestMessage(cred);
                 msg.setRequestingUser(user);
 
-                replaceAntiCsrfTokenValueIfRequired(msg, loginMsgToRenewCookie);
+                replaceAntiCsrfTokenValueIfRequired(msg, loginMsgToRenewCookie, paramEncoder);
             } catch (Exception e) {
                 LOGGER.error("Unable to prepare authentication message: " + e.getMessage(), e);
                 return null;
@@ -370,101 +370,6 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
             // Return the web session as extracted by the session management method
             return sessionManagementMethod.extractWebSession(msg);
-        }
-
-        /**
-         * <strong>Modifies</strong> the input {@code requestMessage} by replacing old
-         * anti-CSRF(ACSRF) token value with the fresh one in the request body. It first checks if
-         * the input {@code loginMsgWithFreshAcsrfToken} has any ACSRF token. If yes, then it
-         * modifies the input {@code requestMessage} with the fresh ACSRF token value. If the {@code
-         * loginMsgWithFreshAcsrfToken} does not have any ACSRF token then the input {@code
-         * requestMessage} is left as it is.
-         *
-         * <p>This logic relies on {@code ExtensionAntiCSRF} to extract the ACSRF token value from
-         * the response. If {@code ExtensionAntiCSRF} is not available for some reason, no further
-         * processing is done.
-         *
-         * @param requestMessage the login ({@code POST})request message with correct credentials
-         * @param loginMsgWithFreshAcsrfToken the {@code HttpMessage} of the login page(form) with
-         *     fresh cookie and ACSRF token.
-         */
-        private void replaceAntiCsrfTokenValueIfRequired(
-                HttpMessage requestMessage, HttpMessage loginMsgWithFreshAcsrfToken) {
-            if (extAntiCsrf == null) {
-                extAntiCsrf =
-                        Control.getSingleton()
-                                .getExtensionLoader()
-                                .getExtension(ExtensionAntiCSRF.class);
-            }
-            List<AntiCsrfToken> freshAcsrfTokens = null;
-            if (extAntiCsrf != null) {
-                freshAcsrfTokens = extAntiCsrf.getTokensFromResponse(loginMsgWithFreshAcsrfToken);
-            } else {
-                LOGGER.debug("ExtensionAntiCSRF is not available, skipping ACSRF replacing task");
-                return;
-            }
-            if (freshAcsrfTokens == null || freshAcsrfTokens.size() == 0) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(
-                            "No ACSRF token found in the response of "
-                                    + loginMsgWithFreshAcsrfToken.getRequestHeader());
-                }
-                return;
-            }
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("The login page has " + freshAcsrfTokens.size() + " ACSRF token(s)");
-            }
-
-            String postRequestBody = requestMessage.getRequestBody().toString();
-            Map<String, String> parameters = extractParametersFromPostData(postRequestBody);
-            if (parameters != null) {
-                String oldAcsrfTokenValue = null;
-                String replacedPostData = postRequestBody;
-                for (AntiCsrfToken antiCsrfToken : freshAcsrfTokens) {
-                    oldAcsrfTokenValue = parameters.get(antiCsrfToken.getName());
-                    if (oldAcsrfTokenValue == null) {
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug(
-                                    "ACSRF token "
-                                            + antiCsrfToken.getName()
-                                            + " not found in the POST data: "
-                                            + postRequestBody);
-                        }
-                        continue;
-                    }
-
-                    replacedPostData =
-                            replacedPostData.replace(
-                                    oldAcsrfTokenValue,
-                                    paramEncoder.apply(antiCsrfToken.getValue()));
-
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(
-                                "replaced "
-                                        + oldAcsrfTokenValue
-                                        + " old ACSRF token value with "
-                                        + antiCsrfToken.getValue());
-                    }
-                }
-                requestMessage.getRequestBody().setBody(replacedPostData);
-            } else {
-                LOGGER.debug("ACSRF token found but could not replace old value with fresh value");
-            }
-        }
-
-        private Map<String, String> extractParametersFromPostData(String postRequestBody) {
-            Context context =
-                    Model.getSingleton().getSession().getContextsForUrl(loginRequestURL).get(0);
-            if (context != null) {
-                Map<String, String> map = new HashMap<String, String>();
-                context.getPostParamParser()
-                        .parseParameters(postRequestBody)
-                        .forEach((nvp) -> map.put(nvp.getName(), nvp.getValue()));
-                return map;
-            } else {
-                return null;
-            }
         }
 
         /**
@@ -627,6 +532,103 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             } else if (!loginPageUrl.equals(other.loginPageUrl)) return false;
             return true;
         }
+    }
+
+    static void setExtAntiCsrf(ExtensionAntiCSRF ext) {
+        extAntiCsrf = ext;
+    }
+
+    /**
+     * <strong>Modifies</strong> the input {@code requestMessage} by replacing old anti-CSRF(ACSRF)
+     * token value with the fresh one in the request body. It first checks if the input {@code
+     * loginMsgWithFreshAcsrfToken} has any ACSRF token. If yes, then it modifies the input {@code
+     * requestMessage} with the fresh ACSRF token value. If the {@code loginMsgWithFreshAcsrfToken}
+     * does not have any ACSRF token then the input {@code requestMessage} is left as it is.
+     *
+     * <p>This logic relies on {@code ExtensionAntiCSRF} to extract the ACSRF token value from the
+     * response. If {@code ExtensionAntiCSRF} is not available for some reason, no further
+     * processing is done.
+     *
+     * @param requestMessage the login ({@code POST})request message with correct credentials
+     * @param loginMsgWithFreshAcsrfToken the {@code HttpMessage} of the login page(form) with fresh
+     *     cookie and ACSRF token.
+     * @param paramEncoder the encoder to be used on the anti-csrf parameters.
+     */
+    static void replaceAntiCsrfTokenValueIfRequired(
+            HttpMessage requestMessage,
+            HttpMessage loginMsgWithFreshAcsrfToken,
+            UnaryOperator<String> paramEncoder) {
+        if (extAntiCsrf == null) {
+            extAntiCsrf =
+                    Control.getSingleton()
+                            .getExtensionLoader()
+                            .getExtension(ExtensionAntiCSRF.class);
+        }
+        List<AntiCsrfToken> freshAcsrfTokens = null;
+        if (extAntiCsrf != null) {
+            freshAcsrfTokens = extAntiCsrf.getTokensFromResponse(loginMsgWithFreshAcsrfToken);
+        } else {
+            LOGGER.debug("ExtensionAntiCSRF is not available, skipping ACSRF replacing task");
+            return;
+        }
+        if (freshAcsrfTokens == null || freshAcsrfTokens.size() == 0) {
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "No ACSRF token found in the response of "
+                                + loginMsgWithFreshAcsrfToken.getRequestHeader());
+            }
+            return;
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("The login page has " + freshAcsrfTokens.size() + " ACSRF token(s)");
+        }
+
+        String postRequestBody = requestMessage.getRequestBody().toString();
+        Map<String, String> parameters =
+                extractParametersFromPostData(
+                        requestMessage.getRequestingUser().getContext(), postRequestBody);
+        if (!parameters.isEmpty()) {
+            String oldAcsrfTokenValue = null;
+            String replacedPostData = postRequestBody;
+            for (AntiCsrfToken antiCsrfToken : freshAcsrfTokens) {
+                oldAcsrfTokenValue = parameters.get(antiCsrfToken.getName());
+                if (oldAcsrfTokenValue == null) {
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(
+                                "ACSRF token "
+                                        + antiCsrfToken.getName()
+                                        + " not found in the POST data: "
+                                        + postRequestBody);
+                    }
+                    continue;
+                }
+
+                replacedPostData =
+                        replacedPostData.replace(
+                                oldAcsrfTokenValue, paramEncoder.apply(antiCsrfToken.getValue()));
+
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                            "replaced "
+                                    + oldAcsrfTokenValue
+                                    + " old ACSRF token value with "
+                                    + antiCsrfToken.getValue());
+                }
+            }
+            requestMessage.getRequestBody().setBody(replacedPostData);
+        } else {
+            LOGGER.debug("ACSRF token found but could not replace old value with fresh value");
+        }
+    }
+
+    private static Map<String, String> extractParametersFromPostData(
+            Context context, String postRequestBody) {
+        Map<String, String> map = new HashMap<>();
+        context.getPostParamParser()
+                .parseParameters(postRequestBody)
+                .forEach(nvp -> map.put(nvp.getName(), nvp.getValue()));
+        return map;
     }
 
     private static URI createLoginUrl(String loginData, String username, String password)
