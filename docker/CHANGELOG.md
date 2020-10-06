@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-11-16
+ - Update zap-api-scan.py to add support for GraphQL.
+
 ### 2020-10-13
  - Alert_on_Unexpected_Content_Types.js > Added Content-Type application/health+json to the list of expected types.
  
