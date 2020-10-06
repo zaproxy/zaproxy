@@ -417,8 +417,10 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             }
 
             String postRequestBody = requestMessage.getRequestBody().toString();
-            Map<String, String> parameters = extractParametersFromPostData(postRequestBody);
-            if (parameters != null) {
+            Map<String, String> parameters =
+                    extractParametersFromPostData(
+                            requestMessage.getRequestingUser().getContext(), postRequestBody);
+            if (!parameters.isEmpty()) {
                 String oldAcsrfTokenValue = null;
                 String replacedPostData = postRequestBody;
                 for (AntiCsrfToken antiCsrfToken : freshAcsrfTokens) {
@@ -453,18 +455,13 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             }
         }
 
-        private Map<String, String> extractParametersFromPostData(String postRequestBody) {
-            Context context =
-                    Model.getSingleton().getSession().getContextsForUrl(loginRequestURL).get(0);
-            if (context != null) {
-                Map<String, String> map = new HashMap<String, String>();
-                context.getPostParamParser()
-                        .parseParameters(postRequestBody)
-                        .forEach((nvp) -> map.put(nvp.getName(), nvp.getValue()));
-                return map;
-            } else {
-                return null;
-            }
+        private Map<String, String> extractParametersFromPostData(
+                Context context, String postRequestBody) {
+            Map<String, String> map = new HashMap<>();
+            context.getPostParamParser()
+                    .parseParameters(postRequestBody)
+                    .forEach(nvp -> map.put(nvp.getName(), nvp.getValue()));
+            return map;
         }
 
         /**
