@@ -58,6 +58,12 @@ public class HrefTypeInfo implements Comparable<HrefTypeInfo> {
                         Constant.messages.getString("view.href.type.name.manual"));
         temp.put(hrefTypeInfo.getType(), hrefTypeInfo);
 
+        hrefTypeInfo =
+                new HrefTypeInfo(
+                        HistoryReference.TYPE_AUTHENTICATION,
+                        Constant.messages.getString("view.href.type.name.auth"));
+        temp.put(hrefTypeInfo.getType(), hrefTypeInfo);
+
         values = Collections.unmodifiableMap(temp);
     }
 
@@ -112,6 +118,10 @@ public class HrefTypeInfo implements Comparable<HrefTypeInfo> {
                         HrefTypeInfo.class.getResource("/resource/icon/16/doublearrow.png"));
             case HistoryReference.TYPE_ZAP_USER:
                 return ExtensionManualRequestEditor.getIcon();
+            case HistoryReference.TYPE_AUTHENTICATION:
+                return new ImageIcon(
+                        HrefTypeInfo.class.getResource(
+                                "/resource/icon/16/181.png")); // Padlock icon
             default:
                 return null;
         }
