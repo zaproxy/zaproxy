@@ -35,12 +35,10 @@ import static org.mockito.Mockito.verify;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import net.htmlparser.jericho.Config;
 import net.htmlparser.jericho.Source;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.network.HttpResponseBody;
 
 /** Unit test for {@link ExtensionAntiCSRF}. */
@@ -51,11 +49,6 @@ class ExtensionAntiCSRFUnitTest {
      * ExtensionAntiCSRF#getTokensFromResponse(HttpMessage, Source)}.
      */
     static class GetTokensFromResponse {
-
-        static {
-            // Initialise this earlier as possible.
-            Config.LoggerProvider = ZAP.JERICHO_LOGGER_PROVIDER;
-        }
 
         private static final String NO_ID = null;
         private static final String NO_NAME = null;

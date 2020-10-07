@@ -47,6 +47,10 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
             return rc;
         }
 
+        if (!getArgs().isNoStdOutLog()) {
+            disableStdOutLog();
+        }
+
         logger.info(getStartingMessage());
 
         try {

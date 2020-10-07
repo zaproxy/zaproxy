@@ -38,9 +38,6 @@ import java.util.concurrent.TimeUnit;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -62,11 +59,6 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 public class APIUnitTest {
 
     private static final String CUSTOM_API_PATH = "/custom/api/";
-
-    @BeforeAll
-    public static void setUp() throws Exception {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     @Test
     public void shouldBeEnabledWhenInDaemonMode() {

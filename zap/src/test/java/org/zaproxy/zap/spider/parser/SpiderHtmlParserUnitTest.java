@@ -29,9 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Path;
 import net.htmlparser.jericho.Source;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
@@ -44,11 +41,6 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
 
     private static final Path BASE_DIR_HTML_FILES =
             getResourcePath("html", SpiderHtmlParserUnitTest.class);
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     @Test
     public void shouldFailToCreateParserWithUndefinedSpiderOptions() {

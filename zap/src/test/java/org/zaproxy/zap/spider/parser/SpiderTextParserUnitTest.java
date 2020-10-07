@@ -27,9 +27,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import net.htmlparser.jericho.Source;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -39,11 +36,6 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     private static final String EMPTY_BODY = "";
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     @Test
     public void shouldFailToEvaluateAnUndefinedMessage() {

@@ -62,8 +62,11 @@ and subject to their respective licenses.
 | jfreechart-1.5.0.jar                | LGPL                      |
 | jgrapht-core-0.9.0.jar              | LGPL 2.1                  |
 | json-lib-2.4-jdk15.jar              | MIT + "Good, Not Evil"    |
-| log4j-1.2.17.jar                    | Apache 2.0                |
+| log4j-1.2-api-2.13.3.jar            | Apache 2.0                |
+| log4j-api-2.13.3.jar                | Apache 2.0                |
+| log4j-core-2.13.3.jar               | Apache 2.0                |
 | rsyntaxtextarea-3.1.1.jar           | BSD-3 clause              |
+| slf4j-api-1.7.25.jar                | MIT                       |
 | sqlite-jdbc-3.32.3.2.jar            | BSD-2 clause              |
 | - NestedVM                          | Apache 2.0                |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |

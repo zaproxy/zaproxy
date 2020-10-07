@@ -27,9 +27,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
@@ -40,11 +37,6 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     private static final String ROOT_PATH = "/";
     private static final String ROBOTS_TXT_PATH = "/robots.txt";
     private static final int BASE_DEPTH = 0;
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     @Test
     public void shouldRequireNonNullSpiderParam() {
