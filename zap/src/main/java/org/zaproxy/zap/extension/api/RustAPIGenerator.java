@@ -119,7 +119,7 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
             out.write("#[allow(clippy::too_many_arguments)]\n");
         }
 
-        out.write("pub fn " + getSafeName(element.getName()) + "(service: &ZapService");
+        out.write("pub async fn " + getSafeName(element.getName()) + "(service: &ZapService");
 
         for (ApiParameter parameter : element.getParameters()) {
             out.write(", ");
@@ -147,7 +147,8 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
                         + type
                         + "\", \""
                         + element.getName()
-                        + "\", params)\n");
+                        + "\", params)"
+                        + ".await\n");
         out.write("}\n\n");
     }
 
