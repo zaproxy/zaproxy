@@ -54,7 +54,10 @@ dependencies {
     api("org.apache.commons:commons-text:1.9")
     api("edu.umass.cs.benchlab:harlib:1.1.2")
     api("javax.help:javahelp:2.0.05")
-    api("log4j:log4j:1.2.17")
+    val log4jVersion = "2.13.3"
+    api("org.apache.logging.log4j:log4j-api:$log4jVersion")
+    api("org.apache.logging.log4j:log4j-1.2-api:$log4jVersion")
+    implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.8")
@@ -91,7 +94,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
     testImplementation("org.mockito:mockito-junit-jupiter:3.5.13")
-    testImplementation("org.slf4j:slf4j-log4j12:1.7.28")
+    testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
 
     testRuntimeOnly(files(distDir))
 }
@@ -139,6 +142,11 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     packageExcludes = listOf(
         // Not intended to be used (directly) by add-ons.
         "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers"
+    )
+
+    fieldExcludes = listOf(
+        // Was not part of the public API.
+        "org.zaproxy.zap.ZAP#JERICHO_LOGGER_PROVIDER"
     )
 
     methodExcludes = listOf(

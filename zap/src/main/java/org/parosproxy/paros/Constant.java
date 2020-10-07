@@ -107,6 +107,7 @@
 // ZAP: 2020/04/22 Check ControlOverrides when determining the locale.
 // ZAP: 2020/09/17 Correct the Syntax Highlighting markoccurrences config key name when upgrading
 // from 2.9 or earlier.
+// ZAP: 2020/10/07 Changes for Log4j 2 migration.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -115,7 +116,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -142,7 +142,7 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
@@ -747,47 +747,28 @@ public final class Constant {
     }
 
     private void setUpLogging() throws IOException {
-        String fileName = "log4j.properties";
+        backupLegacyLog4jConfig();
+
+        String fileName = "log4j2.properties";
         File logFile = new File(zapHome, fileName);
         if (!logFile.exists()) {
-            copyFileToHome(
-                    logFile.toPath(), "xml/" + fileName, "/org/zaproxy/zap/resources/" + fileName);
-        } else {
-            updateLog4jProperties();
+            String defaultConfig = "/org/zaproxy/zap/resources/log4j2-home.properties";
+            copyFileToHome(logFile.toPath(), "xml/" + fileName, defaultConfig);
         }
-        System.setProperty("log4j.configuration", logFile.getAbsolutePath());
-        PropertyConfigurator.configure(logFile.getAbsolutePath());
+
+        Configurator.reconfigure(logFile.toURI());
     }
 
-    private void updateLog4jProperties() {
-        // Update only if config version <= 2.7.0
-        if (Files.notExists(Paths.get(FILE_CONFIG))) {
-            return;
-        }
-
-        try {
-            XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
-            if (config.getLong(VERSION_ELEMENT) > V_2_7_0_TAG) {
-                return;
+    private static void backupLegacyLog4jConfig() {
+        String fileName = "log4j.properties";
+        Path legacyConfig = Paths.get(zapHome, fileName);
+        if (Files.exists(legacyConfig)) {
+            logAndPrintInfo("Creating backup of legacy log4j.properties file...");
+            try {
+                Files.move(legacyConfig, Paths.get(zapHome, fileName + ".bak"));
+            } catch (IOException e) {
+                logAndPrintError("Failed to backup legacy Log4j configuration file:", e);
             }
-        } catch (Exception ignore) {
-            // Version unknown, don't update.
-            return;
-        }
-
-        try {
-            Path log4jProperties = Paths.get(zapHome, "log4j.properties");
-            String fileContents =
-                    new String(Files.readAllBytes(log4jProperties), StandardCharsets.UTF_8);
-            fileContents =
-                    fileContents.replace(
-                            "log4j.logger.net.htmlparser.jericho=ERROR",
-                            "# Disable Jericho log, it logs HTML parsing issues as errors.\n"
-                                    + "log4j.logger.net.htmlparser.jericho=OFF");
-            Files.write(log4jProperties, fileContents.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            System.err.println(
-                    "An error occured while updating the log4j.properties: " + e.getMessage());
         }
     }
 

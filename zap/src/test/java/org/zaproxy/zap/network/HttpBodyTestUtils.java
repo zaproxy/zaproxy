@@ -21,12 +21,9 @@ package org.zaproxy.zap.network;
 
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.junit.jupiter.api.BeforeAll;
 
 /**
  * Class with helper/utility methods to help testing classes involving {@code HttpBody} class and
@@ -75,11 +72,6 @@ public class HttpBodyTestUtils {
             concatenate(BODY_1_BYTES_UTF_8, BODY_2_BYTES_UTF_8);
     protected static final String BODY_1_AND_2_STRING_UTF_8 =
             BODY_1_STRING_UTF_8 + BODY_2_STRING_UTF_8;
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     protected static byte[] concatenate(byte[] array, byte[] array2) {
         int newlen = array.length + array2.length;

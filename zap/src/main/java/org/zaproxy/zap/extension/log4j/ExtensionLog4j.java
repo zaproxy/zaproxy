@@ -20,8 +20,18 @@
 package org.zaproxy.zap.extension.log4j;
 
 import java.awt.EventQueue;
+import java.nio.charset.StandardCharsets;
+import java.util.function.Consumer;
 import javax.swing.ImageIcon;
-import org.apache.log4j.Logger;
+import javax.swing.SwingUtilities;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.StringLayout;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.filter.LevelMatchFilter;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -61,13 +71,26 @@ public class ExtensionLog4j extends ExtensionAdaptor {
                                             "/resource/icon/fugue/bug.png")),
                             Constant.messages.getString("log4j.icon.title"));
 
-            Logger.getRootLogger().addAppender(new ZapOutputWriter(scanStatus));
+            LoggerContext.getContext()
+                    .getConfiguration()
+                    .getRootLogger()
+                    .addAppender(new ErrorAppender(this::handleError), null, null);
 
             View.getSingleton()
                     .getMainFrame()
                     .getMainFooterPanel()
                     .addFooterToolbarRightLabel(scanStatus.getCountLabel());
         }
+    }
+
+    private void handleError(String message) {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> handleError(message));
+            return;
+        }
+
+        scanStatus.incScanCount();
+        View.getSingleton().getOutputPanel().append(message);
     }
 
     @Override
@@ -117,6 +140,33 @@ public class ExtensionLog4j extends ExtensionAdaptor {
     @Override
     public boolean supportsDb(String type) {
         return true;
+    }
+
+    static class ErrorAppender extends AbstractAppender {
+
+        private static final Property[] NO_PROPERTIES = {};
+
+        private final Consumer<String> logConsumer;
+
+        ErrorAppender(Consumer<String> logConsumer) {
+            super(
+                    "ZAP-ErrorAppender",
+                    LevelMatchFilter.newBuilder().setLevel(Level.ERROR).build(),
+                    PatternLayout.newBuilder()
+                            .withDisableAnsi(true)
+                            .withCharset(StandardCharsets.UTF_8)
+                            .withPattern("%m%n")
+                            .build(),
+                    true,
+                    NO_PROPERTIES);
+            this.logConsumer = logConsumer;
+            start();
+        }
+
+        @Override
+        public void append(LogEvent event) {
+            logConsumer.accept(((StringLayout) getLayout()).toSerializable(event));
+        }
     }
 
     private static class ResetCounterOnSessionChange implements SessionChangedListener {

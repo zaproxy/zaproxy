@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.pscan.scanner;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-import net.htmlparser.jericho.Config;
 import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -33,17 +32,11 @@ import org.mockito.Mockito;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.StatsListener;
 
 public class StatsPassiveScannerUnitTest {
-
-    static {
-        Config.LoggerProvider = ZAP.JERICHO_LOGGER_PROVIDER;
-    }
-
     private StatsListener listener;
     private PluginPassiveScanner scanner;
 

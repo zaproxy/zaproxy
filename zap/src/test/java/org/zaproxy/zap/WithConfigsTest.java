@@ -24,8 +24,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.withSettings;
 
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Locale;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,6 +61,11 @@ public abstract class WithConfigsTest extends TestUtils {
         zapInstallDir =
                 Files.createDirectories(tempDir.resolve("install")).toAbsolutePath().toString();
         zapHomeDir = Files.createDirectories(tempDir.resolve("home")).toAbsolutePath().toString();
+
+        try (InputStream in =
+                WithConfigsTest.class.getResourceAsStream("/log4j2-test.properties")) {
+            Files.copy(in, Paths.get(zapHomeDir, "log4j2.properties"));
+        }
     }
 
     /**

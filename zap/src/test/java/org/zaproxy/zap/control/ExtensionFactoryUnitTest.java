@@ -28,20 +28,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 
 /** Unit test for {@link ExtensionFactory}. */
 public class ExtensionFactoryUnitTest {
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getLogger(ExtensionFactory.class).addAppender(new NullAppender());
-    }
 
     @Test
     public void shouldLoadExtensionWithoutDependencies() {

@@ -29,20 +29,17 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.URLConnection;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.Locale;
 import javax.net.SocketFactory;
-import net.htmlparser.jericho.Config;
-import net.htmlparser.jericho.LoggerProvider;
 import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.io.output.NullOutputStream;
-import org.apache.log4j.Appender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.network.SSLConnector;
 import org.zaproxy.zap.eventBus.EventBus;
@@ -51,9 +48,6 @@ import org.zaproxy.zap.network.ZapAuthenticator;
 import org.zaproxy.zap.network.ZapProxySelector;
 
 public class ZAP {
-
-    /** Not part of the public API. */
-    public static final LoggerProvider JERICHO_LOGGER_PROVIDER = new LoggerProviderLog4j();
 
     /**
      * ZAP can be run in 4 different ways: cmdline: an inline process that exits when it completes
@@ -108,9 +102,6 @@ public class ZAP {
 
         Protocol.registerProtocol(
                 "http", new Protocol("http", new ProtocolSocketFactoryImpl(), 80));
-
-        // Initialise this earlier as possible.
-        Config.LoggerProvider = JERICHO_LOGGER_PROVIDER;
     }
 
     /**
@@ -188,11 +179,12 @@ public class ZAP {
         return eventBus;
     }
 
-    private static final class UncaughtExceptionLogger implements Thread.UncaughtExceptionHandler {
+    static final class UncaughtExceptionLogger implements Thread.UncaughtExceptionHandler {
 
-        private static final Logger logger = Logger.getLogger(UncaughtExceptionLogger.class);
+        private static final org.apache.logging.log4j.Logger logger =
+                LogManager.getLogger(UncaughtExceptionLogger.class);
 
-        private static boolean loggerConfigured = false;
+        private boolean loggerConfigured = false;
 
         @Override
         public void uncaughtException(Thread t, Throwable e) {
@@ -207,22 +199,17 @@ public class ZAP {
             }
         }
 
-        private static boolean isLoggerConfigured() {
+        private boolean isLoggerConfigured() {
             if (loggerConfigured) {
                 return true;
             }
 
-            @SuppressWarnings("unchecked")
-            Enumeration<Appender> appenders = LogManager.getRootLogger().getAllAppenders();
-            if (appenders.hasMoreElements()) {
+            LoggerContext context = LoggerContext.getContext();
+            if (!context.getRootLogger().getAppenders().isEmpty()) {
                 loggerConfigured = true;
             } else {
-
-                @SuppressWarnings("unchecked")
-                Enumeration<Logger> loggers = LogManager.getCurrentLoggers();
-                while (loggers.hasMoreElements()) {
-                    Logger c = loggers.nextElement();
-                    if (c.getAllAppenders().hasMoreElements()) {
+                for (LoggerConfig config : context.getConfiguration().getLoggers().values()) {
+                    if (!config.getAppenders().isEmpty()) {
                         loggerConfigured = true;
                         break;
                     }
@@ -415,75 +402,6 @@ public class ZAP {
         public PrintStream append(char c) {
             delegatee.append(c);
             return this;
-        }
-    }
-
-    // This class is a copy of Jericho's Log4j 2.x implementation but changed for Log4j 1.2.
-    private static class LoggerProviderLog4j implements LoggerProvider {
-
-        private static volatile net.htmlparser.jericho.Logger sourceLogger = null;
-
-        private LoggerProviderLog4j() {}
-
-        @Override
-        public net.htmlparser.jericho.Logger getLogger(final String name) {
-            return new Log4JLogger(LogManager.getLogger(name));
-        }
-
-        @Override
-        public net.htmlparser.jericho.Logger getSourceLogger() {
-            if (sourceLogger == null) {
-                sourceLogger = getLogger("net.htmlparser.jericho");
-            }
-            return sourceLogger;
-        }
-
-        private static class Log4JLogger implements net.htmlparser.jericho.Logger {
-            private final Logger log4JLogger;
-
-            public Log4JLogger(final Logger log4JLogger) {
-                this.log4JLogger = log4JLogger;
-            }
-
-            @Override
-            public void error(final String message) {
-                log4JLogger.error(message);
-            }
-
-            @Override
-            public void warn(final String message) {
-                log4JLogger.warn(message);
-            }
-
-            @Override
-            public void info(final String message) {
-                log4JLogger.info(message);
-            }
-
-            @Override
-            public void debug(final String message) {
-                log4JLogger.debug(message);
-            }
-
-            @Override
-            public boolean isErrorEnabled() {
-                return log4JLogger.isEnabledFor(Level.ERROR);
-            }
-
-            @Override
-            public boolean isWarnEnabled() {
-                return log4JLogger.isEnabledFor(Level.WARN);
-            }
-
-            @Override
-            public boolean isInfoEnabled() {
-                return log4JLogger.isEnabledFor(Level.INFO);
-            }
-
-            @Override
-            public boolean isDebugEnabled() {
-                return log4JLogger.isEnabledFor(Level.DEBUG);
-            }
         }
     }
 
