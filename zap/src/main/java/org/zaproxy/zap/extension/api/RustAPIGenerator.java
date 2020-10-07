@@ -124,7 +124,7 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
         for (ApiParameter parameter : element.getParameters()) {
             out.write(", ");
             out.write(getSafeName(parameter.getName().toLowerCase(Locale.ROOT)));
-            out.write(": String");
+            out.write(": &str");
         }
         out.write(") -> Result<Value, ZapApiError> {\n");
 
@@ -137,7 +137,7 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
         for (ApiParameter parameter : element.getParameters()) {
             String name = parameter.getName();
             String varName = getSafeName(name.toLowerCase(Locale.ROOT));
-            out.write("    params.insert(\"" + name + "\".to_string(), " + varName + ");\n");
+            out.write("    params.insert(\"" + name + "\".to_string(), " + varName + ".to_string()" + ");\n");
         }
 
         out.write(
