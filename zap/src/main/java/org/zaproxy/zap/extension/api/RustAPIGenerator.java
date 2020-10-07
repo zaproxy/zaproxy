@@ -93,8 +93,7 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
             out.write("/**\n");
             out.write(" * " + desc + "\n");
             if (isOptional()) {
-                out.write(" * <p>\n");
-                out.write(" * " + OPTIONAL_MESSAGE + "\n");
+                out.write(OPTIONAL_MESSAGE + "\n");
             }
             out.write("*/\n");
             if (element.isDeprecated()) {
