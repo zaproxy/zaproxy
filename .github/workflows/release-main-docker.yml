@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v2
       - run: |
           sudo apt-get install xmlstarlet
-          echo "::set-env name=REL_VERSION::$(curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //core/version)"
+          echo "REL_VERSION=$(curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //core/version)" >> $GITHUB_ENV
       - name: Build and push stable Docker image
         uses: docker/build-push-action@v1
         with:

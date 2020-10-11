@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: echo "::set-env name=REL_DATE::$(date +%F)"
+      - run: echo "REL_DATE=$(date +%F)" >> $GITHUB_ENV
       - name: Build and push Docker image
         uses: docker/build-push-action@v1
         with:
