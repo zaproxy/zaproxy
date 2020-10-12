@@ -8,6 +8,7 @@ var extensionAlert = org.parosproxy.paros.control.Control.getSingleton().getExte
 		org.zaproxy.zap.extension.alert.ExtensionAlert.NAME)
 
 var expectedTypes = [
+		"application/health+json",
 		"application/json",
 		"application/octet-stream",
 		"application/problem+json",
