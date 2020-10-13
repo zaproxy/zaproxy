@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-10-13
+ - Alert_on_Unexpected_Content_Types.js > Added Content-Type application/health+json to the list of expected types.
+ 
 ### 2020-09-18
  - Fail immediately if the spider scans were not started to provide better error message.
 
