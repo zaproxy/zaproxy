@@ -29,9 +29,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,11 +45,6 @@ public class DefaultFetchFilterUnitTest {
     @Mock Context context;
 
     private DefaultFetchFilter filter;
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     @BeforeEach
     public void setUp() {

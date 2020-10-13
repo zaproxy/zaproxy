@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-09-18
+ - Fail immediately if the spider scans were not started to provide better error message.
+
 ###  2020-08-28
  - Packaged scans will use the provided context when spidering and active scanning.
 

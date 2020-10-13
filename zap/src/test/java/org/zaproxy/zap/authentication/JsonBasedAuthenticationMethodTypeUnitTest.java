@@ -30,15 +30,12 @@ import static org.mockito.Mockito.withSettings;
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.PatternLayout;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,11 +67,6 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends TestUtils {
 
     @BeforeEach
     public void setUp() throws Exception {
-
-        // TODO remove
-        ConsoleAppender ca = new ConsoleAppender();
-        ca.setWriter(new OutputStreamWriter(System.out));
-        ca.setLayout(new PatternLayout("%-5p [%t]: %m%n"));
 
         Constant.getInstance();
         I18N i18n = Mockito.mock(I18N.class, withSettings().lenient());

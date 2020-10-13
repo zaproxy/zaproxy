@@ -34,13 +34,16 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.ManualAuthenticationMethodType.ManualAuthenticationMethod;
 import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod;
 import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod.LogicalOperator;
+import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
 import org.zaproxy.zap.session.SessionManagementMethod;
 
@@ -87,6 +90,8 @@ public class Context {
 
     /** The authorization detection method used for this context. */
     private AuthorizationDetectionMethod authorizationDetectionMethod;
+
+    private List<CustomPage> customPages = new ArrayList<>();
 
     private TechSet techSet = new TechSet(Tech.builtInTech);
     private boolean inScope = true;
@@ -734,6 +739,136 @@ public class Context {
     }
 
     /**
+     * Gets an unmodifiable view of the list of custom pages.
+     *
+     * @return a List of custom pages
+     */
+    public List<CustomPage> getCustomPages() {
+        return Collections.unmodifiableList(customPages);
+    }
+
+    /**
+     * Returns {@code true} if the {@code Context} has Custom Pages.
+     *
+     * @return {@code true} if this context has Custom Pages, {@code false} otherwise.
+     */
+    public boolean hasCustomPages() {
+        return !customPages.isEmpty();
+    }
+
+    /**
+     * Returns {@code true} if the {@code Context} has Custom Page definitions of a specific {@code
+     * CustomPage.Type}.
+     *
+     * @return {@code true} if this context has Custom Pages, {@code false} otherwise.
+     */
+    public boolean hasCustomPageOfType(CustomPage.Type cpType) {
+        if (!hasCustomPages()) {
+            return false;
+        }
+        for (CustomPage cp : customPages) {
+            if (cp.getType().equals(cpType)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Sets a new list of custom pages for this context. An internal copy of the provided list is
+     * stored.
+     *
+     * @param customPages the list of custom pages
+     */
+    public void setCustomPages(List<CustomPage> customPages) {
+        this.customPages = new ArrayList<>(customPages);
+    }
+
+    /**
+     * Adds a custom page.
+     *
+     * @param customPage the custom page being added
+     */
+    public void addCustomPage(CustomPage customPage) {
+        if (customPage != null) {
+            this.customPages.add(customPage);
+        }
+    }
+
+    /**
+     * Removes a custom page.
+     *
+     * @param customPage the defaultCustomPage to be removed
+     */
+    public boolean removeCustomPage(CustomPage customPage) {
+        return this.customPages.remove(customPage);
+    }
+
+    /** Removes all the custom pages. */
+    public void removeAllCustomPages() {
+        this.customPages.clear();
+    }
+
+    /**
+     * Determines if a {@code HttpMessage} is a Custom Page of a particular {@code CustomPage.Type}.
+     *
+     * @param msg the HTTP message to be evaluated
+     * @param cpType the CustomPage.Type of the Custom Pages against which the HTTP message should
+     *     be evaluated
+     * @return {@code true} if the HTTP message is a Custom Page of the type in question, {@code
+     *     false} otherwise
+     * @since TODO add version
+     * @see #isCustomPageWithFallback(HttpMessage,
+     *     org.zaproxy.zap.extension.custompages.CustomPage.Type)
+     */
+    public boolean isCustomPage(HttpMessage msg, CustomPage.Type cpType) {
+        return isCustomPage(msg, cpType, false);
+    }
+
+    /**
+     * Determines if a {@code HttpMessage} is a Custom Page of a particular {@code CustomPage.Type}.
+     * Falling back to check the message's status code.
+     *
+     * @param msg the HTTP message to be evaluated
+     * @param cpType the CustomPage.Type of the Custom Pages against which the HTTP message should
+     *     be evaluated
+     * @return {@code true} if the HTTP message is a Custom Page of the type in question or the
+     *     response has a relevant status code (500, 404, etc), {@code false} otherwise
+     * @since TODO add version
+     * @see #isCustomPage(HttpMessage, org.zaproxy.zap.extension.custompages.CustomPage.Type)
+     */
+    public boolean isCustomPageWithFallback(HttpMessage msg, CustomPage.Type cpType) {
+        return isCustomPage(msg, cpType, true);
+    }
+
+    private boolean isCustomPage(HttpMessage msg, CustomPage.Type cpType, boolean fallback) {
+        for (CustomPage customPage : customPages) {
+            if (customPage.isCustomPage(msg, cpType)) {
+                return true;
+            }
+        }
+
+        if (fallback) {
+            return statusCodeFallback(msg, cpType);
+        }
+        return false;
+    }
+
+    private boolean statusCodeFallback(HttpMessage msg, CustomPage.Type cpType) {
+        switch (cpType) {
+            case ERROR_500:
+                return msg.getResponseHeader().getStatusCode()
+                        == HttpStatusCode.INTERNAL_SERVER_ERROR;
+            case NOTFOUND_404:
+                return msg.getResponseHeader().getStatusCode() == HttpStatusCode.NOT_FOUND;
+            case OK_200:
+                return msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK;
+            default:
+                return false;
+        }
+    }
+
+    /**
      * Creates a copy of the Context. The copy is deep, with the exception of the TechSet.
      *
      * @return the context
@@ -754,6 +889,7 @@ public class Context {
         newContext.postParamParser = this.postParamParser.clone();
         newContext.authorizationDetectionMethod = this.authorizationDetectionMethod.clone();
         newContext.dataDrivenNodes = this.getDataDrivenNodes();
+        newContext.setCustomPages(getCustomPages());
         return newContext;
     }
 

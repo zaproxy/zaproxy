@@ -33,6 +33,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
@@ -44,10 +45,16 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicProgressBarUI;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.WriterAppender;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.StringLayout;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.filter.AbstractFilter;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
@@ -61,7 +68,6 @@ public class SplashScreen extends JFrame {
     private static final Logger LOGGER = Logger.getLogger(SplashScreen.class);
 
     private static final long serialVersionUID = 1L;
-    private static final char NEWLINE = '\n';
 
     private JScrollPane logScrollPane = null;
     private JScrollPane tipsScrollPane = null;
@@ -74,7 +80,7 @@ public class SplashScreen extends JFrame {
     private final Random random = new Random();
     private boolean tipsLoaded = false;
     private double currentPerc;
-    private SplashOutputWriter splashOutputWriter;
+    private SplashScreenAppender splashScreenAppender;
 
     public SplashScreen() {
         super();
@@ -140,8 +146,11 @@ public class SplashScreen extends JFrame {
         setContentPane(panel);
         this.pack();
 
-        splashOutputWriter = new SplashOutputWriter();
-        Logger.getRootLogger().addAppender(splashOutputWriter);
+        splashScreenAppender = new SplashScreenAppender(this::appendMsg);
+        LoggerContext.getContext()
+                .getConfiguration()
+                .getRootLogger()
+                .addAppender(splashScreenAppender, null, null);
 
         setVisible(true);
     }
@@ -279,7 +288,11 @@ public class SplashScreen extends JFrame {
 
     /** Close current splash screen */
     public void close() {
-        Logger.getRootLogger().removeAppender(splashOutputWriter);
+        splashScreenAppender.stop();
+        LoggerContext.getContext()
+                .getConfiguration()
+                .getRootLogger()
+                .removeAppender(splashScreenAppender.getName());
         dispose();
     }
 
@@ -312,40 +325,34 @@ public class SplashScreen extends JFrame {
         vertical.setValue(vertical.getMaximum());
     }
 
-    private class SplashOutputWriter extends WriterAppender {
+    static class SplashScreenAppender extends AbstractAppender {
+
+        private static final Property[] NO_PROPERTIES = {};
+
+        private final Consumer<String> logConsumer;
+
+        SplashScreenAppender(Consumer<String> logConsumer) {
+            super(
+                    "ZAP-SplashScreenAppender",
+                    new LevelFilter(),
+                    PatternLayout.newBuilder().withPattern("%p: %m%n").build(),
+                    true,
+                    NO_PROPERTIES);
+            this.logConsumer = logConsumer;
+            start();
+        }
 
         @Override
-        public void append(final LoggingEvent event) {
-            if (!EventQueue.isDispatchThread()) {
-                EventQueue.invokeLater(
-                        new Runnable() {
+        public void append(LogEvent event) {
+            logConsumer.accept(((StringLayout) getLayout()).toSerializable(event));
+        }
 
-                            @Override
-                            public void run() {
-                                append(event);
-                            }
-                        });
-                return;
-            }
+        private static class LevelFilter extends AbstractFilter {
 
-            if (event.getLevel().equals(Level.INFO)) {
-                String renderedmessage = event.getRenderedMessage();
-                if (renderedmessage != null) {
-                    appendMsg(
-                            new StringBuilder("INFO: ")
-                                    .append(renderedmessage)
-                                    .append(NEWLINE)
-                                    .toString());
-                }
-            } else if (event.getLevel().equals(Level.ERROR)) {
-                String renderedmessage = event.getRenderedMessage();
-                if (renderedmessage != null) {
-                    appendMsg(
-                            new StringBuilder("ERROR: ")
-                                    .append(renderedmessage)
-                                    .append(NEWLINE)
-                                    .toString());
-                }
+            @Override
+            public Filter.Result filter(LogEvent event) {
+                Level level = event.getLevel();
+                return level == Level.INFO || level == Level.ERROR ? Result.ACCEPT : Result.DENY;
             }
         }
     }

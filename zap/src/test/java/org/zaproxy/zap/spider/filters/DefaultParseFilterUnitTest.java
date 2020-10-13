@@ -28,9 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
@@ -47,11 +44,6 @@ public class DefaultParseFilterUnitTest {
     private static final String FILTERED_REASON_NOT_TEXT = "notText";
 
     private ResourceBundle resourceBundle;
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     @BeforeEach
     public void setUp() throws Exception {

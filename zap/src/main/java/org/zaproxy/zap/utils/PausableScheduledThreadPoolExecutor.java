@@ -56,7 +56,7 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
     private long defaultDelayInMs;
 
     private boolean incrementalDefaultDelay;
-    private AtomicInteger taskCount;
+    private AtomicInteger queuedTaskCount;
 
     // NOTE: Constructors JavaDoc was copied from base class but with the name of the class replaced
     // with this one.
@@ -179,9 +179,9 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
 
         incrementalDefaultDelay = incremental;
         if (incrementalDefaultDelay) {
-            taskCount = new AtomicInteger();
+            queuedTaskCount = new AtomicInteger();
         } else {
-            taskCount = null;
+            queuedTaskCount = null;
         }
     }
 
@@ -204,7 +204,7 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
      */
     public void resetIncrementalDefaultDelay() {
         if (incrementalDefaultDelay) {
-            taskCount = new AtomicInteger();
+            queuedTaskCount = new AtomicInteger();
         }
     }
 
@@ -226,7 +226,7 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
 
     private long getDefaultDelayForTask() {
         if (incrementalDefaultDelay) {
-            return taskCount.incrementAndGet() * defaultDelayInMs;
+            return queuedTaskCount.incrementAndGet() * defaultDelayInMs;
         }
         return defaultDelayInMs;
     }
@@ -292,6 +292,15 @@ public class PausableScheduledThreadPoolExecutor extends ScheduledThreadPoolExec
             t.interrupt();
         } finally {
             pauseLock.unlock();
+        }
+    }
+
+    @Override
+    protected void afterExecute(Runnable r, Throwable t) {
+        super.afterExecute(r, t);
+
+        if (incrementalDefaultDelay) {
+            queuedTaskCount.decrementAndGet();
         }
     }
 

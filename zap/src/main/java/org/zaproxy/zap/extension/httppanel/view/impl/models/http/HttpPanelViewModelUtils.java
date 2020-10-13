@@ -101,7 +101,6 @@ public final class HttpPanelViewModelUtils {
 
         if (!isEncoded(header)) {
             body.setBody(value);
-            header.setContentLength(body.length());
             return;
         }
 
@@ -121,7 +120,6 @@ public final class HttpPanelViewModelUtils {
         } catch (IOException e) {
             logger.error("Failed to encode and set the body:", e);
         }
-        header.setContentLength(body.length());
     }
 
     public static void setBody(HttpHeader header, HttpBody body, byte[] value) {
@@ -129,7 +127,6 @@ public final class HttpPanelViewModelUtils {
 
         if (!isEncoded(header)) {
             body.setBody(value);
-            header.setContentLength(body.length());
             return;
         }
 

@@ -25,25 +25,48 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.security.InvalidParameterException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URI;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.network.HttpRequestBody;
+import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link AbstractPlugin}. */
 public class AbstractPluginUnitTest extends PluginTestUtils {
+
+    HostProcess parent;
+    HttpMessage message;
+    Analyser analyser;
+    AbstractPlugin plugin;
+
+    @BeforeEach
+    public void setup() {
+        Constant.messages = mock(I18N.class);
+        parent = mock(HostProcess.class);
+        message = mock(HttpMessage.class);
+        analyser = mock(Analyser.class);
+        plugin = spy(AbstractPlugin.class);
+    }
 
     @Test
     public void shouldFailToSetNullTechSet() {
@@ -1218,6 +1241,97 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(
                 config.getString(basePropertyKey + "strength"),
                 is(equalTo(Plugin.AttackStrength.INSANE.name())));
+    }
+
+    @Test
+    public void shouldCheckPage200WithParent() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.OK_200;
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        given(parent.getAnalyser()).willReturn(analyser);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage200(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, type);
+        verifyNoInteractions(analyser);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    public void shouldCheckPage200WithParentAndFallbackToAnalyser(boolean expectedResult) {
+        // Given
+        CustomPage.Type type = CustomPage.Type.OK_200;
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.getAnalyser()).willReturn(analyser);
+        plugin.init(message, parent);
+        given(analyser.isFileExist(message)).willReturn(expectedResult);
+        // When
+        boolean result = plugin.isPage200(message);
+        // Then
+        assertThat(result, is(equalTo(expectedResult)));
+        verify(parent).isCustomPage(message, type);
+        verify(analyser).isFileExist(message);
+    }
+
+    @Test
+    public void shouldCheckPage404WithParent() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage404(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    public void shouldCheckPage404WithParentAndFallbacktoAnalyser(boolean expectedResult) {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.getAnalyser()).willReturn(analyser);
+        plugin.init(message, parent);
+        // 404 is the opposite of isFileExist
+        given(analyser.isFileExist(message)).willReturn(!expectedResult);
+        // When
+        boolean result = plugin.isPage404(message);
+        // Then
+        assertThat(result, is(equalTo(expectedResult)));
+        verify(parent).isCustomPage(message, type);
+        verify(analyser).isFileExist(message);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    public void shouldCheckPage500WithParent(boolean expectedResult) {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        given(parent.isCustomPage(message, type)).willReturn(expectedResult);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage500(message);
+        // Then
+        assertThat(result, is(equalTo(expectedResult)));
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    public void shouldCheckPageOtherWithParent(boolean expectedResult) {
+        // Given
+        CustomPage.Type type = CustomPage.Type.OTHER;
+        given(parent.isCustomPage(message, type)).willReturn(expectedResult);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPageOther(message);
+        // Then
+        assertThat(result, is(equalTo(expectedResult)));
+        verify(parent).isCustomPage(message, type);
     }
 
     private static HttpMessage createAlertMessage() {

@@ -23,7 +23,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
-import net.htmlparser.jericho.Config;
 import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -35,7 +34,6 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.StatsListener;
 
@@ -45,10 +43,6 @@ public class RegexAutoTagScannerUnitTest {
             "<html><head>@@head@@</head><body>@@body_one@@ @@body_two@@</body><html>";
     private static final String TEST_PATTERN = ".*foo\\sbar";
     private static final String TEST_CONFIG = "Test";
-
-    static {
-        Config.LoggerProvider = ZAP.JERICHO_LOGGER_PROVIDER;
-    }
 
     private RegexAutoTagScanner rule;
     private StatsListener listener;

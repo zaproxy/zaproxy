@@ -66,6 +66,7 @@
 // ZAP: 2019/10/21 Use and expose Alert builder.
 // ZAP: 2020/01/27 Extracted code from sendAndReceive method into regenerateAntiCsrfToken method in
 // ExtensionAntiCSRF.
+// ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -87,6 +88,7 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
+import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
@@ -578,13 +580,74 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Tells whether or not the file exists, based on previous analysis.
+     * Tells whether or not the file exists, based on {@code CustomPage} definition or previous
+     * analysis.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the file exists, {@code false} otherwise
      */
     protected boolean isFileExist(HttpMessage msg) {
-        return parent.getAnalyser().isFileExist(msg);
+        return isPage200(msg);
+    }
+
+    /**
+     * Tells whether or not the message matches the specific {@code CustomPage.Type}.
+     *
+     * @param msg the message that will be checked
+     * @param cpType the custom page type to be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    private boolean isCustomPage(HttpMessage msg, CustomPage.Type cpType) {
+        return parent.isCustomPage(msg, cpType);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPage.Type.OK_200} definitions. Falls
+     * back to use {@code Analyser}.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    protected boolean isPage200(HttpMessage msg) {
+        boolean is200 = isCustomPage(msg, CustomPage.Type.OK_200);
+        return is200 ? is200 : parent.getAnalyser().isFileExist(msg);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPage.Type.ERROR_500} definitions.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    protected boolean isPage500(HttpMessage msg) {
+        return isCustomPage(msg, CustomPage.Type.ERROR_500);
+    }
+
+    /**
+     * Tells whether or not the message matches a {@code CustomPage.Type.NOTFOUND_404} definition.
+     * Falls back to {@code Analyser}.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    protected boolean isPage404(HttpMessage msg) {
+        boolean is404 = isCustomPage(msg, CustomPage.Type.NOTFOUND_404);
+        return is404 ? is404 : !parent.getAnalyser().isFileExist(msg);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPage.Type.OTHER} definitions.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    protected boolean isPageOther(HttpMessage msg) {
+        return isCustomPage(msg, CustomPage.Type.OTHER);
     }
 
     /**

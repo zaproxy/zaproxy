@@ -28,7 +28,7 @@ import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.jfree.util.Log;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -49,6 +49,8 @@ import org.zaproxy.zap.utils.Stats;
  * authenticate an entity in a particular web application.
  */
 public abstract class AuthenticationMethod {
+
+    private static final Logger LOGGER = Logger.getLogger(AuthenticationMethod.class);
 
     public static final String CONTEXT_CONFIG_AUTH = Context.CONTEXT_CONFIG + ".authentication";
     public static final String CONTEXT_CONFIG_AUTH_TYPE = CONTEXT_CONFIG_AUTH + ".type";
@@ -351,7 +353,7 @@ public abstract class AuthenticationMethod {
                     requestsSincePoll = 0;
 
                 } catch (Exception e1) {
-                    Log.error(e1.getMessage(), e1);
+                    LOGGER.error(e1.getMessage(), e1);
                     return false;
                 }
                 break;

@@ -36,9 +36,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.testutils.TestUtils;
@@ -54,11 +51,6 @@ public class MessagesLocaleUnitTest extends TestUtils {
     private static final String BASE_NAME = Constant.MESSAGES_PREFIX;
     private static final String FILE_NAME = BASE_NAME + "_";
     private static final String FILE_EXTENSION = ".properties";
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     @Test
     public void shouldLoadAllMessagesFilesAvailable() throws Exception {

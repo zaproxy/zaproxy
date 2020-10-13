@@ -26,6 +26,7 @@ import org.apache.log4j.spi.LoggingEvent;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.ScanStatus;
 
+@Deprecated
 public class ZapOutputWriter extends WriterAppender {
 
     private static final char NEWLINE = '\n';

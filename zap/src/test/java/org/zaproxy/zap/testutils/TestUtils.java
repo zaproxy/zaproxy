@@ -30,20 +30,13 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import net.htmlparser.jericho.Config;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.ZAP;
 
 /** Class with utility/helper methods for general tests. */
 public class TestUtils {
 
     public static final String DEFAULT_CONTENT_TYPE = "text/html;charset=ISO-8859-1";
-
-    static {
-        // Initialise this earlier as possible.
-        Config.LoggerProvider = ZAP.JERICHO_LOGGER_PROVIDER;
-    }
 
     /**
      * A HTTP test server.

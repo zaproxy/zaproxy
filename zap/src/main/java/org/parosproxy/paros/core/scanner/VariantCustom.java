@@ -283,4 +283,28 @@ public class VariantCustom implements Variant {
 
         return value;
     }
+
+    @Override
+    public String getLeafName(String nodeName, HttpMessage msg) {
+        if (script != null) {
+            try {
+                return this.script.getLeafName(this, nodeName, msg);
+            } catch (Exception e) {
+                extension.handleScriptException(wrapper, e);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<String> getTreePath(HttpMessage msg) {
+        if (script != null) {
+            try {
+                return this.script.getTreePath(this, msg);
+            } catch (Exception e) {
+                extension.handleScriptException(wrapper, e);
+            }
+        }
+        return null;
+    }
 }

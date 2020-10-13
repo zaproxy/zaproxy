@@ -83,6 +83,7 @@
 // ZAP: 2020/07/31 Tidy up parameter methods
 // ZAP: 2020/08/17 Changed to use the VariantFactory
 // ZAP: 2020/09/04 Added getContextDataString and getContextDataInteger
+// ZAP: 2020/10/01 Remove use of org.jfree.util.Log use normal log4j infrastructure.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -105,7 +106,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
-import org.jfree.util.Log;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Variant;
@@ -1734,7 +1734,7 @@ public class Session {
                     return name;
                 }
             } catch (Exception e) {
-                Log.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
 
@@ -1900,7 +1900,7 @@ public class Session {
                     return path;
                 }
             } catch (Exception e) {
-                Log.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
         }
         URI uri = msg.getRequestHeader().getURI();

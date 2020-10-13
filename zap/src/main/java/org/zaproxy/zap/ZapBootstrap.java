@@ -22,11 +22,7 @@ package org.zaproxy.zap;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import org.apache.commons.configuration.ConfigurationUtils;
-import org.apache.commons.configuration.DefaultFileSystem;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
+import org.apache.logging.log4j.core.LoggerContext;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -65,13 +61,6 @@ abstract class ZapBootstrap {
      * @return the return code of the program
      */
     public int start() {
-        // Nasty hack to prevent warning messages when running from the command line
-        NullAppender na = new NullAppender();
-        Logger.getRootLogger().addAppender(na);
-        Logger.getRootLogger().setLevel(Level.OFF);
-        Logger.getLogger(ConfigurationUtils.class).addAppender(na);
-        Logger.getLogger(DefaultFileSystem.class).addAppender(na);
-
         try {
             Constant.createInstance(controlOverrides);
         } catch (final Throwable e) {
@@ -81,7 +70,15 @@ abstract class ZapBootstrap {
 
         Constant.setLowMemoryOption(getArgs().isLowMem());
 
+        if (getArgs().isNoStdOutLog()) {
+            disableStdOutLog();
+        }
+
         return 0;
+    }
+
+    protected static void disableStdOutLog() {
+        LoggerContext.getContext().getConfiguration().getRootLogger().removeAppender("stdout");
     }
 
     /**

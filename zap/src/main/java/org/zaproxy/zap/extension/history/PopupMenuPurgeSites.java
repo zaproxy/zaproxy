@@ -44,7 +44,13 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
 
     @Override
     public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
-        return (invoker == Invoker.SITES_PANEL);
+        switch (invoker) {
+            case SITES_PANEL:
+            case SEARCH_PANEL:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override

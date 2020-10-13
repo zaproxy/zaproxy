@@ -20,7 +20,6 @@
 package org.zaproxy.zap;
 
 import java.io.FileNotFoundException;
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
@@ -51,9 +50,6 @@ class DaemonBootstrap extends HeadlessBootstrap {
 
         View.setDaemon(true); // Prevents the View ever being initialised
 
-        if (!getArgs().isNoStdOutLog()) {
-            BasicConfigurator.configure();
-        }
         logger.info(getStartingMessage());
 
         try {
