@@ -86,6 +86,7 @@ import org.parosproxy.paros.core.scanner.Alert.Source;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.custompages.CustomPage;
@@ -581,7 +582,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     /**
      * Tells whether or not the file exists, based on {@code CustomPage} definition or previous
-     * analysis.
+     * analysis. Falls back to use {@code Analyser} which analyzes specific behavior and status
+     * codes.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the file exists, {@code false} otherwise
@@ -604,39 +606,64 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     /**
      * Tells whether or not the message matches {@code CustomPage.Type.OK_200} definitions. Falls
-     * back to use {@code Analyser}.
+     * back to use {@code Analyser} which analyzes specific behavior and status codes. Checks if the
+     * message matches {@code CustomPage.Type.ERROR_500} or {@code CusotmPage.Type.NOTFOUND_404}
+     * first, in case the user is trying to override something.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since TODO Add version
      */
     protected boolean isPage200(HttpMessage msg) {
-        boolean is200 = isCustomPage(msg, CustomPage.Type.OK_200);
-        return is200 ? is200 : parent.getAnalyser().isFileExist(msg);
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.OK_200)) {
+            return true;
+        }
+        return parent.getAnalyser().isFileExist(msg);
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPage.Type.ERROR_500} definitions.
+     * Tells whether or not the message matches {@code CustomPage.Type.ERROR_500} definitions. Falls
+     * back to simply checking the response status code for "500 - Internal Server Error". Checks if
+     * the message matches {@code CustomPage.Type.OK_200} or {@code CusotmPage.Type.NOTFOUND_404}
+     * first, in case the user is trying to override something.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since TODO Add version
      */
     protected boolean isPage500(HttpMessage msg) {
-        return isCustomPage(msg, CustomPage.Type.ERROR_500);
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.NOTFOUND_404)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return true;
+        }
+        return msg.getResponseHeader().getStatusCode() == HttpStatusCode.INTERNAL_SERVER_ERROR;
     }
 
     /**
      * Tells whether or not the message matches a {@code CustomPage.Type.NOTFOUND_404} definition.
-     * Falls back to {@code Analyser}.
+     * Falls back to {@code Analyser}. Checks if the message matches {@code CustomPage.Type.OK_200}
+     * or {@code CustomPage.Type.ERROR_500} first, in case the user is trying to override something.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since TODO Add version
      */
     protected boolean isPage404(HttpMessage msg) {
-        boolean is404 = isCustomPage(msg, CustomPage.Type.NOTFOUND_404);
-        return is404 ? is404 : !parent.getAnalyser().isFileExist(msg);
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)) {
+            return true;
+        }
+        return !parent.getAnalyser().isFileExist(msg);
     }
 
     /**
@@ -648,6 +675,51 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      */
     protected boolean isPageOther(HttpMessage msg) {
         return isCustomPage(msg, CustomPage.Type.OTHER);
+    }
+
+    /**
+     * Tells whether or not the response has a status code between 400 and 499 (inclusive). Falls
+     * back to check {@code CustomPage.Type.NOTFOUND_404} and {@code
+     * Analyser#isFileExist(HttpMessage)}. Checks if the message matches {@code
+     * CustomPage.Type.OK_200} or {@code CustomPage.Type.ERROR_500} first, in case the user is
+     * trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     * @see {@code Analyser#isFileExist(HttpMessage)}
+     */
+    public boolean isClientError(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
+                || !parent.getAnalyser().isFileExist(msg)) {
+            return true;
+        }
+        return HttpStatusCode.isClientError(msg.getResponseHeader().getStatusCode());
+    }
+
+    /**
+     * Tells whether or not the response has a status code between 500 and 599 (inclusive). Falls
+     * back to check {@code CustomPage.Type.EROOR_500}. Checks if the message matches {@code
+     * CustomPage.Type.OK_200} or {@code CustomPage.Type.NOTFOUND_404} first, in case the user is
+     * trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    public boolean isServerError(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.NOTFOUND_404)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return true;
+        }
+        return HttpStatusCode.isServerError(msg.getResponseHeader().getStatusCode());
     }
 
     /**
