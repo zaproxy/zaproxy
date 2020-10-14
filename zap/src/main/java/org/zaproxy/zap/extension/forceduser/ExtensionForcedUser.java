@@ -82,6 +82,9 @@ public class ExtensionForcedUser extends ExtensionAdaptor
     /** The NAME of the extension. */
     public static final String NAME = "ExtensionForcedUser";
 
+    /** The ID that indicates that there's no forced user. */
+    private static final int NO_FORCED_USER = -1;
+
     /** The Constant log. */
     private static final Logger log = Logger.getLogger(ExtensionForcedUser.class);
 
@@ -409,16 +412,17 @@ public class ExtensionForcedUser extends ExtensionAdaptor
         if (user != null) {
             config.setProperty("context.forceduser", user.getId());
         } else {
-            config.setProperty("context.forceduser", -1);
+            config.setProperty("context.forceduser", NO_FORCED_USER);
         }
     }
 
     @Override
     public void importContextData(Context ctx, Configuration config) {
-        int id = config.getInt("context.forceduser");
-        if (id >= 0) {
-            this.setForcedUser(ctx.getId(), id);
+        int id = config.getInt("context.forceduser", NO_FORCED_USER);
+        if (id == NO_FORCED_USER) {
+            return;
         }
+        this.setForcedUser(ctx.getId(), id);
     }
 
     /** No database tables used, so all supported */

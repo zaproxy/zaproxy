@@ -49,6 +49,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/09/15 Added the VariantFactory
+// ZAP: 2020/10/14 Allow to set a singleton Model for tests.
 package org.parosproxy.paros.model;
 
 import java.io.File;
@@ -220,6 +221,18 @@ public class Model {
         if (model == null) {
             model = new Model();
         }
+    }
+
+    /**
+     * Sets the given {@code Model} as the singleton.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @param testModel the {@code Model} to test with.
+     */
+    public static void setSingletonForTesting(Model testModel) {
+        model = testModel;
+        model.contextDataFactories = new ArrayList<>();
     }
 
     /** @return Returns the db. */

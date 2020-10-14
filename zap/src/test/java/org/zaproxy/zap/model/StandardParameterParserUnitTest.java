@@ -19,9 +19,14 @@
  */
 package org.zaproxy.zap.model;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -29,6 +34,8 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 /** Unit test for {@link StandardParameterParser}. */
 public class StandardParameterParserUnitTest {
@@ -127,6 +134,22 @@ public class StandardParameterParserUnitTest {
         assertEquals(res2.get(0).getValue(), "b&c");
         assertEquals(res2.get(1).getName(), "b");
         assertEquals(res2.get(1).getValue(), "c");
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void shouldInitWithNullAndEmptyConfig(String config) {
+        // Given
+        StandardParameterParser parser = new StandardParameterParser("A", "B");
+        parser.setStructuralParameters(Arrays.asList("C", "D"));
+        // When
+        parser.init(config);
+        // Then
+        assertThat(parser.getKeyValuePairSeparators(), is(equalTo("&")));
+        assertThat(parser.getDefaultKeyValuePairSeparator(), is(equalTo("&")));
+        assertThat(parser.getKeyValueSeparators(), is(equalTo("=")));
+        assertThat(parser.getDefaultKeyValueSeparator(), is(equalTo("=")));
+        assertThat(parser.getStructuralParameters(), hasSize(0));
     }
 
     /**
