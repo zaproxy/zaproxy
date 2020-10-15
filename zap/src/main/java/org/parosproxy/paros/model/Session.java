@@ -83,6 +83,7 @@
 // ZAP: 2020/07/31 Tidy up parameter methods
 // ZAP: 2020/08/17 Changed to use the VariantFactory
 // ZAP: 2020/10/01 Remove use of org.jfree.util.Log use normal log4j infrastructure.
+// ZAP: 2020/10/14 Require just the name when importing context.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -1490,7 +1491,7 @@ public class Session {
         Context c = createContext(name);
 
         c.setDescription(config.getString(Context.CONTEXT_CONFIG_DESC));
-        c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
+        c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE, false));
         for (Object obj : config.getList(Context.CONTEXT_CONFIG_INC_REGEXES)) {
             c.addIncludeInContextRegex(obj.toString());
         }
@@ -1512,6 +1513,9 @@ public class Session {
             // Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
             urlParserClass = config.getString(Context.CONTEXT_CONFIG_URLPARSER);
         }
+        if (urlParserClass == null) {
+            urlParserClass = StandardParameterParser.class.getCanonicalName();
+        }
         Class<?> cl = ExtensionFactory.getAddOnLoader().loadClass(urlParserClass);
         if (cl == null) {
             throw new ConfigurationException(
@@ -1529,6 +1533,9 @@ public class Session {
             // Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
             postParserClass = config.getString(urlParserClass);
             postParserConfig = config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG);
+        }
+        if (postParserClass == null) {
+            postParserClass = StandardParameterParser.class.getCanonicalName();
         }
         cl = ExtensionFactory.getAddOnLoader().loadClass(postParserClass);
         if (cl == null) {

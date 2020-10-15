@@ -59,11 +59,14 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     /** The NAME of the extension. */
     public static final String NAME = "ExtensionAuthentication";
 
+    /** The ID that indicates that there's no authentication method. */
+    private static final int NO_AUTH_METHOD = -1;
+
     /** The Constant log. */
     private static final Logger log = Logger.getLogger(ExtensionAuthentication.class);
 
     /** The automatically loaded authentication method types. */
-    List<AuthenticationMethodType> authenticationMethodTypes;
+    List<AuthenticationMethodType> authenticationMethodTypes = new ArrayList<>();
 
     /** The context panels map. */
     private Map<Integer, ContextAuthenticationPanel> contextPanelsMap = new HashMap<>();
@@ -184,7 +187,6 @@ public class ExtensionAuthentication extends ExtensionAdaptor
      * @param hook the extension hook
      */
     private void loadAuthenticationMethodTypes(ExtensionHook hook) {
-        this.authenticationMethodTypes = new ArrayList<>();
         this.authenticationMethodTypes.add(new FormBasedAuthenticationMethodType());
         this.authenticationMethodTypes.add(new HttpAuthenticationMethodType());
         this.authenticationMethodTypes.add(new ManualAuthenticationMethodType());
@@ -344,10 +346,18 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
     @Override
     public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
-        ctx.setAuthenticationMethod(
-                getAuthenticationMethodTypeForIdentifier(
-                                config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE))
-                        .createAuthenticationMethod(ctx.getId()));
+        int typeId = config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE, NO_AUTH_METHOD);
+        if (typeId == NO_AUTH_METHOD) {
+            return;
+        }
+
+        AuthenticationMethodType authMethodType = getAuthenticationMethodTypeForIdentifier(typeId);
+        if (authMethodType == null) {
+            log.warn("No authentication method type found for ID: " + typeId);
+            return;
+        }
+
+        ctx.setAuthenticationMethod(authMethodType.createAuthenticationMethod(ctx.getId()));
         String str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, "");
         if (str.length() > 0) {
             ctx.getAuthenticationMethod().setLoggedInIndicatorPattern(str);
