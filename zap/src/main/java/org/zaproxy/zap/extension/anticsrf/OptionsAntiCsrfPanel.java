@@ -39,6 +39,8 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
 
     private OptionsAntiCsrfTableModel antiCsrfModel = null;
 
+    private JCheckBox checkBoxPartialMatchingEnabled = null;
+
     public OptionsAntiCsrfPanel() {
         super();
         initialize();
@@ -62,6 +64,8 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
         gbc.weighty = 1.0;
         this.add(tokensOptionsPanel, gbc);
 
+        this.add(getCheckBoxPartialMatchingEnabled(), gbc);
+
         // gbc.weighty = 0.0;
     }
 
@@ -71,6 +75,7 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
         AntiCsrfParam param = optionsParam.getParamSet(AntiCsrfParam.class);
         getAntiCsrfModel().setTokens(param.getTokens());
         tokensOptionsPanel.setRemoveWithoutConfirmation(!param.isConfirmRemoveToken());
+        getCheckBoxPartialMatchingEnabled().setSelected(param.isPartialMatchingEnabled());
     }
 
     @Override
@@ -79,6 +84,7 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
         AntiCsrfParam antiCsrfParam = optionsParam.getParamSet(AntiCsrfParam.class);
         antiCsrfParam.setTokens(getAntiCsrfModel().getElements());
         antiCsrfParam.setConfirmRemoveToken(!tokensOptionsPanel.isRemoveWithoutConfirmation());
+        antiCsrfParam.setPartialMatchingEnabled(getCheckBoxPartialMatchingEnabled().isSelected());
     }
 
     /**
@@ -91,6 +97,15 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
             antiCsrfModel = new OptionsAntiCsrfTableModel();
         }
         return antiCsrfModel;
+    }
+
+    private JCheckBox getCheckBoxPartialMatchingEnabled() {
+        if (checkBoxPartialMatchingEnabled == null) {
+            checkBoxPartialMatchingEnabled =
+                    new JCheckBox(
+                            Constant.messages.getString("options.acsrf.SearchForPartialMatching"));
+        }
+        return checkBoxPartialMatchingEnabled;
     }
 
     @Override

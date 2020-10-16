@@ -43,6 +43,9 @@ public class AntiCsrfParam extends AbstractParam {
     private static final String CONFIRM_REMOVE_TOKEN_KEY =
             ANTI_CSRF_BASE_KEY + ".confirmRemoveToken";
 
+    private static final String PARTIAL_MATCHING_ENABLED =
+            ANTI_CSRF_BASE_KEY + ".partialMatchingEnabled";
+
     private static final String[] DEFAULT_TOKENS_NAMES = {
         "anticsrf",
         "CSRFToken",
@@ -54,13 +57,16 @@ public class AntiCsrfParam extends AbstractParam {
         "csrf_token",
         "_csrf",
         "_csrfSecret",
-        "__csrf_magic"
+        "__csrf_magic",
+        "CSRF"
     };
 
     private List<AntiCsrfParamToken> tokens = null;
     private List<String> enabledTokensNames = null;
 
     private boolean confirmRemoveToken = true;
+
+    private boolean partialMatchingEnabled = true;
 
     public AntiCsrfParam() {}
 
@@ -92,6 +98,7 @@ public class AntiCsrfParam extends AbstractParam {
         addMissingTokens();
 
         this.confirmRemoveToken = getBoolean(CONFIRM_REMOVE_TOKEN_KEY, true);
+        this.partialMatchingEnabled = getBoolean(PARTIAL_MATCHING_ENABLED, true);
     }
 
     /**
@@ -195,5 +202,20 @@ public class AntiCsrfParam extends AbstractParam {
     public void setConfirmRemoveToken(boolean confirmRemove) {
         this.confirmRemoveToken = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, confirmRemoveToken);
+    }
+
+    /** Returns true if should detect CSRF tokens by searching for partial matches. */
+    public boolean isPartialMatchingEnabled() {
+        return partialMatchingEnabled;
+    }
+
+    /**
+     * Define if ZAP should detect CSRF tokens by searching for partial matches.
+     *
+     * @param enabled
+     */
+    public void setPartialMatchingEnabled(boolean enabled) {
+        this.partialMatchingEnabled = enabled;
+        getConfig().setProperty(PARTIAL_MATCHING_ENABLED, partialMatchingEnabled);
     }
 }
