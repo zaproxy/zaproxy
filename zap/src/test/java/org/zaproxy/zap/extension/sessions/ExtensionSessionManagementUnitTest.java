@@ -33,6 +33,7 @@ import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
 import org.zaproxy.zap.session.HttpAuthSessionManagementMethodType.HttpAuthSessionManagementMethod;
+import org.zaproxy.zap.session.ScriptBasedSessionManagementMethodType;
 import org.zaproxy.zap.session.ScriptBasedSessionManagementMethodType.ScriptBasedSessionManagementMethod;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -42,6 +43,7 @@ public class ExtensionSessionManagementUnitTest extends WithConfigsTest {
 
     @BeforeEach
     public void setUp() throws Exception {
+        ScriptBasedSessionManagementMethodType.setExtensionScript(null);
         extSessMgmt = new ExtensionSessionManagement();
         extSessMgmt.hook(mock(ExtensionHook.class));
     }

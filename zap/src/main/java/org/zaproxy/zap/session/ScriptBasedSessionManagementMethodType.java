@@ -689,6 +689,17 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
         return extensionScript;
     }
 
+    /**
+     * Sets the {@code ExtensionScript}.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @param extension the script extension.
+     */
+    public static void setExtensionScript(ExtensionScript extension) {
+        extensionScript = extension;
+    }
+
     private static SessionScript getScriptInterface(ScriptWrapper script) {
         try {
             return getScriptsExtension().getInterface(script, SessionScript.class);
