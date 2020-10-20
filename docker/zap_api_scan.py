@@ -59,6 +59,7 @@ from datetime import datetime
 from six.moves.urllib.parse import urljoin
 from zapv2 import ZAPv2
 from zap_common import *
+from zap_ConfigFile import *
 
 
 class NoUrlsException(Exception):
@@ -109,6 +110,7 @@ def usage():
     print('    -O                the hostname to override in the (remote) OpenAPI spec')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
+    print('    -e                Enviroment path [ DSV, HML, PRD ]')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/api-scan/')
 
@@ -144,6 +146,7 @@ def main(argv):
     timeout = 0
     ignore_warn = False
     hook_file = None
+    config_env = ''
 
     pass_count = 0
     warn_count = 0
@@ -154,7 +157,7 @@ def main(argv):
     fail_inprog_count = 0
 
     try:
-        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:IO:", ["hook="])
+        opts, args = getopt.getopt(argv, "e:t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:IO:", ["hook="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -218,6 +221,8 @@ def main(argv):
             host_override = arg
         elif opt == '--hook':
             hook_file = arg
+        elif opt == '-e':
+            config_env = arg
 
     check_zap_client_version()
 
@@ -234,7 +239,10 @@ def main(argv):
         sys.exit(3)
 
     if running_in_docker():
-        base_dir = '/zap/wrk/'
+        enviroment = ENV[str(config_env).upper()]
+        base_dir_env = enviroment["base_dir_env"]
+        print(base_dir_env)
+        base_dir = base_dir_env
         if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file or target_file:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
@@ -300,7 +308,7 @@ def main(argv):
                 params.append('-addoninstall')
                 params.append('pscanrulesAlpha')
 
-            add_zap_options(params, zap_options)
+            add_zap_options(params, zap_options, base_dir)
 
             start_zap(port, params)
 

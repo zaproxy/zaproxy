@@ -36,6 +36,7 @@ from importlib.machinery import SourceFileLoader
 from random import randint
 from six.moves.urllib.request import urlopen
 from six import binary_type
+from zap_api_scan import *
 
 try:
     import pkg_resources
@@ -253,9 +254,10 @@ def running_in_docker():
     return os.path.exists('/.dockerenv') or os.path.exists('/run/.containerenv') or os.environ.get("IS_CONTAINERIZED") == "true"
 
 
-def add_zap_options(params, zap_options):
+def add_zap_options(params, zap_options, base_dir):
     if zap_options:
-        for zap_opt in shlex.split(zap_options):
+        headers = open(f'{base_dir}{zap_options}')
+        for zap_opt in shlex.split(headers):
             params.append(zap_opt)
 
 

@@ -82,6 +82,13 @@ RUN chown zap:zap /zap/* CHANGELOG.md && \
 	chown zap:zap /home/zap/.xinitrc && \
 	chmod a+x /home/zap/.xinitrc
 
+COPY zap_Auth.py /zap
+COPY zap_ConfigFile.py /zap
+COPY zap_enviroment.py /zap
+RUN chmod +x zap_ConfigFile.py
+RUN chmod +x zap_Auth.py
+RUN chown zap:zap -R /zap/*
+
 #Change back to zap at the end
 USER zap
 
