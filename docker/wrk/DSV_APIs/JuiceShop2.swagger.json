@@ -221,7 +221,7 @@
             "examples": {
               "application/json": {
                 "authentication": {
-                  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdGF0dXMiOiJzdWNjZXNzIiwiZGF0YSI6eyJpZCI6MTgsInVzZXJuYW1lIjoiIiwiZW1haWwiOiJtYXJ5QG1hcnkuY29tIiwicGFzc3dvcmQiOiJmMzg3YzE1MjYwNmQ4NDVkM2M0ZmNiNDEzN2IwYzA4NCIsInJvbGUiOiJjdXN0b21lciIsImRlbHV4ZVRva2VuIjoiIiwibGFzdExvZ2luSXAiOiIwLjAuMC4wIiwicHJvZmlsZUltYWdlIjoiL2Fzc2V0cy9wdWJsaWMvaW1hZ2VzL3VwbG9hZHMvZGVmYXVsdC5zdmciLCJ0b3RwU2VjcmV0IjoiIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjAtMDYtMDEgMDM6MzY6MDkuNDY0ICswMDowMCIsInVwZGF0ZWRBdCI6IjIwMjAtMDYtMDEgMDM6MzY6MDkuNDY0ICswMDowMCIsImRlbGV0ZWRBdCI6bnVsbH0sImlhdCI6MTU5MDk4Mzg5NywiZXhwIjoxNTkxMDAxODk3fQ.D4yvZQETjrWWJbheeWsu_X-n3XwrwXE4LNRuw6Kc9SgQsCTNWU-96zTKARpmxZec8X8ZF6bLeQ-OcEsQ1_gJ9T7OQUA65JfgFSzPjTc3Mnio9UO3l1bKPWFO24B_vDbKKej-cNtgPOJnTMsapwUGhVAE8YpebHI4V61ocXnn0Ps",
+                  "token": "",
                   "bid": 9,
                   "umail": "mary@mary.com"
                 }
@@ -364,7 +364,7 @@
       "title": "Login-ValidUser",
       "example": {
         "authentication": {
-          "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdGF0dXMiOiJzdWNjZXNzIiwiZGF0YSI6eyJpZCI6MTgsInVzZXJuYW1lIjoiIiwiZW1haWwiOiJtYXJ5QG1hcnkuY29tIiwicGFzc3dvcmQiOiJmMzg3YzE1MjYwNmQ4NDVkM2M0ZmNiNDEzN2IwYzA4NCIsInJvbGUiOiJjdXN0b21lciIsImRlbHV4ZVRva2VuIjoiIiwibGFzdExvZ2luSXAiOiIwLjAuMC4wIiwicHJvZmlsZUltYWdlIjoiL2Fzc2V0cy9wdWJsaWMvaW1hZ2VzL3VwbG9hZHMvZGVmYXVsdC5zdmciLCJ0b3RwU2VjcmV0IjoiIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjAtMDYtMDEgMDM6MzY6MDkuNDY0ICswMDowMCIsInVwZGF0ZWRBdCI6IjIwMjAtMDYtMDEgMDM6MzY6MDkuNDY0ICswMDowMCIsImRlbGV0ZWRBdCI6bnVsbH0sImlhdCI6MTU5MDk4Mzg5NywiZXhwIjoxNTkxMDAxODk3fQ.D4yvZQETjrWWJbheeWsu_X-n3XwrwXE4LNRuw6Kc9SgQsCTNWU-96zTKARpmxZec8X8ZF6bLeQ-OcEsQ1_gJ9T7OQUA65JfgFSzPjTc3Mnio9UO3l1bKPWFO24B_vDbKKej-cNtgPOJnTMsapwUGhVAE8YpebHI4V61ocXnn0Ps",
+          "token": "",
           "bid": 9,
           "umail": "mary@mary.com"
         }
@@ -382,7 +382,7 @@
     "Authentication": {
       "title": "Authentication",
       "example": {
-        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJzdGF0dXMiOiJzdWNjZXNzIiwiZGF0YSI6eyJpZCI6MTgsInVzZXJuYW1lIjoiIiwiZW1haWwiOiJtYXJ5QG1hcnkuY29tIiwicGFzc3dvcmQiOiJmMzg3YzE1MjYwNmQ4NDVkM2M0ZmNiNDEzN2IwYzA4NCIsInJvbGUiOiJjdXN0b21lciIsImRlbHV4ZVRva2VuIjoiIiwibGFzdExvZ2luSXAiOiIwLjAuMC4wIiwicHJvZmlsZUltYWdlIjoiL2Fzc2V0cy9wdWJsaWMvaW1hZ2VzL3VwbG9hZHMvZGVmYXVsdC5zdmciLCJ0b3RwU2VjcmV0IjoiIiwiaXNBY3RpdmUiOnRydWUsImNyZWF0ZWRBdCI6IjIwMjAtMDYtMDEgMDM6MzY6MDkuNDY0ICswMDowMCIsInVwZGF0ZWRBdCI6IjIwMjAtMDYtMDEgMDM6MzY6MDkuNDY0ICswMDowMCIsImRlbGV0ZWRBdCI6bnVsbH0sImlhdCI6MTU5MDk4Mzg5NywiZXhwIjoxNTkxMDAxODk3fQ.D4yvZQETjrWWJbheeWsu_X-n3XwrwXE4LNRuw6Kc9SgQsCTNWU-96zTKARpmxZec8X8ZF6bLeQ-OcEsQ1_gJ9T7OQUA65JfgFSzPjTc3Mnio9UO3l1bKPWFO24B_vDbKKej-cNtgPOJnTMsapwUGhVAE8YpebHI4V61ocXnn0Ps",
+        "token": "",
         "bid": 9,
         "umail": "mary@mary.com"
       },

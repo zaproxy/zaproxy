@@ -64,8 +64,8 @@ def mass_scan(path_json,swagger,result_env, base_dir_env):
     else:
         config_env = "prd_api"
     
-    #Starting the container using the zap_api params
-    os.system(f'docker exec owasp_zap python3 zap_api_scan.py -e {config_env} \
+    #Starting the container using the zap-api params
+    os.system(f'docker exec owasp_zap python3 zap-api-scan.py -e {config_env} \
        -t "{swagger_splited}.swagger.json" -f openapi -d -z {swagger_splited}.prop  -r {result_env}/{swagger_splited}.html -x {result_env}/{swagger_splited}.xml')
    
     print("finish him!")

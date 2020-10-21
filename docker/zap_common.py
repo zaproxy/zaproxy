@@ -31,12 +31,13 @@ import time
 import traceback
 import errno
 import zapv2
+import importlib 
 from types import ModuleType
 from importlib.machinery import SourceFileLoader
 from random import randint
 from six.moves.urllib.request import urlopen
 from six import binary_type
-from zap_api_scan import *
+zap_api_scan = importlib.import_module("zap-api-scan")
 
 try:
     import pkg_resources
@@ -256,7 +257,7 @@ def running_in_docker():
 
 def add_zap_options(params, zap_options, base_dir):
     if zap_options:
-        headers = open(f'{base_dir}{zap_options}')
+        headers = open('%s%s'%(base_dir,zap_options))
         for zap_opt in shlex.split(headers):
             params.append(zap_opt)
 
