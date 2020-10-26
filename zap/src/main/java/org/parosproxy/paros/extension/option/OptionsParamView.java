@@ -44,6 +44,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/02/24 Persist the class of the selected look and feel.
 // ZAP: 2020/09/29 Add support for dynamic Look and Feel switching (Issue 6201)
+// ZAP: 2020/10/26 Update pop up menus when changing look and feel.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.Window;
@@ -627,7 +628,9 @@ public class OptionsParamView extends AbstractParam {
                                         UIManager.setLookAndFeel(lookAndFeelInfo.getClassName());
                                         Arrays.asList(Window.getWindows()).stream()
                                                 .forEach(SwingUtilities::updateComponentTreeUI);
-
+                                        View.getSingleton()
+                                                .getPopupList()
+                                                .forEach(SwingUtilities::updateComponentTreeUI);
                                     } catch (Exception e2) {
                                         LOG.warn(
                                                 "Failed to set the look and feel: "
