@@ -33,6 +33,8 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/03/24 Remove hardcoded white background on Headline field (part of Issue 5542).
 // ZAP: 2020/08/25 Catch NullPointerException when validating/saving the panel.
+// ZAP: 2020/10/26 Use empty border in the help button, to prevent the look and feel change from
+// resetting it. Also, use the icon from the ExtensionHelp.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -52,6 +54,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -1025,11 +1028,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
     private JButton getHelpButton() {
         if (btnHelp == null) {
             btnHelp = new JButton();
-            btnHelp.setBorder(null);
-            btnHelp.setIcon(
-                    new ImageIcon(
-                            AbstractParamContainerPanel.class.getResource(
-                                    "/resource/icon/16/201.png"))); // help icon
+            btnHelp.setBorder(BorderFactory.createEmptyBorder());
+            btnHelp.setIcon(ExtensionHelp.getHelpIcon());
             btnHelp.addActionListener(getShowHelpAction());
             btnHelp.setToolTipText(Constant.messages.getString("menu.help"));
         }
