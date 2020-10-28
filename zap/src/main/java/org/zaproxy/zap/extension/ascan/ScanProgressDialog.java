@@ -36,20 +36,16 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.LookAndFeel;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableModel;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
@@ -83,11 +79,6 @@ public class ScanProgressDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;
     private static Logger log = Logger.getLogger(ScanProgressDialog.class);
-
-    private transient Color JTABLE_ALTERNATE_BACKGROUND =
-            (Color)
-                    LookAndFeel.getDesktopPropertyValue(
-                            "Table.alternateRowColor", new Color(0xf2f2f2));
 
     private ExtensionActiveScan extension;
     private JScrollPane jScrollPane;
@@ -533,7 +524,9 @@ public class ScanProgressDialog extends AbstractDialog {
     }
 
     /** Custom Renderer for the progress bar plugin column */
-    private class ScanProgressBarRenderer implements TableCellRenderer {
+    private static class ScanProgressBarRenderer extends DefaultTableCellRenderer {
+
+        private static final long serialVersionUID = 1L;
 
         @Override
         public Component getTableCellRendererComponent(
@@ -543,29 +536,23 @@ public class ScanProgressDialog extends AbstractDialog {
                 boolean hasFocus,
                 int row,
                 int column) {
-            JComponent result;
             if (value != null) {
                 ScanProgressItem item = (ScanProgressItem) value;
                 JProgressBar bar = new JProgressBar();
                 bar.setMaximum(100);
 
                 bar.setValue(item.getProgressPercentage());
-                result = bar;
-
-            } else {
-                result = (JComponent) Box.createGlue();
+                return bar;
             }
-
-            // Set all general configurations
-            result.setOpaque(true);
-            result.setBackground(JTABLE_ALTERNATE_BACKGROUND);
-
-            return result;
+            return super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
         }
     }
 
     /** Custom Renderer for the actions column (skipping) */
-    private class ScanProgressActionRenderer implements TableCellRenderer {
+    private class ScanProgressActionRenderer extends DefaultTableCellRenderer {
+
+        private static final long serialVersionUID = 1L;
 
         @Override
         public Component getTableCellRendererComponent(
@@ -575,7 +562,7 @@ public class ScanProgressDialog extends AbstractDialog {
                 boolean hasFocus,
                 int row,
                 int column) {
-            JComponent result;
+            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             if (value != null) {
                 ScanProgressActionIcon action = (ScanProgressActionIcon) value;
                 if (action == model.getFocusedAction()) {
@@ -585,17 +572,11 @@ public class ScanProgressDialog extends AbstractDialog {
                     action.setNormal();
                 }
 
-                result = action;
-
-            } else {
-                result = (JComponent) Box.createGlue();
+                action.setOpaque(true);
+                action.setBackground(getBackground());
+                return action;
             }
-
-            // Set all general configurations
-            result.setOpaque(true);
-            result.setBackground(JTABLE_ALTERNATE_BACKGROUND);
-
-            return result;
+            return this;
         }
     }
 
