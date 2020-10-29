@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/08/06 Issue 6084: Added date time to html report.
+// ZAP: 2020/10/29 Issue 6267: Fix bug to allow writing reports with file path containing '#'.
 package org.parosproxy.paros.extension.report;
 
 import java.io.BufferedReader;
@@ -92,7 +93,7 @@ public class ReportGenerator {
             Transformer transformer = tFactory.newTransformer(stylesource);
 
             // Make the transformation and write to the output file
-            StreamResult result = new StreamResult(outFile);
+            StreamResult result = new StreamResult(outFile.getPath());
             transformer.transform(source, result);
 
         } catch (TransformerException e) {
@@ -132,7 +133,7 @@ public class ReportGenerator {
                 transformer.setParameter("datetime", getCurrentDateTimeString());
 
                 DOMSource source = new DOMSource(doc);
-                StreamResult result = new StreamResult(outfile);
+                StreamResult result = new StreamResult(outfile.getPath());
                 transformer.transform(source, result);
 
             } catch (TransformerException
@@ -311,7 +312,7 @@ public class ReportGenerator {
             transformer.setParameter("datetime", getCurrentDateTimeString());
 
             DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(outfile);
+            StreamResult result = new StreamResult(outfile.getPath());
             transformer.transform(source, result);
 
         } catch (TransformerException
