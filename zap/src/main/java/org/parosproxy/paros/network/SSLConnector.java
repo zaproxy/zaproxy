@@ -40,6 +40,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/04/20 Let SOCKS proxy resolve hosts if set (Issue 29).
+// ZAP: 2020/10/30 Add SNI hostname when using SOCKS with unresolved addresses.
 package org.parosproxy.paros.network;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
@@ -64,6 +65,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.ExtendedSSLSession;
 import javax.net.ssl.HttpsURLConnection;
@@ -74,6 +76,7 @@ import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -450,19 +453,69 @@ public class SSLConnector implements SecureProtocolSocketFactory {
         Socket socket = clientSSLSockFactory.createSocket();
         SocketAddress localAddr = new InetSocketAddress(localAddress, localPort);
         socket.bind(localAddr);
-        SocketAddress remoteAddr = createRemoteAddr(params, host, port);
+        InetSocketAddress remoteAddr = createRemoteAddr(params, host, port);
+        addSniHostName((SSLSocket) socket, remoteAddr);
         socket.connect(remoteAddr, timeout);
 
         return socket;
     }
 
-    private static SocketAddress createRemoteAddr(
+    private static InetSocketAddress createRemoteAddr(
             HttpConnectionParams params, String host, int port) {
         if (params == null
                 || params.getBooleanParameter(HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
             return new InetSocketAddress(host, port);
         }
         return InetSocketAddress.createUnresolved(host, port);
+    }
+
+    /**
+     * Adds the SNI hostname to the given {@code SSLSocket}, if needed.
+     *
+     * <p>The SNI hostname is added if the given address is unresolved and is a hostname. The
+     * default {@code SSLSocket} implementation does not automatically add the SNI hostname if the
+     * address is unresolved.
+     *
+     * @param sslSocket the socket to add the SNI hostname.
+     * @param remoteAddr the remote address, to where the socket is going to be connected.
+     */
+    private static void addSniHostName(SSLSocket sslSocket, InetSocketAddress remoteAddr) {
+        if (!remoteAddr.isUnresolved()) {
+            return;
+        }
+
+        SNIHostName sniHostName = createSniHostName(remoteAddr.getHostString());
+        if (sniHostName == null) {
+            return;
+        }
+
+        SSLParameters parameters = sslSocket.getSSLParameters();
+        List<SNIServerName> serverNames = copy(parameters.getServerNames());
+        serverNames.add(sniHostName);
+        parameters.setServerNames(serverNames);
+        sslSocket.setSSLParameters(parameters);
+    }
+
+    private static SNIHostName createSniHostName(String hostname) {
+        if (isIpAddress(hostname)) {
+            return null;
+        }
+
+        try {
+            return new SNIHostName(hostname);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Failed to create the SNI hostname for: " + hostname, e);
+        }
+        return null;
+    }
+
+    private static <T> List<T> copy(List<T> list) {
+        if (list == null || list.isEmpty()) {
+            return new ArrayList<>(1);
+        }
+        List<T> newList = new ArrayList<>(list.size() + 1);
+        newList.addAll(list);
+        return newList;
     }
 
     private static void cacheMisconfiguredHost(String host, int port, InetAddress address) {
