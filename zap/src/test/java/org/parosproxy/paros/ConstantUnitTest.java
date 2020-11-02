@@ -145,6 +145,22 @@ public class ConstantUnitTest {
         assertHomeFile("log4j.properties.bak", log4jContents);
     }
 
+    @Test
+    public void shouldNotBackupLegacyLog4jConfigurationIfBackupExists() throws IOException {
+        // Given
+        Constant.setZapInstall(zapInstallDir.toString());
+        Constant.setZapHome(zapHomeDir.toString());
+        String log4jContents = "log4j.rootLogger...";
+        homeFile("log4j.properties", log4jContents);
+        String log4jContentsBackup = "backup";
+        homeFile("log4j.properties.bak", log4jContentsBackup);
+        // When
+        new Constant();
+        // Then
+        assertHomeFile("log4j.properties", log4jContents);
+        assertHomeFile("log4j.properties.bak", log4jContentsBackup);
+    }
+
     private void assertHomeFile(String name, String contents) throws IOException {
         assertHomeFile(name, is(equalTo(contents)));
     }
