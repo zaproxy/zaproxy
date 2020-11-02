@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -78,6 +79,28 @@ public class SessionUnitTest {
 
         session = new Session(model);
         given(model.getSession()).willReturn(session);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGettingLeafNameWithNullUri() throws Exception {
+        // Given
+        String nodeName = "path";
+        URI uri = null;
+        String method = "GET";
+        // When / Then
+        assertThrows(
+                NullPointerException.class, () -> session.getLeafName(nodeName, uri, method, null));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGettingLeafNameWithNullMethod() throws Exception {
+        // Given
+        String nodeName = "path";
+        URI uri = new URI("https://www.example.com/path?a=b", true);
+        String method = null;
+        // When / Then
+        assertThrows(
+                NullPointerException.class, () -> session.getLeafName(nodeName, uri, method, null));
     }
 
     @Test
