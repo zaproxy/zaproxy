@@ -37,6 +37,7 @@
 // ZAP: 2018/04/03 Update for behavioural changes in TabbedPanel2.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/02 Add OneTouchExapandable control to Sites Tree/Request&Response panels
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -614,6 +615,7 @@ public class WorkbenchPanel extends JPanel {
      */
     private JSplitPane createSelectPanelsSplit() {
         JSplitPane splitHoriz = new JSplitPane();
+        splitHoriz.setOneTouchExpandable(true);
         splitHoriz.setLeftComponent(getPaneSelect());
         switch (layout) {
             case EXPAND_SELECT:
@@ -630,7 +632,6 @@ public class WorkbenchPanel extends JPanel {
                 JSplitPane.DIVIDER_LOCATION_PROPERTY,
                 new DividerResizedListener(DIVIDER_HORIZONTAL));
 
-        splitHoriz.setDividerSize(3);
         splitHoriz.setResizeWeight(0.3D);
         splitHoriz.setContinuousLayout(false);
         splitHoriz.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
