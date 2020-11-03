@@ -438,7 +438,8 @@ public class ExtensionAlert extends ExtensionAdaptor
                         alert.getWascId(),
                         ref.getHistoryId(),
                         alert.getSourceHistoryId(),
-                        alert.getSource().getId());
+                        alert.getSource().getId(),
+                        alert.getAlertRef());
 
         alert.setAlertId(recordAlert.getAlertId());
     }

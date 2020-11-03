@@ -54,6 +54,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
     private static final String HISTORYID = DbSQL.getSQL("alert.field.historyid");
     private static final String SOURCEHISTORYID = DbSQL.getSQL("alert.field.sourcehistoryid");
     private static final String SOURCEID = DbSQL.getSQL("alert.field.sourceid");
+    private static final String ALERTREF = DbSQL.getSQL("alert.field.alertref");
 
     public SqlTableAlert() {}
 
@@ -94,6 +95,10 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
             if (!DbUtils.hasColumn(connection, TABLE_NAME, SOURCEID)) {
                 DbUtils.execute(connection, DbSQL.getSQL("alert.ps.addsourceid"));
                 DbUtils.execute(connection, DbSQL.getSQL("alert.ps.addsourceidindex"));
+            }
+
+            if (!DbUtils.hasColumn(connection, TABLE_NAME, ALERTREF)) {
+                DbUtils.execute(connection, DbSQL.getSQL("alert.ps.addalertref"));
             }
         } catch (SQLException e) {
             throw new DatabaseException(e);
@@ -141,7 +146,8 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
             int wascId,
             int historyId,
             int sourceHistoryId,
-            int sourceId)
+            int sourceId,
+            String alertRef)
             throws DatabaseException {
 
         SqlPreparedStatementWrapper psInsert = null;
@@ -165,6 +171,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
             psInsert.getPs().setInt(16, historyId);
             psInsert.getPs().setInt(17, sourceHistoryId);
             psInsert.getPs().setInt(18, sourceId);
+            psInsert.getPs().setString(19, alertRef);
 
             psInsert.getPs().executeUpdate();
 
@@ -205,7 +212,8 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
                                 rs.getInt(WASCID),
                                 rs.getInt(HISTORYID),
                                 rs.getInt(SOURCEHISTORYID),
-                                rs.getInt(SOURCEID));
+                                rs.getInt(SOURCEID),
+                                rs.getString(ALERTREF));
             }
             return alert;
         } catch (SQLException e) {
