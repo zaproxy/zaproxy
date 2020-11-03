@@ -25,7 +25,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -37,10 +39,13 @@ import java.nio.charset.Charset;
 import java.util.zip.GZIPOutputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
+import org.zaproxy.zap.utils.I18N;
 
 public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 extends HttpBody> {
 
@@ -61,6 +66,7 @@ public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 ext
 
     @BeforeEach
     void setup() {
+        Constant.messages = mock(I18N.class);
         model = createModel();
 
         message = mock(HttpMessage.class);
@@ -148,7 +154,7 @@ public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 ext
     }
 
     @Test
-    void shouldSetDataIntoBodyAndIgnoreMalformedHeader() throws HttpMalformedHeaderException {
+    void shouldThrowExceptionWhenSettingMalformedHeader() throws HttpMalformedHeaderException {
         // Given
         model.setMessage(message);
         String otherHeaderContent = "Malformed Header";
@@ -156,11 +162,10 @@ public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 ext
         String otherBodyContent = "Other Body\r\n 123\n ABC";
         String data = otherHeaderContent + "\n\n" + otherBodyContent;
         given(body.length()).willReturn(otherBodyContent.length());
-        // When
-        model.setData(data);
-        // Then
+        // When / Then
+        assertThrows(InvalidMessageDataException.class, () -> model.setData(data));
         verify(header, times(0)).setContentLength(anyInt());
-        verify(body).setBody(otherBodyContent);
+        verify(body, times(0)).setBody(anyString());
     }
 
     @Test

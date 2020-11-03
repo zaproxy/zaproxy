@@ -43,7 +43,10 @@ import javax.swing.ListCellRenderer;
 import javax.swing.MutableComboBoxModel;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
@@ -260,11 +263,32 @@ public class HttpPanelComponentViewsManager implements ItemListener, MessageLoca
                 return;
             }
 
-            save();
+            try {
+                save();
+            } catch (InvalidMessageDataException e1) {
+                comboBoxModel.setSelectedItem(viewItems.get(currentView.getName()));
+
+                StringBuilder warnMessage = new StringBuilder(150);
+                warnMessage.append(Constant.messages.getString("http.panel.view.warn.datainvalid"));
+
+                String exceptionMessage = e1.getLocalizedMessage();
+                if (exceptionMessage != null && !exceptionMessage.isEmpty()) {
+                    warnMessage.append('\n').append(exceptionMessage);
+                }
+                View.getSingleton().showWarningDialog(warnMessage.toString());
+                return;
+            }
             switchView(item.getConfigName());
         }
     }
 
+    /**
+     * Saves the data shown in the views into the current message.
+     *
+     * <p>Has not effect if there's no view or message.
+     *
+     * @throws InvalidMessageDataException if unable to save the data (e.g. malformed).
+     */
     public void save() {
         if (message == null || currentView == null) {
             return;

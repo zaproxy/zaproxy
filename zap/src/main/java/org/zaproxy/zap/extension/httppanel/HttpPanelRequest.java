@@ -26,6 +26,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
 import org.zaproxy.zap.view.HttpPanelManager;
 
@@ -92,7 +93,25 @@ public class HttpPanelRequest extends HttpPanel {
                             if (comboChangeMethod.getSelectedIndex() > 0) {
 
                                 if (message instanceof HttpMessage) {
-                                    saveData();
+                                    try {
+                                        saveData();
+                                    } catch (InvalidMessageDataException e1) {
+                                        comboChangeMethod.setSelectedIndex(0);
+
+                                        StringBuilder warnMessage = new StringBuilder(150);
+                                        warnMessage.append(
+                                                Constant.messages.getString(
+                                                        "manReq.pullDown.method.warn"));
+
+                                        String exceptionMessage = e1.getLocalizedMessage();
+                                        if (exceptionMessage != null
+                                                && !exceptionMessage.isEmpty()) {
+                                            warnMessage.append('\n').append(exceptionMessage);
+                                        }
+                                        View.getSingleton()
+                                                .showWarningDialog(warnMessage.toString());
+                                        return;
+                                    }
                                     ((HttpMessage) message)
                                             .mutateHttpMethod(
                                                     (String) comboChangeMethod.getSelectedItem());
