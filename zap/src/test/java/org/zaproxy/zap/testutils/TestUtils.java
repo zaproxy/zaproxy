@@ -229,8 +229,8 @@ public class TestUtils {
      * @return the contents of the file.
      * @see #getResourcePath(String)
      */
-    public String getHtml(String resourcePath) {
-        return this.getHtml(resourcePath, (Map<String, String>) null);
+    public String getContent(String resourcePath) {
+        return this.getContent(resourcePath, (Map<String, String>) null);
     }
 
     /**
@@ -241,12 +241,12 @@ public class TestUtils {
      * @return the contents of the file.
      * @see #getResourcePath(String)
      */
-    public String getHtml(String resourcePath, String[][] params) {
+    public String getContent(String resourcePath, String[][] params) {
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < params.length; i++) {
             map.put(params[i][0], params[i][1]);
         }
-        return this.getHtml(resourcePath, map);
+        return this.getContent(resourcePath, map);
     }
 
     /**
@@ -257,7 +257,7 @@ public class TestUtils {
      * @return the contents of the file.
      * @see #getResourcePath(String)
      */
-    public String getHtml(String resourcePath, Map<String, String> params) {
+    public String getContent(String resourcePath, Map<String, String> params) {
         Path file = getResourcePath(resourcePath);
         try {
             String html = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);

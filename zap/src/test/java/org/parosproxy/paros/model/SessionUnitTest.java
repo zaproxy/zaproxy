@@ -20,29 +20,37 @@
 package org.parosproxy.paros.model;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.nullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.withSettings;
 
+import java.io.File;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.parosproxy.paros.core.scanner.Variant;
+import org.parosproxy.paros.db.Database;
+import org.parosproxy.paros.db.TableContext;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
-import org.zaproxy.zap.utils.I18N;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.StandardParameterParser;
 
 public class SessionUnitTest {
 
@@ -51,12 +59,7 @@ public class SessionUnitTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        Constant.getInstance();
-        I18N i18n = Mockito.mock(I18N.class, withSettings().lenient());
-        given(i18n.getString(anyString())).willReturn("");
-        given(i18n.getString(anyString(), any())).willReturn("");
-        given(i18n.getLocal()).willReturn(Locale.getDefault());
-        Constant.messages = i18n;
+        WithConfigsTest.setUpConstant();
         factory = new VariantFactory();
         Model model = mock(Model.class);
         given(model.getVariantFactory()).willReturn(factory);
@@ -64,6 +67,28 @@ public class SessionUnitTest {
 
         session = new Session(model);
         given(model.getSession()).willReturn(session);
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGettingLeafNameWithNullUri() throws Exception {
+        // Given
+        String nodeName = "path";
+        URI uri = null;
+        String method = "GET";
+        // When / Then
+        assertThrows(
+                NullPointerException.class, () -> session.getLeafName(nodeName, uri, method, null));
+    }
+
+    @Test
+    public void shouldThrowExceptionWhenGettingLeafNameWithNullMethod() throws Exception {
+        // Given
+        String nodeName = "path";
+        URI uri = new URI("https://www.example.com/path?a=b", true);
+        String method = null;
+        // When / Then
+        assertThrows(
+                NullPointerException.class, () -> session.getLeafName(nodeName, uri, method, null));
     }
 
     @Test
@@ -230,6 +255,58 @@ public class SessionUnitTest {
         assertThat(actualTreePath.size(), is(equalTo(expectedTreePath.size())));
         for (int i = 0; i < actualTreePath.size(); i++) {
             assertThat(actualTreePath.get(i), is(equalTo(expectedTreePath.get(i))));
+        }
+    }
+
+    /** Tests related to {@link Context}. */
+    static class ContextRelatedUnitTest extends WithConfigsTest {
+
+        private Session session;
+        private TableContext tableContext;
+
+        @BeforeEach
+        void setup() {
+            Database database = mock(Database.class);
+            given(model.getDb()).willReturn(database);
+            tableContext = mock(TableContext.class);
+            given(database.getTableContext()).willReturn(tableContext);
+
+            session = new Session(model);
+        }
+
+        @Test
+        void shouldImportContextWithJustName() throws Exception {
+            // Given
+            String name = "Context Name";
+            File contextFile = contextFile(String.format("<name>%s</name>", name));
+            // When
+            Context context = session.importContext(contextFile);
+            // Then
+            assertThat(context.getId(), is(equalTo(1)));
+            assertThat(context.getName(), is(equalTo(name)));
+            assertThat(context.getDescription(), is(nullValue()));
+            assertThat(context.isInScope(), is(equalTo(false)));
+            assertThat(context.getIncludeInContextRegexs(), is(empty()));
+            assertThat(context.getExcludeFromContextRegexs(), is(empty()));
+            assertThat(context.getTechSet(), is(notNullValue()));
+            assertThat(context.getTechSet().getIncludeTech(), is(empty()));
+            assertThat(context.getTechSet().getExcludeTech(), is(empty()));
+            assertThat(context.getUrlParamParser(), is(instanceOf(StandardParameterParser.class)));
+            assertThat(context.getPostParamParser(), is(instanceOf(StandardParameterParser.class)));
+            assertThat(context.getDataDrivenNodes(), is(empty()));
+        }
+
+        private static File contextFile(String content) throws Exception {
+            Path file = Files.createTempFile(tempDir, "context", null);
+            try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+                writer.write(
+                        "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
+                                + "<configuration>\n"
+                                + "    <context>");
+                writer.write(content);
+                writer.write("\n" + "    </context>\n" + "</configuration>");
+            }
+            return file.toFile();
         }
     }
 

@@ -585,8 +585,13 @@ public class HttpSender {
             HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params) throws IOException {
         // Modify the request message if a 'Requesting User' has been set
         User forceUser = this.getUser(msg);
-        if (initiator != AUTHENTICATION_INITIATOR && forceUser != null)
-            forceUser.processMessageToMatchUser(msg);
+        if (forceUser != null) {
+            if (initiator == AUTHENTICATION_POLL_INITIATOR) {
+                forceUser.processMessageToMatchAuthenticatedSession(msg);
+            } else if (initiator != AUTHENTICATION_INITIATOR) {
+                forceUser.processMessageToMatchUser(msg);
+            }
+        }
 
         log.debug("Sending message to: " + msg.getRequestHeader().getURI().toString());
         // Send the message

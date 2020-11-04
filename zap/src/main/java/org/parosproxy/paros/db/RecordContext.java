@@ -49,6 +49,7 @@ public class RecordContext {
     public static final int TYPE_AUTH_POLL_DATA = 210;
     public static final int TYPE_AUTH_POLL_FREQ = 211;
     public static final int TYPE_AUTH_POLL_FREQ_UNITS = 212;
+    public static final int TYPE_AUTH_POLL_HEADERS = 213;
 
     public static final int TYPE_SESSION_MANAGEMENT_TYPE = 220;
     public static final int TYPE_SESSION_MANAGEMENT_FIELD_1 = 221;

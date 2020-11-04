@@ -108,6 +108,7 @@
 // ZAP: 2020/09/17 Correct the Syntax Highlighting markoccurrences config key name when upgrading
 // from 2.9 or earlier.
 // ZAP: 2020/10/07 Changes for Log4j 2 migration.
+// ZAP: 2020/11/02 Do not backup old Log4j config if already present.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -761,11 +762,17 @@ public final class Constant {
 
     private static void backupLegacyLog4jConfig() {
         String fileName = "log4j.properties";
+        Path backupLegacyConfig = Paths.get(zapHome, fileName + ".bak");
+        if (Files.exists(backupLegacyConfig)) {
+            logAndPrintInfo("Ignoring legacy log4j.properties file, backup already exists.");
+            return;
+        }
+
         Path legacyConfig = Paths.get(zapHome, fileName);
         if (Files.exists(legacyConfig)) {
             logAndPrintInfo("Creating backup of legacy log4j.properties file...");
             try {
-                Files.move(legacyConfig, Paths.get(zapHome, fileName + ".bak"));
+                Files.move(legacyConfig, backupLegacyConfig);
             } catch (IOException e) {
                 logAndPrintError("Failed to backup legacy Log4j configuration file:", e);
             }

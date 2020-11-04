@@ -32,9 +32,7 @@ import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
@@ -42,7 +40,6 @@ import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnit
 import org.zaproxy.zap.testutils.NanoServerHandler;
 import org.zaproxy.zap.testutils.TestUtils;
 
-@ExtendWith(MockitoExtension.class)
 public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
 
     private static final String LOGGED_IN_INDICATOR = "logged in";
@@ -103,7 +100,7 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldPollEveryFiveRequests() throws NullPointerException, IOException {
+    public void shouldPollOnSpecifiedNumberOfRequests() throws NullPointerException, IOException {
         // Given
         String test = "/shouldPollOnFirstRequest/test";
         String pollUrl = "/shouldPollOnFirstRequest/pollUrl";

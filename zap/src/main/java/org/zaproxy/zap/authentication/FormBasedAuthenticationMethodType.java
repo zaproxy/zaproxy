@@ -82,11 +82,6 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
                 false);
     }
 
-    @Override
-    public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
-        super.replaceUserCredentialsDataInPollRequest(msg, user, PARAM_ENCODER);
-    }
-
     /**
      * An {@link AuthenticationMethod} where the Users are authenticated by posting a form ({@code
      * application/x-www-form-urlencoded}) with its username and password.
@@ -119,6 +114,12 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
         @Override
         protected AuthenticationMethod duplicate() {
             return new FormBasedAuthenticationMethod(this);
+        }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+            PostBasedAuthenticationMethodType.replaceUserCredentialsDataInPollRequest(
+                    msg, user, PARAM_ENCODER);
         }
     }
 

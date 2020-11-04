@@ -72,6 +72,18 @@ public class ReportGeneratorUnitTest extends TestUtils {
     }
 
     @Test
+    public void shouldWriteReportWhenPathContainsHashSymbol(@TempDir Path tempDir)
+            throws Exception {
+        // Given
+        String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>ZAP</data>" + NEWLINE;
+        Path report = Files.createTempFile(tempDir, "#", "");
+        // When
+        ReportGenerator.stringToHtml(data, identityXsl(), report.toString());
+        // Then
+        assertThat(contents(report), is(equalTo(data)));
+    }
+
+    @Test
     public void shouldUseEmptyArrayForSitesInJsonReportIfNoSitePresent() {
         // Given
         String xmlReport =

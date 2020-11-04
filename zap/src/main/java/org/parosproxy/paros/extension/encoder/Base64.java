@@ -10,8 +10,6 @@
 package org.parosproxy.paros.extension.encoder;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
-
 
 /**
  * <p>Encodes and decodes to and from Base64 notation.</p>
@@ -1176,8 +1174,8 @@ public class Base64
         if( len == 0 ){
             return new byte[0];
         }else if( len < 4 ){
-            throw new IllegalArgumentException(
-        			Constant.messages.getString("enc2.base64.decode.error.invalidlenght", len));
+            throw new IllegalArgumentException( String.format(
+            "Base64-encoded string must have at least four characters, but length specified was %d", len));
         }   // end if
         
         byte[] DECODABET = getDecodabet( options );
@@ -1214,8 +1212,8 @@ public class Base64
             }   // end if: white space, equals sign or better
             else {
                 // There's a bad input character in the Base64 stream.
-                throw new java.io.IOException(
-            			Constant.messages.getString("enc2.base64.decode.error.badinput", source[i] & 0xFF, i));
+                throw new java.io.IOException( String.format(
+                "Bad Base64 input character decimal %d in array position %d", source[i] & 0xFF, i));
             }   // end else: 
         }   // each input character
                                    

@@ -358,6 +358,13 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 LOGGER.error("Unable to send authentication message: " + e.getMessage());
                 return null;
             }
+            // Add message to history
+            AuthenticationHelper.addAuthMessageToHistory(msg);
+
+            // Update the session as it may have changed
+            WebSession session = sessionManagementMethod.extractWebSession(msg);
+            user.setAuthenticatedSession(session);
+
             if (this.isAuthenticated(msg, user, true)) {
                 // Let the user know it worked
                 AuthenticationHelper.notifyOutputAuthSuccessful(msg);
@@ -366,11 +373,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 AuthenticationHelper.notifyOutputAuthFailure(msg);
             }
 
-            // Add message to history
-            AuthenticationHelper.addAuthMessageToHistory(msg);
-
-            // Return the web session as extracted by the session management method
-            return sessionManagementMethod.extractWebSession(msg);
+            return session;
         }
 
         /**
@@ -1412,7 +1415,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         }
     }
 
-    public void replaceUserCredentialsDataInPollRequest(
+    public static void replaceUserCredentialsDataInPollRequest(
             HttpMessage msg, User user, UnaryOperator<String> bodyEncoder) {
         if (user != null) {
             AuthenticationCredentials creds = user.getAuthenticationCredentials();

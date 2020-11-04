@@ -49,6 +49,9 @@ public class ExtensionAuthorization extends ExtensionAdaptor
     /** The NAME of the extension. */
     public static final String NAME = "ExtensionAuthorization";
 
+    /** The ID that indicates that there's no authorization method. */
+    private static final int NO_AUTH_METHOD = -1;
+
     /** The map of context panels. */
     private Map<Integer, ContextAuthorizationPanel> contextPanelsMap = new HashMap<>();
 
@@ -162,11 +165,15 @@ public class ExtensionAuthorization extends ExtensionAdaptor
 
     @Override
     public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
-        int type = config.getInt(AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH_TYPE);
+        int type =
+                config.getInt(
+                        AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH_TYPE, NO_AUTH_METHOD);
         switch (type) {
             case BasicAuthorizationDetectionMethod.METHOD_UNIQUE_ID:
                 ctx.setAuthorizationDetectionMethod(new BasicAuthorizationDetectionMethod(config));
                 break;
+            default:
+                log.warn("No authorization detection method found for ID: " + type);
         }
     }
 }

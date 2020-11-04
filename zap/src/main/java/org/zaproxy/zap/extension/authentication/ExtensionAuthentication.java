@@ -61,11 +61,14 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     /** The NAME of the extension. */
     public static final String NAME = "ExtensionAuthentication";
 
+    /** The ID that indicates that there's no authentication method. */
+    private static final int NO_AUTH_METHOD = -1;
+
     /** The Constant log. */
     private static final Logger log = Logger.getLogger(ExtensionAuthentication.class);
 
     /** The automatically loaded authentication method types. */
-    List<AuthenticationMethodType> authenticationMethodTypes;
+    List<AuthenticationMethodType> authenticationMethodTypes = new ArrayList<>();
 
     /** The context panels map. */
     private Map<Integer, ContextAuthenticationPanel> contextPanelsMap = new HashMap<>();
@@ -186,7 +189,6 @@ public class ExtensionAuthentication extends ExtensionAdaptor
      * @param hook the extension hook
      */
     private void loadAuthenticationMethodTypes(ExtensionHook hook) {
-        this.authenticationMethodTypes = new ArrayList<>();
         this.authenticationMethodTypes.add(new FormBasedAuthenticationMethodType());
         this.authenticationMethodTypes.add(new HttpAuthenticationMethodType());
         this.authenticationMethodTypes.add(new ManualAuthenticationMethodType());
@@ -245,12 +247,12 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     @Override
     public void loadContextData(Session session, Context context) {
         try {
-            String type =
-                    session.getContextDataString(
-                            context.getId(), RecordContext.TYPE_AUTH_METHOD_TYPE, null);
-            if (type != null) {
+            List<String> typeL =
+                    session.getContextDataStrings(
+                            context.getId(), RecordContext.TYPE_AUTH_METHOD_TYPE);
+            if (typeL != null && typeL.size() > 0) {
                 AuthenticationMethodType t =
-                        getAuthenticationMethodTypeForIdentifier(Integer.parseInt(type));
+                        getAuthenticationMethodTypeForIdentifier(Integer.parseInt(typeL.get(0)));
                 if (t != null) {
                     context.setAuthenticationMethod(
                             t.loadMethodFromSession(session, context.getId()));
@@ -280,6 +282,13 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                                     session.getContextDataString(
                                             context.getId(),
                                             RecordContext.TYPE_AUTH_POLL_DATA,
+                                            null));
+
+                    context.getAuthenticationMethod()
+                            .setPollHeaders(
+                                    session.getContextDataString(
+                                            context.getId(),
+                                            RecordContext.TYPE_AUTH_POLL_HEADERS,
                                             null));
 
                     context.getAuthenticationMethod()
@@ -356,6 +365,14 @@ public class ExtensionAuthentication extends ExtensionAdaptor
             } else {
                 session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_POLL_DATA);
             }
+            if (context.getAuthenticationMethod().getPollHeaders() != null) {
+                session.setContextData(
+                        contextIdx,
+                        RecordContext.TYPE_AUTH_POLL_HEADERS,
+                        context.getAuthenticationMethod().getPollHeaders());
+            } else {
+                session.clearContextDataForType(contextIdx, RecordContext.TYPE_AUTH_POLL_HEADERS);
+            }
             session.setContextData(
                     contextIdx,
                     RecordContext.TYPE_AUTH_POLL_FREQ,
@@ -425,6 +442,9 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                 AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA,
                 ctx.getAuthenticationMethod().getPollData());
         config.setProperty(
+                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_HEADERS,
+                ctx.getAuthenticationMethod().getPollHeaders());
+        config.setProperty(
                 AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_FREQ,
                 ctx.getAuthenticationMethod().getPollFrequency());
         if (ctx.getAuthenticationMethod().getPollFrequencyUnits() != null) {
@@ -447,56 +467,43 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
     @Override
     public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
-        ctx.setAuthenticationMethod(
-                getAuthenticationMethodTypeForIdentifier(
-                                config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE))
-                        .createAuthenticationMethod(ctx.getId()));
-        String str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY, "");
-        if (str.length() > 0) {
-            try {
-                ctx.getAuthenticationMethod()
-                        .setAuthCheckingStrategy(AuthCheckingStrategy.valueOf(str));
-            } catch (Exception e) {
-                log.error(
-                        "Failed to parse auth checking strategy "
-                                + str
-                                + " for context "
-                                + ctx.getName(),
-                        e);
-            }
-        }
-        ctx.getAuthenticationMethod()
-                .setPollUrl(
-                        config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL, ""));
-        ctx.getAuthenticationMethod()
-                .setPollData(
-                        config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA, ""));
-        ctx.getAuthenticationMethod()
-                .setPollFrequency(
-                        config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_FREQ, 0));
-        str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS, "");
-        if (str.length() > 0) {
-            try {
-                ctx.getAuthenticationMethod()
-                        .setPollFrequencyUnits(AuthPollFrequencyUnits.valueOf(str));
-            } catch (Exception e) {
-                log.error(
-                        "Failed to parse auth poll freq units strategy "
-                                + str
-                                + " for context "
-                                + ctx.getName(),
-                        e);
-            }
+        int typeId = config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE, NO_AUTH_METHOD);
+        if (typeId == NO_AUTH_METHOD) {
+            return;
         }
 
-        str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, "");
-        if (str.length() > 0) {
-            ctx.getAuthenticationMethod().setLoggedInIndicatorPattern(str);
+        AuthenticationMethodType authMethodType = getAuthenticationMethodTypeForIdentifier(typeId);
+        if (authMethodType == null) {
+            log.warn("No authentication method type found for ID: " + typeId);
+            return;
         }
-        str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT, "");
-        if (str.length() > 0) {
-            ctx.getAuthenticationMethod().setLoggedOutIndicatorPattern(str);
-        }
-        ctx.getAuthenticationMethod().getType().importData(config, ctx.getAuthenticationMethod());
+        ctx.setAuthenticationMethod(authMethodType.createAuthenticationMethod(ctx.getId()));
+        AuthenticationMethod method = ctx.getAuthenticationMethod();
+
+        AuthCheckingStrategy strategy =
+                AuthCheckingStrategy.valueOf(
+                        config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY));
+        method.setAuthCheckingStrategy(strategy);
+
+        method.setPollUrl(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL, ""));
+        method.setPollData(
+                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_DATA, ""));
+        method.setPollHeaders(
+                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_HEADERS, ""));
+        method.setPollFrequency(
+                config.getInt(
+                        AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_FREQ,
+                        AuthenticationMethod.DEFAULT_POLL_FREQUENCY));
+
+        AuthPollFrequencyUnits units =
+                AuthPollFrequencyUnits.valueOf(
+                        config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS));
+        method.setPollFrequencyUnits(units);
+
+        method.setLoggedInIndicatorPattern(
+                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, ""));
+        method.setLoggedOutIndicatorPattern(
+                config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT, ""));
+        method.getType().importData(config, method);
     }
 }

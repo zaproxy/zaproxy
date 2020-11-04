@@ -183,6 +183,11 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
             values.put("realm", this.realm);
             return new AuthMethodApiResponseRepresentation<>(values);
         }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+            // Nothing to do
+        }
     }
 
     /** The Options Panel used for configuring a {@link HttpAuthenticationMethod}. */
@@ -432,10 +437,5 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
         method.hostname = config.getString(CONTEXT_CONFIG_AUTH_HTTP_HOSTNAME);
         method.realm = config.getString(CONTEXT_CONFIG_AUTH_HTTP_REALM);
         method.port = config.getInt(CONTEXT_CONFIG_AUTH_HTTP_PORT);
-    }
-
-    @Override
-    public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
-        // Nothing to do
     }
 }

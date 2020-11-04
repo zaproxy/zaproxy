@@ -105,14 +105,6 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
     private ExtensionScript extensionScript;
 
-    private ScriptBasedAuthenticationMethod method;
-
-    public ScriptBasedAuthenticationMethodType() {}
-
-    public ScriptBasedAuthenticationMethodType(ScriptBasedAuthenticationMethod method) {
-        this.method = method;
-    }
-
     public class ScriptBasedAuthenticationMethod extends AuthenticationMethod {
 
         private ScriptWrapper script;
@@ -251,7 +243,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
         @Override
         public AuthenticationMethodType getType() {
-            return new ScriptBasedAuthenticationMethodType(this);
+            return new ScriptBasedAuthenticationMethodType();
         }
 
         @Override
@@ -343,6 +335,12 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             values.put("scriptName", script.getName());
             values.putAll(paramValues);
             return new AuthMethodApiResponseRepresentation<>(values);
+        }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+            AuthenticationHelper.replaceUserDataInRequest(
+                    msg, wrapKeys(this.paramValues), NULL_ENCODER);
         }
     }
 
@@ -806,14 +804,6 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             }
         }
         return null;
-    }
-
-    @Override
-    public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
-        if (this.method != null) {
-            AuthenticationHelper.replaceUserDataInRequest(
-                    msg, wrapKeys(this.method.paramValues), NULL_ENCODER);
-        }
     }
 
     private static Map<String, String> wrapKeys(Map<String, String> kvPairs) {

@@ -60,11 +60,6 @@ public class JsonBasedAuthenticationMethodType extends PostBasedAuthenticationMe
                 true);
     }
 
-    @Override
-    public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
-        super.replaceUserCredentialsDataInPollRequest(msg, user, NULL_ENCODER);
-    }
-
     /**
      * An {@link AuthenticationMethod} where the Users are authenticated by posting a JSON object
      * ({@code application/json}) with its username and password.
@@ -97,6 +92,12 @@ public class JsonBasedAuthenticationMethodType extends PostBasedAuthenticationMe
         @Override
         protected AuthenticationMethod duplicate() {
             return new JsonBasedAuthenticationMethod(this);
+        }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+            PostBasedAuthenticationMethodType.replaceUserCredentialsDataInPollRequest(
+                    msg, user, NULL_ENCODER);
         }
     }
 

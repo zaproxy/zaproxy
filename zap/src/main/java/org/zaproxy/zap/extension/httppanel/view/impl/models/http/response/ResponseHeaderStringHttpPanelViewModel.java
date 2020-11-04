@@ -20,8 +20,10 @@
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
 
 public class ResponseHeaderStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
@@ -52,6 +54,8 @@ public class ResponseHeaderStringHttpPanelViewModel extends AbstractHttpStringHt
             httpMessage.setResponseHeader(header);
         } catch (HttpMalformedHeaderException e) {
             logger.warn("Could not Save Header: " + header, e);
+            throw new InvalidMessageDataException(
+                    Constant.messages.getString("http.panel.model.header.warn.malformed"), e);
         }
     }
 }

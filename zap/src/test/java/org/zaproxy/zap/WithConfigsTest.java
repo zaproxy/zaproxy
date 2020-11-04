@@ -22,6 +22,8 @@ package org.zaproxy.zap;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.withSettings;
 
 import java.io.InputStream;
@@ -53,6 +55,9 @@ public abstract class WithConfigsTest extends TestUtils {
      */
     @TempDir protected static Path tempDir;
 
+    /** The mocked {@code Model}. */
+    protected Model model;
+
     private static String zapInstallDir;
     private static String zapHomeDir;
 
@@ -79,18 +84,25 @@ public abstract class WithConfigsTest extends TestUtils {
         Constant.setZapInstall(zapInstallDir);
         Constant.setZapHome(zapHomeDir);
 
+        model = mock(Model.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
+        Model.setSingletonForTesting(model);
+
         ExtensionLoader extLoader = Mockito.mock(ExtensionLoader.class);
         Control control = Mockito.mock(Control.class, withSettings().lenient());
         Mockito.when(control.getExtensionLoader()).thenReturn(extLoader);
 
         // Init all the things
+        setUpConstant();
+        Control.initSingletonForTesting(Model.getSingleton());
+        Model.getSingleton().getOptionsParam().load(new ZapXmlConfiguration());
+    }
+
+    public static void setUpConstant() {
         Constant.getInstance();
         I18N i18n = Mockito.mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), any())).willReturn("");
         given(i18n.getLocal()).willReturn(Locale.getDefault());
         Constant.messages = i18n;
-        Control.initSingletonForTesting(Model.getSingleton());
-        Model.getSingleton().getOptionsParam().load(new ZapXmlConfiguration());
     }
 }

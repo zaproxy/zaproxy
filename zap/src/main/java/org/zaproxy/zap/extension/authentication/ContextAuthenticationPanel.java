@@ -62,6 +62,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
+import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -93,6 +94,8 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
             Constant.messages.getString("authentication.panel.label.pollurl");
     private static final String LABEL_POLL_DATA =
             Constant.messages.getString("authentication.panel.label.polldata");
+    private static final String LABEL_POLL_HEADERS =
+            Constant.messages.getString("authentication.panel.label.pollheaders");
     private static final String LABEL_POLL_FREQUENCY =
             Constant.messages.getString("authentication.panel.label.freq");
     private static final String LABEL_CONFIG_NOT_NEEDED =
@@ -129,6 +132,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
     private JButton pollUrlSelectButton = null;
     private ZapTextField pollUrlField = null;
     private ZapTextField pollDataField = null;
+    private ZapTextArea pollHeadersField = null;
     private ZapNumberSpinner pollFrequency = null;
 
     private ZapTextField loggedInIndicatorRegexField = null;
@@ -235,6 +239,10 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
                 .add(new JLabel(LABEL_POLL_DATA), LayoutHelper.getGBC(0, y++, fullWidth, 1.0D));
         getVerifContainerPanel()
                 .add(this.getPollDataField(), LayoutHelper.getGBC(0, y++, fullWidth, 1.0D));
+        getVerifContainerPanel()
+                .add(new JLabel(LABEL_POLL_HEADERS), LayoutHelper.getGBC(0, y++, fullWidth, 1.0D));
+        getVerifContainerPanel()
+                .add(this.getPollHeadersField(), LayoutHelper.getGBC(0, y++, fullWidth, 1.0D));
 
         // Padding
         panel.add(new JLabel(), LayoutHelper.getGBC(0, 99, 1, 1.0D, 1.0D));
@@ -374,6 +382,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
         getPollUrlSelectButton().setEnabled(isPoll);
         getPollUrlField().setEnabled(isPoll);
         getPollDataField().setEnabled(isPoll);
+        getPollHeadersField().setEnabled(isPoll);
     }
 
     private JComboBox<AuthPollFrequencyUnitsType> getAuthFrequencyUnitsComboBox() {
@@ -537,12 +546,6 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
                                                             .getHttpMessage()
                                                             .getRequestBody()
                                                             .toString());
-                                    /*
-                                    updateParameters();
-                                    if (StringUtils.isBlank(loginPageUrlField.getText())) {
-                                        loginPageUrlField.setText(loginUrlField.getText());
-                                    }
-                                    */
                                 } catch (Exception e1) {
                                     log.error(e1.getMessage(), e1);
                                 }
@@ -565,6 +568,13 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
             pollDataField = new ZapTextField();
         }
         return pollDataField;
+    }
+
+    private ZapTextArea getPollHeadersField() {
+        if (pollHeadersField == null) {
+            pollHeadersField = new ZapTextArea(2, 0);
+        }
+        return pollHeadersField;
     }
 
     private ZapTextField getLoggedInIndicatorRegexField() {
@@ -597,17 +607,19 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
         // If something was already configured, find the type and set the UI accordingly
         if (selectedAuthenticationMethod != null) {
             // Set verification
-            if (selectedAuthenticationMethod.getAuthCheckingStrategy() != null)
+            if (selectedAuthenticationMethod.getAuthCheckingStrategy() != null) {
                 getAuthenticationVerifComboBox()
                         .getModel()
                         .setSelectedItem(
                                 new AuthCheckingStrategyType(
                                         selectedAuthenticationMethod.getAuthCheckingStrategy()));
+            }
             setPollFieldStatuses(
                     (AuthCheckingStrategyType) getAuthenticationVerifComboBox().getSelectedItem());
 
             getPollUrlField().setText(selectedAuthenticationMethod.getPollUrl());
             getPollDataField().setText(selectedAuthenticationMethod.getPollData());
+            getPollHeadersField().setText(selectedAuthenticationMethod.getPollHeaders());
             getPollFrequencySpinner().setValue(selectedAuthenticationMethod.getPollFrequency());
             getAuthFrequencyUnitsComboBox()
                     .setSelectedItem(
@@ -706,6 +718,17 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
                             e);
                 }
             }
+            for (String header : this.getPollHeadersField().getText().split("\n")) {
+                if (header.trim().length() > 0) {
+                    String[] headerValue = header.split(":");
+                    if (headerValue.length != 2) {
+                        throw new IllegalStateException(
+                                Constant.messages.getString(
+                                        "authentication.panel.error.badpollheaders",
+                                        getUISharedContext().getName()));
+                    }
+                }
+            }
         }
     }
 
@@ -717,6 +740,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
                         .getStrategy());
         selectedAuthenticationMethod.setPollUrl(this.getPollUrlField().getText());
         selectedAuthenticationMethod.setPollData(this.getPollDataField().getText());
+        selectedAuthenticationMethod.setPollHeaders(this.getPollHeadersField().getText());
         selectedAuthenticationMethod.setPollFrequency(this.getPollFrequencySpinner().getValue());
         selectedAuthenticationMethod.setPollFrequencyUnits(
                 ((AuthPollFrequencyUnitsType)

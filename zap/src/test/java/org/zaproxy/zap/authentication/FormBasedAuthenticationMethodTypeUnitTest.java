@@ -23,9 +23,10 @@ import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.withSettings;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
@@ -35,24 +36,22 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
 import org.zaproxy.zap.authentication.PostBasedAuthenticationMethodType.PostBasedAuthenticationMethod;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.session.SessionManagementMethod;
+import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.testutils.NanoServerHandler;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.users.User;
-import org.zaproxy.zap.utils.I18N;
 
-@ExtendWith(MockitoExtension.class)
 public class FormBasedAuthenticationMethodTypeUnitTest extends TestUtils {
 
     private static final String LOGGED_IN_INDICATOR = "logged in";
@@ -64,26 +63,29 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends TestUtils {
 
     private AuthenticationMethod method;
     private FormBasedAuthenticationMethodType type;
+    private Context mockedContext;
+    private SessionManagementMethod mockedSessionManagementMethod;
 
     @BeforeEach
     public void setUp() throws Exception {
 
-        Constant.getInstance();
-        I18N i18n = Mockito.mock(I18N.class, withSettings().lenient());
-        given(i18n.getString(anyString())).willReturn("");
-        given(i18n.getString(anyString(), any())).willReturn("");
-        given(i18n.getLocal()).willReturn(Locale.getDefault());
-        Constant.messages = i18n;
+        WithConfigsTest.setUpConstant();
 
         type = new FormBasedAuthenticationMethodType();
-        method = Mockito.mock(AuthenticationMethod.class, Mockito.CALLS_REAL_METHODS);
+        method = type.createAuthenticationMethod(1);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
         method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
         method.setPollFrequency(5);
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
-        type = new FormBasedAuthenticationMethodType();
-        Mockito.when(method.getType()).thenReturn(type);
+        // Make sure no actual message processing is done
+        mockedSessionManagementMethod = Mockito.mock(SessionManagementMethod.class);
+        doNothing()
+                .when(mockedSessionManagementMethod)
+                .processMessageToMatchSession((HttpMessage) any(), (WebSession) any());
+
+        mockedContext = Mockito.mock(Context.class);
+        when(mockedContext.getSessionManagementMethod()).thenReturn(mockedSessionManagementMethod);
 
         this.startServer();
     }
@@ -129,9 +131,10 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends TestUtils {
         method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
         method.setPollData(pollData);
 
-        User user = new User(0, "user");
-        user.setAuthenticationCredentials(
-                new UsernamePasswordAuthenticationCredentials(username, ""));
+        User user = mock(User.class);
+        given(user.getAuthenticationCredentials())
+                .willReturn(new UsernamePasswordAuthenticationCredentials(username, ""));
+        given(user.getContext()).willReturn(mockedContext);
 
         // When/Then
         assertThat(method.isAuthenticated(testMsg, user), is(true));
@@ -171,9 +174,10 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends TestUtils {
         method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
         method.setPollData(pollData);
 
-        User user = new User(0, "user");
-        user.setAuthenticationCredentials(
-                new UsernamePasswordAuthenticationCredentials("", password));
+        User user = mock(User.class);
+        given(user.getAuthenticationCredentials())
+                .willReturn(new UsernamePasswordAuthenticationCredentials("", password));
+        given(user.getContext()).willReturn(mockedContext);
 
         // When/Then
         assertThat(method.isAuthenticated(testMsg, user), is(true));
@@ -210,9 +214,10 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends TestUtils {
         method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
         method.setPollData(pollData);
 
-        User user = new User(0, "user");
-        user.setAuthenticationCredentials(
-                new UsernamePasswordAuthenticationCredentials(username, ""));
+        User user = mock(User.class);
+        given(user.getAuthenticationCredentials())
+                .willReturn(new UsernamePasswordAuthenticationCredentials(username, ""));
+        given(user.getContext()).willReturn(mockedContext);
 
         // When/Then
         assertThat(method.isAuthenticated(testMsg, user), is(true));

@@ -84,6 +84,8 @@
 // ZAP: 2020/08/17 Changed to use the VariantFactory
 // ZAP: 2020/09/04 Added getContextDataString and getContextDataInteger
 // ZAP: 2020/10/01 Remove use of org.jfree.util.Log use normal log4j infrastructure.
+// ZAP: 2020/10/14 Require just the name when importing context.
+// ZAP: 2020/11/02 Validate parameters in getLeafName(...)
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -99,6 +101,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 import javax.swing.tree.TreeNode;
@@ -1537,7 +1540,7 @@ public class Session {
         Context c = createContext(name);
 
         c.setDescription(config.getString(Context.CONTEXT_CONFIG_DESC));
-        c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
+        c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE, false));
         for (Object obj : config.getList(Context.CONTEXT_CONFIG_INC_REGEXES)) {
             c.addIncludeInContextRegex(obj.toString());
         }
@@ -1559,6 +1562,9 @@ public class Session {
             // Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
             urlParserClass = config.getString(Context.CONTEXT_CONFIG_URLPARSER);
         }
+        if (urlParserClass == null) {
+            urlParserClass = StandardParameterParser.class.getCanonicalName();
+        }
         Class<?> cl = ExtensionFactory.getAddOnLoader().loadClass(urlParserClass);
         if (cl == null) {
             throw new ConfigurationException(
@@ -1576,6 +1582,9 @@ public class Session {
             // Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
             postParserClass = config.getString(urlParserClass);
             postParserConfig = config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG);
+        }
+        if (postParserClass == null) {
+            postParserClass = StandardParameterParser.class.getCanonicalName();
         }
         cl = ExtensionFactory.getAddOnLoader().loadClass(postParserClass);
         if (cl == null) {
@@ -1760,15 +1769,18 @@ public class Session {
      * Gets the name of the node to be used for the given parameters in the Site Map.
      *
      * @param nodeName the last element of the path
-     * @param uri
-     * @param method
-     * @param postData
+     * @param uri the full uri of the node, must not be {@code null}.
+     * @param method the method for the node, must not be {@code null}.
+     * @param postData the data of the request body.
      * @return the name of the node to be used in the Site Map
-     * @throws HttpMalformedHeaderException
+     * @throws HttpMalformedHeaderException if the uri is not correct.
+     * @throws NullPointerException if the uri or the method are {@code null}.
      * @since TODO add version
      */
     public String getLeafName(String nodeName, URI uri, String method, String postData)
             throws HttpMalformedHeaderException {
+        Objects.requireNonNull(uri);
+        Objects.requireNonNull(method);
         HttpMessage msg = new HttpMessage(uri);
         msg.getRequestHeader().setMethod(method);
         if (method.equalsIgnoreCase(HttpRequestHeader.POST)) {

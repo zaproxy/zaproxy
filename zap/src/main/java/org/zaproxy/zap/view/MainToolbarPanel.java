@@ -24,6 +24,7 @@ import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -81,13 +82,8 @@ public class MainToolbarPanel extends JPanel {
         gridBagConstraints2.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
-        JToolBar t1 = new JToolBar();
-        t1.setEnabled(true);
-        t1.setPreferredSize(new java.awt.Dimension(80000, 25));
-        t1.setMaximumSize(new java.awt.Dimension(80000, 25));
-
         add(getToolbar(), gridBagConstraints1);
-        add(t1, gridBagConstraints2);
+        add(Box.createHorizontalGlue(), gridBagConstraints2);
 
         toolbar.add(getModeSelect());
         toolbar.add(getBtnNew());

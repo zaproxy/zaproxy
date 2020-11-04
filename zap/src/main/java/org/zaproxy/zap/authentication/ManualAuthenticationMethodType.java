@@ -173,6 +173,11 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
             if (contextId != other.contextId) return false;
             return true;
         }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+            // Nothing to do
+        }
     }
 
     /**
@@ -490,11 +495,6 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
     @Override
     public void importData(Configuration config, AuthenticationMethod authMethod)
             throws ConfigurationException {
-        // Nothing to do
-    }
-
-    @Override
-    public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
         // Nothing to do
     }
 }

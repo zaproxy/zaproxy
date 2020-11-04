@@ -35,6 +35,7 @@ import java.util.TreeSet;
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -366,24 +367,14 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
                         String attId = inputElement.getAttributeValue("ID");
                         boolean found = false;
-                        if (attId != null) {
-                            for (String tokenName : this.getAntiCsrfTokenNames()) {
-                                if (tokenName.equalsIgnoreCase(attId)) {
-                                    list.add(new AntiCsrfToken(msg, attId, value, formIndex));
-                                    found = true;
-                                    break;
-                                }
-                            }
+                        if (isKnownAntiCsrfToken(attId)) {
+                            list.add(new AntiCsrfToken(msg, attId, value, formIndex));
+                            found = true;
                         }
                         if (!found) {
                             String name = inputElement.getAttributeValue("NAME");
-                            if (name != null) {
-                                for (String tokenName : this.getAntiCsrfTokenNames()) {
-                                    if (tokenName.equalsIgnoreCase(name)) {
-                                        list.add(new AntiCsrfToken(msg, name, value, formIndex));
-                                        break;
-                                    }
-                                }
+                            if (isKnownAntiCsrfToken(name)) {
+                                list.add(new AntiCsrfToken(msg, name, value, formIndex));
                             }
                         }
                     }
@@ -392,6 +383,20 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
             }
         }
         return list;
+    }
+
+    private boolean isKnownAntiCsrfToken(String name) {
+        if (name == null) {
+            return false;
+        }
+        for (String tokenName : this.getAntiCsrfTokenNames()) {
+            if (this.getParam().isPartialMatchingEnabled()
+                            && StringUtils.containsIgnoreCase(name, tokenName)
+                    || tokenName.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

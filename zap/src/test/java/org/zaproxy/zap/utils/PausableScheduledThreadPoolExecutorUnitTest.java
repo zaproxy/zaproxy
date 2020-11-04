@@ -40,7 +40,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 class PausableScheduledThreadPoolExecutorUnitTest {
 
     private static final int BULK_TASK_COUNT = 5;
-    private static final long DELAY_MS = 150;
+    private static final long DELAY_MS = 300;
 
     private PausableScheduledThreadPoolExecutor executor;
 

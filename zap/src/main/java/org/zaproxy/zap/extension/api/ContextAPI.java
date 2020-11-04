@@ -86,6 +86,7 @@ public class ContextAPI extends ApiImplementor {
     private static final String PARAM_CHECKING_STRATEGRY = "checkingStrategy";
     private static final String PARAM_POLL_URL = "pollUrl";
     private static final String PARAM_POLL_DATA = "pollData";
+    private static final String PARAM_POLL_HEADERS = "pollHeaders";
     private static final String PARAM_POLL_FREQ = "pollFrequency";
     private static final String PARAM_POLL_FREQ_UNITS = "pollFrequencyUnits";
 
@@ -109,7 +110,11 @@ public class ContextAPI extends ApiImplementor {
                         ACTION_SET_CONTEXT_CHECKING_STRATEGY,
                         new String[] {CONTEXT_NAME, PARAM_CHECKING_STRATEGRY},
                         new String[] {
-                            PARAM_POLL_URL, PARAM_POLL_DATA, PARAM_POLL_FREQ, PARAM_POLL_FREQ_UNITS
+                            PARAM_POLL_URL,
+                            PARAM_POLL_DATA,
+                            PARAM_POLL_HEADERS,
+                            PARAM_POLL_FREQ,
+                            PARAM_POLL_FREQ_UNITS
                         }));
         this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, contextNameOnlyParam));
         this.addApiAction(new ApiAction(ACTION_REMOVE_CONTEXT, contextNameOnlyParam));
@@ -212,7 +217,8 @@ public class ContextAPI extends ApiImplementor {
                     int freq;
                     String pollUrl = params.getString(PARAM_POLL_URL);
                     String pollData = params.getString(PARAM_POLL_DATA);
-                    if (pollUrl == null || pollUrl.length() <= 0) {
+                    String pollHeaders = params.getString(PARAM_POLL_HEADERS);
+                    if (pollUrl == null || pollUrl.isEmpty()) {
                         throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_URL);
                     }
                     try {
@@ -232,6 +238,7 @@ public class ContextAPI extends ApiImplementor {
                     }
                     context.getAuthenticationMethod().setPollUrl(pollUrl);
                     context.getAuthenticationMethod().setPollData(pollData);
+                    context.getAuthenticationMethod().setPollHeaders(pollHeaders);
                     context.getAuthenticationMethod().setPollFrequency(freq);
                     context.getAuthenticationMethod().setPollFrequencyUnits(units);
                 }
@@ -471,6 +478,7 @@ public class ContextAPI extends ApiImplementor {
             if (AuthCheckingStrategy.POLL_URL.equals(strategy)) {
                 fields.put(PARAM_POLL_URL, authenticationMethod.getPollUrl());
                 fields.put(PARAM_POLL_DATA, authenticationMethod.getPollData());
+                fields.put(PARAM_POLL_HEADERS, authenticationMethod.getPollData());
                 fields.put(
                         PARAM_POLL_FREQ, Integer.toString(authenticationMethod.getPollFrequency()));
                 AuthPollFrequencyUnits units = authenticationMethod.getPollFrequencyUnits();

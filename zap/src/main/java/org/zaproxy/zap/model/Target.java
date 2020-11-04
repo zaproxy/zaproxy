@@ -144,8 +144,19 @@ public class Target {
         return maxDepth;
     }
 
+    /**
+     * Sets the given node as the start node.
+     *
+     * <p>Start nodes previously set are discarded.
+     *
+     * <p><strong>Note:</strong> The call to this method as no effect if the node is {@code null}.
+     *
+     * @param startNode the start node.
+     */
     public void setStartNode(SiteNode startNode) {
-        setStartNode(new StructuralSiteNode(startNode));
+        if (startNode != null) {
+            setStartNode(new StructuralSiteNode(startNode));
+        }
     }
 
     /**

@@ -68,6 +68,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/07/31 Tidy up parameter methods
 // ZAP: 2020/08/17 Changed to use getTreePath(msg) method
+// ZAP: 2020/11/02 Do not get leaf name if finding branch nodes.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -274,7 +275,7 @@ public class SiteMap extends SortedTreeModel {
                 folder = path.get(i);
 
                 if (folder != null && !folder.equals("")) {
-                    if (i == path.size() - 1) {
+                    if (method != null && i == path.size() - 1) {
                         String leafName =
                                 model.getSession().getLeafName(folder, uri, method, postData);
                         resultNode = findChild(resultNode, leafName);

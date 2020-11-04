@@ -20,9 +20,9 @@
 package org.zaproxy.zap.authentication;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
@@ -57,6 +57,8 @@ public abstract class AuthenticationMethod {
     public static final String CONTEXT_CONFIG_AUTH_STRATEGY = CONTEXT_CONFIG_AUTH + ".strategy";
     public static final String CONTEXT_CONFIG_AUTH_POLL_URL = CONTEXT_CONFIG_AUTH + ".pollurl";
     public static final String CONTEXT_CONFIG_AUTH_POLL_DATA = CONTEXT_CONFIG_AUTH + ".polldata";
+    public static final String CONTEXT_CONFIG_AUTH_POLL_HEADERS =
+            CONTEXT_CONFIG_AUTH + ".pollheaders";
     public static final String CONTEXT_CONFIG_AUTH_POLL_FREQ = CONTEXT_CONFIG_AUTH + ".pollfreq";
     public static final String CONTEXT_CONFIG_AUTH_POLL_UNITS = CONTEXT_CONFIG_AUTH + ".pollunits";
     public static final String CONTEXT_CONFIG_AUTH_LOGGEDIN = CONTEXT_CONFIG_AUTH + ".loggedin";
@@ -91,11 +93,13 @@ public abstract class AuthenticationMethod {
 
     private String pollData;
 
+    private String pollHeaders;
+
     private int pollFrequency = DEFAULT_POLL_FREQUENCY;
 
     private AuthPollFrequencyUnits pollFrequencyUnits = AuthPollFrequencyUnits.REQUESTS;
 
-    private Date lastPollTime;
+    private long lastPollTime;
 
     private Boolean lastPollResult;
 
@@ -119,6 +123,7 @@ public abstract class AuthenticationMethod {
         method.authCheckingStrategy = this.authCheckingStrategy;
         method.pollUrl = this.pollUrl;
         method.pollData = this.pollData;
+        method.pollHeaders = this.pollHeaders;
         method.pollFrequency = this.pollFrequency;
         method.pollFrequencyUnits = this.pollFrequencyUnits;
         method.loggedInIndicatorPattern = this.loggedInIndicatorPattern;
@@ -193,6 +198,8 @@ public abstract class AuthenticationMethod {
      * @return the api response representation
      */
     public abstract ApiResponse getApiResponseRepresentation();
+
+    public abstract void replaceUserDataInPollRequest(HttpMessage msg, User user);
 
     /**
      * Called when the Authentication Method is persisted/saved in a Context. For example, in this
@@ -305,7 +312,7 @@ public abstract class AuthenticationMethod {
                     // Check if we really need to poll the relevant URL again
                     switch (pollFrequencyUnits) {
                         case SECONDS:
-                            if ((new Date().getTime() - lastPollTime.getTime()) / 1000
+                            if ((System.currentTimeMillis() - lastPollTime) / 1000
                                     < pollFrequency) {
                                 try {
                                     Stats.incCounter(
@@ -342,18 +349,35 @@ public abstract class AuthenticationMethod {
                         pollMsg.getRequestHeader()
                                 .setContentLength(pollMsg.getRequestBody().length());
                     }
-                    if (this.getType() != null && user != null) {
-                        this.getType().replaceUserDataInPollRequest(pollMsg, user);
+                    if (this.getPollHeaders() != null && this.getPollHeaders().length() > 0) {
+                        for (String header : this.getPollHeaders().split("\n")) {
+                            String[] headerValue = header.split(":");
+                            if (headerValue.length == 2) {
+                                pollMsg.getRequestHeader()
+                                        .addHeader(headerValue[0].trim(), headerValue[1].trim());
+                            } else {
+                                LOGGER.error(
+                                        "Invalid header '"
+                                                + header
+                                                + "' for poll request to "
+                                                + this.getPollUrl());
+                            }
+                        }
                     }
+                    pollMsg.setRequestingUser(user);
+                    if (user != null) {
+                        replaceUserDataInPollRequest(pollMsg, user);
+                    }
+
                     getHttpSender().sendAndReceive(pollMsg);
                     AuthenticationHelper.addAuthMessageToHistory(pollMsg);
                     contentToTest.add(pollMsg.getResponseHeader().toString());
                     contentToTest.add(pollMsg.getResponseBody().toString());
-                    lastPollTime = new Date();
+                    lastPollTime = System.currentTimeMillis();
                     requestsSincePoll = 0;
 
                 } catch (Exception e1) {
-                    LOGGER.error(e1.getMessage(), e1);
+                    LOGGER.warn("Failed sending poll request to " + this.getPollUrl(), e1);
                     return false;
                 }
                 break;
@@ -400,7 +424,7 @@ public abstract class AuthenticationMethod {
         return false;
     }
 
-    private boolean patternMatchesAny(Pattern pattern, List<String> content) {
+    private static boolean patternMatchesAny(Pattern pattern, List<String> content) {
         if (pattern != null) {
             for (String str : content) {
                 if (pattern.matcher(str).find()) {
@@ -460,6 +484,7 @@ public abstract class AuthenticationMethod {
     }
 
     public void setAuthCheckingStrategy(AuthCheckingStrategy authCheckingStrategy) {
+        Objects.requireNonNull(authCheckingStrategy);
         this.authCheckingStrategy = authCheckingStrategy;
     }
 
@@ -479,6 +504,14 @@ public abstract class AuthenticationMethod {
         this.pollData = pollData;
     }
 
+    public String getPollHeaders() {
+        return pollHeaders;
+    }
+
+    public void setPollHeaders(String pollHeaders) {
+        this.pollHeaders = pollHeaders;
+    }
+
     public int getPollFrequency() {
         return pollFrequency;
     }
@@ -496,7 +529,8 @@ public abstract class AuthenticationMethod {
     }
 
     /**
-     * Gets the last poll result - true means that the user is authnaticated, otherwise false
+     * Gets the last poll result - true means that the user is authenticated, false is
+     * unauthenticated and null if no poll request has been made.
      *
      * @return the last poll result
      */
@@ -506,7 +540,7 @@ public abstract class AuthenticationMethod {
 
     /**
      * Sets the last poll result - this can be used by script or add-ons to change the known logged
-     * in state eg if they have more accurate information
+     * in state e.g. if they have more accurate information
      *
      * @param lastPollResult
      */
@@ -514,7 +548,7 @@ public abstract class AuthenticationMethod {
         this.lastPollResult = lastPollResult;
     }
 
-    public Date getLastPollTime() {
+    public long getLastPollTime() {
         return lastPollTime;
     }
 
@@ -565,10 +599,13 @@ public abstract class AuthenticationMethod {
         if (!this.authCheckingStrategy.equals(other.authCheckingStrategy)) {
             return false;
         }
-        if (!isEqual(this.pollUrl, other.pollUrl)) {
+        if (!Objects.equals(this.pollUrl, other.pollUrl)) {
             return false;
         }
-        if (!isEqual(this.pollData, other.pollData)) {
+        if (!Objects.equals(this.pollData, other.pollData)) {
+            return false;
+        }
+        if (!Objects.equals(this.pollHeaders, other.pollHeaders)) {
             return false;
         }
         if (this.pollFrequency != other.pollFrequency) {
@@ -578,16 +615,6 @@ public abstract class AuthenticationMethod {
             return false;
         }
         return true;
-    }
-
-    private boolean isEqual(String str1, String str2) {
-        if (str1 == null && str2 == null) {
-            return true;
-        }
-        if (str1 == null || str2 == null) {
-            return false;
-        }
-        return str1.equals(str2);
     }
 
     private static boolean isSamePattern(Pattern pattern, Pattern other) {

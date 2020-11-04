@@ -26,7 +26,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.model.Context;
@@ -43,10 +42,7 @@ import org.zaproxy.zap.users.User;
  */
 public abstract class AuthenticationMethodType {
 
-    public static final UnaryOperator<String> NULL_ENCODER =
-            value -> {
-                return value;
-            };
+    public static final UnaryOperator<String> NULL_ENCODER = value -> value;
 
     /**
      * Builds a new, empty, authentication method. The authentication method should then be
@@ -220,8 +216,6 @@ public abstract class AuthenticationMethodType {
      * @return the api action, or null if there is no way to set this method type through the API
      */
     public abstract ApiDynamicActionImplementor getSetCredentialsForUserApiAction();
-
-    public abstract void replaceUserDataInPollRequest(HttpMessage msg, User user);
 
     @Override
     public int hashCode() {
