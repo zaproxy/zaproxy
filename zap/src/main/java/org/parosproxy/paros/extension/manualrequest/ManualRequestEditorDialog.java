@@ -37,6 +37,7 @@
 // ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/03 Warn when unable to save the message (Issue 4235).
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
@@ -61,6 +62,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.tab.Tab;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -173,8 +175,20 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
                         public void actionPerformed(ActionEvent e) {
                             btnSend.setEnabled(false);
 
-                            // save current message (i.e. set payload/body)
-                            getRequestPanel().saveData();
+                            try {
+                                getRequestPanel().saveData();
+                            } catch (InvalidMessageDataException e1) {
+                                StringBuilder warnMessage = new StringBuilder(150);
+                                warnMessage.append(
+                                        Constant.messages.getString("manReq.warn.datainvalid"));
+                                String exceptionMessage = e1.getLocalizedMessage();
+                                if (exceptionMessage != null && !exceptionMessage.isEmpty()) {
+                                    warnMessage.append('\n').append(exceptionMessage);
+                                }
+                                View.getSingleton().showWarningDialog(warnMessage.toString());
+                                btnSend.setEnabled(true);
+                                return;
+                            }
 
                             Mode mode = Control.getSingleton().getMode();
                             if (mode.equals(Mode.safe)) {

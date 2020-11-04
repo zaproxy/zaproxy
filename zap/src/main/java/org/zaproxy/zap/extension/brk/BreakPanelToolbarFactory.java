@@ -465,6 +465,10 @@ public class BreakPanelToolbarFactory {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            if (!breakPanel.isValidState()) {
+                return;
+            }
+
             setContinue(true);
             setBreakAll(false);
             setBreakRequest(false);
@@ -491,6 +495,10 @@ public class BreakPanelToolbarFactory {
 
         @Override
         public void actionPerformed(ActionEvent e) {
+            if (!breakPanel.isValidState()) {
+                return;
+            }
+
             if (mode == BreakpointsParam.BUTTON_MODE_SIMPLE && !isBreakAll) {
                 // In simple mode 'step' if the breakAll button is disabled then it acts like
                 // 'continue'

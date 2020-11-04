@@ -22,7 +22,9 @@ package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
 import java.util.Arrays;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpByteHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
@@ -57,13 +59,16 @@ public class ResponseByteHttpPanelViewModel extends AbstractHttpByteHttpPanelVie
 
         if (pos == -1) {
             logger.warn("Could not Save Header, limit not found. Header: " + new String(data));
-            return;
+            throw new InvalidMessageDataException(
+                    Constant.messages.getString("http.panel.model.header.warn.notfound"));
         }
 
         try {
             httpMessage.setResponseHeader(new String(data, 0, pos));
         } catch (HttpMalformedHeaderException e) {
             logger.warn("Could not Save Header: " + Arrays.toString(data), e);
+            throw new InvalidMessageDataException(
+                    Constant.messages.getString("http.panel.model.header.warn.malformed"), e);
         }
 
         httpMessage.getResponseBody().setBody(ArrayUtils.subarray(data, pos, data.length));

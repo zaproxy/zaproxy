@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.httppanel.view;
 
 import javax.swing.JComponent;
 import org.apache.commons.configuration.FileConfiguration;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 public interface HttpPanelView {
@@ -37,6 +38,11 @@ public interface HttpPanelView {
 
     void setSelected(boolean selected);
 
+    /**
+     * Saves the data shown in the view into the current message.
+     *
+     * @throws InvalidMessageDataException if unable to save the data (e.g. malformed).
+     */
     void save();
 
     HttpPanelViewModel getModel();

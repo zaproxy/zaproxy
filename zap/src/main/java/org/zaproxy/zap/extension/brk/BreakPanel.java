@@ -42,6 +42,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 import org.zaproxy.zap.extension.tab.Tab;
@@ -383,7 +384,6 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
                             CardLayout cl = (CardLayout) (panelContent.getLayout());
 
                             if (isRequest) {
-                                requestPanel.saveData();
                                 Message msg = getMessage();
                                 if (msg instanceof HttpMessage
                                         && getRequestButtonFixContentLength().isSelected()) {
@@ -392,7 +392,6 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
                                 }
                                 cl.show(panelContent, REQUEST_PANEL);
                             } else {
-                                responsePanel.saveData();
                                 Message msg = getMessage();
                                 if (msg instanceof HttpMessage
                                         && getResponseButtonFixContentLength().isSelected()) {
@@ -406,6 +405,24 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
         } catch (Exception ie) {
             LOGGER.warn(ie.getMessage(), ie);
         }
+    }
+
+    boolean isValidState() {
+        HttpPanel panel = isRequest() ? requestPanel : responsePanel;
+        try {
+            panel.saveData();
+            return true;
+        } catch (InvalidMessageDataException e) {
+            StringBuilder warnMessage = new StringBuilder(150);
+            warnMessage.append(Constant.messages.getString("brk.panel.warn.datainvalid"));
+
+            String exceptionMessage = e.getLocalizedMessage();
+            if (exceptionMessage != null && !exceptionMessage.isEmpty()) {
+                warnMessage.append('\n').append(exceptionMessage);
+            }
+            View.getSingleton().showWarningDialog(warnMessage.toString());
+        }
+        return false;
     }
 
     public void savePanels() {
@@ -511,11 +528,19 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
 
     @Override
     public void step() {
+        if (!isValidState()) {
+            return;
+        }
+
         breakToolbarFactory.step();
     }
 
     @Override
     public void cont() {
+        if (!isValidState()) {
+            return;
+        }
+
         breakToolbarFactory.setContinue(true);
         breakToolbarFactory.setBreakAll(false);
         breakToolbarFactory.setBreakRequest(false);
