@@ -149,12 +149,19 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.zaproxy.zap.ZAP#JERICHO_LOGGER_PROVIDER"
     )
 
+    classExcludes = listOf(
+        "org.parosproxy.paros.db.paros.ParosTableAlert",
+        "org.parosproxy.paros.db.RecordAlert",
+        "org.zaproxy.zap.db.sql.SqlTableAlert"
+    )
+
     methodExcludes = listOf(
         "org.parosproxy.paros.network.HttpMessage#getParamNameSet(org.parosproxy.paros.network.HtmlParameter\$Type,java.lang.String)",
         "org.parosproxy.paros.core.scanner.Variant#getLeafName(java.lang.String,org.parosproxy.paros.network.HttpMessage)",
         "org.parosproxy.paros.core.scanner.Variant#getTreePath(org.parosproxy.paros.network.HttpMessage)",
         "org.parosproxy.paros.core.scanner.VariantScript#getLeafName(org.parosproxy.paros.core.scanner.VariantCustom,java.lang.String,org.parosproxy.paros.network.HttpMessage)",
-        "org.parosproxy.paros.core.scanner.VariantScript#getTreePath(org.parosproxy.paros.core.scanner.VariantCustom,org.parosproxy.paros.network.HttpMessage)"
+        "org.parosproxy.paros.core.scanner.VariantScript#getTreePath(org.parosproxy.paros.core.scanner.VariantCustom,org.parosproxy.paros.network.HttpMessage)",
+        "org.parosproxy.paros.db.TableAlert#write(int,int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int)"
     )
 
     richReport {

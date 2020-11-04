@@ -56,6 +56,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/10 Add utility methods isValidRisk(int) and isValidConfidence(int)
 // ZAP: 2019/10/21 Add Alert builder.
+// ZAP: 2020/11/03 Add alertRef field.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -191,7 +192,7 @@ public class Alert implements Comparable<Alert> {
     };
 
     private int alertId = -1; // ZAP: Changed default alertId
-    private int pluginId = 0;
+    private int pluginId = -1;
     private String name = "";
     private int risk = RISK_INFO;
     private int confidence = CONFIDENCE_MEDIUM;
@@ -217,9 +218,15 @@ public class Alert implements Comparable<Alert> {
     private String postData;
     private URI msgUri = null;
     private Source source = Source.UNKNOWN;
+    private String alertRef = "";
 
     public Alert(int pluginId) {
         this.pluginId = pluginId;
+        if (pluginId > -1) {
+            // By default the alertRef is the plugin ID but rules should set this if they raise > 1
+            // type of alert
+            this.alertRef = Integer.toString(pluginId);
+        }
     }
 
     public Alert(int pluginId, int risk, int confidence, String name) {
@@ -266,6 +273,10 @@ public class Alert implements Comparable<Alert> {
                 recordAlert.getWascId(),
                 null);
         setHistoryRef(ref);
+        String alertRef = recordAlert.getAlertRef();
+        if (alertRef != null) {
+            this.setAlertRef(alertRef);
+        }
     }
 
     public Alert(RecordAlert recordAlert, HistoryReference ref) {
@@ -481,7 +492,12 @@ public class Alert implements Comparable<Alert> {
             return 1;
         }
 
-        int result = name.compareToIgnoreCase(alert2.name);
+        int result = compareStrings(alertRef, alert2.alertRef);
+        if (result != 0) {
+            return result;
+        }
+
+        result = name.compareToIgnoreCase(alert2.name);
         if (result != 0) {
             return result;
         }
@@ -554,6 +570,9 @@ public class Alert implements Comparable<Alert> {
         if (pluginId != item.pluginId) {
             return false;
         }
+        if (!alertRef.equals(item.alertRef)) {
+            return false;
+        }
         if (!name.equals(item.name)) {
             return false;
         }
@@ -597,6 +616,7 @@ public class Alert implements Comparable<Alert> {
         result = prime * result + otherInfo.hashCode();
         result = prime * result + param.hashCode();
         result = prime * result + pluginId;
+        result = prime * result + alertRef.hashCode();
         result = prime * result + method.hashCode();
         result = prime * result + uri.hashCode();
         result = prime * result + ((attack == null) ? 0 : attack.hashCode());
@@ -632,6 +652,7 @@ public class Alert implements Comparable<Alert> {
         StringBuilder sb = new StringBuilder(150); // ZAP: Changed the type to StringBuilder.
         sb.append("<alertitem>\r\n");
         sb.append("  <pluginid>").append(pluginId).append("</pluginid>\r\n");
+        sb.append("  <alertRef>").append(alertRef).append("</alertRef>\r\n");
         sb.append("  <alert>")
                 .append(replaceEntity(name))
                 .append("</alert>\r\n"); // Deprecated in 2.5.0, maintain for compatibility with
@@ -922,6 +943,49 @@ public class Alert implements Comparable<Alert> {
     }
 
     /**
+     * Gets the alert reference.
+     *
+     * <p>This is a unique identifier for the type of alert raised. A scan rule may raise more that
+     * one type of alert and they should all have different alert references.
+     *
+     * @return the alert reference
+     * @since 2.10.0
+     */
+    public String getAlertRef() {
+        return alertRef;
+    }
+
+    /**
+     * Sets the alert reference.
+     *
+     * <p>For manually raised alerts this should be an empty string. For alerts raised by scan rules
+     * it should start with the rule plugin id and optionally include a 'qualifier' (such as "-1",
+     * "-2" etc). Logically different alerts should have different alert references even if they are
+     * raised by the same scan rule.
+     *
+     * @param alertRef the alert reference
+     * @since 2.10.0
+     */
+    public void setAlertRef(String alertRef) {
+        if (alertRef == null) {
+            throw new IllegalArgumentException("Alert reference must not be null");
+        }
+        if (alertRef.length() > 0) {
+            if (alertRef.length() >= 256) {
+                throw new IllegalArgumentException("Alert reference too big: " + alertRef.length());
+            }
+            if (!alertRef.startsWith(Integer.toString(this.pluginId))) {
+                throw new IllegalArgumentException(
+                        "Alert reference "
+                                + alertRef
+                                + " must start with the plugin id "
+                                + this.pluginId);
+            }
+        }
+        this.alertRef = alertRef;
+    }
+
+    /**
      * Returns a new alert builder.
      *
      * @return the alert builder.
@@ -958,6 +1022,7 @@ public class Alert implements Comparable<Alert> {
         private int sourceHistoryId;
         private HistoryReference historyRef;
         private Source source = Source.UNKNOWN;
+        private String alertRef;
 
         protected Builder() {}
 
@@ -1056,6 +1121,11 @@ public class Alert implements Comparable<Alert> {
             return this;
         }
 
+        public Builder setAlertRef(String alertRef) {
+            this.alertRef = alertRef;
+            return this;
+        }
+
         /**
          * Builds the alert from the specified data.
          *
@@ -1093,6 +1163,9 @@ public class Alert implements Comparable<Alert> {
             alert.setSourceHistoryId(sourceHistoryId);
             alert.setHistoryRef(historyRef);
             alert.setSource(source);
+            if (alertRef != null) {
+                alert.setAlertRef(alertRef);
+            }
 
             return alert;
         }

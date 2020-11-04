@@ -1323,6 +1323,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             return this;
         }
 
+        @Override
+        public AlertBuilder setAlertRef(String alertRef) {
+            super.setAlertRef(alertRef);
+            return this;
+        }
+
         /**
          * Raises the alert with specified data.
          *

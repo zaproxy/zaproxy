@@ -78,6 +78,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
     private static final String HISTORYID = "HISTORYID";
     private static final String SOURCEHISTORYID = "SOURCEHISTORYID";
     private static final String SOURCEID = "SOURCEID";
+    private static final String ALERTREF = "ALERTREF";
 
     private PreparedStatement psRead = null;
     private PreparedStatement psInsert = null;
@@ -144,7 +145,9 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
                                     + SOURCEHISTORYID
                                     + ","
                                     + SOURCEID
-                                    + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                    + ","
+                                    + ALERTREF
+                                    + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
             psDeleteAlert =
                     conn.prepareStatement(
@@ -278,6 +281,15 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
                                 + SOURCEID
                                 + ")");
             }
+            if (!DbUtils.hasColumn(connection, TABLE_NAME, ALERTREF)) {
+                DbUtils.execute(
+                        connection,
+                        "ALTER TABLE "
+                                + TABLE_NAME
+                                + " ADD COLUMN "
+                                + ALERTREF
+                                + " VARCHAR(256) DEFAULT ''");
+            }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -321,7 +333,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             int wascId,
             int historyId,
             int sourceHistoryId,
-            int sourceId)
+            int sourceId,
+            String alertRef)
             throws DatabaseException {
 
         try {
@@ -343,6 +356,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             psInsert.setInt(16, historyId);
             psInsert.setInt(17, sourceHistoryId);
             psInsert.setInt(18, sourceId);
+            psInsert.setString(19, alertRef);
             psInsert.executeUpdate();
 
             int id;
@@ -380,7 +394,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
                                 rs.getInt(WASCID),
                                 rs.getInt(HISTORYID),
                                 rs.getInt(SOURCEHISTORYID),
-                                rs.getInt(SOURCEID));
+                                rs.getInt(SOURCEID),
+                                rs.getString(ALERTREF));
             }
             return alert;
         } catch (SQLException e) {

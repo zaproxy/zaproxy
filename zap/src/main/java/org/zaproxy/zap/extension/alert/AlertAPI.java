@@ -474,6 +474,7 @@ public class AlertAPI extends ApiImplementor {
         Map<String, String> map = new HashMap<>();
         map.put("id", String.valueOf(alert.getAlertId()));
         map.put("pluginId", String.valueOf(alert.getPluginId()));
+        map.put("alertRef", alert.getAlertRef());
         map.put(
                 "alert",
                 alert.getName()); // Deprecated in 2.5.0, maintain for compatibility with custom
