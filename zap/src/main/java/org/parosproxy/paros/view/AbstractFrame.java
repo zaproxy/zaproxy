@@ -25,6 +25,7 @@
 // ZAP: 2015/09/07 Move icon loading to a utility class
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/05 Remove abstract modifier.
 package org.parosproxy.paros.view;
 
 import java.awt.Dimension;
@@ -61,7 +62,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  * #setPreferredSize(Dimension)} instead. Also, don't use {@link #setLocation(Point)}. This abstract
  * class will automatically take care of size and position.
  */
-public abstract class AbstractFrame extends JFrame {
+public class AbstractFrame extends JFrame {
 
     private static final long serialVersionUID = 6751593232255236597L;
 
