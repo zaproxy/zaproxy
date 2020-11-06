@@ -28,6 +28,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
@@ -46,9 +47,10 @@ public final class PassiveScanData {
 
     private static final Logger LOGGER = Logger.getLogger(PassiveScanData.class);
 
+    private static ExtensionUserManagement extUserMgmt = null;
+
     private final HttpMessage message;
     private final Context context;
-
     private final TechSet techSet;
 
     private List<User> userList = null;
@@ -82,8 +84,8 @@ public final class PassiveScanData {
     }
 
     /**
-     * Returns a list of {@Code User}'s for the {@code HttpMessage} being passively scanned. The
-     * list returned is based on the first {@code Context} matched.
+     * Returns an unmodifiable list of {@Code User}s for the {@code HttpMessage} being passively
+     * scanned. The list returned is based on the first {@code Context} matched.
      *
      * @return A list of users if some are available, an empty list otherwise.
      */
@@ -105,9 +107,20 @@ public final class PassiveScanData {
     }
 
     private static ExtensionUserManagement getExtensionUserManagement() {
-        return Control.getSingleton()
-                .getExtensionLoader()
-                .getExtension(ExtensionUserManagement.class);
+        return extUserMgmt != null
+                ? extUserMgmt
+                : Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionUserManagement.class);
+    }
+
+    /**
+     * Sets the {@code ExtensionUserManagement} being used, to facilitate testing.
+     *
+     * @param extUserMgmt the extension to the set.
+     */
+    static void setExtUserMgmt(ExtensionUserManagement extUserMgmt) {
+        PassiveScanData.extUserMgmt = extUserMgmt;
     }
 
     /**
@@ -160,36 +173,66 @@ public final class PassiveScanData {
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPage.Type.OK_200} definitions.
+     * Tells whether or not the message matches {@code CustomPage.Type.OK_200} definitions. Falls
+     * back to simply checking the response status code for "200 - Ok". Checks if the message
+     * matches {@code CustomPage.Type.ERROR_500} or {@code CusotmPage.Type.NOTFOUND_404} first, in
+     * case the user is trying to override something.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since TODO Add version
      */
     public boolean isPage200(HttpMessage msg) {
-        return isCustomPage(msg, CustomPage.Type.OK_200);
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.OK_200)) {
+            return true;
+        }
+        return msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK;
     }
 
     /**
-     * Tells whether or not the message matches {@code CustomPage.Type.ERROR_500} definitions.
+     * Tells whether or not the message matches {@code CustomPage.Type.ERROR_500} definitions. Falls
+     * back to simply checking the response status code for "500 - Internal Server Error". Checks if
+     * the message matches {@code CustomPage.Type.OK_200} or {@code CustomPage.Type.NOTFOUND_404}
+     * first, in case the user is trying to override something.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since TODO Add version
      */
     public boolean isPage500(HttpMessage msg) {
-        return isCustomPage(msg, CustomPage.Type.ERROR_500);
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.NOTFOUND_404)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return true;
+        }
+        return msg.getResponseHeader().getStatusCode() == HttpStatusCode.INTERNAL_SERVER_ERROR;
     }
 
     /**
      * Tells whether or not the message matches {@code CustomPage.Type.NOTFOUND_404} definitions.
+     * Falls back to simply checking the response status code for "404 - Not Found". Checks if the
+     * message matches {@code CustomPage.Type.OK_200} or {@code CustomPage.Type.ERROR_500} first, in
+     * case the user is trying to override something.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since TODO Add version
      */
     public boolean isPage404(HttpMessage msg) {
-        return isCustomPage(msg, CustomPage.Type.NOTFOUND_404);
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)) {
+            return true;
+        }
+        return msg.getResponseHeader().getStatusCode() == HttpStatusCode.NOT_FOUND;
     }
 
     /**
@@ -201,5 +244,47 @@ public final class PassiveScanData {
      */
     public boolean isPageOther(HttpMessage msg) {
         return isCustomPage(msg, CustomPage.Type.OTHER);
+    }
+
+    /**
+     * Tells whether or not the response has a status code between 400 and 499 (inclusive). Falls
+     * back to check {@code CustomPage.Type.NOTFOUND_404}. Checks if the message matches {@code
+     * CustomPage.Type.OK_200} or {@code CusotmPage.Type.ERROR_500} first, in case the user is
+     * trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    public boolean isClientError(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)) {
+            return true;
+        }
+        return HttpStatusCode.isClientError(msg.getResponseHeader().getStatusCode());
+    }
+
+    /**
+     * Tells whether or not the response has a status code between 500 and 599 (inclusive). Falls
+     * back to check {@code CustomPage.Type.EROOR_500}. Checks if the message matches {@code
+     * CustomPage.Type.OK_200} or {@code CustomPage.Type.NOTFOUND_404} first, in case the user is
+     * trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     */
+    public boolean isServerError(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.NOTFOUND_404)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return true;
+        }
+        return HttpStatusCode.isServerError(msg.getResponseHeader().getStatusCode());
     }
 }

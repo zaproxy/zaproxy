@@ -1297,7 +1297,8 @@ public class HostProcess implements Runnable {
     }
 
     /**
-     * Tells whether or not the message matches the specific {@code CustomPage.Type}.
+     * Tells whether or not the message matches the specific {@code CustomPage.Type}. (Does not
+     * leverage {@code Analyzer}).
      *
      * @param msg the message that will be checked
      * @param cpType the custom page type to be checked
@@ -1306,7 +1307,7 @@ public class HostProcess implements Runnable {
      */
     protected boolean isCustomPage(HttpMessage msg, CustomPage.Type cpType) {
         if (getContext() != null) {
-            return getContext().isCustomPageWithFallback(msg, cpType);
+            return getContext().isCustomPage(msg, cpType);
         }
         return false;
     }

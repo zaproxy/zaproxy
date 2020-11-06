@@ -1276,6 +1276,39 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    public void isPage200ShouldReturnFalseIfCustomPage404Matches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.OK_200;
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        given(parent.isCustomPage(message, CustomPage.Type.NOTFOUND_404)).willReturn(true);
+        given(parent.getAnalyser()).willReturn(analyser);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage200(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
+        verifyNoInteractions(analyser);
+    }
+
+    @Test
+    public void isPage200ShouldReturnFalseIfCustomPage500Matches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.OK_200;
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        given(parent.isCustomPage(message, CustomPage.Type.ERROR_500)).willReturn(true);
+        given(parent.getAnalyser()).willReturn(analyser);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage200(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
+        verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
+        verifyNoInteractions(analyser);
+    }
+
+    @Test
     public void shouldCheckPage404WithParent() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
@@ -1306,18 +1339,254 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         verify(analyser).isFileExist(message);
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = {true, false})
-    public void shouldCheckPage500WithParent(boolean expectedResult) {
+    @Test
+    public void isPage404ShouldReturnTrueIfNoCustomPageMatchButStatusCode404() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(404);
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage404(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isPage404ShouldReturnTrueIfCustomPageMatches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(200);
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage404(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isPage404ShouldReturnTrueIfCustomPageDoesNotMatchAndAnalyserIndicates404() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(404);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.OK_200)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.ERROR_500)).willReturn(false);
+        given(parent.getAnalyser()).willReturn(analyser);
+        given(parent.getAnalyser().isFileExist(message)).willReturn(false);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage404(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void
+            isPage404ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesAndAnalyserIndicates200() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(302);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.OK_200)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.ERROR_500)).willReturn(false);
+        given(parent.getAnalyser()).willReturn(analyser);
+        given(parent.getAnalyser().isFileExist(message)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage404(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void
+            isPage404ShouldReturnTrueIfNoStatusCodeOrCustomPageMatchesAndAnalyserIndicates404() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(302);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.OK_200)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.ERROR_500)).willReturn(false);
+        given(parent.getAnalyser()).willReturn(analyser);
+        given(parent.getAnalyser().isFileExist(message)).willReturn(false);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage404(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isPage404ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage200Does() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(302);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.OK_200)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage404(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+    }
+
+    @Test
+    public void isPage404ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage500Does() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(302);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.ERROR_500)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage404(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
+    }
+
+    @Test
+    public void shouldCheckPage500WithParent() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
-        given(parent.isCustomPage(message, type)).willReturn(expectedResult);
+        given(parent.isCustomPage(message, type)).willReturn(true);
         plugin.init(message, parent);
         // When
         boolean result = plugin.isPage500(message);
         // Then
-        assertThat(result, is(equalTo(expectedResult)));
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
         verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isPage500ShouldReturnTrueIfNoCustomPageMatchButStatusCode500() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(500);
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage500(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isPage500ShouldReturnTrueIfCustomPageMatches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(200);
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage500(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isPage500ShouldReturnTrueIfCustomPageDoesNotMatchesButStatusCodeDoes() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(500);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.OK_200)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.NOTFOUND_404)).willReturn(false);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage500(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isPage500ShouldReturnFalseIfNoStatusCodeOrCustomPageMatches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(200);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage500(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isPage500ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage200Does() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(302);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.OK_200)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage500(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+    }
+
+    @Test
+    public void isPage500ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage404Does() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(302);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.NOTFOUND_404)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPage500(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
     }
 
     @ParameterizedTest
@@ -1332,6 +1601,192 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         // Then
         assertThat(result, is(equalTo(expectedResult)));
         verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isClientErrorShouldReturnTrueIfCustomPage404Matches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(200);
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        given(analyser.isFileExist(message)).willReturn(false);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isClientError(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isClientErrorShouldReturnTrueIfStatusCodeMatches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(403);
+        plugin.init(message, parent);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.OK_200)).willReturn(false);
+        given(parent.getAnalyser()).willReturn(analyser);
+        given(parent.getAnalyser().isFileExist(message)).willReturn(false);
+        // When
+        boolean result = plugin.isClientError(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, type);
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+    }
+
+    @Test
+    public void
+            isClientErrorShouldReturnTrueIfNoStatusCodeOrCustomPageMatchesButAnalyserIndicates404() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(200);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.getAnalyser()).willReturn(analyser);
+        given(parent.getAnalyser().isFileExist(message)).willReturn(false);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isClientError(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void
+            isClientErrorShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButAnalyserIndicates200() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(200);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.getAnalyser()).willReturn(analyser);
+        given(parent.getAnalyser().isFileExist(message)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isClientError(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isClientErrorShouldReturnFalseIfCustomPage200Matches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(200);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.OK_200)).willReturn(true);
+        given(parent.getAnalyser()).willReturn(analyser);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isClientError(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+    }
+
+    @Test
+    public void isClientErrorShouldReturnFalseIfCustomPage500Matches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(200);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.ERROR_500)).willReturn(true);
+        given(parent.getAnalyser()).willReturn(analyser);
+        given(parent.getAnalyser().isFileExist(message)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isClientError(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.ERROR_500);
+    }
+
+    @Test
+    public void isServerErrorShouldReturnTrueIfCustomPage500Matches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(200);
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isServerError(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isServerErrorShouldReturnTrueIfStatusCodeMatches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(503);
+        plugin.init(message, parent);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        // When
+        boolean result = plugin.isServerError(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isServerErrorShouldReturnFalseIfNoStatusCodeOrCustomPageMatches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        message.getResponseHeader().setStatusCode(200);
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isServerError(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    public void isServerErrorShouldReturnFalseIfCustomPage200Matches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.OK_200)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isServerError(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+    }
+
+    @Test
+    public void isServerErrorShouldReturnFalseIfCustomPage404Matches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.ERROR_500;
+        HttpMessage message = new HttpMessage();
+        given(parent.isCustomPage(message, type)).willReturn(false);
+        given(parent.isCustomPage(message, CustomPage.Type.NOTFOUND_404)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isServerError(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
     }
 
     private static HttpMessage createAlertMessage() {
