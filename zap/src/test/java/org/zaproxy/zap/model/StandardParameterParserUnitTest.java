@@ -20,9 +20,11 @@
 package org.zaproxy.zap.model;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.ArrayList;
@@ -76,6 +78,114 @@ public class StandardParameterParserUnitTest {
         assertEquals(res2.get(2).getValue(), "f");
         assertEquals(res2.get(3).getName(), "d");
         assertEquals(res2.get(3).getValue(), "g");
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenParsingNullString() {
+        // Given / When
+        List<NameValuePair> parameters = spp.parseParameters(null);
+        // Then
+        assertThat(parameters, is(empty()));
+    }
+
+    @Test
+    void shouldReturnEmptyNameValuePairWhenParsingEmptyString() {
+        // Given / When
+        List<NameValuePair> parameters = spp.parseParameters("");
+        // Then
+        assertThat(parameters, hasSize(1));
+        assertThat(parameters.get(0).getName(), is(equalTo("")));
+        assertThat(parameters.get(0).getValue(), is(equalTo("")));
+    }
+
+    @Test
+    void shouldKeepOriginalNameIfMalformedWhenParsing() {
+        // Given / When
+        List<NameValuePair> parameters = spp.parseParameters("%x=1&b=2");
+        // Then
+        assertThat(parameters, hasSize(2));
+        assertThat(parameters.get(0).getName(), is(equalTo("%x")));
+        assertThat(parameters.get(0).getValue(), is(equalTo("1")));
+        assertThat(parameters.get(1).getName(), is(equalTo("b")));
+        assertThat(parameters.get(1).getValue(), is(equalTo("2")));
+    }
+
+    @Test
+    void shouldKeepOriginalValueIfMalformedWhenParsing() {
+        // Given / When
+        List<NameValuePair> parameters = spp.parseParameters("a=%x&b=2");
+        // Then
+        assertThat(parameters, hasSize(2));
+        assertThat(parameters.get(0).getName(), is(equalTo("a")));
+        assertThat(parameters.get(0).getValue(), is(equalTo("%x")));
+        assertThat(parameters.get(1).getName(), is(equalTo("b")));
+        assertThat(parameters.get(1).getValue(), is(equalTo("2")));
+    }
+
+    @Test
+    void shouldParseParametersKeepingEmptyValueWhenAbsent() {
+        // Given / When
+        List<NameValuePair> parameters = spp.parseParameters("a&b");
+        // Then
+        assertThat(parameters, hasSize(2));
+        assertThat(parameters.get(0).getName(), is(equalTo("a")));
+        assertThat(parameters.get(0).getValue(), is(equalTo("")));
+        assertThat(parameters.get(1).getName(), is(equalTo("b")));
+        assertThat(parameters.get(1).getValue(), is(equalTo("")));
+    }
+
+    @Test
+    void shouldReturnEmptyListWhenRawParsingNullString() {
+        // Given / When
+        List<NameValuePair> parameters = spp.parseRawParameters(null);
+        // Then
+        assertThat(parameters, is(empty()));
+    }
+
+    @Test
+    void shouldReturnEmptyNameAndNullValueWhenRawParsingEmptyString() {
+        // Given / When
+        List<NameValuePair> parameters = spp.parseRawParameters("");
+        // Then
+        assertThat(parameters, hasSize(1));
+        assertThat(parameters.get(0).getName(), is(equalTo("")));
+        assertThat(parameters.get(0).getValue(), is(nullValue()));
+    }
+
+    @Test
+    void shouldNotDecodeNameNorValueWhenRawParsing() {
+        // Given / When
+        List<NameValuePair> parameters = spp.parseRawParameters("%x=1&b%25=%20");
+        // Then
+        assertThat(parameters, hasSize(2));
+        assertThat(parameters.get(0).getName(), is(equalTo("%x")));
+        assertThat(parameters.get(0).getValue(), is(equalTo("1")));
+        assertThat(parameters.get(1).getName(), is(equalTo("b%25")));
+        assertThat(parameters.get(1).getValue(), is(equalTo("%20")));
+    }
+
+    @Test
+    void shouldHaveEmptyNamesForMissingNamesWhenRawParsing() {
+        // Given / When
+        List<NameValuePair> parameters = spp.parseRawParameters("=1&=2");
+        // Then
+        assertThat(parameters, hasSize(2));
+        assertThat(parameters.get(0).getName(), is(equalTo("")));
+        assertThat(parameters.get(0).getValue(), is(equalTo("1")));
+        assertThat(parameters.get(1).getName(), is(equalTo("")));
+        assertThat(parameters.get(1).getValue(), is(equalTo("2")));
+    }
+
+    @Test
+    void shouldHaveNullValuesForMissingValuesWhenRawParsing() {
+        // Given / When
+        List<NameValuePair> parameters = spp.parseRawParameters("a&b");
+        // Then
+        assertThat(parameters, hasSize(2));
+        assertThat(parameters.get(0).getName(), is(equalTo("a")));
+        assertThat(parameters.get(0).getValue(), is(nullValue()));
+        assertThat(parameters.get(1).getName(), is(equalTo("b")));
+        assertThat(parameters.get(1).getValue(), is(nullValue()));
     }
 
     @Test

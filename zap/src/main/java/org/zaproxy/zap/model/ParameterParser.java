@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.httpclient.URI;
@@ -43,7 +44,8 @@ public interface ParameterParser {
      * <p>The parameters are split using the key value pair separator(s) and each resulting
      * parameter is split into name/value pairs using key value separator(s).
      *
-     * <p>Parameters' names and values are in decoded form.
+     * <p>Parameters' names and values are in decoded form, if not malformed, otherwise the original
+     * name/value. Names and values are never {@code null}.
      *
      * @param msg the message whose parameters will be extracted from
      * @param type the type of parameters to extract
@@ -68,7 +70,8 @@ public interface ParameterParser {
      * <p>The parameters are split using the key value pair separator(s) and each resulting
      * parameter is split into name/value pairs using key value separator(s).
      *
-     * <p>Parameters' names and values are in decoded form.
+     * <p>Parameters' names and values are in decoded form, if not malformed, otherwise the original
+     * name/value. Names and values are never {@code null}.
      *
      * @param parameters the String of parameters to parse, might be {@code null}
      * @return a {@code List} containing the parameters parsed
@@ -77,6 +80,28 @@ public interface ParameterParser {
      * @see #getDefaultKeyValueSeparator()
      */
     List<NameValuePair> parseParameters(String parameters);
+
+    /**
+     * Parses the given {@code parameters} into a list of {@link NameValuePair}.
+     *
+     * <p>The parameters are split using the key value pair separator(s) and each resulting
+     * parameter is split into name/value pairs using key value separator(s).
+     *
+     * <p>Unlike {@link #parseParameters(String)} the parameters' names and values are not decoded.
+     * This allows to rebuild the original string without (re)encoding issues. Values might be
+     * {@code null}, when not present.
+     *
+     * <p>By default returns an empty list.
+     *
+     * @param parameters the String of parameters to parse, might be {@code null}.
+     * @return a {@code List} containing the parameters parsed, never {@code null}.
+     * @since 2.10.0
+     * @see #getDefaultKeyValuePairSeparator()
+     * @see #getDefaultKeyValueSeparator()
+     */
+    default List<NameValuePair> parseRawParameters(String parameters) {
+        return Collections.emptyList();
+    }
 
     List<String> getTreePath(URI uri) throws URIException;
 
