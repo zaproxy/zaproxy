@@ -1654,9 +1654,9 @@ public class Session {
 
     public String getLeafName(
             String nodeName,
-            String method,
-            String contentType,
+            HttpMessage message,
             List<org.parosproxy.paros.core.scanner.NameValuePair> params) {
+        String method = message.getRequestHeader().getMethod();
         StringBuilder sb = new StringBuilder();
         sb.append(method);
         sb.append(":");
@@ -1666,6 +1666,7 @@ public class Session {
                         params, org.parosproxy.paros.core.scanner.NameValuePair.TYPE_QUERY_STRING));
 
         if (method.equalsIgnoreCase(HttpRequestHeader.POST)) {
+            String contentType = message.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
             if (contentType != null && contentType.startsWith("multipart/form-data")) {
                 sb.append("(multipart/form-data)");
             } else {
@@ -1711,11 +1712,7 @@ public class Session {
                             org.parosproxy.paros.core.scanner.NameValuePair.TYPE_POST_DATA));
         }
 
-        return getLeafName(
-                nodeName,
-                msg.getRequestHeader().getMethod(),
-                msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE),
-                params);
+        return getLeafName(nodeName, msg, params);
     }
 
     /**
