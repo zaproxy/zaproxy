@@ -25,7 +25,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
@@ -240,13 +239,7 @@ public class VariantCustom implements Variant {
      */
     public String getStandardLeafName(
             String nodeName, HttpMessage msg, List<NameValuePair> params) {
-        return Model.getSingleton()
-                .getSession()
-                .getLeafName(
-                        nodeName,
-                        msg.getRequestHeader().getMethod(),
-                        msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE),
-                        params);
+        return Model.getSingleton().getSession().getLeafName(nodeName, msg, params);
     }
 
     /**
