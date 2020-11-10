@@ -92,13 +92,17 @@ public abstract class WithConfigsTest extends TestUtils {
         Mockito.when(control.getExtensionLoader()).thenReturn(extLoader);
 
         // Init all the things
+        setUpConstant();
+        Control.initSingletonForTesting(Model.getSingleton());
+        Model.getSingleton().getOptionsParam().load(new ZapXmlConfiguration());
+    }
+
+    public static void setUpConstant() {
         Constant.getInstance();
         I18N i18n = Mockito.mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), any())).willReturn("");
         given(i18n.getLocal()).willReturn(Locale.getDefault());
         Constant.messages = i18n;
-        Control.initSingletonForTesting(Model.getSingleton());
-        Model.getSingleton().getOptionsParam().load(new ZapXmlConfiguration());
     }
 }

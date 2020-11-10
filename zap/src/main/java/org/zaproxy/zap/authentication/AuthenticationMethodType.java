@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.authentication;
 
+import java.util.function.UnaryOperator;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -40,6 +41,8 @@ import org.zaproxy.zap.users.User;
  * and, through them, the corresponding Authentication methods.
  */
 public abstract class AuthenticationMethodType {
+
+    public static final UnaryOperator<String> NULL_ENCODER = value -> value;
 
     /**
      * Builds a new, empty, authentication method. The authentication method should then be

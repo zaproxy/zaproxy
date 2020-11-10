@@ -27,11 +27,8 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.withSettings;
 
 import java.io.File;
 import java.io.Writer;
@@ -40,12 +37,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.parosproxy.paros.core.scanner.Variant;
@@ -57,7 +51,6 @@ import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StandardParameterParser;
-import org.zaproxy.zap.utils.I18N;
 
 public class SessionUnitTest {
 
@@ -66,12 +59,7 @@ public class SessionUnitTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        Constant.getInstance();
-        I18N i18n = Mockito.mock(I18N.class, withSettings().lenient());
-        given(i18n.getString(anyString())).willReturn("");
-        given(i18n.getString(anyString(), any())).willReturn("");
-        given(i18n.getLocal()).willReturn(Locale.getDefault());
-        Constant.messages = i18n;
+        WithConfigsTest.setUpConstant();
         factory = new VariantFactory();
         Model model = mock(Model.class);
         given(model.getVariantFactory()).willReturn(factory);

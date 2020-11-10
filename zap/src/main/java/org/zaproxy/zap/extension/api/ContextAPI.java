@@ -30,11 +30,14 @@ import java.util.regex.Pattern;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
+import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
+import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
@@ -54,6 +57,7 @@ public class ContextAPI extends ApiImplementor {
     private static final String ACTION_EXCLUDE_FROM_CONTEXT_REGEX = "excludeFromContext";
     private static final String ACTION_INCLUDE_IN_CONTEXT_REGEX = "includeInContext";
     private static final String ACTION_SET_CONTEXT_REGEXS = "setContextRegexs";
+    private static final String ACTION_SET_CONTEXT_CHECKING_STRATEGY = "setContextCheckingStrategy";
     private static final String ACTION_NEW_CONTEXT = "newContext";
     private static final String ACTION_REMOVE_CONTEXT = "removeContext";
     private static final String ACTION_SET_CONTEXT_IN_SCOPE = "setContextInScope";
@@ -79,6 +83,12 @@ public class ContextAPI extends ApiImplementor {
     private static final String CONTEXT_FILE_PARAM = "contextFile";
     private static final String CONTEXT_ID = "contextId";
     private static final String PARAM_TECH_NAMES = "technologyNames";
+    private static final String PARAM_CHECKING_STRATEGRY = "checkingStrategy";
+    private static final String PARAM_POLL_URL = "pollUrl";
+    private static final String PARAM_POLL_DATA = "pollData";
+    private static final String PARAM_POLL_HEADERS = "pollHeaders";
+    private static final String PARAM_POLL_FREQ = "pollFrequency";
+    private static final String PARAM_POLL_FREQ_UNITS = "pollFrequencyUnits";
 
     public ContextAPI() {
         List<String> contextNameAndRegexParam = new ArrayList<>(2);
@@ -95,6 +105,17 @@ public class ContextAPI extends ApiImplementor {
                 new ApiAction(
                         ACTION_SET_CONTEXT_REGEXS,
                         new String[] {CONTEXT_NAME, INC_REGEXS_PARAM, EXC_REGEXS_PARAM}));
+        this.addApiAction(
+                new ApiAction(
+                        ACTION_SET_CONTEXT_CHECKING_STRATEGY,
+                        new String[] {CONTEXT_NAME, PARAM_CHECKING_STRATEGRY},
+                        new String[] {
+                            PARAM_POLL_URL,
+                            PARAM_POLL_DATA,
+                            PARAM_POLL_HEADERS,
+                            PARAM_POLL_FREQ,
+                            PARAM_POLL_FREQ_UNITS
+                        }));
         this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, contextNameOnlyParam));
         this.addApiAction(new ApiAction(ACTION_REMOVE_CONTEXT, contextNameOnlyParam));
         this.addApiAction(
@@ -170,6 +191,58 @@ public class ContextAPI extends ApiImplementor {
                 } catch (Exception e1) {
                     throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, EXC_REGEXS_PARAM);
                 }
+                Model.getSingleton().getSession().saveContext(context);
+                break;
+            case ACTION_SET_CONTEXT_CHECKING_STRATEGY:
+                context = getContext(params);
+                AuthCheckingStrategy checkingStrategy;
+                try {
+                    checkingStrategy =
+                            AuthCheckingStrategy.valueOf(
+                                    params.getString(PARAM_CHECKING_STRATEGRY));
+                } catch (Exception e1) {
+                    throw new ApiException(
+                            ApiException.Type.ILLEGAL_PARAMETER, PARAM_CHECKING_STRATEGRY);
+                }
+                if (AuthCheckingStrategy.POLL_URL.equals(checkingStrategy)) {
+                    AuthPollFrequencyUnits units;
+                    try {
+                        units =
+                                AuthPollFrequencyUnits.valueOf(
+                                        params.getString(PARAM_POLL_FREQ_UNITS));
+                    } catch (Exception e) {
+                        throw new ApiException(
+                                ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ_UNITS);
+                    }
+                    int freq;
+                    String pollUrl = params.getString(PARAM_POLL_URL);
+                    String pollData = params.getString(PARAM_POLL_DATA);
+                    String pollHeaders = params.getString(PARAM_POLL_HEADERS);
+                    if (pollUrl == null || pollUrl.isEmpty()) {
+                        throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_URL);
+                    }
+                    try {
+                        new URI(pollUrl, true);
+                    } catch (Exception e) {
+                        throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_URL);
+                    }
+                    try {
+                        freq = params.getInt(PARAM_POLL_FREQ);
+                    } catch (Exception e) {
+                        throw new ApiException(
+                                ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ);
+                    }
+                    if (freq <= 0) {
+                        throw new ApiException(
+                                ApiException.Type.ILLEGAL_PARAMETER, PARAM_POLL_FREQ);
+                    }
+                    context.getAuthenticationMethod().setPollUrl(pollUrl);
+                    context.getAuthenticationMethod().setPollData(pollData);
+                    context.getAuthenticationMethod().setPollHeaders(pollHeaders);
+                    context.getAuthenticationMethod().setPollFrequency(freq);
+                    context.getAuthenticationMethod().setPollFrequencyUnits(units);
+                }
+                context.getAuthenticationMethod().setAuthCheckingStrategy(checkingStrategy);
                 Model.getSingleton().getSession().saveContext(context);
                 break;
             case ACTION_NEW_CONTEXT:
@@ -399,6 +472,18 @@ public class ContextAPI extends ApiImplementor {
             fields.put("loggedOutPattern", pattern == null ? "" : pattern.toString());
             AuthenticationMethodType type = authenticationMethod.getType();
             fields.put("authType", type == null ? "" : type.getName());
+
+            AuthCheckingStrategy strategy = authenticationMethod.getAuthCheckingStrategy();
+            fields.put(PARAM_CHECKING_STRATEGRY, strategy == null ? "" : strategy.name());
+            if (AuthCheckingStrategy.POLL_URL.equals(strategy)) {
+                fields.put(PARAM_POLL_URL, authenticationMethod.getPollUrl());
+                fields.put(PARAM_POLL_DATA, authenticationMethod.getPollData());
+                fields.put(PARAM_POLL_HEADERS, authenticationMethod.getPollData());
+                fields.put(
+                        PARAM_POLL_FREQ, Integer.toString(authenticationMethod.getPollFrequency()));
+                AuthPollFrequencyUnits units = authenticationMethod.getPollFrequencyUnits();
+                fields.put(PARAM_POLL_FREQ_UNITS, units == null ? "" : units.name());
+            }
         }
 
         AuthorizationDetectionMethod authorizationDetectionMethod =

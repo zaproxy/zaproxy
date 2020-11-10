@@ -32,6 +32,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationMethodIndicatorsUnitTest {
@@ -64,6 +65,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         header.setURI(new URI("http://www.example.com", true));
         loginMessage.setRequestHeader(header);
         method = Mockito.mock(AuthenticationMethod.class, Mockito.CALLS_REAL_METHODS);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_RESP);
     }
 
     @Test
@@ -121,7 +123,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.setResponseBody(LOGGED_IN_BODY);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(true));
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
     }
 
     @Test
@@ -131,7 +133,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(false));
+        assertThat(method.isAuthenticated(loginMessage, null), is(false));
     }
 
     @Test
@@ -141,7 +143,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.getResponseHeader().addHeader("test", LOGGED_IN_INDICATOR);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(true));
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
     }
 
     @Test
@@ -151,7 +153,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.getResponseHeader().addHeader("test", LOGGED_OUT_INDICATOR);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(false));
+        assertThat(method.isAuthenticated(loginMessage, null), is(false));
     }
 
     @Test
@@ -161,7 +163,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(false));
+        assertThat(method.isAuthenticated(loginMessage, null), is(false));
     }
 
     @Test
@@ -171,7 +173,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.setResponseBody(LOGGED_IN_BODY);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(true));
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
     }
 
     @Test
@@ -181,7 +183,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.getResponseHeader().addHeader("test", LOGGED_OUT_INDICATOR);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(false));
+        assertThat(method.isAuthenticated(loginMessage, null), is(false));
     }
 
     @Test
@@ -191,7 +193,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.getResponseHeader().addHeader("test", LOGGED_IN_INDICATOR);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(true));
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
     }
 
     @Test
@@ -201,7 +203,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.setResponseBody(LOGGED_OUT_COMPLEX_BODY);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(false));
+        assertThat(method.isAuthenticated(loginMessage, null), is(false));
     }
 
     @Test
@@ -211,7 +213,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(true));
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
     }
 
     @Test
@@ -220,6 +222,126 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage), is(true));
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+    }
+
+    @Test
+    public void shouldIdentifyLoggedInRequestBodyWhenLoggedInIndicatorIsSet() {
+        // Given
+        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        loginMessage.setRequestBody(LOGGED_IN_BODY);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+    }
+
+    @Test
+    public void shouldIdentifyLoggedOutRequestBodyWhenLoggedInIndicatorIsSet() {
+        // Given
+        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        loginMessage.setRequestBody(LOGGED_OUT_BODY);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+    }
+
+    @Test
+    public void shouldIdentifyLoggedInRequestHeaderWhenLoggedInIndicatorIsSet() {
+        // Given
+        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        loginMessage.getRequestHeader().addHeader("test", LOGGED_IN_INDICATOR);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+    }
+
+    @Test
+    public void shouldIdentifyLoggedOutRequestHeaderWhenLoggedInIndicatorIsSet() {
+        // Given
+        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        loginMessage.getRequestHeader().addHeader("test", LOGGED_OUT_INDICATOR);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+    }
+
+    @Test
+    public void shouldIdentifyLoggedOutRequestBodyWhenLoggedOutIndicatorIsSet() {
+        // Given
+        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        loginMessage.setRequestBody(LOGGED_OUT_BODY);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+    }
+
+    @Test
+    public void shouldIdentifyLoggedInRequestBodyWhenLoggedOutIndicatorIsSet() {
+        // Given
+        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        loginMessage.setRequestBody(LOGGED_IN_BODY);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+    }
+
+    @Test
+    public void shouldIdentifyLoggedOutRequestHeaderWhenLoggedOutIndicatorIsSet() {
+        // Given
+        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        loginMessage.getRequestHeader().addHeader("test", LOGGED_OUT_INDICATOR);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+    }
+
+    @Test
+    public void shouldIdentifyLoggedInRequestHeaderWhenLoggedOutIndicatorIsSet() {
+        // Given
+        method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        loginMessage.getRequestHeader().addHeader("test", LOGGED_IN_INDICATOR);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+    }
+
+    @Test
+    public void shouldIdentifyLoggedOutRequestWithComplexRegex() {
+        // Given
+        method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        loginMessage.setRequestBody(LOGGED_OUT_COMPLEX_BODY);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+    }
+
+    @Test
+    public void shouldIdentifyLoggedInRequestWithComplexRegex() {
+        // Given
+        method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+        loginMessage.setRequestBody(LOGGED_OUT_BODY);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+    }
+
+    @Test
+    public void shouldIdentifyRequestAsLoggedInWhenNoIndicatorIsSet() {
+        // Given
+        loginMessage.setRequestBody(LOGGED_OUT_BODY);
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
+
+        // When/Then
+        assertThat(method.isAuthenticated(loginMessage, null), is(true));
     }
 }

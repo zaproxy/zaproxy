@@ -179,8 +179,16 @@ public class User extends Enableable {
                 }
             }
         }
+        processMessageToMatchAuthenticatedSession(message);
+    }
 
-        // Modify the message accordingly
+    /**
+     * Modifies a message so its Request Header/Body matches the web session corresponding to this
+     * user.
+     *
+     * @param message the message
+     */
+    public void processMessageToMatchAuthenticatedSession(HttpMessage message) {
         getContext()
                 .getSessionManagementMethod()
                 .processMessageToMatchSession(message, authenticatedSession);
@@ -244,7 +252,7 @@ public class User extends Enableable {
      * @return true, if is authenticated
      */
     public boolean isAuthenticated(HttpMessage msg) {
-        return getContext().getAuthenticationMethod().isAuthenticated(msg);
+        return getContext().getAuthenticationMethod().isAuthenticated(msg, this);
     }
 
     /**

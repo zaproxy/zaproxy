@@ -29,9 +29,11 @@ import java.util.function.UnaryOperator;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.DefaultNameValuePair;
 import org.zaproxy.zap.model.NameValuePair;
+import org.zaproxy.zap.users.User;
 
 /**
  * An {@link AuthenticationMethodType} where the Users are authenticated by posting a form ({@code
@@ -112,6 +114,12 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
         @Override
         protected AuthenticationMethod duplicate() {
             return new FormBasedAuthenticationMethod(this);
+        }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+            PostBasedAuthenticationMethodType.replaceUserCredentialsDataInPollRequest(
+                    msg, user, PARAM_ENCODER);
         }
     }
 

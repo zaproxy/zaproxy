@@ -44,6 +44,12 @@ public class RecordContext {
     public static final int TYPE_AUTH_METHOD_FIELD_5 = 205;
     public static final int TYPE_AUTH_METHOD_LOGGEDIN_INDICATOR = 206;
     public static final int TYPE_AUTH_METHOD_LOGGEDOUT_INDICATOR = 207;
+    public static final int TYPE_AUTH_VERIF_STRATEGY = 208;
+    public static final int TYPE_AUTH_POLL_URL = 209;
+    public static final int TYPE_AUTH_POLL_DATA = 210;
+    public static final int TYPE_AUTH_POLL_FREQ = 211;
+    public static final int TYPE_AUTH_POLL_FREQ_UNITS = 212;
+    public static final int TYPE_AUTH_POLL_HEADERS = 213;
 
     public static final int TYPE_SESSION_MANAGEMENT_TYPE = 220;
     public static final int TYPE_SESSION_MANAGEMENT_FIELD_1 = 221;

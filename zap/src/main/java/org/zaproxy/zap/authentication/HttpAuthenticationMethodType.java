@@ -39,6 +39,7 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.authentication.UsernamePasswordAuthenticationCredentials.UsernamePasswordAuthenticationCredentialsOptionsPanel;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -181,6 +182,11 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
             values.put("port", Integer.toString(this.port));
             values.put("realm", this.realm);
             return new AuthMethodApiResponseRepresentation<>(values);
+        }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+            // Nothing to do
         }
     }
 
