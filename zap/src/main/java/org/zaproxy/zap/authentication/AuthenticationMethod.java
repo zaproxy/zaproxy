@@ -19,13 +19,21 @@
  */
 package org.zaproxy.zap.authentication;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
@@ -42,15 +50,60 @@ import org.zaproxy.zap.utils.Stats;
  */
 public abstract class AuthenticationMethod {
 
+    private static final Logger LOGGER = Logger.getLogger(AuthenticationMethod.class);
+
     public static final String CONTEXT_CONFIG_AUTH = Context.CONTEXT_CONFIG + ".authentication";
     public static final String CONTEXT_CONFIG_AUTH_TYPE = CONTEXT_CONFIG_AUTH + ".type";
+    public static final String CONTEXT_CONFIG_AUTH_STRATEGY = CONTEXT_CONFIG_AUTH + ".strategy";
+    public static final String CONTEXT_CONFIG_AUTH_POLL_URL = CONTEXT_CONFIG_AUTH + ".pollurl";
+    public static final String CONTEXT_CONFIG_AUTH_POLL_DATA = CONTEXT_CONFIG_AUTH + ".polldata";
+    public static final String CONTEXT_CONFIG_AUTH_POLL_HEADERS =
+            CONTEXT_CONFIG_AUTH + ".pollheaders";
+    public static final String CONTEXT_CONFIG_AUTH_POLL_FREQ = CONTEXT_CONFIG_AUTH + ".pollfreq";
+    public static final String CONTEXT_CONFIG_AUTH_POLL_UNITS = CONTEXT_CONFIG_AUTH + ".pollunits";
     public static final String CONTEXT_CONFIG_AUTH_LOGGEDIN = CONTEXT_CONFIG_AUTH + ".loggedin";
     public static final String CONTEXT_CONFIG_AUTH_LOGGEDOUT = CONTEXT_CONFIG_AUTH + ".loggedout";
 
+    public static final String AUTH_STATE_ASSUMED_IN_STATS = "stats.auth.state.assumedin";
     public static final String AUTH_STATE_LOGGED_IN_STATS = "stats.auth.state.loggedin";
     public static final String AUTH_STATE_LOGGED_OUT_STATS = "stats.auth.state.loggedout";
     public static final String AUTH_STATE_NO_INDICATOR_STATS = "stats.auth.state.noindicator";
     public static final String AUTH_STATE_UNKNOWN_STATS = "stats.auth.state.unknown";
+
+    public static final String TOKEN_PREFIX = "{%";
+    public static final String TOKEN_POSTFIX = "%}";
+
+    public static final int DEFAULT_POLL_FREQUENCY = 60;
+
+    public static enum AuthCheckingStrategy {
+        EACH_RESP,
+        EACH_REQ,
+        EACH_REQ_RESP,
+        POLL_URL
+    };
+
+    public static enum AuthPollFrequencyUnits {
+        REQUESTS,
+        SECONDS
+    };
+
+    private AuthCheckingStrategy authCheckingStrategy = AuthCheckingStrategy.EACH_RESP;
+
+    private String pollUrl;
+
+    private String pollData;
+
+    private String pollHeaders;
+
+    private int pollFrequency = DEFAULT_POLL_FREQUENCY;
+
+    private AuthPollFrequencyUnits pollFrequencyUnits = AuthPollFrequencyUnits.REQUESTS;
+
+    private long lastPollTime;
+
+    private Boolean lastPollResult;
+
+    private int requestsSincePoll = 0;
 
     /**
      * Checks if the authentication method is fully configured.
@@ -67,6 +120,12 @@ public abstract class AuthenticationMethod {
     @Override
     public AuthenticationMethod clone() {
         AuthenticationMethod method = duplicate();
+        method.authCheckingStrategy = this.authCheckingStrategy;
+        method.pollUrl = this.pollUrl;
+        method.pollData = this.pollData;
+        method.pollHeaders = this.pollHeaders;
+        method.pollFrequency = this.pollFrequency;
+        method.pollFrequencyUnits = this.pollFrequencyUnits;
         method.loggedInIndicatorPattern = this.loggedInIndicatorPattern;
         method.loggedOutIndicatorPattern = this.loggedOutIndicatorPattern;
         return method;
@@ -140,6 +199,8 @@ public abstract class AuthenticationMethod {
      */
     public abstract ApiResponse getApiResponseRepresentation();
 
+    public abstract void replaceUserDataInPollRequest(HttpMessage msg, User user);
+
     /**
      * Called when the Authentication Method is persisted/saved in a Context. For example, in this
      * method, UI elements can be marked accordingly.Description
@@ -158,6 +219,25 @@ public abstract class AuthenticationMethod {
     /** The logged out indicator pattern. */
     protected Pattern loggedOutIndicatorPattern = null;
 
+    private HttpSender httpSender;
+
+    private HttpSender getHttpSender() {
+        if (this.httpSender == null) {
+            this.httpSender =
+                    new HttpSender(
+                            Model.getSingleton().getOptionsParam().getConnectionParam(),
+                            true,
+                            HttpSender.AUTHENTICATION_POLL_INITIATOR);
+        }
+        return httpSender;
+    }
+
+    /** Deprecated TODO add version. */
+    @Deprecated
+    public boolean isAuthenticated(HttpMessage msg) {
+        return this.isAuthenticated(msg, null, false);
+    }
+
     /**
      * Checks if the response received by the Http Message corresponds to an authenticated Web
      * Session.
@@ -169,7 +249,24 @@ public abstract class AuthenticationMethod {
      * @param msg the http message
      * @return true, if is authenticated or no indicators have been set, and false otherwise
      */
-    public boolean isAuthenticated(HttpMessage msg) {
+    public boolean isAuthenticated(HttpMessage msg, User user) {
+        return this.isAuthenticated(msg, user, false);
+    }
+
+    /**
+     * Checks if the response received by the Http Message corresponds to an authenticated Web
+     * Session.
+     *
+     * <p>If none of the indicators are set up, the method defaults to returning true, so that no
+     * authentications are tried when there is no way to check authentication. A message is also
+     * shown on the output console in this case.
+     *
+     * @param msg the http message
+     * @param force always check even if the polling strategy is being used
+     * @return true, if is authenticated or no indicators have been set, and false otherwise
+     */
+    public boolean isAuthenticated(HttpMessage msg, User user, boolean force) {
+
         if (msg == null) {
             return false;
         }
@@ -193,30 +290,125 @@ public abstract class AuthenticationMethod {
             return true;
         }
 
-        String body = msg.getResponseBody().toString();
-        String header = msg.getResponseHeader().toString();
+        List<String> contentToTest = new ArrayList<>();
 
-        if (loggedInIndicatorPattern != null
-                && (loggedInIndicatorPattern.matcher(body).find()
-                        || loggedInIndicatorPattern.matcher(header).find())) {
+        switch (this.authCheckingStrategy) {
+            case EACH_REQ:
+                contentToTest.add(msg.getRequestHeader().toString());
+                contentToTest.add(msg.getRequestBody().toString());
+                break;
+            case EACH_REQ_RESP:
+                contentToTest.add(msg.getRequestHeader().toString());
+                contentToTest.add(msg.getRequestBody().toString());
+                contentToTest.add(msg.getResponseHeader().toString());
+                contentToTest.add(msg.getResponseBody().toString());
+                break;
+            case EACH_RESP:
+                contentToTest.add(msg.getResponseHeader().toString());
+                contentToTest.add(msg.getResponseBody().toString());
+                break;
+            case POLL_URL:
+                if (!force && lastPollResult != null && lastPollResult) {
+                    // Check if we really need to poll the relevant URL again
+                    switch (pollFrequencyUnits) {
+                        case SECONDS:
+                            if ((System.currentTimeMillis() - lastPollTime) / 1000
+                                    < pollFrequency) {
+                                try {
+                                    Stats.incCounter(
+                                            SessionStructure.getHostName(msg),
+                                            AUTH_STATE_ASSUMED_IN_STATS);
+                                } catch (URIException e) {
+                                    // Ignore
+                                }
+                                return true;
+                            }
+                            break;
+                        case REQUESTS:
+                        default:
+                            if (requestsSincePoll < pollFrequency) {
+                                requestsSincePoll++;
+                                try {
+                                    Stats.incCounter(
+                                            SessionStructure.getHostName(msg),
+                                            AUTH_STATE_ASSUMED_IN_STATS);
+                                } catch (URIException e) {
+                                    // Ignore
+                                }
+                                return true;
+                            }
+                            break;
+                    }
+                }
+                // Make the poll request
+                try {
+                    HttpMessage pollMsg = new HttpMessage(new URI(this.getPollUrl(), true));
+                    if (this.getPollData() != null && this.getPollData().length() > 0) {
+                        pollMsg.getRequestHeader().setMethod(HttpRequestHeader.POST);
+                        pollMsg.getRequestBody().setBody(this.getPollData());
+                        pollMsg.getRequestHeader()
+                                .setContentLength(pollMsg.getRequestBody().length());
+                    }
+                    if (this.getPollHeaders() != null && this.getPollHeaders().length() > 0) {
+                        for (String header : this.getPollHeaders().split("\n")) {
+                            String[] headerValue = header.split(":");
+                            if (headerValue.length == 2) {
+                                pollMsg.getRequestHeader()
+                                        .addHeader(headerValue[0].trim(), headerValue[1].trim());
+                            } else {
+                                LOGGER.error(
+                                        "Invalid header '"
+                                                + header
+                                                + "' for poll request to "
+                                                + this.getPollUrl());
+                            }
+                        }
+                    }
+                    pollMsg.setRequestingUser(user);
+                    if (user != null) {
+                        replaceUserDataInPollRequest(pollMsg, user);
+                    }
+
+                    getHttpSender().sendAndReceive(pollMsg);
+                    AuthenticationHelper.addAuthMessageToHistory(pollMsg);
+                    contentToTest.add(pollMsg.getResponseHeader().toString());
+                    contentToTest.add(pollMsg.getResponseBody().toString());
+                    lastPollTime = System.currentTimeMillis();
+                    requestsSincePoll = 0;
+
+                } catch (Exception e1) {
+                    LOGGER.warn("Failed sending poll request to " + this.getPollUrl(), e1);
+                    return false;
+                }
+                break;
+            default:
+                return false;
+        }
+
+        if (patternMatchesAny(loggedInIndicatorPattern, contentToTest)) {
             // Looks like we're authenticated
             try {
                 Stats.incCounter(SessionStructure.getHostName(msg), AUTH_STATE_LOGGED_IN_STATS);
             } catch (URIException e) {
                 // Ignore
             }
+            if (this.authCheckingStrategy.equals(AuthCheckingStrategy.POLL_URL)) {
+                this.lastPollResult = true;
+            }
             return true;
         }
 
         if (loggedOutIndicatorPattern != null
-                && !loggedOutIndicatorPattern.matcher(body).find()
-                && !loggedOutIndicatorPattern.matcher(header).find()) {
+                && !patternMatchesAny(loggedOutIndicatorPattern, contentToTest)) {
             // Cant find the unauthenticated indicator, assume we're authenticated but record as
             // unknown
             try {
                 Stats.incCounter(SessionStructure.getHostName(msg), AUTH_STATE_UNKNOWN_STATS);
             } catch (URIException e) {
                 // Ignore
+            }
+            if (this.authCheckingStrategy.equals(AuthCheckingStrategy.POLL_URL)) {
+                this.lastPollResult = true;
             }
             return true;
         }
@@ -225,6 +417,20 @@ public abstract class AuthenticationMethod {
             Stats.incCounter(SessionStructure.getHostName(msg), AUTH_STATE_LOGGED_OUT_STATS);
         } catch (URIException e) {
             // Ignore
+        }
+        if (this.authCheckingStrategy.equals(AuthCheckingStrategy.POLL_URL)) {
+            this.lastPollResult = false;
+        }
+        return false;
+    }
+
+    private static boolean patternMatchesAny(Pattern pattern, List<String> content) {
+        if (pattern != null) {
+            for (String str : content) {
+                if (pattern.matcher(str).find()) {
+                    return true;
+                }
+            }
         }
         return false;
     }
@@ -273,6 +479,83 @@ public abstract class AuthenticationMethod {
         }
     }
 
+    public AuthCheckingStrategy getAuthCheckingStrategy() {
+        return authCheckingStrategy;
+    }
+
+    public void setAuthCheckingStrategy(AuthCheckingStrategy authCheckingStrategy) {
+        Objects.requireNonNull(authCheckingStrategy);
+        this.authCheckingStrategy = authCheckingStrategy;
+    }
+
+    public String getPollUrl() {
+        return pollUrl;
+    }
+
+    public void setPollUrl(String pollUrl) {
+        this.pollUrl = pollUrl;
+    }
+
+    public String getPollData() {
+        return pollData;
+    }
+
+    public void setPollData(String pollData) {
+        this.pollData = pollData;
+    }
+
+    public String getPollHeaders() {
+        return pollHeaders;
+    }
+
+    public void setPollHeaders(String pollHeaders) {
+        this.pollHeaders = pollHeaders;
+    }
+
+    public int getPollFrequency() {
+        return pollFrequency;
+    }
+
+    public void setPollFrequency(int pollFrequency) {
+        this.pollFrequency = pollFrequency;
+    }
+
+    public AuthPollFrequencyUnits getPollFrequencyUnits() {
+        return pollFrequencyUnits;
+    }
+
+    public void setPollFrequencyUnits(AuthPollFrequencyUnits pollFrequencyUnits) {
+        this.pollFrequencyUnits = pollFrequencyUnits;
+    }
+
+    /**
+     * Gets the last poll result - true means that the user is authenticated, false is
+     * unauthenticated and null if no poll request has been made.
+     *
+     * @return the last poll result
+     */
+    public Boolean getLastPollResult() {
+        return lastPollResult;
+    }
+
+    /**
+     * Sets the last poll result - this can be used by script or add-ons to change the known logged
+     * in state e.g. if they have more accurate information
+     *
+     * @param lastPollResult
+     */
+    public void setLastPollResult(Boolean lastPollResult) {
+        this.lastPollResult = lastPollResult;
+    }
+
+    public long getLastPollTime() {
+        return lastPollTime;
+    }
+
+    public int getRequestsSincePoll() {
+        return requestsSincePoll;
+    }
+
     /**
      * Checks if another method is of the same type.
      *
@@ -311,6 +594,24 @@ public abstract class AuthenticationMethod {
             return false;
         }
         if (!isSamePattern(loggedOutIndicatorPattern, other.loggedOutIndicatorPattern)) {
+            return false;
+        }
+        if (!this.authCheckingStrategy.equals(other.authCheckingStrategy)) {
+            return false;
+        }
+        if (!Objects.equals(this.pollUrl, other.pollUrl)) {
+            return false;
+        }
+        if (!Objects.equals(this.pollData, other.pollData)) {
+            return false;
+        }
+        if (!Objects.equals(this.pollHeaders, other.pollHeaders)) {
+            return false;
+        }
+        if (this.pollFrequency != other.pollFrequency) {
+            return false;
+        }
+        if (!this.pollFrequencyUnits.equals(other.pollFrequencyUnits)) {
             return false;
         }
         return true;

@@ -83,6 +83,7 @@
 // ZAP: 2019/09/17 Use remove() instead of set(null) on IN_LISTENER.
 // ZAP: 2019/09/25 Add option to disable cookies
 // ZAP: 2020/04/20 Configure if the names should be resolved or not (Issue 29).
+// ZAP: 2020/09/04 Added AUTHENTICATION_POLL_INITIATOR
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -141,6 +142,7 @@ public class HttpSender {
     public static final int TOKEN_GENERATOR_INITIATOR = 12;
     public static final int WEB_SOCKET_INITIATOR = 13;
     public static final int AUTHENTICATION_HELPER_INITIATOR = 14;
+    public static final int AUTHENTICATION_POLL_INITIATOR = 15;
 
     private static Logger log = Logger.getLogger(HttpSender.class);
 
@@ -583,8 +585,13 @@ public class HttpSender {
             HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params) throws IOException {
         // Modify the request message if a 'Requesting User' has been set
         User forceUser = this.getUser(msg);
-        if (initiator != AUTHENTICATION_INITIATOR && forceUser != null)
-            forceUser.processMessageToMatchUser(msg);
+        if (forceUser != null) {
+            if (initiator == AUTHENTICATION_POLL_INITIATOR) {
+                forceUser.processMessageToMatchAuthenticatedSession(msg);
+            } else if (initiator != AUTHENTICATION_INITIATOR) {
+                forceUser.processMessageToMatchUser(msg);
+            }
+        }
 
         log.debug("Sending message to: " + msg.getRequestHeader().getURI().toString());
         // Send the message
@@ -593,6 +600,7 @@ public class HttpSender {
         // If there's a 'Requesting User', make sure the response corresponds to an authenticated
         // session and, if not, attempt a reauthentication and try again
         if (initiator != AUTHENTICATION_INITIATOR
+                && initiator != AUTHENTICATION_POLL_INITIATOR
                 && forceUser != null
                 && !msg.getRequestHeader().isImage()
                 && !forceUser.isAuthenticated(msg)) {

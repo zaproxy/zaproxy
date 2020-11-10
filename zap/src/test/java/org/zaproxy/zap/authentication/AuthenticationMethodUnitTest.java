@@ -24,6 +24,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
@@ -222,5 +223,8 @@ public class AuthenticationMethodUnitTest {
         public ApiResponse getApiResponseRepresentation() {
             return null;
         }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {}
     }
 }
