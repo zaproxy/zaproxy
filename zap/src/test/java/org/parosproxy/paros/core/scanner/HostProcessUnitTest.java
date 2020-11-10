@@ -23,12 +23,15 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.Collections;
 import java.util.Locale;
@@ -42,7 +45,9 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
 import org.zaproxy.zap.extension.ascan.filters.FilterResult;
 import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
+import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.I18N;
@@ -576,6 +581,44 @@ class HostProcessUnitTest {
                 is(equalTo("scanner does not target selected technologies")));
         assertThat(hostProcess.getPluginStats(pluginId).getMessageCount(), is(equalTo(0)));
         assertThat(hostProcess.getTestTotalCount(), is(equalTo(1)));
+    }
+
+    @Test
+    void isCustomPageShouldReturnTrueWhenCustomPageMatches() {
+        // Given
+        Context context = mock(Context.class);
+        hostProcess.setContext(context);
+        HttpMessage msg = new HttpMessage();
+        CustomPage.Type cpType = CustomPage.Type.OTHER;
+        given(context.isCustomPage(msg, cpType)).willReturn(true);
+        // When / Then
+        assertTrue(hostProcess.isCustomPage(msg, cpType));
+        verify(context).isCustomPage(msg, cpType);
+    }
+
+    @Test
+    void isCustomPageShouldReturnFalseWhenCustomPageDoesNotMatch() {
+        // Given
+        Context context = mock(Context.class);
+        hostProcess.setContext(context);
+        HttpMessage msg = new HttpMessage();
+        CustomPage.Type cpType = CustomPage.Type.OTHER;
+        given(context.isCustomPage(msg, cpType)).willReturn(false);
+        // When / Then
+        assertFalse(hostProcess.isCustomPage(msg, cpType));
+        verify(context).isCustomPage(msg, cpType);
+    }
+
+    @Test
+    void isCustomPageShouldReturnFalseWhenContextIsNull() {
+        // Given
+        Context context = mock(Context.class);
+        hostProcess.setContext(null);
+        HttpMessage msg = new HttpMessage();
+        CustomPage.Type cpType = CustomPage.Type.OTHER;
+        // When / Then
+        assertFalse(hostProcess.isCustomPage(msg, cpType));
+        verifyNoInteractions(context);
     }
 
     private static StructuralNode createLeafNode(String name, String method, String uri) {
