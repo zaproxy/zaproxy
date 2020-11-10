@@ -9,7 +9,7 @@ trigger:
 steps:
 - task: WhiteSource@20
   inputs:
-    projectName: 'AZDO_ZapProxy'
+    projectName: 'AZDO_ZapProxy_Tag'
     configuration: |
         npm.resolveDependencies=true
         maven.resolveDependencies=true
