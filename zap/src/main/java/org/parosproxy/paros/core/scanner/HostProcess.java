@@ -255,19 +255,20 @@ public class HostProcess implements Runnable {
         this.hostAndPort = hostAndPort;
         this.parentScanner = parentScanner;
         this.scannerParam = scannerParam;
-        this.pluginFactory = scanPolicy.getPluginFactory().clone();
+        pluginFactory = scanPolicy.getPluginFactory().clone();
         this.ruleConfigParam = ruleConfigParam;
-        this.messageIdToHostScan = -1;
-        this.messagesIdsToAppScan = new ArrayList<>();
-        this.startNodes = new ArrayList<>();
+        messageIdToHostScan = -1;
+        messagesIdsToAppScan = new ArrayList<>();
+        startNodes = new ArrayList<>();
 
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
-        httpSender.setUser(this.user);
+        httpSender.setUser(user);
         httpSender.setRemoveUserDefinedAuthHeaders(true);
 
         int maxNumberOfThreads;
         if (scannerParam.getHandleAntiCSRFTokens()) {
-            // Single thread if handling anti CSRF tokens, otherwise token requests might get out of
+            // Single thread if handling anti CSRF tokens, otherwise token requests might
+            // get out of
             // step
             maxNumberOfThreads = 1;
 
@@ -276,7 +277,7 @@ public class HostProcess implements Runnable {
         }
 
         threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
-        this.techSet = TechSet.AllTech;
+        techSet = TechSet.getAllTech();
     }
 
     /**
@@ -288,8 +289,8 @@ public class HostProcess implements Runnable {
      * @see #addStartNode(StructuralNode)
      */
     public void setStartNode(StructuralNode startNode) {
-        this.startNodes.clear();
-        this.startNodes.add(startNode);
+        startNodes.clear();
+        startNodes.add(startNode);
     }
 
     /**
@@ -299,7 +300,7 @@ public class HostProcess implements Runnable {
      * @see #setStartNode(StructuralNode)
      */
     public void addStartNode(StructuralNode startNode) {
-        this.startNodes.add(startNode);
+        startNodes.add(startNode);
     }
 
     /** Stop the current scanning process */
@@ -355,8 +356,8 @@ public class HostProcess implements Runnable {
                 plugin = pluginFactory.nextPlugin();
 
                 if (plugin != null) {
-                    plugin.setDelayInMs(this.scannerParam.getDelayInMs());
-                    plugin.setTechSet(this.techSet);
+                    plugin.setDelayInMs(scannerParam.getDelayInMs());
+                    plugin.setTechSet(techSet);
                     processPlugin(plugin);
 
                 } else {
@@ -435,7 +436,8 @@ public class HostProcess implements Runnable {
             checkPause();
 
             if (isStop() || isSkipped(plugin) || !scanMessage(plugin, messageIdToHostScan)) {
-                // Mark the plugin as completed if it was not run so the scan process can continue
+                // Mark the plugin as completed if it was not run so the scan process can
+                // continue
                 // as expected.
                 // The plugin might not be run, for example, if there was an error reading the
                 // message form DB.
@@ -569,8 +571,10 @@ public class HostProcess implements Runnable {
         }
 
         try {
-            // Ensure the temporary nodes, added automatically to Sites tree, have a response.
-            // The scanners might base the logic/attacks on the state of the response (e.g. status
+            // Ensure the temporary nodes, added automatically to Sites tree, have a
+            // response.
+            // The scanners might base the logic/attacks on the state of the response (e.g.
+            // status
             // code).
             if (msg.getResponseHeader().isEmpty()) {
                 msg = msg.cloneRequest();
@@ -589,9 +593,9 @@ public class HostProcess implements Runnable {
 
             test = plugin.getClass().getDeclaredConstructor().newInstance();
             test.setConfig(plugin.getConfig());
-            if (this.ruleConfigParam != null) {
+            if (ruleConfigParam != null) {
                 // Set the configuration rules
-                for (RuleConfig rc : this.ruleConfigParam.getAllRuleConfigs()) {
+                for (RuleConfig rc : ruleConfigParam.getAllRuleConfigs()) {
                     test.getConfig().setProperty(rc.getKey(), rc.getValue());
                 }
             }
@@ -610,7 +614,7 @@ public class HostProcess implements Runnable {
 
         Thread thread;
         do {
-            if (this.isStop()) {
+            if (isStop()) {
                 return false;
             }
             thread = threadPool.getFreeThreadAndRun(test);
@@ -739,15 +743,15 @@ public class HostProcess implements Runnable {
      * @return true if the process has been stopped
      */
     public boolean isStop() {
-        if (this.scannerParam.getMaxScanDurationInMins() > 0) {
-            if (System.currentTimeMillis() - this.hostProcessStartTime
-                    > TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxScanDurationInMins())) {
-                this.stopReason =
+        if (scannerParam.getMaxScanDurationInMins() > 0) {
+            if (System.currentTimeMillis() - hostProcessStartTime
+                    > TimeUnit.MINUTES.toMillis(scannerParam.getMaxScanDurationInMins())) {
+                stopReason =
                         Constant.messages.getString("ascan.progress.label.skipped.reason.maxScan");
-                this.stop();
+                stop();
             }
         }
-        return (isStop || parentScanner.isStop());
+        return isStop || parentScanner.isStop();
     }
 
     /**
@@ -766,7 +770,7 @@ public class HostProcess implements Runnable {
     }
 
     public int getPercentageComplete() {
-        return this.percentage;
+        return percentage;
     }
 
     private void notifyHostProgress(String msg) {
@@ -777,7 +781,7 @@ public class HostProcess implements Runnable {
             double progressRunning = 0;
             for (Plugin plugin : pluginFactory.getRunning()) {
                 int scannedNodes = getTestCurrentCount(plugin);
-                double pluginPercentage = (scannedNodes * 100.0) / getTestTotalCount();
+                double pluginPercentage = scannedNodes * 100.0 / getTestTotalCount();
                 if (pluginPercentage >= 100) {
                     // More nodes are being scanned that the ones enumerated at the beginning...
                     // Update global count and...
@@ -791,7 +795,7 @@ public class HostProcess implements Runnable {
 
             int avgRunning = (int) (progressRunning / numberRunning);
             percentage =
-                    ((100 * pluginFactory.totalPluginCompleted()) + avgRunning)
+                    (100 * pluginFactory.totalPluginCompleted() + avgRunning)
                             / pluginFactory.totalPluginToRun();
         }
 
@@ -947,7 +951,7 @@ public class HostProcess implements Runnable {
     }
 
     public boolean handleAntiCsrfTokens() {
-        return this.scannerParam.getHandleAntiCSRFTokens();
+        return scannerParam.getHandleAntiCSRFTokens();
     }
 
     /**
@@ -1039,14 +1043,13 @@ public class HostProcess implements Runnable {
             this.pluginSkipped(plugin, stopReason);
             return true;
 
-        } else if (this.scannerParam.getMaxRuleDurationInMins() > 0
-                && plugin.getTimeStarted() != null) {
+        } else if (scannerParam.getMaxRuleDurationInMins() > 0 && plugin.getTimeStarted() != null) {
             long endtime = System.currentTimeMillis();
             if (plugin.getTimeFinished() != null) {
                 endtime = plugin.getTimeFinished().getTime();
             }
             if (endtime - plugin.getTimeStarted().getTime()
-                    > TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxRuleDurationInMins())) {
+                    > TimeUnit.MINUTES.toMillis(scannerParam.getMaxRuleDurationInMins())) {
                 this.pluginSkipped(
                         plugin,
                         Constant.messages.getString("ascan.progress.label.skipped.reason.maxRule"));
@@ -1136,15 +1139,15 @@ public class HostProcess implements Runnable {
     }
 
     public List<Plugin> getPending() {
-        return this.pluginFactory.getPending();
+        return pluginFactory.getPending();
     }
 
     public List<Plugin> getRunning() {
-        return this.pluginFactory.getRunning();
+        return pluginFactory.getRunning();
     }
 
     public List<Plugin> getCompleted() {
-        return this.pluginFactory.getCompleted();
+        return pluginFactory.getCompleted();
     }
 
     /**
@@ -1192,12 +1195,12 @@ public class HostProcess implements Runnable {
      */
     protected synchronized void performScannerHookBeforeScan(
             HttpMessage msg, AbstractPlugin plugin) {
-        Iterator<ScannerHook> iter = this.parentScanner.getScannerHooks().iterator();
+        Iterator<ScannerHook> iter = parentScanner.getScannerHooks().iterator();
         while (iter.hasNext()) {
             ScannerHook hook = iter.next();
             if (hook != null) {
                 try {
-                    hook.beforeScan(msg, plugin, this.parentScanner);
+                    hook.beforeScan(msg, plugin, parentScanner);
                 } catch (Exception e) {
                     log.info(
                             "An exception occurred while trying to call beforeScan(msg, plugin) for one of the ScannerHooks: "
@@ -1217,12 +1220,12 @@ public class HostProcess implements Runnable {
      */
     protected synchronized void performScannerHookAfterScan(
             HttpMessage msg, AbstractPlugin plugin) {
-        Iterator<ScannerHook> iter = this.parentScanner.getScannerHooks().iterator();
+        Iterator<ScannerHook> iter = parentScanner.getScannerHooks().iterator();
         while (iter.hasNext()) {
             ScannerHook hook = iter.next();
             if (hook != null) {
                 try {
-                    hook.afterScan(msg, plugin, this.parentScanner);
+                    hook.afterScan(msg, plugin, parentScanner);
                 } catch (Exception e) {
                     log.info(
                             "An exception occurred while trying to call afterScan(msg, plugin) for one of the ScannerHooks: "
@@ -1234,7 +1237,7 @@ public class HostProcess implements Runnable {
     }
 
     public String getHostAndPort() {
-        return this.hostAndPort;
+        return hostAndPort;
     }
 
     /**

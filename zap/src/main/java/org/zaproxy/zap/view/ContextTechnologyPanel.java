@@ -47,8 +47,8 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 
     /** This method initializes this */
     private void initialize() {
-        this.setLayout(new CardLayout());
-        this.setName(getPanelName(getContextId()));
+        setLayout(new CardLayout());
+        setName(getPanelName(getContextId()));
         this.add(getPanelSession(), getPanelSession().getName());
     }
 
@@ -73,6 +73,8 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
             techPanel =
                     new TechnologyTreePanel(
                             Constant.messages.getString("context.technology.tree.root"));
+        } else {
+            techPanel.refresh();
         }
         return techPanel;
     }

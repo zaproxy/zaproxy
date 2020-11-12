@@ -93,7 +93,7 @@ public class Context {
 
     private List<CustomPage> customPages = new ArrayList<>();
 
-    private TechSet techSet = new TechSet(Tech.builtInTech);
+    private TechSet techSet = new TechSet(Tech.getAll());
     private boolean inScope = true;
     private ParameterParser urlParamParser = new StandardParameterParser();
     private ParameterParser postParamParser = new StandardParameterParser();
@@ -101,17 +101,17 @@ public class Context {
     public Context(Session session, int id) {
         this.session = session;
         this.id = id;
-        this.name = String.valueOf(id);
-        this.sessionManagementMethod = new CookieBasedSessionManagementMethod(id);
-        this.authenticationMethod = new ManualAuthenticationMethod(id);
-        this.authorizationDetectionMethod =
+        name = String.valueOf(id);
+        sessionManagementMethod = new CookieBasedSessionManagementMethod(id);
+        authenticationMethod = new ManualAuthenticationMethod(id);
+        authorizationDetectionMethod =
                 new BasicAuthorizationDetectionMethod(null, null, null, LogicalOperator.AND);
-        this.urlParamParser.setContext(this);
-        this.postParamParser.setContext(this);
+        urlParamParser.setContext(this);
+        postParamParser.setContext(this);
     }
 
     public boolean isIncludedInScope(SiteNode sn) {
-        if (!this.inScope) {
+        if (!inScope) {
             return false;
         }
         return this.isIncluded(sn);
@@ -129,10 +129,10 @@ public class Context {
      * isExplicitlyIncluded(SiteNode sn) { if (sn == null) { return false; } return
      * isExplicitlyIncluded(sn.getHierarchicNodeName()); }
      *
-     * public boolean isExplicitlyIncluded(String url) { if (url == null) { return false; } try {
-     * return this.includeInPatterns.contains(this.getPatternUrl(url, false)) ||
-     * this.includeInPatterns.contains(this.getPatternUrl(url, false)); } catch (Exception e) {
-     * return false; } }
+     * public boolean isExplicitlyIncluded(String url) { if (url == null) { return
+     * false; } try { return this.includeInPatterns.contains(this.getPatternUrl(url,
+     * false)) || this.includeInPatterns.contains(this.getPatternUrl(url, false)); }
+     * catch (Exception e) { return false; } }
      */
 
     public boolean isIncluded(String url) {
@@ -143,7 +143,7 @@ public class Context {
             // Strip off any parameters
             url = url.substring(0, url.indexOf("?"));
         }
-        for (Pattern p : this.includeInPatterns) {
+        for (Pattern p : includeInPatterns) {
             if (p.matcher(url).matches()) {
                 return true;
             }
@@ -152,7 +152,7 @@ public class Context {
     }
 
     public boolean isExcludedFromScope(SiteNode sn) {
-        if (!this.inScope) {
+        if (!inScope) {
             return false;
         }
         return this.isExcluded(sn);
@@ -173,7 +173,7 @@ public class Context {
             // Strip off any parameters
             url = url.substring(0, url.indexOf("?"));
         }
-        for (Pattern p : this.excludeFromPatterns) {
+        for (Pattern p : excludeFromPatterns) {
             if (p.matcher(url).matches()) {
                 return true;
             }
@@ -441,7 +441,7 @@ public class Context {
     }
 
     public void save() {
-        this.session.saveContext(this);
+        session.saveContext(this);
     }
 
     public TechSet getTechSet() {
@@ -501,7 +501,7 @@ public class Context {
      * @since 2.9.0
      */
     public int getId() {
-        return this.id;
+        return id;
     }
 
     public boolean isInScope() {
@@ -572,7 +572,7 @@ public class Context {
     }
 
     public void setUrlParamParser(ParameterParser paramParser) {
-        this.urlParamParser = paramParser;
+        urlParamParser = paramParser;
     }
 
     public ParameterParser getPostParamParser() {
@@ -602,8 +602,8 @@ public class Context {
     }
 
     private void restructureSiteTreeEventHandler() {
-        log.debug("Restructure site tree for context: " + this.getName());
-        List<SiteNode> nodes = this.getTopNodesInContextFromSiteTree();
+        log.debug("Restructure site tree for context: " + getName());
+        List<SiteNode> nodes = getTopNodesInContextFromSiteTree();
         for (SiteNode sn : nodes) {
             checkNode(sn);
         }
@@ -611,7 +611,7 @@ public class Context {
 
     private boolean checkNode(SiteNode sn) {
         // Loop backwards through the children TODO change for lowmem!
-        // log.debug("checkNode " + sn.getHierarchicNodeName());		// Useful for debugging
+        // log.debug("checkNode " + sn.getHierarchicNodeName()); // Useful for debugging
         int origChildren = sn.getChildCount();
         int movedChildren = 0;
         for (SiteNode childNode : getChildren(sn)) {
@@ -621,7 +621,7 @@ public class Context {
         }
 
         if (this.isInContext(sn)) {
-            SiteMap sitesTree = this.session.getSiteTree();
+            SiteMap sitesTree = session.getSiteTree();
             HistoryReference href = sn.getHistoryReference();
 
             try {
@@ -649,7 +649,7 @@ public class Context {
                         return true;
                     }
                 }
-                // log.debug("Didn't need to move " + sn.getHierarchicNodeName());	// Useful for
+                // log.debug("Didn't need to move " + sn.getHierarchicNodeName()); // Useful for
                 // debugging
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
@@ -704,8 +704,8 @@ public class Context {
     }
 
     public List<StructuralNodeModifier> getDataDrivenNodes() {
-        List<StructuralNodeModifier> ddns = new ArrayList<>(this.dataDrivenNodes.size());
-        for (StructuralNodeModifier ddn : this.dataDrivenNodes) {
+        List<StructuralNodeModifier> ddns = new ArrayList<>(dataDrivenNodes.size());
+        for (StructuralNodeModifier ddn : dataDrivenNodes) {
             ddns.add(ddn.clone());
         }
         return ddns;
@@ -716,7 +716,7 @@ public class Context {
     }
 
     public void addDataDrivenNodes(StructuralNodeModifier ddn) {
-        this.dataDrivenNodes.add(ddn.clone());
+        dataDrivenNodes.add(ddn.clone());
     }
 
     public String getDefaultDDNName() {
@@ -724,7 +724,7 @@ public class Context {
         while (true) {
             boolean found = false;
             String name = "DDN" + i;
-            for (StructuralNodeModifier ddn : this.dataDrivenNodes) {
+            for (StructuralNodeModifier ddn : dataDrivenNodes) {
                 if (ddn.getName().equals(name)) {
                     found = true;
                     break;
@@ -791,7 +791,7 @@ public class Context {
      */
     public void addCustomPage(CustomPage customPage) {
         if (customPage != null) {
-            this.customPages.add(customPage);
+            customPages.add(customPage);
         }
     }
 
@@ -801,12 +801,12 @@ public class Context {
      * @param customPage the defaultCustomPage to be removed
      */
     public boolean removeCustomPage(CustomPage customPage) {
-        return this.customPages.remove(customPage);
+        return customPages.remove(customPage);
     }
 
     /** Removes all the custom pages. */
     public void removeAllCustomPages() {
-        this.customPages.clear();
+        customPages.clear();
     }
 
     /**
@@ -875,20 +875,20 @@ public class Context {
      */
     public Context duplicate() {
         Context newContext = new Context(session, getId());
-        newContext.description = this.description;
-        newContext.name = this.name;
-        newContext.includeInRegexs = new ArrayList<>(this.includeInRegexs);
-        newContext.includeInPatterns = new ArrayList<>(this.includeInPatterns);
-        newContext.excludeFromRegexs = new ArrayList<>(this.excludeFromRegexs);
-        newContext.excludeFromPatterns = new ArrayList<>(this.excludeFromPatterns);
-        newContext.inScope = this.inScope;
-        newContext.techSet = new TechSet(this.techSet);
-        newContext.authenticationMethod = this.authenticationMethod.clone();
-        newContext.sessionManagementMethod = this.sessionManagementMethod.clone();
-        newContext.urlParamParser = this.urlParamParser.clone();
-        newContext.postParamParser = this.postParamParser.clone();
-        newContext.authorizationDetectionMethod = this.authorizationDetectionMethod.clone();
-        newContext.dataDrivenNodes = this.getDataDrivenNodes();
+        newContext.description = description;
+        newContext.name = name;
+        newContext.includeInRegexs = new ArrayList<>(includeInRegexs);
+        newContext.includeInPatterns = new ArrayList<>(includeInPatterns);
+        newContext.excludeFromRegexs = new ArrayList<>(excludeFromRegexs);
+        newContext.excludeFromPatterns = new ArrayList<>(excludeFromPatterns);
+        newContext.inScope = inScope;
+        newContext.techSet = new TechSet(techSet);
+        newContext.authenticationMethod = authenticationMethod.clone();
+        newContext.sessionManagementMethod = sessionManagementMethod.clone();
+        newContext.urlParamParser = urlParamParser.clone();
+        newContext.postParamParser = postParamParser.clone();
+        newContext.authorizationDetectionMethod = authorizationDetectionMethod.clone();
+        newContext.dataDrivenNodes = getDataDrivenNodes();
         newContext.setCustomPages(getCustomPages());
         return newContext;
     }
@@ -903,11 +903,19 @@ public class Context {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
         Context other = (Context) obj;
-        if (id != other.id) return false;
+        if (id != other.id) {
+            return false;
+        }
         return true;
     }
 }

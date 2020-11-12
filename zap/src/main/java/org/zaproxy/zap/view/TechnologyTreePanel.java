@@ -52,12 +52,13 @@ public class TechnologyTreePanel extends JPanel {
     private static final long serialVersionUID = 5514692105773714202L;
 
     private final JCheckBoxTree techTree;
-    private final HashMap<Tech, DefaultMutableTreeNode> techToNodeMap;
+    private final HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
+
+    private final DefaultMutableTreeNode root;
 
     public TechnologyTreePanel(String nameRootNode) {
         setLayout(new BorderLayout());
 
-        techToNodeMap = new HashMap<>();
         techTree =
                 new JCheckBoxTree() {
 
@@ -71,16 +72,30 @@ public class TechnologyTreePanel extends JPanel {
                         }
                     }
                 };
-        // Initialise the structure based on all the tech we know about
-        TechSet ts = new TechSet(Tech.builtInTech);
-        Iterator<Tech> iter = ts.getIncludeTech().iterator();
 
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(nameRootNode);
-        Tech tech;
+        root = new DefaultMutableTreeNode(nameRootNode);
+        refresh();
+
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setViewportView(techTree);
+        scrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+
+        add(scrollPane, BorderLayout.CENTER);
+    }
+
+    /**
+     * Initialise / updats the structure based on all the tech we know about
+     *
+     * @see Tech#getAll()
+     */
+    public void refresh() {
+        root.removeAllChildren();
+        techToNodeMap.clear();
+
         DefaultMutableTreeNode parent;
         DefaultMutableTreeNode node;
-        while (iter.hasNext()) {
-            tech = iter.next();
+
+        for (Tech tech : Tech.getAll()) {
             if (tech.getParent() != null) {
                 parent = techToNodeMap.get(tech.getParent());
             } else {
@@ -95,15 +110,9 @@ public class TechnologyTreePanel extends JPanel {
         }
 
         techTree.setModel(new DefaultTreeModel(root));
-        techTree.expandAll();
         techTree.setCheckBoxEnabled(new TreePath(root), false);
+        techTree.expandAll();
         reset();
-
-        JScrollPane scrollPane = new JScrollPane();
-        scrollPane.setViewportView(techTree);
-        scrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
-
-        add(scrollPane, BorderLayout.CENTER);
     }
 
     /**
@@ -117,9 +126,9 @@ public class TechnologyTreePanel extends JPanel {
         Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
         while (iter.hasNext()) {
             Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-            TreePath tp = this.getPath(node.getValue());
+            TreePath tp = getPath(node.getValue());
             Tech tech = node.getKey();
-            if (ArrayUtils.contains(Tech.builtInTopLevelTech, tech)) {
+            if (ArrayUtils.contains(Tech.getTopLevel(), tech)) {
                 techTree.check(tp, containsAnyOfTopLevelTech(includedTech, tech));
             } else {
                 techTree.check(tp, techSet.includes(tech));
@@ -139,7 +148,7 @@ public class TechnologyTreePanel extends JPanel {
         Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
         while (iter.hasNext()) {
             Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-            TreePath tp = this.getPath(node.getValue());
+            TreePath tp = getPath(node.getValue());
             Tech tech = node.getKey();
             if (techTree.isSelectedFully(tp)) {
                 techSet.include(tech);

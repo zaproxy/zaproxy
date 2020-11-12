@@ -107,7 +107,7 @@ public class Scanner implements Runnable {
     private boolean scanChildren = true;
     private User user = null;
     private TechSet techSet;
-    private Set<ScriptCollection> scriptCollections = new HashSet<ScriptCollection>();
+    private Set<ScriptCollection> scriptCollections = new HashSet<>();
     private List<ScanFilter> scanFilters = new ArrayList<>();
     private int id;
 
@@ -144,7 +144,7 @@ public class Scanner implements Runnable {
             ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
-        this.connectionParam = param;
+        connectionParam = param;
         this.scannerParam = scannerParam;
         this.scanPolicy = scanPolicy;
         this.ruleConfigParam = ruleConfigParam;
@@ -153,7 +153,7 @@ public class Scanner implements Runnable {
         // ZAP: Load all scanner hooks from extensionloader.
         Control.getSingleton().getExtensionLoader().hookScannerHook(this);
 
-        techSet = TechSet.AllTech;
+        techSet = TechSet.getAllTech();
     }
 
     public void start(SiteNode startNode) {
@@ -169,7 +169,7 @@ public class Scanner implements Runnable {
         thread.setPriority(Thread.NORM_PRIORITY - 2);
         thread.start();
         ActiveScanEventPublisher.publishScanEvent(
-                ScanEventPublisher.SCAN_STARTED_EVENT, this.getId(), target, this.user);
+                ScanEventPublisher.SCAN_STARTED_EVENT, getId(), target, user);
     }
 
     public void stop() {
@@ -179,7 +179,7 @@ public class Scanner implements Runnable {
             isStop = true;
 
             ActiveScanEventPublisher.publishScanEvent(
-                    ScanEventPublisher.SCAN_STOPPED_EVENT, this.getId());
+                    ScanEventPublisher.SCAN_STOPPED_EVENT, getId());
         }
     }
 
@@ -191,7 +191,8 @@ public class Scanner implements Runnable {
         listenerList.remove(listener);
     }
 
-    // ZAP: Added functionality to add remove and get the attached scannerhooks to the Scanner.
+    // ZAP: Added functionality to add remove and get the attached scannerhooks to
+    // the Scanner.
     public void addScannerHook(ScannerHook scannerHook) {
         hookList.add(scannerHook);
     }
@@ -209,9 +210,9 @@ public class Scanner implements Runnable {
         try {
             scan(target);
 
-            //	    while (pool.isAllThreadComplete()) {
-            //	        Util.sleep(4000);
-            //	    }
+            // while (pool.isAllThreadComplete()) {
+            // Util.sleep(4000);
+            // }
             pool.waitAllThreadComplete(0);
         } catch (Exception e) {
             log.error("An error occurred while active scanning:", e);
@@ -224,8 +225,8 @@ public class Scanner implements Runnable {
 
         Thread thread = null;
 
-        this.setScanChildren(target.isRecurse());
-        this.setJustScanInScope(target.isInScopeOnly());
+        setScanChildren(target.isRecurse());
+        setJustScanInScope(target.isInScopeOnly());
 
         if (target.getStartNodes() != null) {
             HostProcess hostProcess = null;
@@ -236,17 +237,19 @@ public class Scanner implements Runnable {
                     StructuralNode child = iter.next();
                     String hostAndPort = getHostAndPort(child);
                     hostProcess = createHostProcess(hostAndPort, child);
-                    this.hostProcesses.add(hostProcess);
+                    hostProcesses.add(hostProcess);
                     do {
                         thread = pool.getFreeThreadAndRun(hostProcess);
-                        if (thread == null) Util.sleep(500);
+                        if (thread == null) {
+                            Util.sleep(500);
+                        }
                     } while (thread == null && !isStop());
                     if (thread != null) {
                         notifyHostNewScan(hostAndPort, hostProcess);
                     }
                 }
             } else {
-                Map<String, HostProcess> processMap = new HashMap<String, HostProcess>();
+                Map<String, HostProcess> processMap = new HashMap<>();
                 for (StructuralNode node : nodes) {
                     // Loop through the nodes creating new HostProcesss's as required
                     String hostAndPort = getHostAndPort(node);
@@ -261,7 +264,7 @@ public class Scanner implements Runnable {
 
                 // Now start them all off
                 for (Entry<String, HostProcess> pmSet : processMap.entrySet()) {
-                    this.hostProcesses.add(pmSet.getValue());
+                    hostProcesses.add(pmSet.getValue());
                     thread = pool.getFreeThreadAndRun(pmSet.getValue());
                     notifyHostNewScan(pmSet.getKey(), pmSet.getValue());
                 }
@@ -275,7 +278,7 @@ public class Scanner implements Runnable {
 
             List<SiteNode> nodes = Collections.emptyList();
             if (target.isInScopeOnly()) {
-                this.justScanInScope = true;
+                justScanInScope = true;
                 nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
             } else if (target.getContext() != null) {
                 nodes = target.getContext().getTopNodesInContextFromSiteTree();
@@ -285,10 +288,12 @@ public class Scanner implements Runnable {
                 String hostAndPort = getHostAndPort(node);
                 HostProcess hostProcess =
                         createHostProcess(hostAndPort, new StructuralSiteNode(node));
-                this.hostProcesses.add(hostProcess);
+                hostProcesses.add(hostProcess);
                 do {
                     thread = pool.getFreeThreadAndRun(hostProcess);
-                    if (thread == null) Util.sleep(500);
+                    if (thread == null) {
+                        Util.sleep(500);
+                    }
                 } while (thread == null && !isStop());
                 if (thread != null) {
                     notifyHostNewScan(hostAndPort, hostProcess);
@@ -307,8 +312,8 @@ public class Scanner implements Runnable {
                         scanPolicy,
                         ruleConfigParam);
         hostProcess.setStartNode(node);
-        hostProcess.setUser(this.user);
-        hostProcess.setTechSet(this.techSet);
+        hostProcess.setUser(user);
+        hostProcess.setTechSet(techSet);
         hostProcess.setContext(target.getContext());
         return hostProcess;
     }
@@ -352,17 +357,13 @@ public class Scanner implements Runnable {
     }
 
     void notifyHostComplete(String hostAndPort) {
-        for (int i = 0; i < listenerList.size(); i++) {
-            // ZAP: Removed unnecessary cast.
-            ScannerListener listener = listenerList.get(i);
-            listener.hostComplete(this.id, hostAndPort);
+        for (ScannerListener listener : listenerList) {
+            listener.hostComplete(id, hostAndPort);
         }
     }
 
     void notifyHostProgress(String hostAndPort, String msg, int percentage) {
-        for (int i = 0; i < listenerList.size(); i++) {
-            // ZAP: Removed unnecessary cast.
-            ScannerListener listener = listenerList.get(i);
+        for (ScannerListener listener : listenerList) {
             listener.hostProgress(id, hostAndPort, msg, percentage);
         }
     }
@@ -373,19 +374,15 @@ public class Scanner implements Runnable {
         log.info("scanner completed in " + diffTimeString);
         isStop = true;
 
-        ActiveScanEventPublisher.publishScanEvent(
-                ScanEventPublisher.SCAN_COMPLETED_EVENT, this.getId());
+        ActiveScanEventPublisher.publishScanEvent(ScanEventPublisher.SCAN_COMPLETED_EVENT, getId());
 
-        for (int i = 0; i < listenerList.size(); i++) {
-            // ZAP: Removed unnecessary cast.
-            ScannerListener listener = listenerList.get(i);
-            listener.scannerComplete(this.id);
+        for (ScannerListener listener : listenerList) {
+            listener.scannerComplete(id);
         }
 
         // ZAP: Invokes scannerhooks with the scannercomplete method.
-        for (int i = 0; i < hookList.size(); i++) {
+        for (ScannerHook hook : hookList) {
             try {
-                ScannerHook hook = hookList.get(i);
                 hook.scannerComplete();
             } catch (Exception e) {
                 log.info(
@@ -397,39 +394,32 @@ public class Scanner implements Runnable {
     }
 
     void notifyFilteredMessage(HttpMessage msg, String reason) {
-        for (int i = 0; i < listenerList.size(); i++) {
-            ScannerListener listener = listenerList.get(i);
+        for (ScannerListener listener : listenerList) {
             listener.filteredMessage(msg, reason);
         }
     }
 
     void notifyAlertFound(Alert alert) {
-        for (int i = 0; i < listenerList.size(); i++) {
-            // ZAP: Removed unnecessary cast.
-            ScannerListener listener = listenerList.get(i);
+        for (ScannerListener listener : listenerList) {
             listener.alertFound(alert);
         }
     }
 
     void notifyHostNewScan(String hostAndPort, HostProcess hostThread) {
-        for (int i = 0; i < listenerList.size(); i++) {
-            // ZAP: Removed unnecessary cast.
-            ScannerListener listener = listenerList.get(i);
-            listener.hostNewScan(this.id, hostAndPort, hostThread);
+        for (ScannerListener listener : listenerList) {
+            listener.hostNewScan(id, hostAndPort, hostThread);
         }
     }
 
     // ZAP: support pause and notify parent
     public void pause() {
-        this.pause = true;
-        ActiveScanEventPublisher.publishScanEvent(
-                ScanEventPublisher.SCAN_PAUSED_EVENT, this.getId());
+        pause = true;
+        ActiveScanEventPublisher.publishScanEvent(ScanEventPublisher.SCAN_PAUSED_EVENT, getId());
     }
 
     public void resume() {
-        this.pause = false;
-        ActiveScanEventPublisher.publishScanEvent(
-                ScanEventPublisher.SCAN_RESUMED_EVENT, this.getId());
+        pause = false;
+        ActiveScanEventPublisher.publishScanEvent(ScanEventPublisher.SCAN_RESUMED_EVENT, getId());
     }
 
     public boolean isPaused() {
@@ -437,8 +427,7 @@ public class Scanner implements Runnable {
     }
 
     public void notifyNewMessage(HttpMessage msg) {
-        for (int i = 0; i < listenerList.size(); i++) {
-            ScannerListener listener = listenerList.get(i);
+        for (ScannerListener listener : listenerList) {
             listener.notifyNewMessage(msg);
         }
     }
@@ -456,11 +445,11 @@ public class Scanner implements Runnable {
     }
 
     public boolean isInScope(String nodeName) {
-        if (this.justScanInScope && !Model.getSingleton().getSession().isInScope(nodeName)) {
+        if (justScanInScope && !Model.getSingleton().getSession().isInScope(nodeName)) {
             // Restricted to urls in scope, and this isnt
             return false;
         }
-        if (this.target.getContext() != null) {
+        if (target.getContext() != null) {
             if (!target.getContext().isInContext(nodeName)) {
                 // Restricted to nodes in the given context, and this isnt
                 return false;
@@ -482,7 +471,7 @@ public class Scanner implements Runnable {
     }
 
     public void setStartNode(SiteNode startNode) {
-        this.target = new Target(startNode);
+        target = new Target(startNode);
     }
 
     public SiteNode getStartNode() {
@@ -505,11 +494,11 @@ public class Scanner implements Runnable {
     }
 
     public boolean scanChildren() {
-        return this.scanChildren;
+        return scanChildren;
     }
 
     public List<HostProcess> getHostProcesses() {
-        return this.hostProcesses;
+        return hostProcesses;
     }
 
     public void setScannerParam(ScannerParam scannerParam) {
@@ -554,11 +543,11 @@ public class Scanner implements Runnable {
     }
 
     public void addScriptCollection(ScriptCollection sc) {
-        this.scriptCollections.add(sc);
+        scriptCollections.add(sc);
     }
 
     public Set<ScriptCollection> getScriptCollections() {
-        return this.scriptCollections;
+        return scriptCollections;
     }
 
     public int getId() {
@@ -574,6 +563,6 @@ public class Scanner implements Runnable {
     }
 
     public void addScanFilter(ScanFilter scanFilter) {
-        this.scanFilters.add(Objects.requireNonNull(scanFilter));
+        scanFilters.add(Objects.requireNonNull(scanFilter));
     }
 }

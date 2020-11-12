@@ -19,11 +19,13 @@
  */
 package org.zaproxy.zap.model;
 
+import java.util.Objects;
 import java.util.TreeSet;
 
 public class TechSet {
 
-    public static final TechSet AllTech = new TechSet(Tech.builtInTopLevelTech);
+    /** @deprecated Not for public use. Replaced by {@link #getAllTech()}. */
+    @Deprecated public static final TechSet AllTech = new TechSet(Tech.getTopLevel());
 
     private TreeSet<Tech> includeTech = new TreeSet<>();
     private TreeSet<Tech> excludeTech = new TreeSet<>();
@@ -37,19 +39,19 @@ public class TechSet {
     public TechSet(Tech[] include, Tech[] exclude) {
         if (include != null) {
             for (Tech tech : include) {
-                this.include(tech);
+                include(tech);
             }
         }
         if (exclude != null) {
             for (Tech tech : exclude) {
-                this.exclude(tech);
+                exclude(tech);
             }
         }
     }
 
     public TechSet(TechSet techSet) {
-        this.includeTech.addAll(techSet.includeTech);
-        this.excludeTech.addAll(techSet.excludeTech);
+        includeTech.addAll(techSet.includeTech);
+        excludeTech.addAll(techSet.excludeTech);
     }
 
     public void include(Tech tech) {
@@ -71,7 +73,7 @@ public class TechSet {
         } else if (includeTech.contains(tech)) {
             return true;
         } else {
-            return this.includes(tech.getParent());
+            return includes(tech.getParent());
         }
     }
 
@@ -97,24 +99,46 @@ public class TechSet {
 
     public TreeSet<Tech> getIncludeTech() {
         TreeSet<Tech> copy = new TreeSet<>();
-        copy.addAll(this.includeTech);
+        copy.addAll(includeTech);
         return copy;
     }
 
     public TreeSet<Tech> getExcludeTech() {
         TreeSet<Tech> copy = new TreeSet<>();
-        copy.addAll(this.excludeTech);
+        copy.addAll(excludeTech);
         return copy;
     }
 
     // Useful for debuging ;)
     public void print() {
-        System.out.println("TechSet: " + this.hashCode());
+        System.out.println("TechSet: " + hashCode());
         for (Tech tech : includeTech) {
             System.out.println("\tInclude: " + tech);
         }
         for (Tech tech : excludeTech) {
             System.out.println("\tExclude: " + tech);
         }
+    }
+
+    public static TechSet getAllTech() {
+        return new TechSet(Tech.getTopLevel());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(excludeTech, includeTech);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof TechSet)) {
+            return false;
+        }
+        TechSet other = (TechSet) obj;
+        return Objects.equals(excludeTech, other.excludeTech)
+                && Objects.equals(includeTech, other.includeTech);
     }
 }

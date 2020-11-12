@@ -57,14 +57,14 @@ public final class PassiveScanData {
     private Map<CustomPage.Type, Boolean> customPageMap;
 
     PassiveScanData(HttpMessage msg) {
-        this.message = msg;
-        this.context = getContext(message);
+        message = msg;
+        context = getContext(message);
 
         if (getContext() == null) {
-            this.userList = Collections.emptyList();
-            this.techSet = TechSet.AllTech;
+            userList = Collections.emptyList();
+            techSet = TechSet.getAllTech();
         } else {
-            this.techSet = getContext().getTechSet();
+            techSet = getContext().getTechSet();
         }
     }
 
@@ -166,7 +166,7 @@ public final class PassiveScanData {
             return false;
         }
         if (customPageMap == null) {
-            customPageMap = new HashMap<CustomPage.Type, Boolean>();
+            customPageMap = new HashMap<>();
         }
         return customPageMap.computeIfAbsent(
                 cpType, type -> context.isCustomPageWithFallback(msg, type));

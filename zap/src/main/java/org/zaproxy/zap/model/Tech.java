@@ -19,6 +19,9 @@
  */
 package org.zaproxy.zap.model;
 
+import java.util.Arrays;
+import java.util.TreeSet;
+import org.apache.logging.log4j.core.util.Assert;
 import org.parosproxy.paros.Constant;
 
 public class Tech implements Comparable<Tech> {
@@ -66,45 +69,54 @@ public class Tech implements Comparable<Tech> {
     public static final Tech IIS = new Tech(WS, "IIS");
     public static final Tech Tomcat = new Tech(WS, "Tomcat");
 
-    public static final Tech[] builtInTech = {
-        Db,
-        MySQL,
-        PostgreSQL,
-        MsSQL,
-        Oracle,
-        SQLite,
-        Access,
-        Firebird,
-        MaxDB,
-        Sybase,
-        Db2,
-        HypersonicSQL,
-        MongoDB,
-        CouchDB,
-        Lang,
-        ASP,
-        C,
-        JAVA,
-        JAVASCRIPT,
-        JSP_SERVLET,
-        PHP,
-        PYTHON,
-        RUBY,
-        XML,
-        OS,
-        Linux,
-        MacOS,
-        Windows,
-        SCM,
-        Git,
-        SVN,
-        WS,
-        Apache,
-        IIS,
-        Tomcat
-    };
+    private static final TreeSet<Tech> allTech =
+            new TreeSet<>(
+                    Arrays.asList(
+                            Db,
+                            MySQL,
+                            PostgreSQL,
+                            MsSQL,
+                            Oracle,
+                            SQLite,
+                            Access,
+                            Firebird,
+                            MaxDB,
+                            Sybase,
+                            Db2,
+                            HypersonicSQL,
+                            MongoDB,
+                            CouchDB,
+                            Lang,
+                            ASP,
+                            C,
+                            JAVA,
+                            JAVASCRIPT,
+                            JSP_SERVLET,
+                            PHP,
+                            PYTHON,
+                            RUBY,
+                            XML,
+                            OS,
+                            Linux,
+                            MacOS,
+                            Windows,
+                            SCM,
+                            Git,
+                            SVN,
+                            WS,
+                            Apache,
+                            IIS,
+                            Tomcat));
 
-    public static final Tech[] builtInTopLevelTech = {Db, Lang, OS, SCM, WS};
+    private static final TreeSet<Tech> topLevelTech =
+            new TreeSet<>(Arrays.asList(Db, Lang, OS, SCM, WS));
+
+    /** @deprecated Not for public use. Replaced by {@link #getAll()}. */
+    @Deprecated public static final Tech[] builtInTech = allTech.toArray(new Tech[] {});
+
+    /** @deprecated Not for public use. Replaced by {@link #getTopLevel()}. */
+    @Deprecated
+    public static final Tech[] builtInTopLevelTech = topLevelTech.toArray(new Tech[] {});
 
     private Tech parent = null;
     private String name = null;
@@ -117,7 +129,7 @@ public class Tech implements Comparable<Tech> {
     public Tech(String name, String keyUiName) {
         if (name.indexOf(".") > 0) {
             this.name = name.substring(name.lastIndexOf(".") + 1);
-            this.parent = new Tech(name.substring(0, name.lastIndexOf(".")));
+            parent = new Tech(name.substring(0, name.lastIndexOf(".")));
 
         } else {
             this.name = name;
@@ -138,10 +150,9 @@ public class Tech implements Comparable<Tech> {
     @Override
     public String toString() {
         if (parent == null) {
-            return this.name;
-
+            return name;
         } else {
-            return parent.toString() + "." + this.name;
+            return parent.toString() + "." + name;
         }
     }
 
@@ -150,12 +161,12 @@ public class Tech implements Comparable<Tech> {
         if (!(tech instanceof Tech)) {
             return false;
         }
-        return this.toString().equals(tech.toString());
+        return toString().equals(tech.toString());
     }
 
     @Override
     public int hashCode() {
-        return this.toString().hashCode();
+        return toString().hashCode();
     }
 
     public boolean is(Tech other) {
@@ -193,6 +204,66 @@ public class Tech implements Comparable<Tech> {
             return -1;
         }
 
-        return this.toString().compareTo(o.toString());
+        return toString().compareTo(o.toString());
+    }
+
+    /**
+     * Returns all techs
+     *
+     * @return all techs
+     */
+    public static Tech[] getAll() {
+        return allTech.toArray(new Tech[] {});
+    }
+
+    /**
+     * Returns all top level techs
+     *
+     * @return top level techs
+     */
+    public static Tech[] getTopLevel() {
+        return topLevelTech.toArray(new Tech[] {});
+    }
+
+    /**
+     * Adds entry from techs, if parent is omitted it is treated as new parent
+     *
+     * @param tech to add
+     */
+    public static void add(Tech tech) {
+        Assert.isNonEmpty(tech);
+        if (tech.getParent() != null) {
+            topLevelTech.add(tech);
+        }
+        allTech.add(tech);
+    }
+
+    /**
+     * Remove entry from techs
+     *
+     * @param tech to remove
+     */
+    public static void remove(Tech tech) {
+        Assert.isNonEmpty(tech);
+        if (tech.getParent() != null) {
+            topLevelTech.remove(tech);
+        }
+        allTech.remove(tech);
+    }
+
+    /**
+     * Gets the tech that matches the name or null
+     *
+     * @param name the name of the tech
+     * @return the matching tech
+     */
+    public static Tech get(String name) {
+        String trimmedTechName = name.trim();
+        for (Tech tech : Tech.getAll()) {
+            if (tech.toString().equalsIgnoreCase(trimmedTechName)) {
+                return tech;
+            }
+        }
+        return null;
     }
 }

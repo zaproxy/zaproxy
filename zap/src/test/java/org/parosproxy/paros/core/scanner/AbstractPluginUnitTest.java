@@ -81,7 +81,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
-        assertThat(plugin.getTechSet(), is(equalTo(TechSet.AllTech)));
+        assertThat(plugin.getTechSet(), is(equalTo(TechSet.getAllTech())));
     }
 
     @Test
@@ -400,7 +400,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         pluginA.setDefaultAlertThreshold(Plugin.AlertThreshold.MEDIUM);
         pluginA.setAttackStrength(Plugin.AttackStrength.INSANE);
         pluginA.setDefaultAttackStrength(Plugin.AttackStrength.LOW);
-        pluginA.setTechSet(TechSet.AllTech);
+        pluginA.setTechSet(TechSet.getAllTech());
         pluginA.setStatus(AddOn.Status.beta);
         pluginA.setEnabled(false);
         AbstractPlugin pluginB = createAbstractPluginWithConfig();

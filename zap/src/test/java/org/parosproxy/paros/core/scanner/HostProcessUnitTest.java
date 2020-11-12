@@ -510,7 +510,7 @@ class HostProcessUnitTest {
 
     @Test
     void shouldUseTechSetAllByDefault() {
-        assertThat(hostProcess.getTechSet(), is(equalTo(TechSet.AllTech)));
+        assertThat(hostProcess.getTechSet(), is(equalTo(TechSet.getAllTech())));
     }
 
     @Test
