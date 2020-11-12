@@ -47,8 +47,8 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 
     /** This method initializes this */
     private void initialize() {
-        setLayout(new CardLayout());
-        setName(getPanelName(getContextId()));
+        this.setLayout(new CardLayout());
+        this.setName(getPanelName(getContextId()));
         this.add(getPanelSession(), getPanelSession().getName());
     }
 

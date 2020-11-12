@@ -255,20 +255,19 @@ public class HostProcess implements Runnable {
         this.hostAndPort = hostAndPort;
         this.parentScanner = parentScanner;
         this.scannerParam = scannerParam;
-        pluginFactory = scanPolicy.getPluginFactory().clone();
+        this.pluginFactory = scanPolicy.getPluginFactory().clone();
         this.ruleConfigParam = ruleConfigParam;
-        messageIdToHostScan = -1;
-        messagesIdsToAppScan = new ArrayList<>();
-        startNodes = new ArrayList<>();
+        this.messageIdToHostScan = -1;
+        this.messagesIdsToAppScan = new ArrayList<>();
+        this.startNodes = new ArrayList<>();
 
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
-        httpSender.setUser(user);
+        httpSender.setUser(this.user);
         httpSender.setRemoveUserDefinedAuthHeaders(true);
 
         int maxNumberOfThreads;
         if (scannerParam.getHandleAntiCSRFTokens()) {
-            // Single thread if handling anti CSRF tokens, otherwise token requests might
-            // get out of
+            // Single thread if handling anti CSRF tokens, otherwise token requests might get out of
             // step
             maxNumberOfThreads = 1;
 
@@ -277,7 +276,7 @@ public class HostProcess implements Runnable {
         }
 
         threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
-        techSet = TechSet.getAllTech();
+        this.techSet = TechSet.getAllTech();
     }
 
     /**
@@ -289,8 +288,8 @@ public class HostProcess implements Runnable {
      * @see #addStartNode(StructuralNode)
      */
     public void setStartNode(StructuralNode startNode) {
-        startNodes.clear();
-        startNodes.add(startNode);
+        this.startNodes.clear();
+        this.startNodes.add(startNode);
     }
 
     /**
@@ -300,7 +299,7 @@ public class HostProcess implements Runnable {
      * @see #setStartNode(StructuralNode)
      */
     public void addStartNode(StructuralNode startNode) {
-        startNodes.add(startNode);
+        this.startNodes.add(startNode);
     }
 
     /** Stop the current scanning process */
@@ -356,8 +355,8 @@ public class HostProcess implements Runnable {
                 plugin = pluginFactory.nextPlugin();
 
                 if (plugin != null) {
-                    plugin.setDelayInMs(scannerParam.getDelayInMs());
-                    plugin.setTechSet(techSet);
+                    plugin.setDelayInMs(this.scannerParam.getDelayInMs());
+                    plugin.setTechSet(this.techSet);
                     processPlugin(plugin);
 
                 } else {
@@ -436,8 +435,7 @@ public class HostProcess implements Runnable {
             checkPause();
 
             if (isStop() || isSkipped(plugin) || !scanMessage(plugin, messageIdToHostScan)) {
-                // Mark the plugin as completed if it was not run so the scan process can
-                // continue
+                // Mark the plugin as completed if it was not run so the scan process can continue
                 // as expected.
                 // The plugin might not be run, for example, if there was an error reading the
                 // message form DB.
@@ -571,10 +569,8 @@ public class HostProcess implements Runnable {
         }
 
         try {
-            // Ensure the temporary nodes, added automatically to Sites tree, have a
-            // response.
-            // The scanners might base the logic/attacks on the state of the response (e.g.
-            // status
+            // Ensure the temporary nodes, added automatically to Sites tree, have a response.
+            // The scanners might base the logic/attacks on the state of the response (e.g. status
             // code).
             if (msg.getResponseHeader().isEmpty()) {
                 msg = msg.cloneRequest();
@@ -593,9 +589,9 @@ public class HostProcess implements Runnable {
 
             test = plugin.getClass().getDeclaredConstructor().newInstance();
             test.setConfig(plugin.getConfig());
-            if (ruleConfigParam != null) {
+            if (this.ruleConfigParam != null) {
                 // Set the configuration rules
-                for (RuleConfig rc : ruleConfigParam.getAllRuleConfigs()) {
+                for (RuleConfig rc : this.ruleConfigParam.getAllRuleConfigs()) {
                     test.getConfig().setProperty(rc.getKey(), rc.getValue());
                 }
             }
@@ -614,7 +610,7 @@ public class HostProcess implements Runnable {
 
         Thread thread;
         do {
-            if (isStop()) {
+            if (this.isStop()) {
                 return false;
             }
             thread = threadPool.getFreeThreadAndRun(test);
@@ -743,12 +739,12 @@ public class HostProcess implements Runnable {
      * @return true if the process has been stopped
      */
     public boolean isStop() {
-        if (scannerParam.getMaxScanDurationInMins() > 0) {
-            if (System.currentTimeMillis() - hostProcessStartTime
-                    > TimeUnit.MINUTES.toMillis(scannerParam.getMaxScanDurationInMins())) {
-                stopReason =
+        if (this.scannerParam.getMaxScanDurationInMins() > 0) {
+            if (System.currentTimeMillis() - this.hostProcessStartTime
+                    > TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxScanDurationInMins())) {
+                this.stopReason =
                         Constant.messages.getString("ascan.progress.label.skipped.reason.maxScan");
-                stop();
+                this.stop();
             }
         }
         return isStop || parentScanner.isStop();
@@ -770,7 +766,7 @@ public class HostProcess implements Runnable {
     }
 
     public int getPercentageComplete() {
-        return percentage;
+        return this.percentage;
     }
 
     private void notifyHostProgress(String msg) {
@@ -951,7 +947,7 @@ public class HostProcess implements Runnable {
     }
 
     public boolean handleAntiCsrfTokens() {
-        return scannerParam.getHandleAntiCSRFTokens();
+        return this.scannerParam.getHandleAntiCSRFTokens();
     }
 
     /**
@@ -1043,13 +1039,14 @@ public class HostProcess implements Runnable {
             this.pluginSkipped(plugin, stopReason);
             return true;
 
-        } else if (scannerParam.getMaxRuleDurationInMins() > 0 && plugin.getTimeStarted() != null) {
+        } else if (this.scannerParam.getMaxRuleDurationInMins() > 0 
+                && plugin.getTimeStarted() != null) {
             long endtime = System.currentTimeMillis();
             if (plugin.getTimeFinished() != null) {
                 endtime = plugin.getTimeFinished().getTime();
             }
             if (endtime - plugin.getTimeStarted().getTime()
-                    > TimeUnit.MINUTES.toMillis(scannerParam.getMaxRuleDurationInMins())) {
+                    > TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxRuleDurationInMins())) {
                 this.pluginSkipped(
                         plugin,
                         Constant.messages.getString("ascan.progress.label.skipped.reason.maxRule"));
@@ -1139,15 +1136,15 @@ public class HostProcess implements Runnable {
     }
 
     public List<Plugin> getPending() {
-        return pluginFactory.getPending();
+        return this.pluginFactory.getPending();
     }
 
     public List<Plugin> getRunning() {
-        return pluginFactory.getRunning();
+        return this.pluginFactory.getRunning();
     }
 
     public List<Plugin> getCompleted() {
-        return pluginFactory.getCompleted();
+        return this.pluginFactory.getCompleted();
     }
 
     /**
@@ -1195,12 +1192,12 @@ public class HostProcess implements Runnable {
      */
     protected synchronized void performScannerHookBeforeScan(
             HttpMessage msg, AbstractPlugin plugin) {
-        Iterator<ScannerHook> iter = parentScanner.getScannerHooks().iterator();
+        Iterator<ScannerHook> iter = this.parentScanner.getScannerHooks().iterator();
         while (iter.hasNext()) {
             ScannerHook hook = iter.next();
             if (hook != null) {
                 try {
-                    hook.beforeScan(msg, plugin, parentScanner);
+                    hook.beforeScan(msg, plugin, this.parentScanner);
                 } catch (Exception e) {
                     log.info(
                             "An exception occurred while trying to call beforeScan(msg, plugin) for one of the ScannerHooks: "
@@ -1237,7 +1234,7 @@ public class HostProcess implements Runnable {
     }
 
     public String getHostAndPort() {
-        return hostAndPort;
+        return this.hostAndPort;
     }
 
     /**

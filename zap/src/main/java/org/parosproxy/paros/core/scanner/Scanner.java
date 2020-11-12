@@ -144,7 +144,7 @@ public class Scanner implements Runnable {
             ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
-        connectionParam = param;
+        this.connectionParam = param;
         this.scannerParam = scannerParam;
         this.scanPolicy = scanPolicy;
         this.ruleConfigParam = ruleConfigParam;
@@ -169,7 +169,7 @@ public class Scanner implements Runnable {
         thread.setPriority(Thread.NORM_PRIORITY - 2);
         thread.start();
         ActiveScanEventPublisher.publishScanEvent(
-                ScanEventPublisher.SCAN_STARTED_EVENT, getId(), target, user);
+                ScanEventPublisher.SCAN_STARTED_EVENT, this.getId(), target, this.user);
     }
 
     public void stop() {
@@ -179,7 +179,7 @@ public class Scanner implements Runnable {
             isStop = true;
 
             ActiveScanEventPublisher.publishScanEvent(
-                    ScanEventPublisher.SCAN_STOPPED_EVENT, getId());
+                    ScanEventPublisher.SCAN_STOPPED_EVENT, this.getId());
         }
     }
 
@@ -191,8 +191,7 @@ public class Scanner implements Runnable {
         listenerList.remove(listener);
     }
 
-    // ZAP: Added functionality to add remove and get the attached scannerhooks to
-    // the Scanner.
+    // ZAP: Added functionality to add remove and get the attached scannerhooks to the Scanner.
     public void addScannerHook(ScannerHook scannerHook) {
         hookList.add(scannerHook);
     }
@@ -209,10 +208,6 @@ public class Scanner implements Runnable {
     public void run() {
         try {
             scan(target);
-
-            // while (pool.isAllThreadComplete()) {
-            // Util.sleep(4000);
-            // }
             pool.waitAllThreadComplete(0);
         } catch (Exception e) {
             log.error("An error occurred while active scanning:", e);
@@ -225,8 +220,8 @@ public class Scanner implements Runnable {
 
         Thread thread = null;
 
-        setScanChildren(target.isRecurse());
-        setJustScanInScope(target.isInScopeOnly());
+        this.setScanChildren(target.isRecurse());
+        this.setJustScanInScope(target.isInScopeOnly());
 
         if (target.getStartNodes() != null) {
             HostProcess hostProcess = null;
@@ -237,7 +232,7 @@ public class Scanner implements Runnable {
                     StructuralNode child = iter.next();
                     String hostAndPort = getHostAndPort(child);
                     hostProcess = createHostProcess(hostAndPort, child);
-                    hostProcesses.add(hostProcess);
+                    this.hostProcesses.add(hostProcess);
                     do {
                         thread = pool.getFreeThreadAndRun(hostProcess);
                         if (thread == null) {
@@ -264,7 +259,7 @@ public class Scanner implements Runnable {
 
                 // Now start them all off
                 for (Entry<String, HostProcess> pmSet : processMap.entrySet()) {
-                    hostProcesses.add(pmSet.getValue());
+                    this.hostProcesses.add(pmSet.getValue());
                     thread = pool.getFreeThreadAndRun(pmSet.getValue());
                     notifyHostNewScan(pmSet.getKey(), pmSet.getValue());
                 }
@@ -278,7 +273,7 @@ public class Scanner implements Runnable {
 
             List<SiteNode> nodes = Collections.emptyList();
             if (target.isInScopeOnly()) {
-                justScanInScope = true;
+                this.justScanInScope = true;
                 nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
             } else if (target.getContext() != null) {
                 nodes = target.getContext().getTopNodesInContextFromSiteTree();
@@ -288,7 +283,7 @@ public class Scanner implements Runnable {
                 String hostAndPort = getHostAndPort(node);
                 HostProcess hostProcess =
                         createHostProcess(hostAndPort, new StructuralSiteNode(node));
-                hostProcesses.add(hostProcess);
+                this.hostProcesses.add(hostProcess);
                 do {
                     thread = pool.getFreeThreadAndRun(hostProcess);
                     if (thread == null) {
@@ -312,8 +307,8 @@ public class Scanner implements Runnable {
                         scanPolicy,
                         ruleConfigParam);
         hostProcess.setStartNode(node);
-        hostProcess.setUser(user);
-        hostProcess.setTechSet(techSet);
+        hostProcess.setUser(this.user);
+        hostProcess.setTechSet(this.techSet);
         hostProcess.setContext(target.getContext());
         return hostProcess;
     }
@@ -358,7 +353,7 @@ public class Scanner implements Runnable {
 
     void notifyHostComplete(String hostAndPort) {
         for (ScannerListener listener : listenerList) {
-            listener.hostComplete(id, hostAndPort);
+            listener.hostComplete(this.id, hostAndPort);
         }
     }
 
@@ -413,12 +408,12 @@ public class Scanner implements Runnable {
 
     // ZAP: support pause and notify parent
     public void pause() {
-        pause = true;
+        this.pause = true;
         ActiveScanEventPublisher.publishScanEvent(ScanEventPublisher.SCAN_PAUSED_EVENT, getId());
     }
 
     public void resume() {
-        pause = false;
+        this.pause = false;
         ActiveScanEventPublisher.publishScanEvent(ScanEventPublisher.SCAN_RESUMED_EVENT, getId());
     }
 
@@ -445,12 +440,12 @@ public class Scanner implements Runnable {
     }
 
     public boolean isInScope(String nodeName) {
-        if (justScanInScope && !Model.getSingleton().getSession().isInScope(nodeName)) {
+        if (this.justScanInScope && !Model.getSingleton().getSession().isInScope(nodeName)) {
             // Restricted to urls in scope, and this isnt
             return false;
         }
-        if (target.getContext() != null) {
-            if (!target.getContext().isInContext(nodeName)) {
+        if (this.target.getContext() != null) {
+            if (!this.target.getContext().isInContext(nodeName)) {
                 // Restricted to nodes in the given context, and this isnt
                 return false;
             }
@@ -471,22 +466,22 @@ public class Scanner implements Runnable {
     }
 
     public void setStartNode(SiteNode startNode) {
-        target = new Target(startNode);
+        this.target = new Target(startNode);
     }
 
     public SiteNode getStartNode() {
-        if (target != null) {
-            return target.getStartNode();
+        if (this.target != null) {
+            return this.target.getStartNode();
         }
         return null;
     }
 
     public void setJustScanInScope(boolean scanInScope) {
-        justScanInScope = scanInScope;
+        this.justScanInScope = scanInScope;
     }
 
     public boolean getJustScanInScope() {
-        return justScanInScope;
+        return this.justScanInScope;
     }
 
     public void setScanChildren(boolean scanChildren) {
@@ -494,7 +489,7 @@ public class Scanner implements Runnable {
     }
 
     public boolean scanChildren() {
-        return scanChildren;
+        return this.scanChildren;
     }
 
     public List<HostProcess> getHostProcesses() {
@@ -525,7 +520,7 @@ public class Scanner implements Runnable {
      * @since 2.4.0
      */
     public TechSet getTechSet() {
-        return techSet;
+        return this.techSet;
     }
 
     /**
@@ -543,15 +538,15 @@ public class Scanner implements Runnable {
     }
 
     public void addScriptCollection(ScriptCollection sc) {
-        scriptCollections.add(sc);
+        this.scriptCollections.add(sc);
     }
 
     public Set<ScriptCollection> getScriptCollections() {
-        return scriptCollections;
+        return this.scriptCollections;
     }
 
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(int id) {
@@ -559,10 +554,10 @@ public class Scanner implements Runnable {
     }
 
     List<ScanFilter> getScanFilters() {
-        return scanFilters;
+        return this.scanFilters;
     }
 
     public void addScanFilter(ScanFilter scanFilter) {
-        scanFilters.add(Objects.requireNonNull(scanFilter));
+        this.scanFilters.add(Objects.requireNonNull(scanFilter));
     }
 }

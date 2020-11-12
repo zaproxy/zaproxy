@@ -57,14 +57,14 @@ public final class PassiveScanData {
     private Map<CustomPage.Type, Boolean> customPageMap;
 
     PassiveScanData(HttpMessage msg) {
-        message = msg;
-        context = getContext(message);
+        this.message = msg;
+        this.context = getContext(message);
 
         if (getContext() == null) {
-            userList = Collections.emptyList();
-            techSet = TechSet.getAllTech();
+            this.userList = Collections.emptyList();
+            this.techSet = TechSet.getAllTech();
         } else {
-            techSet = getContext().getTechSet();
+            this.techSet = getContext().getTechSet();
         }
     }
 

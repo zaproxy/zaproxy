@@ -101,17 +101,17 @@ public class Context {
     public Context(Session session, int id) {
         this.session = session;
         this.id = id;
-        name = String.valueOf(id);
-        sessionManagementMethod = new CookieBasedSessionManagementMethod(id);
-        authenticationMethod = new ManualAuthenticationMethod(id);
-        authorizationDetectionMethod =
+        this.name = String.valueOf(id);
+        this.sessionManagementMethod = new CookieBasedSessionManagementMethod(id);
+        this.authenticationMethod = new ManualAuthenticationMethod(id);
+        this.authorizationDetectionMethod =
                 new BasicAuthorizationDetectionMethod(null, null, null, LogicalOperator.AND);
-        urlParamParser.setContext(this);
-        postParamParser.setContext(this);
+        this.urlParamParser.setContext(this);
+        this.postParamParser.setContext(this);
     }
 
     public boolean isIncludedInScope(SiteNode sn) {
-        if (!inScope) {
+        if (!this.inScope) {
             return false;
         }
         return this.isIncluded(sn);
@@ -129,10 +129,10 @@ public class Context {
      * isExplicitlyIncluded(SiteNode sn) { if (sn == null) { return false; } return
      * isExplicitlyIncluded(sn.getHierarchicNodeName()); }
      *
-     * public boolean isExplicitlyIncluded(String url) { if (url == null) { return
-     * false; } try { return this.includeInPatterns.contains(this.getPatternUrl(url,
-     * false)) || this.includeInPatterns.contains(this.getPatternUrl(url, false)); }
-     * catch (Exception e) { return false; } }
+     * public boolean isExplicitlyIncluded(String url) { if (url == null) { return false; } try {
+     * return this.includeInPatterns.contains(this.getPatternUrl(url, false)) ||
+     * this.includeInPatterns.contains(this.getPatternUrl(url, false)); } catch (Exception e) {
+     * return false; } }
      */
 
     public boolean isIncluded(String url) {
@@ -143,7 +143,7 @@ public class Context {
             // Strip off any parameters
             url = url.substring(0, url.indexOf("?"));
         }
-        for (Pattern p : includeInPatterns) {
+        for (Pattern p : this.includeInPatterns) {
             if (p.matcher(url).matches()) {
                 return true;
             }
@@ -152,7 +152,7 @@ public class Context {
     }
 
     public boolean isExcludedFromScope(SiteNode sn) {
-        if (!inScope) {
+        if (!this.inScope) {
             return false;
         }
         return this.isExcluded(sn);
@@ -173,7 +173,7 @@ public class Context {
             // Strip off any parameters
             url = url.substring(0, url.indexOf("?"));
         }
-        for (Pattern p : excludeFromPatterns) {
+        for (Pattern p : this.excludeFromPatterns) {
             if (p.matcher(url).matches()) {
                 return true;
             }
@@ -441,7 +441,7 @@ public class Context {
     }
 
     public void save() {
-        session.saveContext(this);
+        this.session.saveContext(this);
     }
 
     public TechSet getTechSet() {
@@ -501,7 +501,7 @@ public class Context {
      * @since 2.9.0
      */
     public int getId() {
-        return id;
+        return this.id;
     }
 
     public boolean isInScope() {
@@ -572,7 +572,7 @@ public class Context {
     }
 
     public void setUrlParamParser(ParameterParser paramParser) {
-        urlParamParser = paramParser;
+        this.urlParamParser = paramParser;
     }
 
     public ParameterParser getPostParamParser() {
@@ -602,8 +602,8 @@ public class Context {
     }
 
     private void restructureSiteTreeEventHandler() {
-        log.debug("Restructure site tree for context: " + getName());
-        List<SiteNode> nodes = getTopNodesInContextFromSiteTree();
+        log.debug("Restructure site tree for context: " + this.getName());
+        List<SiteNode> nodes = this.getTopNodesInContextFromSiteTree();
         for (SiteNode sn : nodes) {
             checkNode(sn);
         }
@@ -621,7 +621,7 @@ public class Context {
         }
 
         if (this.isInContext(sn)) {
-            SiteMap sitesTree = session.getSiteTree();
+            SiteMap sitesTree = this.session.getSiteTree();
             HistoryReference href = sn.getHistoryReference();
 
             try {
@@ -704,8 +704,8 @@ public class Context {
     }
 
     public List<StructuralNodeModifier> getDataDrivenNodes() {
-        List<StructuralNodeModifier> ddns = new ArrayList<>(dataDrivenNodes.size());
-        for (StructuralNodeModifier ddn : dataDrivenNodes) {
+        List<StructuralNodeModifier> ddns = new ArrayList<>(this.dataDrivenNodes.size());
+        for (StructuralNodeModifier ddn : this.dataDrivenNodes) {
             ddns.add(ddn.clone());
         }
         return ddns;
@@ -716,7 +716,7 @@ public class Context {
     }
 
     public void addDataDrivenNodes(StructuralNodeModifier ddn) {
-        dataDrivenNodes.add(ddn.clone());
+        this.dataDrivenNodes.add(ddn.clone());
     }
 
     public String getDefaultDDNName() {
@@ -724,7 +724,7 @@ public class Context {
         while (true) {
             boolean found = false;
             String name = "DDN" + i;
-            for (StructuralNodeModifier ddn : dataDrivenNodes) {
+            for (StructuralNodeModifier ddn : this.dataDrivenNodes) {
                 if (ddn.getName().equals(name)) {
                     found = true;
                     break;
@@ -791,7 +791,7 @@ public class Context {
      */
     public void addCustomPage(CustomPage customPage) {
         if (customPage != null) {
-            customPages.add(customPage);
+            this.customPages.add(customPage);
         }
     }
 
@@ -806,7 +806,7 @@ public class Context {
 
     /** Removes all the custom pages. */
     public void removeAllCustomPages() {
-        customPages.clear();
+        this.customPages.clear();
     }
 
     /**
@@ -875,20 +875,20 @@ public class Context {
      */
     public Context duplicate() {
         Context newContext = new Context(session, getId());
-        newContext.description = description;
-        newContext.name = name;
-        newContext.includeInRegexs = new ArrayList<>(includeInRegexs);
-        newContext.includeInPatterns = new ArrayList<>(includeInPatterns);
-        newContext.excludeFromRegexs = new ArrayList<>(excludeFromRegexs);
-        newContext.excludeFromPatterns = new ArrayList<>(excludeFromPatterns);
-        newContext.inScope = inScope;
-        newContext.techSet = new TechSet(techSet);
-        newContext.authenticationMethod = authenticationMethod.clone();
-        newContext.sessionManagementMethod = sessionManagementMethod.clone();
-        newContext.urlParamParser = urlParamParser.clone();
-        newContext.postParamParser = postParamParser.clone();
-        newContext.authorizationDetectionMethod = authorizationDetectionMethod.clone();
-        newContext.dataDrivenNodes = getDataDrivenNodes();
+        newContext.description = this.description;
+        newContext.name = this.name;
+        newContext.includeInRegexs = new ArrayList<>(this.includeInRegexs);
+        newContext.includeInPatterns = new ArrayList<>(this.includeInPatterns);
+        newContext.excludeFromRegexs = new ArrayList<>(this.excludeFromRegexs);
+        newContext.excludeFromPatterns = new ArrayList<>(this.excludeFromPatterns);
+        newContext.inScope = this.inScope;
+        newContext.techSet = new TechSet(this.techSet);
+        newContext.authenticationMethod = this.authenticationMethod.clone();
+        newContext.sessionManagementMethod = this.sessionManagementMethod.clone();
+        newContext.urlParamParser = this.urlParamParser.clone();
+        newContext.postParamParser = this.postParamParser.clone();
+        newContext.authorizationDetectionMethod = this.authorizationDetectionMethod.clone();
+        newContext.dataDrivenNodes = this.getDataDrivenNodes();
         newContext.setCustomPages(getCustomPages());
         return newContext;
     }

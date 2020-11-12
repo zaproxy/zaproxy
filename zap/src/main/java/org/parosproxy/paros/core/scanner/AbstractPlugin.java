@@ -283,8 +283,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             }
         }
 
-        if (parent.getScannerParam().isInjectPluginIdInHeader()) {
-            msg.getRequestHeader().setHeader(HttpHeader.X_ZAP_SCAN_ID, Integer.toString(getId()));
+        if (this.parent.getScannerParam().isInjectPluginIdInHeader()) {
+            this.msg
+                    .getRequestHeader()
+                    .setHeader(HttpHeader.X_ZAP_SCAN_ID, Integer.toString(getId()));
         }
 
         // always get the fresh copy
@@ -292,7 +294,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         message.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
         message.getRequestHeader().setContentLength(message.getRequestBody().length());
 
-        if (getDelayInMs() > 0) {
+        if (this.getDelayInMs() > 0) {
             try {
                 Thread.sleep(getDelayInMs());
             } catch (InterruptedException e) {
@@ -312,8 +314,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         // ZAP: Notify parent
         parent.notifyNewMessage(this, message);
 
-        // ZAP: Set the history reference back and run the "afterScan" methods of any
-        // ScannerHooks
+        // ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(message, this);
     }
 
@@ -324,7 +325,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         try {
             if (!isStop()) {
-                started = new Date();
+                this.started = new Date();
                 scan();
             }
 
@@ -332,7 +333,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             getLog().error(e.getMessage(), e);
         } finally {
             notifyPluginCompleted(getParent());
-            finished = new Date();
+            this.finished = new Date();
         }
     }
 
@@ -363,13 +364,13 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         bingo(
                 risk,
                 confidence,
-                getName(),
-                getDescription(),
+                this.getName(),
+                this.getDescription(),
                 uri,
                 param,
                 attack,
                 otherInfo,
-                getSolution(),
+                this.getSolution(),
                 msg);
     }
 
@@ -446,13 +447,13 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         bingo(
                 risk,
                 confidence,
-                getName(),
-                getDescription(),
+                this.getName(),
+                this.getDescription(),
                 uri,
                 param,
                 attack,
                 otherInfo,
-                getSolution(),
+                this.getSolution(),
                 evidence,
                 msg);
     }
@@ -534,7 +535,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                 otherInfo,
                 solution,
                 evidence,
-                getReference(),
+                this.getReference(),
                 cweId,
                 wascId,
                 msg);
@@ -764,37 +765,27 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         AlertThreshold level = null;
         try {
             level = AlertThreshold.valueOf(getProperty("level"));
-            // log.debug("getAlertThreshold from configs: " + level.name());
-
         } catch (Exception e) {
             // Ignore
         }
 
         if (level == null) {
-            if (isEnabled()) {
+            if (this.isEnabled()) {
                 if (incDefault) {
                     level = AlertThreshold.DEFAULT;
-
                 } else {
                     level = defaultAttackThreshold;
                 }
-
-                // log.debug("getAlertThreshold default: " + level.name());
-
             } else {
                 level = AlertThreshold.OFF;
-                // log.debug("getAlertThreshold not enabled: " + level.name());
             }
 
         } else if (level.equals(AlertThreshold.DEFAULT)) {
             if (incDefault) {
                 level = AlertThreshold.DEFAULT;
-
             } else {
                 level = defaultAttackThreshold;
             }
-
-            // log.debug("getAlertThreshold default: " + level.name());
         }
 
         return level;
@@ -808,7 +799,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     @Override
     public void setDefaultAlertThreshold(AlertThreshold level) {
-        defaultAttackThreshold = level;
+        this.defaultAttackThreshold = level;
     }
 
     /** Override this if you plugin supports other levels. */
@@ -822,8 +813,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         AttackStrength level = null;
         try {
             level = AttackStrength.valueOf(getProperty("strength"));
-            // log.debug("getAttackStrength from configs: " + level.name());
-
         } catch (Exception e) {
             // Ignore
         }
@@ -835,9 +824,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             } else {
                 level = defaultAttackStrength;
             }
-
-            // log.debug("getAttackStrength default: " + level.name());
-
         } else if (level.equals(AttackStrength.DEFAULT)) {
             if (incDefault) {
                 level = AttackStrength.DEFAULT;
@@ -845,8 +831,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             } else {
                 level = defaultAttackStrength;
             }
-
-            // log.debug("getAttackStrength default: " + level.name());
         }
 
         return level;
@@ -864,7 +848,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     @Override
     public void setDefaultAttackStrength(AttackStrength strength) {
-        defaultAttackStrength = strength;
+        this.defaultAttackStrength = strength;
     }
 
     /** Override this if you plugin supports other levels. */
@@ -873,7 +857,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return attackStrengthsSupported;
     }
 
-    /** Compare if 2 plugin is the same. */
+    /** Compare if 2 plugins are the same. */
     @Override
     public int compareTo(Object obj) {
         int result = -1;
@@ -881,10 +865,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             AbstractPlugin test = (AbstractPlugin) obj;
             if (getId() < test.getId()) {
                 result = -1;
-
             } else if (getId() > test.getId()) {
                 result = 1;
-
             } else {
                 result = 0;
             }
@@ -898,7 +880,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         if (compareTo(obj) == 0) {
             return true;
         }
-
         return false;
     }
 
@@ -939,9 +920,9 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @return true if the pattern can be found.
      */
     protected boolean matchBodyPattern(
-            HttpMessage msg, Pattern pattern, StringBuilder sb) { // ZAP: Changed the type of
-        // the parameter "sb" to
-        // StringBuilder.
+            HttpMessage msg, 
+            Pattern pattern, 
+            StringBuilder sb) { // ZAP: Changed the type of the parameter "sb" to StringBuilder.
         Matcher matcher = pattern.matcher(msg.getResponseBody().toString());
         boolean result = matcher.find();
         if (result) {
@@ -953,12 +934,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Write a progress update message. Currently this just display in System.out
+     * Write a progress update message.
      *
      * @param msg the progress message
      */
     protected void writeProgress(String msg) {
-        // System.out.println(msg);
+        //TODO: implement 
     }
 
     /**
@@ -1003,8 +984,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             result = URLEncoder.encode(msg, "UTF8");
 
         } catch (UnsupportedEncodingException ignore) {
-            // Shouldn't happen UTF-8 is a standard Charset (see
-            // java.nio.charset.StandardCharsets)
+            // Shouldn't happen UTF-8 is a standard Charset (see java.nio.charset.StandardCharsets)
         }
 
         return result;
@@ -1016,8 +996,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             result = URLDecoder.decode(msg, "UTF8");
 
         } catch (UnsupportedEncodingException ignore) {
-            // Shouldn't happen UTF-8 is a standard Charset (see
-            // java.nio.charset.StandardCharsets)
+            // Shouldn't happen UTF-8 is a standard Charset (see java.nio.charset.StandardCharsets)
         }
 
         return result;
@@ -1089,12 +1068,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         if (plugin instanceof AbstractPlugin) {
             AbstractPlugin ap = (AbstractPlugin) plugin;
             ap.setAlertThreshold(this.getAlertThreshold(true));
-            ap.setEnabled(isEnabled());
+            ap.setEnabled(this.isEnabled());
             ap.setAttackStrength(this.getAttackStrength(true));
-            ap.setDefaultAlertThreshold(defaultAttackThreshold);
-            ap.setDefaultAttackStrength(defaultAttackStrength);
-            ap.setTechSet(getTechSet());
-            ap.setStatus(getStatus());
+            ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
+            ap.setDefaultAttackStrength(this.defaultAttackStrength);
+            ap.setTechSet(this.getTechSet());
+            ap.setStatus(this.getStatus());
             ap.saveTo(plugin.getConfig());
         } else {
             throw new InvalidParameterException("Not an AbstractPlugin");
@@ -1134,7 +1113,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     /** @see #isAnyInScope(Tech...) */
     @Override
     public boolean inScope(Tech tech) {
-        return techSet.includes(tech);
+        return this.techSet.includes(tech);
     }
 
     /**
@@ -1157,7 +1136,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @see #targets(TechSet)
      */
     protected boolean isAnyInScope(Tech... techs) {
-        return techSet.includesAny(techs);
+        return this.techSet.includesAny(techs);
     }
 
     @Override
@@ -1165,7 +1144,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         if (ts == null) {
             throw new IllegalArgumentException("Parameter ts must not be null.");
         }
-        techSet = ts;
+        this.techSet = ts;
     }
 
     /**
@@ -1178,7 +1157,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @see #targets(TechSet)
      */
     public TechSet getTechSet() {
-        return techSet;
+        return this.techSet;
     }
 
     /**
@@ -1194,23 +1173,23 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     @Override
     public Date getTimeStarted() {
-        return started;
+        return this.started;
     }
 
     @Override
     public Date getTimeFinished() {
-        return finished;
+        return this.finished;
     }
 
     @Override
     public void setTimeStarted() {
-        started = new Date();
-        finished = null;
+        this.started = new Date();
+        this.finished = null;
     }
 
     @Override
     public void setTimeFinished() {
-        finished = new Date();
+        this.finished = new Date();
     }
 
     @Override

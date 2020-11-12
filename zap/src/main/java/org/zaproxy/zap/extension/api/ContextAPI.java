@@ -98,13 +98,14 @@ public class ContextAPI extends ApiImplementor {
         contextNameOnlyParam.add(CONTEXT_NAME);
         String[] contextNameAndTechNames = new String[] {CONTEXT_NAME, PARAM_TECH_NAMES};
 
-        addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_CONTEXT_REGEX, contextNameAndRegexParam));
-        addApiAction(new ApiAction(ACTION_INCLUDE_IN_CONTEXT_REGEX, contextNameAndRegexParam));
-        addApiAction(
+        this.addApiAction(
+                new ApiAction(ACTION_EXCLUDE_FROM_CONTEXT_REGEX, contextNameAndRegexParam));
+        this.addApiAction(new ApiAction(ACTION_INCLUDE_IN_CONTEXT_REGEX, contextNameAndRegexParam));
+        this.addApiAction(
                 new ApiAction(
                         ACTION_SET_CONTEXT_REGEXS,
                         new String[] {CONTEXT_NAME, INC_REGEXS_PARAM, EXC_REGEXS_PARAM}));
-        addApiAction(
+        this.addApiAction(
                 new ApiAction(
                         ACTION_SET_CONTEXT_CHECKING_STRATEGY,
                         new String[] {CONTEXT_NAME, PARAM_CHECKING_STRATEGRY},
@@ -115,32 +116,32 @@ public class ContextAPI extends ApiImplementor {
                             PARAM_POLL_FREQ,
                             PARAM_POLL_FREQ_UNITS
                         }));
-        addApiAction(new ApiAction(ACTION_NEW_CONTEXT, contextNameOnlyParam));
-        addApiAction(new ApiAction(ACTION_REMOVE_CONTEXT, contextNameOnlyParam));
-        addApiAction(
+        this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, contextNameOnlyParam));
+        this.addApiAction(new ApiAction(ACTION_REMOVE_CONTEXT, contextNameOnlyParam));
+        this.addApiAction(
                 new ApiAction(
                         ACTION_EXPORT_CONTEXT,
                         new String[] {CONTEXT_NAME, CONTEXT_FILE_PARAM},
                         null));
-        addApiAction(new ApiAction(ACTION_IMPORT_CONTEXT, new String[] {CONTEXT_FILE_PARAM}, null));
-        addApiAction(new ApiAction(ACTION_INCLUDE_TECHS, contextNameAndTechNames));
-        addApiAction(new ApiAction(ACTION_INCLUDE_ALL_TECHS, contextNameOnlyParam));
-        addApiAction(new ApiAction(ACTION_EXCLUDE_TECHS, contextNameAndTechNames));
-        addApiAction(new ApiAction(ACTION_EXCLUDE_ALL_TECHS, contextNameOnlyParam));
+        this.addApiAction(new ApiAction(ACTION_IMPORT_CONTEXT, new String[] {CONTEXT_FILE_PARAM}, null));
+        this.addApiAction(new ApiAction(ACTION_INCLUDE_TECHS, contextNameAndTechNames));
+        this.addApiAction(new ApiAction(ACTION_INCLUDE_ALL_TECHS, contextNameOnlyParam));
+        this.addApiAction(new ApiAction(ACTION_EXCLUDE_TECHS, contextNameAndTechNames));
+        this.addApiAction(new ApiAction(ACTION_EXCLUDE_ALL_TECHS, contextNameOnlyParam));
 
         List<String> contextInScopeParams = new ArrayList<>(2);
         contextInScopeParams.add(CONTEXT_NAME);
         contextInScopeParams.add(IN_SCOPE);
-        addApiAction(new ApiAction(ACTION_SET_CONTEXT_IN_SCOPE, contextInScopeParams));
+        this.addApiAction(new ApiAction(ACTION_SET_CONTEXT_IN_SCOPE, contextInScopeParams));
 
-        addApiView(new ApiView(VIEW_CONTEXT_LIST));
-        addApiView(new ApiView(VIEW_EXCLUDE_REGEXS, contextNameOnlyParam));
-        addApiView(new ApiView(VIEW_INCLUDE_REGEXS, contextNameOnlyParam));
-        addApiView(new ApiView(VIEW_CONTEXT, contextNameOnlyParam));
-        addApiView(new ApiView(VIEW_ALL_TECHS));
-        addApiView(new ApiView(VIEW_INCLUDED_TECHS, contextNameOnlyParam));
-        addApiView(new ApiView(VIEW_EXCLUDED_TECHS, contextNameOnlyParam));
-        addApiView(new ApiView(VIEW_URLS, contextNameOnlyParam));
+        this.addApiView(new ApiView(VIEW_CONTEXT_LIST));
+        this.addApiView(new ApiView(VIEW_EXCLUDE_REGEXS, contextNameOnlyParam));
+        this.addApiView(new ApiView(VIEW_INCLUDE_REGEXS, contextNameOnlyParam));
+        this.addApiView(new ApiView(VIEW_CONTEXT, contextNameOnlyParam));
+        this.addApiView(new ApiView(VIEW_ALL_TECHS));
+        this.addApiView(new ApiView(VIEW_INCLUDED_TECHS, contextNameOnlyParam));
+        this.addApiView(new ApiView(VIEW_EXCLUDED_TECHS, contextNameOnlyParam));
+        this.addApiView(new ApiView(VIEW_URLS, contextNameOnlyParam));
     }
 
     @Override
@@ -343,8 +344,7 @@ public class ContextAPI extends ApiImplementor {
     private void addExcludeToContext(Context context, String regex) {
         List<String> incRegexes = new ArrayList<>(context.getIncludeInContextRegexs());
         if (incRegexes.remove(regex)) {
-            // Its already explicitly included, removing it from the include list is safer
-            // and more
+            // Its already explicitly included, removing it from the include list is safer and more
             // useful
             context.setIncludeInContextRegexs(incRegexes);
         } else {

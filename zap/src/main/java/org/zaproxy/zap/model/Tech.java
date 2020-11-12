@@ -129,7 +129,7 @@ public class Tech implements Comparable<Tech> {
     public Tech(String name, String keyUiName) {
         if (name.indexOf(".") > 0) {
             this.name = name.substring(name.lastIndexOf(".") + 1);
-            parent = new Tech(name.substring(0, name.lastIndexOf(".")));
+            this.parent = new Tech(name.substring(0, name.lastIndexOf(".")));
 
         } else {
             this.name = name;
@@ -150,9 +150,9 @@ public class Tech implements Comparable<Tech> {
     @Override
     public String toString() {
         if (parent == null) {
-            return name;
+            return this.name;
         } else {
-            return parent.toString() + "." + name;
+            return parent.toString() + "." + this.name;
         }
     }
 
@@ -161,12 +161,12 @@ public class Tech implements Comparable<Tech> {
         if (!(tech instanceof Tech)) {
             return false;
         }
-        return toString().equals(tech.toString());
+        return this.toString().equals(tech.toString());
     }
 
     @Override
     public int hashCode() {
-        return toString().hashCode();
+        return this.toString().hashCode();
     }
 
     public boolean is(Tech other) {
@@ -204,7 +204,7 @@ public class Tech implements Comparable<Tech> {
             return -1;
         }
 
-        return toString().compareTo(o.toString());
+        return this.toString().compareTo(o.toString());
     }
 
     /**
