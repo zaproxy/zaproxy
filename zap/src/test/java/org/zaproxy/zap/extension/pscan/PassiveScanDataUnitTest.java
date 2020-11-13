@@ -69,7 +69,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         HttpMessage msg = createMessage();
         PassiveScanData psd = new PassiveScanData(msg);
         // Then
-        assertThat(psd.getTechSet(), is(equalTo(TechSet.AllTech)));
+        assertThat(psd.getTechSet(), is(equalTo(TechSet.getAllTech())));
     }
 
     @Test

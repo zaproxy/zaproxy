@@ -67,6 +67,7 @@
 // ZAP: 2020/01/27 Extracted code from sendAndReceive method into regenerateAntiCsrfToken method in
 // ExtensionAntiCSRF.
 // ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
+// ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j2 getLogger() and deprecate Log4j1.x.
 package org.parosproxy.paros.core.scanner;
 
@@ -125,7 +126,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     /** Default Constructor */
     public AbstractPlugin() {
-        this.techSet = TechSet.AllTech;
+        this.techSet = TechSet.getAllTech();
     }
 
     @Override

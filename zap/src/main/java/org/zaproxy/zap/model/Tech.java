@@ -19,6 +19,10 @@
  */
 package org.zaproxy.zap.model;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Set;
+import java.util.TreeSet;
 import org.parosproxy.paros.Constant;
 
 public class Tech implements Comparable<Tech> {
@@ -66,45 +70,54 @@ public class Tech implements Comparable<Tech> {
     public static final Tech IIS = new Tech(WS, "IIS");
     public static final Tech Tomcat = new Tech(WS, "Tomcat");
 
-    public static final Tech[] builtInTech = {
-        Db,
-        MySQL,
-        PostgreSQL,
-        MsSQL,
-        Oracle,
-        SQLite,
-        Access,
-        Firebird,
-        MaxDB,
-        Sybase,
-        Db2,
-        HypersonicSQL,
-        MongoDB,
-        CouchDB,
-        Lang,
-        ASP,
-        C,
-        JAVA,
-        JAVASCRIPT,
-        JSP_SERVLET,
-        PHP,
-        PYTHON,
-        RUBY,
-        XML,
-        OS,
-        Linux,
-        MacOS,
-        Windows,
-        SCM,
-        Git,
-        SVN,
-        WS,
-        Apache,
-        IIS,
-        Tomcat
-    };
+    private static final TreeSet<Tech> allTech =
+            new TreeSet<>(
+                    Arrays.asList(
+                            Db,
+                            MySQL,
+                            PostgreSQL,
+                            MsSQL,
+                            Oracle,
+                            SQLite,
+                            Access,
+                            Firebird,
+                            MaxDB,
+                            Sybase,
+                            Db2,
+                            HypersonicSQL,
+                            MongoDB,
+                            CouchDB,
+                            Lang,
+                            ASP,
+                            C,
+                            JAVA,
+                            JAVASCRIPT,
+                            JSP_SERVLET,
+                            PHP,
+                            PYTHON,
+                            RUBY,
+                            XML,
+                            OS,
+                            Linux,
+                            MacOS,
+                            Windows,
+                            SCM,
+                            Git,
+                            SVN,
+                            WS,
+                            Apache,
+                            IIS,
+                            Tomcat));
 
-    public static final Tech[] builtInTopLevelTech = {Db, Lang, OS, SCM, WS};
+    private static final TreeSet<Tech> topLevelTech =
+            new TreeSet<>(Arrays.asList(Db, Lang, OS, SCM, WS));
+
+    /** @deprecated Not for public use. Replaced by {@link #getAll()}. */
+    @Deprecated public static final Tech[] builtInTech = allTech.toArray(new Tech[] {});
+
+    /** @deprecated Not for public use. Replaced by {@link #getTopLevel()}. */
+    @Deprecated
+    public static final Tech[] builtInTopLevelTech = topLevelTech.toArray(new Tech[] {});
 
     private Tech parent = null;
     private String name = null;
@@ -139,7 +152,6 @@ public class Tech implements Comparable<Tech> {
     public String toString() {
         if (parent == null) {
             return this.name;
-
         } else {
             return parent.toString() + "." + this.name;
         }
@@ -192,7 +204,81 @@ public class Tech implements Comparable<Tech> {
         if (o == null) {
             return -1;
         }
-
         return this.toString().compareTo(o.toString());
+    }
+
+    /**
+     * Returns all Tech
+     *
+     * @return all Tech
+     * @since 2.10.0
+     */
+    public static Set<Tech> getAll() {
+        return Collections.unmodifiableSet(allTech);
+    }
+
+    /**
+     * Returns all top level Tech
+     *
+     * @return top level Tech
+     * @since 2.10.0
+     */
+    public static Set<Tech> getTopLevel() {
+        return Collections.unmodifiableSet(topLevelTech);
+    }
+
+    /**
+     * Adds a new Tech, if parent is omitted it is treated as top level Tech.
+     *
+     * @param tech to add
+     * @since 2.10.0
+     */
+    public static void add(Tech tech) {
+        if (tech != null) {
+            if (tech.getParent() == null) {
+                topLevelTech.add(tech);
+            }
+            allTech.add(tech);
+        }
+    }
+
+    /**
+     * Remove entry from Tech
+     *
+     * @param tech to remove
+     * @since 2.10.0
+     */
+    public static void remove(Tech tech) {
+        if (tech != null) {
+            if (tech.getParent() == null) {
+                topLevelTech.remove(tech);
+            }
+            allTech.remove(tech);
+        }
+    }
+
+    /**
+     * Gets the Tech that matches the name or null
+     *
+     * @param name the name of the Tech
+     * @return the matching Tech
+     * @since 2.10.0
+     */
+    public static Tech get(String name) {
+        if (name == null) {
+            return null;
+        }
+
+        String trimmedTechName = name.trim();
+        if (trimmedTechName.isEmpty()) {
+            return null;
+        }
+
+        for (Tech tech : allTech) {
+            if (tech.toString().equalsIgnoreCase(trimmedTechName)) {
+                return tech;
+            }
+        }
+        return null;
     }
 }

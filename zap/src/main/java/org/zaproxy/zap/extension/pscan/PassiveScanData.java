@@ -63,7 +63,7 @@ public final class PassiveScanData {
 
         if (getContext() == null) {
             this.userList = Collections.emptyList();
-            this.techSet = TechSet.AllTech;
+            this.techSet = TechSet.getAllTech();
         } else {
             this.techSet = getContext().getTechSet();
         }

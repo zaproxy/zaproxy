@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import net.sf.json.JSONArray;
@@ -315,7 +316,7 @@ public class ContextAPI extends ApiImplementor {
                 break;
             case ACTION_INCLUDE_ALL_TECHS:
                 context = getContext(params);
-                techSet = new TechSet(Tech.builtInTech);
+                techSet = new TechSet(Tech.getAll());
                 context.setTechSet(techSet);
                 context.save();
                 break;
@@ -331,7 +332,7 @@ public class ContextAPI extends ApiImplementor {
             case ACTION_EXCLUDE_ALL_TECHS:
                 context = getContext(params);
                 techSet = context.getTechSet();
-                for (Tech tech : Tech.builtInTech) {
+                for (Tech tech : Tech.getAll()) {
                     techSet.exclude(tech);
                 }
                 context.save();
@@ -395,7 +396,7 @@ public class ContextAPI extends ApiImplementor {
                 break;
             case VIEW_ALL_TECHS:
                 resultList = new ApiResponseList(name);
-                for (Tech tech : Tech.builtInTech) {
+                for (Tech tech : Tech.getAll()) {
                     resultList.addItem(new ApiResponseElement(TECH_NAME, tech.toString()));
                 }
                 result = resultList;
@@ -520,11 +521,11 @@ public class ContextAPI extends ApiImplementor {
      * @throws ApiException the api exception
      */
     private Tech getTech(String techName) throws ApiException {
-        String trimmedTechName = techName.trim();
-        for (Tech tech : Tech.builtInTech) {
-            if (tech.toString().equalsIgnoreCase(trimmedTechName)) return tech;
-        }
-        throw new ApiException(
-                Type.ILLEGAL_PARAMETER, "The tech '" + trimmedTechName + "' does not exist");
+        return Optional.ofNullable(Tech.get(techName))
+                .orElseThrow(
+                        () ->
+                                new ApiException(
+                                        Type.ILLEGAL_PARAMETER,
+                                        "The tech '" + techName + "' does not exist"));
     }
 }

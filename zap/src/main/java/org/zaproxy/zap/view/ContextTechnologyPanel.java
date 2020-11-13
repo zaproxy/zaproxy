@@ -84,7 +84,7 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 
     @Override
     public void initContextData(Session session, Context uiContext) {
-        // Init model from context
+        getTechTree().refresh();
         getTechTree().setTechSet(uiContext.getTechSet());
     }
 
