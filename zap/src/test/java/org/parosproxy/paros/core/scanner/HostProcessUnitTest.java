@@ -415,7 +415,7 @@ class HostProcessUnitTest {
     }
 
     @Test
-    void shouldScanDuplicatedChildDirNodes() {
+    void shouldNotScanDuplicatedChildDirNodes() {
         // Given
         given(scanner.scanChildren()).willReturn(true);
         StructuralNode parentNode =
@@ -439,7 +439,7 @@ class HostProcessUnitTest {
         // When
         hostProcess.run();
         // Then
-        assertThat(hostProcess.getTestTotalCount(), is(equalTo(7)));
+        assertThat(hostProcess.getTestTotalCount(), is(equalTo(5)));
     }
 
     @Test
