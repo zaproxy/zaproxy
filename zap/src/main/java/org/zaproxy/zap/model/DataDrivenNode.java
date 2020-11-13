@@ -106,10 +106,8 @@ public class DataDrivenNode extends Enableable implements Cloneable {
         serialized.put(CONFIG_NAME, this.name);
         serialized.put(CONFIG_PATTERN, this.pattern.pattern());
 
-        List<String> serializedChildren = new ArrayList<String>();
-        for (DataDrivenNode child : this.childNodes) {
-            serializedChildren.add(child.getConfig());
-        }
+        JSONArray serializedChildren = new JSONArray();
+        serializedChildren.addAll(this.childNodes);
         serialized.put(CONFIG_CHILD_NODES, serializedChildren);
 
         return serialized.toString();
