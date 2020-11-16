@@ -77,6 +77,8 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
     private PopupContextMenuItemFactory popupFlagLoggedOutIndicatorMenuFactory;
 
+    private HttpSenderAuthHeaderListener httpSenderAuthHeaderListener;
+
     AuthenticationAPI api;
 
     public ExtensionAuthentication() {
@@ -120,6 +122,8 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         // Register the api
         this.api = new AuthenticationAPI(this);
         extensionHook.addApiImplementor(api);
+
+        extensionHook.addHttpSenderListener(getHttpSenderAuthHeaderListener());
     }
 
     @Override
@@ -505,5 +509,12 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         method.setLoggedOutIndicatorPattern(
                 config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT, ""));
         method.getType().importData(config, method);
+    }
+
+    private HttpSenderAuthHeaderListener getHttpSenderAuthHeaderListener() {
+        if (this.httpSenderAuthHeaderListener == null) {
+            this.httpSenderAuthHeaderListener = new HttpSenderAuthHeaderListener(System::getenv);
+        }
+        return this.httpSenderAuthHeaderListener;
     }
 }
