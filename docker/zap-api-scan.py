@@ -17,8 +17,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This script runs a full scan against an API defined by OpenAPI/Swagger or SOAP
-# using ZAP
+# This script runs a full scan against an API defined by OpenAPI/Swagger, SOAP
+# or GraphQL using ZAP.
 #
 # It can either be run 'standalone', in which case depends on
 # https://pypi.python.org/pypi/python-owasp-zap-v2.4 and Docker, or it can be run
@@ -30,6 +30,8 @@
 #	OpenAPI/Swagger file
 #	SOAP URL
 #	SOAP File
+#	GraphQL URL
+#	GraphQL File
 # It will exit with codes of:
 #	0:	Success
 #	1:	At least 1 FAIL
@@ -84,7 +86,8 @@ logging.getLogger("requests").setLevel(logging.WARNING)
 def usage():
     print('Usage: zap-api-scan.py -t <target> -f <format> [options]')
     print('    -t target         target API definition, OpenAPI or SOAP, local file or URL, e.g. https://www.example.com/openapi.json')
-    print('    -f format         either openapi or soap')
+    print('                      or target endpoint URL, GraphQL, e.g. https://www.example.com/graphql')
+    print('    -f format         openapi, soap, or graphql')
     print('Options:')
     print('    -h                print this help message')
     print('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
@@ -109,6 +112,7 @@ def usage():
     print('    -O                the hostname to override in the (remote) OpenAPI spec')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
+    print('    --schema          GraphQL schema location, URL or file, e.g. https://www.example.com/schema.graphqls')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/api-scan/')
 
@@ -130,7 +134,6 @@ def main(argv):
     report_xml = ''
     report_json = ''
     target = ''
-    target_file = ''
     target_url = ''
     host_override = ''
     format = ''
@@ -144,6 +147,8 @@ def main(argv):
     timeout = 0
     ignore_warn = False
     hook_file = None
+    schema = ''
+    schema_url = ''
 
     pass_count = 0
     warn_count = 0
@@ -154,7 +159,7 @@ def main(argv):
     fail_inprog_count = 0
 
     try:
-        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:IO:", ["hook="])
+        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:IO:", ["hook=", "schema="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -218,6 +223,9 @@ def main(argv):
             host_override = arg
         elif opt == '--hook':
             hook_file = arg
+        elif opt == '--schema':
+            schema = arg
+            logging.debug('Schema: ' + schema)
 
     check_zap_client_version()
 
@@ -228,22 +236,27 @@ def main(argv):
     if len(target) == 0:
         usage()
         sys.exit(3)
-    if format != 'openapi' and format != 'soap':
-        logging.warning('Format must be either \'openapi\' or \'soap\'')
+    if format != 'openapi' and format != 'soap' and format != 'graphql':
+        logging.warning('Format must be either \'openapi\', \'soap\', or \'graphql\'')
         usage()
         sys.exit(3)
 
     if running_in_docker():
         base_dir = '/zap/wrk/'
-        if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file or target_file:
+        if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
                 logging.warning('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
                 usage()
                 sys.exit(3)
 
+    target_file = ''
     if target.startswith('http://') or target.startswith('https://'):
         target_url = target
+    elif format == 'graphql':
+        logging.warning('Target must start with \'http://\' or \'https://\' and be a valid GraphQL endpoint.')
+        usage()
+        sys.exit(3)
     else:
         # assume its a file
         if not os.path.exists(base_dir + target):
@@ -253,6 +266,20 @@ def main(argv):
             sys.exit(3)
         else:
             target_file = target
+
+    schema_file = ''
+    if schema and format == 'graphql':
+        if schema.startswith('http://') or schema.startswith('https://'):
+            schema_url = schema
+        else:
+            # assume its a file
+            if not os.path.exists(base_dir + schema):
+                logging.warning('GraphQL schema must either start with \'http://\' or \'https://\' or be a local file')
+                logging.warning('File does not exist: ' + base_dir + schema)
+                usage()
+                sys.exit(3)
+            else:
+                schema_file = schema
 
     # Choose a random 'ephemeral' port and check its available if it wasn't specified with -P option
     if port == 0:
@@ -377,7 +404,8 @@ def main(argv):
                     # Choose the first one - will be striping off the path below
                     target = urls[0]
                     logging.debug('Using target from imported file: {0}'.format(target))
-        else:
+            logging.info('Number of Imported URLs: ' + str(len(urls)))
+        elif format == 'soap':
             trigger_hook('importing_soap', target_url, target_file)
             if target_url:
                 logging.debug('Import SOAP URL ' + target_url)
@@ -391,8 +419,19 @@ def main(argv):
                     # Choose the first one - will be striping off the path below
                     target = urls[0]
                     logging.debug('Using target from imported file: {0}'.format(target))
+            logging.info('Number of Imported URLs: ' + str(len(urls)))
+        elif format == 'graphql':
+            trigger_hook('importing_graphql', target, schema)
+            logging.debug('GraphQL Endpoint URL ' + target)
+            logging.info('Begin sending GraphQL requests...')
+            if schema:
+                logging.debug('Import GraphQL Schema ' + schema)
+                res = zap.graphql.import_file(target, base_dir + schema) if schema_file else zap.graphql.import_url(target, schema_url)
+            else:
+                res = zap.graphql.import_url(target)
+            logging.info('About ' + str(zap.core.number_of_messages()) + ' requests sent.')
+            urls = zap.core.urls()
 
-        logging.info('Number of Imported URLs: ' + str(len(urls)))
         logging.debug('Import warnings: ' + str(res))
 
         if len(urls) == 0:
