@@ -172,6 +172,8 @@ public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
         ParameterParser urlParamParser = context.getUrlParamParser();
         ParameterParser formParamParser = context.getPostParamParser();
 
+        this.structuralParamsModel.removeAllStructuralParameters();
+
         if (urlParamParser instanceof StandardParameterParser) {
             StandardParameterParser urlStdParamParser = (StandardParameterParser) urlParamParser;
             this.getUrlKvPairSeparators().setText(urlStdParamParser.getKeyValuePairSeparators());
@@ -334,8 +336,8 @@ public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
             return this.structParams;
         }
 
-        public void setStructuralParameters(List<StructuralParameter> structParams) {
-            this.structParams = new ArrayList<StructuralParameter>(structParams);
+        public void removeAllStructuralParameters() {
+            this.structParams = new ArrayList<StructuralParameter>();
             this.fireTableDataChanged();
         }
 
@@ -367,9 +369,7 @@ public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
             super(model);
 
             getTable().getColumnExt(0).setPreferredWidth(50);
-            getTable().getColumnExt(1).setPreferredWidth(50);
-            getTable().getColumnExt(2).setPreferredWidth(200);
-            getTable().setSortOrder(1, SortOrder.ASCENDING);
+            getTable().setSortOrder(0, SortOrder.ASCENDING);
         }
 
         @Override
@@ -380,7 +380,7 @@ public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
                             "context.structParams.dialog.add.title",
                             new Dimension(500, 200));
 
-            return null; // ddnDialog.showDialog(null);
+            return ddnDialog.showDialog(null);
         }
 
         @Override
@@ -391,7 +391,7 @@ public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
                             "context.structParams.dialog.modify.title",
                             new Dimension(500, 200));
 
-            return null; // ddnDialog.showDialog(ddn);
+            return ddnDialog.showDialog(ddn);
         }
 
         @Override
