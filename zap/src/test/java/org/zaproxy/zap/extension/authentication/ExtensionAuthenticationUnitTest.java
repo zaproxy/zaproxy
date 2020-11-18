@@ -171,4 +171,32 @@ class ExtensionAuthenticationUnitTest extends WithConfigsTest {
         assertThat(method.getLoggedInIndicatorPattern().toString(), is(loggedInIndicator));
         assertThat(method.getLoggedOutIndicatorPattern().toString(), is(loggedOutIndicator));
     }
+
+    @Test
+    void shouldImportContextWithNoPollData() throws ConfigurationException {
+        // Given
+        Context context = new Context(null, 0);
+        String loggedInIndicator = "logged in";
+        String loggedOutIndicator = "logged out";
+
+        Configuration config = new ZapXmlConfiguration();
+        config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE, 2);
+        config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, loggedInIndicator);
+        config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT, loggedOutIndicator);
+
+        ExtensionHook hook = new ExtensionHook(Model.getSingleton(), null);
+        extensionAuthentication.hook(hook);
+
+        // When
+        extensionAuthentication.importContextData(context, config);
+        AuthenticationMethod method = context.getAuthenticationMethod();
+
+        // Then
+        assertThat(
+                method.getClass().getCanonicalName(),
+                is(FormBasedAuthenticationMethod.class.getCanonicalName()));
+        assertThat(method.getAuthCheckingStrategy(), is(AuthCheckingStrategy.EACH_RESP));
+        assertThat(method.getLoggedInIndicatorPattern().toString(), is(loggedInIndicator));
+        assertThat(method.getLoggedOutIndicatorPattern().toString(), is(loggedOutIndicator));
+    }
 }
