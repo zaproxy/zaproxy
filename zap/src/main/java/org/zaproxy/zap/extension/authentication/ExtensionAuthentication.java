@@ -482,7 +482,9 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
         AuthCheckingStrategy strategy =
                 AuthCheckingStrategy.valueOf(
-                        config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY));
+                        config.getString(
+                                AuthenticationMethod.CONTEXT_CONFIG_AUTH_STRATEGY,
+                                AuthCheckingStrategy.EACH_RESP.name()));
         method.setAuthCheckingStrategy(strategy);
 
         method.setPollUrl(config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_URL, ""));
@@ -497,7 +499,9 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
         AuthPollFrequencyUnits units =
                 AuthPollFrequencyUnits.valueOf(
-                        config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS));
+                        config.getString(
+                                AuthenticationMethod.CONTEXT_CONFIG_AUTH_POLL_UNITS,
+                                AuthPollFrequencyUnits.REQUESTS.name()));
         method.setPollFrequencyUnits(units);
 
         method.setLoggedInIndicatorPattern(
