@@ -376,6 +376,10 @@ def main(argv):
         wait_for_zap_start(zap, timeout * 60)
         trigger_hook('zap_started', zap, target)
 
+        # Make suitable performance tweaks for running in this environment
+        zap_tune(zap)
+        trigger_hook('zap_tuned', zap)
+
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
             zap_import_context(zap, '/zap/wrk/' + os.path.basename(context_file))

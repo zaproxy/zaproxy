@@ -267,6 +267,7 @@ def start_zap(port, extra_zap_params):
         'zap-x.sh', '-daemon',
         '-port', str(port),
         '-host', '0.0.0.0',
+        '-config', 'database.recoverylog=false',
         '-config', 'api.disablekey=true',
         '-config', 'api.addrs.addr.name=.*',
         '-config', 'api.addrs.addr.regex=true']
@@ -322,6 +323,7 @@ def start_docker_zap(docker_image, port, extra_zap_params, mount_dir):
             'zap-x.sh', '-daemon',
             '-port', str(port),
             '-host', '0.0.0.0',
+            '-config', 'database.recoverylog=false',
             '-config', 'api.disablekey=true',
             '-config', 'api.addrs.addr.name=.*',
             '-config', 'api.addrs.addr.regex=true'])
@@ -373,6 +375,14 @@ def zap_access_target(zap, target):
     res = zap.urlopen(target)
     if res.startswith("ZAP Error"):
         raise IOError(errno.EIO, 'ZAP failed to access: {0}'.format(target))
+
+
+def zap_tune(zap):
+    logging.debug('Tune')
+    logging.debug('Disable all tags')
+    zap.pscan.disable_all_tags()
+    logging.debug('Set max pscan alerts')
+    zap.pscan.set_max_alerts_per_rule(10)
 
 
 def raise_scan_not_started():

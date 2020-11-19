@@ -231,3 +231,15 @@ class TestZapCommon(unittest.TestCase):
 
         zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name,
                                                contextid=context_id)
+
+    def test_zap_tune(self):
+        """Tune makes expected API calls."""
+        zap = Mock()
+        
+        zap.pscan.disable_all_tags.return_value = "OK"
+        zap.pscan.set_max_alerts_per_rule.return_value = "OK"
+
+        zap_common.zap_tune(zap)
+
+        zap.pscan.disable_all_tags.assert_called_once_with()
+        zap.pscan.set_max_alerts_per_rule.assert_called_once_with(10)

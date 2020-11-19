@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-11-19
+ - Add zap_tune function (disable all tags and limit pscan alerts to 10), zap_tuned hook and disable recovery log.
+
 ### 2020-11-16
  - Update zap-api-scan.py to add support for GraphQL.
 
