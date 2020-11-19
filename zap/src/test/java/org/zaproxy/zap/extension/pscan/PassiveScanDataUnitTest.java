@@ -471,6 +471,96 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
+    public void isSuccessShouldReturnTrueIfStatusCodeMatches() {
+        // Given
+        HttpMessage msg = createMessage();
+        msg.getResponseHeader().setStatusCode(200);
+        PassiveScanData psd = new PassiveScanData(msg);
+        // When
+        boolean result = psd.isSuccess(msg);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verifyNoInteractions(context);
+    }
+
+    @Test
+    public void isSuccessShouldReturnTrueIfCustomPage200ButStatusCodeDoesNotMatch() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.OK_200;
+        HttpMessage msg = createMessage();
+        msg.getResponseHeader().setStatusCode(403);
+        given(context.isCustomPageWithFallback(msg, type)).willReturn(true);
+        given(context.isCustomPageWithFallback(msg, CustomPage.Type.ERROR_500)).willReturn(false);
+        given(context.isCustomPageWithFallback(msg, CustomPage.Type.NOTFOUND_404))
+                .willReturn(false);
+        given(session.getContextsForUrl(msg.getRequestHeader().getURI().toString()))
+                .willReturn(asList(context));
+        PassiveScanData psd = new PassiveScanData(msg);
+        // When
+        boolean result = psd.isSuccess(msg);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(context).isCustomPageWithFallback(msg, type);
+    }
+
+    @Test
+    public void isSuccessShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatch() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.OK_200;
+        HttpMessage msg = createMessage();
+        msg.getResponseHeader().setStatusCode(403);
+        given(context.isCustomPageWithFallback(msg, type)).willReturn(false);
+        given(context.isCustomPageWithFallback(msg, CustomPage.Type.ERROR_500)).willReturn(false);
+        given(context.isCustomPageWithFallback(msg, CustomPage.Type.NOTFOUND_404))
+                .willReturn(false);
+        given(session.getContextsForUrl(msg.getRequestHeader().getURI().toString()))
+                .willReturn(asList(context));
+        PassiveScanData psd = new PassiveScanData(msg);
+        // When
+        boolean result = psd.isSuccess(msg);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(context).isCustomPageWithFallback(msg, type);
+    }
+
+    @Test
+    public void
+            isSuccessShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatchButCustomPage404Does() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
+        HttpMessage msg = createMessage();
+        msg.getResponseHeader().setStatusCode(302);
+        given(context.isCustomPageWithFallback(msg, type)).willReturn(true);
+        given(session.getContextsForUrl(msg.getRequestHeader().getURI().toString()))
+                .willReturn(asList(context));
+        PassiveScanData psd = new PassiveScanData(msg);
+        // When
+        boolean result = psd.isSuccess(msg);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(context).isCustomPageWithFallback(msg, type);
+    }
+
+    @Test
+    public void
+            isSuccessShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatchButCustomPage500Does() {
+        // Given
+        HttpMessage msg = createMessage();
+        msg.getResponseHeader().setStatusCode(302);
+        given(context.isCustomPageWithFallback(msg, CustomPage.Type.NOTFOUND_404))
+                .willReturn(false);
+        given(context.isCustomPageWithFallback(msg, CustomPage.Type.ERROR_500)).willReturn(true);
+        given(session.getContextsForUrl(msg.getRequestHeader().getURI().toString()))
+                .willReturn(asList(context));
+        PassiveScanData psd = new PassiveScanData(msg);
+        // When
+        boolean result = psd.isSuccess(msg);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(context).isCustomPageWithFallback(msg, CustomPage.Type.ERROR_500);
+    }
+
+    @Test
     public void isClientErrorShouldReturnTrueIfStatusCodeMatches() {
         // Given
         HttpMessage msg = createMessage();
