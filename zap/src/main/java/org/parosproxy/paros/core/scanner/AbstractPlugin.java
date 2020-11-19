@@ -678,11 +678,32 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Tells whether or not the response has a status code between 400 and 499 (inclusive). Falls
-     * back to check {@code CustomPage.Type.NOTFOUND_404} and {@code
-     * Analyser#isFileExist(HttpMessage)}. Checks if the message matches {@code
-     * CustomPage.Type.OK_200} or {@code CustomPage.Type.ERROR_500} first, in case the user is
-     * trying to override something.
+     * Tells whether or not the response has a status code between 200 and 299 (inclusive), or
+     * {@code CustomPage.Type.OK_200} and {@code Analyser#isFileExist(HttpMessage)}. Checks if the
+     * message matches {@code CustomPage.Type.NOTFOUND_404} or {@code CustomPage.Type.ERROR_500}
+     * first, in case the user is trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since TODO Add version
+     * @see {@code Analyser#isFileExist(HttpMessage)}
+     */
+    public boolean isSuccess(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.OK_200) || parent.getAnalyser().isFileExist(msg)) {
+            return true;
+        }
+        return HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode());
+    }
+
+    /**
+     * Tells whether or not the response has a status code between 400 and 499 (inclusive), or
+     * {@code CustomPage.Type.NOTFOUND_404} and {@code Analyser#isFileExist(HttpMessage)}. Checks if
+     * the message matches {@code CustomPage.Type.OK_200} or {@code CustomPage.Type.ERROR_500}
+     * first, in case the user is trying to override something.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
@@ -702,8 +723,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Tells whether or not the response has a status code between 500 and 599 (inclusive). Falls
-     * back to check {@code CustomPage.Type.EROOR_500}. Checks if the message matches {@code
+     * Tells whether or not the response has a status code between 500 and 599 (inclusive), or
+     * {@code CustomPage.Type.EROOR_500}. Checks if the message matches {@code
      * CustomPage.Type.OK_200} or {@code CustomPage.Type.NOTFOUND_404} first, in case the user is
      * trying to override something.
      *
