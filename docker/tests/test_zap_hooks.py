@@ -42,6 +42,9 @@ class TestZapHooks(unittest.TestCase):
     def setUp(self):
         zap_common.zap_hooks = None
 
+    def tearDown(self):
+        zap_common.zap_hooks = None
+
     def test_trigger_hook_mismatch_exception(self):
         """ If the hook signature doesn't match the hook the exception bubbles up """
         zap_common.zap_hooks = _MockHooks()
