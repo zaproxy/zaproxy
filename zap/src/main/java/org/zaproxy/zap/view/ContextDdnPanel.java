@@ -19,35 +19,36 @@
  */
 package org.zaproxy.zap.view;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.GridBagLayout;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.EtchedBorder;
+
 import org.jdesktop.swingx.HorizontalLayout;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.VerticalLayout;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
-import java.awt.FlowLayout;
 
 public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 
     private static final String PANEL_NAME = Constant.messages.getString("context.ddn.panel.name");
-    private static final String TITLE_LABEL =
-            Constant.messages.getString("context.ddn.label.title");
-    private static final String ADD_BUTTON_LABEL =
-            Constant.messages.getString("context.ddn.button.add");
-    private static final String MODIFY_BUTTON_LABEL =
-            Constant.messages.getString("context.ddn.button.modify");
-    private static final String REMOVE_BUTTON_LABEL =
-            Constant.messages.getString("context.ddn.button.remove");
+    private static final String TITLE_LABEL = Constant.messages.getString("context.ddn.label.title");
+    private static final String ADD_BUTTON_LABEL = Constant.messages.getString("context.ddn.button.add");
+    private static final String MODIFY_BUTTON_LABEL = Constant.messages.getString("context.ddn.button.modify");
+    private static final String REMOVE_BUTTON_LABEL = Constant.messages.getString("context.ddn.button.remove");
+    private static final String REMOVE_CONFIRMATION_LABEL = Constant.messages.getString("context.ddn.checkbox.removeConfirmation");
 
     private static final long serialVersionUID = 1L;
+    private JPanel mainPanel;
+    private JXTreeTable ddnTree;
     private JButton addButton;
     private JButton modifyButton;
     private JButton removeButton;
@@ -63,6 +64,43 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 
         this.setLayout(new CardLayout());
         this.setName(getPanelName(this.getContextId()));
+        this.add(getPanel(), mainPanel.getName());
+    }
+
+    private JPanel getPanel() {
+        if (mainPanel == null) {
+        	mainPanel = new JPanel();
+        	mainPanel.setName("DataDrivenNodes");
+        	mainPanel.setLayout(new VerticalLayout());
+        	
+        	mainPanel.add(new JLabel(TITLE_LABEL));
+        	
+        	JPanel treePanel = new JPanel();
+        	treePanel.setLayout(new BorderLayout());
+        	
+        	ddnTree = new JXTreeTable();
+        	JScrollPane treeScrollPane = new JScrollPane();
+        	treeScrollPane.setViewportView(ddnTree);
+        	treeScrollPane.setBorder(BorderFactory.createEtchedBorder(EtchedBorder.RAISED));
+        	treePanel.add(treeScrollPane);
+        	
+        	JPanel buttonsPanel = new JPanel();
+        	buttonsPanel.setLayout(new VerticalLayout());
+        	addButton = new JButton(ADD_BUTTON_LABEL);
+        	modifyButton = new JButton(MODIFY_BUTTON_LABEL);
+        	removeButton = new JButton(REMOVE_BUTTON_LABEL);
+        	buttonsPanel.add(addButton);
+        	buttonsPanel.add(modifyButton);
+        	buttonsPanel.add(removeButton);
+        	treePanel.add(buttonsPanel, BorderLayout.EAST);
+        	
+        	removePromptCheckbox = new JCheckBox(REMOVE_CONFIRMATION_LABEL);
+        	treePanel.add(removePromptCheckbox, BorderLayout.SOUTH);
+        	
+        	mainPanel.add(treePanel);
+        }
+        
+        return mainPanel;
     }
 
     @Override
