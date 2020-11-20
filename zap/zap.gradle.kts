@@ -15,6 +15,7 @@ plugins {
     org.zaproxy.zap.jflex
     org.zaproxy.zap.publish
     org.zaproxy.zap.spotless
+    org.zaproxy.zap.test
 }
 
 group = "org.zaproxy"
@@ -98,10 +99,8 @@ dependencies {
     testImplementation("org.nanohttpd:nanohttpd-webserver:2.3.1")
 
     testRuntimeOnly(files(distDir))
-}
 
-tasks.withType<Test>().configureEach {
-    useJUnitPlatform()
+    testGuiImplementation("org.assertj:assertj-swing:3.17.1")
 }
 
 tasks.register<JavaExec>("run") {
