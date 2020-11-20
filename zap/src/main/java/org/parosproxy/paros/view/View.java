@@ -137,6 +137,7 @@ import org.zaproxy.zap.extension.keyboard.ExtensionKeyboard;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
+import org.zaproxy.zap.view.ContextDdnPanel;
 import org.zaproxy.zap.view.ContextExcludePanel;
 import org.zaproxy.zap.view.ContextGeneralPanel;
 import org.zaproxy.zap.view.ContextIncludePanel;
@@ -788,6 +789,11 @@ public class View implements ViewDelegate {
         contextStructParamPanel.setSessionDialog(getSessionDialog());
         getSessionDialog().addParamPanel(contextPanelPath, contextStructParamPanel, false);
         this.contextPanels.add(contextStructParamPanel);
+
+        ContextDdnPanel contextDdnPanel = new ContextDdnPanel(c);
+        contextDdnPanel.setSessionDialog(getSessionDialog());
+        getSessionDialog().addParamPanel(contextPanelPath, contextDdnPanel, false);
+        this.contextPanels.add(contextDdnPanel);
 
         ContextTechnologyPanel contextTechPanel = new ContextTechnologyPanel(c);
         contextTechPanel.setSessionDialog(getSessionDialog());
