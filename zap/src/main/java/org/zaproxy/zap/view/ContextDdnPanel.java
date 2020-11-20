@@ -88,7 +88,9 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
         	buttonsPanel.setLayout(new VerticalLayout());
         	addButton = new JButton(ADD_BUTTON_LABEL);
         	modifyButton = new JButton(MODIFY_BUTTON_LABEL);
+        	modifyButton.setEnabled(false);
         	removeButton = new JButton(REMOVE_BUTTON_LABEL);
+        	removeButton.setEnabled(false);
         	buttonsPanel.add(addButton);
         	buttonsPanel.add(modifyButton);
         	buttonsPanel.add(removeButton);
