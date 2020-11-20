@@ -19,69 +19,50 @@
  */
 package org.zaproxy.zap.view;
 
-import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import org.jdesktop.swingx.HorizontalLayout;
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.VerticalLayout;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
+import java.awt.FlowLayout;
 
 public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 
+    private static final String PANEL_NAME = Constant.messages.getString("context.ddn.panel.name");
+    private static final String TITLE_LABEL =
+            Constant.messages.getString("context.ddn.label.title");
+    private static final String ADD_BUTTON_LABEL =
+            Constant.messages.getString("context.ddn.button.add");
+    private static final String MODIFY_BUTTON_LABEL =
+            Constant.messages.getString("context.ddn.button.modify");
+    private static final String REMOVE_BUTTON_LABEL =
+            Constant.messages.getString("context.ddn.button.remove");
+
     private static final long serialVersionUID = 1L;
+    private JButton addButton;
+    private JButton modifyButton;
+    private JButton removeButton;
+    private JCheckBox removePromptCheckbox;
 
-    public ContextDdnPanel(int contextId) {
-        super(contextId);
-        setLayout(new CardLayout(0, 0));
+    public static String getPanelName(int contextId) {
+        // Panel names have to be unique, so prefix with the context id
+        return contextId + ": " + PANEL_NAME;
+    }
 
-        JPanel labelPanel = new JPanel();
-        add(labelPanel, "name_138589339403800");
-        GridBagLayout gbl_labelPanel = new GridBagLayout();
-        gbl_labelPanel.columnWidths = new int[] {0};
-        gbl_labelPanel.rowHeights = new int[] {0, 0};
-        gbl_labelPanel.columnWeights = new double[] {1.0};
-        gbl_labelPanel.rowWeights = new double[] {0.0, 1.0};
-        labelPanel.setLayout(gbl_labelPanel);
+    public ContextDdnPanel(Context context) {
+        super(context.getId());
 
-        JLabel lblTitle = new JLabel("Data Driven Nodes Configuration");
-        lblTitle.setFont(new Font("Tahoma", Font.PLAIN, 10));
-        GridBagConstraints gbc_lblTitle = new GridBagConstraints();
-        gbc_lblTitle.anchor = GridBagConstraints.WEST;
-        gbc_lblTitle.insets = new Insets(0, 0, 5, 0);
-        gbc_lblTitle.gridx = 0;
-        gbc_lblTitle.gridy = 0;
-        labelPanel.add(lblTitle, gbc_lblTitle);
-
-        JPanel treePanel = new JPanel();
-        GridBagConstraints gbc_treePanel = new GridBagConstraints();
-        gbc_treePanel.fill = GridBagConstraints.BOTH;
-        gbc_treePanel.gridx = 0;
-        gbc_treePanel.gridy = 1;
-        labelPanel.add(treePanel, gbc_treePanel);
-        treePanel.setLayout(new BorderLayout(0, 0));
-
-        JXTreeTable ddnTree = new JXTreeTable();
-        treePanel.add(ddnTree, BorderLayout.CENTER);
-
-        JPanel buttonsPanel = new JPanel();
-        treePanel.add(buttonsPanel, BorderLayout.EAST);
-        buttonsPanel.setLayout(new VerticalLayout());
-
-        JButton btnAdd = new JButton("Add...");
-        buttonsPanel.add(btnAdd);
-
-        JButton btnEdit = new JButton("Modify...");
-        buttonsPanel.add(btnEdit);
-
-        JButton btnRemove = new JButton("Remove...");
-        buttonsPanel.add(btnRemove);
+        this.setLayout(new CardLayout());
+        this.setName(getPanelName(this.getContextId()));
     }
 
     @Override
