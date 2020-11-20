@@ -30,6 +30,7 @@
 // ZAP: 2018/08/10 Use non-deprecated HttpRequestHeader constructor (Issue 4846).
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/04 Add menu icon.
+// ZAP: 2020/11/20 Support Send button in response panel in tab mode
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
@@ -179,7 +180,10 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         if (requestResponsePanel == null) {
             requestResponsePanel =
                     new RequestResponsePanel(
-                            configurationKey, getRequestPanel(), getResponsePanel());
+                            configurationKey,
+                            getRequestPanel(),
+                            getResponsePanel(),
+                            this::sendButtonTriggered);
 
             if (helpKey != null) {
                 JButton helpButton = new JButton();
@@ -404,8 +408,15 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         private int verticalDividerLocation;
         private int horizontalDividerLocation;
 
+        private JButton responseSendButton;
+
+        private Runnable sendAction;
+
         public RequestResponsePanel(
-                String configurationKey, HttpPanelRequest request, HttpPanelResponse response)
+                String configurationKey,
+                HttpPanelRequest request,
+                HttpPanelResponse response,
+                Runnable sendAction)
                 throws IllegalArgumentException {
             super(new BorderLayout());
             if (request == null || response == null) {
@@ -417,6 +428,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
 
             this.requestPanel = request;
             this.responsePanel = response;
+            this.sendAction = sendAction;
 
             this.currentView = -1;
 
@@ -470,6 +482,8 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
                     });
 
             addToolbarButton(sideBySideButtonView);
+
+            responsePanel.addOptions(getResponseSendButton(), HttpPanel.OptionsLocation.END);
         }
 
         public void loadConfig() {
@@ -604,6 +618,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
             tabbedPane.addTab(REQUEST_CAPTION, null, requestPanel, null);
             tabbedPane.addTab(RESPONSE_CAPTION, null, responsePanel, null);
             tabbedPane.setSelectedIndex(0);
+            getResponseSendButton().setVisible(true);
 
             currentViewPanel = tabbedPane;
         }
@@ -611,6 +626,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         private void switchToAboveView() {
             currentView = ABOVE_VIEW;
             currentButtonView = aboveButtonView;
+            getResponseSendButton().setVisible(false);
 
             currentViewPanel = createSplitPane(JSplitPane.VERTICAL_SPLIT);
         }
@@ -618,6 +634,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         private void switchToSideBySideView() {
             currentView = SIDE_BY_SIDE_VIEW;
             currentButtonView = sideBySideButtonView;
+            getResponseSendButton().setVisible(false);
 
             currentViewPanel = createSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         }
@@ -645,6 +662,19 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
             splitPane.setDividerLocation(dividerLocation);
 
             return splitPane;
+        }
+
+        private JButton getResponseSendButton() {
+            if (responseSendButton == null) {
+                responseSendButton = new JButton(Constant.messages.getString("manReq.button.send"));
+                responseSendButton.addActionListener(
+                        e -> {
+                            responseSendButton.setEnabled(false);
+                            sendAction.run();
+                            responseSendButton.setEnabled(true);
+                        });
+            }
+            return responseSendButton;
         }
     }
 
