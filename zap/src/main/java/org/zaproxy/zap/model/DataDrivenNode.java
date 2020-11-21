@@ -27,8 +27,12 @@ import net.sf.json.JSONObject;
 import org.zaproxy.zap.utils.Enableable;
 
 public class DataDrivenNode extends Enableable implements Cloneable {
+	
+	public static DataDrivenNode ROOT_DDN = new DataDrivenNode("Data Driven Nodes", "", null);
+	
     private static final String CONFIG_NAME = "name";
     private static final String CONFIG_PATTERN = "pattern";
+    private static final String CONFIG_ENABLED = "enabled";
     private static final String CONFIG_CHILD_NODES = "childNodes";
 
     private DataDrivenNode parentNode;
@@ -37,11 +41,11 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     private String name;
     private Pattern pattern;
 
-    public DataDrivenNode(String name, Pattern pattern, DataDrivenNode parentNode) {
+    public DataDrivenNode(String name, String regexPattern, DataDrivenNode parentNode) {
         super();
 
         this.name = name;
-        this.pattern = pattern;
+        this.pattern = Pattern.compile(regexPattern);
 
         this.parentNode = parentNode;
         this.childNodes = new ArrayList<DataDrivenNode>();
@@ -54,6 +58,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
 
         this.name = configData.getString(CONFIG_NAME);
         this.pattern = Pattern.compile(configData.getString(CONFIG_PATTERN));
+        this.setEnabled(configData.getBoolean(CONFIG_ENABLED));
 
         this.childNodes = new ArrayList<DataDrivenNode>();
         JSONArray childrenConfig = configData.getJSONArray(CONFIG_CHILD_NODES);
@@ -61,6 +66,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
             JSONObject childConfig = childrenConfig.getJSONObject(childCounter);
 
             DataDrivenNode childNode = new DataDrivenNode(childConfig.toString());
+            childNode.setParentNode(this);
             this.childNodes.add(childNode);
         }
     }
@@ -84,6 +90,14 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     public DataDrivenNode getParentNode() {
         return parentNode;
     }
+    
+    public void setParentNode(DataDrivenNode parentNode) {
+    	this.parentNode = parentNode;
+    }
+    
+    public boolean addChildNode(DataDrivenNode child) {
+    	return this.childNodes.add(child);
+    }
 
     public List<DataDrivenNode> getChildNodes() {
         return childNodes;
@@ -92,10 +106,14 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     public void setChildNodes(List<DataDrivenNode> childNodes) {
         this.childNodes = childNodes;
     }
+    
+    public boolean removeChildNode(DataDrivenNode child) {
+    	return this.childNodes.remove(child);
+    }
 
     @Override
     protected DataDrivenNode clone() {
-        DataDrivenNode clone = new DataDrivenNode(this.name, this.pattern, this.parentNode);
+        DataDrivenNode clone = new DataDrivenNode(this.name, this.pattern.pattern(), this.parentNode);
         clone.setChildNodes(this.childNodes);
         return clone;
     }
@@ -105,11 +123,17 @@ public class DataDrivenNode extends Enableable implements Cloneable {
 
         serialized.put(CONFIG_NAME, this.name);
         serialized.put(CONFIG_PATTERN, this.pattern.pattern());
+        serialized.put(CONFIG_ENABLED, this.isEnabled());
 
         JSONArray serializedChildren = new JSONArray();
         serializedChildren.addAll(this.childNodes);
         serialized.put(CONFIG_CHILD_NODES, serializedChildren);
 
         return serialized.toString();
+    }
+    
+    @Override
+    public String toString() {
+    	return (this.pattern == null || this.pattern.pattern().isEmpty()) ? this.name : this.pattern.toString();
     }
 }

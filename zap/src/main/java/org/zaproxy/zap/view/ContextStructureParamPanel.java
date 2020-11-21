@@ -42,8 +42,7 @@ import org.zaproxy.zap.utils.ZapTextField;
 
 public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
 
-    private static final String PANEL_NAME =
-            Constant.messages.getString("context.structParams.title");
+    private static final String PANEL_NAME = Constant.messages.getString("context.structParams.title");
     private static final long serialVersionUID = -1;
 
     private StruturalParametersOptionsModel structuralParamsModel;
@@ -284,7 +283,7 @@ public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
         private static final long serialVersionUID = 1L;
 
         private static final String[] COLUMN_NAMES = {
-            Constant.messages.getString("context.structParams.table.header.name")
+            Constant.messages.getString("context.structParams.table.header.paramName")
         };
 
         private List<StructuralParameter> structParams;
@@ -423,42 +422,42 @@ public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
     }
 
     public static class StructuralParameterDialog extends StandardFieldsDialog {
+    	
         private static final long serialVersionUID = 1L;
 
-        private static final String FIELD_NAME = "context.structParams.dialog.name";
+        private static final String FIELD_PARAM_NAME = "context.structParams.dialog.paramName";
 
-        private StructuralParameter structParam = null;
-        private boolean ro = false;
+        private StructuralParameter data = null;
 
         public StructuralParameterDialog(JDialog owner, String titleLabel, Dimension dim) {
             super(owner, titleLabel, dim, true);
         }
 
-        public StructuralParameter showDialog(StructuralParameter structParam) {
+        public StructuralParameter showDialog(StructuralParameter data) {
             String name = "";
 
-            this.structParam = structParam;
-            if (structParam != null) {
-                name = structParam.getName();
+            this.data = data;
+            if (this.data != null) {
+                name = this.data.getName();
             }
 
-            this.addTextField(FIELD_NAME, name);
+            this.addTextField(FIELD_PARAM_NAME, name);
 
             this.setVisible(true);
 
-            return this.structParam;
+            return this.data;
         }
 
         @Override
         public void save() {
-            this.structParam = new StructuralParameter(this.getStringValue(FIELD_NAME), true);
+            this.data = new StructuralParameter(this.getStringValue(FIELD_PARAM_NAME), true);
         }
 
         @Override
         public String validateFields() {
-            if (!this.getStringValue(FIELD_NAME).matches("[A-Za-z0-9_]+")) {
+            if (!this.getStringValue(FIELD_PARAM_NAME).matches("[A-Za-z0-9_]+")) {
                 // Must supply a name just made up of alphanumeric characters
-                return Constant.messages.getString("context.structParams.dialog.error.name");
+                return Constant.messages.getString("context.structParams.dialog.error.paramName");
             }
 
             return null;
