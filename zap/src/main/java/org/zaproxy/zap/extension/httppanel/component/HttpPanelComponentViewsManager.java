@@ -302,6 +302,8 @@ public class HttpPanelComponentViewsManager implements ItemListener, MessageLoca
     }
 
     public void addView(HttpPanelView view) {
+        validateView(view);
+
         final String targetViewName = view.getTargetViewName();
         if (!"".equals(targetViewName) && views.containsKey(targetViewName)) {
             removeView(targetViewName);
@@ -338,6 +340,35 @@ public class HttpPanelComponentViewsManager implements ItemListener, MessageLoca
             if (switchView) {
                 switchView(viewConfigName);
             }
+        }
+    }
+
+    private static void validateView(HttpPanelView view) {
+        if (view == null) {
+            throw new IllegalArgumentException("Attempting to add null view.");
+        }
+
+        validateNonEmpty(
+                view.getName(), "The view should have a non-null and non-empty name.", view);
+        validateNonEmpty(
+                view.getCaptionName(),
+                "The view should have a non-null and non-empty caption name.",
+                view);
+        validateNonNull(view.getPane(), "The view should have a pane.", view);
+        validateNonNull(view.getModel(), "The view should have a model.", view);
+    }
+
+    private static void validateNonEmpty(String value, String message, HttpPanelView view) {
+        if (value == null || value.isEmpty()) {
+            throw new IllegalArgumentException(
+                    message + " Classname: " + view.getClass().getCanonicalName());
+        }
+    }
+
+    private static void validateNonNull(Object value, String message, HttpPanelView view) {
+        if (value == null) {
+            throw new IllegalArgumentException(
+                    message + " Classname: " + view.getClass().getCanonicalName());
         }
     }
 
