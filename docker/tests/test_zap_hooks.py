@@ -41,9 +41,15 @@ class TestZapHooks(unittest.TestCase):
 
     def setUp(self):
         zap_common.zap_hooks = None
+        zap_common.context_id = None
+        zap_common.context_name = None
+        zap_common.scan_user = None
 
     def tearDown(self):
         zap_common.zap_hooks = None
+        zap_common.context_id = None
+        zap_common.context_name = None
+        zap_common.scan_user = None
 
     def test_trigger_hook_mismatch_exception(self):
         """ If the hook signature doesn't match the hook the exception bubbles up """
@@ -282,3 +288,20 @@ class TestZapHooks(unittest.TestCase):
 
         hooks.zap_import_context.assert_called_once_with(zap, context_file)
         hooks.zap_import_context_wrap.assert_called_once_with(context_id)
+
+    def test_zap_set_scan_user_triggers_hooks(self):
+        """Hooks are triggered when zap_set_scan_user is called."""
+        hooks = Mock(zap_set_scan_user=Mock(return_value=[]))
+        zap_common.zap_hooks = hooks
+
+        user = "user1"
+        zap_common.context_users = [{'name': user, 'id': '1'}]
+
+        zap = Mock()
+
+        zap_common.zap_set_scan_user(zap, user)
+
+        hooks.zap_set_scan_user.assert_called_once_with(zap, user)
+        hooks.zap_set_scan_user_wrap.assert_called_once_with(None)
+
+        zap_common.context_users = None

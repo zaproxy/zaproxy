@@ -94,6 +94,7 @@ def usage():
     print('    -p progress_file  progress file which specifies issues that are being addressed')
     print('    -s                short output format - dont show PASSes or example URLs')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
+    print('    -U user           username to use for authenticated scans - must be defined in the given context file')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
     print('')
@@ -127,6 +128,7 @@ def main(argv):
     timeout = 0
     ignore_warn = False
     hook_file = None
+    user = ''
 
     pass_count = 0
     warn_count = 0
@@ -135,9 +137,10 @@ def main(argv):
     ignore_count = 0
     warn_inprog_count = 0
     fail_inprog_count = 0
+    exception_raised = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:I", ["hook="])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -197,6 +200,8 @@ def main(argv):
             detailed_output = False
         elif opt == '-T':
             timeout = int(arg)
+        elif opt == '-U':
+            user = arg
         elif opt == '--hook':
             hook_file = arg
 
@@ -223,6 +228,11 @@ def main(argv):
                 logging.warning('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
                 usage()
                 sys.exit(3)
+
+    if user and not context_file:
+        logging.warning('A context file must be specified (and include the user) if the user option is selected')
+        usage()
+        sys.exit(3)
 
     # Choose a random 'ephemeral' port and check its available if it wasn't specified with -P option
     if port == 0:
@@ -315,6 +325,8 @@ def main(argv):
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
             zap_import_context(zap, '/zap/wrk/' + os.path.basename(context_file))
+            if (user):
+                zap_set_scan_user(zap, user)
 
         zap_access_target(zap, target)
 
@@ -421,17 +433,22 @@ def main(argv):
         # Stop ZAP
         zap.core.shutdown()
 
+    except UserInputException as e:
+        exception_raised = True
+        print("ERROR %s" % e)
+
+    except ScanNotStartedException:
+        exception_raised = True
+        dump_log_file(cid)
+
     except IOError as e:
-        if hasattr(e, 'args') and len(e.args) > 1:
-            errno, strerror = e.args
-            print("ERROR " + str(strerror))
-            logging.warning('I/O error(' + str(errno) + '): ' + str(strerror))
-        else:
-            print("ERROR %s" % e)
-            logging.warning('I/O error: ' + str(e))
+        exception_raised = True
+        print("ERROR %s" % e)
+        logging.warning('I/O error: ' + str(e))
         dump_log_file(cid)
 
     except:
+        exception_raised = True
         print("ERROR " + str(sys.exc_info()[0]))
         logging.warning('Unexpected error: ' + str(sys.exc_info()[0]))
         dump_log_file(cid)
@@ -441,7 +458,9 @@ def main(argv):
 
     trigger_hook('pre_exit', fail_count, warn_count, pass_count)
 
-    if fail_count > 0:
+    if exception_raised:
+        sys.exit(3)
+    elif fail_count > 0:
         sys.exit(1)
     elif (not ignore_warn) and warn_count > 0:
         sys.exit(2)

@@ -109,6 +109,7 @@ def usage():
     print('    -s                short output format - dont show PASSes or example URLs')
     print('    -S                safe mode this will skip the active scan and perform a baseline scan')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
+    print('    -U user           username to use for authenticated scans - must be defined in the given context file')
     print('    -O                the hostname to override in the (remote) OpenAPI spec')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
@@ -149,6 +150,7 @@ def main(argv):
     hook_file = None
     schema = ''
     schema_url = ''
+    user = ''
 
     pass_count = 0
     warn_count = 0
@@ -157,9 +159,10 @@ def main(argv):
     ignore_count = 0
     warn_inprog_count = 0
     fail_inprog_count = 0
+    exception_raised = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:IO:", ["hook=", "schema="])
+        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:IO:U:", ["hook=", "schema="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -221,6 +224,8 @@ def main(argv):
             timeout = int(arg)
         elif opt == '-O':
             host_override = arg
+        elif opt == '-U':
+            user = arg
         elif opt == '--hook':
             hook_file = arg
         elif opt == '--schema':
@@ -249,6 +254,11 @@ def main(argv):
                 logging.warning('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
                 usage()
                 sys.exit(3)
+
+    if user and not context_file:
+        logging.warning('A context file must be specified (and include the user) if the user option is selected')
+        usage()
+        sys.exit(3)
 
     target_file = ''
     if target.startswith('http://') or target.startswith('https://'):
@@ -383,6 +393,8 @@ def main(argv):
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
             zap_import_context(zap, '/zap/wrk/' + os.path.basename(context_file))
+            if (user):
+                zap_set_scan_user(zap, user)
 
         # Enable scripts
         zap.script.load('Alert_on_HTTP_Response_Code_Errors.js', 'httpsender', 'Oracle Nashorn', '/home/zap/.ZAP_D/scripts/scripts/httpsender/Alert_on_HTTP_Response_Code_Errors.js')
@@ -578,20 +590,22 @@ def main(argv):
         # Stop ZAP
         zap.core.shutdown()
 
-    except IOError as e:
-        if hasattr(e, 'args') and len(e.args) > 1:
-            errno, strerror = e
-            print("ERROR " + str(strerror))
-            logging.warning('I/O error(' + str(errno) + '): ' + str(strerror))
-        else:
-            print("ERROR %s" % e)
-            logging.warning('I/O error: ' + str(e))
-        dump_log_file(cid)
+    except UserInputException as e:
+        exception_raised = True
+        print("ERROR %s" % e)
 
     except (NoUrlsException, ScanNotStartedException):
+        exception_raised = True
+        dump_log_file(cid)
+
+    except IOError as e:
+        exception_raised = True
+        print("ERROR %s" % e)
+        logging.warning('I/O error: ' + str(e))
         dump_log_file(cid)
 
     except:
+        exception_raised = True
         print("ERROR " + str(sys.exc_info()[0]))
         logging.warning('Unexpected error: ' + str(sys.exc_info()[0]))
         dump_log_file(cid)
@@ -601,7 +615,9 @@ def main(argv):
 
     trigger_hook('pre_exit', fail_count, warn_count, pass_count)
 
-    if fail_count > 0:
+    if exception_raised:
+        sys.exit(3)
+    elif fail_count > 0:
         sys.exit(1)
     elif (not ignore_warn) and warn_count > 0:
         sys.exit(2)
