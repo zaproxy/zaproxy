@@ -60,6 +60,7 @@ public class ScriptWrapper {
     private Exception lastException = null;
     private Writer writer = null;
     private Charset charset = ExtensionScript.DEFAULT_CHARSET;
+    private int modCount;
 
     public ScriptWrapper() {}
 
@@ -193,7 +194,20 @@ public class ScriptWrapper {
         if (!contents.equals(this.contents)) {
             this.contents = contents;
             this.changed = true;
+            this.modCount++;
         }
+    }
+
+    /**
+     * Gets the mod count.
+     *
+     * <p>The value is different each time the contents of the script change.
+     *
+     * @return the mod count.
+     * @since TODO add version
+     */
+    public int getModCount() {
+        return modCount;
     }
 
     public String getLastOutput() {

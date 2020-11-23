@@ -21,19 +21,31 @@ package org.zaproxy.zap.extension.ascan;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
 import java.util.List;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-import org.parosproxy.paros.control.Control;
+import org.mockito.stubbing.Answer;
 import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.core.scanner.Variant;
 import org.parosproxy.paros.core.scanner.VariantCookie;
+import org.parosproxy.paros.core.scanner.VariantCustom;
 import org.parosproxy.paros.core.scanner.VariantDdnPath;
 import org.parosproxy.paros.core.scanner.VariantDirectWebRemotingQuery;
 import org.parosproxy.paros.core.scanner.VariantFormQuery;
@@ -43,25 +55,36 @@ import org.parosproxy.paros.core.scanner.VariantJSONQuery;
 import org.parosproxy.paros.core.scanner.VariantMultipartFormParameters;
 import org.parosproxy.paros.core.scanner.VariantODataFilterQuery;
 import org.parosproxy.paros.core.scanner.VariantODataIdQuery;
+import org.parosproxy.paros.core.scanner.VariantScript;
 import org.parosproxy.paros.core.scanner.VariantURLPath;
 import org.parosproxy.paros.core.scanner.VariantURLQuery;
 import org.parosproxy.paros.core.scanner.VariantUserDefined;
 import org.parosproxy.paros.core.scanner.VariantXMLQuery;
-import org.parosproxy.paros.extension.ExtensionLoader;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.WithConfigsTest;
+import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.extension.script.ScriptWrapper;
+import org.zaproxy.zap.extension.script.ScriptsCache;
+import org.zaproxy.zap.extension.script.ScriptsCache.CachedScript;
+import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
+import org.zaproxy.zap.extension.script.ScriptsCache.InterfaceErrorMessageProvider;
+import org.zaproxy.zap.extension.script.ScriptsCache.ScriptWrapperAction;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-public class VariantFactoryUnitTest {
+public class VariantFactoryUnitTest extends WithConfigsTest {
+
+    private static final String SCRIPT_TYPE = ExtensionActiveScan.SCRIPT_TYPE_VARIANT;
+    private static final Class<VariantScript> TARGET_INTERFACE = VariantScript.class;
+
+    private ExtensionScript extensionScript;
 
     VariantFactory factory;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        ExtensionLoader extLoader = Mockito.mock(ExtensionLoader.class);
-        Control control = Mockito.mock(Control.class, withSettings().lenient());
-        Mockito.when(control.getExtensionLoader()).thenReturn(extLoader);
-        Control.initSingletonForTesting(Model.getSingleton());
+    public void setUp() {
+        extensionScript = mock(ExtensionScript.class);
+        given(extensionLoader.getExtension(ExtensionScript.class)).willReturn(extensionScript);
+
         factory = new VariantFactory();
     }
 
@@ -181,6 +204,65 @@ public class VariantFactoryUnitTest {
         assertThat(variants.get(0).getClass(), is(equalTo(TestVariant.class)));
     }
 
+    @Test
+    void shouldNotCreateVariantScriptsIfExtensionScriptIsDisabled() {
+        // Given
+        given(extensionLoader.getExtension(ExtensionScript.class)).willReturn(null);
+        // When
+        List<Variant> variants = factory.createSiteModifyingVariants();
+        // Then
+        variants.forEach(e -> assertThat(e, is(not(instanceOf(VariantScript.class)))));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void shouldCreateScriptsCacheWithExpectedConfiguration() {
+        // Given / When
+        factory.createSiteModifyingVariants();
+        // Then
+        ArgumentCaptor<Configuration<VariantScript>> argumentCaptor =
+                ArgumentCaptor.forClass(Configuration.class);
+        verify(extensionScript).createScriptsCache(argumentCaptor.capture());
+        Configuration<VariantScript> configuration = argumentCaptor.getValue();
+        assertThat(configuration.getScriptType(), is(equalTo(SCRIPT_TYPE)));
+        assertThat(configuration.getTargetInterface(), is(equalTo(TARGET_INTERFACE)));
+        InterfaceErrorMessageProvider errorMessageProvider =
+                configuration.getInterfaceErrorMessageProvider();
+        assertThat(errorMessageProvider, is(not(nullValue())));
+        assertThat(
+                errorMessageProvider.getErrorMessage(mock(ScriptWrapper.class)),
+                is(not(nullValue())));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void shouldUseVariantScripts() {
+        // Given
+        VariantScript script = mock(TARGET_INTERFACE);
+        CachedScript<VariantScript> cachedScript = createCachedScript(script);
+        ScriptsCache<VariantScript> scriptsCache = createScriptsCache(cachedScript);
+        given(extensionScript.<VariantScript>createScriptsCache(any())).willReturn(scriptsCache);
+        // When
+        List<Variant> variants = factory.createSiteModifyingVariants();
+        // Then
+        verify(scriptsCache, times(1)).refreshAndExecute(any(ScriptWrapperAction.class));
+        assertThat(variants, hasSize(1));
+        assertThat(variants.get(0), is(instanceOf(VariantCustom.class)));
+    }
+
+    @Test
+    @SuppressWarnings("unchecked")
+    void shouldNotUseVariantScriptsIfNone() {
+        // Given
+        ScriptsCache<VariantScript> scriptsCache = mock(ScriptsCache.class);
+        given(extensionScript.<VariantScript>createScriptsCache(any())).willReturn(scriptsCache);
+        // When
+        List<Variant> variants = factory.createSiteModifyingVariants();
+        // Then
+        verify(scriptsCache, times(1)).refreshAndExecute(any(ScriptWrapperAction.class));
+        assertThat(variants, hasSize(0));
+    }
+
     public static class TestVariant implements Variant {
         public TestVariant() {}
 
@@ -203,5 +285,29 @@ public class VariantFactoryUnitTest {
                 HttpMessage msg, NameValuePair originalPair, String param, String value) {
             return null;
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> CachedScript<T> createCachedScript(T script) {
+        CachedScript<T> cachedScript = mock(CachedScript.class);
+        given(cachedScript.getScript()).willReturn(script);
+        return cachedScript;
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> ScriptsCache<T> createScriptsCache(CachedScript<T> cachedScript) {
+        ScriptsCache<T> scriptsCache = mock(ScriptsCache.class);
+        Answer<Void> answer =
+                invocation -> {
+                    ScriptWrapperAction<T> action =
+                            (ScriptWrapperAction<T>) invocation.getArguments()[0];
+                    try {
+                        action.apply(cachedScript.getScriptWrapper(), cachedScript.getScript());
+                    } catch (Throwable ignore) {
+                    }
+                    return null;
+                };
+        doAnswer(answer).when(scriptsCache).refreshAndExecute(any(ScriptWrapperAction.class));
+        return scriptsCache;
     }
 }

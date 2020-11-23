@@ -48,6 +48,7 @@ public class ApiGeneratorUtilsTest extends WithConfigsTest {
 
     @BeforeEach
     public void loadCoreApis() throws Exception {
+        Control.initSingletonForTesting(Model.getSingleton());
         ExtensionHook hook =
                 new ExtensionHook(Model.getSingleton(), null) {
                     @Override
