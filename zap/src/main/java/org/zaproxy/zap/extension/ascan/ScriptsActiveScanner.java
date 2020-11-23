@@ -35,10 +35,15 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
+import org.zaproxy.zap.extension.script.ScriptsCache;
+import org.zaproxy.zap.extension.script.ScriptsCache.CachedScript;
+import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
+import org.zaproxy.zap.extension.script.ScriptsCache.InterfaceProvider;
 
 public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     private ExtensionScript extension = null;
+    private ScriptsCache<ActiveScript> cachedScripts;
 
     private static Logger logger = Logger.getLogger(ScriptsActiveScanner.class);
     /**
@@ -171,6 +176,29 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
         }
 
         if (!isStop()) {
+            InterfaceProvider<ActiveScript> interfaceProvider =
+                    (scriptWrapper, targetInterface) -> {
+                        ActiveScript s = extension.getInterface(scriptWrapper, targetInterface);
+                        if (s != null) {
+                            return s;
+                        }
+                        if (scriptsNoInterface.contains(scriptWrapper)) {
+                            extension.handleFailedScriptInterface(
+                                    scriptWrapper,
+                                    Constant.messages.getString(
+                                            "ascan.scripts.interface.active.error",
+                                            scriptWrapper.getName()));
+                        }
+                        return null;
+                    };
+            cachedScripts =
+                    getExtension()
+                            .createScriptsCache(
+                                    Configuration.<ActiveScript>builder()
+                                            .setScriptType(ExtensionActiveScan.SCRIPT_TYPE_ACTIVE)
+                                            .setTargetInterface(ActiveScript.class)
+                                            .setInterfaceProvider(interfaceProvider)
+                                            .build());
             super.scan();
         }
         scriptsNoInterface.clear();
@@ -178,33 +206,25 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     @Override
     public void scan(HttpMessage msg, String param, String value) {
-        List<ScriptWrapper> scripts = this.getActiveScripts();
+        cachedScripts.refresh();
 
-        for (Iterator<ScriptWrapper> it = scripts.iterator(); it.hasNext() && !isStop(); ) {
-            ScriptWrapper script = it.next();
+        for (CachedScript<ActiveScript> cachedScript : cachedScripts.getCachedScripts()) {
+            if (isStop()) {
+                return;
+            }
+
+            ScriptWrapper script = cachedScript.getScriptWrapper();
             try {
-                if (script.isEnabled()) {
-                    ActiveScript s = extension.getInterface(script, ActiveScript.class);
-
-                    if (s != null) {
-                        logger.debug(
-                                "Calling script "
-                                        + script.getName()
-                                        + " scan for "
-                                        + msg.getRequestHeader().getURI()
-                                        + "param="
-                                        + param
-                                        + " value="
-                                        + value);
-                        s.scan(this, msg, param, value);
-
-                    } else if (scriptsNoInterface.contains(script)) {
-                        extension.handleFailedScriptInterface(
-                                script,
-                                Constant.messages.getString(
-                                        "ascan.scripts.interface.active.error", script.getName()));
-                    }
-                }
+                logger.debug(
+                        "Calling script "
+                                + script.getName()
+                                + " scan for "
+                                + msg.getRequestHeader().getURI()
+                                + "param="
+                                + param
+                                + " value="
+                                + value);
+                cachedScript.getScript().scan(this, msg, param, value);
 
             } catch (Exception e) {
                 extension.handleScriptException(script, e);

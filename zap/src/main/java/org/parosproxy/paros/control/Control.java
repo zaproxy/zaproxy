@@ -81,6 +81,7 @@
 // ZAP: 2019/12/16 Log path of new session.
 // ZAP: 2019/12/13 Enable prompting/suggesting a new port when there's a proxy port conflict (Issue
 // 2016).
+// ZAP: 2020/11/23 Allow to initialise the singleton with an ExtensionLoader for tests.
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -94,6 +95,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
@@ -375,6 +377,19 @@ public class Control extends AbstractControl implements SessionListener {
     // ZAP: Added method to allow for testing when a model is required
     public static void initSingletonForTesting(Model model) {
         control = new Control(model, null);
+    }
+
+    /**
+     * Initialises the {@code Control} singleton with the given data.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @param model the {@code Model} to test with.
+     * @param extensionLoader the {@code ExtensionLoader} to test with.
+     */
+    public static void initSingletonForTesting(Model model, ExtensionLoader extensionLoader) {
+        initSingletonForTesting(model);
+        control.loader = extensionLoader;
     }
 
     public void runCommandLine() throws Exception {

@@ -66,6 +66,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
 public class ExtensionScript extends ExtensionAdaptor implements CommandLineListener {
 
@@ -1932,6 +1933,18 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     public void removeScriptUI() {
         this.scriptUI = null;
+    }
+
+    /**
+     * Creates a scripts cache.
+     *
+     * @param <T> the target interface.
+     * @param config the cache configuration
+     * @return the scripts cache.
+     * @since TODO add version
+     */
+    public <T> ScriptsCache<T> createScriptsCache(Configuration<T> config) {
+        return new ScriptsCache<>(this, config);
     }
 
     /**

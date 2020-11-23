@@ -94,7 +94,7 @@
 // ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
 // ZAP: 2020/10/19 Tweak JavaDoc and init startNodes in the constructor.
 // ZAP: 2020/06/30 Fix bug that makes zap test same request twice (Issue 6043).
-
+// ZAP: 2020/11/23 Expose getScannerParam() for tests.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -1155,7 +1155,14 @@ public class HostProcess implements Runnable {
         return kb;
     }
 
-    protected ScannerParam getScannerParam() {
+    /**
+     * Gets the scanner parameters.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @return the scanner parameters.
+     */
+    public ScannerParam getScannerParam() {
         return scannerParam;
     }
 

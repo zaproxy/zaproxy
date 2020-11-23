@@ -38,8 +38,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.httpclient.URI;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.parosproxy.paros.core.scanner.Variant;
@@ -67,6 +69,11 @@ public class SessionUnitTest {
 
         session = new Session(model);
         given(model.getSession()).willReturn(session);
+    }
+
+    @AfterEach
+    void cleanUp() {
+        Constant.messages = null;
     }
 
     @Test
