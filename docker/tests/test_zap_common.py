@@ -10,6 +10,14 @@ class TestZapCommon(unittest.TestCase):
     def setUp(self):
         zap_common.context_id = None
         zap_common.context_name = None
+        zap_common.context_users = None
+        zap_common.scan_user = None
+
+    def tearDown(self):
+        zap_common.context_id = None
+        zap_common.context_name = None
+        zap_common.context_users = None
+        zap_common.scan_user = None
 
     def test_load_config(self):
         pass
@@ -183,6 +191,26 @@ class TestZapCommon(unittest.TestCase):
         self.assertIsNone(zap_common.context_id)
         self.assertIsNone(zap_common.context_name)
 
+    def test_zap_import_context_sets_users(self):
+        """Context is imported."""
+        context_id = "1"
+        zap = Mock()
+        zap.context.import_context.return_value = context_id
+
+        context_file = "MyContext.context"
+        context_name = "My Context"
+        context_users = [{'name': 'user1', 'id': '1'}]
+        type(zap.context).context_list = PropertyMock(return_value=["Default Context", context_name])
+        zap.users.users_list.return_value = context_users
+
+        imported_context_id = zap_common.zap_import_context(zap, context_file)
+
+        zap.context.import_context.assert_called_once_with(context_file)
+        self.assertEqual(context_id, imported_context_id)
+        self.assertEqual(context_id, zap_common.context_id)
+        self.assertEqual(context_name, zap_common.context_name)
+        self.assertEqual(context_users, zap_common.context_users)
+
     def test_zap_spider_uses_imported_context(self):
         """Spider uses imported context."""
         context_name = "My Context"
@@ -199,6 +227,26 @@ class TestZapCommon(unittest.TestCase):
 
         zap.spider.scan.assert_called_once_with(target, contextname=context_name)
 
+    def test_zap_spider_uses_user(self):
+        """Spider uses specified user."""
+        context_id = 11
+        zap_common.context_id = context_id
+
+        user = "user1"
+        user_id = "12"
+        zap_common.scan_user = {'name': user, 'id': user_id}
+
+        zap = Mock()
+        scan_id = 1
+        zap.spider.scan_as_user.return_value = scan_id
+        zap.spider.status.side_effect = ["100"]
+        target = "http://target.example.com"
+
+        with patch("time.sleep"):
+            zap_common.zap_spider(zap, target)
+
+        zap.spider.scan_as_user.assert_called_once_with(context_id, user_id)
+
     def test_zap_ajax_spider_uses_imported_context(self):
         """AJAX Spider uses imported context."""
         context_name = "My Context"
@@ -214,6 +262,26 @@ class TestZapCommon(unittest.TestCase):
             zap_common.zap_ajax_spider(zap, target, max_time)
 
         zap.ajaxSpider.scan.assert_called_once_with(target, contextname=context_name)
+
+    def test_zap_ajax_spider_uses_user(self):
+        """AJAX Spider uses specified user."""
+        context_name = "My Context"
+        zap_common.context_name = context_name
+
+        user_name = "user1"
+        user_id = "12"
+        zap_common.scan_user = {'name': user_name, 'id': user_id}
+
+        zap = Mock()
+        zap.ajaxSpider.scan_as_user.return_value = "OK"
+        type(zap.ajaxSpider).status = PropertyMock(side_effect=Mock(side_effect=["stopped"]))
+        target = "http://target.example.com"
+        max_time = None
+
+        with patch("time.sleep"):
+            zap_common.zap_ajax_spider(zap, target, max_time)
+
+        zap.ajaxSpider.scan_as_user.assert_called_once_with(context_name, user_name)
 
     def test_zap_active_scan_uses_imported_context(self):
         """Active Scan uses imported context."""
@@ -232,6 +300,26 @@ class TestZapCommon(unittest.TestCase):
         zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name,
                                                contextid=context_id)
 
+    def test_zap_active_scan_uses_user(self):
+        """Active Scan uses specified user."""
+        context_id = "1"
+        zap_common.context_id = context_id
+
+        user_id = "12"
+        zap_common.scan_user = {'name': 'user1', 'id': user_id}
+
+        zap = Mock()
+        zap.ascan.scan_as_user.return_value = 1
+        zap.ascan.status.side_effect = ["100"]
+        target = "http://target.example.com"
+        scan_policy_name = "MyScanPolicy.policy"
+
+        with patch("time.sleep"):
+            zap_common.zap_active_scan(zap, target, scan_policy_name)
+
+        zap.ascan.scan_as_user.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name,
+                                               contextid=context_id, userid=user_id)
+
     def test_zap_tune(self):
         """Tune makes expected API calls."""
         zap = Mock()
@@ -243,3 +331,55 @@ class TestZapCommon(unittest.TestCase):
 
         zap.pscan.disable_all_tags.assert_called_once_with()
         zap.pscan.set_max_alerts_per_rule.assert_called_once_with(10)
+
+    def test_zap_set_scan_user_with_one_user(self):
+        """Scan_user is set."""
+        context_id = "1"
+        zap = Mock()
+
+        user_name = 'user1'
+        user = {'name': user_name, 'id': '1'}
+        zap_common.context_users = [user]
+
+        zap_common.zap_set_scan_user(zap, user_name)
+
+        self.assertEqual(user, zap_common.scan_user)
+
+    def test_zap_set_scan_user_with_multiple_users(self):
+        """Scan_user is set."""
+        context_id = "1"
+        zap = Mock()
+
+        user_name = 'user2'
+        user = {'name': user_name, 'id': '1'}
+        zap_common.context_users = [{'name': 'user1', 'id': '1'}, user]
+
+        zap_common.zap_set_scan_user(zap, user_name)
+
+        self.assertEqual(user, zap_common.scan_user)
+
+    def test_zap_set_scan_user_with_no_users(self):
+        """Exception is raised."""
+        context_id = "1"
+        zap = Mock()
+        zap_common.context_users = []
+
+        with self.assertRaises(zap_common.UserInputException):
+            zap_common.zap_set_scan_user(zap, 'user1')
+
+        self.assertEqual(None, zap_common.scan_user)
+
+    def test_zap_set_scan_user_with_bad_user(self):
+        """Exception is raised."""
+        context_id = "1"
+        zap = Mock()
+
+        user_name = 'user1'
+        user = {'name': 'user2', 'id': '1'}
+        zap_common.context_users = [user]
+
+        with self.assertRaises(zap_common.UserInputException):
+            zap_common.zap_set_scan_user(zap, user_name)
+
+        self.assertEqual(None, zap_common.scan_user)
+
