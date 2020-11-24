@@ -41,6 +41,7 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -70,7 +71,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     private JButton removeButton;
     private JCheckBox removePromptCheckbox;
     
-    private DefaultMutableTreeNode treeModel;
+    private DefaultTreeModel treeModel;
 
     public static String getPanelName(int contextId) {
         // Panel names have to be unique, so prefix with the context id
@@ -80,7 +81,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     public ContextDdnPanel(Context context) {
         super(context.getId());
         
-        this.treeModel = new DefaultMutableTreeNode(DataDrivenNode.ROOT_DDN);
+        this.treeModel = new DefaultTreeModel(new DefaultMutableTreeNode(DataDrivenNode.ROOT_DDN));
 
         this.setLayout(new CardLayout());
         this.setName(getPanelName(this.getContextId()));
@@ -99,7 +100,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
         	treePanel.setLayout(new BorderLayout());
         	
         	ddnTree = new JTree();
-        	ddnTree.setModel(new DefaultTreeModel(this.treeModel));
+        	ddnTree.setModel(this.treeModel);
         	ddnTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         	ddnTree.addTreeSelectionListener(new TreeSelectionListener() {
 				@Override
@@ -119,24 +120,25 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
         	addButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)treeModel.getRoot();
+					DataDrivenNode parentDdn = (DataDrivenNode)parentNode.getUserObject();
+					TreePath parentNodePath = ddnTree.getSelectionPath();
+					if (parentNodePath != null) {
+						parentNode = (DefaultMutableTreeNode)parentNodePath.getLastPathComponent(); 
+						parentDdn = (DataDrivenNode)parentNode.getUserObject();
+					}
+					
 					DataDrivenNodeDialog ddnDailog = 
 							new DataDrivenNodeDialog(View.getSingleton().getSessionDialog(),
 												     "context.ddn.dialog.add.title",
 					                                 new Dimension(500, 200));
-					
-					DataDrivenNode parentDdn = DataDrivenNode.ROOT_DDN;
-					TreePath parentNode = ddnTree.getSelectionPath();
-					DefaultMutableTreeNode treeNode = treeModel;
-					if (parentNode != null) {
-						treeNode = (DefaultMutableTreeNode)parentNode.getLastPathComponent(); 
-						parentDdn = (DataDrivenNode)treeNode.getUserObject(); 
-					}
-					
 					DataDrivenNode newDdn = ddnDailog.showDialog(null);
 					if (newDdn != null) {
+						DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newDdn);
 						newDdn.setParentNode(parentDdn);
 						parentDdn.addChildNode(newDdn);
-						treeNode.add(new DefaultMutableTreeNode(newDdn));
+						treeModel.insertNodeInto(newNode, parentNode, parentNode.getChildCount());
+						ddnTree.expandPath(parentNodePath);
 					}
 				}
 			});
