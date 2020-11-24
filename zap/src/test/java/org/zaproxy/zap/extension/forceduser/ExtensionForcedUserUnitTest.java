@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.forceduser;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -28,7 +29,6 @@ import org.apache.commons.configuration.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
@@ -38,15 +38,11 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 /** Unit test for {@link ExtensionForcedUser}. */
 class ExtensionForcedUserUnitTest extends WithConfigsTest {
 
-    private ExtensionUserManagement extensionUserManagement;
-
     private ExtensionForcedUser extensionForcedUser;
 
     @BeforeEach
     void setup() {
         Constant.messages = mock(I18N.class);
-        extensionUserManagement = new ExtensionUserManagement();
-        Control.getSingleton().getExtensionLoader().addExtension(extensionUserManagement);
 
         extensionForcedUser = new ExtensionForcedUser();
     }
@@ -65,6 +61,8 @@ class ExtensionForcedUserUnitTest extends WithConfigsTest {
     @Test
     void shouldNotImportContextWithUnknownForcedUser() {
         // Given
+        given(extensionLoader.getExtension(ExtensionUserManagement.class))
+                .willReturn(new ExtensionUserManagement());
         Context context = mock(Context.class);
         Configuration config = new ZapXmlConfiguration();
         config.setProperty("context.forceduser", Integer.MIN_VALUE);

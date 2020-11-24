@@ -76,6 +76,19 @@ public class VariantCustom implements Variant {
     }
 
     /**
+     * Constructs a {@code VariantCustom} with the given values.
+     *
+     * @param wrapper the script wrapper.
+     * @param script the script.
+     * @param extension the script extension.
+     */
+    public VariantCustom(ScriptWrapper wrapper, VariantScript script, ExtensionScript extension) {
+        this.wrapper = wrapper;
+        this.script = script;
+        this.extension = extension;
+    }
+
+    /**
      * Set the current message that this Variant has to scan
      *
      * @param msg the message object (remember Response is not set)

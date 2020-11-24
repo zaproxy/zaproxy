@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.ascan;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.core.scanner.Variant;
@@ -36,6 +37,7 @@ import org.parosproxy.paros.core.scanner.VariantJSONQuery;
 import org.parosproxy.paros.core.scanner.VariantMultipartFormParameters;
 import org.parosproxy.paros.core.scanner.VariantODataFilterQuery;
 import org.parosproxy.paros.core.scanner.VariantODataIdQuery;
+import org.parosproxy.paros.core.scanner.VariantScript;
 import org.parosproxy.paros.core.scanner.VariantURLPath;
 import org.parosproxy.paros.core.scanner.VariantURLQuery;
 import org.parosproxy.paros.core.scanner.VariantUserDefined;
@@ -43,12 +45,15 @@ import org.parosproxy.paros.core.scanner.VariantXMLQuery;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
+import org.zaproxy.zap.extension.script.ScriptsCache;
+import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
 public class VariantFactory {
     private static final Logger LOG = Logger.getLogger(VariantFactory.class);
 
-    private static ExtensionScript extension;
+    private ExtensionScript extension;
     private final List<Class<? extends Variant>> customVariants = new ArrayList<>();
+    private ScriptsCache<VariantScript> scripts;
 
     public void addVariant(Class<? extends Variant> variantClass) {
         customVariants.add(variantClass);
@@ -131,8 +136,15 @@ public class VariantFactory {
         }
 
         // Now is time to initialize all the custom Variants
-        if ((enabledRPC & ScannerParam.RPC_CUSTOM) != 0) {
-            addScriptVariants(listVariant);
+        if ((enabledRPC & ScannerParam.RPC_CUSTOM) != 0 && getExtension() != null) {
+            List<ScriptWrapper> scripts =
+                    getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_VARIANT);
+
+            for (ScriptWrapper script : scripts) {
+                if (script.isEnabled()) {
+                    listVariant.add(new VariantCustom(script, getExtension()));
+                }
+            }
         }
 
         if ((enabledRPC & ScannerParam.RPC_USERDEF) != 0) {
@@ -156,17 +168,12 @@ public class VariantFactory {
         return listVariant;
     }
 
-    private static void addScriptVariants(List<Variant> list) {
-        if (getExtension() != null) {
-            List<ScriptWrapper> scripts =
-                    getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_VARIANT);
-
-            for (ScriptWrapper script : scripts) {
-                if (script.isEnabled()) {
-                    list.add(new VariantCustom(script, getExtension()));
-                }
-            }
+    private void addScriptVariants(List<Variant> list) {
+        if (getScripts() == null) {
+            return;
         }
+
+        scripts.refreshAndExecute((sw, s) -> list.add(new VariantCustom(sw, s, extension)));
     }
 
     private void addCustomVariants(List<Variant> list) {
@@ -179,7 +186,26 @@ public class VariantFactory {
         }
     }
 
-    private static ExtensionScript getExtension() {
+    private ScriptsCache<VariantScript> getScripts() {
+        if (scripts == null) {
+            scripts =
+                    getExtension() != null
+                            ? extension.createScriptsCache(
+                                    Configuration.<VariantScript>builder()
+                                            .setScriptType(ExtensionActiveScan.SCRIPT_TYPE_VARIANT)
+                                            .setTargetInterface(VariantScript.class)
+                                            .setInterfaceErrorMessageProvider(
+                                                    sw ->
+                                                            Constant.messages.getString(
+                                                                    "variant.scripts.interface.variant.error",
+                                                                    sw.getName()))
+                                            .build())
+                            : null;
+        }
+        return scripts;
+    }
+
+    private ExtensionScript getExtension() {
         if (extension == null) {
             extension =
                     Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);

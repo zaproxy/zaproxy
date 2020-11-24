@@ -40,6 +40,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
@@ -91,7 +92,8 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends TestUtils {
     }
 
     @AfterEach
-    public void shutDownServer() throws Exception {
+    void cleanUp() {
+        Constant.messages = null;
         stopServer();
     }
 
