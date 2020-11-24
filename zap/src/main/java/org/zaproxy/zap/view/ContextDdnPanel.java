@@ -106,6 +106,14 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 				@Override
 				public void valueChanged(TreeSelectionEvent e) {
 					addButton.setEnabled(true);
+					
+					DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)treeModel.getRoot();
+					TreePath selectedPath = ddnTree.getSelectionPath();
+					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
+					boolean notRootSelected = (selectedNode != rootNode);
+					
+					modifyButton.setEnabled(notRootSelected);
+					removeButton.setEnabled(notRootSelected);
 				}
 			});
         	
@@ -128,11 +136,11 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 						parentDdn = (DataDrivenNode)parentNode.getUserObject();
 					}
 					
-					DataDrivenNodeDialog ddnDailog = 
+					DataDrivenNodeDialog ddnDialog = 
 							new DataDrivenNodeDialog(View.getSingleton().getSessionDialog(),
 												     "context.ddn.dialog.add.title",
 					                                 new Dimension(500, 200));
-					DataDrivenNode newDdn = ddnDailog.showDialog(null);
+					DataDrivenNode newDdn = ddnDialog.showDialog();
 					if (newDdn != null) {
 						DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newDdn);
 						newDdn.setParentNode(parentDdn);
@@ -143,6 +151,21 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 				}
 			});
         	modifyButton = new JButton(MODIFY_BUTTON_LABEL);
+        	modifyButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					TreePath selectedPath = ddnTree.getSelectionPath();
+					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
+					DataDrivenNode selectedDdn = (DataDrivenNode)selectedNode.getUserObject();
+					
+					DataDrivenNodeDialog ddnDialog = 
+							new DataDrivenNodeDialog(View.getSingleton().getSessionDialog(),
+												     "context.ddn.dialog.modify.title",
+					                                 new Dimension(500, 200));
+					ddnDialog.showDialog(selectedDdn);
+					treeModel.reload(selectedNode);
+				}
+			});
         	removeButton = new JButton(REMOVE_BUTTON_LABEL);
         	addButton.setEnabled(false);
         	modifyButton.setEnabled(false);
@@ -201,17 +224,9 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 		public DataDrivenNode showDialog(DataDrivenNode data) {
 			this.data = data;
 			
-			String ddnName = "";
-			String pattern = "";
-			
-			if (this.data != null) {
-				ddnName = this.data.getName();
-				Pattern regexPattern = this.data.getPattern();
-				
-				if (regexPattern != null) {
-					pattern = regexPattern.pattern();
-				}
-			}
+			String ddnName = this.data.getName();
+			Pattern regexPattern = this.data.getPattern();
+			String pattern = regexPattern.pattern();
 			
 			this.addTextField(FIELD_DDN_NAME, ddnName);
 			this.addTextField(FIELD_PATTERN, pattern);
@@ -220,15 +235,15 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 			
 			return this.data;
 		}
+		
+		public DataDrivenNode showDialog() {
+			return showDialog(new DataDrivenNode("", "", null));
+		}
 
 		@Override
 		public void save() {
-			DataDrivenNode parent = null;
-			if (this.data != null) {
-				parent = this.data.getParentNode();
-			}
-			
-			this.data = new DataDrivenNode(this.getStringValue(FIELD_DDN_NAME), this.getStringValue(FIELD_PATTERN), parent);
+			this.data.setName(this.getStringValue(FIELD_DDN_NAME));
+			this.data.setPattern(this.getStringValue(FIELD_PATTERN));
 		}
 
 		@Override

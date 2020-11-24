@@ -86,6 +86,10 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     public void setPattern(Pattern pattern) {
         this.pattern = pattern;
     }
+    
+    public void setPattern(String pattern) {
+    	setPattern(Pattern.compile(pattern));
+    }
 
     public DataDrivenNode getParentNode() {
         return parentNode;
