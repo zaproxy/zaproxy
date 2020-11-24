@@ -33,6 +33,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
@@ -42,6 +43,7 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.MutableTreeNode;
+import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
@@ -63,6 +65,12 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     private static final String MODIFY_BUTTON_LABEL = Constant.messages.getString("context.ddn.button.modify");
     private static final String REMOVE_BUTTON_LABEL = Constant.messages.getString("context.ddn.button.remove");
     private static final String REMOVE_CONFIRMATION_LABEL = Constant.messages.getString("context.ddn.checkbox.removeConfirmation");
+    
+    private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("context.ddn.dialog.remove.title");
+    private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("context.ddn.dialog.remove.text");
+    private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("all.button.remove");
+    private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("all.button.cancel");
+    private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("all.prompt.dontshow");
 
     private JPanel mainPanel;
     private JTree ddnTree;
@@ -167,6 +175,40 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 				}
 			});
         	removeButton = new JButton(REMOVE_BUTTON_LABEL);
+        	removeButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					TreePath selectedPath = ddnTree.getSelectionPath();
+					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
+					
+					if (!removePromptCheckbox.isSelected()) {
+						JCheckBox removeWithoutConfirmationCheckBox =
+			                    new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+			            Object[] messages = {REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox};
+			            int option = JOptionPane.showOptionDialog(
+			                            View.getSingleton().getMainFrame(),
+			                            messages,
+			                            REMOVE_DIALOG_TITLE,
+			                            JOptionPane.OK_CANCEL_OPTION,
+			                            JOptionPane.QUESTION_MESSAGE,
+			                            null,
+			                            new String[] {
+			                                REMOVE_DIALOG_CONFIRM_BUTTON_LABEL,
+			                                REMOVE_DIALOG_CANCEL_BUTTON_LABEL
+			                            },
+			                            null);
+			            
+			            if (option == JOptionPane.OK_OPTION) {
+			            	removePromptCheckbox.setSelected(removeWithoutConfirmationCheckBox.isSelected());
+			            }
+			            else {
+			            	return;
+			            }
+					}
+					
+					treeModel.removeNodeFromParent(selectedNode);
+				}
+			});
         	addButton.setEnabled(false);
         	modifyButton.setEnabled(false);
         	removeButton.setEnabled(false);
