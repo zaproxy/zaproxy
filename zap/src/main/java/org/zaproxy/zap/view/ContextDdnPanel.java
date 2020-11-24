@@ -137,11 +137,9 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)treeModel.getRoot();
-					DataDrivenNode parentDdn = (DataDrivenNode)parentNode.getUserObject();
 					TreePath parentNodePath = ddnTree.getSelectionPath();
 					if (parentNodePath != null) {
 						parentNode = (DefaultMutableTreeNode)parentNodePath.getLastPathComponent(); 
-						parentDdn = (DataDrivenNode)parentNode.getUserObject();
 					}
 					
 					DataDrivenNodeDialog ddnDialog = 
@@ -151,8 +149,6 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 					DataDrivenNode newDdn = ddnDialog.showDialog();
 					if (newDdn != null) {
 						DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newDdn);
-						newDdn.setParentNode(parentDdn);
-						parentDdn.addChildNode(newDdn);
 						treeModel.insertNodeInto(newNode, parentNode, parentNode.getChildCount());
 						ddnTree.expandPath(parentNodePath);
 					}
