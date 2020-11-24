@@ -224,26 +224,27 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 
     @Override
     public void initContextData(Session session, Context uiSharedContext) {
-        // TODO Auto-generated method stub
-
+        // TODO (JMG) : Reset DDN Tree Model
+    	// TODO (JMG) : Get DDNs from Context
+    	// TODO (JMG) : Build DDN Tree Model from Context DDNs
     }
 
     @Override
     public void validateContextData(Session session) throws Exception {
-        // TODO Auto-generated method stub
-
+    	// Nothing to validate at this level ; validations occur on each DataDrivenNode
+        return;
     }
 
     @Override
     public void saveTemporaryContextData(Context uiSharedContext) {
-        // TODO Auto-generated method stub
-
+        // TODO (JMG) : Save Tree Model DDNs to Context
     }
 
     @Override
     public void saveContextData(Session session) throws Exception {
-        // TODO Auto-generated method stub
-
+    	Context context = session.getContext(getContextId()); 
+    	saveTemporaryContextData(context);
+    	context.restructureSiteTree();
     }
     
     public static class DataDrivenNodeDialog extends StandardFieldsDialog {
