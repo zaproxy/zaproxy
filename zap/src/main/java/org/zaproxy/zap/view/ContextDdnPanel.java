@@ -231,7 +231,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 
     @Override
     public void validateContextData(Session session) throws Exception {
-    	// Nothing to validate at this level ; validations occur on each DataDrivenNode
+    	// Nothing to validate at this level ; validations occur when adding/modifying each DataDrivenNode
         return;
     }
 
