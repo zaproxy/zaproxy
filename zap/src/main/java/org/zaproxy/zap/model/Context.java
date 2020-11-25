@@ -81,8 +81,8 @@ public class Context {
     private List<String> excludeFromRegexs = new ArrayList<>();
     private List<Pattern> includeInPatterns = new ArrayList<>();
     private List<Pattern> excludeFromPatterns = new ArrayList<>();
-    private List<StructuralNodeModifier> dataDrivenNodes = new ArrayList<>();
     
+    private List<StructuralNodeModifier> dataDrivenNodes = new ArrayList<>();
     private List<DataDrivenNode> ddns = new ArrayList<>();
 
     /** The authentication method. */
@@ -899,8 +899,15 @@ public class Context {
         newContext.urlParamParser = this.urlParamParser.clone();
         newContext.postParamParser = this.postParamParser.clone();
         newContext.authorizationDetectionMethod = this.authorizationDetectionMethod.clone();
-        newContext.dataDrivenNodes = this.getDataDrivenNodes();
         newContext.setCustomPages(getCustomPages());
+        
+        newContext.dataDrivenNodes = this.getDataDrivenNodes();
+        List<DataDrivenNode> newContextDdns = new ArrayList<>();
+        for (DataDrivenNode ddn : this.ddns) {
+        	newContextDdns.add(ddn.clone());
+        }
+        newContext.setDataDrivenNodes_New(newContextDdns);
+        
         return newContext;
     }
 

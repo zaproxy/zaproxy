@@ -240,7 +240,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     	List<DataDrivenNode> contextDdns = uiSharedContext.getDataDrivenNodes_New();
     	
     	for (DataDrivenNode ddn : contextDdns) {
-    		rootNode.add(new DefaultMutableTreeNode(ddn.clone()));
+    		rootNode.add(new DdnTreeNode(ddn.clone()));
     	}
     	treeModel.reload();
     }
@@ -270,6 +270,19 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     	Context context = session.getContext(getContextId()); 
     	saveTemporaryContextData(context);
     	context.restructureSiteTree();
+    }
+    
+    public static class DdnTreeNode extends DefaultMutableTreeNode {
+
+		private static final long serialVersionUID = 1L;
+    	
+		public DdnTreeNode(DataDrivenNode model) {
+			super(model);
+			
+			for (DataDrivenNode childModel : model.getChildNodes()) {
+				this.add(new DdnTreeNode(childModel));
+			}
+		}
     }
     
     public static class DataDrivenNodeDialog extends StandardFieldsDialog {
