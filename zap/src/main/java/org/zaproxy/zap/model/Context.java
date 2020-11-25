@@ -82,6 +82,8 @@ public class Context {
     private List<Pattern> includeInPatterns = new ArrayList<>();
     private List<Pattern> excludeFromPatterns = new ArrayList<>();
     private List<StructuralNodeModifier> dataDrivenNodes = new ArrayList<>();
+    
+    private List<DataDrivenNode> ddns = new ArrayList<>();
 
     /** The authentication method. */
     private AuthenticationMethod authenticationMethod = null;
@@ -702,6 +704,14 @@ public class Context {
         // Remove old one
         sitesTree.removeNodeFromParent(sn);
         sitesTree.removeHistoryReference(sn.getHistoryReference().getHistoryId());
+    }
+    
+    public List<DataDrivenNode> getDataDrivenNodes_New() {
+    	return this.ddns;
+    }
+    
+    public void setDataDrivenNodes_New(List<DataDrivenNode> ddns) {
+    	this.ddns = ddns;
     }
 
     public List<StructuralNodeModifier> getDataDrivenNodes() {

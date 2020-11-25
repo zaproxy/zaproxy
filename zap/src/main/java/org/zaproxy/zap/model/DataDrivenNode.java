@@ -95,12 +95,13 @@ public class DataDrivenNode extends Enableable implements Cloneable {
         return parentNode;
     }
     
-    public void setParentNode(DataDrivenNode parentNode) {
+    protected void setParentNode(DataDrivenNode parentNode) {
     	this.parentNode = parentNode;
     }
     
-    public boolean addChildNode(DataDrivenNode child) {
-    	return this.childNodes.add(child);
+    public void addChildNode(DataDrivenNode child) {
+    	child.setParentNode(this);
+    	this.childNodes.add(child);
     }
 
     public List<DataDrivenNode> getChildNodes() {
@@ -108,17 +109,25 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     }
 
     public void setChildNodes(List<DataDrivenNode> childNodes) {
-        this.childNodes = childNodes;
+        this.childNodes = new ArrayList<>();
+        
+        for (DataDrivenNode child : childNodes) {
+        	child.setParentNode(this);
+        }
     }
     
-    public boolean removeChildNode(DataDrivenNode child) {
-    	return this.childNodes.remove(child);
+    public void removeChildNode(DataDrivenNode child) {
+    	child.setParentNode(null);
+    	this.childNodes.remove(child);
     }
 
     @Override
-    protected DataDrivenNode clone() {
+    public DataDrivenNode clone() {
         DataDrivenNode clone = new DataDrivenNode(this.name, this.pattern.pattern(), this.parentNode);
-        clone.setChildNodes(this.childNodes);
+        for (DataDrivenNode child : this.childNodes) {
+        	clone.addChildNode(child.clone());
+        }
+        
         return clone;
     }
 

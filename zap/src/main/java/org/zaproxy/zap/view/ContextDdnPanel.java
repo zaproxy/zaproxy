@@ -26,6 +26,8 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
@@ -89,7 +91,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     public ContextDdnPanel(Context context) {
         super(context.getId());
         
-        this.treeModel = new DefaultTreeModel(new DefaultMutableTreeNode(DataDrivenNode.ROOT_DDN));
+        this.treeModel = new DefaultTreeModel(new DefaultMutableTreeNode(DataDrivenNode.ROOT_DDN.clone()));
 
         this.setLayout(new CardLayout());
         this.setName(getPanelName(this.getContextId()));
@@ -113,12 +115,13 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
         	ddnTree.addTreeSelectionListener(new TreeSelectionListener() {
 				@Override
 				public void valueChanged(TreeSelectionEvent e) {
-					addButton.setEnabled(true);
-					
-					DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)treeModel.getRoot();
 					TreePath selectedPath = ddnTree.getSelectionPath();
-					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
-					boolean notRootSelected = (selectedNode != rootNode);
+					boolean notRootSelected = false;
+					if (selectedPath != null) {
+						DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)treeModel.getRoot();
+						DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
+						notRootSelected = (selectedNode != rootNode);
+					}
 					
 					modifyButton.setEnabled(notRootSelected);
 					removeButton.setEnabled(notRootSelected);
@@ -137,10 +140,11 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)treeModel.getRoot();
-					TreePath parentNodePath = ddnTree.getSelectionPath();
-					if (parentNodePath != null) {
-						parentNode = (DefaultMutableTreeNode)parentNodePath.getLastPathComponent(); 
+					TreePath selectedNodePath = ddnTree.getSelectionPath();
+					if (selectedNodePath != null) {
+						parentNode = (DefaultMutableTreeNode)selectedNodePath.getLastPathComponent(); 
 					}
+					DataDrivenNode parentDdn = (DataDrivenNode)parentNode.getUserObject();
 					
 					DataDrivenNodeDialog ddnDialog = 
 							new DataDrivenNodeDialog(View.getSingleton().getSessionDialog(),
@@ -148,9 +152,11 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 					                                 new Dimension(500, 200));
 					DataDrivenNode newDdn = ddnDialog.showDialog();
 					if (newDdn != null) {
+						parentDdn.addChildNode(newDdn);
+						
 						DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newDdn);
 						treeModel.insertNodeInto(newNode, parentNode, parentNode.getChildCount());
-						ddnTree.expandPath(parentNodePath);
+						ddnTree.expandPath(selectedNodePath);
 					}
 				}
 			});
@@ -176,6 +182,9 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 				public void actionPerformed(ActionEvent e) {
 					TreePath selectedPath = ddnTree.getSelectionPath();
 					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
+					DataDrivenNode selectedDdn = (DataDrivenNode)selectedNode.getUserObject();
+					DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)selectedNode.getParent();
+					DataDrivenNode parentDdn = (DataDrivenNode)parentNode.getUserObject();
 					
 					if (!removePromptCheckbox.isSelected()) {
 						JCheckBox removeWithoutConfirmationCheckBox =
@@ -202,10 +211,11 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 			            }
 					}
 					
+					parentDdn.removeChildNode(selectedDdn);
 					treeModel.removeNodeFromParent(selectedNode);
 				}
 			});
-        	addButton.setEnabled(false);
+        	addButton.setEnabled(true);
         	modifyButton.setEnabled(false);
         	removeButton.setEnabled(false);
         	buttonsPanel.add(addButton);
@@ -224,20 +234,35 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 
     @Override
     public void initContextData(Session session, Context uiSharedContext) {
-        // TODO (JMG) : Reset DDN Tree Model
-    	// TODO (JMG) : Get DDNs from Context
-    	// TODO (JMG) : Build DDN Tree Model from Context DDNs
+        DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)treeModel.getRoot();
+    	rootNode.removeAllChildren();
+    	
+    	List<DataDrivenNode> contextDdns = uiSharedContext.getDataDrivenNodes_New();
+    	
+    	for (DataDrivenNode ddn : contextDdns) {
+    		rootNode.add(new DefaultMutableTreeNode(ddn.clone()));
+    	}
+    	treeModel.reload();
     }
 
     @Override
     public void validateContextData(Session session) throws Exception {
     	// Nothing to validate at this level ; validations occur when adding/modifying each DataDrivenNode
-        return;
     }
 
     @Override
     public void saveTemporaryContextData(Context uiSharedContext) {
-        // TODO (JMG) : Save Tree Model DDNs to Context
+    	DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)treeModel.getRoot();
+    	
+    	List<DataDrivenNode> savedDdns = new ArrayList<>();
+    	int childCount = rootNode.getChildCount();
+    	for (int nodeCounter = 0; nodeCounter < childCount; nodeCounter++) {
+    		DefaultMutableTreeNode ddnNode = (DefaultMutableTreeNode)rootNode.getChildAt(nodeCounter);
+    		DataDrivenNode ddn = (DataDrivenNode)ddnNode.getUserObject();
+    		savedDdns.add(ddn.clone());
+    	}
+    	
+    	uiSharedContext.setDataDrivenNodes_New(savedDdns);
     }
 
     @Override
