@@ -47,7 +47,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -118,7 +119,8 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
     private static final String AUTH_DESCRIPTION =
             Constant.messages.getString("authentication.method.pb.field.label.description");
 
-    private static final Logger LOGGER = Logger.getLogger(PostBasedAuthenticationMethodType.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(PostBasedAuthenticationMethodType.class);
 
     private static ExtensionAntiCSRF extAntiCsrf;
 

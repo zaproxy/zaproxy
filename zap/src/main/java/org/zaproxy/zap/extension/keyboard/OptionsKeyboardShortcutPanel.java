@@ -28,7 +28,8 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SortOrder;
 import javax.swing.SwingUtilities;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -41,7 +42,7 @@ import org.zaproxy.zap.view.panels.TableFilterPanel;
 public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = Logger.getLogger(OptionsKeyboardShortcutPanel.class);
+    private static final Logger logger = LogManager.getLogger(OptionsKeyboardShortcutPanel.class);
 
     private ExtensionKeyboard extension;
     private KeyboardOptionsPanel tkeyboardOptionsPanel;

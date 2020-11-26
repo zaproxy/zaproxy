@@ -31,7 +31,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
@@ -50,7 +51,7 @@ import org.zaproxy.zap.utils.JsonUtil;
 
 public class ContextAPI extends ApiImplementor {
 
-    private static final Logger log = Logger.getLogger(ContextAPI.class);
+    private static final Logger log = LogManager.getLogger(ContextAPI.class);
 
     private static final String PREFIX = "context";
     private static final String TECH_NAME = "technologyName";

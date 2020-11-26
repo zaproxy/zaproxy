@@ -43,7 +43,8 @@ import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.AbstractPlugin;
@@ -67,7 +68,7 @@ import org.zaproxy.zap.utils.ZapResourceBundleControl;
  */
 public final class AddOnInstaller {
 
-    private static final Logger logger = Logger.getLogger(AddOnInstaller.class);
+    private static final Logger logger = LogManager.getLogger(AddOnInstaller.class);
 
     /** The base directory to where add-on data (e.g. libraries) is copied. */
     private static final String ADD_ON_DATA_DIR = "addOnData";

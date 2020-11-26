@@ -20,7 +20,8 @@
 package org.zaproxy.zap.view.messagecontainer.http;
 
 import java.awt.Component;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -36,7 +37,7 @@ public class DefaultSingleHistoryReferenceContainer extends DefaultSingleHttpMes
         implements SingleHistoryReferenceContainer {
 
     private static final Logger LOGGER =
-            Logger.getLogger(DefaultSingleHistoryReferenceContainer.class);
+            LogManager.getLogger(DefaultSingleHistoryReferenceContainer.class);
 
     private final HistoryReference historyReference;
 

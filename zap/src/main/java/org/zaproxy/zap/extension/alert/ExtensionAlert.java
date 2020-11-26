@@ -36,7 +36,8 @@ import java.util.Vector;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -71,7 +72,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         implements SessionChangedListener, XmlReporterExtension, OptionsChangedListener {
 
     public static final String NAME = "ExtensionAlert";
-    private static final Logger logger = Logger.getLogger(ExtensionAlert.class);
+    private static final Logger logger = LogManager.getLogger(ExtensionAlert.class);
     private Map<Integer, HistoryReference> hrefs = new HashMap<>();
     private AlertTreeModel treeModel = null;
     private AlertTreeModel filteredTreeModel = null;

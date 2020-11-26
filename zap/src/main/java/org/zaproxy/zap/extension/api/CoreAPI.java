@@ -54,7 +54,8 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
@@ -97,7 +98,7 @@ import org.zaproxy.zap.utils.HarUtils;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
-    private static final Logger logger = Logger.getLogger(CoreAPI.class);
+    private static final Logger logger = LogManager.getLogger(CoreAPI.class);
 
     private enum ScanReportType {
         HTML,

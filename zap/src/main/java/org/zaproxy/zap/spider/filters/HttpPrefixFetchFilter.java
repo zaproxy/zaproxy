@@ -23,7 +23,8 @@ import java.util.Arrays;
 import java.util.Locale;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A {@code FetchFilter} that filters based on a HTTP or HTTPS {@code URI}.
@@ -36,7 +37,7 @@ import org.apache.log4j.Logger;
  */
 public class HttpPrefixFetchFilter extends FetchFilter {
 
-    private static final Logger LOGGER = Logger.getLogger(HttpPrefixFetchFilter.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpPrefixFetchFilter.class);
 
     /** The normalised form of HTTP scheme, that is, all letters lowercase. */
     private static final String HTTP_SCHEME = "http";

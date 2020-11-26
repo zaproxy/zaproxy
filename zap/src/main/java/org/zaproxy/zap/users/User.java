@@ -22,7 +22,8 @@ package org.zaproxy.zap.users;
 import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpState;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -39,7 +40,7 @@ import org.zaproxy.zap.utils.Enableable;
 public class User extends Enableable {
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(User.class);
+    private static final Logger log = LogManager.getLogger(User.class);
 
     /** The id source. */
     private static int ID_SOURCE = 0;

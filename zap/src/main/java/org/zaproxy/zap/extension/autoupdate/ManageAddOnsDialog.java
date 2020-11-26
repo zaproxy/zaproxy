@@ -64,7 +64,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.JTextComponent;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.ScrollableSizeHint;
@@ -112,7 +113,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
     private static final String MARKETPLACE_PANEL = "MarketplacePanel";
     private static final double ADD_ON_DETAILS_RESIZE_WEIGHT = 0.7D;
 
-    private static final Logger logger = Logger.getLogger(ManageAddOnsDialog.class);
+    private static final Logger logger = LogManager.getLogger(ManageAddOnsDialog.class);
     private static final long serialVersionUID = 1L;
     private JTabbedPane jTabbed = null;
     private JPanel topPanel = null;

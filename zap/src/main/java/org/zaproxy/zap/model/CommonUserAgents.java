@@ -27,7 +27,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
 public class CommonUserAgents {
@@ -35,7 +36,7 @@ public class CommonUserAgents {
     private static Map<String, String> nameToString = null;
     private static Map<String, String> stringToName = null;
 
-    private static final Logger logger = Logger.getLogger(CommonUserAgents.class);
+    private static final Logger logger = LogManager.getLogger(CommonUserAgents.class);
 
     static {
         nameToString = new HashMap<String, String>();

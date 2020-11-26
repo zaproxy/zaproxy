@@ -46,7 +46,8 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.edit.ExtensionEdit;
@@ -69,7 +70,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
 
     private static final long serialVersionUID = 5221591643257366570L;
 
-    private static final Logger logger = Logger.getLogger(HttpPanel.class);
+    private static final Logger logger = LogManager.getLogger(HttpPanel.class);
 
     private static final String NO_SUITABLE_COMPONENT_FOUND_LABEL =
             Constant.messages.getString("http.panel.noSuitableComponentFound");

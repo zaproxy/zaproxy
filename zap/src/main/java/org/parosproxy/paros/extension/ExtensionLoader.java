@@ -88,6 +88,7 @@
 // ZAP: 2019/09/30 Use instance variable for view checks.
 // ZAP: 2020/05/14 Hook HttpSenderListener when starting single extension.
 // ZAP: 2020/08/27 Added support for plugable variants
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -104,7 +105,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
@@ -151,7 +153,7 @@ public class ExtensionLoader {
     private Model model = null;
 
     private View view = null;
-    private static final Logger logger = Logger.getLogger(ExtensionLoader.class);
+    private static final Logger logger = LogManager.getLogger(ExtensionLoader.class);
 
     private List<ProxyServer> proxyServers;
 

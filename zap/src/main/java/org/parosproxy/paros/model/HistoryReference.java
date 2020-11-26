@@ -61,6 +61,7 @@
 // ZAP: 2019/01/09 Add TYPE_CALLBACK.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
@@ -73,7 +74,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
@@ -307,7 +309,7 @@ public class HistoryReference {
     private List<String> tags = new ArrayList<>();
     private boolean webSocketUpgrade;
 
-    private static Logger log = Logger.getLogger(HistoryReference.class);
+    private static Logger log = LogManager.getLogger(HistoryReference.class);
 
     private HttpMessage httpMessage;
     private HttpMessageCachedData httpMessageCachedData;

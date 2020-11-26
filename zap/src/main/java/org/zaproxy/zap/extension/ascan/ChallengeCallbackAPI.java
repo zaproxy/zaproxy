@@ -24,7 +24,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -51,7 +52,7 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
     private static final long CALLBACK_EXPIRE_TIME = 2 * 60 * 1000;
 
     // Internal logger
-    private static final Logger logger = Logger.getLogger(ChallengeCallbackAPI.class);
+    private static final Logger logger = LogManager.getLogger(ChallengeCallbackAPI.class);
 
     // The registered callbacks for this API
     // Use a synchronized collection

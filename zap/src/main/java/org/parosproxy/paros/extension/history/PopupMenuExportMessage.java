@@ -33,6 +33,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/11/05 Use WritableFileChooser for saves.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.history;
 
 import java.io.BufferedWriter;
@@ -45,7 +46,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
@@ -55,7 +57,7 @@ public class PopupMenuExportMessage extends JMenuItem {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger log = Logger.getLogger(PopupMenuExportMessage.class);
+    private static final Logger log = LogManager.getLogger(PopupMenuExportMessage.class);
 
     private static final String CRLF = "\r\n";
     private ExtensionHistory extension = null;

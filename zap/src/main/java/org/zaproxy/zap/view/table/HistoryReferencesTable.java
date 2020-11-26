@@ -35,7 +35,8 @@ import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -71,7 +72,7 @@ public class HistoryReferencesTable extends ZapTable {
 
     private static final long serialVersionUID = -6988769961088738602L;
 
-    private static final Logger LOGGER = Logger.getLogger(HistoryReferencesTable.class);
+    private static final Logger LOGGER = LogManager.getLogger(HistoryReferencesTable.class);
 
     private static final int MAXIMUM_ROWS_FOR_TABLE_CONFIG = 75;
 

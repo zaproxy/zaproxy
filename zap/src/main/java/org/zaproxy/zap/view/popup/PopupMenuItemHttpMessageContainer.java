@@ -24,7 +24,8 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -51,7 +52,8 @@ public abstract class PopupMenuItemHttpMessageContainer
 
     private static final long serialVersionUID = -4769111731197641466L;
 
-    private static final Logger logger = Logger.getLogger(PopupMenuItemHttpMessageContainer.class);
+    private static final Logger logger =
+            LogManager.getLogger(PopupMenuItemHttpMessageContainer.class);
 
     /** The invokers of the the pop up menu. */
     protected static enum Invoker {

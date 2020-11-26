@@ -24,14 +24,15 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 public class GlobalExcludeURLParam extends AbstractParam {
 
-    private static final Logger logger = Logger.getLogger(GlobalExcludeURLParam.class);
+    private static final Logger logger = LogManager.getLogger(GlobalExcludeURLParam.class);
 
     private static final String GLOBAL_EXCLUDE_URL_BASE_KEY = "globalexcludeurl";
 

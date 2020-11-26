@@ -31,7 +31,8 @@ import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -65,7 +66,7 @@ public class ExtensionSpider extends ExtensionAdaptor
     public static final int EXTENSION_ORDER = 30;
 
     /** The Constant logger. */
-    private static final Logger log = Logger.getLogger(ExtensionSpider.class);
+    private static final Logger log = LogManager.getLogger(ExtensionSpider.class);
 
     /** The Constant defining the NAME of the extension. */
     public static final String NAME = "ExtensionSpider";

@@ -51,7 +51,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.TreeNode;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
@@ -130,7 +131,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     private CommandLineArgument[] arguments = new CommandLineArgument[1];
     private static final int ARG_SCRIPT_IDX = 0;
 
-    private static final Logger logger = Logger.getLogger(ExtensionScript.class);
+    private static final Logger logger = LogManager.getLogger(ExtensionScript.class);
 
     /**
      * Flag that indicates if the scripts/templates should be loaded when a new script type is

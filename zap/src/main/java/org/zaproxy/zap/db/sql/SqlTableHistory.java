@@ -29,7 +29,8 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
@@ -65,7 +66,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     private static boolean isExistStatusCode = false;
 
     // ZAP: Added logger
-    private static final Logger log = Logger.getLogger(SqlTableHistory.class);
+    private static final Logger log = LogManager.getLogger(SqlTableHistory.class);
 
     private boolean bodiesAsBytes;
 

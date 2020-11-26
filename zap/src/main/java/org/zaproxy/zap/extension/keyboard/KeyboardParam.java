@@ -26,12 +26,13 @@ import java.util.Map.Entry;
 import javax.swing.KeyStroke;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 public class KeyboardParam extends AbstractParam {
 
-    private static final Logger logger = Logger.getLogger(KeyboardParam.class);
+    private static final Logger logger = LogManager.getLogger(KeyboardParam.class);
 
     private static final String KEYBOARD_BASE_KEY = "keyboard";
 

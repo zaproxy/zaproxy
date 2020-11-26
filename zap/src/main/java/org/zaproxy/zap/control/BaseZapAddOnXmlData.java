@@ -29,8 +29,9 @@ import java.util.Objects;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.Version;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -92,7 +93,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  */
 public abstract class BaseZapAddOnXmlData {
 
-    private static final Logger LOGGER = Logger.getLogger(BaseZapAddOnXmlData.class);
+    private static final Logger LOGGER = LogManager.getLogger(BaseZapAddOnXmlData.class);
 
     private static final List<String> ADDON_STATUSES = Arrays.asList("alpha", "beta", "release");
 

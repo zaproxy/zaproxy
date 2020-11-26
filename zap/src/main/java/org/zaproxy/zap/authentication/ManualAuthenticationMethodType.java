@@ -35,7 +35,8 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.Cookie;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -107,7 +108,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
                 User user) {
             // Check proper type
             if (!(credentials instanceof ManualAuthenticationCredentials)) {
-                Logger.getLogger(ManualAuthenticationMethod.class)
+                LogManager.getLogger(ManualAuthenticationMethod.class)
                         .error(
                                 "Manual authentication credentials should be used for Manual authentication.");
                 throw new UnsupportedAuthenticationCredentialsException(
@@ -236,7 +237,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
         private static final long serialVersionUID = -8081914793980311435L;
 
         private static final Logger log =
-                Logger.getLogger(ManualAuthenticationCredentialsOptionsPanel.class);
+                LogManager.getLogger(ManualAuthenticationCredentialsOptionsPanel.class);
         private JComboBox<HttpSession> sessionsComboBox;
         private Context uiSharedContext;
 

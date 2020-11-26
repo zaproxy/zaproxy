@@ -42,6 +42,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/26 Remove null check in sendAndReceive(HttpMessage). (LGTM Issue)
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -54,7 +55,8 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.time.StopWatch;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -65,7 +67,7 @@ import org.zaproxy.zap.model.StructuralNode;
 
 public class Analyser {
 
-    private static final Logger logger = Logger.getLogger(Analyser.class);
+    private static final Logger logger = LogManager.getLogger(Analyser.class);
 
     /** remove HTML HEAD as this may contain expiry time which dynamic changes */
     private static final String p_REMOVE_HEADER = "(?m)(?i)(?s)<HEAD>.*?</HEAD>";

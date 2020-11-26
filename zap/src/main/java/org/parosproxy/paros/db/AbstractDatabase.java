@@ -22,7 +22,8 @@ package org.parosproxy.paros.db;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * An abstract implementation of {@link Database}, it allows to manage {@link DatabaseListener
@@ -32,12 +33,26 @@ import org.apache.log4j.Logger;
  */
 public abstract class AbstractDatabase implements Database {
 
-    protected final Logger logger = Logger.getLogger(getClass());
+    /** @deprecated (TODO add version) Use {@link #getLogger()} instead. */
+    @Deprecated
+    protected final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(getClass());
+
+    private final Logger logger2 = LogManager.getLogger(getClass());
 
     private final List<DatabaseListener> databaseListeners;
 
     public AbstractDatabase() {
         databaseListeners = new ArrayList<>();
+    }
+
+    /**
+     * Gets the logger.
+     *
+     * @return the logger, never {@code null}.
+     * @since TODO add version
+     */
+    protected Logger getLogger() {
+        return logger2;
     }
 
     /**
@@ -98,7 +113,7 @@ public abstract class AbstractDatabase implements Database {
             try {
                 databaseListener.databaseOpen(databaseServer);
             } catch (DatabaseUnsupportedException e) {
-                logger.error(e.getMessage(), e);
+                getLogger().error(e.getMessage(), e);
             }
         }
     }

@@ -42,7 +42,8 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.ScrollableSizeHint;
 import org.parosproxy.paros.Constant;
@@ -67,7 +68,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class AlertViewPanel extends AbstractPanel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = Logger.getLogger(AlertViewPanel.class);
+    private static final Logger logger = LogManager.getLogger(AlertViewPanel.class);
 
     private static final int UNDEFINED_ID = -1;
 

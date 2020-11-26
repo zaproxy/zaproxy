@@ -32,7 +32,8 @@ import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.Vector;
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
@@ -43,7 +44,7 @@ import org.zaproxy.zap.utils.ZapResourceBundleControl;
 
 public class ExtensionFactory {
 
-    private static Logger log = Logger.getLogger(ExtensionFactory.class);
+    private static Logger log = LogManager.getLogger(ExtensionFactory.class);
 
     private static Vector<Extension> listAllExtension = new Vector<>();
     private static TreeMap<String, Extension> mapAllExtension = new TreeMap<>();

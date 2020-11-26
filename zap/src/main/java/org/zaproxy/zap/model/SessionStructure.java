@@ -22,7 +22,8 @@ package org.zaproxy.zap.model;
 import java.util.List;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordStructure;
@@ -42,7 +43,7 @@ public class SessionStructure {
     public static final String DATA_DRIVEN_NODE_POSTFIX = "\u00BB";
     public static final String DATA_DRIVEN_NODE_REGEX = "(.+?)";
 
-    private static final Logger log = Logger.getLogger(SessionStructure.class);
+    private static final Logger log = LogManager.getLogger(SessionStructure.class);
 
     public static StructuralNode addPath(Session session, HistoryReference ref, HttpMessage msg) {
         return addPath(session, ref, msg, false);

@@ -29,7 +29,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JToolBar;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -51,7 +52,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 
     private static final long serialVersionUID = 7164298579345445108L;
     private static final Logger log =
-            Logger.getLogger(AbstractContextSelectToolbarStatusPanel.class);
+            LogManager.getLogger(AbstractContextSelectToolbarStatusPanel.class);
 
     /**
      * Location provided to {@link #addToolBarElements(JToolBar, short, int)} to add items at the

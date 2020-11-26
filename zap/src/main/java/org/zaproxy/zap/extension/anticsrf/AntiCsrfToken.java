@@ -20,7 +20,8 @@
 package org.zaproxy.zap.extension.anticsrf;
 
 import java.lang.ref.SoftReference;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -28,7 +29,7 @@ import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF.HistoryReferenceFact
 
 public class AntiCsrfToken implements Cloneable {
 
-    private static final Logger LOGGER = Logger.getLogger(AntiCsrfToken.class);
+    private static final Logger LOGGER = LogManager.getLogger(AntiCsrfToken.class);
 
     private HttpMessage msg;
     private SoftReference<HttpMessage> msgReference;

@@ -25,7 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 public class ScriptParam extends AbstractParam {
@@ -46,7 +47,7 @@ public class ScriptParam extends AbstractParam {
     private static final String SCRIPT_DIRS = "dirs";
     private static final String SCRIPT_CONFIRM_REMOVE_DIR = "confRemdir";
 
-    private static final Logger logger = Logger.getLogger(ScriptParam.class);
+    private static final Logger logger = LogManager.getLogger(ScriptParam.class);
 
     private String defaultScript = null;
     private String defaultDir = null;

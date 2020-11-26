@@ -69,6 +69,7 @@
 // ZAP: 2020/07/31 Tidy up parameter methods
 // ZAP: 2020/08/17 Changed to use getTreePath(msg) method
 // ZAP: 2020/11/02 Do not get leaf name if finding branch nodes.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -82,7 +83,8 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.network.HttpHeader;
@@ -112,7 +114,7 @@ public class SiteMap extends SortedTreeModel {
     private SiteTreeFilter filter = null;
 
     // ZAP: Added log
-    private static Logger log = Logger.getLogger(SiteMap.class);
+    private static Logger log = LogManager.getLogger(SiteMap.class);
 
     public static SiteMap createTree(Model model) {
         SiteMap siteMap = new SiteMap(null, model);

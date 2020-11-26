@@ -30,7 +30,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.ImageIcon;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -75,7 +76,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
     // Still being developed
     // private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
-    private static Logger log = Logger.getLogger(ExtensionStdMenus.class);
+    private static Logger log = LogManager.getLogger(ExtensionStdMenus.class);
 
     public ExtensionStdMenus() {
         super();

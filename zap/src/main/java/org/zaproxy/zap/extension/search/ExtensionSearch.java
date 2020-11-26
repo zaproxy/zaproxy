@@ -24,7 +24,8 @@ import java.awt.event.KeyEvent;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JMenu;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -36,7 +37,7 @@ import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionSearch extends ExtensionAdaptor {
 
-    private static final Logger LOGGER = Logger.getLogger(ExtensionSearch.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionSearch.class);
 
     public static final String NAME = "ExtensionSearch2";
 

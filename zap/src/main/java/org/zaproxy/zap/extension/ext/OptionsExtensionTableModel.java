@@ -23,7 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.zaproxy.zap.control.ExtensionFactory;
@@ -41,7 +42,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
 
     private List<Extension> extensions = ExtensionFactory.getAllExtensions();
 
-    private static Logger log = Logger.getLogger(OptionsExtensionTableModel.class);
+    private static Logger log = LogManager.getLogger(OptionsExtensionTableModel.class);
 
     private Map<String, Boolean> extensionsState = new HashMap<>();
 

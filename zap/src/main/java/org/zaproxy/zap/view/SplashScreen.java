@@ -45,8 +45,9 @@ import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicProgressBarUI;
-import org.apache.log4j.Logger;
 import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.Filter;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -65,7 +66,7 @@ public class SplashScreen extends JFrame {
     private static final String TIPS_PREFIX = "tips";
     private static final String TIPS_TIP_PREFIX = TIPS_PREFIX + ".tip.";
 
-    private static final Logger LOGGER = Logger.getLogger(SplashScreen.class);
+    private static final Logger LOGGER = LogManager.getLogger(SplashScreen.class);
 
     private static final long serialVersionUID = 1L;
 

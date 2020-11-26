@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
@@ -31,7 +32,7 @@ import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 public class PassiveScanParam extends AbstractParam {
 
-    private static final Logger logger = Logger.getLogger(PassiveScanParam.class);
+    private static final Logger logger = LogManager.getLogger(PassiveScanParam.class);
 
     static final String PASSIVE_SCANS_BASE_KEY = "pscans";
     private static final String ALL_AUTO_TAG_SCANNERS_KEY =

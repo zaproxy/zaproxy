@@ -38,7 +38,7 @@ public class SpiderTextParser extends SpiderParser {
 
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
-        log.debug("Parsing a non-HTML text resource.");
+        getLogger().debug("Parsing a non-HTML text resource.");
 
         String baseURL = message.getRequestHeader().getURI().toString();
 

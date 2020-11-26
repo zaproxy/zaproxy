@@ -29,11 +29,13 @@
 // implementations
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
 import javax.swing.JList;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -48,7 +50,7 @@ public class PopupMenuResend extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 2598282233227430069L;
 
-    private static final Logger logger = Logger.getLogger(PopupMenuResend.class);
+    private static final Logger logger = LogManager.getLogger(PopupMenuResend.class);
 
     private ExtensionHistory extension = null;
 

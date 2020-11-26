@@ -34,7 +34,8 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
@@ -50,7 +51,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
     public static final String ENCODE_DECODE_FIELD = "EncodeDecodeInputField";
     public static final String ENCODE_DECODE_RESULTFIELD = "EncodeDecodeResultField";
 
-    private static final Logger log = Logger.getLogger(EncodeDecodeDialog.class);
+    private static final Logger log = LogManager.getLogger(EncodeDecodeDialog.class);
 
     private JTabbedPane jTabbed = null;
     private JPanel jPanel = null;

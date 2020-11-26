@@ -30,7 +30,8 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import javax.swing.DefaultListModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
@@ -79,7 +80,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     private ScheduledExecutorService scheduler;
     private ScheduledFuture<?> schedHandle;
 
-    private static final Logger log = Logger.getLogger(ActiveScan.class);
+    private static final Logger log = LogManager.getLogger(ActiveScan.class);
 
     @Deprecated
     public ActiveScan(

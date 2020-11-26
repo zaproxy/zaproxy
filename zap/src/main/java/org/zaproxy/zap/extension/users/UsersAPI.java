@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
@@ -48,7 +49,7 @@ import org.zaproxy.zap.utils.ApiUtils;
 /** The API for manipulating {@link User Users}. */
 public class UsersAPI extends ApiImplementor {
 
-    private static final Logger log = Logger.getLogger(UsersAPI.class);
+    private static final Logger log = LogManager.getLogger(UsersAPI.class);
 
     private static final String PREFIX = "users";
 

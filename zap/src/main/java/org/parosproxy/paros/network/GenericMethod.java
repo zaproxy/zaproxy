@@ -37,7 +37,8 @@ import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.util.EncodingUtil;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.zaproxy.zap.network.ZapHttpParser;
 
 /**
@@ -46,7 +47,7 @@ import org.zaproxy.zap.network.ZapHttpParser;
 public class GenericMethod extends EntityEnclosingMethod {
     
     /** Log object for this class. */
-    private static final Logger log = Logger.getLogger(GenericMethod.class);
+    private static final Logger log = LogManager.getLogger(GenericMethod.class);
 
     /** The Content-Type for www-form-urlencoded. */
     public static final String FORM_URL_ENCODED_CONTENT_TYPE = 

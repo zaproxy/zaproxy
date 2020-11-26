@@ -112,7 +112,7 @@ public class SqlDatabase extends AbstractDatabase {
     @Override
     public final void open(String path) throws Exception {
         // ZAP: Added log statement.
-        logger.debug("open " + path);
+        getLogger().debug("open " + path);
         setDatabaseServer(createDatabaseServer(path));
         notifyListenersDatabaseOpen(internalDatabaseListeners, getDatabaseServer());
         notifyListenersDatabaseOpen(getDatabaseServer());
@@ -139,7 +139,7 @@ public class SqlDatabase extends AbstractDatabase {
      */
     @Override
     public void deleteSession(String sessionName) {
-        logger.debug("deleteSession " + sessionName);
+        getLogger().debug("deleteSession " + sessionName);
         if (databaseServer == null) {
             return;
         }
@@ -152,7 +152,7 @@ public class SqlDatabase extends AbstractDatabase {
     @Override
     public void close(boolean compact, boolean cleanup) {
         // ZAP: Added statement.
-        logger.debug("close");
+        getLogger().debug("close");
         if (databaseServer == null) {
             return;
         }
@@ -167,7 +167,7 @@ public class SqlDatabase extends AbstractDatabase {
             }
         } catch (Exception e) {
             // ZAP: Changed to log the exception.
-            logger.error(e.getMessage(), e);
+            getLogger().error(e.getMessage(), e);
         }
     }
 

@@ -47,7 +47,8 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -78,7 +79,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class ScanProgressDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;
-    private static Logger log = Logger.getLogger(ScanProgressDialog.class);
+    private static Logger log = LogManager.getLogger(ScanProgressDialog.class);
 
     private ExtensionActiveScan extension;
     private JScrollPane jScrollPane;

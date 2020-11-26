@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 /**
@@ -37,7 +38,7 @@ import org.parosproxy.paros.common.AbstractParam;
  */
 public class ExtensionParam extends AbstractParam {
 
-    private static final Logger LOGGER = Logger.getLogger(ExtensionParam.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionParam.class);
 
     /** The base configuration key for all extensions configurations. */
     private static final String EXTENSION_BASE_KEY = "extensions";

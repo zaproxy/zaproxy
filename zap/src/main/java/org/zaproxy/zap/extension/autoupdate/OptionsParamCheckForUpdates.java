@@ -27,7 +27,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
@@ -66,7 +67,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
     private String dayLastChecked = null;
     private String dayLastInstallWarned = null;
     private String dayLastUpdateWarned = null;
-    private static Logger log = Logger.getLogger(OptionsParamCheckForUpdates.class);
+    private static Logger log = LogManager.getLogger(OptionsParamCheckForUpdates.class);
 
     public OptionsParamCheckForUpdates() {}
 

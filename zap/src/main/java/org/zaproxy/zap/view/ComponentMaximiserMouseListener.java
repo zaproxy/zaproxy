@@ -24,7 +24,8 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.view.View;
@@ -38,7 +39,8 @@ import org.parosproxy.paros.view.View;
  */
 public class ComponentMaximiserMouseListener extends MouseAdapter {
 
-    private static final Logger LOGGER = Logger.getLogger(ComponentMaximiserMouseListener.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(ComponentMaximiserMouseListener.class);
 
     private static final String DOUBLE_CLICK_WARN_MESSAGE =
             Constant.messages.getString("tab.doubleClick.warning");

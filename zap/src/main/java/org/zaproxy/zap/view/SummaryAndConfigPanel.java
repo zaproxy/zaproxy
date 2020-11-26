@@ -26,7 +26,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /** A panel that can be used to show a summary of an entity and a button to configure the entity. */
 public class SummaryAndConfigPanel extends JPanel {
@@ -78,7 +78,7 @@ public class SummaryAndConfigPanel extends JPanel {
      * @param content the new summary content
      */
     public void setSummaryContent(String content) {
-        Logger.getRootLogger().info("New summary: " + content);
+        LogManager.getRootLogger().info("New summary: " + content);
         summaryArea.setText(
                 "<html><b>" + summaryTitleText + "</b><br/><br/>" + content + "</html>");
     }

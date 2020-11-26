@@ -33,7 +33,7 @@ public class HsqldbDatabase extends SqlDatabase {
     @Override
     public void deleteSession(String sessionName) {
         super.deleteSession(sessionName);
-        logger.debug("deleteSession " + sessionName);
+        getLogger().debug("deleteSession " + sessionName);
 
         deleteDbFile(new File(sessionName));
         deleteDbFile(new File(sessionName + ".data"));
@@ -44,10 +44,10 @@ public class HsqldbDatabase extends SqlDatabase {
     }
 
     private void deleteDbFile(File file) {
-        logger.debug("Deleting " + file.getAbsolutePath());
+        getLogger().debug("Deleting " + file.getAbsolutePath());
         if (file.exists()) {
             if (!file.delete()) {
-                logger.error("Failed to delete " + file.getAbsolutePath());
+                getLogger().error("Failed to delete " + file.getAbsolutePath());
             }
         }
     }
@@ -62,7 +62,7 @@ public class HsqldbDatabase extends SqlDatabase {
      */
     @Override
     public void close(boolean compact, boolean cleanup) {
-        logger.debug("close");
+        getLogger().debug("close");
         super.close(compact, cleanup);
         if (this.getDatabaseServer() == null) {
             return;
@@ -72,7 +72,7 @@ public class HsqldbDatabase extends SqlDatabase {
             // shutdown
             ((HsqldbDatabaseServer) this.getDatabaseServer()).shutdown(compact);
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            getLogger().error(e.getMessage(), e);
         }
     }
 

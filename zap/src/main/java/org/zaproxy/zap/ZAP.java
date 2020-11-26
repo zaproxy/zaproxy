@@ -36,8 +36,8 @@ import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.io.output.NullOutputStream;
-import org.apache.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.parosproxy.paros.CommandLine;
@@ -66,7 +66,7 @@ public class ZAP {
     private static ProcessType processType;
 
     private static final EventBus eventBus = new SimpleEventBus();
-    private static final Logger logger = Logger.getLogger(ZAP.class);
+    private static final Logger logger = LogManager.getLogger(ZAP.class);
 
     static {
         ProxySelector.setDefault(ZapProxySelector.getSingleton());
@@ -181,8 +181,7 @@ public class ZAP {
 
     static final class UncaughtExceptionLogger implements Thread.UncaughtExceptionHandler {
 
-        private static final org.apache.logging.log4j.Logger logger =
-                LogManager.getLogger(UncaughtExceptionLogger.class);
+        private static final Logger logger = LogManager.getLogger(UncaughtExceptionLogger.class);
 
         private boolean loggerConfigured = false;
 

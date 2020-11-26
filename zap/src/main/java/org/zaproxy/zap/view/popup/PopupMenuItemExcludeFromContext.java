@@ -20,7 +20,8 @@
 package org.zaproxy.zap.view.popup;
 
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -35,7 +36,8 @@ public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContai
 
     private static final long serialVersionUID = 2766535157899537709L;
 
-    private static final Logger LOGGER = Logger.getLogger(PopupMenuItemExcludeFromContext.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(PopupMenuItemExcludeFromContext.class);
 
     protected Context context;
 

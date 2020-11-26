@@ -27,11 +27,12 @@ import javax.help.JHelpContentViewer;
 import javax.help.plaf.basic.BasicContentViewerUI;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class BasicOnlineContentViewerUI extends BasicContentViewerUI {
 
-    private static final Logger logger = Logger.getLogger(BasicOnlineContentViewerUI.class);
+    private static final Logger logger = LogManager.getLogger(BasicOnlineContentViewerUI.class);
 
     private static final long serialVersionUID = -1640590425627589113L;
 

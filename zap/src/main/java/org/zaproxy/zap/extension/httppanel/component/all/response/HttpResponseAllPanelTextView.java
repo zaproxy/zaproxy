@@ -22,7 +22,8 @@ package org.zaproxy.zap.extension.httppanel.component.all.response;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
@@ -32,7 +33,7 @@ import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpResponseAllPanelTextView extends HttpPanelTextView {
 
-    private static final Logger log = Logger.getLogger(HttpResponseAllPanelTextView.class);
+    private static final Logger log = LogManager.getLogger(HttpResponseAllPanelTextView.class);
 
     public HttpResponseAllPanelTextView(ResponseStringHttpPanelViewModel model) {
         super(model);

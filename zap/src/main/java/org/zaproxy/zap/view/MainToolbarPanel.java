@@ -33,7 +33,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -46,7 +47,7 @@ public class MainToolbarPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = Logger.getLogger(MainToolbarPanel.class);
+    private static final Logger logger = LogManager.getLogger(MainToolbarPanel.class);
 
     private JToolBar toolbar = null;
     private JComboBox<String> modeSelect = null;

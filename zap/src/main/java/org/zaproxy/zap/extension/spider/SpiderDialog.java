@@ -28,7 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
@@ -67,7 +68,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_PARSE_GIT = "spider.custom.label.parseGit";
     private static final String FIELD_HANDLE_ODATA = "spider.custom.label.handleOdata";
 
-    private static Logger logger = Logger.getLogger(SpiderDialog.class);
+    private static Logger logger = LogManager.getLogger(SpiderDialog.class);
 
     private static final long serialVersionUID = 1L;
 

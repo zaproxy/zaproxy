@@ -28,7 +28,8 @@ import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import org.apache.commons.lang.SystemUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXTree;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
@@ -41,7 +42,7 @@ import org.parosproxy.paros.view.View;
  */
 public final class AddOnRunIssuesUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(AddOnRunIssuesUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(AddOnRunIssuesUtils.class);
 
     private AddOnRunIssuesUtils() {}
 

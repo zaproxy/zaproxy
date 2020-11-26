@@ -55,7 +55,8 @@ import org.apache.commons.configuration.XMLPropertiesConfiguration;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -120,7 +121,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     private ZapMenuItem menuItemCheckUpdate = null;
     private ZapMenuItem menuItemLoadAddOn = null;
 
-    private static final Logger logger = Logger.getLogger(ExtensionAutoUpdate.class);
+    private static final Logger logger = LogManager.getLogger(ExtensionAutoUpdate.class);
 
     private HttpSender httpSender = null;
 

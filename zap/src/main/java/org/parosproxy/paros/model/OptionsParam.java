@@ -41,6 +41,7 @@
 // ZAP: 2018/08/15 Move AntiCsrfParam to ExtensionAntiCSRF
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.model;
 
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
@@ -49,7 +50,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.extension.option.DatabaseParam;
@@ -64,7 +66,7 @@ import org.zaproxy.zap.extension.globalexcludeurl.GlobalExcludeURLParam;
 
 public class OptionsParam extends AbstractParam {
 
-    private static final Logger logger = Logger.getLogger(OptionsParam.class);
+    private static final Logger logger = LogManager.getLogger(OptionsParam.class);
 
     //	private static final String ROOT = "Options";
     // ZAP: User directory now stored in the config file

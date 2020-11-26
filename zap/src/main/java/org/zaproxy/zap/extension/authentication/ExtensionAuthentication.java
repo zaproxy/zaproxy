@@ -28,7 +28,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
@@ -65,7 +66,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     private static final int NO_AUTH_METHOD = -1;
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(ExtensionAuthentication.class);
+    private static final Logger log = LogManager.getLogger(ExtensionAuthentication.class);
 
     /** The automatically loaded authentication method types. */
     List<AuthenticationMethodType> authenticationMethodTypes = new ArrayList<>();

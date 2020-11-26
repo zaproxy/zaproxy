@@ -9,7 +9,8 @@
  */
 package org.parosproxy.paros.extension.encoder;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * <p>Encodes and decodes to and from Base64 notation.</p>
@@ -208,7 +209,7 @@ public class Base64
     
 /* ********  P R I V A T E   F I E L D S  ******** */  
     
-    private static final Logger logger = Logger.getLogger(Base64.class);
+    private static final Logger logger = LogManager.getLogger(Base64.class);
     
     /** Maximum line length (76) of Base64 output. */
     private static final int MAX_LINE_LENGTH = 76;

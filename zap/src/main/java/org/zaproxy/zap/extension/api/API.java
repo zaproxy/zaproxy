@@ -42,7 +42,8 @@ import javax.xml.transform.stream.StreamResult;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
@@ -128,7 +129,7 @@ public class API {
     private ProxyParam proxyParam;
 
     private Random random = new SecureRandom();
-    private static final Logger logger = Logger.getLogger(API.class);
+    private static final Logger logger = LogManager.getLogger(API.class);
 
     private static synchronized API newInstance() {
         if (api == null) {

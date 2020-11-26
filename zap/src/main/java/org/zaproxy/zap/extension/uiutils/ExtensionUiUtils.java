@@ -23,7 +23,8 @@ import java.awt.EventQueue;
 import java.util.Arrays;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -44,7 +45,7 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 
     public static final String NAME = "ExtensionUiUtils";
 
-    private static final Logger LOGGER = Logger.getLogger(ExtensionUiUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionUiUtils.class);
 
     public ExtensionUiUtils() {
         super(NAME);
