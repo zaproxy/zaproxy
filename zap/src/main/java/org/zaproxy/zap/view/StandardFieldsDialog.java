@@ -56,6 +56,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
 import org.apache.commons.lang3.StringUtils;
@@ -2054,6 +2055,17 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                     c.addMouseListener(listener);
                     return c;
                 });
+    }
+    
+    public void addFieldListener(String fieldLabel, DocumentListener listener) {
+    	Component c = this.fieldMap.get(fieldLabel);
+        if (c != null) {
+            if (c instanceof JTextField) {
+            	((JTextField) c).getDocument().addDocumentListener(listener);
+            } else {
+                handleUnexpectedFieldClass(fieldLabel, c);
+            }
+        }
     }
 
     /**

@@ -40,6 +40,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.border.EtchedBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -272,6 +274,8 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     	context.restructureSiteTree();
     }
     
+    // Note : This type is only used when re-creating the Data Driven Node Tree from a Context in order to
+    //        easily support adding all Child DDNs to the Tree as well.
     public static class DdnTreeNode extends DefaultMutableTreeNode {
 
 		private static final long serialVersionUID = 1L;
@@ -290,37 +294,77 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 		private static final long serialVersionUID = 1L;
 		
 		private static final String FIELD_DDN_NAME = "context.ddn.dialog.ddnName";
-		private static final String FIELD_PATTERN = "context.ddn.dialog.pattern";
+		private static final String FIELD_HOST = "context.ddn.dialog.host";
+		private static final String FIELD_PREFIX_PATTERN = "context.ddn.dialog.prefixPattern";
+		private static final String FIELD_DATA_NODE_PATTERN = "context.ddn.dialog.dataNodePattern";
+		private static final String FIELD_SUFFIX_PATTERN = "context.ddn.dialog.suffixPattern";
+		private static final String LABEL_PATTERN = "context.ddn.dialog.pattern";
 		
-		private DataDrivenNode data;
+		private DataDrivenNode model;
 
 		public DataDrivenNodeDialog(JDialog owner, String titleLabel, Dimension dim) {
 			super(owner, titleLabel, dim, true);
 		}
 		
-		public DataDrivenNode showDialog(DataDrivenNode data) {
-			this.data = data;
+		public DataDrivenNode showDialog(DataDrivenNode model) {
+			this.model = model;
 			
-			String ddnName = this.data.getName();
-			Pattern regexPattern = this.data.getPattern();
-			String pattern = regexPattern.pattern();
+			String ddnName = this.model.getName();
+			String host = this.model.getHost();
+			String prefixPattern = this.model.getPrefixPattern();
+			String dataNodePattern = this.model.getDataNodePattern();
+			String suffixPattern = this.model.getSuffixPattern();
+			String pattern = this.model.getPattern();
 			
 			this.addTextField(FIELD_DDN_NAME, ddnName);
-			this.addTextField(FIELD_PATTERN, pattern);
+			this.addPadding();
+			
+			DocumentListener updatePatternListener = new DocumentListener() {
+				@Override
+				public void removeUpdate(DocumentEvent e) {
+					updatePatternLabel();
+				}
+				
+				@Override
+				public void insertUpdate(DocumentEvent e) {
+					updatePatternLabel();
+					
+				}
+				
+				@Override
+				public void changedUpdate(DocumentEvent e) {
+					// Unused for Plaintext Controls such as TextField (see https://docs.oracle.com/javase/tutorial/uiswing/events/documentlistener.html)
+				}
+			};
+			
+			this.addTextField(FIELD_HOST, host);
+			this.addFieldListener(FIELD_HOST, updatePatternListener);
+			this.addTextField(FIELD_PREFIX_PATTERN, prefixPattern);
+			this.addFieldListener(FIELD_PREFIX_PATTERN, updatePatternListener);
+			this.addTextField(FIELD_DATA_NODE_PATTERN, dataNodePattern);
+			this.addFieldListener(FIELD_DATA_NODE_PATTERN, updatePatternListener);
+			this.addTextField(FIELD_SUFFIX_PATTERN, suffixPattern);
+			this.addFieldListener(FIELD_SUFFIX_PATTERN, updatePatternListener);
+			
+			this.addPadding();
+			this.addReadOnlyField(LABEL_PATTERN, pattern, false);
 			
 			this.setVisible(true);
 			
-			return this.data;
+			return this.model;
 		}
 		
 		public DataDrivenNode showDialog() {
-			return showDialog(new DataDrivenNode("", "", null));
+			return showDialog(new DataDrivenNode("", null));
 		}
 
 		@Override
 		public void save() {
-			this.data.setName(this.getStringValue(FIELD_DDN_NAME));
-			this.data.setPattern(this.getStringValue(FIELD_PATTERN));
+			this.model.setName(this.getStringValue(FIELD_DDN_NAME));
+			this.model.setHost(this.getStringValue(FIELD_HOST));
+			this.model.setPrefixPattern(this.getStringValue(FIELD_PREFIX_PATTERN));
+			this.model.setDataNodePattern(this.getStringValue(FIELD_DATA_NODE_PATTERN));
+			this.model.setSuffixPattern(this.getStringValue(FIELD_SUFFIX_PATTERN));
 		}
 
 		@Override
@@ -329,20 +373,13 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
                 return Constant.messages.getString("context.ddn.dialog.error.ddnName");
             }
 			
-			String pattern = this.getStringValue(FIELD_PATTERN);
-			if (this.isEmptyField(FIELD_PATTERN)) {
-				// TODO (JMG) : Add Check to ensure the appropriate Pattern Format (ie. 2 matching groups, one nested inside the other?)
-				return Constant.messages.getString("context.ddn.dialog.error.pattern");
-			}
-			
-			try {
-				Pattern.compile(pattern);
-			}
-			catch (Exception exception) {
-				return Constant.messages.getString("context.ddn.dialog.error.pattern");
-			}
+			// TODO (JMG) : Add Logic to validate Host, Prefix, DataNode & Suffix Values
 			
 			return null;
+		}
+		
+		private void updatePatternLabel() {
+			
 		}
     }
 }
