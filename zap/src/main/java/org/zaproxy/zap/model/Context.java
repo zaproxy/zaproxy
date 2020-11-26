@@ -901,7 +901,7 @@ public class Context {
         newContext.setCustomPages(getCustomPages());
         
         newContext.dataDrivenNodes = this.getDataDrivenNodes();
-        List<DataDrivenNode> newContextDdns = new ArrayList<>();
+        List<DataDrivenNode> newContextDdns = new ArrayList<>(this.ddns.size());
         for (DataDrivenNode ddn : this.ddns) {
         	newContextDdns.add(ddn.clone());
         }
