@@ -20,7 +20,8 @@
 package org.zaproxy.zap.spider.filters;
 
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A FetchFilter is used to filter which resources should be fetched and processed by the Spider and
@@ -47,8 +48,26 @@ public abstract class FetchFilter {
         USER_RULES
     };
 
-    /** The Constant log. */
-    protected static final Logger log = Logger.getLogger(FetchFilter.class);
+    /**
+     * The Constant log.
+     *
+     * @deprecated (TODO add version) Use {@link #getLogger()} instead.
+     */
+    @Deprecated
+    protected static final org.apache.log4j.Logger log =
+            org.apache.log4j.Logger.getLogger(FetchFilter.class);
+
+    private final Logger logger = LogManager.getLogger(getClass());
+
+    /**
+     * Gets the logger.
+     *
+     * @return the logger, never {@code null}.
+     * @since TODO add version
+     */
+    protected Logger getLogger() {
+        return logger;
+    }
 
     /**
      * Checks if the uri must be ignored and not processed and return the filter status.

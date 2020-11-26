@@ -20,7 +20,8 @@
 package org.zaproxy.zap.extension.alert;
 
 import javax.swing.JMenuItem;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
@@ -31,7 +32,7 @@ public class PopupMenuShowAlert extends JMenuItem implements Comparable<PopupMen
     private final ExtensionAlert extension;
     private final Alert alert;
 
-    private static final Logger log = Logger.getLogger(ExtensionPopupMenuItem.class);
+    private static final Logger log = LogManager.getLogger(ExtensionPopupMenuItem.class);
 
     public PopupMenuShowAlert(String name, ExtensionAlert extension, Alert alert) {
         super(name);

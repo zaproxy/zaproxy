@@ -31,14 +31,15 @@ import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import javax.swing.JOptionPane;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.LocaleUtils;
 
 public final class LangImporter {
 
-    private static final Logger logger = Logger.getLogger(LangImporter.class);
+    private static final Logger logger = LogManager.getLogger(LangImporter.class);
 
     private static final String MSG_SUCCESS = "options.lang.importer.dialog.message.success";
     private static final String MSG_ERROR = "options.lang.importer.dialog.message.error";

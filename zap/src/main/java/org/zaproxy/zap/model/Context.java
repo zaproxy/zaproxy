@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.tree.TreeNode;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
@@ -69,7 +70,7 @@ public class Context {
             CONTEXT_CONFIG_POSTPARSER + ".config";
     public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES = CONTEXT_CONFIG + ".ddns";
 
-    private static Logger log = Logger.getLogger(Context.class);
+    private static Logger log = LogManager.getLogger(Context.class);
 
     private Session session;
     private int id;

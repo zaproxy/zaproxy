@@ -86,6 +86,7 @@
 // ZAP: 2020/10/01 Remove use of org.jfree.util.Log use normal log4j infrastructure.
 // ZAP: 2020/10/14 Require just the name when importing context.
 // ZAP: 2020/11/02 Validate parameters in getLeafName(...)
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -108,7 +109,8 @@ import javax.swing.tree.TreeNode;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Variant;
@@ -138,7 +140,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 public class Session {
 
     // ZAP: Added logger
-    private static Logger log = Logger.getLogger(Session.class);
+    private static Logger log = LogManager.getLogger(Session.class);
 
     private static final String ROOT = "session";
 

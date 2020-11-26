@@ -25,6 +25,7 @@
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -47,7 +48,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.filechooser.FileFilter;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
@@ -60,7 +62,7 @@ public class BrowserDialog extends AbstractDialog {
 
     private static final String TITLE = "View in Browser: ";
 
-    private static final Logger logger = Logger.getLogger(BrowserDialog.class);
+    private static final Logger logger = LogManager.getLogger(BrowserDialog.class);
 
     private JPanel jContentPane = null;
     private JPanel jPanelBottom = null;

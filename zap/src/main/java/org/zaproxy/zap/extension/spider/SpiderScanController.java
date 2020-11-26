@@ -27,7 +27,8 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
@@ -40,7 +41,7 @@ import org.zaproxy.zap.users.User;
 
 public class SpiderScanController implements ScanController<SpiderScan> {
 
-    private static final Logger log = Logger.getLogger(SpiderScanController.class);
+    private static final Logger log = LogManager.getLogger(SpiderScanController.class);
 
     private ExtensionSpider extension;
 

@@ -34,7 +34,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.EventListenerList;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class DriverConfiguration {
@@ -46,7 +47,7 @@ public class DriverConfiguration {
     private Vector<Integer> slots;
     private Vector<Integer> slotListIndexes;
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private EventListenerList eventListeners = new EventListenerList();
     private ChangeEvent changeEvent;

@@ -22,7 +22,8 @@ package org.zaproxy.zap.spider.parser;
 import java.util.LinkedList;
 import java.util.List;
 import net.htmlparser.jericho.Source;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.URLCanonicalizer;
 
@@ -36,8 +37,26 @@ public abstract class SpiderParser {
     /** The listeners to spider parsing events. */
     private List<SpiderParserListener> listeners = new LinkedList<>();
 
-    /** The Constant log. */
-    protected static final Logger log = Logger.getLogger(SpiderParser.class);
+    /**
+     * The Constant log.
+     *
+     * @deprecated (TODO add version) Use {@link #getLogger()} instead.
+     */
+    @Deprecated
+    protected static final org.apache.log4j.Logger log =
+            org.apache.log4j.Logger.getLogger(SpiderParser.class);
+
+    private final Logger logger = LogManager.getLogger(getClass());
+
+    /**
+     * Gets the logger.
+     *
+     * @return the logger, never {@code null}.
+     * @since TODO add version
+     */
+    protected Logger getLogger() {
+        return logger;
+    }
 
     /**
      * Adds a listener to spider parsing events.

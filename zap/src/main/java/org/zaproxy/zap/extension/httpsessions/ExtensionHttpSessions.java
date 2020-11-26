@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -70,7 +71,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
     public static final String NAME = "ExtensionHttpSessions";
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(ExtensionHttpSessions.class);
+    private static final Logger log = LogManager.getLogger(ExtensionHttpSessions.class);
 
     /** The http sessions panel. */
     private HttpSessionsPanel httpSessionsPanel;

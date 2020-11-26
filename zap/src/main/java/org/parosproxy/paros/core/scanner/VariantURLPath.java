@@ -26,7 +26,8 @@ import java.util.List;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -37,7 +38,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantURLPath implements Variant {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final List<NameValuePair> stringParam = new ArrayList<>();
 
     /** @param msg */

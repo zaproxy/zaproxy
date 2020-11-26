@@ -22,7 +22,8 @@ package org.zaproxy.zap.extension.custompages;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.utils.Enableable;
 
@@ -34,7 +35,7 @@ public class DefaultCustomPage extends Enableable implements CustomPage {
      */
     private static final String FIELD_SEPARATOR = ";";
 
-    private static final Logger LOGGER = Logger.getLogger(DefaultCustomPage.class);
+    private static final Logger LOGGER = LogManager.getLogger(DefaultCustomPage.class);
 
     private int contextId;
     private String pageMatcher;

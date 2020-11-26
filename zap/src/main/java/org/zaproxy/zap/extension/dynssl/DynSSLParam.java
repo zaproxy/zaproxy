@@ -20,7 +20,8 @@
 package org.zaproxy.zap.extension.dynssl;
 
 import java.security.KeyStore;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 /** @author MaWoKi */
@@ -30,7 +31,7 @@ public class DynSSLParam extends AbstractParam {
 
     private KeyStore rootca = null;
 
-    private static final Logger logger = Logger.getLogger(DynSSLParam.class);
+    private static final Logger logger = LogManager.getLogger(DynSSLParam.class);
 
     @Override
     protected void parse() {

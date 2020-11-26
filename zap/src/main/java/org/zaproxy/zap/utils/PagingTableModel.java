@@ -27,7 +27,8 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A paginated {@code TableModel}. The model will have at most, by default, {@value
@@ -60,7 +61,7 @@ import org.apache.log4j.Logger;
 public abstract class PagingTableModel<T> extends AbstractTableModel {
     private static final long serialVersionUID = -6353414328926478100L;
 
-    private static final Logger logger = Logger.getLogger(PagingTableModel.class);
+    private static final Logger logger = LogManager.getLogger(PagingTableModel.class);
 
     /** Default segment loader thread name. */
     public static final String DEFAULT_SEGMENT_LOADER_THREAD_NAME =

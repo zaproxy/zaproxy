@@ -46,7 +46,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.parosproxy.paros.Constant;
@@ -69,7 +70,7 @@ import org.zaproxy.zap.network.HttpRequestBody;
  */
 public final class HarUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(HarUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(HarUtils.class);
 
     /**
      * The prefix for custom HAR fields produced by ZAP.

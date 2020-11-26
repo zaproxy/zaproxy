@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/08/06 Issue 6084: Added date time to html report.
 // ZAP: 2020/10/29 Issue 6267: Fix bug to allow writing reports with file path containing '#'.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.report;
 
 import java.io.BufferedReader;
@@ -58,7 +59,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import net.sf.json.xml.XMLSerializer;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.w3c.dom.Document;
@@ -70,7 +72,7 @@ import org.zaproxy.zap.utils.XmlUtils;
 
 public class ReportGenerator {
 
-    private static final Logger logger = Logger.getLogger(ReportGenerator.class);
+    private static final Logger logger = LogManager.getLogger(ReportGenerator.class);
 
     // private static Pattern patternWindows = Pattern.compile("window", Pattern.CASE_INSENSITIVE);
     // private static Pattern patternLinux = Pattern.compile("linux", Pattern.CASE_INSENSITIVE);

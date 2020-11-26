@@ -78,7 +78,8 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 public class StatsdClient extends TimerTask {
     private ByteBuffer sendBuffer;
@@ -86,7 +87,7 @@ public class StatsdClient extends TimerTask {
     private boolean multi_metrics = false;
 
 	private static final Random RNG = new Random();
-	private static final Logger log = Logger.getLogger(StatsdClient.class.getName());
+	private static final Logger log = LogManager.getLogger(StatsdClient.class.getName());
 
 	private final InetSocketAddress _address;
 	private final DatagramChannel _channel;

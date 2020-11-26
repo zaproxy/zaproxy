@@ -19,7 +19,8 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -29,7 +30,7 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStr
 public class ResponseHeaderStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
 
     private static final Logger logger =
-            Logger.getLogger(ResponseHeaderStringHttpPanelViewModel.class);
+            LogManager.getLogger(ResponseHeaderStringHttpPanelViewModel.class);
 
     @Override
     public String getData() {

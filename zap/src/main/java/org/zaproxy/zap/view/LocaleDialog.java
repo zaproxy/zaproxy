@@ -25,7 +25,8 @@ import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
@@ -39,7 +40,7 @@ public class LocaleDialog extends AbstractDialog {
     private OptionsLocalePanel localePanel = null;
     private OptionsParam options = null;
     private JButton btnOK = null;
-    private Logger logger = Logger.getLogger(LocaleDialog.class);
+    private Logger logger = LogManager.getLogger(LocaleDialog.class);
 
     /**
      * Constructs an {@code LocaleDialog} with no owner and not modal.

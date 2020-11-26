@@ -29,7 +29,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpStatusCode;
@@ -42,7 +43,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
 
     private static final long serialVersionUID = 2416553589170267959L;
-    private static final Logger log = Logger.getLogger(ContextAuthorizationPanel.class);
+    private static final Logger log = LogManager.getLogger(ContextAuthorizationPanel.class);
 
     private static final String PANEL_NAME =
             Constant.messages.getString("authorization.panel.title");

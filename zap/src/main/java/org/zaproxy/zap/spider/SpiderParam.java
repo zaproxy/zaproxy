@@ -26,7 +26,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
@@ -196,7 +197,7 @@ public class SpiderParam extends AbstractParam {
     private boolean showAdvancedDialog = false; // TODO load/save
 
     /** The log. */
-    private static final Logger log = Logger.getLogger(SpiderParam.class);
+    private static final Logger log = LogManager.getLogger(SpiderParam.class);
 
     /**
      * Flag that indicates if the 'Referer' header should be sent while spidering.

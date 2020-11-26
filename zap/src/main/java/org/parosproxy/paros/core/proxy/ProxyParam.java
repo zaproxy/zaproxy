@@ -41,6 +41,7 @@
 // ZAP: 2019/01/11 Remove unused proxySSLPort option.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
@@ -48,7 +49,8 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.List;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.SSLConnector;
 
@@ -56,7 +58,7 @@ import org.parosproxy.paros.network.SSLConnector;
 public class ProxyParam extends AbstractParam {
 
     //	private static final String PROXY = "proxy";
-    private static final Logger logger = Logger.getLogger(ProxyParam.class);
+    private static final Logger logger = LogManager.getLogger(ProxyParam.class);
 
     private static final String PROXY_BASE_KEY = "proxy";
 

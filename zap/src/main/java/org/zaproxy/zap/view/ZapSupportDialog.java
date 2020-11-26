@@ -29,7 +29,8 @@ import java.io.File;
 import java.io.IOException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 
@@ -42,7 +43,7 @@ public class ZapSupportDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = Logger.getLogger(ZapSupportDialog.class);
+    private static final Logger LOGGER = LogManager.getLogger(ZapSupportDialog.class);
 
     private JPanel mainPanel = null;
     private ZapSupportPanel supportPanel = null;

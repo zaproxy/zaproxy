@@ -28,6 +28,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/28 Support Base64url.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.encoder;
 
 import java.io.IOException;
@@ -37,13 +38,14 @@ import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /** @deprecated (TODO Add version) */
 @Deprecated
 public class Encoder {
 
-    private static final Logger logger = Logger.getLogger(Encoder.class);
+    private static final Logger logger = LogManager.getLogger(Encoder.class);
 
     private int base64EncodeOptions;
     private String base64Charset;

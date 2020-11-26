@@ -23,7 +23,8 @@ import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -32,7 +33,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 @Deprecated
 public class BreakpointMessageHandler {
 
-    private static final Logger logger = Logger.getLogger(BreakpointMessageHandler.class);
+    private static final Logger logger = LogManager.getLogger(BreakpointMessageHandler.class);
 
     protected static final java.lang.Object semaphore = new java.lang.Object();
 

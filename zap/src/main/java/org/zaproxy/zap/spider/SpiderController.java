@@ -30,7 +30,8 @@ import java.util.Set;
 import net.htmlparser.jericho.Config;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.spider.filters.FetchFilter;
@@ -80,7 +81,7 @@ public class SpiderController implements SpiderParserListener {
     private Map<String, ArrayList<String>> visitedPost;
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(SpiderController.class);
+    private static final Logger log = LogManager.getLogger(SpiderController.class);
 
     /**
      * Instantiates a new spider controller.

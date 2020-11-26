@@ -35,7 +35,8 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
@@ -60,7 +61,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
 
     private static final long serialVersionUID = -9082089105656842054L;
 
-    private static Logger log = Logger.getLogger(HttpPanelSyntaxHighlightTextArea.class);
+    private static Logger log = LogManager.getLogger(HttpPanelSyntaxHighlightTextArea.class);
 
     public static final String PLAIN_SYNTAX_LABEL =
             Constant.messages.getString("http.panel.view.syntaxtext.syntax.plain");

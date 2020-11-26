@@ -19,7 +19,8 @@
  */
 package org.zaproxy.zap.extension.alert;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -30,7 +31,7 @@ public class PopupMenuAlert extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = Logger.getLogger(PopupMenuAlert.class);
+    private static final Logger logger = LogManager.getLogger(PopupMenuAlert.class);
 
     private final ExtensionAlert extension;
 

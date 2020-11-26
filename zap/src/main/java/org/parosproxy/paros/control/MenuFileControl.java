@@ -53,6 +53,7 @@
 // ZAP: 2018/01/01 Prevent the selection of the current session on save/snapshot.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.control;
 
 import java.awt.EventQueue;
@@ -65,7 +66,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
@@ -84,7 +86,7 @@ import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class MenuFileControl implements SessionListener {
 
-    private static Logger log = Logger.getLogger(MenuFileControl.class);
+    private static Logger log = LogManager.getLogger(MenuFileControl.class);
 
     private View view = null;
     private Model model = null;

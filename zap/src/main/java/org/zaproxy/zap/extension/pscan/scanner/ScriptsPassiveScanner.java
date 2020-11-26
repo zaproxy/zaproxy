@@ -21,7 +21,8 @@ package org.zaproxy.zap.extension.pscan.scanner;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import net.htmlparser.jericho.Source;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.network.HttpMessage;
@@ -36,7 +37,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
 public class ScriptsPassiveScanner extends PluginPassiveScanner {
 
-    private static final Logger logger = Logger.getLogger(ScriptsPassiveScanner.class);
+    private static final Logger logger = LogManager.getLogger(ScriptsPassiveScanner.class);
 
     private final ScriptsCache<PassiveScript> scripts;
     private PassiveScanThread parent = null;

@@ -29,7 +29,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A very simple event bus
@@ -48,7 +49,7 @@ public class SimpleEventBus implements EventBus {
      */
     private final Lock regMgmtLock = new ReentrantLock(true);
 
-    private static Logger log = Logger.getLogger(SimpleEventBus.class);
+    private static Logger log = LogManager.getLogger(SimpleEventBus.class);
 
     @Override
     public void registerPublisher(EventPublisher publisher, String... eventTypes) {

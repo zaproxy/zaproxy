@@ -30,7 +30,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
 /**
@@ -46,7 +47,7 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 public final class URLCanonicalizer {
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(URLCanonicalizer.class);
+    private static final Logger log = LogManager.getLogger(URLCanonicalizer.class);
 
     private static final String HTTP_SCHEME = "http";
     private static final int HTTP_DEFAULT_PORT = 80;

@@ -43,7 +43,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.border.EmptyBorder;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
@@ -71,7 +72,7 @@ import org.zaproxy.zap.view.NodeSelectDialog;
 /** The Context Panel shown for configuring a Context's authentication methods. */
 public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
-    private static final Logger log = Logger.getLogger(ContextAuthenticationPanel.class);
+    private static final Logger log = LogManager.getLogger(ContextAuthenticationPanel.class);
     private static final long serialVersionUID = -898084998156067286L;
 
     /** The Constant PANEL NAME. */

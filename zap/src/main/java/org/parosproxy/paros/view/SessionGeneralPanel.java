@@ -31,6 +31,7 @@
 // ZAP: 2017/06/07 Don't close the Session when changing session's name/description.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -39,7 +40,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
@@ -52,7 +54,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = -8337361808959321380L;
 
-    private static final Logger LOGGER = Logger.getLogger(SessionGeneralPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(SessionGeneralPanel.class);
 
     private JPanel panelSession = null; //  @jve:decl-index=0:visual-constraint="10,320"
     private ZapTextField txtSessionName = null;

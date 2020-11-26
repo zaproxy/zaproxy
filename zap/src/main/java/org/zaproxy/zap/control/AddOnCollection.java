@@ -28,7 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -41,7 +42,7 @@ public class AddOnCollection {
         mac
     }
 
-    private static final Logger logger = Logger.getLogger(AddOnCollection.class);
+    private static final Logger logger = LogManager.getLogger(AddOnCollection.class);
     private ZapRelease zapRelease = null;
     private List<AddOn> addOns = new ArrayList<>();
     private File downloadDir = new File(Constant.FOLDER_LOCAL_PLUGIN);

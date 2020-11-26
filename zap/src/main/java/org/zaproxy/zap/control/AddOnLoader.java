@@ -52,7 +52,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.AbstractPlugin;
@@ -89,7 +90,7 @@ public class AddOnLoader extends URLClassLoader {
     private static final AddOnUninstallationProgressCallback NULL_CALLBACK =
             new NullUninstallationProgressCallBack();
 
-    private static final Logger logger = Logger.getLogger(AddOnLoader.class);
+    private static final Logger logger = LogManager.getLogger(AddOnLoader.class);
 
     static {
         ClassLoader.registerAsParallelCapable();

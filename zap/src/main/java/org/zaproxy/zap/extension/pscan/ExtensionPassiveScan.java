@@ -25,7 +25,8 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -50,7 +51,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
     public static final String NAME = "ExtensionPassiveScan";
     public static final String SCRIPT_TYPE_PASSIVE = "passive";
-    private static final Logger logger = Logger.getLogger(ExtensionPassiveScan.class);
+    private static final Logger logger = LogManager.getLogger(ExtensionPassiveScan.class);
     private PassiveScannerList scannerList;
     private OptionsPassiveScan optionsPassiveScan = null;
     private PolicyPassiveScanPanel policyPanel = null;

@@ -20,7 +20,8 @@
 package org.zaproxy.zap.network;
 
 import java.util.Objects;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A SOCKS proxy.
@@ -31,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public class SocksProxy {
 
-    private static final Logger logger = Logger.getLogger(SocksProxy.class);
+    private static final Logger logger = LogManager.getLogger(SocksProxy.class);
 
     /** The version of the SOCKS proxy. */
     public enum Version {

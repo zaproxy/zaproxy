@@ -24,12 +24,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpBody;
 
 public class HttpResponseBody extends HttpBody {
 
-    private static final Logger log = Logger.getLogger(HttpResponseBody.class);
+    private static final Logger log = LogManager.getLogger(HttpResponseBody.class);
 
     // private static Pattern patternCharset = Pattern.compile("<META
     // +[^>]+charset=['\"]*([^>'\"])+['\"]*>", Pattern.CASE_INSENSITIVE| Pattern.MULTILINE);

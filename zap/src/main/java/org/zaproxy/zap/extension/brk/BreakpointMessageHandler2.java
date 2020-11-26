@@ -22,13 +22,14 @@ package org.zaproxy.zap.extension.brk;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control.Mode;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 public class BreakpointMessageHandler2 {
 
-    private static final Logger LOGGER = Logger.getLogger(BreakpointMessageHandler2.class);
+    private static final Logger LOGGER = LogManager.getLogger(BreakpointMessageHandler2.class);
 
     protected static final Object SEMAPHORE = new Object();
 

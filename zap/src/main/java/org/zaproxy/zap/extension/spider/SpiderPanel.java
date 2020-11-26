@@ -38,7 +38,8 @@ import javax.swing.JToolBar;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.IconValues;
@@ -75,7 +76,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
     private static final long serialVersionUID = 1L;
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(SpiderPanel.class);
+    private static final Logger log = LogManager.getLogger(SpiderPanel.class);
 
     private static final String ZERO_REQUESTS_LABEL_TEXT = "0";
 

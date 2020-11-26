@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.view.panelsearch.items.ButtonSearch;
 import org.zaproxy.zap.view.panelsearch.items.ComboBoxElementSearch;
 import org.zaproxy.zap.view.panelsearch.items.ComboBoxSearch;
@@ -41,7 +42,7 @@ import org.zaproxy.zap.view.panelsearch.items.TreeNodeElementSearch;
 
 public class Highlighter {
 
-    private Logger LOGGER = Logger.getLogger(Highlighter.class);
+    private Logger LOGGER = LogManager.getLogger(Highlighter.class);
 
     public static final List<ComponentHighlighter> DefaultComponentHighlighterItems =
             Arrays.asList(

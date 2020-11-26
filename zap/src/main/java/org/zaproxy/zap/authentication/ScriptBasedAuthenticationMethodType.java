@@ -48,7 +48,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -88,7 +89,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
     public static final int METHOD_IDENTIFIER = 4;
 
-    private static final Logger log = Logger.getLogger(ScriptBasedAuthenticationMethodType.class);
+    private static final Logger log =
+            LogManager.getLogger(ScriptBasedAuthenticationMethodType.class);
 
     /** The Constant SCRIPT_TYPE_AUTH. */
     public static final String SCRIPT_TYPE_AUTH = "authentication";

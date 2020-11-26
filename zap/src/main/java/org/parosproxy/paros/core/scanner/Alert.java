@@ -57,12 +57,14 @@
 // ZAP: 2019/07/10 Add utility methods isValidRisk(int) and isValidConfidence(int)
 // ZAP: 2019/10/21 Add Alert builder.
 // ZAP: 2020/11/03 Add alertRef field.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
 import javax.swing.ImageIcon;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
@@ -212,7 +214,7 @@ public class Alert implements Comparable<Alert> {
     private int sourceHistoryId = 0;
     private HistoryReference historyRef = null;
     // ZAP: Added logger
-    private static final Logger logger = Logger.getLogger(Alert.class);
+    private static final Logger logger = LogManager.getLogger(Alert.class);
     // Cache this info so that we dont have to keep a ref to the HttpMessage
     private String method = "";
     private String postData;

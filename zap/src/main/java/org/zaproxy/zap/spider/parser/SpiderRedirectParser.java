@@ -29,7 +29,7 @@ public class SpiderRedirectParser extends SpiderParser {
 
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
-        log.debug("Parsing an HTTP redirection resource...");
+        getLogger().debug("Parsing an HTTP redirection resource...");
 
         String location = message.getResponseHeader().getHeader(HttpHeader.LOCATION);
         if (location != null && !location.isEmpty()) {

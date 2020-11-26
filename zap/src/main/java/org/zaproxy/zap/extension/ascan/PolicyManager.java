@@ -25,7 +25,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -40,7 +41,7 @@ public class PolicyManager {
     private List<String> allPolicyNames = null;
     private ExtensionActiveScan extension;
 
-    private static final Logger logger = Logger.getLogger(PolicyManager.class);
+    private static final Logger logger = LogManager.getLogger(PolicyManager.class);
 
     public PolicyManager(ExtensionActiveScan extension) {
         this.extension = extension;

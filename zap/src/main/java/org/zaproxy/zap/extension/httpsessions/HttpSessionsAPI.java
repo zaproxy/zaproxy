@@ -27,7 +27,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.Cookie;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -47,7 +48,7 @@ import org.zaproxy.zap.utils.XMLStringUtil;
 public class HttpSessionsAPI extends ApiImplementor {
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(HttpSessionsAPI.class);
+    private static final Logger log = LogManager.getLogger(HttpSessionsAPI.class);
 
     /** The Constant PREFIX defining the name/prefix of the api. */
     private static final String PREFIX = "httpSessions";

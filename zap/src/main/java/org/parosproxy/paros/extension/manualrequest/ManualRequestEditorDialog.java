@@ -39,6 +39,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/03 Warn when unable to save the message (Issue 4235).
 // ZAP: 2020/11/20 Support Send button in response panel in tab mode
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
@@ -52,7 +53,8 @@ import javax.net.ssl.SSLException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -70,7 +72,7 @@ import org.zaproxy.zap.view.ZapMenuItem;
 public abstract class ManualRequestEditorDialog extends AbstractFrame implements Tab {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = Logger.getLogger(ManualRequestEditorDialog.class);
+    private static final Logger logger = LogManager.getLogger(ManualRequestEditorDialog.class);
 
     private boolean isSendEnabled = true;
 

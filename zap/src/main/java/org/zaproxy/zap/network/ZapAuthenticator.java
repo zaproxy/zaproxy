@@ -21,7 +21,8 @@ package org.zaproxy.zap.network;
 
 import java.net.Authenticator;
 import java.net.PasswordAuthentication;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
 
@@ -36,7 +37,7 @@ public class ZapAuthenticator extends Authenticator {
 
     private static final ZapAuthenticator SINGLETON = new ZapAuthenticator();
 
-    private static final Logger logger = Logger.getLogger(ZapAuthenticator.class);
+    private static final Logger logger = LogManager.getLogger(ZapAuthenticator.class);
 
     private static ConnectionParam connectionOptions;
 

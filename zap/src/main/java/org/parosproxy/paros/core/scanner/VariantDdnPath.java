@@ -25,7 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.SessionStructure;
@@ -39,7 +40,7 @@ import org.zaproxy.zap.model.SessionStructure;
  */
 public class VariantDdnPath implements Variant {
 
-    private static final Logger LOGGER = Logger.getLogger(VariantDdnPath.class);
+    private static final Logger LOGGER = LogManager.getLogger(VariantDdnPath.class);
     private final List<NameValuePair> stringParam = new ArrayList<>();
 
     @Override

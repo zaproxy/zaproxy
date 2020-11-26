@@ -28,7 +28,8 @@ import java.util.TreeSet;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.SiteNode;
 
@@ -36,7 +37,7 @@ public class PopupMenuExportSelectedURLs extends PopupMenuExportURLs {
 
     private static final long serialVersionUID = -4426560452505908380L;
 
-    private static Logger LOG = Logger.getLogger(PopupMenuExportSelectedURLs.class);
+    private static Logger LOG = LogManager.getLogger(PopupMenuExportSelectedURLs.class);
 
     public PopupMenuExportSelectedURLs(String menuItem, Extension extension) {
         super(menuItem, extension);

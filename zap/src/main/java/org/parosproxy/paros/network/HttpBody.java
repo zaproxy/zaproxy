@@ -26,6 +26,7 @@
 // ZAP: 2017/02/01 Allow to set whether or not the charset should be determined.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.network;
 
 import java.nio.charset.Charset;
@@ -34,7 +35,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Abstract a HTTP body in request or response messages.
@@ -43,7 +45,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class HttpBody {
 
-    private static final Logger log = Logger.getLogger(HttpBody.class);
+    private static final Logger log = LogManager.getLogger(HttpBody.class);
 
     /**
      * The name of the default charset ({@code ISO-8859-1}) used for {@code String} related

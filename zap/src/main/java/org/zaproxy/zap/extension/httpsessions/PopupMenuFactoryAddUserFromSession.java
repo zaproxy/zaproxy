@@ -22,7 +22,8 @@ package org.zaproxy.zap.extension.httpsessions;
 import java.awt.Component;
 import java.awt.Dialog;
 import javax.swing.JOptionPane;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -41,7 +42,8 @@ import org.zaproxy.zap.users.User;
 
 public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFactory {
 
-    private static final Logger log = Logger.getLogger(PopupMenuFactoryAddUserFromSession.class);
+    private static final Logger log =
+            LogManager.getLogger(PopupMenuFactoryAddUserFromSession.class);
 
     private static final long serialVersionUID = 2453839120088204122L;
 

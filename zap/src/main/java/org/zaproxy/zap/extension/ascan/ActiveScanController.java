@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.ScannerParam;
@@ -44,7 +45,7 @@ import org.zaproxy.zap.users.User;
 public class ActiveScanController implements ScanController<ActiveScan> {
 
     private ExtensionActiveScan extension;
-    private static final Logger logger = Logger.getLogger(ActiveScanController.class);
+    private static final Logger logger = LogManager.getLogger(ActiveScanController.class);
 
     private ExtensionAlert extAlert = null;
 

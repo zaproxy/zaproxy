@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
@@ -44,7 +45,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor
         implements ContextPanelFactory, ContextDataFactory {
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(ExtensionAuthorization.class);
+    private static final Logger log = LogManager.getLogger(ExtensionAuthorization.class);
 
     /** The NAME of the extension. */
     public static final String NAME = "ExtensionAuthorization";

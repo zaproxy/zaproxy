@@ -25,13 +25,14 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.network.DomainMatcher;
 
 public class OptionsParamApi extends AbstractParam {
 
-    private static final Logger LOGGER = Logger.getLogger(OptionsParamApi.class);
+    private static final Logger LOGGER = LogManager.getLogger(OptionsParamApi.class);
 
     public static final String ENABLED = "api.enabled";
     public static final String UI_ENABLED = "api.uienabled";

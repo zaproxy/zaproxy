@@ -55,6 +55,7 @@
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -70,13 +71,14 @@ import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.control.CoreFunctionality;
 import org.zaproxy.zap.control.ExtensionFactory;
 
 public class PluginFactory {
 
-    private static Logger log = Logger.getLogger(PluginFactory.class);
+    private static Logger log = LogManager.getLogger(PluginFactory.class);
     private static List<AbstractPlugin> loadedPlugins = null;
     private static Map<Integer, Plugin> mapLoadedPlugins;
 

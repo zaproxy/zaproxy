@@ -55,6 +55,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
 // ZAP: 2020/07/31 Tidy up parameter methods
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -71,7 +72,8 @@ import java.util.Vector;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.eventBus.Event;
@@ -108,7 +110,7 @@ public class HttpMessage implements Message {
     // ZAP: Added historyRef
     private HistoryReference historyRef = null;
     // ZAP: Added logger
-    private static Logger log = Logger.getLogger(HttpMessage.class);
+    private static Logger log = LogManager.getLogger(HttpMessage.class);
     // ZAP: Added HttpSession
     private HttpSession httpSession = null;
     // ZAP: Added support for requesting the message to be sent as a particular User

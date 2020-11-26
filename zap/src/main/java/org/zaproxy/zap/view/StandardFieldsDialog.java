@@ -59,7 +59,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.text.JTextComponent;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.SiteNode;
@@ -81,7 +82,7 @@ import org.zaproxy.zap.view.widgets.ContextSelectComboBox;
  */
 public abstract class StandardFieldsDialog extends AbstractDialog {
 
-    private static final Logger logger = Logger.getLogger(StandardFieldsDialog.class);
+    private static final Logger logger = LogManager.getLogger(StandardFieldsDialog.class);
 
     private static final long serialVersionUID = 1L;
     private static final EmptyBorder FULL_BORDER = new EmptyBorder(8, 8, 8, 8);

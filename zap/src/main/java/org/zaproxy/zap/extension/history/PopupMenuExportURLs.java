@@ -30,7 +30,8 @@ import java.util.TreeSet;
 import javax.swing.JFileChooser;
 import javax.swing.JTree;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -42,7 +43,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
     private static final long serialVersionUID = 1L;
     protected final Extension extension;
 
-    private static Logger log = Logger.getLogger(PopupMenuExportURLs.class);
+    private static Logger log = LogManager.getLogger(PopupMenuExportURLs.class);
 
     /**
      * Constructs a {@code PopupMenuExportURLs} with the given label and extension.

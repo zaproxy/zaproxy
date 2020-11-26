@@ -22,6 +22,7 @@
 // ZAP: 2017/04/14 Improve error handling when resetting the panels
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.view;
 
 import java.awt.Frame;
@@ -31,7 +32,8 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -39,7 +41,7 @@ import org.parosproxy.paros.model.OptionsParam;
 public class OptionsDialog extends AbstractParamDialog {
 
     private static final long serialVersionUID = -4374132178769109917L;
-    private static final Logger logger = Logger.getLogger(OptionsDialog.class);
+    private static final Logger logger = LogManager.getLogger(OptionsDialog.class);
     private JButton[] extraButtons = null;
 
     public OptionsDialog() {

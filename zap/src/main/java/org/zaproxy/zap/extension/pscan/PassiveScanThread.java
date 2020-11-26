@@ -28,7 +28,8 @@ import net.htmlparser.jericho.MasonTagTypes;
 import net.htmlparser.jericho.MicrosoftConditionalCommentTagTypes;
 import net.htmlparser.jericho.PHPTagTypes;
 import net.htmlparser.jericho.Source;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
@@ -50,7 +51,7 @@ import org.zaproxy.zap.utils.Stats;
 
 public class PassiveScanThread extends Thread implements ProxyListener, SessionChangedListener {
 
-    private static final Logger logger = Logger.getLogger(PassiveScanThread.class);
+    private static final Logger logger = LogManager.getLogger(PassiveScanThread.class);
 
     // Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change
     // the HttpMessage.

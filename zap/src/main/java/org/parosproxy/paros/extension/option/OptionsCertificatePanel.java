@@ -39,6 +39,7 @@
 // ZAP: 2018/09/19 GUI support for setting client certificate from CLI
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.option;
 
 // TODO: Buttons should be gray
@@ -68,7 +69,8 @@ import javax.swing.JPasswordField;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXHyperlink;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -130,7 +132,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
     // Keep track of login attempts on PKCS11 smartcards to avoid blocking the smartcard
     private static int login_attempts = 0;
 
-    private static final Logger logger = Logger.getLogger(OptionsCertificatePanel.class);
+    private static final Logger logger = LogManager.getLogger(OptionsCertificatePanel.class);
 
     public OptionsCertificatePanel() {
         super();
