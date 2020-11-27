@@ -25,7 +25,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.AbstractAppParamPlugin;
@@ -45,7 +46,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     private ExtensionScript extension = null;
     private ScriptsCache<ActiveScript> cachedScripts;
 
-    private static Logger logger = Logger.getLogger(ScriptsActiveScanner.class);
+    private static Logger logger = LogManager.getLogger(ScriptsActiveScanner.class);
     /**
      * A {@code Set} containing the scripts that do not implement {@code ActiveScript2}, to show an
      * error if those scripts do not implement {@code ActiveScript} (thus not implementing any of

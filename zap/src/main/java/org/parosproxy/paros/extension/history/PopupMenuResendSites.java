@@ -21,7 +21,8 @@ package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
 import javax.swing.JTree;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -37,7 +38,7 @@ public class PopupMenuResendSites extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = Logger.getLogger(PopupMenuResendSites.class);
+    private static final Logger logger = LogManager.getLogger(PopupMenuResendSites.class);
 
     private JTree treeSite = null;
 

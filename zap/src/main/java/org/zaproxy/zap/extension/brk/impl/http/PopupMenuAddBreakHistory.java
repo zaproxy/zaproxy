@@ -19,7 +19,8 @@
  */
 package org.zaproxy.zap.extension.brk.impl.http;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
@@ -32,7 +33,7 @@ public class PopupMenuAddBreakHistory extends PopupMenuItemHistoryReferenceConta
 
     private static final long serialVersionUID = -1984801437717248474L;
 
-    private static final Logger logger = Logger.getLogger(PopupMenuAddBreakHistory.class);
+    private static final Logger logger = LogManager.getLogger(PopupMenuAddBreakHistory.class);
 
     private final ExtensionBreak extension;
 

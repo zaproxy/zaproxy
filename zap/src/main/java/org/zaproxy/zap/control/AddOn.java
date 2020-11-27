@@ -46,7 +46,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -321,7 +322,7 @@ public class AddOn {
      */
     private HelpSetData helpSetData = HelpSetData.EMPTY_HELP_SET;
 
-    private static final Logger logger = Logger.getLogger(AddOn.class);
+    private static final Logger logger = LogManager.getLogger(AddOn.class);
 
     /**
      * Tells whether or not the given file name matches the name of a ZAP add-on.

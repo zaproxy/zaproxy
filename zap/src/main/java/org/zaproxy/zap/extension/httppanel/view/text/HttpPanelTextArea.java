@@ -27,7 +27,8 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.utils.ZapTextArea;
@@ -41,7 +42,7 @@ public abstract class HttpPanelTextArea extends ZapTextArea {
 
     private static final long serialVersionUID = 1L;
 
-    private static Logger log = Logger.getLogger(HttpPanelTextArea.class);
+    private static Logger log = LogManager.getLogger(HttpPanelTextArea.class);
 
     private Message message;
 

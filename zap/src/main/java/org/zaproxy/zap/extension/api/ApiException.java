@@ -29,7 +29,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -107,7 +108,7 @@ public class ApiException extends Exception {
     private final Type type;
     private final String detail;
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     public ApiException(Type type) {
         this(type, null, null);

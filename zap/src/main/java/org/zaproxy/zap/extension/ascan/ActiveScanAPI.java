@@ -36,7 +36,8 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
@@ -73,7 +74,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class ActiveScanAPI extends ApiImplementor {
 
-    private static Logger log = Logger.getLogger(ActiveScanAPI.class);
+    private static Logger log = LogManager.getLogger(ActiveScanAPI.class);
 
     private static final String PREFIX = "ascan";
     private static final String ACTION_SCAN = "scan";

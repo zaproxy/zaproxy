@@ -24,7 +24,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -55,7 +56,7 @@ public class ExtensionCustomPages extends ExtensionAdaptor {
     public static final String CONTEXT_CONFIG_CUSTOM_PAGE = CONTEXT_CONFIG_CUSTOM_PAGES + ".page";
 
     private static final int TYPE_CUSTOM_PAGE = 600;
-    private static final Logger LOGGER = Logger.getLogger(ExtensionCustomPages.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionCustomPages.class);
 
     // The i18n prefix
     protected static final String PREFIX = "custompages";

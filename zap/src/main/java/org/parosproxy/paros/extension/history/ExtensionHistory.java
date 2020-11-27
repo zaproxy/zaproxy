@@ -92,6 +92,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/30 Use hasView().
 // ZAP: 2020/01/02 Do not display messages being deleted.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -102,7 +103,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -189,7 +191,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      */
     private boolean sessionChanging;
 
-    private Logger logger = Logger.getLogger(ExtensionHistory.class);
+    private Logger logger = LogManager.getLogger(ExtensionHistory.class);
 
     public ExtensionHistory() {
         super(NAME);

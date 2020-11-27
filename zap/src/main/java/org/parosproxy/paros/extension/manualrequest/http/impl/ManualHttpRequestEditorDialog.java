@@ -31,6 +31,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/04 Add menu icon.
 // ZAP: 2020/11/20 Support Send button in response panel in tab mode
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
@@ -51,7 +52,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
@@ -75,7 +77,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         implements OptionsChangedListener {
 
     private static final long serialVersionUID = -5830450800029295419L;
-    private static final Logger logger = Logger.getLogger(ManualHttpRequestEditorDialog.class);
+    private static final Logger logger = LogManager.getLogger(ManualHttpRequestEditorDialog.class);
 
     private ZapMenuItem menuItem;
 

@@ -67,6 +67,7 @@
 // ZAP: 2020/01/27 Extracted code from sendAndReceive method into regenerateAntiCsrfToken method in
 // ExtensionAntiCSRF.
 // ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
+// ZAP: 2020/11/26 Use Log4j2 getLogger() and deprecate Log4j1.x.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -80,7 +81,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert.Source;
 import org.parosproxy.paros.model.HistoryReference;
@@ -105,7 +107,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private HostProcess parent = null;
     private HttpMessage msg = null;
     private boolean enabled = true;
-    private Logger log = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private Configuration config = null;
     // ZAP Added delayInMs
     private int delayInMs;
@@ -1053,8 +1055,25 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return getParent().getKb();
     }
 
-    protected Logger getLog() {
-        return log;
+    /**
+     * Gets the logger.
+     *
+     * @return the logger, never {@code null}.
+     * @deprecated (TODO add version) Use {@link #getLogger()} instead.
+     */
+    @Deprecated
+    protected org.apache.log4j.Logger getLog() {
+        return org.apache.log4j.Logger.getLogger(getClass());
+    }
+
+    /**
+     * Gets the logger.
+     *
+     * @return the logger, never {@code null}.
+     * @since TODO add version
+     */
+    protected Logger getLogger() {
+        return logger;
     }
 
     public String getProperty(String key) {
@@ -1434,8 +1453,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             }
 
             Alert alert = build();
-            if (plugin.log.isDebugEnabled()) {
-                plugin.log.debug(
+            if (plugin.logger.isDebugEnabled()) {
+                plugin.logger.debug(
                         "New alert pluginid="
                                 + alert.getPluginId()
                                 + " "

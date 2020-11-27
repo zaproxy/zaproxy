@@ -27,7 +27,8 @@ import java.io.UnsupportedEncodingException;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
@@ -37,7 +38,7 @@ public final class HttpPanelViewModelUtils {
     private static final Pattern GZIP_PATTERN =
             Pattern.compile("\\s*(?:x-)?gzip\\s*", Pattern.CASE_INSENSITIVE);
 
-    private static final Logger logger = Logger.getLogger(HttpPanelViewModelUtils.class);
+    private static final Logger logger = LogManager.getLogger(HttpPanelViewModelUtils.class);
 
     private HttpPanelViewModelUtils() {}
 

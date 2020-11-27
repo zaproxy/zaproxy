@@ -37,6 +37,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/06/07 JavaDoc corrections.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.view;
 
 import java.awt.event.ActionEvent;
@@ -50,7 +51,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.SwingUtilities;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -66,7 +68,7 @@ public class MainMenuBar extends JMenuBar {
 
     private static final long serialVersionUID = 8580116506279095244L;
 
-    private static final Logger logger = Logger.getLogger(MainMenuBar.class);
+    private static final Logger logger = LogManager.getLogger(MainMenuBar.class);
 
     private javax.swing.JMenu menuEdit = null;
     private javax.swing.JMenu menuTools = null;

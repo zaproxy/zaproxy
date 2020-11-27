@@ -36,6 +36,7 @@
 // ZAP: 2018/07/09 No longer need cast on SiteMap.getRoot
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/08/15 Issue 5297: Removed unused model params.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
@@ -48,7 +49,8 @@ import java.util.Locale;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.transform.stream.StreamSource;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.Extension;
@@ -66,7 +68,7 @@ import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class ReportLastScan {
 
-    private static final Logger logger = Logger.getLogger(ReportLastScan.class);
+    private static final Logger logger = LogManager.getLogger(ReportLastScan.class);
 
     private static final String HTM_FILE_EXTENSION = ".htm";
     private static final String HTML_FILE_EXTENSION = ".html";

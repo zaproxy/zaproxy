@@ -20,7 +20,8 @@
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.request;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
@@ -29,7 +30,7 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewMo
 
 public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelViewModel {
 
-    private static final Logger logger = Logger.getLogger(RequestByteHttpPanelViewModel.class);
+    private static final Logger logger = LogManager.getLogger(RequestByteHttpPanelViewModel.class);
 
     @Override
     public byte[] getData() {

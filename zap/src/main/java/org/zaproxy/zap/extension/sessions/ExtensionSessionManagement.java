@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
@@ -53,7 +54,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
     public static final String CONTEXT_CONFIG_SESSION_TYPE = CONTEXT_CONFIG_SESSION + ".type";
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(ExtensionSessionManagement.class);
+    private static final Logger log = LogManager.getLogger(ExtensionSessionManagement.class);
 
     /** The automatically loaded session management method types. */
     List<SessionManagementMethodType> sessionManagementMethodTypes;

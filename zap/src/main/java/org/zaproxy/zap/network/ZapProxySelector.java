@@ -25,7 +25,8 @@ import java.net.ProxySelector;
 import java.net.SocketAddress;
 import java.net.URI;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * ZAP's {@link ProxySelector}.
@@ -38,7 +39,7 @@ public class ZapProxySelector extends ProxySelector {
 
     private static final ZapProxySelector SINGLETON = new ZapProxySelector();
 
-    private static final Logger logger = Logger.getLogger(ZapProxySelector.class);
+    private static final Logger logger = LogManager.getLogger(ZapProxySelector.class);
 
     private ZapProxySelector() {}
 

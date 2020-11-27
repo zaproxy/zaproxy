@@ -27,14 +27,15 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseServer;
 
 public class HsqldbDatabaseServer extends SqlDatabaseServer implements DatabaseServer {
 
     public static final int DEFAULT_SERVER_PORT = 9001;
 
-    private static final Logger logger = Logger.getLogger(HsqldbDatabaseServer.class);
+    private static final Logger logger = LogManager.getLogger(HsqldbDatabaseServer.class);
 
     public HsqldbDatabaseServer(String dbname) throws ClassNotFoundException, Exception {
         super(dbname);

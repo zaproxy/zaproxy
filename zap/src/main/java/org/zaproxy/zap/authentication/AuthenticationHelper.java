@@ -30,7 +30,8 @@ import java.util.function.UnaryOperator;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -58,7 +59,7 @@ public class AuthenticationHelper {
         this.user = user;
     }
 
-    private static final Logger log = Logger.getLogger(AuthenticationHelper.class);
+    private static final Logger log = LogManager.getLogger(AuthenticationHelper.class);
 
     private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
     public static final String AUTH_SUCCESS_STATS = "stats.auth.success";

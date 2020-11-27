@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -51,7 +52,7 @@ public class SearchThread extends Thread {
 
     private boolean searchAllOccurrences;
 
-    private static Logger log = Logger.getLogger(SearchThread.class);
+    private static Logger log = LogManager.getLogger(SearchThread.class);
 
     public SearchThread(
             String filter,

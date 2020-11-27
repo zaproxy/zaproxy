@@ -27,13 +27,15 @@
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Vector;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -43,7 +45,7 @@ import org.parosproxy.paros.network.HttpMessage;
 @Deprecated
 public abstract class AbstractDefaultFilePlugin extends AbstractHostPlugin {
 
-    private static final Logger logger = Logger.getLogger(AbstractDefaultFilePlugin.class);
+    private static final Logger logger = LogManager.getLogger(AbstractDefaultFilePlugin.class);
 
     private static final Pattern patternItems = Pattern.compile(",");
     private static final String[] SPECIAL_TAG_LIST = {"@cgibin"};

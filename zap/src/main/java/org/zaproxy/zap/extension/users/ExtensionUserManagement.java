@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Map;
 import javax.management.relation.Role;
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordContext;
@@ -68,7 +69,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor
     public static final String NAME = "ExtensionUserManagement";
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(ExtensionUserManagement.class);
+    private static final Logger log = LogManager.getLogger(ExtensionUserManagement.class);
 
     /** The user panels, mapped to each context. */
     private Map<Integer, ContextUsersPanel> userPanelsMap = new HashMap<>();

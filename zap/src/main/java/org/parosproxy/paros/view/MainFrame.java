@@ -34,6 +34,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/13 Display the primary proxy details (host:port) in the footer (Issue 2016).
 // ZAP: 2020/09/29 Add support for dynamic Look and Feel switching (Issue 6201)
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -55,7 +56,8 @@ import javax.swing.JToggleButton;
 import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
@@ -68,7 +70,7 @@ import org.zaproxy.zap.view.widgets.PopupButton;
 
 public class MainFrame extends AbstractFrame {
 
-    private static final Logger LOGGER = Logger.getLogger(MainFrame.class);
+    private static final Logger LOGGER = LogManager.getLogger(MainFrame.class);
 
     private static final String TABS_VIEW_TOOL_TIP =
             Constant.messages.getString("view.toolbar.messagePanelsPosition.tabs");

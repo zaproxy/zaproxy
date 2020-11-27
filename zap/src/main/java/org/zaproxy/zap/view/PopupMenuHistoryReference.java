@@ -25,7 +25,8 @@ import java.util.List;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -65,7 +66,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
     private Invoker lastInvoker = null;
     private boolean multiSelect = false;
 
-    private static final Logger log = Logger.getLogger(PopupMenuHistoryReference.class);
+    private static final Logger log = LogManager.getLogger(PopupMenuHistoryReference.class);
 
     /** @param label */
     public PopupMenuHistoryReference(String label) {

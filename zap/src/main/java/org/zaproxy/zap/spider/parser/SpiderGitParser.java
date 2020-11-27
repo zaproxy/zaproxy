@@ -66,7 +66,7 @@ public class SpiderGitParser extends SpiderParser {
         if (message == null || !params.isParseGit()) {
             return false;
         }
-        log.debug("Parsing a Git resource...");
+        getLogger().debug("Parsing a Git resource...");
 
         // Get the response content
         byte[] data = message.getResponseBody().getBytes();
@@ -75,12 +75,13 @@ public class SpiderGitParser extends SpiderParser {
         try {
             String fullpath = message.getRequestHeader().getURI().getPath();
             if (fullpath == null) fullpath = "";
-            if (log.isDebugEnabled()) log.debug("The full path is [" + fullpath + "]");
+            if (getLogger().isDebugEnabled())
+                getLogger().debug("The full path is [" + fullpath + "]");
 
             // make sure the file name is as expected
             Matcher gitIndexFilenameMatcher = gitIndexFilenamePattern.matcher(fullpath);
             if (!gitIndexFilenameMatcher.find()) {
-                log.warn("This path cannot be handled by the Git parser: " + fullpath);
+                getLogger().warn("This path cannot be handled by the Git parser: " + fullpath);
                 return false;
             }
 
@@ -88,11 +89,12 @@ public class SpiderGitParser extends SpiderParser {
 
             Matcher gitIndexContentMatcher = gitIndexContentPattern.matcher(new String(data));
             if (!gitIndexContentMatcher.find()) {
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                            "The file '"
-                                    + fullpath
-                                    + "' could not be parsed as a Git Index file due to unexpected content");
+                if (getLogger().isDebugEnabled()) {
+                    getLogger()
+                            .debug(
+                                    "The file '"
+                                            + fullpath
+                                            + "' could not be parsed as a Git Index file due to unexpected content");
                 }
                 return false;
             }
@@ -105,12 +107,12 @@ public class SpiderGitParser extends SpiderParser {
             dataBuffer.get(dircArray, 0, 4);
 
             int indexFileVersion = dataBuffer.getInt();
-            if (log.isDebugEnabled())
-                log.debug("The Git index file version is " + indexFileVersion);
+            if (getLogger().isDebugEnabled())
+                getLogger().debug("The Git index file version is " + indexFileVersion);
 
             int indexEntryCount = dataBuffer.getInt();
-            if (log.isDebugEnabled())
-                log.debug(indexEntryCount + " entries were found in the Git index file ");
+            if (getLogger().isDebugEnabled())
+                getLogger().debug(indexEntryCount + " entries were found in the Git index file ");
 
             if (indexFileVersion != 2 && indexFileVersion != 3 && indexFileVersion != 4) {
                 throw new Exception(
@@ -125,8 +127,13 @@ public class SpiderGitParser extends SpiderParser {
                 int entryBytesRead = 0;
                 int indexEntryCtime1 = dataBuffer.getInt();
                 entryBytesRead += 4;
-                if (log.isDebugEnabled())
-                    log.debug("Entry " + entryIndex + " has indexEntryCtime1 " + indexEntryCtime1);
+                if (getLogger().isDebugEnabled())
+                    getLogger()
+                            .debug(
+                                    "Entry "
+                                            + entryIndex
+                                            + " has indexEntryCtime1 "
+                                            + indexEntryCtime1);
                 int indexEntryCtime2 = dataBuffer.getInt();
                 entryBytesRead += 4;
                 int indexEntryMtime1 = dataBuffer.getInt();
@@ -145,8 +152,8 @@ public class SpiderGitParser extends SpiderParser {
                 entryBytesRead += 4;
                 int indexEntrySize = dataBuffer.getInt();
                 entryBytesRead += 4;
-                if (log.isDebugEnabled())
-                    log.debug("Entry " + entryIndex + " has size " + indexEntrySize);
+                if (getLogger().isDebugEnabled())
+                    getLogger().debug("Entry " + entryIndex + " has size " + indexEntrySize);
 
                 // size is unspecified for the entry id, but it seems to be 40 bytes SHA-1 string
                 // stored as 20 bytes, network order
@@ -157,29 +164,31 @@ public class SpiderGitParser extends SpiderParser {
 
                 short indexEntryFlags = dataBuffer.getShort();
                 entryBytesRead += 2;
-                if (log.isDebugEnabled())
-                    log.debug("Entry " + entryIndex + " has flags " + indexEntryFlags);
+                if (getLogger().isDebugEnabled())
+                    getLogger().debug("Entry " + entryIndex + " has flags " + indexEntryFlags);
 
                 // mask off all but the least significant 12 bits of the index entry flags to get
                 // the length of the name in bytes
                 int indexEntryNameByteLength = indexEntryFlags & 4095;
-                if (log.isDebugEnabled())
-                    log.debug(
-                            "Entry "
-                                    + entryIndex
-                                    + " has a name of length "
-                                    + indexEntryNameByteLength);
+                if (getLogger().isDebugEnabled())
+                    getLogger()
+                            .debug(
+                                    "Entry "
+                                            + entryIndex
+                                            + " has a name of length "
+                                            + indexEntryNameByteLength);
 
                 // mask off all but the second most significant 12 bit of the index entry flags to
                 // get the extended flag for the entry
                 // int indexEntryExtendedFlag = indexEntryFlags & (int)16384;
                 int indexEntryExtendedFlag = ((indexEntryFlags & (1 << 14)) >> 14);
-                if (log.isDebugEnabled())
-                    log.debug(
-                            "Entry "
-                                    + entryIndex
-                                    + " has an extended flag of "
-                                    + indexEntryExtendedFlag);
+                if (getLogger().isDebugEnabled())
+                    getLogger()
+                            .debug(
+                                    "Entry "
+                                            + entryIndex
+                                            + " has an extended flag of "
+                                            + indexEntryExtendedFlag);
 
                 // check that we parsed out the index entry extended flag correctly.
                 // this is more of an assertion than anything. It's already saved my bacon once.
@@ -200,31 +209,34 @@ public class SpiderGitParser extends SpiderParser {
 
                 // specific to version 3 and above, if the extended flag is set for the entry.
                 if (indexFileVersion > 2 && indexEntryExtendedFlag == 1) {
-                    if (log.isDebugEnabled())
-                        log.debug(
-                                "For Index file version "
-                                        + indexFileVersion
-                                        + ", reading an extra 16 bits for Entry "
-                                        + entryIndex);
+                    if (getLogger().isDebugEnabled())
+                        getLogger()
+                                .debug(
+                                        "For Index file version "
+                                                + indexFileVersion
+                                                + ", reading an extra 16 bits for Entry "
+                                                + entryIndex);
                     short indexEntryExtendedFlags = dataBuffer.getShort();
                     entryBytesRead += 2;
-                    if (log.isDebugEnabled())
-                        log.debug(
-                                "Entry "
-                                        + entryIndex
-                                        + " has (optional) extended flags "
-                                        + indexEntryExtendedFlags);
+                    if (getLogger().isDebugEnabled())
+                        getLogger()
+                                .debug(
+                                        "Entry "
+                                                + entryIndex
+                                                + " has (optional) extended flags "
+                                                + indexEntryExtendedFlags);
                 }
 
                 String indexEntryName = null;
                 if (indexFileVersion > 3) {
-                    if (log.isDebugEnabled())
-                        log.debug(
-                                "Inflating the (deflated) entry name for index entry "
-                                        + entryIndex
-                                        + " based on the previous entry name, since Index file version "
-                                        + indexFileVersion
-                                        + " requires this");
+                    if (getLogger().isDebugEnabled())
+                        getLogger()
+                                .debug(
+                                        "Inflating the (deflated) entry name for index entry "
+                                                + entryIndex
+                                                + " based on the previous entry name, since Index file version "
+                                                + indexFileVersion
+                                                + " requires this");
 
                     // get bytes until we find one with the msb NOT set. count the bytes.
                     int n = 0, removeNfromPreviousName = 0;
@@ -245,11 +257,12 @@ public class SpiderGitParser extends SpiderParser {
                             break; // break if msb is NOT set in the byte
                     }
 
-                    if (log.isDebugEnabled())
-                        log.debug(
-                                "We read "
-                                        + n
-                                        + " bytes of variable length data from before the start of the entry name");
+                    if (getLogger().isDebugEnabled())
+                        getLogger()
+                                .debug(
+                                        "We read "
+                                                + n
+                                                + " bytes of variable length data from before the start of the entry name");
                     if (n > 4)
                         throw new Exception(
                                 "An entry name is never expected to be > 2^^32 bytes long. Some file corruption may have occurred, or a parsing error has occurred");
@@ -278,8 +291,8 @@ public class SpiderGitParser extends SpiderParser {
                     indexEntryName = new String(indexEntryNameBuffer);
                 }
 
-                if (log.isDebugEnabled())
-                    log.debug("Entry " + entryIndex + " has name " + indexEntryName);
+                if (getLogger().isDebugEnabled())
+                    getLogger().debug("Entry " + entryIndex + " has name " + indexEntryName);
 
                 // and store off the index entry name, for the next iteration
                 previousIndexEntryName = indexEntryName;
@@ -290,47 +303,52 @@ public class SpiderGitParser extends SpiderParser {
 
                 // the padding after the pathname does not exist for versions 4 or later.
                 if (indexFileVersion < 4) {
-                    if (log.isDebugEnabled())
-                        log.debug(
-                                "Aligning to an 8 byte boundary after Entry "
-                                        + entryIndex
-                                        + ", since Index file version "
-                                        + indexFileVersion
-                                        + " mandates 64 bit alignment for index entries");
+                    if (getLogger().isDebugEnabled())
+                        getLogger()
+                                .debug(
+                                        "Aligning to an 8 byte boundary after Entry "
+                                                + entryIndex
+                                                + ", since Index file version "
+                                                + indexFileVersion
+                                                + " mandates 64 bit alignment for index entries");
 
                     int entryBytesToRead = ((8 - (entryBytesRead % 8)) % 8);
-                    if (log.isDebugEnabled()) {
-                        log.debug(
-                                "The number of bytes read for index entry "
-                                        + entryIndex
-                                        + " thus far is: "
-                                        + entryBytesRead);
-                        log.debug(
-                                "So we must read "
-                                        + entryBytesToRead
-                                        + " bytes to stay on a 64 bit boundary");
+                    if (getLogger().isDebugEnabled()) {
+                        getLogger()
+                                .debug(
+                                        "The number of bytes read for index entry "
+                                                + entryIndex
+                                                + " thus far is: "
+                                                + entryBytesRead);
+                        getLogger()
+                                .debug(
+                                        "So we must read "
+                                                + entryBytesToRead
+                                                + " bytes to stay on a 64 bit boundary");
                     }
                     // read the 0-7 (NUL) bytes to keep reading index entries on an 8 byte boundary
                     byte[] indexEntryPadBuffer = new byte[entryBytesToRead];
                     dataBuffer.get(indexEntryPadBuffer, 0, entryBytesToRead);
                     entryBytesRead += entryBytesToRead;
                 } else {
-                    if (log.isDebugEnabled())
-                        log.debug(
-                                "Not aligning to an 8 byte boundary after Entry "
-                                        + entryIndex
-                                        + ", since Index file version "
-                                        + indexFileVersion
-                                        + " does not mandate 64 bit alignment for index entries");
+                    if (getLogger().isDebugEnabled())
+                        getLogger()
+                                .debug(
+                                        "Not aligning to an 8 byte boundary after Entry "
+                                                + entryIndex
+                                                + ", since Index file version "
+                                                + indexFileVersion
+                                                + " does not mandate 64 bit alignment for index entries");
                 }
 
                 // Git does not store entries for directories, but just files/symlinks/Git links, so
                 // no need to handle directories here, unlike with SVN, for instance.
                 if (indexEntryName != null && indexEntryName.length() > 0) {
-                    log.info(
-                            "Found file/symbolic link/gitlink "
-                                    + indexEntryName
-                                    + " in the Git entries file");
+                    getLogger()
+                            .info(
+                                    "Found file/symbolic link/gitlink "
+                                            + indexEntryName
+                                            + " in the Git entries file");
                     processURL(message, depth, "../" + indexEntryName, baseURL);
                 }
             }
@@ -339,7 +357,7 @@ public class SpiderGitParser extends SpiderParser {
             return true;
 
         } catch (Exception e) {
-            log.warn("An error occurred trying to parse Git url '" + baseURL + "': " + e);
+            getLogger().warn("An error occurred trying to parse Git url '" + baseURL + "': " + e);
             // We consider the message fully parsed, so it doesn't get parsed by 'fallback' parsers
             return true;
         }

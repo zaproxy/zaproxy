@@ -21,7 +21,8 @@ package org.zaproxy.zap.extension.ascan;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
@@ -30,7 +31,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class ScanPolicy {
 
-    private static final Logger logger = Logger.getLogger(ScanPolicy.class);
+    private static final Logger logger = LogManager.getLogger(ScanPolicy.class);
 
     private String name;
     private PluginFactory pluginFactory = new PluginFactory();

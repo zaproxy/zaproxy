@@ -35,7 +35,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.parosproxy.paros.CommandLine;
@@ -62,7 +63,7 @@ import org.zaproxy.zap.view.ProxyDialog;
  */
 public class GuiBootstrap extends ZapBootstrap {
 
-    private static final Logger logger = Logger.getLogger(GuiBootstrap.class);
+    private static final Logger logger = LogManager.getLogger(GuiBootstrap.class);
 
     /**
      * Flag that indicates whether or not the look and feel was already set.

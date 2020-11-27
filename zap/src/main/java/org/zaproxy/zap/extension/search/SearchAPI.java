@@ -30,7 +30,8 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
@@ -50,7 +51,7 @@ import org.zaproxy.zap.utils.HarUtils;
 
 public class SearchAPI extends ApiImplementor {
 
-    private static Logger log = Logger.getLogger(SearchAPI.class);
+    private static Logger log = LogManager.getLogger(SearchAPI.class);
 
     private static final String PREFIX = "search";
 

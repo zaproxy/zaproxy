@@ -22,7 +22,8 @@ package org.parosproxy.paros.extension.history;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
@@ -46,7 +47,7 @@ public class HistoryFilter {
     private List<Pattern> urlIncPatternList = new ArrayList<>();
     private List<Pattern> urlExcPatternList = new ArrayList<>();
 
-    private Logger logger = Logger.getLogger(HistoryFilter.class);
+    private Logger logger = LogManager.getLogger(HistoryFilter.class);
 
     public void setMethods(List<String> methods) {
         methodList.clear();

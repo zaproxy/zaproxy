@@ -36,7 +36,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpMessage;
@@ -57,7 +58,7 @@ public class StandardParameterParser implements ParameterParser {
     private String keyValueSeparators;
     private List<String> structuralParameters = new ArrayList<String>();
 
-    private static Logger log = Logger.getLogger(StandardParameterParser.class);
+    private static Logger log = LogManager.getLogger(StandardParameterParser.class);
 
     public StandardParameterParser(String keyValuePairSeparators, String keyValueSeparators)
             throws PatternSyntaxException {

@@ -29,7 +29,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JToggleButton;
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordContext;
@@ -86,7 +87,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor
     private static final int NO_FORCED_USER = -1;
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(ExtensionForcedUser.class);
+    private static final Logger log = LogManager.getLogger(ExtensionForcedUser.class);
 
     /** The map of context panels. */
     private Map<Integer, ContextForcedUserPanel> contextPanelsMap = new HashMap<>();

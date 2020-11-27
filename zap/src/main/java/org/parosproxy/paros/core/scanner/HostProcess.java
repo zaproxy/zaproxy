@@ -95,6 +95,7 @@
 // ZAP: 2020/10/19 Tweak JavaDoc and init startNodes in the constructor.
 // ZAP: 2020/06/30 Fix bug that makes zap test same request twice (Issue 6043).
 // ZAP: 2020/11/23 Expose getScannerParam() for tests.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -108,7 +109,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.control.Control;
@@ -136,7 +138,7 @@ import org.zaproxy.zap.users.User;
 
 public class HostProcess implements Runnable {
 
-    private static final Logger log = Logger.getLogger(HostProcess.class);
+    private static final Logger log = LogManager.getLogger(HostProcess.class);
     private static final DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
 
     private List<StructuralNode> startNodes;

@@ -30,7 +30,8 @@ import javax.swing.DefaultListModel;
 import javax.swing.tree.TreeNode;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -85,7 +86,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
     private int spiderTodo = 1;
 
     /** The Constant log used for logging. */
-    private static final Logger log = Logger.getLogger(SpiderThread.class);
+    private static final Logger log = LogManager.getLogger(SpiderThread.class);
 
     /** The just scan in scope. */
     private boolean justScanInScope = false;

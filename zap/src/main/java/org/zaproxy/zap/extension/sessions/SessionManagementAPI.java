@@ -23,7 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -46,7 +47,7 @@ import org.zaproxy.zap.utils.ApiUtils;
  */
 public class SessionManagementAPI extends ApiImplementor {
 
-    private static final Logger log = Logger.getLogger(SessionManagementAPI.class);
+    private static final Logger log = LogManager.getLogger(SessionManagementAPI.class);
 
     private static final String PREFIX = "sessionManagement";
 

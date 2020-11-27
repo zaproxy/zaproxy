@@ -25,7 +25,8 @@ import java.awt.Toolkit;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import org.apache.commons.lang3.SystemUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.AboutDialog;
@@ -40,7 +41,7 @@ import org.zaproxy.zap.view.AboutDialog;
  */
 class OsXGui {
 
-    private static final Logger LOGGER = Logger.getLogger(OsXGui.class);
+    private static final Logger LOGGER = LogManager.getLogger(OsXGui.class);
 
     private OsXGui() {}
 

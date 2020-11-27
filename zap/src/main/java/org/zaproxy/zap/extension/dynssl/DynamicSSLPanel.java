@@ -48,7 +48,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.FileUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
@@ -79,7 +80,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
     private KeyStore rootca;
     private ExtensionDynSSL extension;
 
-    private static final Logger logger = Logger.getLogger(DynamicSSLPanel.class);
+    private static final Logger logger = LogManager.getLogger(DynamicSSLPanel.class);
 
     /** Create the panel. */
     public DynamicSSLPanel(ExtensionDynSSL extension) {

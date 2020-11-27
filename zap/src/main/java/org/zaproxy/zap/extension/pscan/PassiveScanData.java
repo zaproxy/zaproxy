@@ -24,7 +24,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -45,7 +46,7 @@ import org.zaproxy.zap.users.User;
  */
 public final class PassiveScanData {
 
-    private static final Logger LOGGER = Logger.getLogger(PassiveScanData.class);
+    private static final Logger LOGGER = LogManager.getLogger(PassiveScanData.class);
 
     private static ExtensionUserManagement extUserMgmt = null;
 

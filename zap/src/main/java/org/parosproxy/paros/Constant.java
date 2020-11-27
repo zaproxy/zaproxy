@@ -109,6 +109,7 @@
 // from 2.9 or earlier.
 // ZAP: 2020/10/07 Changes for Log4j 2 migration.
 // ZAP: 2020/11/02 Do not backup old Log4j config if already present.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -142,7 +143,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
@@ -377,7 +379,7 @@ public final class Constant {
     public static final URL SPIDER_IMAGE_URL =
             Constant.class.getResource("/resource/icon/10/spider.png");
 
-    private static Logger LOG = Logger.getLogger(Constant.class);
+    private static Logger LOG = LogManager.getLogger(Constant.class);
 
     public static String getEyeCatcher() {
         return staticEyeCatcher;

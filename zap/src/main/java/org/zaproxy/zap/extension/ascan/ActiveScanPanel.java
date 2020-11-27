@@ -33,7 +33,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToolBar;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
@@ -52,7 +53,7 @@ import org.zaproxy.zap.view.table.HistoryReferencesTable;
 public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<ActiveScan>>
         implements ScanListenner2, ScannerListener {
 
-    private static final Logger LOGGER = Logger.getLogger(ActiveScanPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(ActiveScanPanel.class);
 
     private static final long serialVersionUID = 1L;
 

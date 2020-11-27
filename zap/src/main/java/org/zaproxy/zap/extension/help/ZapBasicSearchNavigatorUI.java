@@ -27,7 +27,8 @@ import javax.help.NavigatorView;
 import javax.help.plaf.basic.BasicSearchNavigatorUI;
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A {@code BasicSearchNavigatorUI} that keeps merging views even if one of them is invalid.
@@ -36,7 +37,7 @@ import org.apache.log4j.Logger;
  */
 public class ZapBasicSearchNavigatorUI extends BasicSearchNavigatorUI {
 
-    private static final Logger LOGGER = Logger.getLogger(ZapBasicSearchNavigatorUI.class);
+    private static final Logger LOGGER = LogManager.getLogger(ZapBasicSearchNavigatorUI.class);
 
     public ZapBasicSearchNavigatorUI(JHelpSearchNavigator b) {
         super(b);

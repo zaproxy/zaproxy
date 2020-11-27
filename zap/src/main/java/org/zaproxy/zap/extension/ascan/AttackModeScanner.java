@@ -24,7 +24,8 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -60,7 +61,7 @@ public class AttackModeScanner implements EventConsumer {
     private AttackModeThread attackModeThread = null;
     private boolean rescanOnChange = false;
 
-    private Logger log = Logger.getLogger(AttackModeScanner.class);
+    private Logger log = LogManager.getLogger(AttackModeScanner.class);
 
     private List<SiteNode> nodeStack = new ArrayList<SiteNode>();
 

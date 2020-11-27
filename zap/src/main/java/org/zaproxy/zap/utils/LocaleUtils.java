@@ -33,13 +33,14 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.ViewLocale;
 
 public final class LocaleUtils {
 
-    private static final Logger logger = Logger.getLogger(LocaleUtils.class);
+    private static final Logger logger = LogManager.getLogger(LocaleUtils.class);
 
     private static final String MESSAGES_BASE_FILENAME = Constant.MESSAGES_PREFIX + "_";
 

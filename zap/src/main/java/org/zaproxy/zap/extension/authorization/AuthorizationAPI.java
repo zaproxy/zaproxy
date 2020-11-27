@@ -20,7 +20,8 @@
 package org.zaproxy.zap.extension.authorization;
 
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
@@ -35,7 +36,7 @@ import org.zaproxy.zap.utils.ApiUtils;
 /** The API for managing the Authorization for a Context. */
 public class AuthorizationAPI extends ApiImplementor {
 
-    private static final Logger log = Logger.getLogger(AuthorizationAPI.class);
+    private static final Logger log = LogManager.getLogger(AuthorizationAPI.class);
 
     private static final String PREFIX = "authorization";
 

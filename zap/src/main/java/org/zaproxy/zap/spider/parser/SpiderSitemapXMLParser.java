@@ -30,6 +30,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 import net.htmlparser.jericho.Source;
+import org.apache.logging.log4j.LogManager;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.w3c.dom.Document;
@@ -70,7 +71,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
             XPath xpath = XPathFactory.newInstance().newXPath();
             xpathLocationExpression = xpath.compile("/urlset/url/loc/text()");
         } catch (ParserConfigurationException | XPathExpressionException e) {
-            log.error(e);
+            LogManager.getLogger(SpiderSitemapXMLParser.class).error(e);
         }
     }
 
@@ -91,7 +92,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
 
-        if (log.isDebugEnabled()) log.debug("Parsing a sitemap.xml resource...");
+        if (getLogger().isDebugEnabled()) getLogger().debug("Parsing a sitemap.xml resource...");
 
         if (message == null
                 || !params.isParseSitemapXml()
@@ -107,7 +108,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
         Matcher xmlFormatMatcher = xmlPattern.matcher(new String(response));
         if (xmlFormatMatcher.find()) {
 
-            if (log.isDebugEnabled()) log.debug("The format matches XML");
+            if (getLogger().isDebugEnabled()) getLogger().debug("The format matches XML");
 
             try {
                 Document xmldoc =
@@ -118,25 +119,27 @@ public class SpiderSitemapXMLParser extends SpiderParser {
                     processURL(message, depth, locationNodes.item(i).getNodeValue(), baseURL);
                 }
             } catch (Exception e) {
-                log.error("An error occurred trying to parse sitemap.xml", e);
+                getLogger().error("An error occurred trying to parse sitemap.xml", e);
                 return false;
             }
             // We consider the message fully parsed, so it doesn't get parsed by 'fallback' parsers
             return true;
         } else {
             // the file name is right, but the content is not. Pass it to another parser.
-            if (log.isDebugEnabled())
-                log.debug(
-                        "The content of the response from '"
-                                + baseURL
-                                + "' does not match the expected content for a sitemap.xml file. Ignoring it.");
+            if (getLogger().isDebugEnabled())
+                getLogger()
+                        .debug(
+                                "The content of the response from '"
+                                        + baseURL
+                                        + "' does not match the expected content for a sitemap.xml file. Ignoring it.");
             return false;
         }
     }
 
     @Override
     public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
-        if (log.isDebugEnabled()) log.debug("canParseResource called on '" + path + "'");
+        if (getLogger().isDebugEnabled())
+            getLogger().debug("canParseResource called on '" + path + "'");
         // matches the file name of files that should be parsed with the sitemap.xml file parser
         Matcher matcher = SITEMAP_XML_FILENAME_PATTERN.matcher(path);
         return matcher.find();

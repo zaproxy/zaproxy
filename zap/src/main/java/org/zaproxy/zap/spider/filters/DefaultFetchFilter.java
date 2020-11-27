@@ -53,7 +53,7 @@ public class DefaultFetchFilter extends FetchFilter {
     @Override
     public FetchStatus checkFilter(URI uri) {
 
-        log.debug("Checking: " + uri);
+        getLogger().debug("Checking: " + uri);
         // Protocol check
         String scheme = uri.getScheme();
         if (scheme == null
@@ -82,7 +82,7 @@ public class DefaultFetchFilter extends FetchFilter {
             }
 
         } catch (URIException e) {
-            log.warn("Error while fetching host for uri: " + uri, e);
+            getLogger().warn("Error while fetching host for uri: " + uri, e);
             return FetchStatus.OUT_OF_SCOPE;
         }
 

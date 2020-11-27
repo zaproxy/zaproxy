@@ -22,7 +22,8 @@ package org.zaproxy.zap.extension.httppanel.view.paramtable;
 import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
@@ -32,7 +33,7 @@ public abstract class HttpPanelParamTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 8714941615215038148L;
 
-    private static final Logger log = Logger.getLogger(HttpPanelParamTableModel.class);
+    private static final Logger log = LogManager.getLogger(HttpPanelParamTableModel.class);
 
     private static final String[] columnNames = {
         Constant.messages.getString("http.panel.view.tableparam.type"),

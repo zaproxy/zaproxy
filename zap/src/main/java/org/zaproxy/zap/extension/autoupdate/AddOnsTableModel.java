@@ -30,7 +30,8 @@ import java.util.Set;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
@@ -45,7 +46,7 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -5240438485136881299L;
 
-    protected final Logger logger = Logger.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Comparator<AddOnWrapper> comparator;
 

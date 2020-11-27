@@ -37,7 +37,8 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
@@ -88,7 +89,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
     private ScanStatus scanStatus = null;
     private Mode mode = Control.getSingleton().getMode();
 
-    private static Logger log = Logger.getLogger(ScanPanel2.class);
+    private static Logger log = LogManager.getLogger(ScanPanel2.class);
 
     /**
      * Constructs a {@code ScanPanel2} with the given message resources prefix, tab icon and scan

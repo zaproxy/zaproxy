@@ -23,7 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
@@ -63,7 +64,7 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
         private static final long serialVersionUID = 3665478428546560762L;
 
         private static final Logger log =
-                Logger.getLogger(HttpResponseAllPanelSyntaxHighlightTextArea.class);
+                LogManager.getLogger(HttpResponseAllPanelSyntaxHighlightTextArea.class);
 
         // private static final String HTTP_RESPONSE_HEADER_AND_BODY = "HTTP Response Header and
         // Body";

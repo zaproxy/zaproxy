@@ -58,6 +58,7 @@
 // ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
 // ZAP: 2020/11/10 Add convenience method isCss(), refactor isImage() to use new private method
 // isSpecificType(Pattern).
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -73,7 +74,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class HttpRequestHeader extends HttpHeader {
 
@@ -92,7 +94,7 @@ public class HttpRequestHeader extends HttpHeader {
     public static final String ORIGIN = "Origin";
 
     private static final long serialVersionUID = 4156598327921777493L;
-    private static final Logger log = Logger.getLogger(HttpRequestHeader.class);
+    private static final Logger log = LogManager.getLogger(HttpRequestHeader.class);
 
     // method list
     public static final String CONNECT = "CONNECT";

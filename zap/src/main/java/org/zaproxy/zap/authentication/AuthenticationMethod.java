@@ -28,7 +28,8 @@ import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -50,7 +51,7 @@ import org.zaproxy.zap.utils.Stats;
  */
 public abstract class AuthenticationMethod {
 
-    private static final Logger LOGGER = Logger.getLogger(AuthenticationMethod.class);
+    private static final Logger LOGGER = LogManager.getLogger(AuthenticationMethod.class);
 
     public static final String CONTEXT_CONFIG_AUTH = Context.CONTEXT_CONFIG + ".authentication";
     public static final String CONTEXT_CONFIG_AUTH_TYPE = CONTEXT_CONFIG_AUTH + ".type";

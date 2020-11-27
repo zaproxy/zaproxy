@@ -35,6 +35,7 @@
 // ZAP: 2020/08/25 Catch NullPointerException when validating/saving the panel.
 // ZAP: 2020/10/26 Use empty border in the help button, to prevent the look and feel change from
 // resetting it. Also, use the icon from the ExtensionHelp.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -67,7 +68,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.parosproxy.paros.Constant;
@@ -122,7 +124,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
     private ShowHelpAction showHelpAction = null;
 
     // ZAP: Added logger
-    private static Logger log = Logger.getLogger(AbstractParamContainerPanel.class);
+    private static Logger log = LogManager.getLogger(AbstractParamContainerPanel.class);
 
     /**
      * Constructs an {@code AbstractParamContainerPanel} with a default root node's name ({@value

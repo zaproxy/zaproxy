@@ -30,7 +30,8 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
@@ -51,7 +52,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
     private static final String CONFIG_NOT_NEEDED =
             Constant.messages.getString("sessionmanagement.panel.label.noConfigPanel");
 
-    private static final Logger log = Logger.getLogger(ContextSessionManagementPanel.class);
+    private static final Logger log = LogManager.getLogger(ContextSessionManagementPanel.class);
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 6125457981814742851L;

@@ -25,7 +25,8 @@ import java.util.List;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.text.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
@@ -42,7 +43,8 @@ import org.zaproxy.zap.users.User;
  */
 public class JsonBasedAuthenticationMethodType extends PostBasedAuthenticationMethodType {
 
-    private static final Logger LOGGER = Logger.getLogger(JsonBasedAuthenticationMethodType.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(JsonBasedAuthenticationMethodType.class);
 
     private static final int METHOD_IDENTIFIER = 5;
 

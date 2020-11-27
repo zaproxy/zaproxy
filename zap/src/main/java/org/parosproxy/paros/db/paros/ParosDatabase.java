@@ -40,6 +40,7 @@
 // ZAP: 2016/05/24 Add implementation of Database.discardSession(long)
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use getLogger().
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
@@ -146,7 +147,7 @@ public class ParosDatabase extends AbstractDatabase {
     @Override
     public void open(String path) throws ClassNotFoundException, Exception {
         // ZAP: Added log statement.
-        logger.debug("open " + path);
+        getLogger().debug("open " + path);
         setDatabaseServer(new ParosDatabaseServer(path, databaseOptions));
 
         notifyListenersDatabaseOpen(internalDatabaseListeners, getDatabaseServer());
@@ -158,14 +159,14 @@ public class ParosDatabase extends AbstractDatabase {
      */
     @Override
     public void deleteSession(String sessionName) {
-        logger.debug("deleteSession " + sessionName);
+        getLogger().debug("deleteSession " + sessionName);
         if (databaseServer == null) {
             return;
         }
         try {
             databaseServer.shutdown(false);
         } catch (SQLException e) {
-            logger.error(e.getMessage(), e);
+            getLogger().error(e.getMessage(), e);
         }
 
         deleteDbFile(new File(sessionName));
@@ -179,10 +180,10 @@ public class ParosDatabase extends AbstractDatabase {
     }
 
     private void deleteDbFile(File file) {
-        logger.debug("Deleting " + file.getAbsolutePath());
+        getLogger().debug("Deleting " + file.getAbsolutePath());
         if (file.exists()) {
             if (!file.delete()) {
-                logger.error("Failed to delete " + file.getAbsolutePath());
+                getLogger().error("Failed to delete " + file.getAbsolutePath());
             }
         }
     }
@@ -195,7 +196,7 @@ public class ParosDatabase extends AbstractDatabase {
     @Override
     public void close(boolean compact, boolean cleanup) {
         // ZAP: Added statement.
-        logger.debug("close");
+        getLogger().debug("close");
         if (databaseServer == null) return;
 
         super.close(compact, cleanup);
@@ -212,7 +213,7 @@ public class ParosDatabase extends AbstractDatabase {
             // ZAP: Changed to catch SQLException instead of Exception.
         } catch (Exception e) {
             // ZAP: Changed to log the exception.
-            logger.error(e.getMessage(), e);
+            getLogger().error(e.getMessage(), e);
         }
     }
 

@@ -22,7 +22,8 @@ package org.zaproxy.zap.db.sql;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hsqldb.Server;
 import org.parosproxy.paros.db.DatabaseServer;
 
@@ -30,7 +31,7 @@ public class SqlDatabaseServer implements DatabaseServer {
 
     public static final int DEFAULT_SERVER_PORT = 9001;
 
-    private static final Logger logger = Logger.getLogger(SqlDatabaseServer.class);
+    private static final Logger logger = LogManager.getLogger(SqlDatabaseServer.class);
 
     private String dbUrl = null;
     private String dbUser = null;

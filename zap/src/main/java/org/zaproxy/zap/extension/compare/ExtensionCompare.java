@@ -36,7 +36,8 @@ import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.db.DatabaseException;
@@ -64,7 +65,7 @@ public class ExtensionCompare extends ExtensionAdaptor
     private static final String CRLF = "\r\n";
     private JMenuItem menuCompare = null;
 
-    private static Logger log = Logger.getLogger(ExtensionCompare.class);
+    private static Logger log = LogManager.getLogger(ExtensionCompare.class);
 
     public ExtensionCompare() {
         super(NAME);

@@ -34,7 +34,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
@@ -96,7 +97,7 @@ public class Spider {
     private ExtensionSpider extension;
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(Spider.class);
+    private static final Logger log = LogManager.getLogger(Spider.class);
 
     /** The HTTP sender used to effectively send the data. */
     private HttpSender httpSender;

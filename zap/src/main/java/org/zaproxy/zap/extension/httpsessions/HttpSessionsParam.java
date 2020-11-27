@@ -27,7 +27,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
@@ -66,7 +67,7 @@ public class HttpSessionsParam extends AbstractParam {
     };
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(HttpSessionsParam.class);
+    private static final Logger log = LogManager.getLogger(HttpSessionsParam.class);
 
     /** The default tokens. */
     private List<HttpSessionToken> defaultTokens = null;

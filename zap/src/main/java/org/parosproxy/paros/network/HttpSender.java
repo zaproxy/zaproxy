@@ -84,6 +84,7 @@
 // ZAP: 2019/09/25 Add option to disable cookies
 // ZAP: 2020/04/20 Configure if the names should be resolved or not (Issue 29).
 // ZAP: 2020/09/04 Added AUTHENTICATION_POLL_INITIATOR
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -117,7 +118,8 @@ import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
@@ -144,7 +146,7 @@ public class HttpSender {
     public static final int AUTHENTICATION_HELPER_INITIATOR = 14;
     public static final int AUTHENTICATION_POLL_INITIATOR = 15;
 
-    private static Logger log = Logger.getLogger(HttpSender.class);
+    private static Logger log = LogManager.getLogger(HttpSender.class);
 
     private static ProtocolSocketFactory sslFactory = null;
     private static Protocol protocol = null;

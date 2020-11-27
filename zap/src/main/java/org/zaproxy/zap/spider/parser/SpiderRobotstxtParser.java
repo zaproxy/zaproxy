@@ -60,7 +60,7 @@ public class SpiderRobotstxtParser extends SpiderParser {
         if (!params.isParseRobotsTxt()) {
             return false;
         }
-        log.debug("Parsing a robots.txt resource...");
+        getLogger().debug("Parsing a robots.txt resource...");
 
         String baseURL = message.getRequestHeader().getURI().toString();
 
@@ -80,7 +80,7 @@ public class SpiderRobotstxtParser extends SpiderParser {
             if (line.isEmpty()) {
                 continue;
             }
-            log.debug("Processing robots.txt line: " + line);
+            getLogger().debug("Processing robots.txt line: " + line);
 
             if (line.matches(PATTERNS_DISALLOW)) {
                 processPath(message, depth, line.substring(PATTERNS_DISALLOW_LENGTH), baseURL);

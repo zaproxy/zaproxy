@@ -33,7 +33,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
@@ -52,7 +53,7 @@ public class TableExportAction<T extends JTable> extends AbstractAction {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = Logger.getLogger(TableExportAction.class);
+    private static final Logger LOGGER = LogManager.getLogger(TableExportAction.class);
 
     private static final String CSV_EXTENSION = ".csv";
 

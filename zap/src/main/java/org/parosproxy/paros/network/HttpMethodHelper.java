@@ -44,7 +44,8 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.network.ZapDeleteMethod;
 import org.zaproxy.zap.network.ZapHeadMethod;
@@ -55,7 +56,7 @@ import org.zaproxy.zap.network.ZapTraceMethod;
 
 public class HttpMethodHelper {
 
-    private static final Logger logger = Logger.getLogger(HttpMethodHelper.class);
+    private static final Logger logger = LogManager.getLogger(HttpMethodHelper.class);
 
     private static final String OPTIONS = "OPTIONS";
     private static final String GET = "GET";

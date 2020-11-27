@@ -45,6 +45,7 @@
 // ZAP: 2020/02/24 Persist the class of the selected look and feel.
 // ZAP: 2020/09/29 Add support for dynamic Look and Feel switching (Issue 6201)
 // ZAP: 2020/10/26 Update pop up menus when changing look and feel.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.Window;
@@ -60,7 +61,8 @@ import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control.Mode;
@@ -75,7 +77,7 @@ import org.zaproxy.zap.utils.FontUtils;
 
 public class OptionsParamView extends AbstractParam {
 
-    private static final Logger LOG = Logger.getLogger(OptionsParamView.class);
+    private static final Logger LOG = LogManager.getLogger(OptionsParamView.class);
 
     private static final String DEFAULT_TIME_STAMP_FORMAT =
             Constant.messages.getString("timestamp.format.datetime");

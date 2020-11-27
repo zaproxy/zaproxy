@@ -31,7 +31,8 @@ import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -71,7 +72,7 @@ public class SpiderTask implements Runnable {
     private ExtensionHistory extHistory = null;
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(SpiderTask.class);
+    private static final Logger log = LogManager.getLogger(SpiderTask.class);
 
     /**
      * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the

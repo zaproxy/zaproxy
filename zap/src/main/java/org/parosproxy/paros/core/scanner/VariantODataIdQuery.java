@@ -26,7 +26,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -45,7 +46,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantODataIdQuery implements Variant {
 
-    private static final Logger log = Logger.getLogger(VariantODataIdQuery.class);
+    private static final Logger log = LogManager.getLogger(VariantODataIdQuery.class);
 
     /** In order to identify the unnamed id we add this prefix to the resource name * */
     public static final String RESOURCE_ID_PREFIX = "__ID__";

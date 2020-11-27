@@ -20,7 +20,8 @@
  */
 package org.zaproxy.zap.extension.globalexcludeurl;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -34,7 +35,7 @@ public class ExtensionGlobalExcludeURL extends ExtensionAdaptor {
     private OptionsGlobalExcludeURLPanel optionsGlobalExcludeURLPanel = null;
     // TODO Implement later ... private PopupMenuGenerateForm popupMenuGenerateForm = null;
 
-    private static Logger log = Logger.getLogger(ExtensionGlobalExcludeURL.class);
+    private static Logger log = LogManager.getLogger(ExtensionGlobalExcludeURL.class);
 
     public ExtensionGlobalExcludeURL() {
         super();

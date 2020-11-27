@@ -49,6 +49,7 @@
 // ZAP: 2019/11/09 Ability to filter to active scan (Issue 5278)
 // ZAP: 2020/05/19 simplifying duplicate HostProcess for readability
 // ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -65,7 +66,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.control.Control;
@@ -87,7 +89,7 @@ import org.zaproxy.zap.users.User;
 
 public class Scanner implements Runnable {
 
-    private static Logger log = Logger.getLogger(Scanner.class);
+    private static Logger log = LogManager.getLogger(Scanner.class);
     private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
 
     private Vector<ScannerListener> listenerList = new Vector<>();

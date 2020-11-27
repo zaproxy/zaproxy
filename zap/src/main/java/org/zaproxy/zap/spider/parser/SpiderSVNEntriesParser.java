@@ -34,6 +34,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import net.htmlparser.jericho.Source;
+import org.apache.logging.log4j.LogManager;
 import org.parosproxy.paros.network.HttpMessage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -80,7 +81,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
         try {
             dBuilder = XmlUtils.newXxeDisabledDocumentBuilderFactory().newDocumentBuilder();
         } catch (ParserConfigurationException e) {
-            log.error(e);
+            LogManager.getLogger(SpiderSVNEntriesParser.class).error(e);
         }
     }
 
@@ -99,7 +100,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
         if (message == null || !params.isParseSVNEntries()) {
             return false;
         }
-        log.debug("Parsing an SVN resource...");
+        getLogger().debug("Parsing an SVN resource...");
 
         // Get the response content
         String content = message.getResponseBody().toString();
@@ -130,14 +131,19 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                 fos.write(message.getResponseBody().getBytes());
                 fos.close();
 
-                if (log.isDebugEnabled()) {
+                if (getLogger().isDebugEnabled()) {
                     org.sqlite.JDBC jdbcDriver = new org.sqlite.JDBC();
-                    log.debug("Created a temporary SQLite database file '" + tempSqliteFile + "'");
-                    log.debug(
-                            "SQLite JDBC Driver is version "
-                                    + jdbcDriver.getMajorVersion()
-                                    + "."
-                                    + jdbcDriver.getMinorVersion());
+                    getLogger()
+                            .debug(
+                                    "Created a temporary SQLite database file '"
+                                            + tempSqliteFile
+                                            + "'");
+                    getLogger()
+                            .debug(
+                                    "SQLite JDBC Driver is version "
+                                            + jdbcDriver.getMajorVersion()
+                                            + "."
+                                            + jdbcDriver.getMinorVersion());
                 }
 
                 // now load the temporary SQLite file using JDBC, and query the file entries within.
@@ -159,8 +165,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                             // efficient manner.
                             int svnFormat = 0;
                             while (rsSVNWCFormat.next()) {
-                                if (log.isDebugEnabled())
-                                    log.debug("Got a row from 'pragma USER_VERSION'");
+                                if (getLogger().isDebugEnabled())
+                                    getLogger().debug("Got a row from 'pragma USER_VERSION'");
                                 svnFormat = rsSVNWCFormat.getInt(1);
                                 break;
                             }
@@ -175,14 +181,16 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                                 + svnFormat
                                                 + " is not supported at this time.  We support up to and including format 31 (~ SVN 1.8.5)");
                             }
-                            if (log.isDebugEnabled()) {
-                                log.debug(
-                                        "Internal SVN Working Copy Format for "
-                                                + tempSqliteFile
-                                                + " is "
-                                                + svnFormat);
-                                log.debug(
-                                        "Refer to http://svn.apache.org/repos/asf/subversion/trunk/subversion/libsvn_wc/wc.h for more details!");
+                            if (getLogger().isDebugEnabled()) {
+                                getLogger()
+                                        .debug(
+                                                "Internal SVN Working Copy Format for "
+                                                        + tempSqliteFile
+                                                        + " is "
+                                                        + svnFormat);
+                                getLogger()
+                                        .debug(
+                                                "Refer to http://svn.apache.org/repos/asf/subversion/trunk/subversion/libsvn_wc/wc.h for more details!");
                             }
 
                             // allow future changes to be easily handled
@@ -197,25 +205,28 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                             }
 
                             if (rsNodes == null) {
-                                log.error(
-                                        "There was a problem parsing the resource. rsNodes should not be null.");
+                                getLogger()
+                                        .error(
+                                                "There was a problem parsing the resource. rsNodes should not be null.");
                                 return false;
                             }
                             // now get the list of files stored in the SVN repo (or this folder of
                             // the repo, depending the SVN working copy format in use)
                             while (rsNodes.next()) {
-                                if (log.isDebugEnabled())
-                                    log.debug(
-                                            "Got a Node from the SVN wc.db file (format "
-                                                    + svnFormat
-                                                    + ")");
+                                if (getLogger().isDebugEnabled())
+                                    getLogger()
+                                            .debug(
+                                                    "Got a Node from the SVN wc.db file (format "
+                                                            + svnFormat
+                                                            + ")");
                                 String kind = rsNodes.getString(1);
                                 String filename = rsNodes.getString(2);
                                 String svn_filename = rsNodes.getString(3);
 
                                 if (filename != null && filename.length() > 0) {
-                                    log.debug(
-                                            "Found a file/directory name in the (SQLite based) SVN wc.db file");
+                                    getLogger()
+                                            .debug(
+                                                    "Found a file/directory name in the (SQLite based) SVN wc.db file");
 
                                     processURL(
                                             message,
@@ -248,11 +259,12 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                             rsRepo = stmt.executeQuery("select root from REPOSITORY order by id");
                             // get additional information on where the SVN repository is located
                             while (rsRepo.next()) {
-                                if (log.isDebugEnabled())
-                                    log.debug(
-                                            "Got a potential Repository from the SVN wc.db file (format "
-                                                    + svnFormat
-                                                    + ")");
+                                if (getLogger().isDebugEnabled())
+                                    getLogger()
+                                            .debug(
+                                                    "Got a potential Repository from the SVN wc.db file (format "
+                                                            + svnFormat
+                                                            + ")");
                                 String repos_path = rsRepo.getString(1);
                                 if (repos_path != null && repos_path.length() > 0) {
                                     // exclude local repositories here.. we cannot retrieve or
@@ -260,18 +272,20 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                     Matcher repoMatcher =
                                             svnRepoLocationPattern.matcher(repos_path);
                                     if (repoMatcher.find()) {
-                                        log.debug(
-                                                "Found an SVN repository location in the (SQLite based) SVN wc.db file");
+                                        getLogger()
+                                                .debug(
+                                                        "Found an SVN repository location in the (SQLite based) SVN wc.db file");
                                         processURL(message, depth, repos_path + "/", baseURL);
                                     }
                                 }
                             }
                         } catch (Exception e) {
-                            log.error(
-                                    "Error executing SQL on temporary SVN SQLite database '"
-                                            + sqliteConnectionUrl
-                                            + "': "
-                                            + e);
+                            getLogger()
+                                    .error(
+                                            "Error executing SQL on temporary SVN SQLite database '"
+                                                    + sqliteConnectionUrl
+                                                    + "': "
+                                                    + e);
                         } finally {
                             // the JDBC driver in use does not play well with "try with resource"
                             // construct. I tried!
@@ -287,7 +301,10 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                 } catch (Exception e) {
                     // the connection will have been closed already, since we're used a try with
                     // resources
-                    log.error("Error parsing temporary SVN SQLite database " + sqliteConnectionUrl);
+                    getLogger()
+                            .error(
+                                    "Error parsing temporary SVN SQLite database "
+                                            + sqliteConnectionUrl);
                 } finally {
                     // delete the temp file.
                     // this will be deleted when the VM is shut down anyway, but better to be safe
@@ -296,8 +313,10 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                 }
 
             } catch (IOException | ClassNotFoundException e) {
-                log.error(
-                        "An error occurred trying to set up to parse the SQLite based file: " + e);
+                getLogger()
+                        .error(
+                                "An error occurred trying to set up to parse the SQLite based file: "
+                                        + e);
                 // We consider the message fully parsed, so it doesn't get parsed by 'fallback'
                 // parsers
                 return true;
@@ -319,8 +338,10 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                 new InputSource(
                                         new ByteArrayInputStream(content.getBytes("utf-8"))));
             } catch (SAXException | IOException e) {
-                log.error(
-                        "An error occurred trying to parse the XML based .svn/entries file: " + e);
+                getLogger()
+                        .error(
+                                "An error occurred trying to parse the XML based .svn/entries file: "
+                                        + e);
                 // We consider the message fully parsed, so it doesn't get parsed by 'fallback'
                 // parsers
                 return true;
@@ -334,8 +355,9 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                 String svnEntryCopyFromUrl = ((Element) svnEntryNode).getAttribute("copyfrom-url");
 
                 if (svnEntryName != null && svnEntryName.length() > 0) {
-                    log.debug(
-                            "Found a file/directory name in the (XML based) SVN < 1.4 entries file");
+                    getLogger()
+                            .debug(
+                                    "Found a file/directory name in the (XML based) SVN < 1.4 entries file");
                     processURL(
                             message,
                             depth,
@@ -360,8 +382,9 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                     // exclude local repositories here.. we cannot retrieve or spider them
                     Matcher repoMatcher = svnRepoLocationPattern.matcher(svnEntryUrl);
                     if (repoMatcher.find()) {
-                        log.debug(
-                                "Found an SVN repository location in the (XML based) SVN < 1.4 entries file");
+                        getLogger()
+                                .debug(
+                                        "Found an SVN repository location in the (XML based) SVN < 1.4 entries file");
                         processURL(message, depth, svnEntryUrl + "/", baseURL);
                     }
                 }
@@ -369,7 +392,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                 // than directories
                 Matcher urlMatcher = svnRepoLocationPattern.matcher(svnEntryCopyFromUrl);
                 if (urlMatcher.find()) {
-                    log.debug("Found an SVN URL in the (XML based) SVN < 1.4 entries file");
+                    getLogger().debug("Found an SVN URL in the (XML based) SVN < 1.4 entries file");
                     processURL(message, depth, svnEntryCopyFromUrl, baseURL);
                 }
             }
@@ -384,7 +407,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                 // If the line is empty, skip it
                 if (line.length() > 0) {
 
-                    // log.debug("Processing SVN entries line: " + line);
+                    // getLogger().debug("Processing SVN entries line: " + line);
 
                     Matcher matcher = svnTextFormatFileOrDirectoryPattern.matcher(line);
                     if (matcher.find()) {
@@ -392,8 +415,9 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                         String filetype = matcher.group(0);
                         // the previous line actually contains the file/directory name.
                         if (previousline != null && previousline.length() > 0) {
-                            log.debug(
-                                    "Found a file/directory name in the (text based) SVN 1.4/1.5/1.6 SVN entries file");
+                            getLogger()
+                                    .debug(
+                                            "Found a file/directory name in the (text based) SVN 1.4/1.5/1.6 SVN entries file");
 
                             processURL(
                                     message,
@@ -423,8 +447,9 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                         // location
                         Matcher repoMatcher = svnRepoLocationPattern.matcher(line);
                         if (repoMatcher.find()) {
-                            log.debug(
-                                    "Found an SVN repository location in the (text based) 1.4/1.5/1.6 SVN entries file");
+                            getLogger()
+                                    .debug(
+                                            "Found an SVN repository location in the (text based) 1.4/1.5/1.6 SVN entries file");
 
                             processURL(message, depth, line + "/", baseURL);
                         }

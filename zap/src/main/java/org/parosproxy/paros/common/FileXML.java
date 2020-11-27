@@ -26,6 +26,7 @@
 // ZAP: 2015/08/19 Deprecated; Issue 1804: Disable processing of XML external entities by default
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.common;
 
 import java.io.File;
@@ -42,7 +43,8 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -55,7 +57,7 @@ import org.zaproxy.zap.utils.XmlUtils;
 @Deprecated
 public abstract class FileXML {
 
-    private static final Logger logger = Logger.getLogger(FileXML.class);
+    private static final Logger logger = LogManager.getLogger(FileXML.class);
 
     protected Document doc = null;
     protected DocumentBuilder docBuilder = null;

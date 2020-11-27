@@ -34,7 +34,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
@@ -49,7 +50,7 @@ class DialogAddCustomPage extends AbstractFormDialog {
     private static final long serialVersionUID = -7210879426146833234L;
 
     /** The Constant logger. */
-    protected static final Logger LOGGER = Logger.getLogger(DialogAddCustomPage.class);
+    protected static final Logger LOGGER = LogManager.getLogger(DialogAddCustomPage.class);
 
     private static final String DIALOG_TITLE =
             Constant.messages.getString("custompages.dialog.add.title");

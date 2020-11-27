@@ -31,7 +31,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -52,7 +53,7 @@ import org.zaproxy.zap.view.ZapToggleButton;
 public class BreakPanel extends AbstractPanel implements Tab, BreakpointManagementInterface {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger LOGGER = Logger.getLogger(BreakPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(BreakPanel.class);
 
     private static final String REQUEST_PANEL = "request";
     private static final String RESPONSE_PANEL = "response";

@@ -19,7 +19,8 @@
  */
 package org.zaproxy.zap.spider.filters;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -28,8 +29,26 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public abstract class ParseFilter {
 
-    /** The Constant log. */
-    protected static final Logger log = Logger.getLogger(ParseFilter.class);
+    /**
+     * The Constant log.
+     *
+     * @deprecated (TODO add version) Use {@link #getLogger()} instead.
+     */
+    @Deprecated
+    protected static final org.apache.log4j.Logger log =
+            org.apache.log4j.Logger.getLogger(ParseFilter.class);
+
+    private final Logger logger = LogManager.getLogger(getClass());
+
+    /**
+     * Gets the logger.
+     *
+     * @return the logger, never {@code null}.
+     * @since TODO add version
+     */
+    protected Logger getLogger() {
+        return logger;
+    }
 
     /**
      * Checks if the resource must be ignored and not processed.

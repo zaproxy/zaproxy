@@ -41,6 +41,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/04/20 Let SOCKS proxy resolve hosts if set (Issue 29).
 // ZAP: 2020/10/30 Add SNI hostname when using SOCKS with unresolved addresses.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.network;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
@@ -91,7 +92,8 @@ import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.commons.validator.routines.InetAddressValidator;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
 import org.parosproxy.paros.security.CertData;
 import org.parosproxy.paros.security.SslCertificateService;
@@ -184,7 +186,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
     // ZAP: removed ServerSocketFaktory
 
     // ZAP: Added logger
-    private static final Logger logger = Logger.getLogger(SSLConnector.class);
+    private static final Logger logger = LogManager.getLogger(SSLConnector.class);
 
     private static SSLContextManager sslContextManager = null;
 

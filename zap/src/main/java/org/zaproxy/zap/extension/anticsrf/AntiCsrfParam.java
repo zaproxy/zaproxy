@@ -25,13 +25,14 @@ import java.util.Iterator;
 import java.util.List;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 public class AntiCsrfParam extends AbstractParam {
 
-    private static final Logger logger = Logger.getLogger(AntiCsrfParam.class);
+    private static final Logger logger = LogManager.getLogger(AntiCsrfParam.class);
 
     private static final String ANTI_CSRF_BASE_KEY = "anticsrf";
 

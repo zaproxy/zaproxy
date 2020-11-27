@@ -21,7 +21,8 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.ScannerParam;
@@ -49,7 +50,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache;
 import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
 public class VariantFactory {
-    private static final Logger LOG = Logger.getLogger(VariantFactory.class);
+    private static final Logger LOG = LogManager.getLogger(VariantFactory.class);
 
     private ExtensionScript extension;
     private final List<Class<? extends Variant>> customVariants = new ArrayList<>();

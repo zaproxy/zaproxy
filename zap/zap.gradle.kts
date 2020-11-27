@@ -145,14 +145,17 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     )
 
     fieldExcludes = listOf(
-        // Was not part of the public API.
+        // Not part of the public API:
+        "org.zaproxy.zap.extension.autoupdate.AddOnsTableModel#logger",
+        "org.zaproxy.zap.extension.users.DialogAddUser#log",
         "org.zaproxy.zap.ZAP#JERICHO_LOGGER_PROVIDER"
     )
 
     classExcludes = listOf(
         "org.parosproxy.paros.db.paros.ParosTableAlert",
         "org.parosproxy.paros.db.RecordAlert",
-        "org.zaproxy.zap.db.sql.SqlTableAlert"
+        "org.zaproxy.zap.db.sql.SqlTableAlert",
+        "org.zaproxy.zap.extension.log4j.ZapOutputWriter"
     )
 
     methodExcludes = listOf(
@@ -162,6 +165,7 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.parosproxy.paros.core.scanner.VariantScript#getLeafName(org.parosproxy.paros.core.scanner.VariantCustom,java.lang.String,org.parosproxy.paros.network.HttpMessage)",
         "org.parosproxy.paros.core.scanner.VariantScript#getTreePath(org.parosproxy.paros.core.scanner.VariantCustom,org.parosproxy.paros.network.HttpMessage)",
         "org.parosproxy.paros.db.TableAlert#write(int,int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int)",
+        "org.zaproxy.zap.CommandLineBootstrap#getLogger()",
         "org.zaproxy.zap.model.ParameterParser#parseRawParameters(java.lang.String)"
     )
 
