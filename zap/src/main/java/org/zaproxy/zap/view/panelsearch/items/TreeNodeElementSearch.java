@@ -122,9 +122,9 @@ public class TreeNodeElementSearch extends AbstractComponentSearch<TreeNodeEleme
 
             if (highlightedNodes.contains(value)) {
                 trySetOpaque(cell, true);
-                cell.setBackground(HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+                cell.setBackground(HighlighterUtils.getHighlightColor());
             } else if (highlightedParentNodes.contains(value)) {
-                trySetBorder(cell, HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+                trySetBorder(cell, HighlighterUtils.getHighlightColor());
             }
 
             return cell;

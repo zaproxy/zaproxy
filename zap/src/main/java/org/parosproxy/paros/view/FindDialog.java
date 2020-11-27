@@ -51,6 +51,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 
 public class FindDialog extends AbstractDialog {
@@ -200,6 +201,7 @@ public class FindDialog extends AbstractDialog {
 
             int length = findText.length();
             if (startPos > -1) {
+                txtComp.setSelectionColor(DisplayUtils.getHighlightColor());
                 txtComp.select(startPos, startPos + length);
                 txtComp.requestFocusInWindow();
                 txtFind.requestFocusInWindow();

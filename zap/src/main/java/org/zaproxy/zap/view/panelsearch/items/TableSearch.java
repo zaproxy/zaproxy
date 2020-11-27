@@ -45,8 +45,7 @@ public class TableSearch extends AbstractComponentSearch<JTable> {
 
     @Override
     protected HighlightedComponent highlightAsParentInternal(JTable component) {
-        return HighlighterUtils.highlightBorder(
-                component, HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+        return HighlighterUtils.highlightBorder(component, HighlighterUtils.getHighlightColor());
     }
 
     @Override

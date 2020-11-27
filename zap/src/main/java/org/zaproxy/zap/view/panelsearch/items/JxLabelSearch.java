@@ -45,8 +45,8 @@ public class JxLabelSearch extends AbstractComponentSearch<JXLabel> {
         highlightedComponent.put(BACKGROUND_PAINTER, component.getBackgroundPainter());
         component.setBackgroundPainter(
                 new RectanglePainter(
-                        HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR,
-                        HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR));
+                        HighlighterUtils.getHighlightColor(),
+                        HighlighterUtils.getHighlightColor()));
         return highlightedComponent;
     }
 
