@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-11-27
+ - Move logging level of Params from `info` to `debug`, as it can contain sensitive data when authenticated scans are run.
+ 
 ### 2020-11-24
  - Add support for authenticated scans.
 
