@@ -284,7 +284,7 @@ def start_zap(port, extra_zap_params):
 
     params.extend(extra_zap_params)
 
-    logging.info('Params: ' + str(params))
+    logging.debug('Params: ' + str(params))
 
     with open('zap.out', "w") as outfile:
         subprocess.Popen(params, stdout=outfile)
@@ -340,7 +340,7 @@ def start_docker_zap(docker_image, port, extra_zap_params, mount_dir):
 
     params.extend(extra_zap_params)
 
-    logging.info('Params: ' + str(params))
+    logging.debug('Params: ' + str(params))
 
     cid = subprocess.check_output(params).rstrip().decode('utf-8')
     logging.debug('Docker CID: ' + cid)
