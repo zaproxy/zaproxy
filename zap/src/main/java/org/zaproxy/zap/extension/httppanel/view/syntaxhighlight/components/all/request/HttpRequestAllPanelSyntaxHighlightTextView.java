@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.components.all.request;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -39,6 +38,7 @@ import org.zaproxy.zap.model.DefaultTextHttpMessageLocation;
 import org.zaproxy.zap.model.HttpMessageLocation;
 import org.zaproxy.zap.model.MessageLocation;
 import org.zaproxy.zap.model.TextHttpMessageLocation;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableContentHttpMessageContainer;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlightsManager;
@@ -294,7 +294,9 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
         TextHttpMessageLocation textLocation = (TextHttpMessageLocation) location;
 
         return getHttpPanelTextArea()
-                .highlightImpl(textLocation, new TextMessageLocationHighlight(Color.LIGHT_GRAY));
+                .highlightImpl(
+                        textLocation,
+                        new TextMessageLocationHighlight(DisplayUtils.getHighlightColor()));
     }
 
     @Override
