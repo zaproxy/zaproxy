@@ -39,7 +39,7 @@ public class ComboBoxSearch extends AbstractComponentSearch<JComboBox<Object>> {
     @Override
     protected HighlightedComponent highlightInternal(JComboBox<Object> component) {
         return HighlighterUtils.highlightBackground(
-                component, HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+                component, HighlighterUtils.getHighlightColor());
     }
 
     @Override
@@ -60,8 +60,7 @@ public class ComboBoxSearch extends AbstractComponentSearch<JComboBox<Object>> {
 
     @Override
     protected HighlightedComponent highlightAsParentInternal(JComboBox<Object> component) {
-        return HighlighterUtils.highlightBorder(
-                component, HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+        return HighlighterUtils.highlightBorder(component, HighlighterUtils.getHighlightColor());
     }
 
     @Override

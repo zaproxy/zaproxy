@@ -40,7 +40,7 @@ public class ButtonSearch extends AbstractComponentSearch<AbstractButton> {
     @Override
     protected HighlightedComponent highlightInternal(AbstractButton component) {
         return HighlighterUtils.highlightBackground(
-                component, HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+                component, HighlighterUtils.getHighlightColor());
     }
 
     @Override
