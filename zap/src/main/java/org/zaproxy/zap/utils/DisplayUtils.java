@@ -20,6 +20,7 @@
 package org.zaproxy.zap.utils;
 
 import com.formdev.flatlaf.FlatLaf;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Insets;
@@ -228,5 +229,14 @@ public class DisplayUtils {
             return flaf.isDark();
         }
         return false;
+    }
+
+    /**
+     * Returns a highlight color suitable for the selected LookAndFeel
+     *
+     * @return a highlight color suitable for the selected LookAndFeel
+     */
+    public static Color getHighlightColor() {
+        return isDarkLookAndFeel() ? new Color(0x66, 0x22, 0) : Color.LIGHT_GRAY;
     }
 }
