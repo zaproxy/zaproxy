@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight;
 
-import java.awt.Color;
 import java.awt.Component;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -268,10 +267,10 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
 
     protected void highlight(int start, int end) {
         Highlighter hilite = this.getHighlighter();
-        HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
+        HighlightPainter painter =
+                new DefaultHighlighter.DefaultHighlightPainter(DisplayUtils.getHighlightColor());
 
         try {
-            // DOBIN
             removeAllHighlights();
             hilite.addHighlight(start, end, painter);
             this.setCaretPosition(start);
