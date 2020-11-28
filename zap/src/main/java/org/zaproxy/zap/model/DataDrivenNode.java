@@ -229,6 +229,11 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     	return !pattern.isBlank() ? pattern : name;
     }
     
+    @Override
+    public boolean equals(Object obj) {
+    	return obj == this;
+    }
+    
     protected String ValueOrEmptyString(String value) {
     	return (value != null) ? value : "";
     }
