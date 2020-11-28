@@ -143,7 +143,6 @@ import org.zaproxy.zap.view.ContextGeneralPanel;
 import org.zaproxy.zap.view.ContextIncludePanel;
 import org.zaproxy.zap.view.ContextListPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
-import org.zaproxy.zap.view.ContextStructurePanel;
 import org.zaproxy.zap.view.ContextStructureParamPanel;
 import org.zaproxy.zap.view.ContextTechnologyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
@@ -779,11 +778,6 @@ public class View implements ViewDelegate {
         contextExcPanel.setSessionDialog(getSessionDialog());
         getSessionDialog().addParamPanel(contextPanelPath, contextExcPanel, false);
         this.contextPanels.add(contextExcPanel);
-
-        ContextStructurePanel contextStructPanel = new ContextStructurePanel(c);
-        contextStructPanel.setSessionDialog(getSessionDialog());
-        getSessionDialog().addParamPanel(contextPanelPath, contextStructPanel, false);
-        this.contextPanels.add(contextStructPanel);
 
         ContextStructureParamPanel contextStructParamPanel = new ContextStructureParamPanel(c);
         contextStructParamPanel.setSessionDialog(getSessionDialog());

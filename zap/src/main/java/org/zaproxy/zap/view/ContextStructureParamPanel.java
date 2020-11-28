@@ -42,7 +42,8 @@ import org.zaproxy.zap.utils.ZapTextField;
 
 public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
 
-    private static final String PANEL_NAME = Constant.messages.getString("context.structParams.title");
+    private static final String PANEL_NAME =
+            Constant.messages.getString("context.structParams.title");
     private static final long serialVersionUID = -1;
 
     private StruturalParametersOptionsModel structuralParamsModel;
@@ -422,7 +423,7 @@ public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
     }
 
     public static class StructuralParameterDialog extends StandardFieldsDialog {
-    	
+
         private static final long serialVersionUID = 1L;
 
         private static final String FIELD_PARAM_NAME = "context.structParams.dialog.paramName";
