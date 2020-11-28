@@ -1521,6 +1521,10 @@ public class Session {
                 c.getPostParamParser().getClass().getCanonicalName());
         config.setProperty(
                 Context.CONTEXT_CONFIG_POSTPARSER_CONFIG, c.getPostParamParser().getConfig());
+        
+        for (DataDrivenNode ddn : c.getDataDrivenNodes_New()) {
+        	config.addProperty(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES_NEW, ddn.getConfig());
+        }
         for (StructuralNodeModifier snm : c.getDataDrivenNodes()) {
             config.addProperty(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES, snm.getConfig());
         }
@@ -1612,6 +1616,10 @@ public class Session {
             parser.init(postParserConfig);
             parser.setContext(c);
             c.setPostParamParser(parser);
+        }
+        
+        for (Object obj : config.getList(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES_NEW)) {
+        	c.addDataDrivenNode_New(new DataDrivenNode(obj.toString()));
         }
         for (Object obj : config.getList(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES)) {
             c.addDataDrivenNodes(new StructuralNodeModifier(obj.toString()));
