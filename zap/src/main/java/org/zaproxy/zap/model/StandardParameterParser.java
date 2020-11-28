@@ -340,7 +340,7 @@ public class StandardParameterParser implements ParameterParser {
                 		Pattern ddnPattern = dataDrivenNode.getRegEx();
                 		Matcher ddnMatcher = ddnPattern.matcher(uriStr);
                 		
-                		if (ddnMatcher.matches()) {
+                		if (ddnMatcher.find()) {
                 			if (!dataDrivenNode.getDataNodePattern().isBlank()) {
                 				uriStr = ddnMatcher.replaceFirst(dataDrivenNode.getReplacementPattern());
                 				changed = true;
@@ -356,7 +356,7 @@ public class StandardParameterParser implements ParameterParser {
                 
                 if (changed) {
                 	log.debug("Changed URI from " + uri.toString() + " to " + uriStr);
-                	URI newUri = new URI(uriStr, true);
+                	URI newUri = new URI(uriStr, false);
                 	path = newUri.getPath();
                 }
             }
