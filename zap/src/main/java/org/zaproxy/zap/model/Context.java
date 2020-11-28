@@ -69,6 +69,7 @@ public class Context {
     public static final String CONTEXT_CONFIG_POSTPARSER_CONFIG =
             CONTEXT_CONFIG_POSTPARSER + ".config";
     public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES = CONTEXT_CONFIG + ".ddns";
+    public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES_NEW = CONTEXT_CONFIG + ".dataDrivenNodes";
 
     private static Logger log = LogManager.getLogger(Context.class);
 
