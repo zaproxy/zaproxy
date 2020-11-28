@@ -121,6 +121,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.DataDrivenNode;
 import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.ParameterParser;
@@ -527,6 +528,11 @@ public class Session {
                                 ctx.getId(), RecordContext.TYPE_DATA_DRIVEN_NODES);
                 for (String str : strs) {
                     ctx.addDataDrivenNodes(new StructuralNodeModifier(str));
+                }
+                
+                List<String> rootDdnStrs = this.getContextDataStrings(ctx.getId(), RecordContext.TYPE_DATA_DRIVEN_NODES_NEW);
+                for (String rootDdnStr : rootDdnStrs) {
+                	ctx.addDataDrivenNode_New(new DataDrivenNode(rootDdnStr));
                 }
             } catch (Exception e) {
                 log.error("Failed to load data driven nodes for context " + ctx.getId(), e);
@@ -1263,6 +1269,15 @@ public class Session {
         }
         return strList;
     }
+    
+    private List<String> ddnListToStringList(List<DataDrivenNode> list) {
+    	List<String> strList = new ArrayList<>();
+    	for (DataDrivenNode rootDdn : list) {
+    		strList.add(rootDdn.getConfig());
+    	}
+    	
+    	return strList;
+    }
 
     public void saveContext(Context c) {
         try {
@@ -1298,10 +1313,15 @@ public class Session {
                     c.getId(),
                     RecordContext.TYPE_POST_PARSER_CONFIG,
                     c.getPostParamParser().getConfig());
+            
             this.setContextData(
                     c.getId(),
                     RecordContext.TYPE_DATA_DRIVEN_NODES,
                     snmListToStringList(c.getDataDrivenNodes()));
+            this.setContextData(
+            		c.getId(),
+            		RecordContext.TYPE_DATA_DRIVEN_NODES_NEW,
+            		ddnListToStringList(c.getDataDrivenNodes_New()));
 
             model.saveContext(c);
         } catch (DatabaseException e) {

@@ -713,6 +713,10 @@ public class Context {
     public void setDataDrivenNodes_New(List<DataDrivenNode> ddns) {
     	this.ddns = ddns;
     }
+    
+    public void addDataDrivenNode_New(DataDrivenNode ddn) {
+    	this.ddns.add(ddn);
+    }
 
     public List<StructuralNodeModifier> getDataDrivenNodes() {
         List<StructuralNodeModifier> ddns = new ArrayList<>(this.dataDrivenNodes.size());

@@ -21,14 +21,11 @@ package org.zaproxy.zap.view;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.Dialog;
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -46,12 +43,9 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.MutableTreeNode;
-import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.VerticalLayout;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
