@@ -93,7 +93,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     public ContextDdnPanel(Context context) {
         super(context.getId());
         
-        this.treeModel = new DefaultTreeModel(new DefaultMutableTreeNode(DataDrivenNode.ROOT_DDN.clone()));
+        this.treeModel = new DefaultTreeModel(new DefaultMutableTreeNode(new DataDrivenNode("Data Driven Nodes", null)));
 
         this.setLayout(new CardLayout());
         this.setName(getPanelName(this.getContextId()));
@@ -117,13 +117,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
         	ddnTree.addTreeSelectionListener(new TreeSelectionListener() {
 				@Override
 				public void valueChanged(TreeSelectionEvent e) {
-					TreePath selectedPath = ddnTree.getSelectionPath();
-					boolean notRootSelected = false;
-					if (selectedPath != null) {
-						DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)treeModel.getRoot();
-						DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
-						notRootSelected = (selectedNode != rootNode);
-					}
+					boolean notRootSelected = !isRootSelected();
 					
 					modifyButton.setEnabled(notRootSelected);
 					removeButton.setEnabled(notRootSelected);
@@ -146,19 +140,27 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 					if (selectedNodePath != null) {
 						parentNode = (DefaultMutableTreeNode)selectedNodePath.getLastPathComponent(); 
 					}
-					DataDrivenNode parentDdn = (DataDrivenNode)parentNode.getUserObject();
 					
+					DataDrivenNode parentDdn = null;
+					if (!isRootSelected()) {
+						parentDdn = (DataDrivenNode)parentNode.getUserObject();
+					}
+					
+					DataDrivenNode dialogModel = new DataDrivenNode(parentDdn);
 					DataDrivenNodeDialog ddnDialog = 
 							new DataDrivenNodeDialog(View.getSingleton().getSessionDialog(),
 												     "context.ddn.dialog.add.title",
 					                                 new Dimension(500, 200));
-					DataDrivenNode newDdn = ddnDialog.showDialog();
+					
+					DataDrivenNode newDdn = ddnDialog.showDialog(dialogModel);
 					if (newDdn != null) {
-						parentDdn.addChildNode(newDdn);
-						
 						DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(newDdn);
 						treeModel.insertNodeInto(newNode, parentNode, parentNode.getChildCount());
 						ddnTree.expandPath(selectedNodePath);
+						
+						if (parentDdn != null) {
+							parentDdn.addChildNode(newDdn);
+						}
 					}
 				}
 			});
@@ -251,6 +253,18 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     public void validateContextData(Session session) throws Exception {
     	// Nothing to validate at this level ; validations occur when adding/modifying each DataDrivenNode
     }
+    
+    private boolean isRootSelected() {
+    	TreePath selectedPath = ddnTree.getSelectionPath();
+		boolean rootSelected = true;
+		if (selectedPath != null) {
+			DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode)treeModel.getRoot();
+			DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
+			rootSelected = (selectedNode == rootNode);
+		}
+		
+		return rootSelected;
+    }
 
     @Override
     public void saveTemporaryContextData(Context uiSharedContext) {
@@ -294,13 +308,14 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 		private static final long serialVersionUID = 1L;
 		
 		private static final String FIELD_DDN_NAME = "context.ddn.dialog.ddnName";
-		private static final String FIELD_HOST = "context.ddn.dialog.host";
+
 		private static final String FIELD_PREFIX_PATTERN = "context.ddn.dialog.prefixPattern";
 		private static final String FIELD_DATA_NODE_PATTERN = "context.ddn.dialog.dataNodePattern";
 		private static final String FIELD_SUFFIX_PATTERN = "context.ddn.dialog.suffixPattern";
 		private static final String LABEL_PATTERN = "context.ddn.dialog.pattern";
 		
 		private DataDrivenNode model;
+		private DataDrivenNode labelModel;
 
 		public DataDrivenNodeDialog(JDialog owner, String titleLabel, Dimension dim) {
 			super(owner, titleLabel, dim, true);
@@ -308,16 +323,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 		
 		public DataDrivenNode showDialog(DataDrivenNode model) {
 			this.model = model;
-			
-			String ddnName = this.model.getName();
-			String host = this.model.getHost();
-			String prefixPattern = this.model.getPrefixPattern();
-			String dataNodePattern = this.model.getDataNodePattern();
-			String suffixPattern = this.model.getSuffixPattern();
-			String pattern = this.model.getPattern();
-			
-			this.addTextField(FIELD_DDN_NAME, ddnName);
-			this.addPadding();
+			this.labelModel = new DataDrivenNode("Label Model - Not For Use", model.getParentNode());
 			
 			DocumentListener updatePatternListener = new DocumentListener() {
 				@Override
@@ -328,7 +334,6 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 				@Override
 				public void insertUpdate(DocumentEvent e) {
 					updatePatternLabel();
-					
 				}
 				
 				@Override
@@ -337,34 +342,39 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 				}
 			};
 			
-			this.addTextField(FIELD_HOST, host);
-			this.addFieldListener(FIELD_HOST, updatePatternListener);
-			this.addTextField(FIELD_PREFIX_PATTERN, prefixPattern);
+			this.addTextField(FIELD_DDN_NAME, this.model.getName());
+
+			this.addTextField(FIELD_PREFIX_PATTERN, this.model.getPrefixPattern());
 			this.addFieldListener(FIELD_PREFIX_PATTERN, updatePatternListener);
-			this.addTextField(FIELD_DATA_NODE_PATTERN, dataNodePattern);
+			this.addTextField(FIELD_DATA_NODE_PATTERN, this.model.getDataNodePattern());
 			this.addFieldListener(FIELD_DATA_NODE_PATTERN, updatePatternListener);
-			this.addTextField(FIELD_SUFFIX_PATTERN, suffixPattern);
+			this.addTextField(FIELD_SUFFIX_PATTERN, this.model.getSuffixPattern());
 			this.addFieldListener(FIELD_SUFFIX_PATTERN, updatePatternListener);
 			
 			this.addPadding();
-			this.addReadOnlyField(LABEL_PATTERN, pattern, false);
-			
+			this.addReadOnlyField(LABEL_PATTERN, "", true);
+			updatePatternLabel();
+
+			this.pack();
 			this.setVisible(true);
 			
 			return this.model;
-		}
-		
-		public DataDrivenNode showDialog() {
-			return showDialog(new DataDrivenNode("", null));
 		}
 
 		@Override
 		public void save() {
 			this.model.setName(this.getStringValue(FIELD_DDN_NAME));
-			this.model.setHost(this.getStringValue(FIELD_HOST));
+
 			this.model.setPrefixPattern(this.getStringValue(FIELD_PREFIX_PATTERN));
 			this.model.setDataNodePattern(this.getStringValue(FIELD_DATA_NODE_PATTERN));
 			this.model.setSuffixPattern(this.getStringValue(FIELD_SUFFIX_PATTERN));
+		}
+		
+		@Override
+		public void cancelPressed() {
+			super.cancelPressed();
+			
+			this.model = null;
 		}
 
 		@Override
@@ -373,13 +383,19 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
                 return Constant.messages.getString("context.ddn.dialog.error.ddnName");
             }
 			
-			// TODO (JMG) : Add Logic to validate Host, Prefix, DataNode & Suffix Values
+			// TODO (JMG) : Add Logic to validate Prefix & DataNode Values
 			
 			return null;
 		}
 		
 		private void updatePatternLabel() {
+			this.labelModel.setPrefixPattern(this.getStringValue(FIELD_PREFIX_PATTERN));
+			this.labelModel.setDataNodePattern(this.getStringValue(FIELD_DATA_NODE_PATTERN));
+			this.labelModel.setSuffixPattern(this.getStringValue(FIELD_SUFFIX_PATTERN));
 			
+			String labelValue = "Pattern : " + this.labelModel.getPattern();
+			
+			this.setFieldValue(LABEL_PATTERN, labelValue);
 		}
     }
 }
