@@ -43,6 +43,8 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     private String prefixPattern;
     private String dataNodePattern;
     private String suffixPattern;
+    
+    private Pattern nodeRegex;
 
     public DataDrivenNode(String name, String prefixPattern, String dataNodePattern, String suffixPattern, DataDrivenNode parentNode) {
         super();
@@ -55,6 +57,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
 
         this.parentNode = parentNode;
         this.childNodes = new ArrayList<DataDrivenNode>();
+        invalidateNodePattern();
     }
     
     public DataDrivenNode(String name, DataDrivenNode parentNode) {
@@ -86,6 +89,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
             childNode.setParentNode(this);
             this.childNodes.add(childNode);
         }
+        invalidateNodePattern();
     }
 
     public String getName() {
@@ -102,6 +106,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     
     public void setPrefixPattern(String prefixPattern) {
     	this.prefixPattern = prefixPattern;
+    	invalidateNodePattern();
     }
     
     public String getDataNodePattern() {
@@ -110,6 +115,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     
     public void setDataNodePattern(String dataNodePattern) {
     	this.dataNodePattern = dataNodePattern;
+    	invalidateNodePattern();
     }
     
     public String getSuffixPattern() {
@@ -118,6 +124,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     
     public void setSuffixPattern(String suffixPattern) {
     	this.suffixPattern = suffixPattern;
+    	invalidateNodePattern();
     }
 
     public String getPattern() {
@@ -130,7 +137,10 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     }
     
     public Pattern getRegEx() {
-    	return Pattern.compile(getPattern());
+    	if (this.nodeRegex == null) {
+    		this.nodeRegex = Pattern.compile(getPattern());
+    	}
+    	return this.nodeRegex;
     }
     
     public String getReplacedPattern(boolean includeParent) {
@@ -201,6 +211,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
 
         serialized.put(CONFIG_PREFIX_PATTERN, this.prefixPattern);
         serialized.put(CONFIG_DATA_NODE_PATTERN, this.dataNodePattern);
+        serialized.put(CONFIG_SUFFIX_PATTERN, this.suffixPattern);
         serialized.put(CONFIG_ENABLED, this.isEnabled());
 
         JSONArray serializedChildren = new JSONArray();
@@ -218,5 +229,9 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     
     protected String ValueOrEmptyString(String value) {
     	return (value != null) ? value : "";
+    }
+    
+    protected void invalidateNodePattern() {
+    	this.nodeRegex = null;
     }
 }
