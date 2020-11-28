@@ -2056,12 +2056,12 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                     return c;
                 });
     }
-    
+
     public void addFieldListener(String fieldLabel, DocumentListener listener) {
-    	Component c = this.fieldMap.get(fieldLabel);
+        Component c = this.fieldMap.get(fieldLabel);
         if (c != null) {
             if (c instanceof JTextField) {
-            	((JTextField) c).getDocument().addDocumentListener(listener);
+                ((JTextField) c).getDocument().addDocumentListener(listener);
             } else {
                 handleUnexpectedFieldClass(fieldLabel, c);
             }

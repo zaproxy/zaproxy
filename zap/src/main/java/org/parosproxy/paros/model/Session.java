@@ -529,10 +529,12 @@ public class Session {
                 for (String str : strs) {
                     ctx.addDataDrivenNodes(new StructuralNodeModifier(str));
                 }
-                
-                List<String> rootDdnStrs = this.getContextDataStrings(ctx.getId(), RecordContext.TYPE_DATA_DRIVEN_NODES_NEW);
+
+                List<String> rootDdnStrs =
+                        this.getContextDataStrings(
+                                ctx.getId(), RecordContext.TYPE_DATA_DRIVEN_NODES_NEW);
                 for (String rootDdnStr : rootDdnStrs) {
-                	ctx.addDataDrivenNode_New(new DataDrivenNode(rootDdnStr));
+                    ctx.addDataDrivenNode_New(new DataDrivenNode(rootDdnStr));
                 }
             } catch (Exception e) {
                 log.error("Failed to load data driven nodes for context " + ctx.getId(), e);
@@ -1269,14 +1271,14 @@ public class Session {
         }
         return strList;
     }
-    
+
     private List<String> ddnListToStringList(List<DataDrivenNode> list) {
-    	List<String> strList = new ArrayList<>();
-    	for (DataDrivenNode rootDdn : list) {
-    		strList.add(rootDdn.getConfig());
-    	}
-    	
-    	return strList;
+        List<String> strList = new ArrayList<>();
+        for (DataDrivenNode rootDdn : list) {
+            strList.add(rootDdn.getConfig());
+        }
+
+        return strList;
     }
 
     public void saveContext(Context c) {
@@ -1313,15 +1315,15 @@ public class Session {
                     c.getId(),
                     RecordContext.TYPE_POST_PARSER_CONFIG,
                     c.getPostParamParser().getConfig());
-            
+
             this.setContextData(
                     c.getId(),
                     RecordContext.TYPE_DATA_DRIVEN_NODES,
                     snmListToStringList(c.getDataDrivenNodes()));
             this.setContextData(
-            		c.getId(),
-            		RecordContext.TYPE_DATA_DRIVEN_NODES_NEW,
-            		ddnListToStringList(c.getDataDrivenNodes_New()));
+                    c.getId(),
+                    RecordContext.TYPE_DATA_DRIVEN_NODES_NEW,
+                    ddnListToStringList(c.getDataDrivenNodes_New()));
 
             model.saveContext(c);
         } catch (DatabaseException e) {
@@ -1521,9 +1523,9 @@ public class Session {
                 c.getPostParamParser().getClass().getCanonicalName());
         config.setProperty(
                 Context.CONTEXT_CONFIG_POSTPARSER_CONFIG, c.getPostParamParser().getConfig());
-        
+
         for (DataDrivenNode ddn : c.getDataDrivenNodes_New()) {
-        	config.addProperty(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES_NEW, ddn.getConfig());
+            config.addProperty(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES_NEW, ddn.getConfig());
         }
         for (StructuralNodeModifier snm : c.getDataDrivenNodes()) {
             config.addProperty(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES, snm.getConfig());
@@ -1617,9 +1619,9 @@ public class Session {
             parser.setContext(c);
             c.setPostParamParser(parser);
         }
-        
+
         for (Object obj : config.getList(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES_NEW)) {
-        	c.addDataDrivenNode_New(new DataDrivenNode(obj.toString()));
+            c.addDataDrivenNode_New(new DataDrivenNode(obj.toString()));
         }
         for (Object obj : config.getList(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES)) {
             c.addDataDrivenNodes(new StructuralNodeModifier(obj.toString()));

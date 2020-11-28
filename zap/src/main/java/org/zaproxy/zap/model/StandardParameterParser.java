@@ -330,34 +330,36 @@ public class StandardParameterParser implements ParameterParser {
             if (context != null) {
                 String uriStr = uri.toString();
                 boolean changed = false;
-                
+
                 List<DataDrivenNode> dataDrivenNodes = context.getDataDrivenNodes_New();
                 List<DataDrivenNode> foundChildNodes = null;
                 while (dataDrivenNodes != null) {
-                	foundChildNodes = null;
-                	
-                	for (DataDrivenNode dataDrivenNode : dataDrivenNodes) {
-                		Pattern ddnPattern = dataDrivenNode.getRegEx();
-                		Matcher ddnMatcher = ddnPattern.matcher(uriStr);
-                		
-                		if (ddnMatcher.find()) {
-                			if (!dataDrivenNode.getDataNodePattern().isBlank()) {
-                				uriStr = ddnMatcher.replaceFirst(dataDrivenNode.getReplacementPattern());
-                				changed = true;
-                			}
-                			
-                			foundChildNodes = dataDrivenNode.getChildNodes();
-                			break;
-                		}
-                	}
-                	
-                	dataDrivenNodes = foundChildNodes;
+                    foundChildNodes = null;
+
+                    for (DataDrivenNode dataDrivenNode : dataDrivenNodes) {
+                        Pattern ddnPattern = dataDrivenNode.getRegEx();
+                        Matcher ddnMatcher = ddnPattern.matcher(uriStr);
+
+                        if (ddnMatcher.find()) {
+                            if (!dataDrivenNode.getDataNodePattern().isBlank()) {
+                                uriStr =
+                                        ddnMatcher.replaceFirst(
+                                                dataDrivenNode.getReplacementPattern());
+                                changed = true;
+                            }
+
+                            foundChildNodes = dataDrivenNode.getChildNodes();
+                            break;
+                        }
+                    }
+
+                    dataDrivenNodes = foundChildNodes;
                 }
-                
+
                 if (changed) {
-                	log.debug("Changed URI from " + uri.toString() + " to " + uriStr);
-                	URI newUri = new URI(uriStr, false);
-                	path = newUri.getPath();
+                    log.debug("Changed URI from " + uri.toString() + " to " + uriStr);
+                    URI newUri = new URI(uriStr, false);
+                    path = newUri.getPath();
                 }
             }
 

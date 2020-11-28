@@ -69,7 +69,8 @@ public class Context {
     public static final String CONTEXT_CONFIG_POSTPARSER_CONFIG =
             CONTEXT_CONFIG_POSTPARSER + ".config";
     public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES = CONTEXT_CONFIG + ".ddns";
-    public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES_NEW = CONTEXT_CONFIG + ".dataDrivenNodes";
+    public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES_NEW =
+            CONTEXT_CONFIG + ".dataDrivenNodes";
 
     private static Logger log = LogManager.getLogger(Context.class);
 
@@ -82,7 +83,7 @@ public class Context {
     private List<String> excludeFromRegexs = new ArrayList<>();
     private List<Pattern> includeInPatterns = new ArrayList<>();
     private List<Pattern> excludeFromPatterns = new ArrayList<>();
-    
+
     private List<StructuralNodeModifier> dataDrivenNodes = new ArrayList<>();
     private List<DataDrivenNode> ddns = new ArrayList<>();
 
@@ -706,17 +707,17 @@ public class Context {
         sitesTree.removeNodeFromParent(sn);
         sitesTree.removeHistoryReference(sn.getHistoryReference().getHistoryId());
     }
-    
+
     public List<DataDrivenNode> getDataDrivenNodes_New() {
-    	return this.ddns;
+        return this.ddns;
     }
-    
+
     public void setDataDrivenNodes_New(List<DataDrivenNode> ddns) {
-    	this.ddns = ddns;
+        this.ddns = ddns;
     }
-    
+
     public void addDataDrivenNode_New(DataDrivenNode ddn) {
-    	this.ddns.add(ddn);
+        this.ddns.add(ddn);
     }
 
     public List<StructuralNodeModifier> getDataDrivenNodes() {
@@ -905,14 +906,14 @@ public class Context {
         newContext.postParamParser = this.postParamParser.clone();
         newContext.authorizationDetectionMethod = this.authorizationDetectionMethod.clone();
         newContext.setCustomPages(getCustomPages());
-        
+
         newContext.dataDrivenNodes = this.getDataDrivenNodes();
         List<DataDrivenNode> newContextDdns = new ArrayList<>(this.ddns.size());
         for (DataDrivenNode ddn : this.ddns) {
-        	newContextDdns.add(ddn.clone());
+            newContextDdns.add(ddn.clone());
         }
         newContext.setDataDrivenNodes_New(newContextDdns);
-        
+
         return newContext;
     }
 
