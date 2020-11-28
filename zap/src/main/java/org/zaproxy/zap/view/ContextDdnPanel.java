@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -62,6 +63,8 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     private static final String ADD_BUTTON_LABEL = Constant.messages.getString("context.ddn.button.add");
     private static final String MODIFY_BUTTON_LABEL = Constant.messages.getString("context.ddn.button.modify");
     private static final String REMOVE_BUTTON_LABEL = Constant.messages.getString("context.ddn.button.remove");
+    private static final String MOVE_UP_BUTTON_LABEL = Constant.messages.getString("context.ddn.button.moveUp");
+    private static final String MOVE_DOWN_BUTTON_LABEL = Constant.messages.getString("context.ddn.button.moveDown");
     private static final String REMOVE_CONFIRMATION_LABEL = Constant.messages.getString("context.ddn.checkbox.removeConfirmation");
     
     private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("context.ddn.dialog.remove.title");
@@ -75,6 +78,8 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
     private JButton addButton;
     private JButton modifyButton;
     private JButton removeButton;
+    private JButton moveUpButton;
+    private JButton moveDownButton;
     private JCheckBox removePromptCheckbox;
     
     private DefaultTreeModel treeModel;
@@ -115,6 +120,8 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 					
 					modifyButton.setEnabled(notRootSelected);
 					removeButton.setEnabled(notRootSelected);
+					moveUpButton.setEnabled(notRootSelected);
+					moveDownButton.setEnabled(notRootSelected);
 				}
 			});
         	
@@ -213,12 +220,72 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 					treeModel.removeNodeFromParent(selectedNode);
 				}
 			});
+        	moveUpButton = new JButton(MOVE_UP_BUTTON_LABEL);
+        	moveUpButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					TreePath selectedPath = ddnTree.getSelectionPath();
+					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
+					DataDrivenNode selectedDdn = (DataDrivenNode)selectedNode.getUserObject();
+					DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)selectedNode.getParent();
+					DataDrivenNode parentDdn = (DataDrivenNode)parentNode.getUserObject();
+					
+					List<DataDrivenNode> parentDdnChildNodes = parentDdn.getChildNodes();
+					if (parentDdnChildNodes.size() < 2) {
+						return;
+					}
+					
+					int selectedDdnIndex = parentDdnChildNodes.indexOf(selectedDdn);
+					if (selectedDdnIndex < 1) {
+						return;
+					}
+					
+					Collections.swap(parentDdnChildNodes, selectedDdnIndex, selectedDdnIndex - 1);
+					treeModel.removeNodeFromParent(selectedNode);
+					treeModel.insertNodeInto(selectedNode, parentNode, selectedDdnIndex - 1);
+					
+					TreePath newSelectedPath = new TreePath(selectedNode.getPath());
+					ddnTree.setSelectionPath(newSelectedPath);
+				}
+			});
+        	moveDownButton = new JButton(MOVE_DOWN_BUTTON_LABEL);
+        	moveDownButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					TreePath selectedPath = ddnTree.getSelectionPath();
+					DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)selectedPath.getLastPathComponent();
+					DataDrivenNode selectedDdn = (DataDrivenNode)selectedNode.getUserObject();
+					DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode)selectedNode.getParent();
+					DataDrivenNode parentDdn = (DataDrivenNode)parentNode.getUserObject();
+					
+					List<DataDrivenNode> parentDdnChildNodes = parentDdn.getChildNodes();
+					if (parentDdnChildNodes.size() < 2) {
+						return;
+					}
+					
+					int selectedDdnIndex = parentDdnChildNodes.indexOf(selectedDdn);
+					if (selectedDdnIndex >= parentDdnChildNodes.size() - 1) {
+						return;
+					}
+					
+					Collections.swap(parentDdnChildNodes, selectedDdnIndex, selectedDdnIndex + 1);
+					treeModel.removeNodeFromParent(selectedNode);
+					treeModel.insertNodeInto(selectedNode, parentNode, selectedDdnIndex + 1);
+					
+					TreePath newSelectedPath = new TreePath(selectedNode.getPath());
+					ddnTree.setSelectionPath(newSelectedPath);
+				}
+			});
         	addButton.setEnabled(true);
         	modifyButton.setEnabled(false);
         	removeButton.setEnabled(false);
+        	moveUpButton.setEnabled(false);
+        	moveDownButton.setEnabled(false);
         	buttonsPanel.add(addButton);
         	buttonsPanel.add(modifyButton);
         	buttonsPanel.add(removeButton);
+        	buttonsPanel.add(moveUpButton);
+        	buttonsPanel.add(moveDownButton);
         	treePanel.add(buttonsPanel, BorderLayout.EAST);
         	
         	removePromptCheckbox = new JCheckBox(REMOVE_CONFIRMATION_LABEL);
