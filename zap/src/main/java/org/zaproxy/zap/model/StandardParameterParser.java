@@ -333,19 +333,21 @@ public class StandardParameterParser implements ParameterParser {
                 
                 List<DataDrivenNode> dataDrivenNodes = context.getDataDrivenNodes_New();
                 List<DataDrivenNode> foundChildNodes = null;
-                while (dataDrivenNodes != null && dataDrivenNodes.size() > 0) {
+                while (dataDrivenNodes != null) {
                 	foundChildNodes = null;
+                	
                 	for (DataDrivenNode dataDrivenNode : dataDrivenNodes) {
-                		Pattern ddnPattern = Pattern.compile(dataDrivenNode.getPattern());
+                		Pattern ddnPattern = dataDrivenNode.getRegEx();
                 		Matcher ddnMatcher = ddnPattern.matcher(uriStr);
                 		
                 		if (ddnMatcher.matches()) {
-                			foundChildNodes = dataDrivenNode.getChildNodes();
-                			
                 			if (!dataDrivenNode.getDataNodePattern().isBlank()) {
-                				ddnMatcher.replaceAll(dataDrivenNode.getReplacementPattern());
+                				uriStr = ddnMatcher.replaceFirst(dataDrivenNode.getReplacementPattern());
                 				changed = true;
                 			}
+                			
+                			foundChildNodes = dataDrivenNode.getChildNodes();
+                			break;
                 		}
                 	}
                 	

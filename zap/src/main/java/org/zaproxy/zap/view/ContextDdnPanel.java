@@ -383,7 +383,11 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
                 return Constant.messages.getString("context.ddn.dialog.error.ddnName");
             }
 			
-			// TODO (JMG) : Add Logic to validate Prefix & DataNode Values
+			if (this.getStringValue(FIELD_PREFIX_PATTERN).isBlank()) {
+				return Constant.messages.getString("context.ddn.dialog.error.prefixPattern");
+			}
+			
+			// NOTE : Data Node & Suffix Patterns are optional to allow for more effective Tree grouping
 			
 			return null;
 		}
@@ -398,4 +402,6 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
 			this.setFieldValue(LABEL_PATTERN, labelValue);
 		}
     }
+    
+    // TODO (JMG) : Add Dialog for Testing the Selected DDN Pattern against User Provided Input
 }
