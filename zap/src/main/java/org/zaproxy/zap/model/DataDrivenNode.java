@@ -27,11 +27,8 @@ import net.sf.json.JSONObject;
 import org.zaproxy.zap.utils.Enableable;
 
 public class DataDrivenNode extends Enableable implements Cloneable {
-	
-	public static DataDrivenNode ROOT_DDN = new DataDrivenNode("Data Driven Nodes", null);
-	
     private static final String CONFIG_NAME = "name";
-    private static final String CONFIG_HOST = "host";
+    
     private static final String CONFIG_PREFIX_PATTERN = "prefixPattern";
     private static final String CONFIG_DATA_NODE_PATTERN = "dataNodePattern";
     private static final String CONFIG_SUFFIX_PATTERN = "suffixPattern";
@@ -43,16 +40,15 @@ public class DataDrivenNode extends Enableable implements Cloneable {
 
     private String name;
     
-    private String host;
     private String prefixPattern;
     private String dataNodePattern;
     private String suffixPattern;
 
-    public DataDrivenNode(String name, String host, String prefixPattern, String dataNodePattern, String suffixPattern, DataDrivenNode parentNode) {
+    public DataDrivenNode(String name, String prefixPattern, String dataNodePattern, String suffixPattern, DataDrivenNode parentNode) {
         super();
 
         this.name = name;
-        this.host = host;
+
         this.prefixPattern = prefixPattern;
         this.dataNodePattern = dataNodePattern;
         this.suffixPattern = suffixPattern;
@@ -62,7 +58,11 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     }
     
     public DataDrivenNode(String name, DataDrivenNode parentNode) {
-    	this(name, "", "", "", "", parentNode);
+    	this(name, "", "", "", parentNode);
+    }
+    
+    public DataDrivenNode(DataDrivenNode parentNode) {
+    	this("", "", "", "", parentNode);
     }
 
     public DataDrivenNode(String config) {
@@ -71,7 +71,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
         JSONObject configData = JSONObject.fromObject(config);
 
         this.name = configData.getString(CONFIG_NAME);
-        this.host = configData.getString(CONFIG_HOST);
+        
         this.prefixPattern = configData.getString(CONFIG_PREFIX_PATTERN);
         this.dataNodePattern = configData.getString(CONFIG_DATA_NODE_PATTERN);
         this.suffixPattern = configData.getString(CONFIG_SUFFIX_PATTERN);
@@ -89,23 +89,15 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     }
 
     public String getName() {
-        return name;
+        return ValueOrEmptyString(name);
     }
 
     public void setName(String name) {
         this.name = name;
     }
     
-    public String getHost() {
-    	return host;
-    }
-    
-    public void setHost(String host) {
-    	this.host = host;
-    }
-    
     public String getPrefixPattern() {
-    	return prefixPattern;
+    	return ValueOrEmptyString(prefixPattern);
     }
     
     public void setPrefixPattern(String prefixPattern) {
@@ -113,7 +105,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     }
     
     public String getDataNodePattern() {
-    	return dataNodePattern;
+    	return ValueOrEmptyString(dataNodePattern);
     }
     
     public void setDataNodePattern(String dataNodePattern) {
@@ -121,7 +113,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     }
     
     public String getSuffixPattern() {
-    	return suffixPattern;
+    	return ValueOrEmptyString(this.suffixPattern);
     }
     
     public void setSuffixPattern(String suffixPattern) {
@@ -129,11 +121,37 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     }
 
     public String getPattern() {
-        return host + prefixPattern + dataNodePattern + suffixPattern;
+    	String parentReplacedPattern = "";
+    	if (this.parentNode != null) {
+    		parentReplacedPattern = this.parentNode.getReplacedPattern(true);
+    	}
+    	
+        return parentReplacedPattern + getPrefixPattern() + getDataNodePattern() + getSuffixPattern();
     }
     
     public Pattern getRegEx() {
     	return Pattern.compile(getPattern());
+    }
+    
+    public String getReplacedPattern(boolean includeParent) {
+    	String parentReplacedPattern = "";
+    	if (includeParent && this.parentNode != null) {
+    		parentReplacedPattern = this.parentNode.getReplacedPattern(true);
+    	}
+    	
+    	String ddnReplacement = "";
+    	if (!this.dataNodePattern.isBlank()) {
+    		ddnReplacement = getDataNodeReplacement();
+    	}
+    	return parentReplacedPattern + getPrefixPattern() + ddnReplacement + getSuffixPattern();
+    }
+    
+    public String getReplacementPattern() {
+    	return getReplacedPattern(true);
+    }
+    
+    public String getDataNodeReplacement() {
+    	return SessionStructure.DATA_DRIVEN_NODE_PREFIX + getName() + SessionStructure.DATA_DRIVEN_NODE_POSTFIX;
     }
 
     public DataDrivenNode getParentNode() {
@@ -168,7 +186,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
 
     @Override
     public DataDrivenNode clone() {
-        DataDrivenNode clone = new DataDrivenNode(this.name, this.host, this.prefixPattern, this.dataNodePattern, this.suffixPattern, this.parentNode);
+        DataDrivenNode clone = new DataDrivenNode(this.name, this.prefixPattern, this.dataNodePattern, this.suffixPattern, this.parentNode);
         for (DataDrivenNode child : this.childNodes) {
         	clone.addChildNode(child.clone());
         }
@@ -180,10 +198,9 @@ public class DataDrivenNode extends Enableable implements Cloneable {
         JSONObject serialized = new JSONObject();
 
         serialized.put(CONFIG_NAME, this.name);
-        serialized.put(CONFIG_HOST, this.host);
+
         serialized.put(CONFIG_PREFIX_PATTERN, this.prefixPattern);
         serialized.put(CONFIG_DATA_NODE_PATTERN, this.dataNodePattern);
-        serialized.put(CONFIG_SUFFIX_PATTERN, this.suffixPattern);
         serialized.put(CONFIG_ENABLED, this.isEnabled());
 
         JSONArray serializedChildren = new JSONArray();
@@ -195,6 +212,11 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     
     @Override
     public String toString() {
-    	return getPattern();
+    	String pattern = getReplacedPattern(false);
+    	return !pattern.isBlank() ? pattern : name;
+    }
+    
+    protected String ValueOrEmptyString(String value) {
+    	return (value != null) ? value : "";
     }
 }
