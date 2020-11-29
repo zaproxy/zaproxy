@@ -127,7 +127,6 @@ import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StandardParameterParser;
-import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.Stats;
@@ -1253,14 +1252,6 @@ public class Session {
         Iterator<Tech> iter = techList.iterator();
         while (iter.hasNext()) {
             strList.add(iter.next().toString());
-        }
-        return strList;
-    }
-
-    private List<String> snmListToStringList(List<StructuralNodeModifier> list) {
-        List<String> strList = new ArrayList<>();
-        for (StructuralNodeModifier snm : list) {
-            strList.add(snm.getConfig());
         }
         return strList;
     }
