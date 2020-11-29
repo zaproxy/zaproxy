@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.BeforeEach;
@@ -319,16 +318,35 @@ public class StandardParameterParserUnitTest {
 
         // with data driven nodes
         Context context = new Context(null, 0);
-        Pattern p = Pattern.compile("http://example.org/(path/to/)(.+?)(/.*)");
-        StructuralNodeModifier ddn =
-                new StructuralNodeModifier(StructuralNodeModifier.Type.DataDrivenNode, p, "DDN");
-        context.addDataDrivenNodes(ddn);
+        DataDrivenNode rootNode =
+                new DataDrivenNode("rootDdn", "http://example.org/", "", "", null);
+        DataDrivenNode ddnSubpages =
+                new DataDrivenNode("ddnSubnodes", "path/to/ddn/", ".+?", "/", rootNode);
+        DataDrivenNode anotherDdn =
+                new DataDrivenNode("subDdn", "another/ddn/", ".+?", "", ddnSubpages);
+        DataDrivenNode ddnPages = new DataDrivenNode("ddn", "path/to/ddn/", ".+?", "", rootNode);
+
+        ddnSubpages.addChildNode(anotherDdn);
+        rootNode.addChildNode(ddnSubpages);
+        rootNode.addChildNode(ddnPages);
+        context.addDataDrivenNode_New(rootNode);
         spp.setContext(context);
+
         assertEquals(
-                "/path/to/(.+?)",
+                "/path/to/ddn",
                 spp.getAncestorPath(new URI("http://example.org/path/to/ddn/aa", true), 3));
         assertEquals(
-                "/path/to/(.+?)/aa",
+                "/path/to/ddn/" + SessionStructure.DATA_DRIVEN_NODE_REGEX,
                 spp.getAncestorPath(new URI("http://example.org/path/to/ddn/aa", true), 4));
+        assertEquals(
+                "/path/to/ddn/" + SessionStructure.DATA_DRIVEN_NODE_REGEX + "/another",
+                spp.getAncestorPath(new URI("http://example.org/path/to/ddn/aa/another", true), 5));
+        assertEquals(
+                "/path/to/ddn/"
+                        + SessionStructure.DATA_DRIVEN_NODE_REGEX
+                        + "/another/ddn/"
+                        + SessionStructure.DATA_DRIVEN_NODE_REGEX,
+                spp.getAncestorPath(
+                        new URI("http://example.org/path/to/ddn/aa/another/ddn/bbb", true), 7));
     }
 }
