@@ -68,8 +68,7 @@ public class Context {
             CONTEXT_CONFIG_POSTPARSER + ".class";
     public static final String CONTEXT_CONFIG_POSTPARSER_CONFIG =
             CONTEXT_CONFIG_POSTPARSER + ".config";
-    public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES = CONTEXT_CONFIG + ".ddns";
-    public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES_NEW =
+    public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES =
             CONTEXT_CONFIG + ".dataDrivenNodes";
 
     private static Logger log = LogManager.getLogger(Context.class);
@@ -84,7 +83,6 @@ public class Context {
     private List<Pattern> includeInPatterns = new ArrayList<>();
     private List<Pattern> excludeFromPatterns = new ArrayList<>();
 
-    private List<StructuralNodeModifier> dataDrivenNodes = new ArrayList<>();
     private List<DataDrivenNode> ddns = new ArrayList<>();
 
     /** The authentication method. */
@@ -708,51 +706,16 @@ public class Context {
         sitesTree.removeHistoryReference(sn.getHistoryReference().getHistoryId());
     }
 
-    public List<DataDrivenNode> getDataDrivenNodes_New() {
+    public List<DataDrivenNode> getDataDrivenNodes() {
         return this.ddns;
     }
 
-    public void setDataDrivenNodes_New(List<DataDrivenNode> ddns) {
+    public void setDataDrivenNodes(List<DataDrivenNode> ddns) {
         this.ddns = ddns;
     }
 
-    public void addDataDrivenNode_New(DataDrivenNode ddn) {
+    public void addDataDrivenNode(DataDrivenNode ddn) {
         this.ddns.add(ddn);
-    }
-
-    public List<StructuralNodeModifier> getDataDrivenNodes() {
-        List<StructuralNodeModifier> ddns = new ArrayList<>(this.dataDrivenNodes.size());
-        for (StructuralNodeModifier ddn : this.dataDrivenNodes) {
-            ddns.add(ddn.clone());
-        }
-        return ddns;
-    }
-
-    public void setDataDrivenNodes(List<StructuralNodeModifier> dataDrivenNodes) {
-        this.dataDrivenNodes = dataDrivenNodes;
-    }
-
-    public void addDataDrivenNodes(StructuralNodeModifier ddn) {
-        this.dataDrivenNodes.add(ddn.clone());
-    }
-
-    public String getDefaultDDNName() {
-        int i = 1;
-        while (true) {
-            boolean found = false;
-            String name = "DDN" + i;
-            for (StructuralNodeModifier ddn : this.dataDrivenNodes) {
-                if (ddn.getName().equals(name)) {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found) {
-                return name;
-            }
-
-            i++;
-        }
     }
 
     /**
@@ -907,12 +870,11 @@ public class Context {
         newContext.authorizationDetectionMethod = this.authorizationDetectionMethod.clone();
         newContext.setCustomPages(getCustomPages());
 
-        newContext.dataDrivenNodes = this.getDataDrivenNodes();
         List<DataDrivenNode> newContextDdns = new ArrayList<>(this.ddns.size());
         for (DataDrivenNode ddn : this.ddns) {
             newContextDdns.add(ddn.clone());
         }
-        newContext.setDataDrivenNodes_New(newContextDdns);
+        newContext.setDataDrivenNodes(newContextDdns);
 
         return newContext;
     }

@@ -331,7 +331,7 @@ public class StandardParameterParser implements ParameterParser {
                 String uriStr = uri.toString();
                 boolean changed = false;
 
-                List<DataDrivenNode> dataDrivenNodes = context.getDataDrivenNodes_New();
+                List<DataDrivenNode> dataDrivenNodes = context.getDataDrivenNodes();
                 List<DataDrivenNode> foundChildNodes = null;
                 while (dataDrivenNodes != null) {
                     foundChildNodes = null;

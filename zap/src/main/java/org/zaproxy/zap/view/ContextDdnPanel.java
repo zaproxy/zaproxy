@@ -344,7 +344,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
         DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) treeModel.getRoot();
         rootNode.removeAllChildren();
 
-        List<DataDrivenNode> contextDdns = uiSharedContext.getDataDrivenNodes_New();
+        List<DataDrivenNode> contextDdns = uiSharedContext.getDataDrivenNodes();
 
         for (DataDrivenNode ddn : contextDdns) {
             rootNode.add(new DdnTreeNode(ddn.clone()));
@@ -384,7 +384,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
             savedDdns.add(ddn.clone());
         }
 
-        uiSharedContext.setDataDrivenNodes_New(savedDdns);
+        uiSharedContext.setDataDrivenNodes(savedDdns);
     }
 
     @Override

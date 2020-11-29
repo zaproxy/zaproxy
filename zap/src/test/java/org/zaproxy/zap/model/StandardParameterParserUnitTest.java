@@ -329,7 +329,7 @@ public class StandardParameterParserUnitTest {
         ddnSubpages.addChildNode(anotherDdn);
         rootNode.addChildNode(ddnSubpages);
         rootNode.addChildNode(ddnPages);
-        context.addDataDrivenNode_New(rootNode);
+        context.addDataDrivenNode(rootNode);
         spp.setContext(context);
 
         assertEquals(
