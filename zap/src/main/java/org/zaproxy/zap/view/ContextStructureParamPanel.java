@@ -274,7 +274,6 @@ public class ContextStructureParamPanel extends AbstractContextPropertiesPanel {
 
     @Override
     public String getHelpIndex() {
-        // TODO (JMG) : Update Help Index & Language
         return "ui.dialogs.context-struct";
     }
 

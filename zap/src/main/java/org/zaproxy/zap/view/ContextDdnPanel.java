@@ -394,9 +394,13 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
         context.restructureSiteTree();
     }
 
+    @Override
+    public String getHelpIndex() {
+        return "ui.dialogs.context-ddn";
+    }
+
     // Note : This type is only used when re-creating the Data Driven Node Tree from a Context in
-    // order to
-    //        easily support adding all Child DDNs to the Tree as well.
+    // order to easily support adding all Child DDNs to the Tree as well.
     public static class DdnTreeNode extends DefaultMutableTreeNode {
 
         private static final long serialVersionUID = 1L;
