@@ -337,19 +337,21 @@ public class StandardParameterParser implements ParameterParser {
                     foundChildNodes = null;
 
                     for (DataDrivenNode dataDrivenNode : dataDrivenNodes) {
-                        Pattern ddnPattern = dataDrivenNode.getRegEx();
-                        Matcher ddnMatcher = ddnPattern.matcher(uriStr);
+                        if (dataDrivenNode.isEnabled()) {
+                            Pattern ddnPattern = dataDrivenNode.getRegEx();
+                            Matcher ddnMatcher = ddnPattern.matcher(uriStr);
 
-                        if (ddnMatcher.find()) {
-                            if (!dataDrivenNode.getDataNodePattern().isBlank()) {
-                                uriStr =
-                                        ddnMatcher.replaceFirst(
-                                                dataDrivenNode.getReplacementPattern());
-                                changed = true;
+                            if (ddnMatcher.find()) {
+                                if (!dataDrivenNode.getDataNodePattern().isBlank()) {
+                                    uriStr =
+                                            ddnMatcher.replaceFirst(
+                                                    dataDrivenNode.getReplacementPattern());
+                                    changed = true;
+                                }
+
+                                foundChildNodes = dataDrivenNode.getChildNodes();
+                                break;
                             }
-
-                            foundChildNodes = dataDrivenNode.getChildNodes();
-                            break;
                         }
                     }
 
