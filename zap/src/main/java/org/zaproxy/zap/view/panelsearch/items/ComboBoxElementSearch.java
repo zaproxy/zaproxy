@@ -89,7 +89,7 @@ public class ComboBoxElementSearch extends AbstractComponentSearch<ComboBoxEleme
                             list, value, index, isSelected, cellHasFocus);
             if (highlightedIndexes.contains(index)) {
                 trySetOpaque(item, true);
-                item.setBackground(HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+                item.setBackground(HighlighterUtils.getHighlightColor());
             } else {
                 trySetOpaque(item, false);
                 item.setBackground(null);

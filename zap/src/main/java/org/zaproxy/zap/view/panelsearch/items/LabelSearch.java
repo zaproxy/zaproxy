@@ -39,7 +39,7 @@ public class LabelSearch extends AbstractComponentSearch<JLabel> {
     @Override
     protected HighlightedComponent highlightInternal(JLabel component) {
         return HighlighterUtils.highlightBackground(
-                component, HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+                component, HighlighterUtils.getHighlightColor());
     }
 
     @Override

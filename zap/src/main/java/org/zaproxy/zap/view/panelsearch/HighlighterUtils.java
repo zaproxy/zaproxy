@@ -22,6 +22,7 @@ package org.zaproxy.zap.view.panelsearch;
 import java.awt.Color;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public final class HighlighterUtils {
 
@@ -63,7 +64,9 @@ public final class HighlighterUtils {
             ComponentWithTitle componentWithTitle) {
         return highlightTitleWithHtml(
                 componentWithTitle,
-                "<html><div style=' border: 1px solid; border-color: #FFCC00;'>%s</div></html>");
+                "<html><div style=' border: 1px solid; border-color: "
+                        + getHighlightColorHexString()
+                        + ";'>%s</div></html>");
     }
 
     public static void undoHighlightTitleBorderWithHtml(
@@ -75,7 +78,9 @@ public final class HighlighterUtils {
             ComponentWithTitle componentWithTitle) {
         return highlightTitleWithHtml(
                 componentWithTitle,
-                "<html><span style='background-color:#FFCC00;'>%s</span></html>");
+                "<html><span style='background-color:"
+                        + getHighlightColorHexString()
+                        + ";'>%s</span></html>");
     }
 
     public static void undoHighlightTitleBackgroundWithHtml(
@@ -116,5 +121,21 @@ public final class HighlighterUtils {
         // ToDo: We should reset it back to the original border, but that currently does not work.
         // Sometimes the yellow highlight border stays there!
         // component.setBorder(highlightedComponent.get(BORDER));
+    }
+
+    private static String getHighlightColorHexString() {
+        Color hlColor = getHighlightColor();
+        String hex =
+                String.format(
+                        "#%02x%02x%02x", hlColor.getRed(), hlColor.getGreen(), hlColor.getBlue());
+        return hex;
+    }
+
+    public static Color getHighlightColor() {
+        Color hlColor = DEFAULT_HIGHLIGHT_COLOR;
+        if (DisplayUtils.isDarkLookAndFeel()) {
+            hlColor = DisplayUtils.getHighlightColor();
+        }
+        return hlColor;
     }
 }

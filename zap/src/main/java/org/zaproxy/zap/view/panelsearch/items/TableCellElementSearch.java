@@ -131,7 +131,7 @@ public class TableCellElementSearch extends AbstractComponentSearch<TableCellEle
                                     e.getColumnIdentifier().equals(columnIdentifier)
                                             && e.getValue().equals(value))) {
                 trySetOpaque(item, true);
-                item.setBackground(HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+                item.setBackground(HighlighterUtils.getHighlightColor());
             } else {
                 if (isSelected) {
                     trySetOpaque(item, true);

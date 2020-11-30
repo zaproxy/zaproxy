@@ -34,7 +34,7 @@ public class TextFieldSearch extends AbstractComponentSearch<JTextField> {
     @Override
     protected HighlightedComponent highlightInternal(JTextField component) {
         return HighlighterUtils.highlightBackground(
-                component, HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+                component, HighlighterUtils.getHighlightColor());
     }
 
     @Override
