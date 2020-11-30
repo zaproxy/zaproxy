@@ -94,7 +94,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
         //	    }
 
         try {
-            StructuralNode node = SessionStructure.find(model.getSession(), msg);
+            StructuralNode node = SessionStructure.find(model, msg);
             if (node != null) {
                 HttpMessage existingMsg = node.getHistoryReference().getHttpMessage();
                 // check if a msg of the same type exist
@@ -199,7 +199,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
             return;
         }
 
-        SessionStructure.addPath(model.getSession(), ref, msg);
+        SessionStructure.addPath(model, ref, msg);
         if (isFirstAccess && !Constant.isLowMemoryOptionSet()) {
             isFirstAccess = false;
             if (hasView()) {

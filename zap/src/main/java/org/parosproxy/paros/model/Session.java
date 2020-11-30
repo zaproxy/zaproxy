@@ -102,7 +102,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 import javax.swing.tree.TreeNode;
@@ -113,23 +112,19 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.core.scanner.Variant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.db.RecordSessionUrl;
 import org.parosproxy.paros.network.HtmlParameter;
-import org.parosproxy.paros.network.HtmlParameter.Type;
-import org.parosproxy.paros.network.HttpHeader;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.ParameterParser;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.model.Tech;
@@ -173,7 +168,7 @@ public class Session {
      *
      * @param model
      */
-    protected Session(Model model) {
+    public Session(Model model) {
         configuration = new ZapXmlConfiguration();
         configuration.setRootElementName(ROOT);
 
@@ -1701,138 +1696,6 @@ public class Session {
         }
     }
 
-    public String getLeafName(
-            String nodeName,
-            HttpMessage message,
-            List<org.parosproxy.paros.core.scanner.NameValuePair> params) {
-        String method = message.getRequestHeader().getMethod();
-        StringBuilder sb = new StringBuilder();
-        sb.append(method);
-        sb.append(":");
-        sb.append(nodeName);
-        sb.append(
-                getParamDisplayString(
-                        params, org.parosproxy.paros.core.scanner.NameValuePair.TYPE_QUERY_STRING));
-
-        if (method.equalsIgnoreCase(HttpRequestHeader.POST)) {
-            String contentType = message.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-            if (contentType != null && contentType.startsWith("multipart/form-data")) {
-                sb.append("(multipart/form-data)");
-            } else {
-                sb.append(
-                        getParamDisplayString(
-                                params,
-                                org.parosproxy.paros.core.scanner.NameValuePair.TYPE_POST_DATA));
-            }
-        }
-
-        return sb.toString();
-    }
-
-    /**
-     * Gets the name of the node to be used for the given {@code msg} in the Site Map.
-     *
-     * @param nodeName the last element of the path
-     * @param msg the message
-     * @return the name of the node to be used in the Site Map
-     * @since TODO add version
-     */
-    public String getLeafName(String nodeName, HttpMessage msg) {
-        for (Variant variant : model.getVariantFactory().createSiteModifyingVariants()) {
-            String name;
-            try {
-                name = variant.getLeafName(nodeName, msg);
-                if (name != null) {
-                    return name;
-                }
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
-        }
-
-        List<org.parosproxy.paros.core.scanner.NameValuePair> params =
-                convertNVP(
-                        model.getSession().getParameters(msg, Type.url),
-                        org.parosproxy.paros.core.scanner.NameValuePair.TYPE_QUERY_STRING);
-        if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-            params.addAll(
-                    convertNVP(
-                            model.getSession().getParameters(msg, Type.form),
-                            org.parosproxy.paros.core.scanner.NameValuePair.TYPE_POST_DATA));
-        }
-
-        return getLeafName(nodeName, msg, params);
-    }
-
-    /**
-     * Gets the name of the node to be used for the given parameters in the Site Map.
-     *
-     * @param nodeName the last element of the path
-     * @param uri the full uri of the node, must not be {@code null}.
-     * @param method the method for the node, must not be {@code null}.
-     * @param postData the data of the request body.
-     * @return the name of the node to be used in the Site Map
-     * @throws HttpMalformedHeaderException if the uri is not correct.
-     * @throws NullPointerException if the uri or the method are {@code null}.
-     * @since TODO add version
-     */
-    public String getLeafName(String nodeName, URI uri, String method, String postData)
-            throws HttpMalformedHeaderException {
-        Objects.requireNonNull(uri);
-        Objects.requireNonNull(method);
-        HttpMessage msg = new HttpMessage(uri);
-        msg.getRequestHeader().setMethod(method);
-        if (method.equalsIgnoreCase(HttpRequestHeader.POST)) {
-            msg.getRequestBody().setBody(postData);
-            msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
-        }
-        return getLeafName(nodeName, msg);
-    }
-
-    private List<org.parosproxy.paros.core.scanner.NameValuePair> convertNVP(
-            List<NameValuePair> nvpList, int type) {
-        List<org.parosproxy.paros.core.scanner.NameValuePair> params =
-                new ArrayList<org.parosproxy.paros.core.scanner.NameValuePair>();
-        for (NameValuePair nvp : nvpList) {
-            params.add(
-                    new org.parosproxy.paros.core.scanner.NameValuePair(
-                            type, nvp.getName(), nvp.getValue(), -1));
-        }
-        return params;
-    }
-
-    /**
-     * Returns the names of the parameters in a form suitable to display in the Site Map
-     *
-     * @param list the full set of parameters
-     * @param type the type of parameters to be included
-     * @return the names of the given parameters
-     * @since TODO add version
-     */
-    private static String getParamDisplayString(
-            List<org.parosproxy.paros.core.scanner.NameValuePair> list, int type) {
-        StringBuilder sb = new StringBuilder();
-        list.stream()
-                .sorted()
-                .filter(entry -> entry.getType() == type)
-                .forEach(
-                        entry -> {
-                            String name = entry.getName();
-                            if (name != null) {
-                                if (sb.length() > 0) {
-                                    sb.append(',');
-                                }
-                                if (name.length() > 40) {
-                                    // Truncate
-                                    name = name.substring(0, 40) + "...";
-                                }
-                                sb.append(name);
-                            }
-                        });
-
-        return sb.length() > 0 ? sb.insert(0, '(').append(')').toString() : "";
-    }
-
     /**
      * Returns the URL parameters for the given URL based on the parser associated with the first
      * context found that includes the URL, or the default parser if it is not in a context
@@ -1898,24 +1761,16 @@ public class Session {
         return this.getFormParamParser(uri.toString()).parseParameters(formData);
     }
 
+    /** @deprecated use {@link SessionStructure#getTeeePath(Model, URI)} */
+    @Deprecated
     public List<String> getTreePath(URI uri) throws URIException {
-        return this.getUrlParamParser(uri.toString()).getTreePath(uri);
+        return SessionStructure.getTreePath(Model.getSingleton(), uri);
     }
 
+    /** @deprecated use {@link SessionStructure#getTeeePath(Model, HttpMessage)} */
+    @Deprecated
     public List<String> getTreePath(HttpMessage msg) throws URIException {
-        for (Variant variant : model.getVariantFactory().createSiteModifyingVariants()) {
-            List<String> path;
-            try {
-                path = variant.getTreePath(msg);
-                if (path != null) {
-                    return path;
-                }
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
-            }
-        }
-        URI uri = msg.getRequestHeader().getURI();
-        return this.getUrlParamParser(uri.toString()).getTreePath(msg);
+        return SessionStructure.getTreePath(Model.getSingleton(), msg);
     }
 
     // ZAP: Added listeners for contexts changed events.

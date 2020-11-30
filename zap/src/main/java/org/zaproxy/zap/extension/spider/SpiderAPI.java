@@ -581,17 +581,10 @@ public class SpiderAPI extends ApiImplementor {
         StructuralNode startNode = null;
         try {
             if (recurse) {
-                startNode =
-                        SessionStructure.find(
-                                Model.getSingleton().getSession().getSessionId(), startURI, "", "");
+                startNode = SessionStructure.find(Model.getSingleton(), startURI, "", "");
             }
             if (startNode == null) {
-                startNode =
-                        SessionStructure.find(
-                                Model.getSingleton().getSession().getSessionId(),
-                                startURI,
-                                "GET",
-                                "");
+                startNode = SessionStructure.find(Model.getSingleton(), startURI, "GET", "");
             }
         } catch (Exception e) {
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);

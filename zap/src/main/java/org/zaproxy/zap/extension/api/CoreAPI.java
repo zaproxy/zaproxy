@@ -1058,7 +1058,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
         ApiResponse result = null;
-        Session session = Model.getSingleton().getSession();
+        Model model = Model.getSingleton();
+        Session session = model.getSession();
 
         if (VIEW_HOSTS.equals(name)) {
             result = new ApiResponseList(name);
@@ -1077,7 +1078,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             }
         } else if (VIEW_SITES.equals(name)) {
             ApiResponseList sitesList = new ApiResponseList(name);
-            StructuralNode root = SessionStructure.getRootNode();
+            StructuralNode root = SessionStructure.getRootNode(model);
             if (root != null) {
                 for (Iterator<StructuralNode> it = root.getChildIterator(); it.hasNext(); ) {
                     sitesList.addItem(new ApiResponseElement("site", it.next().getName()));
@@ -1097,12 +1098,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             String url = this.getParam(params, PARAM_URL, "");
 
             if (url.trim().length() == 0) {
-                node = SessionStructure.getRootNode();
+                node = SessionStructure.getRootNode(model);
             } else {
                 try {
                     node =
                             SessionStructure.find(
-                                    session.getSessionId(), new URI(url, false), null, null);
+                                    Model.getSingleton(), new URI(url, false), null, null);
                 } catch (URIException e) {
                     throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
                 } catch (DatabaseException e) {

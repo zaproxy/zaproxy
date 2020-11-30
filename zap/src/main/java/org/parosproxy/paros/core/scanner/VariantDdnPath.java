@@ -46,7 +46,7 @@ public class VariantDdnPath implements Variant {
     @Override
     public void setMessage(HttpMessage msg) {
         try {
-            List<String> treePaths = Model.getSingleton().getSession().getTreePath(msg);
+            List<String> treePaths = SessionStructure.getTreePath(Model.getSingleton(), msg);
             int position = 1;
             for (String path : treePaths) {
                 if (path.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {

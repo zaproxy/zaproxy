@@ -24,10 +24,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 
 import java.util.Arrays;
@@ -39,12 +39,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.WithConfigsTest;
+import org.zaproxy.zap.extension.ascan.VariantFactory;
+import org.zaproxy.zap.model.StandardParameterParser;
 
 /** Unit test for {@link SiteMap}. */
 class SiteMapUnitTest {
@@ -55,63 +59,13 @@ class SiteMapUnitTest {
 
     private SiteNode rootNode;
     private SiteMap siteMap;
+    private VariantFactory factory;
 
     @BeforeEach
     void setup() throws Exception {
         Session session = mock(Session.class);
-        given(session.getTreePath(any(URI.class)))
-                .willAnswer(
-                        e -> {
-                            String path = ((URI) e.getArgument(0)).getPath();
-                            if (path == null) {
-                                return Collections.emptyList();
-                            }
-
-                            String[] segments = path.split("/");
-                            if (segments.length == 0) {
-                                return Collections.emptyList();
-                            }
-                            return Arrays.asList(Arrays.copyOfRange(segments, 1, segments.length));
-                        });
-        given(session.getTreePath(any(HttpMessage.class)))
-                .willAnswer(
-                        e -> {
-                            String path =
-                                    ((HttpMessage) e.getArgument(0))
-                                            .getRequestHeader()
-                                            .getURI()
-                                            .getPath();
-                            if (path == null) {
-                                return Collections.emptyList();
-                            }
-
-                            String[] segments = path.split("/");
-                            if (segments.length == 1) {
-                                return Collections.emptyList();
-                            }
-                            return Arrays.asList(Arrays.copyOfRange(segments, 1, segments.length));
-                        });
-
-        given(session.getLeafName(any(), any(URI.class), any(), any()))
-                .willAnswer(
-                        e -> {
-                            String nodeName = (String) e.getArgument(0);
-                            String method = (String) e.getArgument(2);
-                            String data = (String) e.getArgument(3);
-
-                            return buildLeafName(nodeName, method, data);
-                        });
-
-        given(session.getLeafName(any(), any()))
-                .willAnswer(
-                        e -> {
-                            String nodeName = (String) e.getArgument(0);
-                            HttpMessage msg = ((HttpMessage) e.getArgument(1));
-                            String method = msg.getRequestHeader().getMethod();
-                            String data = msg.getRequestBody().toString();
-
-                            return buildLeafName(nodeName, method, data);
-                        });
+        StandardParameterParser spp = new StandardParameterParser();
+        given(session.getUrlParamParser(any(String.class))).willReturn(spp);
         sessionId = 1234L;
         given(session.getSessionId()).willReturn(sessionId);
 
@@ -128,24 +82,17 @@ class SiteMapUnitTest {
         given(tableAlert.getAlertsBySourceHistoryId(anyInt())).willReturn(Collections.emptyList());
         HistoryReference.setTableAlert(tableAlert);
 
+        WithConfigsTest.setUpConstant();
         Model model = mock(Model.class);
+
+        Control.initSingletonForTesting(model);
         given(model.getSession()).willReturn(session);
+
+        factory = new VariantFactory();
+        given(model.getVariantFactory()).willReturn(factory);
 
         rootNode = new SiteNode(null, -1, "Root Node");
         siteMap = new SiteMap(rootNode, model);
-    }
-
-    private static String buildLeafName(String nodeName, String method, String data) {
-        // Method must not be null.
-        assertThat("Can not create leaf name with null method.", method, is(notNullValue()));
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(method).append(':');
-        sb.append(nodeName);
-        if (data != null && !data.isEmpty()) {
-            sb.append(" Params: ").append(data);
-        }
-        return sb.toString();
     }
 
     @AfterEach
