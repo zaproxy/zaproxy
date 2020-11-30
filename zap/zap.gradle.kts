@@ -76,7 +76,6 @@ dependencies {
     implementation("org.jitsi:ice4j:1.0") {
         setTransitive(false)
     }
-    implementation("org.javadelight:delight-nashorn-sandbox:0.1.28")
     implementation("com.formdev:flatlaf:0.44")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
@@ -155,7 +154,8 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.parosproxy.paros.db.paros.ParosTableAlert",
         "org.parosproxy.paros.db.RecordAlert",
         "org.zaproxy.zap.db.sql.SqlTableAlert",
-        "org.zaproxy.zap.extension.log4j.ZapOutputWriter"
+        "org.zaproxy.zap.extension.log4j.ZapOutputWriter",
+        "org.zaproxy.zap.extension.script.PacScript"
     )
 
     methodExcludes = listOf(
