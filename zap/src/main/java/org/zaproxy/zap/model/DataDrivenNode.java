@@ -52,7 +52,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
             String dataNodePattern,
             String suffixPattern,
             DataDrivenNode parentNode) {
-        super();
+        super(true);
 
         this.name = name;
 
