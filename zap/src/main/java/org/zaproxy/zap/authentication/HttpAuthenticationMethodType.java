@@ -145,6 +145,9 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 
             // type check
             if (!(credentials instanceof UsernamePasswordAuthenticationCredentials)) {
+                user.getAuthenticationState()
+                        .setLastAuthFailure(
+                                "Credentials not UsernamePasswordAuthenticationCredentials");
                 throw new UnsupportedAuthenticationCredentialsException(
                         "Form based authentication method only supports "
                                 + UsernamePasswordAuthenticationCredentials.class.getSimpleName());
@@ -170,8 +173,10 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
                                 this.realm);
                 session.getHttpState().setCredentials(stateAuthScope, stateCredentials);
             } catch (UnknownHostException e1) {
+                user.getAuthenticationState().setLastAuthFailure(e1.getMessage());
                 log.error(e1.getMessage(), e1);
             }
+            user.getAuthenticationState().setLastAuthFailure("");
             return session;
         }
 
