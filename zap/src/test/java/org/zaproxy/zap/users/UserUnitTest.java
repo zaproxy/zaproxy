@@ -155,7 +155,9 @@ public class UserUnitTest {
         // Given
         User u = spy(new User(CONTEXT_ID, USER_NAME));
         u.setAuthenticatedSession(Mockito.mock(WebSession.class));
-        doReturn(3500l).when(u).getLastSuccessfulAuthTime();
+        AuthenticationState authState = Mockito.mock(AuthenticationState.class);
+        doReturn(authState).when(u).getAuthenticationState();
+        doReturn(3500l).when(authState).getLastSuccessfulAuthTime();
         // When
         HttpMessage msg = Mockito.mock(HttpMessage.class);
         when(msg.getTimeSentMillis()).thenReturn(5000l);
@@ -169,7 +171,9 @@ public class UserUnitTest {
         // Given
         User u = spy(new User(CONTEXT_ID, USER_NAME));
         u.setAuthenticatedSession(Mockito.mock(WebSession.class));
-        doReturn(3500l).when(u).getLastSuccessfulAuthTime();
+        AuthenticationState authState = Mockito.mock(AuthenticationState.class);
+        doReturn(authState).when(u).getAuthenticationState();
+        doReturn(3500l).when(authState).getLastSuccessfulAuthTime();
         // When
         HttpMessage msg = Mockito.mock(HttpMessage.class);
         when(msg.getTimeSentMillis()).thenReturn(3200l);

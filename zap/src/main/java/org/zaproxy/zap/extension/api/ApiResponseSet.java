@@ -39,6 +39,10 @@ public class ApiResponseSet<T> extends ApiResponse {
         this.values = values;
     }
 
+    public void put(String key, T value) {
+        this.values.put(key, value);
+    }
+
     @Override
     public JSON toJSON() {
         if (values == null) {

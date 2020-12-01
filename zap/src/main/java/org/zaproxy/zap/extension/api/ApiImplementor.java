@@ -517,6 +517,14 @@ public abstract class ApiImplementor {
         }
     }
 
+    protected long getParam(JSONObject params, String name, long defaultValue) {
+        try {
+            return params.getLong(name);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
     protected String getParam(JSONObject params, String name, String defaultValue) {
         try {
             return params.getString(name);

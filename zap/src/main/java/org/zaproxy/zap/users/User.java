@@ -71,11 +71,10 @@ public class User extends Enableable {
     /** The extension auth. */
     private static ExtensionAuthentication extensionAuth;
 
-    /** The last successful auth time. */
-    private long lastSuccessfulAuthTime;
-
     /** The context. */
     private Context context;
+
+    private AuthenticationState authenticationState = new AuthenticationState();
 
     /**
      * Instantiates a new user.
@@ -232,7 +231,8 @@ public class User extends Enableable {
      */
     public void queueAuthentication(HttpMessage unauthenticatedMessage) {
         synchronized (this) {
-            if (unauthenticatedMessage.getTimeSentMillis() >= getLastSuccessfulAuthTime())
+            if (unauthenticatedMessage.getTimeSentMillis()
+                    >= this.getAuthenticationState().getLastSuccessfulAuthTime())
                 authenticatedSession = null;
         }
     }
@@ -241,9 +241,11 @@ public class User extends Enableable {
      * Gets the last successful auth time.
      *
      * @return the time of last successful authentication
+     * @deprecated use #getAuthenticationState().getLastSuccessfulAuthTime()
      */
+    @Deprecated
     protected long getLastSuccessfulAuthTime() {
-        return lastSuccessfulAuthTime;
+        return this.getAuthenticationState().getLastSuccessfulAuthTime();
     }
 
     /**
@@ -280,7 +282,7 @@ public class User extends Enableable {
         }
         // no issues appear if a simultaneous call to #queueAuthentication() is made
         synchronized (this) {
-            this.lastSuccessfulAuthTime = System.currentTimeMillis();
+            this.getAuthenticationState().setLastSuccessfulAuthTime(System.currentTimeMillis());
             this.authenticatedSession = result;
         }
     }
@@ -409,5 +411,15 @@ public class User extends Enableable {
 
     public void setAuthenticatedSession(WebSession session) {
         this.authenticatedSession = session;
+    }
+
+    /**
+     * Returns the authentication state for this user.
+     *
+     * @return the authentication state
+     * @since 2.10.0
+     */
+    public AuthenticationState getAuthenticationState() {
+        return authenticationState;
     }
 }
