@@ -31,9 +31,9 @@ and subject to their respective licenses.
 
 | Library                             | License                   |
 |-------------------------------------|---------------------------|
-| bcmail-jdk15on-1.66.jar             | MIT                       |
-| bcpkix-jdk15on-1.66.jar             | MIT                       |
-| bcprov-jdk15on-1.66.jar             | MIT                       |
+| bcmail-jdk15on-1.67.jar             | MIT                       |
+| bcpkix-jdk15on-1.67.jar             | MIT                       |
+| bcprov-jdk15on-1.67.jar             | MIT                       |
 | commons-beanutils-1.9.4.jar         | Apache 2.0                |
 | commons-codec-1.15.jar              | Apache 2.0                |
 | commons-collections-3.2.2.jar       | Apache 2.0                |
@@ -58,12 +58,12 @@ and subject to their respective licenses.
 | java-semver-0.9.0.jar               | MIT                       |
 | jcommon-1.0.23.jar                  | LGPL                      |
 | jericho-html-3.4.jar                | EPL / LGPL dual license   |
-| jfreechart-1.5.0.jar                | LGPL                      |
+| jfreechart-1.5.1.jar                | LGPL                      |
 | jgrapht-core-0.9.0.jar              | LGPL 2.1                  |
 | json-lib-2.4-jdk15.jar              | MIT + "Good, Not Evil"    |
-| log4j-1.2-api-2.13.3.jar            | Apache 2.0                |
-| log4j-api-2.13.3.jar                | Apache 2.0                |
-| log4j-core-2.13.3.jar               | Apache 2.0                |
+| log4j-1.2-api-2.14.0.jar            | Apache 2.0                |
+| log4j-api-2.14.0.jar                | Apache 2.0                |
+| log4j-core-2.14.0.jar               | Apache 2.0                |
 | rsyntaxtextarea-3.1.1.jar           | BSD-3 clause              |
 | sqlite-jdbc-3.32.3.2.jar            | BSD-2 clause              |
 | - NestedVM                          | Apache 2.0                |

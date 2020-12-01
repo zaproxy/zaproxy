@@ -55,18 +55,19 @@ dependencies {
     api("org.apache.commons:commons-text:1.9")
     api("edu.umass.cs.benchlab:harlib:1.1.2")
     api("javax.help:javahelp:2.0.05")
-    val log4jVersion = "2.13.3"
+    val log4jVersion = "2.14.0"
     api("org.apache.logging.log4j:log4j-api:$log4jVersion")
     api("org.apache.logging.log4j:log4j-1.2-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.8")
-    api("org.bouncycastle:bcmail-jdk15on:1.66")
-    api("org.bouncycastle:bcprov-jdk15on:1.66")
-    api("org.bouncycastle:bcpkix-jdk15on:1.66")
+    val bcVersion = "1.67"
+    api("org.bouncycastle:bcmail-jdk15on:$bcVersion")
+    api("org.bouncycastle:bcprov-jdk15on:$bcVersion")
+    api("org.bouncycastle:bcpkix-jdk15on:$bcVersion")
     api("org.hsqldb:hsqldb:2.5.1")
-    api("org.jfree:jfreechart:1.5.0")
+    api("org.jfree:jfreechart:1.5.1")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
     api("org.xerial:sqlite-jdbc:3.32.3.2")
@@ -93,7 +94,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-    testImplementation("org.mockito:mockito-junit-jupiter:3.5.13")
+    testImplementation("org.mockito:mockito-junit-jupiter:3.6.28")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
     testImplementation("org.nanohttpd:nanohttpd-webserver:2.3.1")
 
