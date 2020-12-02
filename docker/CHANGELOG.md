@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-12-02
+ - Use `ARG` command (for `DEBIAN_FRONTEND`) instead of `ENV` so that the parameter does not persist after the build process has been completed.
+
 ### 2020-11-27
  - Move logging level of Params from `info` to `debug`, as it can contain sensitive data when authenticated scans are run.
  
