@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 import org.zaproxy.zap.utils.Enableable;
 

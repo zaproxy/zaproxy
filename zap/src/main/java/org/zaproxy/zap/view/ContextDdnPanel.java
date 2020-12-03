@@ -45,7 +45,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
 import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.VerticalLayout;
 import org.parosproxy.paros.Constant;
