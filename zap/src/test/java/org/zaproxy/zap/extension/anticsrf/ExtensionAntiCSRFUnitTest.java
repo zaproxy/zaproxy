@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.anticsrf;
 
+import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -32,13 +33,20 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.TreeSet;
 import net.htmlparser.jericho.Source;
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.network.HttpResponseBody;
 
 /** Unit test for {@link ExtensionAntiCSRF}. */
@@ -282,6 +290,118 @@ class ExtensionAntiCSRFUnitTest {
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
             assertThat(tokens, hasSize(0));
+        }
+    }
+
+    /** Tests for {@link ExtensionAntiCSRF#generateForm(HttpMessage)}. */
+    static class FormGeneration {
+
+        private HttpMessage message;
+        private HttpRequestHeader httpRequestHeader;
+        private ExtensionAntiCSRF extensionAntiCSRF;
+
+        @BeforeEach
+        void setup() {
+            message = mock(HttpMessage.class);
+            httpRequestHeader = mock(HttpRequestHeader.class);
+            given(message.getRequestHeader()).willReturn(httpRequestHeader);
+
+            extensionAntiCSRF = new ExtensionAntiCSRF();
+        }
+
+        @Test
+        void shouldGenerateFormWithParameters() throws Exception {
+            // Given
+            TreeSet<HtmlParameter> params =
+                    params(param("Name1", "Value1"), param("Name2", "Value2"));
+            given(message.getFormParams()).willReturn(params);
+            String uri = "http://example.com/form";
+            given(httpRequestHeader.getURI()).willReturn(uri(uri));
+            // When
+            String form = extensionAntiCSRF.generateForm(message);
+            // Then
+            assertThat(form, is(equalTo(expectedForm(uri, params))));
+        }
+
+        @Test
+        void shouldGenerateFormWithUrlDecodedParameters() throws Exception {
+            // Given
+            TreeSet<HtmlParameter> params =
+                    params(param("Name+1", "Value+1"), param("Name+2", "Value+2"));
+            given(message.getFormParams()).willReturn(params);
+            String uri = "http://example.com/form";
+            given(httpRequestHeader.getURI()).willReturn(uri(uri));
+            // When
+            String form = extensionAntiCSRF.generateForm(message);
+            // Then
+            assertThat(form, is(equalTo(expectedForm(uri, params))));
+        }
+
+        @Test
+        void shouldGenerateFormWithEscapeHtmlChars() throws Exception {
+            // Given
+            TreeSet<HtmlParameter> params =
+                    params(param("'Name 1'", "'Value 1'"), param("\"Name 2\"", "\"Value 2\""));
+            given(message.getFormParams()).willReturn(params);
+            String uri = "http://example.com/form";
+            given(httpRequestHeader.getURI()).willReturn(uri(uri));
+            // When
+            String form = extensionAntiCSRF.generateForm(message);
+            // Then
+            assertThat(form, is(equalTo(expectedForm(uri, params))));
+        }
+
+        private static TreeSet<HtmlParameter> params(HtmlParameter... params) {
+            return new TreeSet<>(Arrays.asList(params));
+        }
+
+        private static HtmlParameter param(String name, String value) {
+            HtmlParameter param = mock(HtmlParameter.class);
+            given(param.getName()).willReturn(name);
+            given(param.getValue()).willReturn(value);
+            return param;
+        }
+
+        private static URI uri(String uri) {
+            try {
+                return new URI(uri, true);
+            } catch (URIException | NullPointerException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        private static String expectedForm(String uri, TreeSet<HtmlParameter> params) {
+            StringBuilder strBuilder = new StringBuilder(250);
+
+            strBuilder.append("<html>\n<body>\n");
+            String uriEscaped = escapeHtml(uri);
+            strBuilder.append("<h3>").append(uriEscaped).append("</h3>");
+            strBuilder
+                    .append("<form id=\"f1\" method=\"POST\" action=\"")
+                    .append(uriEscaped)
+                    .append("\">\n");
+            strBuilder.append("<table>\n");
+            for (HtmlParameter param : params) {
+                String name = escapeHtml(decode(param.getName()));
+                String value = escapeHtml(decode(param.getValue()));
+                strBuilder.append("<tr><td>\n").append(name).append("<td>");
+                strBuilder.append("<input name=\"").append(name).append("\" ");
+                strBuilder.append("value=\"").append(value).append("\" ");
+                strBuilder.append("size=\"100\"></tr>\n");
+            }
+            strBuilder.append("</table>\n");
+            strBuilder.append("<input id=\"submit\" type=\"submit\" value=\"Submit\"/>\n");
+            strBuilder.append("</form>\n</body>\n</html>\n");
+
+            return strBuilder.toString();
+        }
+
+        private static String decode(String value) {
+            try {
+                return URLDecoder.decode(value, "UTF-8");
+            } catch (UnsupportedEncodingException ignore) {
+            }
+            return value;
         }
     }
 

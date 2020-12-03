@@ -22,6 +22,8 @@ package org.zaproxy.zap.authentication;
 import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
@@ -39,6 +41,8 @@ import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
 import org.zaproxy.zap.testutils.NanoServerHandler;
 import org.zaproxy.zap.testutils.TestUtils;
+import org.zaproxy.zap.users.AuthenticationState;
+import org.zaproxy.zap.users.User;
 
 public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
 
@@ -93,8 +97,11 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         method.setPollFrequency(5);
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(1));
         assertThat(orderedReqs.get(0), is(pollUrl));
     }
@@ -123,16 +130,19 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         method.setPollFrequency(5);
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(2));
         assertThat(orderedReqs.get(0), is(pollUrl));
         assertThat(orderedReqs.get(1), is(pollUrl));
@@ -162,14 +172,17 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         method.setPollFrequency(5);
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, null), is(false));
+        assertThat(method.isAuthenticated(testMsg, user), is(false));
         assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, null), is(false));
+        assertThat(method.isAuthenticated(testMsg, user), is(false));
         assertThat(orderedReqs.size(), is(2));
-        assertThat(method.isAuthenticated(testMsg, null), is(false));
+        assertThat(method.isAuthenticated(testMsg, user), is(false));
         assertThat(orderedReqs.size(), is(3));
-        assertThat(method.isAuthenticated(testMsg, null), is(false));
+        assertThat(method.isAuthenticated(testMsg, user), is(false));
         assertThat(orderedReqs.size(), is(4));
     }
 
@@ -179,6 +192,9 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         String test = "/shouldPollWhenForced/test";
         String pollUrl = "/shouldPollWhenForced/pollUrl";
         final List<String> orderedReqs = new ArrayList<>();
+
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
         this.nano.addHandler(
                 new NanoServerHandler(pollUrl) {
@@ -198,19 +214,83 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
         // When/Then
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(1));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(1));
-        method.setLastPollResult(false);
-        assertThat(method.isAuthenticated(testMsg, null), is(true));
+        user.getAuthenticationState().setLastPollResult(false);
+        assertThat(method.isAuthenticated(testMsg, user), is(true));
         assertThat(orderedReqs.size(), is(2));
         assertThat(orderedReqs.get(0), is(pollUrl));
         assertThat(orderedReqs.get(1), is(pollUrl));
+    }
+
+    @Test
+    public void shouldPollOnSpecifiedNumberOfRequestsPerUser()
+            throws NullPointerException, IOException {
+        // Given
+        String test = "/shouldPollOnFirstRequest/test";
+        String pollUrl = "/shouldPollOnFirstRequest/pollUrl";
+        final List<String> orderedReqs = new ArrayList<>();
+
+        this.nano.addHandler(
+                new NanoServerHandler(pollUrl) {
+                    @Override
+                    protected Response serve(IHTTPSession session) {
+                        orderedReqs.add(session.getUri());
+                        return newFixedLengthResponse(LOGGED_IN_BODY);
+                    }
+                });
+        HttpMessage testMsg = this.getHttpMessage(test);
+        HttpMessage pollMsg = this.getHttpMessage(pollUrl);
+
+        method.setAuthCheckingStrategy(AuthCheckingStrategy.POLL_URL);
+        method.setPollUrl(pollMsg.getRequestHeader().getURI().toString() + "?");
+        method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
+        method.setPollFrequency(5);
+        method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
+
+        User user1 = mock(User.class);
+        given(user1.getAuthenticationState()).willReturn(new AuthenticationState());
+        User user2 = mock(User.class);
+        given(user2.getAuthenticationState()).willReturn(new AuthenticationState());
+
+        // When/Then
+        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        // First poll for user1
+        assertThat(orderedReqs.size(), is(1));
+        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+
+        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        // First poll for user2
+        assertThat(orderedReqs.size(), is(2));
+        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+
+        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        // Should not have changed yet
+        assertThat(orderedReqs.size(), is(2));
+        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        // Second poll for user1
+        assertThat(orderedReqs.size(), is(3));
+        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.isAuthenticated(testMsg, user1), is(true));
+        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        // Should not have changed yet
+        assertThat(orderedReqs.size(), is(3));
+        assertThat(method.isAuthenticated(testMsg, user2), is(true));
+        // Second poll for user2
+        assertThat(orderedReqs.size(), is(4));
     }
 }

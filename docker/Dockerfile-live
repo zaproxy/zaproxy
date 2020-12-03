@@ -2,7 +2,7 @@
 FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
-ENV DEBIAN_FRONTEND noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \

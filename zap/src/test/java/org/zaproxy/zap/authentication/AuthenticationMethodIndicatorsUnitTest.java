@@ -23,6 +23,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +35,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
+import org.zaproxy.zap.users.AuthenticationState;
+import org.zaproxy.zap.users.User;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationMethodIndicatorsUnitTest {
@@ -122,8 +126,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.setResponseBody(LOGGED_IN_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -132,8 +139,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
@@ -142,8 +152,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_IN_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -152,8 +165,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_OUT_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
@@ -162,8 +178,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
@@ -172,8 +191,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.setResponseBody(LOGGED_IN_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -182,8 +204,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_OUT_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
@@ -192,8 +217,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_IN_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -202,8 +230,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_COMPLEX_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
@@ -212,8 +243,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -221,8 +255,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         // Given
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -232,8 +269,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_IN_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -243,8 +283,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_OUT_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
@@ -254,8 +297,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.getRequestHeader().addHeader("test", LOGGED_IN_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -265,8 +311,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.getRequestHeader().addHeader("test", LOGGED_OUT_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
@@ -276,8 +325,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_OUT_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
@@ -287,8 +339,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_IN_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -298,8 +353,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.getRequestHeader().addHeader("test", LOGGED_OUT_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
@@ -309,8 +367,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.getRequestHeader().addHeader("test", LOGGED_IN_INDICATOR);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -320,8 +381,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_OUT_COMPLEX_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(false));
+        assertThat(method.isAuthenticated(loginMessage, user), is(false));
     }
 
     @Test
@@ -331,8 +395,11 @@ public class AuthenticationMethodIndicatorsUnitTest {
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
         loginMessage.setRequestBody(LOGGED_OUT_BODY);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 
     @Test
@@ -341,7 +408,10 @@ public class AuthenticationMethodIndicatorsUnitTest {
         loginMessage.setRequestBody(LOGGED_OUT_BODY);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
 
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+
         // When/Then
-        assertThat(method.isAuthenticated(loginMessage, null), is(true));
+        assertThat(method.isAuthenticated(loginMessage, user), is(true));
     }
 }

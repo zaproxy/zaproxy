@@ -2,7 +2,7 @@
 FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
-ENV DEBIAN_FRONTEND noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -39,7 +39,7 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-# Download and expand the latest stable release 
+# Download and expand the latest stable release
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget -nv --content-disposition -i - -O - | tar zxv && \
 	cp -R ZAP*/* . &&  \
 	rm -R ZAP* && \
