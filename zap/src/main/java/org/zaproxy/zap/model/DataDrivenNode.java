@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.regex.Pattern;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
 import org.zaproxy.zap.utils.Enableable;
 
 public class DataDrivenNode extends Enableable implements Cloneable {
@@ -158,7 +160,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
         }
 
         String ddnReplacement = "";
-        if (!this.dataNodePattern.isBlank()) {
+        if (!StringUtils.isBlank(this.dataNodePattern)) {
             ddnReplacement = getDataNodeReplacement();
         }
         return parentReplacedPattern + getPrefixPattern() + ddnReplacement + getSuffixPattern();
@@ -242,7 +244,7 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     @Override
     public String toString() {
         String pattern = getReplacedPattern(false);
-        return !pattern.isBlank() ? pattern : name;
+        return !StringUtils.isBlank(pattern) ? pattern : name;
     }
 
     @Override

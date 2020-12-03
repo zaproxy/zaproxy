@@ -45,6 +45,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import org.apache.commons.lang.StringUtils;
 import org.jdesktop.swingx.VerticalLayout;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
@@ -497,7 +499,7 @@ public class ContextDdnPanel extends AbstractContextPropertiesPanel {
                 return Constant.messages.getString("context.ddn.dialog.error.ddnName");
             }
 
-            if (this.getStringValue(FIELD_PREFIX_PATTERN).isBlank()) {
+            if (StringUtils.isBlank(this.getStringValue(FIELD_PREFIX_PATTERN))) {
                 return Constant.messages.getString("context.ddn.dialog.error.prefixPattern");
             }
 

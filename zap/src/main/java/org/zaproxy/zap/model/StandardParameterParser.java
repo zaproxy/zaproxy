@@ -36,6 +36,7 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HtmlParameter;
@@ -342,7 +343,7 @@ public class StandardParameterParser implements ParameterParser {
                             Matcher ddnMatcher = ddnPattern.matcher(uriStr);
 
                             if (ddnMatcher.find()) {
-                                if (!dataDrivenNode.getDataNodePattern().isBlank()) {
+                                if (!StringUtils.isBlank(dataDrivenNode.getDataNodePattern())) {
                                     uriStr =
                                             ddnMatcher.replaceFirst(
                                                     dataDrivenNode.getReplacementPattern());
