@@ -164,6 +164,7 @@ Scanners:
 40035   Hidden File Scanner
 40036   JWT Scanner
 40037   CustomActiveScanForZAP (3rd Party)
+40038   Bypassing 403
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
@@ -177,7 +178,6 @@ Scanners:
 60001   Example file passive rule
 60100   Example simple active rule
 60101   Example file active rule
-60103   Bypassing 403
 60200   HUD tutorial examples
 
 90001   Insecure JSF ViewState
