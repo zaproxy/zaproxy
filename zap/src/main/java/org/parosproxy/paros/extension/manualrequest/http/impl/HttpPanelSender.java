@@ -184,7 +184,7 @@ public class HttpPanelSender implements MessageSender {
             if (extHistory != null) {
                 extHistory.addHistory(ref);
             }
-            SessionStructure.addPath(Model.getSingleton().getSession(), ref, httpMessage);
+            SessionStructure.addPath(Model.getSingleton(), ref, httpMessage);
         } catch (HttpMalformedHeaderException | DatabaseException e) {
             logger.warn("Failed to persist message sent:", e);
         }

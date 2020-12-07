@@ -24,10 +24,10 @@ import java.util.List;
 import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
+import org.zaproxy.zap.model.SessionStructure;
 
 /**
  * Custom Variant based on an implemented Script
@@ -252,7 +252,7 @@ public class VariantCustom implements Variant {
      */
     public String getStandardLeafName(
             String nodeName, HttpMessage msg, List<NameValuePair> params) {
-        return Model.getSingleton().getSession().getLeafName(nodeName, msg, params);
+        return SessionStructure.getLeafName(nodeName, msg, params);
     }
 
     /**

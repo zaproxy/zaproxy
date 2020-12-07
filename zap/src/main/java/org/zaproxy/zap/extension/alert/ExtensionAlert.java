@@ -206,8 +206,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
             try {
                 if (getView() == null || EventQueue.isDispatchThread()) {
-                    SessionStructure.addPath(
-                            Model.getSingleton().getSession(), ref, alert.getMessage());
+                    SessionStructure.addPath(Model.getSingleton(), ref, alert.getMessage());
                 } else {
                     final HistoryReference fRef = ref;
                     final HttpMessage fMsg = alert.getMessage();
@@ -216,8 +215,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
                                 @Override
                                 public void run() {
-                                    SessionStructure.addPath(
-                                            Model.getSingleton().getSession(), fRef, fMsg);
+                                    SessionStructure.addPath(Model.getSingleton(), fRef, fMsg);
                                 }
                             });
                 }

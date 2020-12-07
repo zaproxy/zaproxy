@@ -538,12 +538,11 @@ public class SpiderThread extends ScanThread implements SpiderListener {
         }
 
         StructuralNode node =
-                SessionStructure.addPath(
-                        Model.getSingleton().getSession(), historyReference, message, true);
+                SessionStructure.addPath(Model.getSingleton(), historyReference, message, true);
         if (node != null) {
             try {
                 addUriToAddedNodesModel(
-                        SessionStructure.getNodeName(message),
+                        SessionStructure.getNodeName(Model.getSingleton(), message),
                         message.getRequestHeader().getMethod(),
                         "");
             } catch (URIException e) {
