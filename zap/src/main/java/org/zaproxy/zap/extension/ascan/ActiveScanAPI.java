@@ -883,6 +883,10 @@ public class ActiveScanAPI extends ApiImplementor {
         if (useUrl) {
             URI startURI;
             try {
+                if (scanChildren && url.endsWith("/")) {
+                    // Always choose the non leaf node if scanChildren option selected
+                    url = url.substring(0, url.length() - 1);
+                }
                 startURI = new URI(url, true);
             } catch (URIException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);

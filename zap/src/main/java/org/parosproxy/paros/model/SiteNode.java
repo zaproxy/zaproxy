@@ -319,10 +319,14 @@ public class SiteNode extends DefaultMutableTreeNode {
         } else if (this.getParent().isRoot()) {
             hierarchicNodeName = this.getNodeName();
         } else {
-            String name =
-                    this.getParent().getHierarchicNodeName(specialNodesAsRegex)
-                            + "/"
-                            + this.getCleanNodeName(specialNodesAsRegex);
+            String nodeName = this.getCleanNodeName(specialNodesAsRegex);
+            String name;
+            if (nodeName.startsWith("/")) {
+                // Leaf nodes ending with a slash have a name of "/"
+                name = this.getParent().getHierarchicNodeName(specialNodesAsRegex) + nodeName;
+            } else {
+                name = this.getParent().getHierarchicNodeName(specialNodesAsRegex) + "/" + nodeName;
+            }
             if (!specialNodesAsRegex) {
                 // Dont cache the non regex version
                 return name;

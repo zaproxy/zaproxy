@@ -370,6 +370,9 @@ public class StandardParameterParser implements ParameterParser {
             for (int i = 1; i < pathList.length; i++) {
                 list.add(pathList[i]);
             }
+            if (path.endsWith("/")) {
+                list.add("/");
+            }
         }
         if (incStructParams) {
             // Add any structural params (url param) in key order
