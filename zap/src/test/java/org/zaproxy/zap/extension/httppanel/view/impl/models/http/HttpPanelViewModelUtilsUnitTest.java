@@ -39,6 +39,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
@@ -96,6 +97,28 @@ class HttpPanelViewModelUtilsUnitTest {
         HttpPanelViewModelUtils.updateResponseContentLength(message);
         // Then
         verify(responseHeader).setContentLength(length);
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"Header\r\n\r\nBody", "Header\r\n\r\n\r\nBody"})
+    void shouldFindHeaderLimitIfPresent(String value) {
+        // Given
+        byte[] content = value.getBytes(StandardCharsets.US_ASCII);
+        // When
+        int pos = HttpPanelViewModelUtils.findHeaderLimit(content);
+        // Then
+        assertThat(pos, is(equalTo(10)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "Header\r\nBody", "Header\r\rBody", "Header\n\nBody"})
+    void shouldNotFindHeaderLimitIfNotPresent(String value) {
+        // Given
+        byte[] content = value.getBytes(StandardCharsets.US_ASCII);
+        // When
+        int pos = HttpPanelViewModelUtils.findHeaderLimit(content);
+        // Then
+        assertThat(pos, is(equalTo(-1)));
     }
 
     @Test
