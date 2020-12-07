@@ -56,7 +56,7 @@ public class ResponseByteHttpPanelViewModel extends AbstractHttpByteHttpPanelVie
             return;
         }
 
-        int pos = findHeaderLimit(data);
+        int pos = HttpPanelViewModelUtils.findHeaderLimit(data);
 
         if (pos == -1) {
             logger.warn("Could not Save Header, limit not found. Header: " + new String(data));
@@ -73,34 +73,5 @@ public class ResponseByteHttpPanelViewModel extends AbstractHttpByteHttpPanelVie
         }
 
         httpMessage.getResponseBody().setBody(ArrayUtils.subarray(data, pos, data.length));
-        HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
-    }
-
-    private int findHeaderLimit(byte[] data) {
-        boolean lastIsCRLF = false;
-        boolean lastIsCR = false;
-        boolean lastIsLF = false;
-        int pos = -1;
-
-        for (int i = 0; i < data.length; ++i) {
-            if (!lastIsCR && data[i] == '\r') {
-                lastIsCR = true;
-            } else if (!lastIsLF && data[i] == '\n') {
-                if (lastIsCRLF) {
-                    pos = i;
-                    break;
-                }
-
-                lastIsCRLF = true;
-                lastIsCR = false;
-                lastIsLF = false;
-            } else {
-                lastIsCR = false;
-                lastIsLF = false;
-                lastIsCRLF = false;
-            }
-        }
-
-        return pos;
     }
 }
