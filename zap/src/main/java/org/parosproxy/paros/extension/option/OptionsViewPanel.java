@@ -36,6 +36,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/02/24 Use LookAndFeelInfo when setting the look and feel option.
 // ZAP: 2020/03/25 Remove hardcoded colour in titled border (Issue 5542).
+// ZAP: 2020/12/03 Add constants for indexes of possible break buttons locations
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -70,6 +71,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.WorkbenchPanel;
+import org.zaproxy.zap.extension.brk.BreakpointsParam;
 import org.zaproxy.zap.extension.httppanel.view.largerequest.LargeRequestUtil;
 import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
 import org.zaproxy.zap.utils.FontUtils;
@@ -92,6 +94,21 @@ public class OptionsViewPanel extends AbstractParamPanel {
             Constant.messages.getString("timestamp.format.timeonly");
     // ISO Standards compliant format
     private static final String TIME_STAMP_FORMAT_ISO8601 = "yyyy-MM-dd'T'HH:mm:ssZ";
+
+    public enum BreakLocation {
+        TOOL_BAR_ONLY(0),
+        BREAK_ONLY(1),
+        BREAK_PANEL_AND_TOOL_BAR(2);
+        private final int value;
+
+        private BreakLocation(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 
     private JPanel panelMisc = null;
     private JScrollPane mainScrollPane;
@@ -518,6 +535,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
     }
 
     private JComboBox<String> getBrkPanelViewSelect() {
+        // if you change items order also change the enum BreakLocation
         if (brkPanelViewSelect == null) {
             brkPanelViewSelect = new JComboBox<>();
             brkPanelViewSelect.addItem(
@@ -778,6 +796,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
                 (ResponsePanelPositionUI) getResponsePanelPositionComboBox().getSelectedItem();
         options.getViewParam().setResponsePanelPosition(selectedItem.getPosition().name());
         options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());
+        if (brkPanelViewSelect.getSelectedIndex() == BreakLocation.TOOL_BAR_ONLY.getValue()) {
+            options.getParamSet(BreakpointsParam.class).setShowIgnoreFilesButtons(false);
+        }
         options.getViewParam().setShowMainToolbar(getChkShowMainToolbar().isSelected());
         options.getViewParam().setAdvancedViewOption(getChkAdvancedView().isSelected() ? 1 : 0);
         options.getViewParam().setAskOnExitOption(getChkAskOnExit().isSelected() ? 1 : 0);

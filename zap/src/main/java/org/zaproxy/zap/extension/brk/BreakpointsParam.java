@@ -44,6 +44,16 @@ public class BreakpointsParam extends AbstractParam {
     private static final String PARAM_UI_BUTTON_MODE = PARAM_BASE_KEY + ".buttonMode";
     private static final String PARAM_BRK_ALWAYS_ON_TOP = PARAM_BASE_KEY + ".alwaysOnTop";
     private static final String PARAM_BRK_IN_SCOPE_ONLY = PARAM_BASE_KEY + ".inScopeOnly";
+    private static final String SHOW_IGNORE_REQUESTS_BUTTONS =
+            PARAM_BASE_KEY + ".showIgnoreRequestsButtons";
+    private static final String JAVASCRIPT_URL_REGEX = PARAM_BASE_KEY + ".javaScriptUrlRegex";
+    private static final String CSS_AND_FONTS_URL_REGEX = PARAM_BASE_KEY + ".cssAndFontsUrlRegex";
+    private static final String MULTIMEDIA_URL_REGEX = PARAM_BASE_KEY + ".multimediaUrlRegex";
+
+    private static final String JAVASCRIPT_URL_REGEX_DEFAULT = ".*\\.js.*";
+    private static final String CSS_AND_FONTS_URL_REGEX_DEFAULT = ".*\\.(?:css|woff|woff2|ttf).*";
+    private static final String MULTIMEDIA_URL_REGEX_DEFAULT =
+            ".*\\.(?:png|gif|jpg|jpeg|svg|mp4|mp3|webm|webp|ico).*";
 
     /** Default is {@code false}. */
     private boolean confirmDropMessage;
@@ -51,6 +61,10 @@ public class BreakpointsParam extends AbstractParam {
     private int buttonMode = BUTTON_MODE_SIMPLE;
     private Boolean alwaysOnTop = null;
     private boolean inScopeOnly = false;
+    private boolean showIgnoreFilesButtons = false;
+    private String javascriptUrlRegex = JAVASCRIPT_URL_REGEX_DEFAULT;
+    private String cssAndFontsUrlRegex = CSS_AND_FONTS_URL_REGEX_DEFAULT;
+    private String multimediaUrlRegex = MULTIMEDIA_URL_REGEX_DEFAULT;
 
     public BreakpointsParam() {
         super();
@@ -73,6 +87,10 @@ public class BreakpointsParam extends AbstractParam {
         buttonMode = getInt(PARAM_UI_BUTTON_MODE, BUTTON_MODE_SIMPLE);
         alwaysOnTop = getConfig().getBoolean(PARAM_BRK_ALWAYS_ON_TOP, null);
         inScopeOnly = getBoolean(PARAM_BRK_IN_SCOPE_ONLY, false);
+        showIgnoreFilesButtons = getBoolean(SHOW_IGNORE_REQUESTS_BUTTONS, false);
+        javascriptUrlRegex = getString(JAVASCRIPT_URL_REGEX, JAVASCRIPT_URL_REGEX_DEFAULT);
+        cssAndFontsUrlRegex = getString(CSS_AND_FONTS_URL_REGEX, CSS_AND_FONTS_URL_REGEX_DEFAULT);
+        multimediaUrlRegex = getString(MULTIMEDIA_URL_REGEX_DEFAULT, MULTIMEDIA_URL_REGEX_DEFAULT);
     }
 
     /**
@@ -124,5 +142,41 @@ public class BreakpointsParam extends AbstractParam {
     public void setInScopeOnly(boolean inScopeOnly) {
         this.inScopeOnly = inScopeOnly;
         getConfig().setProperty(PARAM_BRK_IN_SCOPE_ONLY, inScopeOnly);
+    }
+
+    public boolean isShowIgnoreFilesButtons() {
+        return showIgnoreFilesButtons;
+    }
+
+    public void setShowIgnoreFilesButtons(boolean showIgnoreFilesButtons) {
+        this.showIgnoreFilesButtons = showIgnoreFilesButtons;
+        getConfig().setProperty(SHOW_IGNORE_REQUESTS_BUTTONS, showIgnoreFilesButtons);
+    }
+
+    public String getJavascriptUrlRegex() {
+        return javascriptUrlRegex;
+    }
+
+    public void setJavascriptUrlRegex(String javascriptUrlRegex) {
+        this.javascriptUrlRegex = javascriptUrlRegex;
+        getConfig().setProperty(JAVASCRIPT_URL_REGEX, javascriptUrlRegex);
+    }
+
+    public String getCssAndFontsUrlRegex() {
+        return cssAndFontsUrlRegex;
+    }
+
+    public void setCssAndFontsUrlRegex(String cssAndFontsUrlRegex) {
+        this.cssAndFontsUrlRegex = cssAndFontsUrlRegex;
+        getConfig().setProperty(CSS_AND_FONTS_URL_REGEX, cssAndFontsUrlRegex);
+    }
+
+    public String getMultimediaUrlRegex() {
+        return multimediaUrlRegex;
+    }
+
+    public void setMultimediaUrlRegex(String multimediaUrlRegex) {
+        this.multimediaUrlRegex = multimediaUrlRegex;
+        getConfig().setProperty(MULTIMEDIA_URL_REGEX, multimediaUrlRegex);
     }
 }
