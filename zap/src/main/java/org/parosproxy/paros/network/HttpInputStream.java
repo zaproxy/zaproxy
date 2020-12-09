@@ -26,6 +26,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/08/25 Correctly read chunks of the body.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2020/12/09 Set content encoding to the request body.
 package org.parosproxy.paros.network;
 
 import java.io.BufferedInputStream;
@@ -136,6 +137,8 @@ public class HttpInputStream extends BufferedInputStream {
                 (contentLength > 0) ? new HttpRequestBody(contentLength) : new HttpRequestBody();
 
         readBody(contentLength, body);
+
+        HttpMessage.setContentEncodings(httpHeader, body);
 
         return body;
     }

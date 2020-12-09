@@ -30,10 +30,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.zip.GZIPOutputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpBody;
@@ -42,10 +38,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public abstract class BodyStringHttpPanelViewModelTest<T1 extends HttpHeader, T2 extends HttpBody> {
 
-    private static final Charset DEFAULT_CHARSET = Charset.forName(HttpBody.DEFAULT_CHARSET);
-
     private static final String BODY = "Body 123 ABC";
-    private static final byte[] BODY_BYTES_DEFAULT_CHARSET = BODY.getBytes(DEFAULT_CHARSET);
 
     private AbstractHttpStringHttpPanelViewModel model;
 
@@ -85,21 +78,9 @@ public abstract class BodyStringHttpPanelViewModelTest<T1 extends HttpHeader, T2
     }
 
     @Test
-    void shouldGetDataFromBody() {
+    void shouldGetDataFromBodyAsString() {
         // Given
-        model.setMessage(message);
-        // When
-        String data = model.getData();
-        // Then
-        assertThat(data, is(equalTo(BODY)));
-    }
-
-    @Test
-    void shouldGetDataFromBodyGzipDecoded() {
-        // Given
-        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn("gzip");
-        given(body.getCharset()).willReturn(DEFAULT_CHARSET.name());
-        given(body.getBytes()).willReturn(gzip(BODY_BYTES_DEFAULT_CHARSET));
+        given(body.toString()).willReturn(BODY);
         model.setMessage(message);
         // When
         String data = model.getData();
@@ -116,41 +97,14 @@ public abstract class BodyStringHttpPanelViewModelTest<T1 extends HttpHeader, T2
     }
 
     @Test
-    void shouldSetDataIntoBody() {
+    void shouldSetDataIntoBodyAsContent() {
         // Given
         model.setMessage(message);
         String otherBodyContent = "Other Body";
-        given(body.length()).willReturn(otherBodyContent.length());
         // When
         model.setData(otherBodyContent);
         // Then
         verify(body).setBody(otherBodyContent);
         verify(header, times(0)).setContentLength(anyInt());
-    }
-
-    @Test
-    void shouldSetDataIntoBodyGzipEncoded() {
-        // Given
-        model.setMessage(message);
-        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn("gzip");
-        given(body.getCharset()).willReturn(DEFAULT_CHARSET.name());
-        String otherBodyContent = "Other Body";
-        byte[] encodedBody = gzip(otherBodyContent.getBytes(DEFAULT_CHARSET));
-        given(body.length()).willReturn(encodedBody.length);
-        // When
-        model.setData(otherBodyContent);
-        // Then
-        verify(body).setBody(encodedBody);
-        verify(header, times(0)).setContentLength(anyInt());
-    }
-
-    private static byte[] gzip(byte[] value) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (GZIPOutputStream gis = new GZIPOutputStream(baos)) {
-            gis.write(value);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return baos.toByteArray();
     }
 }

@@ -19,7 +19,9 @@
  */
 package org.parosproxy.paros.network;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -33,14 +35,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.util.Arrays;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.zaproxy.zap.network.HttpEncodingDeflate;
+import org.zaproxy.zap.network.HttpEncodingGzip;
 import org.zaproxy.zap.network.HttpRequestBody;
 
 /** Unit test for {@link HttpInputStream}. */
 class HttpInputStreamUnitTest {
 
     private static final int UNKOWN_LENGTH = -1;
+    private static final byte[] EMPTY_BODY = {};
 
     @ParameterizedTest
     @ValueSource(
@@ -72,6 +79,65 @@ class HttpInputStreamUnitTest {
         // Then
         assertThat(httpBody, is(not(nullValue())));
         assertThat(httpBody.getBytes(), is(equalTo(data)));
+    }
+
+    @Test
+    void shouldSetGzipEncodingToBody() throws Exception {
+        // Given
+        HttpHeader httpHeader = mock(HttpHeader.class);
+        given(httpHeader.getContentLength()).willReturn(0);
+        given(httpHeader.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
+        HttpInputStream httpInputStream = new HttpInputStream(createSocket(EMPTY_BODY));
+        // When
+        HttpRequestBody httpBody = httpInputStream.readRequestBody(httpHeader);
+        // Then
+        assertThat(
+                httpBody.getContentEncodings(),
+                is(equalTo(asList(HttpEncodingGzip.getSingleton()))));
+    }
+
+    @Test
+    void shouldSetDeflateEncodingToBody() throws Exception {
+        // Given
+        HttpHeader httpHeader = mock(HttpHeader.class);
+        given(httpHeader.getContentLength()).willReturn(0);
+        given(httpHeader.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.DEFLATE);
+        HttpInputStream httpInputStream = new HttpInputStream(createSocket(EMPTY_BODY));
+        // When
+        HttpRequestBody httpBody = httpInputStream.readRequestBody(httpHeader);
+        // Then
+        assertThat(
+                httpBody.getContentEncodings(),
+                is(equalTo(asList(HttpEncodingDeflate.getSingleton()))));
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void shouldNotSetContentEncodingToBodyIfContentEncodingIsNotPresentOrIsEmpty(
+            String contentEncoding) throws Exception {
+        // Given
+        HttpHeader httpHeader = mock(HttpHeader.class);
+        given(httpHeader.getContentLength()).willReturn(0);
+        given(httpHeader.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(contentEncoding);
+        HttpInputStream httpInputStream = new HttpInputStream(createSocket(EMPTY_BODY));
+        // When
+        HttpRequestBody httpBody = httpInputStream.readRequestBody(httpHeader);
+        // Then
+        assertThat(httpBody.getContentEncodings(), is(empty()));
+    }
+
+    @Test
+    void shouldNotSetContentEncodingToBodyIfContentEncodingNotSupported() throws Exception {
+        // Given
+        HttpHeader httpHeader = mock(HttpHeader.class);
+        given(httpHeader.getContentLength()).willReturn(0);
+        given(httpHeader.getHeader(HttpHeader.CONTENT_ENCODING))
+                .willReturn("Encoding Not Supported");
+        HttpInputStream httpInputStream = new HttpInputStream(createSocket(EMPTY_BODY));
+        // When
+        HttpRequestBody httpBody = httpInputStream.readRequestBody(httpHeader);
+        // Then
+        assertThat(httpBody.getContentEncodings(), is(empty()));
     }
 
     private static Socket createSocket(byte[] data) throws IOException {

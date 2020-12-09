@@ -26,7 +26,6 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
 
@@ -40,8 +39,7 @@ public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanel
         }
 
         return httpMessage.getRequestHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF)
-                + HttpPanelViewModelUtils.getBodyString(
-                        httpMessage.getRequestHeader(), httpMessage.getRequestBody());
+                + httpMessage.getRequestBody().toString();
     }
 
     @Override
@@ -66,7 +64,6 @@ public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanel
         if (parts.length > 1) {
             body = data.substring(parts[0].length() + 2);
         }
-        HttpPanelViewModelUtils.setBody(
-                httpMessage.getRequestHeader(), httpMessage.getRequestBody(), body);
+        httpMessage.getRequestBody().setBody(body);
     }
 }

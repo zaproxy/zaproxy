@@ -56,10 +56,12 @@
 // ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
 // ZAP: 2020/07/31 Tidy up parameter methods
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2020/12/09 Handle content encodings in request/response bodies.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -80,6 +82,9 @@ import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.model.NameValuePair;
+import org.zaproxy.zap.network.HttpEncoding;
+import org.zaproxy.zap.network.HttpEncodingDeflate;
+import org.zaproxy.zap.network.HttpEncodingGzip;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 import org.zaproxy.zap.users.User;
@@ -345,6 +350,8 @@ public class HttpMessage implements Message {
     /**
      * Sets the request body of this message.
      *
+     * <p><strong>Note:</strong> No encodings are set to the request body to match the header.
+     *
      * @param reqBody the new request body
      * @throws IllegalArgumentException if parameter {@code reqBody} is {@code null}.
      */
@@ -367,6 +374,8 @@ public class HttpMessage implements Message {
     /**
      * Sets the response body of this message.
      *
+     * <p><strong>Note:</strong> No encodings are set to the response body to match the header.
+     *
      * @param resBody the new response body
      * @throws IllegalArgumentException if parameter {@code resBody} is {@code null}.
      */
@@ -378,35 +387,122 @@ public class HttpMessage implements Message {
         getResponseBody().setCharset(getResponseHeader().getCharset());
     }
 
+    /**
+     * Sets the given string as the request header.
+     *
+     * <p><strong>Note:</strong> No encodings are set to the request body to match the header.
+     *
+     * @param reqHeader the new request header.
+     * @throws HttpMalformedHeaderException if the given header is malformed.
+     * @see #setContentEncodings(HttpHeader, HttpBody)
+     */
     public void setRequestHeader(String reqHeader) throws HttpMalformedHeaderException {
         HttpRequestHeader newHeader = new HttpRequestHeader(reqHeader);
         setRequestHeader(newHeader);
     }
 
+    /**
+     * Sets the given string as the response header.
+     *
+     * <p><strong>Note:</strong> No encodings are set to the response body to match the header.
+     *
+     * @param resHeader the new response header.
+     * @throws HttpMalformedHeaderException if the given header is malformed.
+     * @see #setContentEncodings(HttpHeader, HttpBody)
+     */
     public void setResponseHeader(String resHeader) throws HttpMalformedHeaderException {
         HttpResponseHeader newHeader = new HttpResponseHeader(resHeader);
         setResponseHeader(newHeader);
     }
 
+    /**
+     * Sets the content encodings defined in the header into the body.
+     *
+     * <p><strong>Note:</strong> Supports only {@code gzip} and {@code deflate}.
+     *
+     * @param header the header.
+     * @param body the body.
+     */
+    public static void setContentEncodings(HttpHeader header, HttpBody body) {
+        String encoding = header.getHeader(HttpHeader.CONTENT_ENCODING);
+        if (encoding == null || encoding.isEmpty()) {
+            body.setContentEncodings(Collections.emptyList());
+            return;
+        }
+
+        List<HttpEncoding> encodings = new ArrayList<>(1);
+        if (encoding.contains(HttpHeader.DEFLATE)) {
+            encodings.add(HttpEncodingDeflate.getSingleton());
+        } else if (encoding.contains(HttpHeader.GZIP)) {
+            encodings.add(HttpEncodingGzip.getSingleton());
+        }
+
+        body.setContentEncodings(encodings);
+    }
+
+    /**
+     * Sets the given string body as the request body.
+     *
+     * <p>The defined request header content encodings are set to the body, the string body will be
+     * encoded accordingly.
+     *
+     * @param body the new body.
+     * @see HttpBody#setContentEncodings(List)
+     */
     public void setRequestBody(String body) {
+        setContentEncodings(getRequestHeader(), getRequestBody());
+
         getRequestBody().setCharset(getRequestHeader().getCharset());
         getRequestBody().setBody(body);
     }
 
+    /**
+     * Sets the given byte body as the request body.
+     *
+     * <p>The defined request header content encodings are set to the body, the byte body is assumed
+     * to be properly encoded.
+     *
+     * @param body the new body.
+     * @see HttpBody#setContentEncodings(List)
+     */
     public void setRequestBody(byte[] body) {
         getRequestBody().setBody(body);
         getRequestBody().setCharset(getRequestHeader().getCharset());
+
+        setContentEncodings(getRequestHeader(), getRequestBody());
     }
 
+    /**
+     * Sets the given string body as the response body.
+     *
+     * <p>The defined response header content encodings are set to the body, the string body will be
+     * encoded accordingly.
+     *
+     * @param body the new body.
+     * @see HttpBody#setContentEncodings(List)
+     */
     public void setResponseBody(String body) {
+        setContentEncodings(getResponseHeader(), getResponseBody());
+
         getResponseBody().setCharset(getResponseHeader().getCharset());
         getResponseBody().setDetermineCharset(getResponseHeader().isText());
         getResponseBody().setBody(body);
     }
 
+    /**
+     * Sets the given byte body as the response body.
+     *
+     * <p>The defined response header content encodings are set to the body, the byte body is
+     * assumed to be properly encoded.
+     *
+     * @param body the new body.
+     * @see HttpBody#setContentEncodings(List)
+     */
     public void setResponseBody(byte[] body) {
         getResponseBody().setBody(body);
         getResponseBody().setCharset(getResponseHeader().getCharset());
+
+        setContentEncodings(getResponseHeader(), getResponseBody());
     }
 
     /**
