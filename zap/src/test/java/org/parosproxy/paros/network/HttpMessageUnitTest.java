@@ -19,17 +19,32 @@
  */
 package org.parosproxy.paros.network;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
+import org.zaproxy.zap.network.HttpEncoding;
+import org.zaproxy.zap.network.HttpEncodingDeflate;
+import org.zaproxy.zap.network.HttpEncodingGzip;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 import org.zaproxy.zap.users.User;
@@ -185,6 +200,141 @@ public class HttpMessageUnitTest {
         assertThat(copy.isResponseFromTargetHost(), is(equalTo(false)));
     }
 
+    @Test
+    void shouldNotSetContentEncodingsWhenSettingHttpRequestBody() {
+        // Given
+        HttpRequestHeader header = mock(HttpRequestHeader.class);
+        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
+        HttpRequestBody body = mock(HttpRequestBody.class);
+        HttpMessage message = new HttpMessage(header, body);
+        // When
+        message.setRequestBody(body);
+        // Then
+        verify(body, times(0)).setContentEncodings(any());
+    }
+
+    @Test
+    void shouldSetContentEncodingsWhenSettingRequestBodyByte() {
+        // Given
+        HttpRequestHeader header = mock(HttpRequestHeader.class);
+        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
+        HttpRequestBody body = mock(HttpRequestBody.class);
+        HttpMessage message = new HttpMessage(header, body);
+        // When
+        message.setRequestBody(new byte[0]);
+        // Then
+        assertThat(encodings(body), is(not(empty())));
+    }
+
+    @Test
+    void shouldSetContentEncodingsWhenSettingRequestBodyString() {
+        // Given
+        HttpRequestHeader header = mock(HttpRequestHeader.class);
+        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
+        HttpRequestBody body = mock(HttpRequestBody.class);
+        HttpMessage message = new HttpMessage(header, body);
+        // When
+        message.setRequestBody("Body");
+        // Then
+        assertThat(encodings(body), is(not(empty())));
+    }
+
+    @Test
+    void shouldNotSetContentEncodingsWhenSettingHttpResponseBody() {
+        // Given
+        HttpResponseHeader header = mock(HttpResponseHeader.class);
+        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
+        HttpResponseBody body = mock(HttpResponseBody.class);
+        HttpMessage message =
+                new HttpMessage(
+                        mock(HttpRequestHeader.class), mock(HttpRequestBody.class), header, body);
+        // When
+        message.setResponseBody(body);
+        // Then
+        verify(body, times(0)).setContentEncodings(any());
+    }
+
+    @Test
+    void shouldSetContentEncodingsWhenSettingResponseBodyByte() {
+        // Given
+        HttpResponseHeader header = mock(HttpResponseHeader.class);
+        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
+        HttpResponseBody body = mock(HttpResponseBody.class);
+        HttpMessage message =
+                new HttpMessage(
+                        mock(HttpRequestHeader.class), mock(HttpRequestBody.class), header, body);
+        // When
+        message.setResponseBody(new byte[0]);
+        // Then
+        assertThat(encodings(body), is(not(empty())));
+    }
+
+    @Test
+    void shouldSetContentEncodingsWhenSettingResponseBodyString() {
+        // Given
+        HttpResponseHeader header = mock(HttpResponseHeader.class);
+        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
+        HttpResponseBody body = mock(HttpResponseBody.class);
+        HttpMessage message =
+                new HttpMessage(
+                        mock(HttpRequestHeader.class), mock(HttpRequestBody.class), header, body);
+        // When
+        message.setResponseBody("Body");
+        // Then
+        assertThat(encodings(body), is(not(empty())));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {HttpHeader.GZIP, "x-gzip"})
+    void shouldSetGzipEncodingToBody(String contentEncodingHeader) {
+        // Given
+        HttpHeader header = mock(HttpHeader.class);
+        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(contentEncodingHeader);
+        HttpBody body = mock(HttpBody.class);
+        // When
+        HttpMessage.setContentEncodings(header, body);
+        // Then
+        verify(body).setContentEncodings(asList(HttpEncodingGzip.getSingleton()));
+    }
+
+    @Test
+    void shouldSetDeflateEncodingToBody() {
+        // Given
+        HttpHeader header = mock(HttpHeader.class);
+        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.DEFLATE);
+        HttpBody body = mock(HttpBody.class);
+        // When
+        HttpMessage.setContentEncodings(header, body);
+        // Then
+        verify(body).setContentEncodings(asList(HttpEncodingDeflate.getSingleton()));
+    }
+
+    @ParameterizedTest
+    @NullAndEmptySource
+    void shouldNotSetContentEncodingToBodyIfContentEncodingIsNotPresentOrIsEmpty(
+            String contentEncoding) {
+        // Given
+        HttpHeader header = mock(HttpHeader.class);
+        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(contentEncoding);
+        HttpBody body = mock(HttpBody.class);
+        // When
+        HttpMessage.setContentEncodings(header, body);
+        // Then
+        verify(body).setContentEncodings(Collections.emptyList());
+    }
+
+    @Test
+    void shouldNotSetContentEncodingToBodyIfContentEncodingNotSupported() {
+        // Given
+        HttpHeader header = mock(HttpHeader.class);
+        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn("Encoding Not Supported");
+        HttpBody body = mock(HttpBody.class);
+        // When
+        HttpMessage.setContentEncodings(header, body);
+        // Then
+        verify(body).setContentEncodings(Collections.emptyList());
+    }
+
     private static HttpMessage newHttpMessage() throws Exception {
         HttpMessage message =
                 new HttpMessage(
@@ -203,5 +353,12 @@ public class HttpMessageUnitTest {
         message.setForceIntercept(true);
         message.setResponseFromTargetHost(true);
         return message;
+    }
+
+    private static List<HttpEncoding> encodings(HttpBody body) {
+        @SuppressWarnings("unchecked")
+        ArgumentCaptor<List<HttpEncoding>> arg = ArgumentCaptor.forClass(List.class);
+        verify(body).setContentEncodings(arg.capture());
+        return arg.getValue();
     }
 }

@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
 
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpByteHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class ResponseBodyByteHttpPanelViewModel extends AbstractHttpByteHttpPanelViewModel {
 
@@ -30,8 +29,7 @@ public class ResponseBodyByteHttpPanelViewModel extends AbstractHttpByteHttpPane
             return new byte[0];
         }
 
-        return HttpPanelViewModelUtils.getBodyBytes(
-                httpMessage.getResponseHeader(), httpMessage.getResponseBody());
+        return httpMessage.getResponseBody().getContent();
     }
 
     @Override
@@ -40,7 +38,6 @@ public class ResponseBodyByteHttpPanelViewModel extends AbstractHttpByteHttpPane
             return;
         }
 
-        HttpPanelViewModelUtils.setBody(
-                httpMessage.getResponseHeader(), httpMessage.getResponseBody(), data);
+        httpMessage.getResponseBody().setContent(data);
     }
 }

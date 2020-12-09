@@ -85,6 +85,7 @@
 // ZAP: 2020/04/20 Configure if the names should be resolved or not (Issue 29).
 // ZAP: 2020/09/04 Added AUTHENTICATION_POLL_INITIATOR
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2020/12/09 Set content encoding to the response body.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -630,13 +631,14 @@ public class HttpSender {
                     null); // replaceAll("Transfer-Encoding: chunked\r\n",
             // "");
             msg.setResponseHeader(resHeader);
-            msg.getResponseBody().setCharset(resHeader.getCharset());
-            msg.getResponseBody().setLength(0);
 
             // ZAP: Do not read response body for Server-Sent Events stream
             // ZAP: Moreover do not set content length to zero
             if (!msg.isEventStream()) {
-                msg.getResponseBody().append(method.getResponseBody());
+                msg.setResponseBody(method.getResponseBody());
+            } else {
+                msg.getResponseBody().setCharset(resHeader.getCharset());
+                msg.getResponseBody().setLength(0);
             }
             msg.setResponseFromTargetHost(true);
 

@@ -19,17 +19,31 @@
  */
 package org.parosproxy.paros.network;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.network.HttpBodyTestUtils;
+import org.zaproxy.zap.network.HttpEncoding;
 
 /** Unit test for {@link HttpBody}. */
 public class HttpBodyUnitTest extends HttpBodyTestUtils {
@@ -284,6 +298,97 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
+    void shouldSetContentEncodings() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        List<HttpEncoding> encodings = Arrays.asList(mock(HttpEncoding.class));
+        // When
+        httpBody.setContentEncodings(encodings);
+        // Then
+        assertThat(httpBody.getContentEncodings(), is(equalTo(encodings)));
+    }
+
+    @Test
+    void shouldSetContentEncodingsAndCopyList() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        List<HttpEncoding> encodings = new ArrayList<>();
+        encodings.add(mock(HttpEncoding.class));
+        // When
+        httpBody.setContentEncodings(encodings);
+        encodings.add(mock(HttpEncoding.class));
+        // Then
+        assertThat(httpBody.getContentEncodings(), is(not(equalTo(encodings))));
+        assertThat(httpBody.getContentEncodings(), hasSize(1));
+    }
+
+    @Test
+    void shouldSetContentEncodingsAndNotAllowModificationsToReturnedList() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        httpBody.setContentEncodings(Arrays.asList(mock(HttpEncoding.class)));
+        // When / Then
+        assertThrows(
+                UnsupportedOperationException.class,
+                () -> httpBody.getContentEncodings().add(mock(HttpEncoding.class)));
+    }
+
+    @Test
+    void shouldSetEmptyContentEncodings() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        List<HttpEncoding> encodings = Collections.emptyList();
+        // When
+        httpBody.setContentEncodings(encodings);
+        // Then
+        assertThat(httpBody.getContentEncodings(), is(equalTo(encodings)));
+    }
+
+    @Test
+    void shouldResetContentEncodingErrorsWhenSettingContentEncodings() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        List<HttpEncoding> encodings = Collections.emptyList();
+        // When
+        httpBody.setContentEncodings(encodings);
+        // Then
+        assertThat(httpBody.hasContentEncodingErrors(), is(equalTo(false)));
+    }
+
+    @Test
+    void shouldToStringWithContentEncodingsSet() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        HttpEncoding contentEncoding = mock(HttpEncoding.class);
+        String bodyData = "ABC";
+        byte[] encodedContent = bytes(bodyData);
+        given(contentEncoding.decode(any())).willReturn(encodedContent);
+        // When
+        httpBody.toString(); // force the creation of the "old" string representation
+        httpBody.setContentEncodings(asList(contentEncoding));
+        // Then
+        assertThat(httpBody.toString(), is(equalTo(bodyData)));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSettingNullContentEncodings() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        List<HttpEncoding> encodings = null;
+        // When / Then
+        assertThrows(NullPointerException.class, () -> httpBody.setContentEncodings(encodings));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenSettingANullContentEncoding() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        List<HttpEncoding> encodings = Arrays.asList(mock(HttpEncoding.class), null);
+        // When / Then
+        assertThrows(NullPointerException.class, () -> httpBody.setContentEncodings(encodings));
+    }
+
+    @Test
     public void shouldIgnoreNullStringBodySet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl("\0");
@@ -312,6 +417,26 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
+    public void shouldSetBytesBodyUsingDefaultCharsetAndNotContentEncode() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        httpBody.setContentEncodings(Arrays.asList(encoding));
+        given(encoding.decode(BODY_1_BYTES_DEFAULT_CHARSET))
+                .willReturn(BODY_1_BYTES_DEFAULT_CHARSET);
+        // When
+        httpBody.setBody(BODY_1_BYTES_DEFAULT_CHARSET);
+        // Then
+        assertThat(httpBody.length(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
+        assertThat(httpBody.getBytes(), is(not(nullValue())));
+        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET)));
+        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
+        assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_DEFAULT_CHARSET)));
+        verify(encoding).decode(BODY_1_BYTES_DEFAULT_CHARSET);
+        verifyNoMoreInteractions(encoding);
+    }
+
+    @Test
     public void shouldSetStringBodyUsingDefaultCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
@@ -323,6 +448,26 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET)));
         assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
         assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_DEFAULT_CHARSET)));
+    }
+
+    @Test
+    public void shouldSetStringBodyUsingDefaultCharsetAndContentEncode() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        httpBody.setContentEncodings(Arrays.asList(encoding));
+        given(encoding.encode(BODY_1_BYTES_DEFAULT_CHARSET))
+                .willReturn(BODY_1_BYTES_DEFAULT_CHARSET);
+        // When
+        httpBody.setBody(BODY_1_STRING);
+        // Then
+        assertThat(httpBody.length(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
+        assertThat(httpBody.getBytes(), is(not(nullValue())));
+        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET)));
+        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
+        assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_DEFAULT_CHARSET)));
+        verify(encoding).encode(BODY_1_BYTES_DEFAULT_CHARSET);
+        verifyNoMoreInteractions(encoding);
     }
 
     @Test
@@ -341,6 +486,26 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
+    public void shouldSetBytesBodyUsingCharsetSetAndNotContentEncode() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        httpBody.setCharset(UTF_8_NAME);
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        httpBody.setContentEncodings(Arrays.asList(encoding));
+        given(encoding.decode(BODY_1_BYTES_UTF_8)).willReturn(BODY_1_BYTES_UTF_8);
+        // When
+        httpBody.setBody(BODY_1_BYTES_UTF_8);
+        // Then
+        assertThat(httpBody.length(), is(equalTo(BODY_1_BYTES_UTF_8.length)));
+        assertThat(httpBody.getBytes(), is(not(nullValue())));
+        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_UTF_8)));
+        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_UTF_8.length)));
+        assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_UTF_8)));
+        verify(encoding).decode(BODY_1_BYTES_UTF_8);
+        verifyNoMoreInteractions(encoding);
+    }
+
+    @Test
     public void shouldSetStringBodyUsingCharsetSet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
@@ -353,6 +518,26 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_UTF_8)));
         assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_UTF_8.length)));
         assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_UTF_8)));
+    }
+
+    @Test
+    public void shouldSetStringBodyUsingCharsetSetAndContentEncode() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        httpBody.setCharset(UTF_8_NAME);
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        httpBody.setContentEncodings(Arrays.asList(encoding));
+        given(encoding.encode(BODY_1_BYTES_UTF_8)).willReturn(BODY_1_BYTES_UTF_8);
+        // When
+        httpBody.setBody(BODY_1_STRING_UTF_8);
+        // Then
+        assertThat(httpBody.length(), is(equalTo(BODY_1_BYTES_UTF_8.length)));
+        assertThat(httpBody.getBytes(), is(not(nullValue())));
+        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_UTF_8)));
+        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_UTF_8.length)));
+        assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_UTF_8)));
+        verify(encoding).encode(BODY_1_BYTES_UTF_8);
+        verifyNoMoreInteractions(encoding);
     }
 
     @Test
@@ -399,6 +584,27 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
+    public void shouldAppendBytesBodyUsingDefaultCharsetAndNotContentEncode() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl(BODY_1_STRING);
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        httpBody.setContentEncodings(Arrays.asList(encoding));
+        given(encoding.decode(BODY_1_AND_2_BYTES_DEFAULT_CHARSET))
+                .willReturn(BODY_1_AND_2_BYTES_DEFAULT_CHARSET);
+        // When
+        httpBody.append(BODY_2_BYTES_DEFAULT_CHARSET);
+        // Then
+        assertThat(httpBody.length(), is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
+        assertThat(httpBody.getBytes(), is(not(nullValue())));
+        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET)));
+        assertThat(
+                httpBody.getBytes().length, is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
+        assertThat(httpBody.toString(), is(equalTo(BODY_1_AND_2_STRING_DEFAULT_CHARSET)));
+        verify(encoding).decode(BODY_1_AND_2_BYTES_DEFAULT_CHARSET);
+        verifyNoMoreInteractions(encoding);
+    }
+
+    @Test
     public void shouldAppendStringBodyUsingDefaultCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_STRING);
@@ -411,6 +617,33 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         assertThat(
                 httpBody.getBytes().length, is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
         assertThat(httpBody.toString(), is(equalTo(BODY_1_AND_2_STRING_DEFAULT_CHARSET)));
+    }
+
+    @Test
+    void shouldAppendStringBodyUsingDefaultCharsetAndContentEncode() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl(BODY_1_STRING);
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        given(encoding.decode(BODY_1_BYTES_DEFAULT_CHARSET))
+                .willReturn(BODY_1_BYTES_DEFAULT_CHARSET);
+        given(encoding.encode(BODY_1_AND_2_BYTES_DEFAULT_CHARSET))
+                .willReturn(BODY_1_AND_2_BYTES_DEFAULT_CHARSET);
+        given(encoding.decode(BODY_1_AND_2_BYTES_DEFAULT_CHARSET))
+                .willReturn(BODY_1_AND_2_BYTES_DEFAULT_CHARSET);
+        httpBody.setContentEncodings(asList(encoding));
+        // When
+        httpBody.append(BODY_2_STRING);
+        // Then
+        assertThat(httpBody.length(), is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
+        assertThat(httpBody.getBytes(), is(not(nullValue())));
+        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET)));
+        assertThat(
+                httpBody.getBytes().length, is(equalTo(BODY_1_AND_2_BYTES_DEFAULT_CHARSET.length)));
+        assertThat(httpBody.toString(), is(equalTo(BODY_1_AND_2_STRING_DEFAULT_CHARSET)));
+        verify(encoding).decode(BODY_1_BYTES_DEFAULT_CHARSET);
+        verify(encoding).encode(BODY_1_AND_2_BYTES_DEFAULT_CHARSET);
+        verify(encoding).decode(BODY_1_AND_2_BYTES_DEFAULT_CHARSET);
+        verifyNoMoreInteractions(encoding);
     }
 
     @Test
@@ -429,6 +662,26 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
+    public void shouldAppendBytesBodyUsingCharsetSetAndNotContentEncode() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl(BODY_1_BYTES_UTF_8);
+        httpBody.setCharset(UTF_8_NAME);
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        httpBody.setContentEncodings(asList(encoding));
+        given(encoding.decode(BODY_1_AND_2_BYTES_UTF_8)).willReturn(BODY_1_AND_2_BYTES_UTF_8);
+        // When
+        httpBody.append(BODY_2_BYTES_UTF_8);
+        // Then
+        assertThat(httpBody.length(), is(equalTo(BODY_1_AND_2_BYTES_UTF_8.length)));
+        assertThat(httpBody.getBytes(), is(not(nullValue())));
+        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_AND_2_BYTES_UTF_8)));
+        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_AND_2_BYTES_UTF_8.length)));
+        assertThat(httpBody.toString(), is(equalTo(BODY_1_AND_2_STRING_UTF_8)));
+        verify(encoding).decode(BODY_1_AND_2_BYTES_UTF_8);
+        verifyNoMoreInteractions(encoding);
+    }
+
+    @Test
     public void shouldAppendStringBodyUsingCharsetSet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_BYTES_UTF_8);
@@ -441,6 +694,30 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         assertThat(httpBody.getBytes(), is(equalTo(BODY_1_AND_2_BYTES_UTF_8)));
         assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_AND_2_BYTES_UTF_8.length)));
         assertThat(httpBody.toString(), is(equalTo(BODY_1_AND_2_STRING_UTF_8)));
+    }
+
+    @Test
+    public void shouldAppendStringBodyUsingCharsetSetAndContentEncode() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl(BODY_1_BYTES_UTF_8);
+        httpBody.setCharset(UTF_8_NAME);
+        HttpEncoding encoding = mock(HttpEncoding.class);
+        given(encoding.decode(BODY_1_BYTES_UTF_8)).willReturn(BODY_1_BYTES_UTF_8);
+        given(encoding.encode(BODY_1_AND_2_BYTES_UTF_8)).willReturn(BODY_1_AND_2_BYTES_UTF_8);
+        given(encoding.decode(BODY_1_AND_2_BYTES_UTF_8)).willReturn(BODY_1_AND_2_BYTES_UTF_8);
+        httpBody.setContentEncodings(Arrays.asList(encoding));
+        // When
+        httpBody.append(BODY_2_STRING_UTF_8);
+        // Then
+        assertThat(httpBody.length(), is(equalTo(BODY_1_AND_2_BYTES_UTF_8.length)));
+        assertThat(httpBody.getBytes(), is(not(nullValue())));
+        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_AND_2_BYTES_UTF_8)));
+        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_AND_2_BYTES_UTF_8.length)));
+        assertThat(httpBody.toString(), is(equalTo(BODY_1_AND_2_STRING_UTF_8)));
+        verify(encoding).decode(BODY_1_BYTES_UTF_8);
+        verify(encoding).encode(BODY_1_AND_2_BYTES_UTF_8);
+        verify(encoding).decode(BODY_1_AND_2_BYTES_UTF_8);
+        verifyNoMoreInteractions(encoding);
     }
 
     @Test
@@ -652,6 +929,140 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
+    void shouldGetContentDecoded() throws IOException {
+        // Given
+        String bodyData = "ABC";
+        HttpBody httpBody = new HttpBodyImpl(bodyData);
+        HttpEncoding contentEncoding = mock(HttpEncoding.class);
+        byte[] decodedContent = bytes(bodyData);
+        given(contentEncoding.decode(any())).willReturn(decodedContent);
+        httpBody.setContentEncodings(asList(contentEncoding));
+        // When
+        byte[] content = httpBody.getContent();
+        // Then
+        assertThat(content, is(sameInstance(decodedContent)));
+        assertThat(httpBody.toString(), is(equalTo(bodyData)));
+    }
+
+    @Test
+    void shouldGetSameDecodedContent() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl("");
+        HttpEncoding contentEncoding = mock(HttpEncoding.class);
+        given(contentEncoding.decode(any())).willReturn(bytes("ABC"));
+        httpBody.setContentEncodings(asList(contentEncoding));
+        // When
+        byte[] content = httpBody.getContent();
+        byte[] otherContent = httpBody.getContent();
+        // Then
+        assertThat(content, is(sameInstance(otherContent)));
+    }
+
+    @Test
+    void shouldGetContentSameAsBytesIfNoContentEncoding() {
+        // Given
+        String body = " X Y Z ";
+        HttpBody httpBody = new HttpBodyImpl(body);
+        // When
+        byte[] content = httpBody.getContent();
+        // Then
+        assertThat(content, is(sameInstance(httpBody.getBytes())));
+    }
+
+    @Test
+    void shouldSetContentAndEncode() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        HttpEncoding contentEncoding = mock(HttpEncoding.class);
+        byte[] encodedContent = bytes("ABC");
+        given(contentEncoding.encode(any())).willReturn(encodedContent);
+        httpBody.setContentEncodings(asList(contentEncoding));
+        String bodyData = "CBA";
+        byte[] decodedContent = bytes(bodyData);
+        // When
+        httpBody.setContent(decodedContent);
+        // Then
+        assertThat(httpBody.getBytes(), is(equalTo(encodedContent)));
+        assertThat(httpBody.getContent(), is(sameInstance(decodedContent)));
+        assertThat(httpBody.toString(), is(equalTo(bodyData)));
+    }
+
+    @Test
+    void shouldReturnToStringForContentSet() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        String bodyData = "ABC";
+        byte[] content = bytes(bodyData);
+        // When
+        httpBody.toString(); // force the creation of the "old" string representation
+        httpBody.setContent(content);
+        // Then
+        assertThat(httpBody.getBytes(), is(equalTo(content)));
+        assertThat(httpBody.toString(), is(equalTo(bodyData)));
+    }
+
+    @Test
+    void shouldSetContentWithoutEncodingIfNoContentEncoding() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        String bodyData = "ABC";
+        byte[] content = bytes(bodyData);
+        // When
+        httpBody.setContent(content);
+        // Then
+        assertThat(httpBody.getBytes(), is(equalTo(content)));
+        assertThat(httpBody.toString(), is(equalTo(bodyData)));
+    }
+
+    @Test
+    void shouldNotSetContentIfNull() {
+        // Given
+        String bodyData = "ABC";
+        HttpBody httpBody = new HttpBodyImpl(bodyData);
+        // When
+        httpBody.setContent(null);
+        // Then
+        assertThat(httpBody.getBytes(), is(equalTo(bytes(bodyData))));
+        assertThat(httpBody.toString(), is(equalTo(bodyData)));
+    }
+
+    @Test
+    void shouldHandleContentEncodingErrorsWhenDecoding() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        HttpEncoding contentEncoding = mock(HttpEncoding.class);
+        given(contentEncoding.decode(any())).willThrow(IOException.class);
+        httpBody.setContentEncodings(asList(contentEncoding));
+        String bodyData = "CBA";
+        byte[] bodyBytes = bytes(bodyData);
+        // When
+        httpBody.setBody(bodyBytes);
+        // Then
+        assertThat(httpBody.getBytes(), is(equalTo(bodyBytes)));
+        assertThat(httpBody.getContent(), is(equalTo(bodyBytes)));
+        assertThat(httpBody.toString(), is(equalTo(bodyData)));
+        assertThat(httpBody.hasContentEncodingErrors(), is(equalTo(true)));
+    }
+
+    @Test
+    void shouldHandleContentEncodingErrorsWhenEncoding() throws IOException {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        HttpEncoding contentEncoding = mock(HttpEncoding.class);
+        given(contentEncoding.encode(any())).willThrow(IOException.class);
+        httpBody.setContentEncodings(asList(contentEncoding));
+        String bodyData = "CBA";
+        byte[] bodyBytes = bytes(bodyData);
+        // When
+        httpBody.setBody(bodyData);
+        // Then
+        assertThat(httpBody.getBytes(), is(equalTo(bodyBytes)));
+        assertThat(httpBody.getContent(), is(equalTo(bodyBytes)));
+        assertThat(httpBody.toString(), is(equalTo(bodyData)));
+        assertThat(httpBody.hasContentEncodingErrors(), is(equalTo(true)));
+    }
+
+    @Test
     public void shouldNotBeEqualToNull() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
@@ -671,6 +1082,30 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
+    void shouldBeEqualToEqualEncodings() {
+        // Given
+        List<HttpEncoding> encodings = Arrays.asList(mock(HttpEncoding.class));
+        HttpBody httpBody = new HttpBodyImpl();
+        httpBody.setContentEncodings(encodings);
+        HttpBody otherHttpBody = new HttpBodyImpl();
+        otherHttpBody.setContentEncodings(encodings);
+        // When / Then
+        assertThat(httpBody, is(equalTo(otherHttpBody)));
+    }
+
+    @Test
+    void shouldBeEqualToEqualHttpBodyAndEncodings() {
+        // Given
+        List<HttpEncoding> encodings = Arrays.asList(mock(HttpEncoding.class));
+        HttpBody httpBody = new HttpBodyImpl("Body");
+        httpBody.setContentEncodings(encodings);
+        HttpBody otherHttpBody = new HttpBodyImpl("Body");
+        otherHttpBody.setContentEncodings(encodings);
+        // When / Then
+        assertThat(httpBody, is(equalTo(otherHttpBody)));
+    }
+
+    @Test
     public void shouldBeEqualToSameInstance() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
@@ -683,6 +1118,28 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         HttpBody otherDifferentHttpBody = new HttpBodyImpl("Different Contents");
+        // When / Then
+        assertThat(httpBody, is(not(equalTo(otherDifferentHttpBody))));
+    }
+
+    @Test
+    void shouldNotBeEqualToDifferentEncodings() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl("Body");
+        httpBody.setContentEncodings(Arrays.asList(mock(HttpEncoding.class)));
+        HttpBody otherDifferentHttpBody = new HttpBodyImpl("Body");
+        otherDifferentHttpBody.setContentEncodings(Arrays.asList(mock(HttpEncoding.class)));
+        // When / Then
+        assertThat(httpBody, is(not(equalTo(otherDifferentHttpBody))));
+    }
+
+    @Test
+    void shouldNotBeEqualToDifferentHttpBodyAndEncodings() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl("Body");
+        httpBody.setContentEncodings(Arrays.asList(mock(HttpEncoding.class)));
+        HttpBody otherDifferentHttpBody = new HttpBodyImpl("Different Contents");
+        otherDifferentHttpBody.setContentEncodings(Arrays.asList(mock(HttpEncoding.class)));
         // When / Then
         assertThat(httpBody, is(not(equalTo(otherDifferentHttpBody))));
     }
@@ -706,12 +1163,50 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
+    void shouldProduceSameHashCodeForEqualBodyAndEncodings() {
+        // Given
+        List<HttpEncoding> encodings = Arrays.asList(mock(HttpEncoding.class));
+        HttpBody httpBody = new HttpBodyImpl("X A");
+        httpBody.setContentEncodings(encodings);
+        HttpBody otherHttpBody = new HttpBodyImpl("X A");
+        otherHttpBody.setContentEncodings(encodings);
+        // When / Then
+        assertThat(httpBody.hashCode(), is(equalTo(otherHttpBody.hashCode())));
+    }
+
+    @Test
     public void shouldProduceDifferentHashCodeFromDifferentBody() {
         // Given
         HttpBody httpBody = new HttpBodyImpl("_ X A 1");
         HttpBody otherHttpBody = new HttpBodyImpl("X A 2");
         // When / Then
         assertThat(httpBody.hashCode(), is(not(equalTo(otherHttpBody.hashCode()))));
+    }
+
+    @Test
+    void shouldProduceDifferentHashCodeFromDifferentEncodings() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl("X A");
+        httpBody.setContentEncodings(Arrays.asList(mock(HttpEncoding.class)));
+        HttpBody otherHttpBody = new HttpBodyImpl("X A");
+        otherHttpBody.setContentEncodings(Arrays.asList(mock(HttpEncoding.class)));
+        // When / Then
+        assertThat(httpBody.hashCode(), is(not(equalTo(otherHttpBody.hashCode()))));
+    }
+
+    @Test
+    void shouldProduceDifferentHashCodeFromDifferentBodyAndEncodings() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl("_ X A 1");
+        httpBody.setContentEncodings(Arrays.asList(mock(HttpEncoding.class)));
+        HttpBody otherHttpBody = new HttpBodyImpl("X A 2");
+        otherHttpBody.setContentEncodings(Arrays.asList(mock(HttpEncoding.class)));
+        // When / Then
+        assertThat(httpBody.hashCode(), is(not(equalTo(otherHttpBody.hashCode()))));
+    }
+
+    private static byte[] bytes(String data) {
+        return data.getBytes(StandardCharsets.US_ASCII);
     }
 
     private static class HttpBodyImpl extends HttpBody {

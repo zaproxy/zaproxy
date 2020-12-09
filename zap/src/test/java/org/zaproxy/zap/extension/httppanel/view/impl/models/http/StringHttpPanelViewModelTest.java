@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.isEmptyString;
@@ -33,10 +32,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.zip.GZIPOutputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
@@ -49,14 +44,11 @@ import org.zaproxy.zap.utils.I18N;
 
 public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 extends HttpBody> {
 
-    private static final Charset DEFAULT_CHARSET = Charset.forName(HttpBody.DEFAULT_CHARSET);
-
     private static final String HEADER = "Start Line\r\nHeader1: A\r\nHeader2: B";
     private static final String HEADER_WITH_SEPARATOR = HEADER + "\r\n\r\n";
     private static final String HEADER_LINEFEEDS = HEADER.replace(HttpHeader.CRLF, HttpHeader.LF);
 
     private static final String BODY = "Body\r\n 123\n ABC";
-    private static final byte[] BODY_BYTES_DEFAULT_CHARSET = BODY.getBytes(DEFAULT_CHARSET);
 
     protected AbstractHttpStringHttpPanelViewModel model;
 
@@ -117,19 +109,6 @@ public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 ext
     }
 
     @Test
-    void shouldGetDataFromBodyGzipDecoded() {
-        // Given
-        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn("gzip");
-        given(body.getCharset()).willReturn(DEFAULT_CHARSET.name());
-        given(body.getBytes()).willReturn(gzip(BODY_BYTES_DEFAULT_CHARSET));
-        model.setMessage(message);
-        // When
-        String data = model.getData();
-        // Then
-        assertThat(data, endsWith(BODY));
-    }
-
-    @Test
     void shouldNotSetDataWithNullMessage() {
         // Given
         model.setMessage(null);
@@ -180,33 +159,5 @@ public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 ext
         verifyHeader(HEADER);
         verify(header, times(0)).setContentLength(anyInt());
         verify(body).setBody("");
-    }
-
-    @Test
-    void shouldSetDataIntoBodyGzipEncoded() throws HttpMalformedHeaderException {
-        // Given
-        model.setMessage(message);
-        given(header.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn("gzip");
-        given(body.getCharset()).willReturn(DEFAULT_CHARSET.name());
-        String otherBodyContent = "Other Body\r\n 123\n ABC";
-        String data = HEADER_LINEFEEDS + "\n\n" + otherBodyContent;
-        byte[] encodedBody = gzip(otherBodyContent.getBytes(DEFAULT_CHARSET));
-        given(body.length()).willReturn(encodedBody.length);
-        // When
-        model.setData(data);
-        // Then
-        verifyHeader(HEADER);
-        verify(header, times(0)).setContentLength(anyInt());
-        verify(body).setBody(encodedBody);
-    }
-
-    private static byte[] gzip(byte[] value) {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (GZIPOutputStream gis = new GZIPOutputStream(baos)) {
-            gis.write(value);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return baos.toByteArray();
     }
 }

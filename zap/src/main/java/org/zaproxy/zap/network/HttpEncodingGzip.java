@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 The ZAP Development Team
+ * Copyright 2020 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
+package org.zaproxy.zap.network;
 
-import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
-public class ResponseBodyStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
+/**
+ * The {@link HttpEncoding} for the {@code gzip}/{@code x-gzip} coding.
+ *
+ * @since TODO add version
+ */
+public class HttpEncodingGzip extends AbstractStreamHttpEncoding {
 
-    @Override
-    public String getData() {
-        if (httpMessage == null) {
-            return "";
-        }
+    private static final HttpEncodingGzip SINGLETON = new HttpEncodingGzip();
 
-        return httpMessage.getResponseBody().toString();
+    private HttpEncodingGzip() {
+        super(GZIPOutputStream::new, GZIPInputStream::new);
     }
 
-    @Override
-    public void setData(String data) {
-        if (httpMessage == null) {
-            return;
-        }
-
-        httpMessage.getResponseBody().setBody(data);
+    /**
+     * Gets the singleton.
+     *
+     * @return the GZIP content encoding.
+     */
+    public static HttpEncodingGzip getSingleton() {
+        return SINGLETON;
     }
 }
