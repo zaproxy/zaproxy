@@ -1122,6 +1122,9 @@ public final class Constant {
                                 config.clearProperty(key);
                             }
                         });
+        // Update to a newer default user agent
+        config.setProperty(
+                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
     }
 
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
