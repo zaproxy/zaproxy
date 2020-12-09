@@ -83,8 +83,8 @@ public class SessionStructureUnitTest {
     public void shouldReturnCorrectNameForNoPathWithSlashNoParams(String method) throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
-        String uri = "https://www.example.com";
-        msg.getRequestHeader().setURI(new URI(uri + "/", true));
+        String uri = "https://www.example.com/";
+        msg.getRequestHeader().setURI(new URI(uri, true));
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -110,8 +110,8 @@ public class SessionStructureUnitTest {
             throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
-        String uri = "https://www.example.com";
-        msg.getRequestHeader().setURI(new URI(uri + "/?a=b&c=d", true));
+        String uri = "https://www.example.com/";
+        msg.getRequestHeader().setURI(new URI(uri + "?a=b&c=d", true));
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -137,8 +137,8 @@ public class SessionStructureUnitTest {
             throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
-        String uri = "https://www.example.com/path";
-        msg.getRequestHeader().setURI(new URI(uri + "/", true));
+        String uri = "https://www.example.com/path/";
+        msg.getRequestHeader().setURI(new URI(uri, true));
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -165,8 +165,8 @@ public class SessionStructureUnitTest {
             throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
-        String uri = "https://www.example.com/path";
-        msg.getRequestHeader().setURI(new URI(uri + "/?a=b&c=d", true));
+        String uri = "https://www.example.com/path/";
+        msg.getRequestHeader().setURI(new URI(uri + "?a=b&c=d", true));
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -202,8 +202,8 @@ public class SessionStructureUnitTest {
     public void shouldReturnCorrectNameForPostNoPathWithSlashNoUrlParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
-        String uri = "https://www.example.com";
-        msg.getRequestHeader().setURI(new URI(uri + "/", true));
+        String uri = "https://www.example.com/";
+        msg.getRequestHeader().setURI(new URI(uri, true));
         msg.setRequestBody("e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
@@ -228,8 +228,8 @@ public class SessionStructureUnitTest {
     public void shouldReturnCorrectNameForPostNoPathWithSlashWithParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
-        String uri = "https://www.example.com";
-        msg.getRequestHeader().setURI(new URI(uri + "/?a=b&c=d", true));
+        String uri = "https://www.example.com/";
+        msg.getRequestHeader().setURI(new URI(uri + "?a=b&c=d", true));
         msg.setRequestBody("e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
@@ -254,8 +254,8 @@ public class SessionStructureUnitTest {
     public void shouldReturnCorrectNameForPostWithPathWithSlashNoUrlParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
-        String uri = "https://www.example.com/path";
-        msg.getRequestHeader().setURI(new URI(uri + "/", true));
+        String uri = "https://www.example.com/path/";
+        msg.getRequestHeader().setURI(new URI(uri, true));
         msg.setRequestBody("e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
@@ -280,8 +280,8 @@ public class SessionStructureUnitTest {
     public void shouldReturnCorrectNameForPostWithPathWithSlashWithParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
-        String uri = "https://www.example.com/path";
-        msg.getRequestHeader().setURI(new URI(uri + "/?a=b&c=d", true));
+        String uri = "https://www.example.com/path/";
+        msg.getRequestHeader().setURI(new URI(uri + "?a=b&c=d", true));
         msg.setRequestBody("e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
@@ -294,8 +294,8 @@ public class SessionStructureUnitTest {
             throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
-        String uri = "https://www.example.com/path";
-        msg.getRequestHeader().setURI(new URI(uri + "/?a=b&c=d", true));
+        String uri = "https://www.example.com/path/";
+        msg.getRequestHeader().setURI(new URI(uri + "?a=b&c=d", true));
         msg.setRequestBody("a=b&c=d");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);

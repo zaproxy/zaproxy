@@ -168,11 +168,11 @@ class SiteMapUnitTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"/", "//", "/a/", "/a/b/"})
+    @ValueSource(strings = {"/a", "//b", "/a/b", "/a/b/c"})
     void shouldFindSiteLeafNodeWithUriIfPresent(String path) {
         // Given
-        String uri = "http://example.com" + path + "file.ext";
-        siteMapWithNodes(uri, "http://example.org" + path + "file.ext");
+        String uri = "http://example.com" + path + "/file.ext";
+        siteMapWithNodes(uri, "http://example.org" + path + "/file.ext");
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
@@ -206,15 +206,32 @@ class SiteMapUnitTest {
     @Test
     void shouldFindSiteBranchNodeWithUriIfPresent() {
         // Given
-        String uri = "http://example.com/a/";
+        String uri = "http://example.com/a";
         siteMapWithNodes("http://example.com/a/file.ext", "http://example.org/a/");
         // When
         SiteNode node = siteMap.findNode(createUri(uri));
         // Then
         assertThat(node, is(notNullValue()));
         assertThat(node.getNodeName(), is(equalTo("a")));
-        SiteNode parent = siteMap.findNode(createUri("http://example.com/"));
+        SiteNode parent = siteMap.findNode(createUri("http://example.com"));
         assertThat(node.getParent(), is(equalTo(parent)));
+    }
+
+    @Test
+    void shouldCreateSlashNodeIfUriEndsWithASlash() {
+        // Given
+        String branchUri = "http://example.com/a";
+        String leafUri = "http://example.com/a/";
+        siteMapWithNodes(branchUri, leafUri);
+        // When
+        SiteNode branchNode = siteMap.findNode(createUri(branchUri));
+        SiteNode leafNode = siteMap.findNode(createUri(leafUri));
+        // Then
+        assertThat(branchNode, is(notNullValue()));
+        assertThat(leafNode, is(notNullValue()));
+        assertThat(branchNode.getHierarchicNodeName(), is(equalTo(branchUri)));
+        assertThat(leafNode.getHierarchicNodeName(), is(equalTo(leafUri)));
+        assertThat(leafNode.getParent(), is(equalTo(branchNode)));
     }
 
     private void siteMapWithNodes(String... uris) {
