@@ -110,7 +110,7 @@ public class ConnectionParam extends AbstractParam {
     public static final String DEFAULT_USER_AGENT = CONNECTION_BASE_KEY + ".defaultUserAgent";
 
     public static final String DEFAULT_DEFAULT_USER_AGENT =
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:71.0) Gecko/20100101 Firefox/71.0";
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:82.0) Gecko/20100101 Firefox/82.0";
 
     /** The security property for TTL of successful DNS queries. */
     private static final String DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY =
