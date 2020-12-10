@@ -169,7 +169,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
         namebld.addRDN(BCStyle.OU, "Zed Attack Proxy Project");
         namebld.addRDN(BCStyle.O, "OWASP");
         namebld.addRDN(BCStyle.C, "xx");
-        namebld.addRDN(BCStyle.EmailAddress, "owasp-zed-attack-proxy@lists.owasp.org");
+        namebld.addRDN(BCStyle.EmailAddress, "zaproxy-develop@googlegroups.com");
 
         long currentTime = System.currentTimeMillis();
         X509v3CertificateBuilder certGen =
