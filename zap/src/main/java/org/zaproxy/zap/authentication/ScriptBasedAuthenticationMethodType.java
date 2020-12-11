@@ -795,6 +795,11 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         try {
             AuthenticationScriptV2 authScript =
                     getScriptsExtension().getInterface(script, AuthenticationScriptV2.class);
+            if (authScript == null) {
+                log.debug(
+                        "Script '{}' is not a AuthenticationScriptV2 interface.", script::getName);
+                return null;
+            }
 
             // Some ScriptEngines do not verify if all Interface Methods are contained in the
             // script.
