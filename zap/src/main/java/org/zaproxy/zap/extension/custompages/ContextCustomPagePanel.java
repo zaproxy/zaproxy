@@ -76,8 +76,7 @@ class ContextCustomPagePanel extends AbstractContextPropertiesPanel {
 
     @Override
     public String getHelpIndex() {
-        // TODO Add help via zap-core-help
-        return "custompages";
+        return "ui.dialogs.contexts";
     }
 
     public static class CustomPagesMultipleOptionsPanel
