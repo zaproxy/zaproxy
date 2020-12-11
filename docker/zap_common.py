@@ -424,7 +424,7 @@ def zap_ajax_spider(zap, target, max_time):
         zap.ajaxSpider.set_option_max_duration(str(max_time))
     if scan_user:
         logging.debug('AjaxSpider %s as user %s', target, scan_user['name'])
-        result = zap.ajaxSpider.scan_as_user(context_name, scan_user['name'])
+        result = zap.ajaxSpider.scan_as_user(context_name, scan_user['name'], target)
     else:
         logging.debug('AjaxSpider %s', target)
         result = zap.ajaxSpider.scan(target, contextname=context_name)

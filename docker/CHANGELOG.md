@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-12-11
+ - Add `target` parameter to `ajaxSpider.scan_as_user` call. Without it ajaxSpider crawls first included in a context URL and not a target which is set.
+
 ### 2020-12-02
  - Use `ARG` command (for `DEBIAN_FRONTEND`) instead of `ENV` so that the parameter does not persist after the build process has been completed.
 

@@ -281,7 +281,7 @@ class TestZapCommon(unittest.TestCase):
         with patch("time.sleep"):
             zap_common.zap_ajax_spider(zap, target, max_time)
 
-        zap.ajaxSpider.scan_as_user.assert_called_once_with(context_name, user_name)
+        zap.ajaxSpider.scan_as_user.assert_called_once_with(context_name, user_name, target)
 
     def test_zap_active_scan_uses_imported_context(self):
         """Active Scan uses imported context."""
