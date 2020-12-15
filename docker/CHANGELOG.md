@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-12-16
+ - Update Webswing to latest version (20.2.1) to work with newer Java versions.
+ - Update Java in stable image to version 11.
+
 ### 2020-12-11
  - Add `target` parameter to `ajaxSpider.scan_as_user` call. Without it ajaxSpider crawls first included in a context URL and not a target which is set.
 

@@ -58,7 +58,8 @@ case "$1" in
     run)
         # Run Webswing server- expects X Server to be running
         # dont put into the background otherwise docker will exit
-        $JAVA_HOME/bin/java $JAVA_OPTS -jar $HOME/webswing-server.war $OPTS 2>> $LOG >> $LOG
+        cd $HOME
+        $JAVA_HOME/bin/java $JAVA_OPTS -jar webswing-server.war $OPTS 2>> $LOG >> $LOG
         ;;
     *)
         xvfb-run $SCRIPTPATH$0 run
