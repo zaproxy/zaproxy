@@ -36,6 +36,7 @@
       ":addOns:sequence",
       ":addOns:scripts",
       ":addOns:selenium",
+      ":addOns:soap",
       ":addOns:spiderAjax",
       ":addOns:tips",
       ":addOns:webdrivers:webdriverlinux",
