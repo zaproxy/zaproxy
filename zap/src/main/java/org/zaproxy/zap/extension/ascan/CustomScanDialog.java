@@ -256,6 +256,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         // Technology panel
         this.setCustomTabPanel(3, getTechPanel());
 
+        getTechTree().refresh();
         setTechSet(techTreeState);
 
         this.setCustomTabPanel(4, policyPanel);

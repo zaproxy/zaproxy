@@ -94,7 +94,7 @@ public class Context {
 
     private List<CustomPage> customPages = new ArrayList<>();
 
-    private TechSet techSet = new TechSet(Tech.builtInTech);
+    private TechSet techSet = new TechSet(Tech.getAll());
     private boolean inScope = true;
     private ParameterParser urlParamParser = new StandardParameterParser();
     private ParameterParser postParamParser = new StandardParameterParser();

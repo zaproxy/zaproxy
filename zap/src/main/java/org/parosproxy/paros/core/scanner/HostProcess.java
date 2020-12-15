@@ -94,6 +94,7 @@
 // ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
 // ZAP: 2020/10/19 Tweak JavaDoc and init startNodes in the constructor.
 // ZAP: 2020/06/30 Fix bug that makes zap test same request twice (Issue 6043).
+// ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/23 Expose getScannerParam() for tests.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
@@ -282,7 +283,7 @@ public class HostProcess implements Runnable {
         }
 
         threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
-        this.techSet = TechSet.AllTech;
+        this.techSet = TechSet.getAllTech();
     }
 
     /**

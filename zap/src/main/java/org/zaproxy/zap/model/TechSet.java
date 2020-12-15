@@ -19,11 +19,14 @@
  */
 package org.zaproxy.zap.model;
 
+import java.util.Objects;
+import java.util.Set;
 import java.util.TreeSet;
 
 public class TechSet {
 
-    public static final TechSet AllTech = new TechSet(Tech.builtInTopLevelTech);
+    /** @deprecated Not for public use. Replaced by {@link #getAllTech()}. */
+    @Deprecated public static final TechSet AllTech = new TechSet(Tech.getTopLevel());
 
     private TreeSet<Tech> includeTech = new TreeSet<>();
     private TreeSet<Tech> excludeTech = new TreeSet<>();
@@ -45,6 +48,10 @@ public class TechSet {
                 this.exclude(tech);
             }
         }
+    }
+
+    public TechSet(Set<Tech> include) {
+        this.includeTech.addAll(include);
     }
 
     public TechSet(TechSet techSet) {
@@ -107,7 +114,7 @@ public class TechSet {
         return copy;
     }
 
-    // Useful for debuging ;)
+    // Useful for debugging ;)
     public void print() {
         System.out.println("TechSet: " + this.hashCode());
         for (Tech tech : includeTech) {
@@ -116,5 +123,34 @@ public class TechSet {
         for (Tech tech : excludeTech) {
             System.out.println("\tExclude: " + tech);
         }
+    }
+
+    /**
+     * Get a TechSet including all Tech currently known
+     *
+     * <p><b>Info</b>: always returns a new TechSet containing the currently known Tech
+     *
+     * @return TechSet including all Tech
+     */
+    public static TechSet getAllTech() {
+        return new TechSet(Tech.getTopLevel());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(excludeTech, includeTech);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof TechSet)) {
+            return false;
+        }
+        TechSet other = (TechSet) obj;
+        return Objects.equals(excludeTech, other.excludeTech)
+                && Objects.equals(includeTech, other.includeTech);
     }
 }
