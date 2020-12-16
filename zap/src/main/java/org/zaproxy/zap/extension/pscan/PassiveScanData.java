@@ -181,7 +181,7 @@ public final class PassiveScanData {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     public boolean isPage200(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
@@ -202,7 +202,7 @@ public final class PassiveScanData {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     public boolean isPage500(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.OK_200)
@@ -223,7 +223,7 @@ public final class PassiveScanData {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     public boolean isPage404(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.OK_200)
@@ -241,7 +241,7 @@ public final class PassiveScanData {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     public boolean isPageOther(HttpMessage msg) {
         return isCustomPage(msg, CustomPage.Type.OTHER);
@@ -255,7 +255,7 @@ public final class PassiveScanData {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     public boolean isSuccess(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
@@ -276,7 +276,7 @@ public final class PassiveScanData {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     public boolean isClientError(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.OK_200)
@@ -297,7 +297,7 @@ public final class PassiveScanData {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     public boolean isServerError(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.OK_200)

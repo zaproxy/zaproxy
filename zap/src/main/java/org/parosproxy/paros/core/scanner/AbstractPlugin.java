@@ -601,7 +601,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param msg the message that will be checked
      * @param cpType the custom page type to be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     private boolean isCustomPage(HttpMessage msg, CustomPage.Type cpType) {
         return parent.isCustomPage(msg, cpType);
@@ -615,7 +615,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     protected boolean isPage200(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
@@ -636,7 +636,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     protected boolean isPage500(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.OK_200)
@@ -656,7 +656,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     protected boolean isPage404(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.OK_200)
@@ -674,7 +674,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     protected boolean isPageOther(HttpMessage msg) {
         return isCustomPage(msg, CustomPage.Type.OTHER);
@@ -688,7 +688,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      * @see {@code Analyser#isFileExist(HttpMessage)}
      */
     public boolean isSuccess(HttpMessage msg) {
@@ -710,7 +710,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      * @see {@code Analyser#isFileExist(HttpMessage)}
      */
     public boolean isClientError(HttpMessage msg) {
@@ -733,7 +733,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     public boolean isServerError(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.OK_200)
@@ -1060,7 +1060,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * Gets the logger.
      *
      * @return the logger, never {@code null}.
-     * @deprecated (TODO add version) Use {@link #getLogger()} instead.
+     * @deprecated (2.10.0) Use {@link #getLogger()} instead.
      */
     @Deprecated
     protected org.apache.log4j.Logger getLog() {
@@ -1071,7 +1071,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * Gets the logger.
      *
      * @return the logger, never {@code null}.
-     * @since TODO add version
+     * @since 2.10.0
      */
     protected Logger getLogger() {
         return logger;

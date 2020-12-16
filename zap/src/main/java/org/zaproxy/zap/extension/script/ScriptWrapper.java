@@ -204,7 +204,7 @@ public class ScriptWrapper {
      * <p>The value is different each time the contents of the script change.
      *
      * @return the mod count.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public int getModCount() {
         return modCount;

@@ -25,7 +25,7 @@ import java.util.zip.GZIPOutputStream;
 /**
  * The {@link HttpEncoding} for the {@code gzip}/{@code x-gzip} coding.
  *
- * @since TODO add version
+ * @since 2.10.0
  */
 public class HttpEncodingGzip extends AbstractStreamHttpEncoding {
 

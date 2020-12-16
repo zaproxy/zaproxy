@@ -39,7 +39,7 @@ public final class HttpPanelViewModelUtils {
      *
      * @param data the data that contains the header and body.
      * @return the position after the limit, or {@code -1} if not found.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public static int findHeaderLimit(byte[] data) {
         boolean lastIsCrLf = false;

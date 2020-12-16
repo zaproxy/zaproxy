@@ -204,7 +204,7 @@ public interface Extension {
     /**
      * Gets the URL to info about the extension.
      *
-     * <p>Since TODO add version defaults to {@code null}.
+     * <p>Since 2.10.0 defaults to {@code null}.
      *
      * @return the URL to info about the extension, might be {@code null}.
      * @since 1.4.0

@@ -31,7 +31,7 @@ import org.apache.logging.log4j.Logger;
 /**
  * ZAP's {@link ProxySelector}.
  *
- * @since TODO add version
+ * @since 2.10.0
  */
 public class ZapProxySelector extends ProxySelector {
 

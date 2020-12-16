@@ -146,7 +146,7 @@ public class ConnectionParam extends AbstractParam {
     /**
      * The default SOCKS proxy configuration.
      *
-     * @since TODO add version
+     * @since 2.10.0
      */
     public static final SocksProxy DEFAULT_SOCKS_PROXY = new SocksProxy("localhost", 1080);
 
@@ -963,7 +963,7 @@ public class ConnectionParam extends AbstractParam {
      *
      * @return {@code true} if outgoing connections should use the SOCKS proxy, {@code false}
      *     otherwise.
-     * @since TODO add version
+     * @since 2.10.0
      * @see #setUseSocksProxy(boolean)
      */
     public boolean isUseSocksProxy() {
@@ -975,7 +975,7 @@ public class ConnectionParam extends AbstractParam {
      *
      * @param useSocksProxy {@code true} if outgoing connections should use the SOCKS proxy, {@code
      *     false} otherwise.
-     * @since TODO add version
+     * @since 2.10.0
      * @see #isUseSocksProxy()
      * @see #setSocksProxy(SocksProxy)
      */
@@ -995,7 +995,7 @@ public class ConnectionParam extends AbstractParam {
      * Gets the SOCKS proxy for outgoing connections.
      *
      * @return the SOCKS proxy, never {@code null}.
-     * @since TODO add version
+     * @since 2.10.0
      * @see #isUseSocksProxy()
      * @see #setSocksProxy(SocksProxy)
      */
@@ -1009,7 +1009,7 @@ public class ConnectionParam extends AbstractParam {
      *
      * @param socksProxy the SOCKS proxy.
      * @throws NullPointerException if the given {@code socksProxy} is {@code null}.
-     * @since TODO add version
+     * @since 2.10.0
      * @see #getSocksProxy()
      * @see #setUseSocksProxy(boolean)
      */
@@ -1034,7 +1034,7 @@ public class ConnectionParam extends AbstractParam {
      * Gets the SOCKS proxy password authentication.
      *
      * @return the SOCKS proxy password authentication, never {@code null}.
-     * @since TODO add version
+     * @since 2.10.0
      * @see #isUseSocksProxy()
      * @see #setSocksProxyPasswordAuth(PasswordAuthentication)
      */
@@ -1048,7 +1048,7 @@ public class ConnectionParam extends AbstractParam {
      *
      * @param passwordAuth the password authentication.
      * @throws NullPointerException if the given {@code passwordAuth} is {@code null}.
-     * @since TODO add version
+     * @since 2.10.0
      * @see #getSocksProxyPasswordAuth()
      */
     public void setSocksProxyPasswordAuth(PasswordAuthentication passwordAuth) {

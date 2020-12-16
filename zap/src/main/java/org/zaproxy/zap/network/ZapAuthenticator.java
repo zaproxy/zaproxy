@@ -31,7 +31,7 @@ import org.parosproxy.paros.network.ConnectionParam;
  *
  * <p>Authenticates to HTTP and SOCKS proxies.
  *
- * @since TODO add version
+ * @since 2.10.0
  */
 public class ZapAuthenticator extends Authenticator {
 

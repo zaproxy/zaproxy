@@ -220,7 +220,7 @@ public class DisplayUtils {
     /**
      * Returns true if a known dark LookAndFeel is being used
      *
-     * @since TODO add version
+     * @since 2.10.0
      */
     public static boolean isDarkLookAndFeel() {
         LookAndFeel laf = UIManager.getLookAndFeel();

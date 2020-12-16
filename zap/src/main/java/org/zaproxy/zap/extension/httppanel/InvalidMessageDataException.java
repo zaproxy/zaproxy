@@ -25,7 +25,7 @@ package org.zaproxy.zap.extension.httppanel;
  * <p>Whenever possible the exception message should be internationalised, the message will be shown
  * to the user.
  *
- * @since TODO add version
+ * @since 2.10.0
  */
 public class InvalidMessageDataException extends RuntimeException {
 

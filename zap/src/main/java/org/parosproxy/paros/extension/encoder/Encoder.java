@@ -41,7 +41,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** @deprecated (TODO Add version) */
+/** @deprecated (2.10.0) */
 @Deprecated
 public class Encoder {
 

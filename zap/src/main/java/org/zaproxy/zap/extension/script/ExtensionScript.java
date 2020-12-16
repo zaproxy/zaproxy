@@ -1942,7 +1942,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @param <T> the target interface.
      * @param config the cache configuration
      * @return the scripts cache.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public <T> ScriptsCache<T> createScriptsCache(Configuration<T> config) {
         return new ScriptsCache<>(this, config);

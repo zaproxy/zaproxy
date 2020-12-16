@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * A collection of cached scripts.
  *
- * @since TODO add version
+ * @since 2.10.0
  * @see ExtensionScript#createScriptsCache(Configuration)
  */
 public class ScriptsCache<T> {

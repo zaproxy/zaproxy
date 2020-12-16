@@ -41,7 +41,7 @@ import java.util.Base64;
  *
  * @author embeddednode
  * @version 1.2 June 10, 2009
- * @deprecated in ZAP (TODO add version)
+ * @deprecated in ZAP (2.10.0)
  */
 @Deprecated
 public class ViewState {

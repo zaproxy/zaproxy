@@ -30,7 +30,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
  * A {@link PopupMenuItemAlert} that sets the Confidence of one or more {@link Alert alerts} to
  * False Positive.
  *
- * @since TODO Add version
+ * @since 2.10.0
  */
 public class PopupMenuAlertSetFalsePositive extends PopupMenuItemAlert {
 
