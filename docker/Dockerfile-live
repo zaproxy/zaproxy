@@ -56,14 +56,12 @@ RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 	rm -rf /zap-src/* && \
 	cd /zap/ && \
 	# Setup Webswing
-	curl -s -L https://storage.googleapis.com/builds.webswing.org/releases/webswing-2.5.12.zip > webswing.zip && \
+	curl -s -L https://storage.googleapis.com/builds.webswing.org/releases/webswing-20.2.1.zip > webswing.zip && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
 	mv webswing-* webswing && \
-	# Remove Webswing demos
-	rm -R webswing/demo/ && \
-	# Accept ZAP license
-	touch AcceptedLicense
+	# Remove Webswing bundled examples
+	rm -R webswing/apps/
 
 ENV ZAP_PATH /zap/zap.sh
 # Default port for use with zapcli
@@ -75,6 +73,7 @@ ENV LANG=C.UTF-8
 
 COPY zap* CHANGELOG.md /zap/
 COPY webswing.config /zap/webswing/
+COPY webswing.properties /zap/webswing/
 COPY policies /home/zap/.ZAP_D/policies/
 COPY policies /root/.ZAP_D/policies/
 COPY scripts /home/zap/.ZAP_D/scripts/
@@ -85,6 +84,7 @@ USER root
 
 RUN chown zap:zap /zap/* && \
 	chown zap:zap /zap/webswing/webswing.config && \
+	chown zap:zap /zap/webswing/webswing.properties && \
 	chown zap:zap -R /home/zap/.ZAP_D/ && \
 	chown zap:zap /home/zap/.xinitrc && \
 	chmod a+x /home/zap/.xinitrc && \
