@@ -99,11 +99,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     // Note that URLs must now use https (unless you change the code;)
 
     private static final String ZAP_VERSIONS_REL_XML_DESKTOP_SHORT =
-            "https://bit.ly/owaspzap-2-9-0";
+            "https://bit.ly/owaspzap-2-10-0";
     private static final String ZAP_VERSIONS_REL_XML_DAEMON_SHORT =
-            "https://bit.ly/owaspzap-2-9-0d";
+            "https://bit.ly/owaspzap-2-10-0d";
     private static final String ZAP_VERSIONS_REL_XML_FULL =
-            "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.9.xml";
+            "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.10.xml";
 
     private static final String ZAP_VERSIONS_DEV_XML_SHORT = "https://bit.ly/owaspzap-dev";
     private static final String ZAP_VERSIONS_DEV_XML_FULL =
