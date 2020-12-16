@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.zaproxy.zap.utils.Enableable;
 
 public class DataDrivenNode extends Enableable implements Cloneable {
@@ -249,6 +250,20 @@ public class DataDrivenNode extends Enableable implements Cloneable {
     @Override
     public boolean equals(Object obj) {
         return obj == this;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result =
+                new HashCodeBuilder(super.hashCode(), prime)
+                        .append(this.name)
+                        .append(this.prefixPattern)
+                        .append(this.dataNodePattern)
+                        .append(suffixPattern)
+                        .toHashCode();
+
+        return result;
     }
 
     protected String ValueOrEmptyString(String value) {
