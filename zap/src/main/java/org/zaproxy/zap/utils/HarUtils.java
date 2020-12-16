@@ -41,15 +41,16 @@ import edu.umass.cs.benchlab.har.tools.HarFileWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.HttpCookie;
+import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.encoder.Base64;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpHeaderField;
@@ -69,7 +70,7 @@ import org.zaproxy.zap.network.HttpRequestBody;
  */
 public final class HarUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(HarUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(HarUtils.class);
 
     /**
      * The prefix for custom HAR fields produced by ZAP.
@@ -329,7 +330,7 @@ public final class HarUtils {
 
             if (!lcContentType.startsWith("text")) {
                 encoding = "base64";
-                text = Base64.encodeBytes(httpMessage.getResponseBody().getBytes());
+                text = Base64.getEncoder().encodeToString(httpMessage.getResponseBody().getBytes());
             } else {
                 text = httpMessage.getResponseBody().toString();
             }

@@ -27,17 +27,19 @@
 // ZAP: 2016/05/04 Changed to use setParameters(int, List<NameValuePair>)
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpMessage;
 
 public class VariantURLQuery extends VariantAbstractQuery {
 
-    private static final Logger log = Logger.getLogger(VariantURLQuery.class);
+    private static final Logger log = LogManager.getLogger(VariantURLQuery.class);
 
     public VariantURLQuery() {
         super();

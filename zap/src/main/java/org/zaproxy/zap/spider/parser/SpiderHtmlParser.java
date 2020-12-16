@@ -80,8 +80,8 @@ public class SpiderHtmlParser extends SpiderParser {
         // Try to see if there's any BASE tag that could change the base URL
         Element base = source.getFirstElement(HTMLElementName.BASE);
         if (base != null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Base tag was found in HTML: " + base.getDebugInfo());
+            if (getLogger().isDebugEnabled()) {
+                getLogger().debug("Base tag was found in HTML: " + base.getDebugInfo());
             }
             String href = base.getAttributeValue("href");
             if (href != null && !href.isEmpty()) {
@@ -119,7 +119,7 @@ public class SpiderHtmlParser extends SpiderParser {
      * @return {@code true} if at least one URL was found, {@code false} otherwise.
      */
     private boolean parseSource(HttpMessage message, Source source, int depth, String baseURL) {
-        log.debug("Parsing an HTML message...");
+        getLogger().debug("Parsing an HTML message...");
         boolean resourcesfound = false;
         // Process A elements
         List<Element> elements = source.getAllElements(HTMLElementName.A);

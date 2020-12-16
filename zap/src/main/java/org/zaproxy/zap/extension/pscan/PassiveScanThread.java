@@ -28,7 +28,8 @@ import net.htmlparser.jericho.MasonTagTypes;
 import net.htmlparser.jericho.MicrosoftConditionalCommentTagTypes;
 import net.htmlparser.jericho.PHPTagTypes;
 import net.htmlparser.jericho.Source;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
@@ -50,7 +51,7 @@ import org.zaproxy.zap.utils.Stats;
 
 public class PassiveScanThread extends Thread implements ProxyListener, SessionChangedListener {
 
-    private static final Logger logger = Logger.getLogger(PassiveScanThread.class);
+    private static final Logger logger = LogManager.getLogger(PassiveScanThread.class);
 
     // Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change
     // the HttpMessage.
@@ -182,6 +183,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                         Source src = new Source(msg.getResponseBody().toString());
                         currentUrl = msg.getRequestHeader().getURI().toString();
                         PassiveScanData passiveScanData = new PassiveScanData(msg);
+                        int maxBodySize = this.pscanOptions.getMaxBodySizeInBytesToScan();
 
                         for (PassiveScanner scanner : scannerList.list()) {
                             try {
@@ -202,37 +204,72 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                                     }
                                     currentRuleName = scanner.getName();
                                     currentRuleStartTime = System.currentTimeMillis();
-                                    scanner.scanHttpRequestSend(msg, href.getHistoryId());
+                                    boolean scanned = false;
+                                    if (maxBodySize <= 0
+                                            || msg.getRequestBody().length() < maxBodySize) {
+                                        scanner.scanHttpRequestSend(msg, href.getHistoryId());
+                                        scanned = true;
+                                    } else {
+                                        Stats.incCounter("stats.pscan.reqBodyTooBig");
+                                        if (logger.isDebugEnabled()) {
+                                            logger.debug(
+                                                    "Request to "
+                                                            + msg.getRequestHeader().getURI()
+                                                            + " body size "
+                                                            + msg.getRequestBody().length()
+                                                            + " larger than max configured "
+                                                            + maxBodySize);
+                                        }
+                                    }
                                     if (msg.isResponseFromTargetHost()) {
-                                        scanner.scanHttpResponseReceive(
-                                                msg, href.getHistoryId(), src);
+                                        if (maxBodySize <= 0
+                                                || msg.getResponseBody().length() < maxBodySize) {
+                                            scanner.scanHttpResponseReceive(
+                                                    msg, href.getHistoryId(), src);
+                                            scanned = true;
+                                        } else {
+                                            Stats.incCounter("stats.pscan.respBodyTooBig");
+                                            if (logger.isDebugEnabled()) {
+                                                logger.debug(
+                                                        "Response from "
+                                                                + msg.getRequestHeader().getURI()
+                                                                + " body size "
+                                                                + msg.getResponseBody().length()
+                                                                + " larger than max configured "
+                                                                + maxBodySize);
+                                            }
+                                        }
                                     }
                                     if (cleanScanner) {
                                         ((PluginPassiveScanner) scanner).clean();
                                     }
-                                    long timeTaken =
-                                            System.currentTimeMillis() - currentRuleStartTime;
-                                    Stats.incCounter("stats.pscan." + currentRuleName, timeTaken);
-                                    if (timeTaken > 5000) {
-                                        // Took over 5 seconds, thats not ideal
-                                        String responseInfo = "";
-                                        if (msg.isResponseFromTargetHost()) {
-                                            responseInfo =
-                                                    msg.getResponseHeader()
-                                                                    .getHeader(
-                                                                            HttpHeader.CONTENT_TYPE)
+                                    if (scanned) {
+                                        long timeTaken =
+                                                System.currentTimeMillis() - currentRuleStartTime;
+                                        Stats.incCounter(
+                                                "stats.pscan." + currentRuleName, timeTaken);
+                                        if (timeTaken > 5000) {
+                                            // Took over 5 seconds, thats not ideal
+                                            String responseInfo = "";
+                                            if (msg.isResponseFromTargetHost()) {
+                                                responseInfo =
+                                                        msg.getResponseHeader()
+                                                                        .getHeader(
+                                                                                HttpHeader
+                                                                                        .CONTENT_TYPE)
+                                                                + " "
+                                                                + msg.getResponseBody().length();
+                                            }
+                                            logger.warn(
+                                                    "Passive Scan rule "
+                                                            + currentRuleName
+                                                            + " took "
+                                                            + (timeTaken / 1000)
+                                                            + " seconds to scan "
+                                                            + currentUrl
                                                             + " "
-                                                            + msg.getResponseBody().length();
+                                                            + responseInfo);
                                         }
-                                        logger.warn(
-                                                "Passive Scan rule "
-                                                        + currentRuleName
-                                                        + " took "
-                                                        + (timeTaken / 1000)
-                                                        + " seconds to scan "
-                                                        + currentUrl
-                                                        + " "
-                                                        + responseInfo);
                                     }
                                 }
                             } catch (Throwable e) {

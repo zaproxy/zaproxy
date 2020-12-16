@@ -37,7 +37,8 @@ import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
@@ -55,7 +56,7 @@ public class DbSQL implements DatabaseListener {
     private static DbSQL singleton = null;
     private static SqlDatabaseServer dbServer = null;
 
-    private static final Logger logger = Logger.getLogger(DbSQL.class);
+    private static final Logger logger = LogManager.getLogger(DbSQL.class);
 
     private Map<String, StatementPool> stmtPool = new HashMap<String, StatementPool>();
 

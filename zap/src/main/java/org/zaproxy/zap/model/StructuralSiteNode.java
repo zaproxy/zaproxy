@@ -20,6 +20,7 @@
 package org.zaproxy.zap.model;
 
 import java.util.Iterator;
+import java.util.Objects;
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
@@ -30,8 +31,14 @@ public class StructuralSiteNode implements StructuralNode {
     private SiteNode node;
     private StructuralNode parent = null;
 
+    /**
+     * Constructs a {@code StructuralSiteNode} with the given node.
+     *
+     * @param node the node to wrap.
+     * @throws NullPointerException (since 2.10.0) if the given {@code node} is {@code null}.
+     */
     public StructuralSiteNode(SiteNode node) {
-        this.node = node;
+        this.node = Objects.requireNonNull(node);
     }
 
     @Override

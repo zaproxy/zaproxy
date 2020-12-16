@@ -35,7 +35,8 @@ import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -51,6 +52,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.PagingTableModel;
+import org.zaproxy.zap.view.HrefTypeInfo;
 import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
@@ -59,6 +61,7 @@ import org.zaproxy.zap.view.renderer.SizeBytesStringValue;
 import org.zaproxy.zap.view.renderer.TimeDurationStringValue;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 import org.zaproxy.zap.view.table.decorator.AlertRiskTableCellItemIconHighlighter;
+import org.zaproxy.zap.view.table.decorator.HrefTypeInfoIconHighlighter;
 import org.zaproxy.zap.view.table.decorator.NoteTableCellItemIconHighlighter;
 
 /**
@@ -69,7 +72,7 @@ public class HistoryReferencesTable extends ZapTable {
 
     private static final long serialVersionUID = -6988769961088738602L;
 
-    private static final Logger LOGGER = Logger.getLogger(HistoryReferencesTable.class);
+    private static final Logger LOGGER = LogManager.getLogger(HistoryReferencesTable.class);
 
     private static final int MAXIMUM_ROWS_FOR_TABLE_CONFIG = 75;
 
@@ -379,6 +382,15 @@ public class HistoryReferencesTable extends ZapTable {
                     columnExt, hRefModel.getColumnIndex(Column.SIZE_RESPONSE_HEADER), model);
             installSizeBytesRenderer(
                     columnExt, hRefModel.getColumnIndex(Column.SIZE_RESPONSE_BODY), model);
+
+            final int hrefTypeInfoColumnIndex = hRefModel.getColumnIndex(Column.HREF_TYPE_INFO);
+            if (hrefTypeInfoColumnIndex != -1) {
+                if (columnExt.getModelIndex() == hrefTypeInfoColumnIndex
+                        && model.getColumnClass(hrefTypeInfoColumnIndex) == HrefTypeInfo.class) {
+                    columnExt.setHighlighters(
+                            new HrefTypeInfoIconHighlighter(hrefTypeInfoColumnIndex));
+                }
+            }
         }
 
         protected void installSizeBytesRenderer(

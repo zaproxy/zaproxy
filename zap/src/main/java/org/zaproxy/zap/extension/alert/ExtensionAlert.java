@@ -36,7 +36,8 @@ import java.util.Vector;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -71,7 +72,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         implements SessionChangedListener, XmlReporterExtension, OptionsChangedListener {
 
     public static final String NAME = "ExtensionAlert";
-    private static final Logger logger = Logger.getLogger(ExtensionAlert.class);
+    private static final Logger logger = LogManager.getLogger(ExtensionAlert.class);
     private Map<Integer, HistoryReference> hrefs = new HashMap<>();
     private AlertTreeModel treeModel = null;
     private AlertTreeModel filteredTreeModel = null;
@@ -79,6 +80,7 @@ public class ExtensionAlert extends ExtensionAdaptor
     private RecordScan recordScan = null;
     private PopupMenuAlert popupMenuAlertAdd;
     private PopupMenuAlertEdit popupMenuAlertEdit = null;
+    private PopupMenuAlertSetFalsePositive popupMenuAlertSetFalsePositive = null;
     private PopupMenuAlertDelete popupMenuAlertDelete = null;
     private PopupMenuAlertsRefresh popupMenuAlertsRefresh = null;
     private PopupMenuShowAlerts popupMenuShowAlerts = null;
@@ -105,6 +107,7 @@ public class ExtensionAlert extends ExtensionAdaptor
             extensionHook.getHookView().addOptionPanel(getOptionsPanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertAdd());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertSetFalsePositive());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertsRefresh());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowAlerts());
@@ -203,8 +206,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
             try {
                 if (getView() == null || EventQueue.isDispatchThread()) {
-                    SessionStructure.addPath(
-                            Model.getSingleton().getSession(), ref, alert.getMessage());
+                    SessionStructure.addPath(Model.getSingleton(), ref, alert.getMessage());
                 } else {
                     final HistoryReference fRef = ref;
                     final HttpMessage fMsg = alert.getMessage();
@@ -213,8 +215,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
                                 @Override
                                 public void run() {
-                                    SessionStructure.addPath(
-                                            Model.getSingleton().getSession(), fRef, fMsg);
+                                    SessionStructure.addPath(Model.getSingleton(), fRef, fMsg);
                                 }
                             });
                 }
@@ -436,7 +437,8 @@ public class ExtensionAlert extends ExtensionAdaptor
                         alert.getWascId(),
                         ref.getHistoryId(),
                         alert.getSourceHistoryId(),
-                        alert.getSource().getId());
+                        alert.getSource().getId(),
+                        alert.getAlertRef());
 
         alert.setAlertId(recordAlert.getAlertId());
     }
@@ -616,6 +618,13 @@ public class ExtensionAlert extends ExtensionAdaptor
             popupMenuAlertEdit = new PopupMenuAlertEdit(this);
         }
         return popupMenuAlertEdit;
+    }
+
+    private PopupMenuAlertSetFalsePositive getPopupMenuAlertSetFalsePositive() {
+        if (popupMenuAlertSetFalsePositive == null) {
+            popupMenuAlertSetFalsePositive = new PopupMenuAlertSetFalsePositive();
+        }
+        return popupMenuAlertSetFalsePositive;
     }
 
     private PopupMenuAlertDelete getPopupMenuAlertDelete() {

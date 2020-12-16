@@ -35,8 +35,8 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.BasicConfigurator;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.parosproxy.paros.CommandLine;
@@ -63,7 +63,7 @@ import org.zaproxy.zap.view.ProxyDialog;
  */
 public class GuiBootstrap extends ZapBootstrap {
 
-    private static final Logger logger = Logger.getLogger(GuiBootstrap.class);
+    private static final Logger logger = LogManager.getLogger(GuiBootstrap.class);
 
     /**
      * Flag that indicates whether or not the look and feel was already set.
@@ -81,10 +81,6 @@ public class GuiBootstrap extends ZapBootstrap {
         int rc = super.start();
         if (rc != 0) {
             return rc;
-        }
-
-        if (!getArgs().isNoStdOutLog()) {
-            BasicConfigurator.configure();
         }
 
         logger.info(getStartingMessage());
@@ -336,19 +332,22 @@ public class GuiBootstrap extends ZapBootstrap {
         }
         lookAndFeelSet = true;
 
+        if (Constant.isMacOsX()) {
+            OsXGui.setup();
+        }
+
         if (setLookAndFeel(System.getProperty("swing.defaultlaf"))) {
             return;
         }
 
         OptionsParam options = Model.getSingleton().getOptionsParam();
 
-        if (setLookAndFeel(getLookAndFeelClassname(options.getViewParam().getLookAndFeel()))) {
+        if (setLookAndFeel(getLookAndFeelClassname(options.getViewParam().getLookAndFeel()))
+                || setLookAndFeel(options.getViewParam().getLookAndFeelInfo().getClassName())) {
             return;
         }
 
-        if (Constant.isMacOsX()) {
-            OsXGui.setup();
-        } else if (setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
+        if (!Constant.isMacOsX() && setLookAndFeel(getLookAndFeelClassname("Nimbus"))) {
             return;
         }
 

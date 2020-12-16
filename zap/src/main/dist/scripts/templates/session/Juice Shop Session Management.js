@@ -15,6 +15,7 @@
 
 var COOKIE_TYPE   = org.parosproxy.paros.network.HtmlParameter.Type.cookie;
 var HtmlParameter = Java.type('org.parosproxy.paros.network.HtmlParameter')
+var ScriptVars = Java.type('org.zaproxy.zap.extension.script.ScriptVars');
 
 function extractWebSession(sessionWrapper) {
 	// parse the authentication response
@@ -22,11 +23,13 @@ function extractWebSession(sessionWrapper) {
 	var token = json.authentication.token;
 	// save the authentication token
 	sessionWrapper.getSession().setValue("token", token);
+	ScriptVars.setGlobalVar("juiceshop.token", token);
 }
     	
 function clearWebSessionIdentifiers(sessionWrapper) {
 	var headers = sessionWrapper.getHttpMessage().getRequestHeader();
 	headers.setHeader("Authorization", null);
+	ScriptVars.setGlobalVar("juiceshop.token", null);
 }
     	
 function processMessageToMatchSession(sessionWrapper) {

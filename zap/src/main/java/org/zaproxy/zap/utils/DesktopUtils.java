@@ -21,7 +21,8 @@ package org.zaproxy.zap.utils;
 
 import java.awt.Desktop;
 import java.net.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class DesktopUtils {
 
@@ -33,7 +34,7 @@ public class DesktopUtils {
     private static BrowserInvoker invoker =
             Desktop.isDesktopSupported() ? BrowserInvoker.desktop : BrowserInvoker.none;
 
-    private static Logger log = Logger.getLogger(DesktopUtils.class);
+    private static Logger log = LogManager.getLogger(DesktopUtils.class);
 
     public static boolean openUrlInBrowser(URI uri) {
 

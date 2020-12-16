@@ -39,10 +39,12 @@ import java.util.List;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.AbstractPlugin;
@@ -66,10 +68,17 @@ import org.zaproxy.zap.utils.ZapResourceBundleControl;
  */
 public final class AddOnInstaller {
 
-    private static final Logger logger = Logger.getLogger(AddOnInstaller.class);
+    private static final Logger logger = LogManager.getLogger(AddOnInstaller.class);
 
     /** The base directory to where add-on data (e.g. libraries) is copied. */
     private static final String ADD_ON_DATA_DIR = "addOnData";
+
+    /**
+     * The name of the directory that contains the libraries of an add-on.
+     *
+     * @see #getAddOnLibsDir(AddOn)
+     */
+    private static final String ADD_ON_DATA_LIBS_DIR = "libs";
 
     private AddOnInstaller() {}
 
@@ -480,7 +489,7 @@ public final class AddOnInstaller {
             return true;
         }
 
-        Path targetDir = getAddOnDataDir(addOn).resolve("libs");
+        Path targetDir = getAddOnLibsDir(addOn);
         try {
             Files.createDirectories(targetDir);
         } catch (IOException e) {
@@ -539,8 +548,21 @@ public final class AddOnInstaller {
      * @return the path to the directory.
      * @see #ADD_ON_DATA_DIR
      */
-    private static Path getAddOnDataDir(AddOn addOn) {
+    static Path getAddOnDataDir(AddOn addOn) {
         return Paths.get(Constant.getZapHome(), ADD_ON_DATA_DIR, addOn.getId());
+    }
+
+    /**
+     * Gets the path to the libraries directory of the given add-on.
+     *
+     * <p>The path is built as: {@code <zapHome>/addOnData/<addOnId>/libs/}
+     *
+     * @param addOn the add-on.
+     * @return the path to the directory.
+     * @see #ADD_ON_DATA_LIBS_DIR
+     */
+    static Path getAddOnLibsDir(AddOn addOn) {
+        return getAddOnDataDir(addOn).resolve(ADD_ON_DATA_LIBS_DIR);
     }
 
     /**
@@ -562,18 +584,34 @@ public final class AddOnInstaller {
      * @param addOn the add-on that will have the declared libraries uninstalled.
      * @see #installAddOnLibs(AddOn)
      * @see #installMissingAddOnLibs(AddOn)
+     * @return {@code true} if the libraries were uninstalled without errors, {@code false}
+     *     otherwise.
      */
-    static void uninstallAddOnLibs(AddOn addOn) {
+    static boolean uninstallAddOnLibs(AddOn addOn) {
         List<AddOn.Lib> libs = addOn.getLibs();
         if (libs.isEmpty()) {
-            return;
+            return true;
         }
 
+        Path addOnLibsDir = getAddOnLibsDir(addOn);
         try {
-            deleteDir(getAddOnDataDir(addOn));
+            deleteDir(addOnLibsDir);
         } catch (IOException e) {
             logger.error("An error occurred while uninstalling libraries for " + addOn, e);
+            return false;
         }
+
+        Path addOnDataDir = addOnLibsDir.getParent();
+        try (Stream<Path> entries = Files.list(addOnDataDir)) {
+            if (!entries.findAny().isPresent()) {
+                Files.delete(addOnDataDir);
+            }
+        } catch (IOException e) {
+            logger.warn("An error occurred while removing the directory " + addOnDataDir, e);
+            return false;
+        }
+
+        return true;
     }
 
     /**

@@ -1,0 +1,34 @@
+name: Release Main Docker
+
+on:
+  workflow_dispatch:
+  repository_dispatch:
+    types: 'release-main-docker'
+
+jobs:
+  publish:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          sudo apt-get install xmlstarlet
+          echo "REL_VERSION=$(curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //core/version)" >> $GITHUB_ENV
+      - name: Build and push stable Docker image
+        uses: docker/build-push-action@v1
+        with:
+          username: zapbot
+          password: ${{ secrets.ZAPBOT_DOCKER_TOKEN }}
+          repository: owasp/zap2docker-stable
+          path: docker
+          dockerfile: docker/Dockerfile-stable
+          tags: ${{ env.REL_VERSION }},latest
+      - name: Build and push bare Docker image
+        uses: docker/build-push-action@v1
+        with:
+          username: zapbot
+          password: ${{ secrets.ZAPBOT_DOCKER_TOKEN }}
+          repository: owasp/zap2docker-bare
+          path: docker
+          dockerfile: docker/Dockerfile-bare
+          tags: ${{ env.REL_VERSION }},latest

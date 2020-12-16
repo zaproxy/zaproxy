@@ -52,7 +52,8 @@ import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.Highlight;
 import javax.swing.text.Highlighter.HighlightPainter;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
@@ -97,7 +98,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private static final String FIELD_RECURSE = "ascan.custom.label.recurse";
     private static final String FIELD_ADVANCED = "ascan.custom.label.adv";
 
-    private static final Logger logger = Logger.getLogger(CustomScanDialog.class);
+    private static final Logger logger = LogManager.getLogger(CustomScanDialog.class);
     private static final long serialVersionUID = 1L;
 
     private JButton[] extraButtons = null;
@@ -255,6 +256,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         // Technology panel
         this.setCustomTabPanel(3, getTechPanel());
 
+        getTechTree().refresh();
         setTechSet(techTreeState);
 
         this.setCustomTabPanel(4, policyPanel);

@@ -1,8 +1,8 @@
 # This dockerfile builds a 'live' zap docker image using the latest files in the repos
-FROM ubuntu:latest
+FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
-ENV DEBIAN_FRONTEND noninteractive
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	automake \
 	autoconf \
 	gcc g++ \
-	openjdk-8-jdk \
+	openjdk-11-jdk \
 	wget \
 	curl \
 	xmlstarlet \
@@ -19,15 +19,14 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	openbox \
 	xterm \
 	net-tools \
-	python-pip \
 	python3-pip \
+	python-is-python3 \
 	firefox \
 	vim \
 	xvfb \
 	x11vnc && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*  && \
-	pip install --upgrade pip zapcli python-owasp-zap-v2.4 && \
 	pip3 install --upgrade pip zapcli python-owasp-zap-v2.4 && \
 	useradd -d /home/zap -m -s /bin/bash zap && \
 	echo zap:zap | chpasswd && \
@@ -45,7 +44,7 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
 # Pull the ZAP repo
@@ -57,23 +56,26 @@ RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 	rm -rf /zap-src/* && \
 	cd /zap/ && \
 	# Setup Webswing
-	curl -s -L https://bitbucket.org/meszarv/webswing/downloads/webswing-2.5.10.zip > webswing.zip && \
+	curl -s -L https://storage.googleapis.com/builds.webswing.org/releases/webswing-20.2.1.zip > webswing.zip && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
 	mv webswing-* webswing && \
-	# Remove Webswing demos
-	rm -R webswing/demo/ && \
-	# Accept ZAP license
-	touch AcceptedLicense
+	# Remove Webswing bundled examples
+	rm -R webswing/apps/
 
 ENV ZAP_PATH /zap/zap.sh
 # Default port for use with zapcli
 ENV ZAP_PORT 8080
+ENV IS_CONTAINERIZED true
 ENV HOME /home/zap/
+ENV LC_ALL=C.UTF-8
+ENV LANG=C.UTF-8
 
 COPY zap* CHANGELOG.md /zap/
 COPY webswing.config /zap/webswing/
+COPY webswing.properties /zap/webswing/
 COPY policies /home/zap/.ZAP_D/policies/
+COPY policies /root/.ZAP_D/policies/
 COPY scripts /home/zap/.ZAP_D/scripts/
 COPY .xinitrc /home/zap/
 
@@ -82,6 +84,7 @@ USER root
 
 RUN chown zap:zap /zap/* && \
 	chown zap:zap /zap/webswing/webswing.config && \
+	chown zap:zap /zap/webswing/webswing.properties && \
 	chown zap:zap -R /home/zap/.ZAP_D/ && \
 	chown zap:zap /home/zap/.xinitrc && \
 	chmod a+x /home/zap/.xinitrc && \

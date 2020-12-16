@@ -72,7 +72,7 @@
 // ZAP: 2017/02/08 Change CONNECT response to contain just the status line, helps Android emulator
 // consume the response.
 // ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
-// ZAP: 2017/02/23  Issue 3227: Limit API access to whitelisted IP addresses
+// ZAP: 2017/02/23  Issue 3227: Limit API access to permitted IP addresses
 // ZAP: 2017/03/15 Disable API by default
 // ZAP: 2017/03/26 Check the public address when behind NAT.
 // ZAP: 2017/06/12 Do not notify listeners when request is excluded.
@@ -84,12 +84,11 @@
 // proxy chain might be the cause.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2020/12/09 Rely on the content encodings from the body to decode.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -99,22 +98,21 @@ import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
-import java.util.regex.Pattern;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.Inflater;
-import java.util.zip.InflaterInputStream;
 import javax.net.ssl.SSLException;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ice4j.TransportAddress;
 import org.ice4j.ice.harvest.AwsCandidateHarvester;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -137,7 +135,7 @@ public class ProxyThread implements Runnable {
     private static final String CONNECT_HTTP_200 = "HTTP/1.1 200 Connection established\r\n\r\n";
     //	private static ArrayList 		processForwardList = new ArrayList();
 
-    private static Logger log = Logger.getLogger(ProxyThread.class);
+    private static Logger log = LogManager.getLogger(ProxyThread.class);
 
     private static final String BAD_GATEWAY_RESPONSE_STATUS = "502 Bad Gateway";
     private static final String GATEWAY_TIMEOUT_RESPONSE_STATUS = "504 Gateway Timeout";
@@ -564,7 +562,9 @@ public class ProxyThread implements Runnable {
                             getHttpSender().sendAndReceive(msg);
                         }
 
-                        decodeResponseIfNeeded(msg);
+                        if (proxyParam.isAlwaysDecodeGzip()) {
+                            decodeResponseIfNeeded(msg);
+                        }
 
                         if (!notifyOverrideListenersResponseReceived(msg)) {
                             if (!notifyListenerResponseReceive(msg)) {
@@ -622,49 +622,18 @@ public class ProxyThread implements Runnable {
         } while (!isConnectionClose(msg) && !inSocket.isClosed());
     }
 
-    private FilterInputStream buildStreamDecoder(String encoding, ByteArrayInputStream bais)
-            throws IOException {
-        if (encoding.equalsIgnoreCase(HttpHeader.DEFLATE)) {
-            return new InflaterInputStream(bais, new Inflater(true));
-        } else {
-            return new GZIPInputStream(bais);
+    static void decodeResponseIfNeeded(HttpMessage msg) {
+        HttpBody body = msg.getResponseBody();
+        if (body.getContentEncodings().isEmpty() || body.hasContentEncodingErrors()) {
+            return;
         }
-    }
 
-    private void decodeResponseIfNeeded(HttpMessage msg) {
-        String encoding = msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING);
-        if (proxyParam.isAlwaysDecodeGzip()
-                && encoding != null
-                && !encoding.equalsIgnoreCase(HttpHeader.IDENTITY)) {
-            encoding =
-                    Pattern.compile("^x-", Pattern.CASE_INSENSITIVE)
-                            .matcher(encoding)
-                            .replaceAll("");
-            if (!encoding.equalsIgnoreCase(HttpHeader.DEFLATE)
-                    && !encoding.equalsIgnoreCase(HttpHeader.GZIP)) {
-                log.warn("Unsupported content encoding method: " + encoding);
-                return;
-            }
-            // Uncompress content
-            try (ByteArrayInputStream bais =
-                            new ByteArrayInputStream(msg.getResponseBody().getBytes());
-                    FilterInputStream fis = buildStreamDecoder(encoding, bais);
-                    BufferedInputStream bis = new BufferedInputStream(fis);
-                    ByteArrayOutputStream out = new ByteArrayOutputStream(); ) {
-                int readLength;
-                byte[] readBuffer = new byte[1024];
-                while ((readLength = bis.read(readBuffer, 0, 1024)) != -1) {
-                    out.write(readBuffer, 0, readLength);
-                }
-                msg.setResponseBody(out.toByteArray());
-                msg.getResponseHeader().setHeader(HttpHeader.CONTENT_ENCODING, null);
-                if (msg.getResponseHeader().getHeader(HttpHeader.CONTENT_LENGTH) != null) {
-                    msg.getResponseHeader()
-                            .setHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(out.size()));
-                }
-            } catch (IOException e) {
-                log.error("Unable to uncompress gzip content: " + e.getMessage(), e);
-            }
+        body.setBody(body.getContent());
+        body.setContentEncodings(Collections.emptyList());
+        HttpHeader header = msg.getResponseHeader();
+        header.setHeader(HttpHeader.CONTENT_ENCODING, null);
+        if (header.getHeader(HttpHeader.CONTENT_LENGTH) != null) {
+            header.setContentLength(body.length());
         }
     }
 

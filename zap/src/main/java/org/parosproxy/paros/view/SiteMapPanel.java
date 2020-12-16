@@ -52,6 +52,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
 // ZAP: 2019/09/09 Issue 3491: Add support for selecting multiple contexts
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -84,7 +85,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -120,7 +122,7 @@ public class SiteMapPanel extends AbstractPanel {
     private static final long serialVersionUID = -3161729504065679088L;
 
     // ZAP: Added logger
-    private static Logger log = Logger.getLogger(SiteMapPanel.class);
+    private static Logger log = LogManager.getLogger(SiteMapPanel.class);
 
     private JTree treeSite = null;
     private JTree treeContext = null;

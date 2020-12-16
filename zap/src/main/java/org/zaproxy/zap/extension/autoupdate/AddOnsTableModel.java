@@ -29,9 +29,10 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.encoder.Encoder;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOnCollection;
@@ -45,7 +46,7 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -5240438485136881299L;
 
-    protected final Logger logger = Logger.getLogger(this.getClass());
+    protected final Logger logger = LogManager.getLogger(this.getClass());
 
     private final Comparator<AddOnWrapper> comparator;
 
@@ -328,13 +329,12 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
 
     private static String getHtmlFromIssues(String title, List<String> issues) {
         StringBuilder strBuilder = new StringBuilder(150);
-        Encoder encoder = new Encoder();
         strBuilder
                 .append("<html><strong>")
-                .append(encoder.getHTMLString(title))
+                .append(StringEscapeUtils.escapeHtml(title))
                 .append("</strong><ul>");
         for (String issue : issues) {
-            strBuilder.append("<li>").append(encoder.getHTMLString(issue)).append("</li>");
+            strBuilder.append("<li>").append(StringEscapeUtils.escapeHtml(issue)).append("</li>");
         }
         strBuilder.append("</ul></html>");
         return strBuilder.toString();

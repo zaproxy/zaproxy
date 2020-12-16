@@ -64,7 +64,8 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.text.DefaultCaret;
 import javax.swing.text.JTextComponent;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.ScrollableSizeHint;
@@ -112,7 +113,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
     private static final String MARKETPLACE_PANEL = "MarketplacePanel";
     private static final double ADD_ON_DETAILS_RESIZE_WEIGHT = 0.7D;
 
-    private static final Logger logger = Logger.getLogger(ManageAddOnsDialog.class);
+    private static final Logger logger = LogManager.getLogger(ManageAddOnsDialog.class);
     private static final long serialVersionUID = 1L;
     private JTabbedPane jTabbed = null;
     private JPanel topPanel = null;
@@ -240,6 +241,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
     }
 
     private JPanel getCorePanel(boolean update) {
+        boolean refresh = true;
         if (corePanel == null) {
             corePanel = new JPanel();
             corePanel.setLayout(new GridBagLayout());
@@ -249,38 +251,30 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                             Constant.messages.getString("cfu.label.zap.border"),
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             if (latestInfo == null || this.latestInfo.getZapRelease() == null) {
                 // Haven't checked for updates yet
                 corePanel.add(new JLabel(this.currentVersion), LayoutHelper.getGBC(0, 0, 1, 0.0D));
                 corePanel.add(new JLabel(""), LayoutHelper.getGBC(1, 0, 1, 1.0D));
                 corePanel.add(this.getCheckForUpdatesButton(), LayoutHelper.getGBC(2, 0, 1, 0.0D));
-
-            } else if (this.latestInfo.getZapRelease().isNewerThan(this.currentVersion)) {
-                addNewerVersionComponents(corePanel);
-
-            } else {
-                corePanel.add(
-                        new JLabel(
-                                this.currentVersion
-                                        + " : "
-                                        + Constant.messages.getString("cfu.check.zap.latest")),
-                        LayoutHelper.getGBC(0, 0, 1, 1.0D));
+                refresh = false;
             }
-
-        } else if (update && latestInfo != null && this.latestInfo.getZapRelease() != null) {
-            corePanel.removeAll();
-
+        } else if (latestInfo != null && this.latestInfo.getZapRelease() != null) {
+            if (update) {
+                corePanel.removeAll();
+            }
+        } else {
+            refresh = false;
+        }
+        if (refresh) {
             if (this.latestInfo.getZapRelease().isNewerThan(this.currentVersion)) {
                 addNewerVersionComponents(corePanel);
             } else {
                 corePanel.add(
                         new JLabel(
-                                this.currentVersion
-                                        + " : "
-                                        + Constant.messages.getString("cfu.check.zap.latest")),
+                                Constant.messages.getString(
+                                        "cfu.check.zap.latest", this.currentVersion)),
                         LayoutHelper.getGBC(0, 0, 1, 1.0D));
             }
             installedPanel.validate();
@@ -316,8 +310,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                             Constant.messages.getString("cfu.label.addons.border"),
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             getInstalledAddOnsTable();
 
@@ -393,8 +386,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                             Constant.messages.getString("cfu.label.addons.border"),
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             if (latestInfo != null) {
                 getMarketplaceCardLayout().show(getMarketplacePanel(), MARKETPLACE_PANEL);

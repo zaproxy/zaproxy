@@ -199,6 +199,10 @@ public class ScriptAPI extends ApiImplementor {
                                 ? Constant.messages.getString(descKey)
                                 : "";
                 data.put("description", description);
+                data.put("enableable", String.valueOf(type.isEnableable()));
+                if (type.isEnableable()) {
+                    data.put("enabledByDefault", String.valueOf(type.isEnabledByDefault()));
+                }
                 result.addItem(new ApiResponseSet<>("type", data));
             }
             return result;
@@ -286,6 +290,12 @@ public class ScriptAPI extends ApiImplementor {
             if (!script.getType().isEnableable()) {
                 throw new ApiException(
                         ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SCRIPT_NAME);
+            }
+            if (script.getEngine() == null) {
+                throw new ApiException(
+                        ApiException.Type.BAD_STATE,
+                        "Unable to enable the script, script engine not available: "
+                                + script.getEngineName());
             }
             extension.setEnabled(script, true);
             return ApiResponseElement.OK;

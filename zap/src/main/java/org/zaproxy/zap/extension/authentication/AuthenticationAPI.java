@@ -24,7 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.extension.api.API;
@@ -48,7 +49,7 @@ import org.zaproxy.zap.utils.ApiUtils;
  */
 public class AuthenticationAPI extends ApiImplementor {
 
-    private static final Logger log = Logger.getLogger(AuthenticationAPI.class);
+    private static final Logger log = LogManager.getLogger(AuthenticationAPI.class);
 
     private static final String PREFIX = "authentication";
 

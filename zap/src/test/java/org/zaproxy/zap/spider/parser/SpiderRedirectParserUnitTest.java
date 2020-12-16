@@ -29,9 +29,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -59,11 +56,6 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
                                 NON_REDIRECTION_STATUS_CODES.add(code);
                             }
                         });
-    }
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
     }
 
     @Test

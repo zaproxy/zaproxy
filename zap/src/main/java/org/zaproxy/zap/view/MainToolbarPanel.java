@@ -24,6 +24,7 @@ import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -32,7 +33,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -45,7 +47,7 @@ public class MainToolbarPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = Logger.getLogger(MainToolbarPanel.class);
+    private static final Logger logger = LogManager.getLogger(MainToolbarPanel.class);
 
     private JToolBar toolbar = null;
     private JComboBox<String> modeSelect = null;
@@ -81,13 +83,8 @@ public class MainToolbarPanel extends JPanel {
         gridBagConstraints2.anchor = java.awt.GridBagConstraints.EAST;
         gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
-        JToolBar t1 = new JToolBar();
-        t1.setEnabled(true);
-        t1.setPreferredSize(new java.awt.Dimension(80000, 25));
-        t1.setMaximumSize(new java.awt.Dimension(80000, 25));
-
         add(getToolbar(), gridBagConstraints1);
-        add(t1, gridBagConstraints2);
+        add(Box.createHorizontalGlue(), gridBagConstraints2);
 
         toolbar.add(getModeSelect());
         toolbar.add(getBtnNew());
@@ -202,6 +199,9 @@ public class MainToolbarPanel extends JPanel {
             modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.attack.select"));
 
             modeSelect.setToolTipText(Constant.messages.getString("view.toolbar.mode.tooltip"));
+            modeSelect
+                    .getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("view.toolbar.mode.tooltip"));
             // Increase the time the tooltip is displayed, to give people a chance to read it!
             ToolTipManager.sharedInstance().setDismissDelay(12000);
             ToolTipManager.sharedInstance().registerComponent(modeSelect);
@@ -275,6 +275,8 @@ public class MainToolbarPanel extends JPanel {
                                     MainToolbarPanel.class.getResource(
                                             "/resource/icon/16/021.png")))); // 'Blank file' icon
             btnNew.setToolTipText(Constant.messages.getString("menu.file.newSession"));
+            btnNew.getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.file.newSession"));
 
             btnNew.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -305,6 +307,8 @@ public class MainToolbarPanel extends JPanel {
                                     MainToolbarPanel.class.getResource(
                                             "/resource/icon/16/047.png")))); // 'open folder' icon
             btnOpen.setToolTipText(Constant.messages.getString("menu.file.openSession"));
+            btnOpen.getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.file.openSession"));
 
             btnOpen.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -335,6 +339,8 @@ public class MainToolbarPanel extends JPanel {
                                     MainToolbarPanel.class.getResource(
                                             "/resource/icon/16/096.png")))); // 'diskette' icon
             btnSave.setToolTipText(Constant.messages.getString("menu.file.persistSession"));
+            btnSave.getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.file.persistSession"));
 
             btnSave.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -372,6 +378,9 @@ public class MainToolbarPanel extends JPanel {
                                     MainToolbarPanel.class.getResource(
                                             "/resource/icon/fugue/camera.png"))));
             btnSnapshot.setToolTipText(Constant.messages.getString("menu.file.snapshotSession"));
+            btnSnapshot
+                    .getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.file.snapshotSession"));
 
             btnSnapshot.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -409,6 +418,9 @@ public class MainToolbarPanel extends JPanel {
                                     MainToolbarPanel.class.getResource(
                                             "/resource/icon/16/024.png")))); // 'spreadsheet' icon
             btnSession.setToolTipText(Constant.messages.getString("menu.file.sessionProperties"));
+            btnSession
+                    .getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.file.sessionProperties"));
 
             btnSession.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -426,6 +438,9 @@ public class MainToolbarPanel extends JPanel {
         if (btnOptions == null) {
             btnOptions = new JButton();
             btnOptions.setToolTipText(Constant.messages.getString("menu.tools.options"));
+            btnOptions
+                    .getAccessibleContext()
+                    .setAccessibleName(Constant.messages.getString("menu.tools.options"));
             btnOptions.setIcon(
                     DisplayUtils.getScaledIcon(
                             new ImageIcon(

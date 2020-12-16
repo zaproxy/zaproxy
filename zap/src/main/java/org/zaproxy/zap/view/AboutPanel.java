@@ -29,6 +29,7 @@ import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.FontUtils;
 
@@ -78,8 +79,9 @@ public class AboutPanel extends JPanel {
         GridBagConstraints gbcProgramName = new GridBagConstraints();
         GridBagConstraints gbcLogo = new GridBagConstraints();
 
+        Color backgroundColor = new Color(UIManager.getColor("TextField.background").getRGB());
         this.setPreferredSize(new Dimension(420, 460));
-        this.setBackground(Color.white);
+        this.setBackground(backgroundColor);
         this.setBorder(BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 
         JLabel lblDisclaimer = new JLabel();
@@ -100,7 +102,7 @@ public class AboutPanel extends JPanel {
                         + " against any applications or machines.<p></body></html>");
         // lblDisclaimer.setFont(FontUtils.getFont(FontUtils.Size.smaller));
         lblDisclaimer.setName("lblDisclaimer");
-        lblDisclaimer.setBackground(Color.white);
+        lblDisclaimer.setBackground(backgroundColor);
 
         lblLogo.setText("");
         lblLogo.setIcon(new ImageIcon(AboutPanel.class.getResource("/resource/zap64x64.png")));
@@ -109,7 +111,7 @@ public class AboutPanel extends JPanel {
         lblCopyrightDetail.setText(LICENSE_DETAIL);
         // lblCopyrightDetail.setFont(FontUtils.getFont(FontUtils.Size.smaller));
         lblCopyrightDetail.setName("lblCopyrightDetail");
-        lblCopyrightDetail.setBackground(Color.white);
+        lblCopyrightDetail.setBackground(backgroundColor);
 
         lblProgramName.setText(PRODUCT);
         lblProgramName.setFont(FontUtils.getFont(FontUtils.Size.huge));
@@ -119,20 +121,20 @@ public class AboutPanel extends JPanel {
         lblVersion.setText(VERSION);
         lblVersion.setFont(FontUtils.getFont(FontUtils.Size.larger));
         lblVersion.setName("lblVersion");
-        lblVersion.setBackground(Color.white);
+        lblVersion.setBackground(backgroundColor);
 
         lblHomepage.setText(HOMEPAGE);
 
         lblOtherCopyright.setText(OTHER_LICENSE);
         lblOtherCopyright.setFont(FontUtils.getFont(FontUtils.Size.smaller));
         lblOtherCopyright.setName("lblOtherCopyright");
-        lblOtherCopyright.setBackground(Color.white);
+        lblOtherCopyright.setBackground(backgroundColor);
 
         String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
         // lblCopyright.setFont(FontUtils.getFont(FontUtils.Size.smaller));
         lblCopyright.setText(COPYRIGHT.replace(YEAR_TOKEN, year));
         lblCopyright.setName("lblCopyright");
-        lblCopyright.setBackground(Color.white);
+        lblCopyright.setBackground(backgroundColor);
 
         gbcLogo.gridx = 0;
         gbcLogo.gridy = 0;

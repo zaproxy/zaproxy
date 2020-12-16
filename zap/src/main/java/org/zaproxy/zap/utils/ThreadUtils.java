@@ -21,7 +21,8 @@ package org.zaproxy.zap.utils;
 
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.view.View;
 
 /**
@@ -31,7 +32,7 @@ import org.parosproxy.paros.view.View;
  */
 public class ThreadUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(ThreadUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(ThreadUtils.class);
 
     /**
      * Runs a {@code Runnable}, synchronously, on the event dispatch thread (EDT).

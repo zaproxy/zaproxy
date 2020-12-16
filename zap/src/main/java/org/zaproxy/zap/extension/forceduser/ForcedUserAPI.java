@@ -21,7 +21,8 @@ package org.zaproxy.zap.extension.forceduser;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
@@ -37,7 +38,7 @@ import org.zaproxy.zap.utils.ApiUtils;
 /** The API for managing the Forced User for a Context. */
 public class ForcedUserAPI extends ApiImplementor {
 
-    private static final Logger log = Logger.getLogger(AuthenticationAPI.class);
+    private static final Logger log = LogManager.getLogger(AuthenticationAPI.class);
 
     private static final String PREFIX = "forcedUser";
 

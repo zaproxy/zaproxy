@@ -31,6 +31,11 @@
 // ZAP: 2018/04/12 Allow to check if a param panel is selected.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/03/24 Remove hardcoded white background on Headline field (part of Issue 5542).
+// ZAP: 2020/08/25 Catch NullPointerException when validating/saving the panel.
+// ZAP: 2020/10/26 Use empty border in the help button, to prevent the look and feel change from
+// resetting it. Also, use the icon from the ExtensionHelp.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -50,6 +55,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -62,7 +68,10 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -115,7 +124,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
     private ShowHelpAction showHelpAction = null;
 
     // ZAP: Added logger
-    private static Logger log = Logger.getLogger(AbstractParamContainerPanel.class);
+    private static Logger log = LogManager.getLogger(AbstractParamContainerPanel.class);
 
     /**
      * Constructs an {@code AbstractParamContainerPanel} with a default root node's name ({@value
@@ -319,7 +328,6 @@ public class AbstractParamContainerPanel extends JSplitPane {
                             javax.swing.border.EtchedBorder.RAISED));
             txtHeadline.setEditable(false);
             txtHeadline.setEnabled(false);
-            txtHeadline.setBackground(java.awt.Color.white);
             txtHeadline.setFont(FontUtils.getFont(Font.BOLD));
         }
 
@@ -631,11 +639,27 @@ public class AbstractParamContainerPanel extends JSplitPane {
             panel = en.nextElement();
             try {
                 panel.validateParam(paramObject);
+            } catch (NullPointerException e) {
+                log.error("Failed to validate the panel: ", e);
+                showInternalError(e);
             } catch (Exception e) {
                 showParamPanel(panel, panel.getName());
                 throw e;
             }
         }
+    }
+
+    private static void showInternalError(Exception e) {
+        ErrorInfo errorInfo =
+                new ErrorInfo(
+                        Constant.messages.getString("generic.error.internal.title"),
+                        Constant.messages.getString("generic.error.internal.msg"),
+                        null,
+                        null,
+                        e,
+                        null,
+                        null);
+        JXErrorPane.showDialog(null, errorInfo);
     }
 
     /**
@@ -653,7 +677,12 @@ public class AbstractParamContainerPanel extends JSplitPane {
         AbstractParamPanel panel = null;
         while (en.hasMoreElements()) {
             panel = en.nextElement();
-            panel.saveParam(paramObject);
+            try {
+                panel.saveParam(paramObject);
+            } catch (NullPointerException e) {
+                log.error("Failed to save the panel: ", e);
+                showInternalError(e);
+            }
         }
     }
 
@@ -1001,11 +1030,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
     private JButton getHelpButton() {
         if (btnHelp == null) {
             btnHelp = new JButton();
-            btnHelp.setBorder(null);
-            btnHelp.setIcon(
-                    new ImageIcon(
-                            AbstractParamContainerPanel.class.getResource(
-                                    "/resource/icon/16/201.png"))); // help icon
+            btnHelp.setBorder(BorderFactory.createEmptyBorder());
+            btnHelp.setIcon(ExtensionHelp.getHelpIcon());
             btnHelp.addActionListener(getShowHelpAction());
             btnHelp.setToolTipText(Constant.messages.getString("menu.help"));
         }

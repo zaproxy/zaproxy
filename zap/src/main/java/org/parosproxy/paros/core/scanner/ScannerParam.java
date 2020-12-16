@@ -49,6 +49,7 @@
 // ZAP: 2019/05/10 Enable custom (script) input vectors by default.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -57,7 +58,8 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
@@ -189,7 +191,7 @@ public class ScannerParam extends AbstractParam {
     private final Map<Integer, List<ScannerParamFilter>> excludedParamsMap = new HashMap<>();
 
     // ZAP: internal Logger
-    private static final Logger logger = Logger.getLogger(ScannerParam.class);
+    private static final Logger logger = LogManager.getLogger(ScannerParam.class);
 
     public ScannerParam() {}
 

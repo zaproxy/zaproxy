@@ -23,6 +23,7 @@ Scanners:
 
 10000   Password Autocomplete in browser [Deprecated]
 10001   Secure page browser cache [Deprecated]
+10003   Retire JS
 
 10009   In Page Banner Info Leak
 10010   Cookie set without HttpOnly flag
@@ -31,7 +32,7 @@ Scanners:
 10013   Weak HTTP authentication over an unsecured connection [Deprecated]
 10014   Cross Site Request Forgery [Deprecated]
 10015   Incomplete or no cache-control and pragma HTTPHeader set
-10016   Web Browser XSS Protection Not Enabled
+10016   Web Browser XSS Protection Not Enabled [Deprecated]
 10017   Cross-domain JavaScript source file inclusion
 10018   Untrusted domains in JavaScript source code
 10019   Content-Type header missing
@@ -61,7 +62,7 @@ Scanners:
 10043   User controllable javascript event (XSS)
 10044   Big Redirect Response
 10045   Source Code Disclosure - WEB-INF folder
-10046   Insecure Component
+10046   Insecure Component [Deprecated]
 10047   HTTPS Content Available via HTTP
 10048   ShellShock
 10049   Cacheability and Retrievability Content
@@ -97,6 +98,7 @@ Scanners:
 10107   Httpoxy - Proxy Header Misuse
 10108   Blank link target
 10109   Modern Web Application (info)
+10110   Dangerous JS Function Scanner
 
 10200   Beast (via HTTPS Info Extension)
 10201   Crime (via HTTPS Info Extension)
@@ -160,6 +162,9 @@ Scanners:
 40033	NoSQL Injection MongoDB
 40034   .env File Scanner
 40035   Hidden File Scanner
+40036   JWT Scanner
+40037   CustomActiveScanForZAP (3rd Party)
+40038   Bypassing 403
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
@@ -178,6 +183,7 @@ Scanners:
 90001   Insecure JSF ViewState
 90002   Java Serialized Object
 90003   Subresource Integrity Attribute Missing
+90004   Cross-Origin Resource Policy
 90011   Charset Mismatch
 90017	XSLT Injection
 90018   SQL Injection SQLMap
@@ -200,6 +206,28 @@ Scanners:
 
 100000  Client/Server HTTP Error Response Codes [Script]
 100001  Unexpected Content Types [Script]
+100002  CLACKS - GNU Terry Pratchett [Script]
+100003  Cookie set without HTTPOnly Flag [Script]
+100004  Content Security Policy violations reporting enabled [Script]
+100005  SameSite cookie attribute protection used [Script]
+100006  Information Leak - Internal IP via F5 BigIP Persistence Cookie [Script]
+100007  Base64-encoded string found [Script]
+100008  Information Leak - Credit Card Number [Script]
+100009  Information Leak - Email address [Script]
+100010  Information Leak - Hash [Script]
+100011  Information Leak - HTML Comment [Script]
+100012  Information Leak - IBAN [Script]
+100013  Information Leak - Private IP address [Script]
+100014  Reflected HTTP GET parameter [Script]
+100015  HUNT (https://github.com/bugcrowd/HUNT) [Script]
+100016  Multiple Security Header checker [Script]
+100017  Non static site detection [Script]
+100018  Relative Path Overwrite [Script]
+100019  Information Leak - Server Header [Script]
+100020  SQL Injection Detection [Script]
+100021  Telerik Cryptographic Weakness [Script]
+100022  Upload Form Discovery [Script]
+100023  Information Leak - X-Powered-By Header [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]
@@ -211,6 +239,6 @@ Scanners:
 110007  Username Disclosure [Script]
 110008  Suspicious XML Comments Disclosure [Script]
 
-322420463 Retire.js
+322420463 Retire.js (3rd Party)
 
 ```

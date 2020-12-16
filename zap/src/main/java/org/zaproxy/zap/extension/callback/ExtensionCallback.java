@@ -26,7 +26,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
@@ -62,7 +63,7 @@ public class ExtensionCallback extends ExtensionAdaptor
     private String currentConfigLocalAddress;
     private int currentConfigPort;
 
-    private static final Logger LOGGER = Logger.getLogger(ExtensionCallback.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionCallback.class);
     private CallbackPanel callbackPanel;
 
     public ExtensionCallback() {

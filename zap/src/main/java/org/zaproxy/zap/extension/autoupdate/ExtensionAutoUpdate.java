@@ -55,7 +55,8 @@ import org.apache.commons.configuration.XMLPropertiesConfiguration;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -93,16 +94,15 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     private static final String NAME = "ExtensionAutoUpdate";
 
-    // The short URL means that the number of checkForUpdates can be tracked - see
-    // https://bitly.com/u/psiinon
+    // The short URL means that the number of checkForUpdates can be tracked
     // Note that URLs must now use https (unless you change the code;)
 
     private static final String ZAP_VERSIONS_REL_XML_DESKTOP_SHORT =
-            "https://bit.ly/owaspzap-2-9-0";
+            "https://bit.ly/owaspzap-2-10-0";
     private static final String ZAP_VERSIONS_REL_XML_DAEMON_SHORT =
-            "https://bit.ly/owaspzap-2-9-0d";
+            "https://bit.ly/owaspzap-2-10-0d";
     private static final String ZAP_VERSIONS_REL_XML_FULL =
-            "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.9.xml";
+            "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.10.xml";
 
     private static final String ZAP_VERSIONS_DEV_XML_SHORT = "https://bit.ly/owaspzap-dev";
     private static final String ZAP_VERSIONS_DEV_XML_FULL =
@@ -120,7 +120,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     private ZapMenuItem menuItemCheckUpdate = null;
     private ZapMenuItem menuItemLoadAddOn = null;
 
-    private static final Logger logger = Logger.getLogger(ExtensionAutoUpdate.class);
+    private static final Logger logger = LogManager.getLogger(ExtensionAutoUpdate.class);
 
     private HttpSender httpSender = null;
 

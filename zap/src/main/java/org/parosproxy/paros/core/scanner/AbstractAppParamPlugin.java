@@ -38,128 +38,32 @@
 // ZAP: 2018/09/12 Make the addition of a query parameter optional.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/08/27 Moved variants into VariantFactory
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
-import org.zaproxy.zap.extension.script.ExtensionScript;
-import org.zaproxy.zap.extension.script.ScriptWrapper;
+import org.zaproxy.zap.extension.ascan.VariantFactory;
 
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
-    private final ArrayList<Variant> listVariant = new ArrayList<>();
+    private final Logger logger = LogManager.getLogger(this.getClass());
+    private List<Variant> listVariant;
     private NameValuePair originalPair = null;
     private Variant variant = null;
-    private ExtensionScript extension;
 
     @Override
     public void scan() {
-        ScannerParam scanOptions = this.getParent().getScannerParam();
-        int targets = scanOptions.getTargetParamsInjectable();
-        int enabledRPC = scanOptions.getTargetParamsEnabledRPC();
+        VariantFactory factory = Model.getSingleton().getVariantFactory();
 
-        // First check URL query-string target configuration
-        if ((targets & ScannerParam.TARGET_QUERYSTRING) != 0) {
-            VariantURLQuery vuq = new VariantURLQuery();
-            vuq.setAddQueryParam(scanOptions.isAddQueryParam());
-            listVariant.add(vuq);
-
-            // ZAP: To handle parameters in OData urls
-            if ((enabledRPC & ScannerParam.RPC_ODATA) != 0) {
-                listVariant.add(new VariantODataIdQuery());
-                listVariant.add(new VariantODataFilterQuery());
-            }
-
-            if ((targets & ScannerParam.TARGET_URLPATH) == 0) {
-                // If we're not already doing URLPath we should do DDN when doing QueryString
-                listVariant.add(new VariantDdnPath());
-            }
-        }
-
-        // Then check POST data target configuration and RPC enabled methods
-        if ((targets & ScannerParam.TARGET_POSTDATA) != 0) {
-            listVariant.add(new VariantFormQuery());
-
-            // ZAP: To handle Multipart Form-Data POST requests
-            if ((enabledRPC & ScannerParam.RPC_MULTIPART) != 0) {
-                listVariant.add(new VariantMultipartFormParameters());
-            }
-
-            // ZAP: To handle XML based POST requests
-            if ((enabledRPC & ScannerParam.RPC_XML) != 0) {
-                listVariant.add(new VariantXMLQuery());
-            }
-
-            // ZAP: To handle JSON based POST requests
-            if ((enabledRPC & ScannerParam.RPC_JSON) != 0) {
-                listVariant.add(new VariantJSONQuery());
-            }
-
-            // ZAP: To handle GWT Serialized POST requests
-            if ((enabledRPC & ScannerParam.RPC_GWT) != 0) {
-                listVariant.add(new VariantGWTQuery());
-            }
-
-            // ZAP: To handle Direct Web Remoting (DWR) POST requests
-            if ((enabledRPC & ScannerParam.RPC_DWR) != 0) {
-                listVariant.add(new VariantDirectWebRemotingQuery());
-            }
-        }
-
-        if ((targets & ScannerParam.TARGET_HTTPHEADERS) != 0) {
-            boolean addVariant = scanOptions.isScanHeadersAllRequests();
-            if (!addVariant) {
-                // If not scanning all requests check if it looks like a dynamic or static page
-                // (based on query/post parameters)
-                HttpMessage message = getBaseMsg();
-                char[] query = message.getRequestHeader().getURI().getRawQuery();
-                addVariant =
-                        (query != null && query.length != 0)
-                                || message.getRequestBody().length() != 0;
-            }
-
-            if (addVariant) {
-                listVariant.add(new VariantHeader());
-            }
-        }
-
-        if ((targets & ScannerParam.TARGET_URLPATH) != 0) {
-            listVariant.add(new VariantURLPath());
-        }
-
-        // Currently usual plugins seems not
-        // suitable to cookie vulnerabilities
-        // 'cause the character RFC limitation
-        // is it useful?
-        if ((targets & ScannerParam.TARGET_COOKIE) != 0) {
-            listVariant.add(new VariantCookie());
-        }
-
-        // Now is time to initialize all the custom Variants
-        if ((enabledRPC & ScannerParam.RPC_CUSTOM) != 0) {
-            if (getExtension() != null) {
-                // List the scripts and create as many custom variants as the scripts
-                List<ScriptWrapper> scripts =
-                        getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_VARIANT);
-
-                for (ScriptWrapper script : scripts) {
-                    if (script.isEnabled()) {
-                        listVariant.add(new VariantCustom(script, getExtension()));
-                    }
-                }
-            }
-        }
-
-        if ((enabledRPC & ScannerParam.RPC_USERDEF) != 0) {
-            listVariant.add(new VariantUserDefined());
-        }
+        listVariant = factory.createVariants(this.getParent().getScannerParam(), this.getBaseMsg());
 
         if (listVariant.isEmpty()) {
             getParent()
@@ -313,13 +217,5 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      */
     protected String setEscapedParameter(HttpMessage message, String param, String value) {
         return variant.setEscapedParameter(message, originalPair, param, value);
-    }
-
-    private ExtensionScript getExtension() {
-        if (extension == null) {
-            extension =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
-        }
-        return extension;
     }
 }

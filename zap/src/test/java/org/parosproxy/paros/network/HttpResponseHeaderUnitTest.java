@@ -23,9 +23,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /** Unit test for {@link HttpResponseHeader}. */
 public class HttpResponseHeaderUnitTest {
@@ -125,5 +129,44 @@ public class HttpResponseHeaderUnitTest {
         // Then
         assertThat(header.getReasonPhrase(), is(equalTo("")));
         assertThat(header.getPrimeHeader(), is(equalTo("HTTP/1.1 200")));
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "text/html", // Text but not css
+                "image/png", // Not text or css
+                "teXt/hTmL", // Mixed case
+                "text/html; charset=UTF-8", // Expected charset
+                "text/html;charset=UTF-8", // Charset without space
+                "charset=UTF-8; text/html" // Charset first
+            })
+    public void isCssShouldReturnFalseWhenContentTypeDoesNotIndicateCss(String contentType) {
+        // Given
+        HttpResponseHeader hrh = createResponseHeader(contentType);
+        // When / Then
+        assertFalse(hrh.isCss());
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "text/css", // CSS
+                "teXt/cSs", // Mixed case
+                "text/css; charset=UTF-8", // Expected charset
+                "text/css;charset=UTF-8", // Charset without space
+                "charset=UTF-8; text/css" // Charset first
+            })
+    public void isCssShouldReturnTrueWhenContentTypeIndicatesCss(String contentType) {
+        // Given
+        HttpResponseHeader hrh = createResponseHeader(contentType);
+        // When / Then
+        assertTrue(hrh.isCss());
+    }
+
+    private static HttpResponseHeader createResponseHeader(String contentType) {
+        HttpResponseHeader hrh = new HttpResponseHeader();
+        hrh.setHeader(HttpHeader.CONTENT_TYPE, contentType);
+        return hrh;
     }
 }

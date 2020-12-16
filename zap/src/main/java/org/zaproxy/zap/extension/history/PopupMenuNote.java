@@ -19,7 +19,8 @@
  */
 package org.zaproxy.zap.extension.history;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -32,7 +33,7 @@ public class PopupMenuNote extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = -5692544221103745600L;
 
-    private static final Logger logger = Logger.getLogger(PopupMenuNote.class);
+    private static final Logger logger = LogManager.getLogger(PopupMenuNote.class);
 
     private final ExtensionHistory extension;
 

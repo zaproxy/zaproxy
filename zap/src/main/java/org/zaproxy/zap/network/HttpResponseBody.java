@@ -24,12 +24,13 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpBody;
 
 public class HttpResponseBody extends HttpBody {
 
-    private static final Logger log = Logger.getLogger(HttpResponseBody.class);
+    private static final Logger log = LogManager.getLogger(HttpResponseBody.class);
 
     // private static Pattern patternCharset = Pattern.compile("<META
     // +[^>]+charset=['\"]*([^>'\"])+['\"]*>", Pattern.CASE_INSENSITIVE| Pattern.MULTILINE);
@@ -121,14 +122,15 @@ public class HttpResponseBody extends HttpBody {
         String resultDefaultCharset = null;
 
         try {
-            resultDefaultCharset = new String(getBytes(), 0, getPos(), StandardCharsets.ISO_8859_1);
+            byte[] value = decode();
+            resultDefaultCharset = new String(value, StandardCharsets.ISO_8859_1);
             Matcher matcher = patternCharset.matcher(resultDefaultCharset);
             if (matcher.find()) {
                 final String charset = matcher.group(1);
-                result = new String(getBytes(), 0, getPos(), charset);
+                result = new String(value, charset);
                 setCharset(charset);
             } else {
-                String utf8 = toUTF8();
+                String utf8 = toUtf8(value);
                 if (utf8 != null) {
                     // assume to be UTF8
                     setCharset(StandardCharsets.UTF_8.name());
@@ -147,11 +149,11 @@ public class HttpResponseBody extends HttpBody {
         return result;
     }
 
-    private String toUTF8() {
-        String utf8 = new String(getBytes(), 0, getPos(), StandardCharsets.UTF_8);
+    private String toUtf8(byte[] value) {
+        String utf8 = new String(value, StandardCharsets.UTF_8);
         int length2 = utf8.getBytes(StandardCharsets.UTF_8).length;
 
-        if (getPos() != length2) {
+        if (value.length != length2) {
             return null;
         }
 

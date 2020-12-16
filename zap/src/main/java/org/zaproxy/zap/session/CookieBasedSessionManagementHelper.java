@@ -26,7 +26,8 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
@@ -34,7 +35,8 @@ import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
 /** Helper for Cookie-based session management. */
 public class CookieBasedSessionManagementHelper {
 
-    private static final Logger log = Logger.getLogger(CookieBasedSessionManagementHelper.class);
+    private static final Logger log =
+            LogManager.getLogger(CookieBasedSessionManagementHelper.class);
 
     /**
      * Modifies a message so its Request Header/Body matches the web session provided.

@@ -62,7 +62,7 @@ out_of_scope_dict = {}
 min_level = 0
 
 # Scan rules that aren't really relevant, e.g. the examples rules in the alpha set
-blacklist = ['-1', '50003', '60000', '60001', '60100', '60101']
+ignore_scan_rules = ['-1', '50003', '60000', '60001', '60100', '60101']
 
 # Scan rules that are being addressed
 in_progress_issues = {}
@@ -90,16 +90,18 @@ def usage():
     print('    -P                specify listen port')
     print('    -D                delay in seconds to wait for passive scanning ')
     print('    -i                default rules not in the config file to INFO')
+    print('    -I                do not return failure on warning')
     print('    -j                use the Ajax spider in addition to the traditional one')
     print('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
     print('    -n context_file   context file which will be loaded prior to scanning the target')
     print('    -p progress_file  progress file which specifies issues that are being addressed')
     print('    -s                short output format - dont show PASSes or example URLs')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
+    print('    -U user           username to use for authenticated scans - must be defined in the given context file')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
     print('')
-    print('For more details see https://github.com/zaproxy/zaproxy/wiki/ZAP-Full-Scan')
+    print('For more details see https://www.zaproxy.org/docs/docker/full-scan/')
 
 
 def main(argv):
@@ -128,7 +130,9 @@ def main(argv):
     zap_options = ''
     delay = 0
     timeout = 0
+    ignore_warn = False
     hook_file = None
+    user = ''
 
     pass_count = 0
     warn_count = 0
@@ -137,9 +141,10 @@ def main(argv):
     ignore_count = 0
     warn_inprog_count = 0
     fail_inprog_count = 0
+    exception_raised = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:", ["hook="])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook="])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -182,6 +187,8 @@ def main(argv):
             zap_alpha = True
         elif opt == '-i':
             info_unspecified = True
+        elif opt == '-I':
+            ignore_warn = True
         elif opt == '-j':
             ajax = True
         elif opt == '-l':
@@ -197,6 +204,8 @@ def main(argv):
             detailed_output = False
         elif opt == '-T':
             timeout = int(arg)
+        elif opt == '-U':
+            user = arg
         elif opt == '--hook':
             hook_file = arg
 
@@ -217,12 +226,17 @@ def main(argv):
 
     if running_in_docker():
         base_dir = '/zap/wrk/'
-        if config_file or generate or report_html or report_xml or report_json or progress_file or context_file:
+        if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
                 logging.warning('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
                 usage()
                 sys.exit(3)
+
+    if user and not context_file:
+        logging.warning('A context file must be specified (and include the user) if the user option is selected')
+        usage()
+        sys.exit(3)
 
     # Choose a random 'ephemeral' port and check its available if it wasn't specified with -P option
     if port == 0:
@@ -312,9 +326,15 @@ def main(argv):
         wait_for_zap_start(zap, timeout * 60)
         trigger_hook('zap_started', zap, target)
 
+        # Make suitable performance tweaks for running in this environment
+        zap_tune(zap)
+        trigger_hook('zap_tuned', zap)
+
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
             zap_import_context(zap, '/zap/wrk/' + os.path.basename(context_file))
+            if (user):
+                zap_set_scan_user(zap, user)
 
         zap_access_target(zap, target)
 
@@ -362,19 +382,19 @@ def main(argv):
             if detailed_output:
                 print('Total of ' + str(num_urls) + ' URLs')
 
-            alert_dict = zap_get_alerts(zap, target, blacklist, out_of_scope_dict)
+            alert_dict = zap_get_alerts(zap, target, ignore_scan_rules, out_of_scope_dict)
 
             all_ascan_rules = zap.ascan.scanners('Default Policy')
             all_pscan_rules = zap.pscan.scanners
             all_dict = {}
             for rule in all_pscan_rules:
                 plugin_id = rule.get('id')
-                if plugin_id in blacklist:
+                if plugin_id in ignore_scan_rules:
                     continue
                 all_dict[plugin_id] = rule.get('name') + ' - Passive/' + rule.get('quality')
             for rule in all_ascan_rules:
                 plugin_id = rule.get('id')
-                if plugin_id in blacklist:
+                if plugin_id in ignore_scan_rules:
                     continue
                 all_dict[plugin_id] = rule.get('name') + ' - Active/' + rule.get('quality')
 
@@ -386,26 +406,26 @@ def main(argv):
                     f.write('# Active scan rules set to IGNORE will not be run which will speed up the scan\n')
                     f.write('# Only the rule identifiers are used - the names are just for info\n')
                     f.write('# You can add your own messages to each rule by appending them after a tab on each line.\n')
-                    for key, rule in sorted(all_dict.iteritems()):
+                    for key, rule in sorted(all_dict.items()):
                         f.write(key + '\tWARN\t(' + rule + ')\n')
 
             # print out the passing rules
             pass_dict = {}
             for rule in all_pscan_rules:
                 plugin_id = rule.get('id')
-                if plugin_id in blacklist:
+                if plugin_id in ignore_scan_rules:
                     continue
-                if (not alert_dict.has_key(plugin_id)):
+                if plugin_id not in alert_dict:
                     pass_dict[plugin_id] = rule.get('name')
             for rule in all_ascan_rules:
                 plugin_id = rule.get('id')
-                if plugin_id in blacklist:
+                if plugin_id in ignore_scan_rules:
                     continue
-                if not alert_dict.has_key(plugin_id) and not(config_dict.has_key(plugin_id) and config_dict[plugin_id] == 'IGNORE'):
+                if plugin_id not in alert_dict and not(plugin_id in config_dict and config_dict[plugin_id] == 'IGNORE'):
                     pass_dict[plugin_id] = rule.get('name')
 
             if min_level == zap_conf_lvls.index("PASS") and detailed_output:
-                for key, rule in sorted(pass_dict.iteritems()):
+                for key, rule in sorted(pass_dict.items()):
                     print('PASS: ' + rule + ' [' + key + ']')
 
             pass_count = len(pass_dict)
@@ -414,9 +434,9 @@ def main(argv):
                 # print out the ignored ascan rules(there will be no alerts for these as they were not run)
                 for rule in all_ascan_rules:
                     plugin_id = rule.get('id')
-                    if plugin_id in blacklist:
+                    if plugin_id in ignore_scan_rules:
                         continue
-                    if config_dict.has_key(plugin_id) and config_dict[plugin_id] == 'IGNORE':
+                    if plugin_id in config_dict and config_dict[plugin_id] == 'IGNORE':
                         print('SKIP: ' + rule.get('name') + ' [' + plugin_id + ']')
 
             # print out the ignored rules
@@ -459,17 +479,22 @@ def main(argv):
         # Stop ZAP
         zap.core.shutdown()
 
+    except UserInputException as e:
+        exception_raised = True
+        print("ERROR %s" % e)
+
+    except ScanNotStartedException:
+        exception_raised = True
+        dump_log_file(cid)
+
     except IOError as e:
-        if hasattr(e, 'args') and len(e.args) > 1:
-            errno, strerror = e
-            print("ERROR " + str(strerror))
-            logging.warning('I/O error(' + str(errno) + '): ' + str(strerror))
-        else:
-            print("ERROR %s" % e)
-            logging.warning('I/O error: ' + str(e))
+        exception_raised = True
+        print("ERROR %s" % e)
+        logging.warning('I/O error: ' + str(e))
         dump_log_file(cid)
 
     except:
+        exception_raised = True
         print("ERROR " + str(sys.exc_info()[0]))
         logging.warning('Unexpected error: ' + str(sys.exc_info()[0]))
         dump_log_file(cid)
@@ -479,9 +504,11 @@ def main(argv):
 
     trigger_hook('pre_exit', fail_count, warn_count, pass_count)
 
-    if fail_count > 0:
+    if exception_raised:
+        sys.exit(3)
+    elif fail_count > 0:
         sys.exit(1)
-    elif warn_count > 0:
+    elif (not ignore_warn) and warn_count > 0:
         sys.exit(2)
     elif pass_count > 0:
         sys.exit(0)

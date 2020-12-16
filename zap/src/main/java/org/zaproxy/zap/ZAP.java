@@ -21,28 +21,33 @@ package org.zaproxy.zap;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.Authenticator;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.URLConnection;
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.Locale;
-import net.htmlparser.jericho.Config;
-import net.htmlparser.jericho.LoggerProvider;
+import javax.net.SocketFactory;
+import org.apache.commons.httpclient.HttpMethodDirector;
+import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.io.output.NullOutputStream;
-import org.apache.log4j.Appender;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.network.SSLConnector;
 import org.zaproxy.zap.eventBus.EventBus;
 import org.zaproxy.zap.eventBus.SimpleEventBus;
+import org.zaproxy.zap.network.ZapAuthenticator;
+import org.zaproxy.zap.network.ZapProxySelector;
 
 public class ZAP {
-
-    /** Not part of the public API. */
-    public static final LoggerProvider JERICHO_LOGGER_PROVIDER = new LoggerProviderLog4j();
 
     /**
      * ZAP can be run in 4 different ways: cmdline: an inline process that exits when it completes
@@ -61,9 +66,12 @@ public class ZAP {
     private static ProcessType processType;
 
     private static final EventBus eventBus = new SimpleEventBus();
-    private static final Logger logger = Logger.getLogger(ZAP.class);
+    private static final Logger logger = LogManager.getLogger(ZAP.class);
 
     static {
+        ProxySelector.setDefault(ZapProxySelector.getSingleton());
+        Authenticator.setDefault(ZapAuthenticator.getSingleton());
+
         try {
             // Disable JAR caching to avoid leaking add-on files and use of stale data.
             URLConnection.class
@@ -92,8 +100,8 @@ public class ZAP {
                     new Protocol("https", (ProtocolSocketFactory) new SSLConnector(), 443));
         }
 
-        // Initialise this earlier as possible.
-        Config.LoggerProvider = JERICHO_LOGGER_PROVIDER;
+        Protocol.registerProtocol(
+                "http", new Protocol("http", new ProtocolSocketFactoryImpl(), 80));
     }
 
     /**
@@ -171,11 +179,11 @@ public class ZAP {
         return eventBus;
     }
 
-    private static final class UncaughtExceptionLogger implements Thread.UncaughtExceptionHandler {
+    static final class UncaughtExceptionLogger implements Thread.UncaughtExceptionHandler {
 
-        private static final Logger logger = Logger.getLogger(UncaughtExceptionLogger.class);
+        private static final Logger logger = LogManager.getLogger(UncaughtExceptionLogger.class);
 
-        private static boolean loggerConfigured = false;
+        private boolean loggerConfigured = false;
 
         @Override
         public void uncaughtException(Thread t, Throwable e) {
@@ -190,22 +198,17 @@ public class ZAP {
             }
         }
 
-        private static boolean isLoggerConfigured() {
+        private boolean isLoggerConfigured() {
             if (loggerConfigured) {
                 return true;
             }
 
-            @SuppressWarnings("unchecked")
-            Enumeration<Appender> appenders = LogManager.getRootLogger().getAllAppenders();
-            if (appenders.hasMoreElements()) {
+            LoggerContext context = LoggerContext.getContext();
+            if (!context.getRootLogger().getAppenders().isEmpty()) {
                 loggerConfigured = true;
             } else {
-
-                @SuppressWarnings("unchecked")
-                Enumeration<Logger> loggers = LogManager.getCurrentLoggers();
-                while (loggers.hasMoreElements()) {
-                    Logger c = loggers.nextElement();
-                    if (c.getAllAppenders().hasMoreElements()) {
+                for (LoggerConfig config : context.getConfiguration().getLoggers().values()) {
+                    if (!config.getAppenders().isEmpty()) {
                         loggerConfigured = true;
                         break;
                     }
@@ -401,72 +404,48 @@ public class ZAP {
         }
     }
 
-    // This class is a copy of Jericho's Log4j 2.x implementation but changed for Log4j 1.2.
-    private static class LoggerProviderLog4j implements LoggerProvider {
-
-        private static volatile net.htmlparser.jericho.Logger sourceLogger = null;
-
-        private LoggerProviderLog4j() {}
+    /**
+     * A {@link ProtocolSocketFactory} for plain sockets.
+     *
+     * <p>Remote hostnames are not resolved if {@link HttpMethodDirector#PARAM_RESOLVE_HOSTNAME} is
+     * {@code false}.
+     */
+    private static class ProtocolSocketFactoryImpl implements ProtocolSocketFactory {
 
         @Override
-        public net.htmlparser.jericho.Logger getLogger(final String name) {
-            return new Log4JLogger(LogManager.getLogger(name));
+        public Socket createSocket(
+                String host,
+                int port,
+                InetAddress localAddress,
+                int localPort,
+                HttpConnectionParams params)
+                throws IOException {
+            if (params == null) {
+                throw new IllegalArgumentException("Parameters may not be null");
+            }
+            Socket socket = SocketFactory.getDefault().createSocket();
+            socket.bind(new InetSocketAddress(localAddress, localPort));
+            SocketAddress remoteAddress;
+            if (params.getBooleanParameter(HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
+                remoteAddress = new InetSocketAddress(host, port);
+            } else {
+                remoteAddress = InetSocketAddress.createUnresolved(host, port);
+            }
+            socket.connect(remoteAddress, params.getConnectionTimeout());
+            return socket;
         }
 
         @Override
-        public net.htmlparser.jericho.Logger getSourceLogger() {
-            if (sourceLogger == null) {
-                sourceLogger = getLogger("net.htmlparser.jericho");
-            }
-            return sourceLogger;
+        public Socket createSocket(String host, int port, InetAddress localAddress, int localPort)
+                throws IOException {
+            throw new UnsupportedOperationException(
+                    "Method not supported, not required/called by Commons HttpClient library (version >= 3.0).");
         }
 
-        private static class Log4JLogger implements net.htmlparser.jericho.Logger {
-            private final Logger log4JLogger;
-
-            public Log4JLogger(final Logger log4JLogger) {
-                this.log4JLogger = log4JLogger;
-            }
-
-            @Override
-            public void error(final String message) {
-                log4JLogger.error(message);
-            }
-
-            @Override
-            public void warn(final String message) {
-                log4JLogger.warn(message);
-            }
-
-            @Override
-            public void info(final String message) {
-                log4JLogger.info(message);
-            }
-
-            @Override
-            public void debug(final String message) {
-                log4JLogger.debug(message);
-            }
-
-            @Override
-            public boolean isErrorEnabled() {
-                return log4JLogger.isEnabledFor(Level.ERROR);
-            }
-
-            @Override
-            public boolean isWarnEnabled() {
-                return log4JLogger.isEnabledFor(Level.WARN);
-            }
-
-            @Override
-            public boolean isInfoEnabled() {
-                return log4JLogger.isEnabledFor(Level.INFO);
-            }
-
-            @Override
-            public boolean isDebugEnabled() {
-                return log4JLogger.isEnabledFor(Level.DEBUG);
-            }
+        @Override
+        public Socket createSocket(String host, int port) throws IOException {
+            throw new UnsupportedOperationException(
+                    "Method not supported, not required/called by Commons HttpClient library (version >= 3.0).");
         }
     }
 }

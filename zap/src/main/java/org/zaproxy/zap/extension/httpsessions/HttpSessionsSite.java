@@ -32,7 +32,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.apache.commons.httpclient.Cookie;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.session.CookieBasedSessionManagementHelper;
@@ -44,7 +45,7 @@ import org.zaproxy.zap.session.CookieBasedSessionManagementHelper;
 public class HttpSessionsSite {
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(HttpSessionsSite.class);
+    private static final Logger log = LogManager.getLogger(HttpSessionsSite.class);
 
     /** The last session id. */
     private static int lastGeneratedSessionID = 0;

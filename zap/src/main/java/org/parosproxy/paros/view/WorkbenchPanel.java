@@ -37,6 +37,8 @@
 // ZAP: 2018/04/03 Update for behavioural changes in TabbedPanel2.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/02 Add OneTouchExapandable control to Sites Tree/Request&Response panels
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -57,7 +59,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
@@ -224,7 +227,7 @@ public class WorkbenchPanel extends JPanel {
 
     private static final long serialVersionUID = -4610792807151921550L;
 
-    private static final Logger logger = Logger.getLogger(WorkbenchPanel.class);
+    private static final Logger logger = LogManager.getLogger(WorkbenchPanel.class);
 
     private static final String PREF_DIVIDER_LOCATION = "divider.location";
     private static final String DIVIDER_VERTICAL = "vertical";
@@ -614,6 +617,7 @@ public class WorkbenchPanel extends JPanel {
      */
     private JSplitPane createSelectPanelsSplit() {
         JSplitPane splitHoriz = new JSplitPane();
+        splitHoriz.setOneTouchExpandable(true);
         splitHoriz.setLeftComponent(getPaneSelect());
         switch (layout) {
             case EXPAND_SELECT:
@@ -630,7 +634,6 @@ public class WorkbenchPanel extends JPanel {
                 JSplitPane.DIVIDER_LOCATION_PROPERTY,
                 new DividerResizedListener(DIVIDER_HORIZONTAL));
 
-        splitHoriz.setDividerSize(3);
         splitHoriz.setResizeWeight(0.3D);
         splitHoriz.setContinuousLayout(false);
         splitHoriz.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));

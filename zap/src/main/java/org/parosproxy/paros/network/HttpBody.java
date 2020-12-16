@@ -26,15 +26,24 @@
 // ZAP: 2017/02/01 Allow to set whether or not the charset should be determined.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2020/12/09 Add content encoding.
 package org.parosproxy.paros.network;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.zaproxy.zap.network.HttpEncoding;
 
 /**
  * Abstract a HTTP body in request or response messages.
@@ -43,7 +52,7 @@ import org.apache.log4j.Logger;
  */
 public abstract class HttpBody {
 
-    private static final Logger log = Logger.getLogger(HttpBody.class);
+    private static final Logger log = LogManager.getLogger(HttpBody.class);
 
     /**
      * The name of the default charset ({@code ISO-8859-1}) used for {@code String} related
@@ -62,9 +71,13 @@ public abstract class HttpBody {
 
     private byte[] body;
     private int pos;
+    private byte[] bodyDecoded;
     private String cachedString;
     private Charset charset;
     private boolean determineCharset = true;
+    private boolean contentEncodingErrors;
+
+    private List<HttpEncoding> encodings = Collections.emptyList();
 
     /** Constructs a {@code HttpBody} with no contents (that is, zero length). */
     public HttpBody() {
@@ -131,7 +144,7 @@ public abstract class HttpBody {
         if (contents == null) {
             return;
         }
-        cachedString = null;
+        resetCachedValues();
 
         body = new byte[contents.length];
         System.arraycopy(contents, 0, body, 0, contents.length);
@@ -142,6 +155,8 @@ public abstract class HttpBody {
     /**
      * Sets the given {@code contents} as the body, using the current charset.
      *
+     * <p>The given contents are encoded with the content encodings set, if any.
+     *
      * <p>If the {@code contents} are {@code null} the call to this method has no effect.
      *
      * <p><strong>Note:</strong> Setting the contents with incorrect charset might lead to data
@@ -149,6 +164,7 @@ public abstract class HttpBody {
      *
      * @param contents the new contents of the body, might be {@code null}
      * @see #setCharset(String)
+     * @see #getContentEncodings()
      */
     public void setBody(String contents) {
         if (contents == null) {
@@ -161,9 +177,30 @@ public abstract class HttpBody {
             charset = determineCharset(contents);
         }
 
-        body = contents.getBytes(getCharsetImpl());
+        bodyDecoded = contents.getBytes(getCharsetImpl());
+        body = encode(bodyDecoded);
 
         pos = body.length;
+    }
+
+    protected byte[] encode(byte[] data) {
+        if (encodings.isEmpty()) {
+            return data;
+        }
+
+        byte[] value = data;
+        try {
+            byte[] decoded = value;
+            for (HttpEncoding encoding : encodings) {
+                decoded = encoding.encode(decoded);
+            }
+            contentEncodingErrors = false;
+            return decoded;
+        } catch (IOException e) {
+            log.warn("An error occurred while encoding the body: {}", e.getMessage());
+        }
+        contentEncodingErrors = true;
+        return value;
     }
 
     /**
@@ -259,7 +296,13 @@ public abstract class HttpBody {
         System.arraycopy(contents, 0, body, pos, len);
         pos += len;
 
+        resetCachedValues();
+    }
+
+    private void resetCachedValues() {
         cachedString = null;
+        bodyDecoded = null;
+        contentEncodingErrors = false;
     }
 
     /**
@@ -279,6 +322,8 @@ public abstract class HttpBody {
     /**
      * Appends the given {@code contents} to the body, using the current charset.
      *
+     * <p>The given contents are encoded with the content encodings set, if any.
+     *
      * <p>If the {@code contents} are {@code null} the call to this method has no effect.
      *
      * <p><strong>Note:</strong> Setting the contents with incorrect charset might lead to data
@@ -286,16 +331,26 @@ public abstract class HttpBody {
      *
      * @param contents the contents to append, might be {@code null}
      * @see #setCharset(String)
+     * @see #getContentEncodings()
      */
     public void append(String contents) {
         if (contents == null) {
             return;
         }
-        append(contents.getBytes(getCharsetImpl()));
+
+        byte[] decoded = decode();
+        byte[] contentsBytes = contents.getBytes(getCharsetImpl());
+        byte[] data = new byte[decoded.length + contentsBytes.length];
+        System.arraycopy(decoded, 0, data, 0, decoded.length);
+        System.arraycopy(contentsBytes, 0, data, decoded.length, contentsBytes.length);
+        bodyDecoded = data;
+        setBody(encode(bodyDecoded));
     }
 
     /**
      * Gets the {@code String} representation of the body, using the current charset.
+     *
+     * <p>The representation is returned decoded, using the content encodings set, if any.
      *
      * <p>The {@code String} representation contains only the contents set so far, that is,
      * increasing the length of the body manually (with {@link #HttpBody(int)} or {@link
@@ -303,6 +358,7 @@ public abstract class HttpBody {
      *
      * @return the {@code String} representation of the body
      * @see #getCharset()
+     * @see #getContentEncodings()
      */
     @Override
     public String toString() {
@@ -325,7 +381,38 @@ public abstract class HttpBody {
      * @see #getBytes()
      */
     protected String createString(Charset charset) {
-        return new String(getBytes(), 0, getPos(), charset != null ? charset : getCharsetImpl());
+        return new String(decode(), charset != null ? charset : getCharsetImpl());
+    }
+
+    /**
+     * Gets the body decoded, if any content encodings are applied.
+     *
+     * @return the body decoded.
+     * @see #getContentEncodings()
+     */
+    protected byte[] decode() {
+        if (bodyDecoded != null) {
+            return bodyDecoded;
+        }
+
+        bodyDecoded = decodeImpl();
+        return bodyDecoded;
+    }
+
+    private byte[] decodeImpl() {
+        byte[] value = pos != body.length ? Arrays.copyOf(body, pos) : body;
+        try {
+            byte[] decoded = value;
+            for (HttpEncoding encoding : encodings) {
+                decoded = encoding.decode(decoded);
+            }
+            contentEncodingErrors = false;
+            return decoded;
+        } catch (IOException e) {
+            log.warn("An error occurred while decoding the body: {}", e.getMessage());
+        }
+        contentEncodingErrors = true;
+        return value;
     }
 
     /**
@@ -356,6 +443,54 @@ public abstract class HttpBody {
     }
 
     /**
+     * Gets the content of the body as bytes, without any encodings applied (if any).
+     *
+     * <p>The returned array of bytes mustn't be modified. Is returned a reference instead of a copy
+     * to avoid more memory allocations.
+     *
+     * @return the content of the body.
+     * @since TOOD add version
+     * @see #getContentEncodings()
+     * @see #hasContentEncodingErrors()
+     * @see #toString()
+     */
+    public byte[] getContent() {
+        if (encodings.isEmpty()) {
+            return body;
+        }
+        return decode();
+    }
+
+    /**
+     * Tells whether or not the content encodings set to the body have errors (e.g. content
+     * malformed).
+     *
+     * @return {@code true} if there are errors while using the content encodings, {@code false}
+     *     otherwise.
+     * @since TOOD add version
+     * @see #getContent()
+     */
+    public boolean hasContentEncodingErrors() {
+        return contentEncodingErrors;
+    }
+
+    /**
+     * Sets the content of the body as bytes, applying any content encodings of the body, if any.
+     *
+     * @since TOOD add version
+     * @see #getContentEncodings()
+     */
+    public void setContent(byte[] content) {
+        if (content == null) {
+            return;
+        }
+        bodyDecoded = content;
+        body = encode(bodyDecoded);
+        pos = body.length;
+        cachedString = null;
+    }
+
+    /**
      * Gets the current length of the body.
      *
      * @return the current length of the body.
@@ -383,7 +518,7 @@ public abstract class HttpBody {
         body = newBody;
 
         if (oldPos > pos) {
-            cachedString = null;
+            resetCachedValues();
         }
     }
 
@@ -447,9 +582,41 @@ public abstract class HttpBody {
         this.cachedString = null;
     }
 
+    /**
+     * Sets the content encodings of the body.
+     *
+     * @param encodings the encodings
+     * @throws NullPointerException if the given list or any of the encodings contained in the list
+     *     are {@code null}.
+     * @since 2.10.0
+     */
+    public void setContentEncodings(List<HttpEncoding> encodings) {
+        Objects.requireNonNull(encodings);
+        encodings.forEach(Objects::requireNonNull);
+
+        this.encodings =
+                encodings.isEmpty()
+                        ? Collections.emptyList()
+                        : Collections.unmodifiableList(new ArrayList<>(encodings));
+        resetCachedValues();
+    }
+
+    /**
+     * Gets the content encodings of the body.
+     *
+     * @return the encodings, never {@code null}.
+     * @since 2.10.0
+     */
+    public List<HttpEncoding> getContentEncodings() {
+        return encodings;
+    }
+
     @Override
     public int hashCode() {
-        return 31 + Arrays.hashCode(body);
+        final int prime = 31;
+        int result = prime + Arrays.hashCode(body);
+        result = prime * result + Objects.hash(encodings);
+        return result;
     }
 
     @Override
@@ -467,6 +634,6 @@ public abstract class HttpBody {
         if (!Arrays.equals(body, otherBody.body)) {
             return false;
         }
-        return true;
+        return Objects.equals(encodings, otherBody.encodings);
     }
 }

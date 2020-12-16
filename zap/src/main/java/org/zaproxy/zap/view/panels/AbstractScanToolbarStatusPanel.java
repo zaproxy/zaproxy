@@ -30,7 +30,8 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -63,7 +64,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
         implements ScanListener {
 
     private static final long serialVersionUID = -2351280081989616482L;
-    private static final Logger log = Logger.getLogger(AbstractScanToolbarStatusPanel.class);
+    private static final Logger log = LogManager.getLogger(AbstractScanToolbarStatusPanel.class);
 
     /**
      * Location provided to {@link #addToolBarElements(JToolBar, short, int)} to add items after the

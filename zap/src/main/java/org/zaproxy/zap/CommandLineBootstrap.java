@@ -20,7 +20,8 @@
 package org.zaproxy.zap;
 
 import java.io.FileNotFoundException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -34,7 +35,7 @@ import org.zaproxy.zap.utils.ZapSupportUtils;
  */
 public class CommandLineBootstrap extends HeadlessBootstrap {
 
-    private final Logger logger = Logger.getLogger(CommandLineBootstrap.class);
+    private final Logger logger = LogManager.getLogger(CommandLineBootstrap.class);
 
     public CommandLineBootstrap(CommandLine cmdLineArgs) {
         super(cmdLineArgs);
@@ -45,6 +46,10 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
         int rc = super.start();
         if (rc != 0) {
             return rc;
+        }
+
+        if (!getArgs().isNoStdOutLog()) {
+            disableStdOutLog();
         }
 
         logger.info(getStartingMessage());

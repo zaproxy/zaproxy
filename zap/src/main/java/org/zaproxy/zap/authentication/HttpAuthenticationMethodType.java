@@ -33,12 +33,14 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.NTCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.authentication.UsernamePasswordAuthenticationCredentials.UsernamePasswordAuthenticationCredentialsOptionsPanel;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -69,7 +71,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
     public static final String CONTEXT_CONFIG_AUTH_HTTP_REALM = CONTEXT_CONFIG_AUTH_HTTP + ".realm";
     public static final String CONTEXT_CONFIG_AUTH_HTTP_PORT = CONTEXT_CONFIG_AUTH_HTTP + ".port";
 
-    private static final Logger log = Logger.getLogger(HttpAuthenticationMethodType.class);
+    private static final Logger log = LogManager.getLogger(HttpAuthenticationMethodType.class);
 
     /** The unique identifier of the method. */
     private static final int METHOD_IDENTIFIER = 3;
@@ -143,6 +145,9 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 
             // type check
             if (!(credentials instanceof UsernamePasswordAuthenticationCredentials)) {
+                user.getAuthenticationState()
+                        .setLastAuthFailure(
+                                "Credentials not UsernamePasswordAuthenticationCredentials");
                 throw new UnsupportedAuthenticationCredentialsException(
                         "Form based authentication method only supports "
                                 + UsernamePasswordAuthenticationCredentials.class.getSimpleName());
@@ -168,8 +173,10 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
                                 this.realm);
                 session.getHttpState().setCredentials(stateAuthScope, stateCredentials);
             } catch (UnknownHostException e1) {
+                user.getAuthenticationState().setLastAuthFailure(e1.getMessage());
                 log.error(e1.getMessage(), e1);
             }
+            user.getAuthenticationState().setLastAuthFailure("");
             return session;
         }
 
@@ -181,6 +188,11 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
             values.put("port", Integer.toString(this.port));
             values.put("realm", this.realm);
             return new AuthMethodApiResponseRepresentation<>(values);
+        }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+            // Nothing to do
         }
     }
 

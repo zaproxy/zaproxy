@@ -32,4 +32,39 @@ public final class HttpPanelViewModelUtils {
     public static void updateResponseContentLength(HttpMessage message) {
         message.getResponseHeader().setContentLength(message.getResponseBody().length());
     }
+
+    /**
+     * Finds the HTTP header limit, that is the separator ({@code CRLFCRLF}) between the header and
+     * the body.
+     *
+     * @param data the data that contains the header and body.
+     * @return the position after the limit, or {@code -1} if not found.
+     * @since 2.10.0
+     */
+    public static int findHeaderLimit(byte[] data) {
+        boolean lastIsCrLf = false;
+        boolean lastIsCr = false;
+        boolean lastIsLf = false;
+
+        for (int i = 0; i < data.length; ++i) {
+            if (!lastIsCr && data[i] == '\r') {
+                lastIsCr = true;
+                lastIsLf = false;
+            } else if (!lastIsLf && data[i] == '\n') {
+                if (lastIsCrLf) {
+                    return i + 1;
+                }
+
+                lastIsCrLf = true;
+                lastIsCr = false;
+                lastIsLf = true;
+            } else {
+                lastIsCr = false;
+                lastIsLf = false;
+                lastIsCrLf = false;
+            }
+        }
+
+        return -1;
+    }
 }

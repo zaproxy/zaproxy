@@ -19,15 +19,24 @@
  */
 package org.zaproxy.zap.extension.users;
 
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.apache.commons.httpclient.Cookie;
+import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.lang.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -36,19 +45,22 @@ import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseConversionUtils;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.extension.authentication.ExtensionAuthentication;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.session.WebSession;
+import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 
 /** The API for manipulating {@link User Users}. */
 public class UsersAPI extends ApiImplementor {
 
-    private static final Logger log = Logger.getLogger(UsersAPI.class);
+    private static final Logger log = LogManager.getLogger(UsersAPI.class);
 
     private static final String PREFIX = "users";
 
@@ -57,18 +69,35 @@ public class UsersAPI extends ApiImplementor {
     private static final String VIEW_GET_AUTH_CREDENTIALS = "getAuthenticationCredentials";
     private static final String VIEW_GET_AUTH_CREDENTIALS_CONFIG_PARAMETERS =
             "getAuthenticationCredentialsConfigParams";
+    private static final String VIEW_GET_AUTH_STATE = "getAuthenticationState";
+    private static final String VIEW_GET_AUTH_SESSION = "getAuthenticationSession";
 
     private static final String ACTION_NEW_USER = "newUser";
     private static final String ACTION_REMOVE_USER = "removeUser";
     private static final String ACTION_SET_ENABLED = "setUserEnabled";
     private static final String ACTION_SET_NAME = "setUserName";
     private static final String ACTION_SET_AUTH_CREDENTIALS = "setAuthenticationCredentials";
+    private static final String ACTION_AUTHENTICATE_AS_USER = "authenticateAsUser";
+    private static final String ACTION_POLL_AS_USER = "pollAsUser";
+    private static final String ACTION_SET_AUTH_STATE = "setAuthenticationState";
+    private static final String ACTION_SET_COOKIE = "setCookie";
 
     public static final String PARAM_CONTEXT_ID = "contextId";
     public static final String PARAM_USER_ID = "userId";
+
+    private static final String PARAM_COOKIE_NAME = "name";
+    private static final String PARAM_COOKIE_VALUE = "value";
+    private static final String PARAM_COOKIE_DOMAIN = "domain";
+    private static final String PARAM_COOKIE_PATH = "path";
+    private static final String PARAM_COOKIE_SECURE = "secure";
     private static final String PARAM_USER_NAME = "name";
     private static final String PARAM_ENABLED = "enabled";
     private static final String PARAM_CREDENTIALS_CONFIG_PARAMS = "authCredentialsConfigParams";
+    private static final String PARAM_LAST_POLL_RESULT = "lastPollResult";
+    private static final String PARAM_LAST_POLL_TIME_IN_MS = "lastPollTimeInMs";
+    private static final String PARAM_REQUESTS_SINCE_LAST_POLL = "requestsSinceLastPoll";
+
+    private static final String TIME_NOW = "NOW";
 
     private ExtensionUserManagement extension;
     private Map<Integer, ApiDynamicActionImplementor> loadedAuthenticationMethodActions;
@@ -87,6 +116,10 @@ public class UsersAPI extends ApiImplementor {
         this.addApiView(
                 new ApiView(
                         VIEW_GET_AUTH_CREDENTIALS, new String[] {PARAM_CONTEXT_ID, PARAM_USER_ID}));
+        this.addApiView(
+                new ApiView(VIEW_GET_AUTH_STATE, new String[] {PARAM_CONTEXT_ID, PARAM_USER_ID}));
+        this.addApiView(
+                new ApiView(VIEW_GET_AUTH_SESSION, new String[] {PARAM_CONTEXT_ID, PARAM_USER_ID}));
 
         this.addApiAction(
                 new ApiAction(ACTION_NEW_USER, new String[] {PARAM_CONTEXT_ID, PARAM_USER_NAME}));
@@ -105,6 +138,34 @@ public class UsersAPI extends ApiImplementor {
                         ACTION_SET_AUTH_CREDENTIALS,
                         new String[] {PARAM_CONTEXT_ID, PARAM_USER_ID},
                         new String[] {PARAM_CREDENTIALS_CONFIG_PARAMS}));
+        this.addApiAction(
+                new ApiAction(
+                        ACTION_AUTHENTICATE_AS_USER,
+                        new String[] {PARAM_CONTEXT_ID, PARAM_USER_ID}));
+        this.addApiAction(
+                new ApiAction(ACTION_POLL_AS_USER, new String[] {PARAM_CONTEXT_ID, PARAM_USER_ID}));
+        this.addApiAction(
+                new ApiAction(
+                        ACTION_SET_AUTH_STATE,
+                        new String[] {PARAM_CONTEXT_ID, PARAM_USER_ID},
+                        new String[] {
+                            PARAM_LAST_POLL_RESULT,
+                            PARAM_LAST_POLL_TIME_IN_MS,
+                            PARAM_REQUESTS_SINCE_LAST_POLL
+                        }));
+        this.addApiAction(
+                new ApiAction(
+                        ACTION_SET_COOKIE,
+                        new String[] {
+                            PARAM_CONTEXT_ID,
+                            PARAM_USER_ID,
+                            PARAM_COOKIE_DOMAIN,
+                            PARAM_COOKIE_NAME,
+                            PARAM_COOKIE_VALUE
+                        },
+                        new String[] {
+                            PARAM_COOKIE_PATH, PARAM_COOKIE_SECURE,
+                        }));
 
         // Load the authentication method actions
         if (Control.getSingleton() != null) {
@@ -167,6 +228,13 @@ public class UsersAPI extends ApiImplementor {
                 ApiDynamicActionImplementor a =
                         loadedAuthenticationMethodActions.get(type.getUniqueIdentifier());
                 return a.buildParamsDescription();
+
+            case VIEW_GET_AUTH_STATE:
+                return buildResponseFromAuthState(getUser(params).getAuthenticationState());
+
+            case VIEW_GET_AUTH_SESSION:
+                return buildResponseFromAuthSession(getUser(params).getAuthenticatedSession());
+
             default:
                 throw new ApiException(ApiException.Type.BAD_VIEW);
         }
@@ -233,6 +301,124 @@ public class UsersAPI extends ApiImplementor {
                 a.handleAction(actionParams);
                 context.save();
                 return ApiResponseElement.OK;
+            case ACTION_AUTHENTICATE_AS_USER:
+                user = getUser(params);
+                int hId1 = user.getAuthenticationState().getLastAuthRequestHistoryId();
+                user.authenticate();
+                int hId2 = user.getAuthenticationState().getLastAuthRequestHistoryId();
+
+                if (hId2 > hId1) {
+                    // Not all authentication methods result in an authentication request.
+                    // In theory we could get a different one if other reqs are being made, but this
+                    // is probably as safe as we can make it right now
+                    ExtensionHistory extHistory =
+                            Control.getSingleton()
+                                    .getExtensionLoader()
+                                    .getExtension(ExtensionHistory.class);
+
+                    if (extHistory != null) {
+                        HistoryReference href = extHistory.getHistoryReference(hId2);
+                        try {
+                            HttpMessage authMsg = href.getHttpMessage();
+                            ApiResponseSet<String> responseSet =
+                                    ApiResponseConversionUtils.httpMessageToSet(hId2, authMsg);
+                            responseSet.put(
+                                    "authSuccessful",
+                                    Boolean.toString(
+                                            user.getContext()
+                                                    .getAuthenticationMethod()
+                                                    .evaluateAuthRequest(
+                                                            authMsg,
+                                                            user.getAuthenticationState())));
+                            return responseSet;
+                        } catch (Exception e) {
+                            log.error("Failed to read auth request from db " + hId2, e);
+                            throw new ApiException(Type.INTERNAL_ERROR, e);
+                        }
+                    }
+                }
+
+                return ApiResponseElement.OK;
+
+            case ACTION_POLL_AS_USER:
+                user = getUser(params);
+                try {
+                    HttpMessage msg = user.getContext().getAuthenticationMethod().pollAsUser(user);
+                    int href = -1;
+                    if (msg.getHistoryRef() != null) {
+                        href = msg.getHistoryRef().getHistoryId();
+                    }
+                    ApiResponseSet<String> responseSet =
+                            ApiResponseConversionUtils.httpMessageToSet(href, msg);
+                    responseSet.put(
+                            "pollSuccessful",
+                            Boolean.toString(
+                                    user.getContext()
+                                            .getAuthenticationMethod()
+                                            .evaluateAuthRequest(
+                                                    msg, user.getAuthenticationState())));
+
+                    return responseSet;
+                } catch (IllegalArgumentException e) {
+                    throw new ApiException(Type.ILLEGAL_PARAMETER, PARAM_CONTEXT_ID);
+                } catch (IOException e) {
+                    throw new ApiException(Type.INTERNAL_ERROR, e);
+                }
+
+            case ACTION_SET_AUTH_STATE:
+                user = getUser(params);
+                AuthenticationState state = user.getAuthenticationState();
+                String lastPollResultStr = this.getParam(params, PARAM_LAST_POLL_RESULT, "");
+                if (StringUtils.isNotBlank(lastPollResultStr)) {
+                    try {
+                        state.setLastPollResult(Boolean.parseBoolean(lastPollResultStr));
+                    } catch (Exception e) {
+                        throw new ApiException(Type.ILLEGAL_PARAMETER, PARAM_LAST_POLL_RESULT);
+                    }
+                }
+                String lastPollTimeStr = this.getParam(params, PARAM_LAST_POLL_TIME_IN_MS, "");
+                if (StringUtils.isNotBlank(lastPollTimeStr)) {
+                    try {
+                        long lastPollTime;
+                        if (lastPollTimeStr.equals(TIME_NOW)) {
+                            lastPollTime = System.currentTimeMillis();
+                        } else {
+                            lastPollTime = Long.parseLong(lastPollTimeStr);
+                        }
+                        state.setLastPollTime(lastPollTime);
+                    } catch (Exception e) {
+                        throw new ApiException(Type.ILLEGAL_PARAMETER, PARAM_LAST_POLL_TIME_IN_MS);
+                    }
+                }
+                int reqsSinceLastPoll = this.getParam(params, PARAM_REQUESTS_SINCE_LAST_POLL, -1);
+                if (reqsSinceLastPoll >= 0) {
+                    state.setRequestsSincePoll(reqsSinceLastPoll);
+                }
+
+                return ApiResponseElement.OK;
+
+            case ACTION_SET_COOKIE:
+                user = getUser(params);
+                if (user.getAuthenticatedSession() == null) {
+                    user.setAuthenticatedSession(
+                            user.getContext().getSessionManagementMethod().createEmptyWebSession());
+                }
+                String cookiePath = this.getParam(params, PARAM_COOKIE_PATH, "");
+                if (cookiePath.isEmpty()) {
+                    cookiePath = null;
+                }
+                user.getAuthenticatedSession()
+                        .getHttpState()
+                        .addCookie(
+                                new Cookie(
+                                        params.getString(PARAM_COOKIE_DOMAIN),
+                                        params.getString(PARAM_COOKIE_NAME),
+                                        params.getString(PARAM_COOKIE_VALUE),
+                                        cookiePath,
+                                        null, // Setting this to a valid date means it never gets
+                                        // returned :/
+                                        this.getParam(params, PARAM_COOKIE_SECURE, false)));
+                return ApiResponseElement.OK;
 
             default:
                 throw new ApiException(Type.BAD_ACTION);
@@ -258,6 +444,57 @@ public class UsersAPI extends ApiImplementor {
                         .toJSON()
                         .toString());
         return new ApiResponseSet<>("user", fields);
+    }
+
+    private ApiResponse buildResponseFromAuthState(AuthenticationState state) {
+        Map<String, String> fields = new HashMap<>();
+        fields.put("lastSuccessfulAuthTimeInMs", Long.toString(state.getLastSuccessfulAuthTime()));
+        fields.put("lastAuthFailure", state.getLastAuthFailure());
+        fields.put("lastAuthHistoryId", Integer.toString(state.getLastAuthRequestHistoryId()));
+        fields.put(PARAM_LAST_POLL_RESULT, String.valueOf(state.getLastPollResult()));
+        fields.put(PARAM_REQUESTS_SINCE_LAST_POLL, Integer.toString(state.getRequestsSincePoll()));
+        fields.put(PARAM_LAST_POLL_TIME_IN_MS, Long.toString(state.getLastPollTime()));
+        return new ApiResponseSet<>("authenticationState", fields);
+    }
+
+    private ApiResponse buildResponseFromAuthSession(WebSession session) {
+        ApiResponseList list = new ApiResponseList("authenticationSession");
+        if (session == null) {
+            return list;
+        }
+        HttpState state = session.getHttpState();
+        ApiResponseList cookieList = new ApiResponseList("cookies");
+        for (Cookie cookie : state.getCookies()) {
+            Map<String, String> fields = new HashMap<>();
+            fields.put(PARAM_COOKIE_DOMAIN, cookie.getDomain());
+            fields.put(PARAM_COOKIE_NAME, cookie.getName());
+            fields.put(PARAM_COOKIE_VALUE, cookie.getValue());
+            fields.put(PARAM_COOKIE_PATH, cookie.getPath());
+            fields.put("expires", String.valueOf(cookie.getExpiryDate()));
+            fields.put(PARAM_COOKIE_SECURE, Boolean.toString(cookie.getSecure()));
+            fields.put("comment", cookie.getComment());
+            cookieList.addItem(new ApiResponseSet<>("cookie", fields));
+        }
+        list.addItem(cookieList);
+        try {
+            Map<String, String> credMap = new HashMap<>();
+            Field credMapField = state.getClass().getDeclaredField("credMap");
+            credMapField.setAccessible(true);
+            Object obj = credMapField.get(state);
+            if (obj instanceof HashMap) {
+                ((HashMap<?, ?>) obj)
+                        .forEach(
+                                (k, v) -> {
+                                    credMap.put(k.toString(), v.toString());
+                                });
+            }
+            ApiResponseList credList = new ApiResponseList("credentials");
+            credList.addItem(new ApiResponseSet<>("credentials", credMap));
+            list.addItem(credList);
+        } catch (Exception e) {
+            log.error("Failed to access HttpState credMap", e);
+        }
+        return list;
     }
 
     /**

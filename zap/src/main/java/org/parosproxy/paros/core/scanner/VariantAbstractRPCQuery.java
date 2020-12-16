@@ -22,7 +22,8 @@ package org.parosproxy.paros.core.scanner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -33,7 +34,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public abstract class VariantAbstractRPCQuery implements Variant {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     private final List<RPCParameter> listParam = new ArrayList<>();
     private final List<NameValuePair> params = new ArrayList<>();

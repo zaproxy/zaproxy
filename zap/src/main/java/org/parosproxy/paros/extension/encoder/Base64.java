@@ -9,9 +9,8 @@
  */
 package org.parosproxy.paros.extension.encoder;
 
-import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
-
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * <p>Encodes and decodes to and from Base64 notation.</p>
@@ -159,7 +158,10 @@ import org.parosproxy.paros.Constant;
  * @author Robert Harder
  * @author rob@iharder.net
  * @version 2.3.7
+ *
+ * @deprecated (2.10.0) use {@link java.util.Base64}.
  */
+@Deprecated
 public class Base64
 {
     
@@ -207,7 +209,7 @@ public class Base64
     
 /* ********  P R I V A T E   F I E L D S  ******** */  
     
-    private static final Logger logger = Logger.getLogger(Base64.class);
+    private static final Logger logger = LogManager.getLogger(Base64.class);
     
     /** Maximum line length (76) of Base64 output. */
     private static final int MAX_LINE_LENGTH = 76;
@@ -1173,8 +1175,8 @@ public class Base64
         if( len == 0 ){
             return new byte[0];
         }else if( len < 4 ){
-            throw new IllegalArgumentException(
-        			Constant.messages.getString("enc2.base64.decode.error.invalidlenght", len));
+            throw new IllegalArgumentException( String.format(
+            "Base64-encoded string must have at least four characters, but length specified was %d", len));
         }   // end if
         
         byte[] DECODABET = getDecodabet( options );
@@ -1211,8 +1213,8 @@ public class Base64
             }   // end if: white space, equals sign or better
             else {
                 // There's a bad input character in the Base64 stream.
-                throw new java.io.IOException(
-            			Constant.messages.getString("enc2.base64.decode.error.badinput", source[i] & 0xFF, i));
+                throw new java.io.IOException( String.format(
+                "Bad Base64 input character decimal %d in array position %d", source[i] & 0xFF, i));
             }   // end else: 
         }   // each input character
                                    

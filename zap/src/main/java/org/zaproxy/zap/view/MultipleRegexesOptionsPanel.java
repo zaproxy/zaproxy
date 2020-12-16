@@ -20,13 +20,20 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Dialog;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import javax.swing.GroupLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -76,6 +83,70 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
         this.owner = owner;
         getTable().setSortOrder(0, SortOrder.ASCENDING);
+        JButton importButton =
+                new JButton(Constant.messages.getString("context.include.import.label"));
+        importButton.addActionListener(e -> importButtonClicked());
+        addButton(importButton);
+    }
+
+    /**
+     * Checks if {@code trimmedRegex} is contained in {@code regexes} and if it is a valid regex
+     * pattern. If {@code regexes} is null, then the duplication check is omitted
+     *
+     * @param trimmedRegex A regex as string. Must not contain any leading or trailing spaces (need
+     *     to be trimmed)
+     * @param regexes List of regex strings
+     * @return True if {@code trimmedRegex} is not a duplicate and the pattern is valid.
+     * @throws PatternSyntaxException If {@code trimmedRegex} is not a valid regex pattern
+     */
+    private static boolean validateRegexAndCheckForDuplicates(
+            String trimmedRegex, List<String> regexes) throws PatternSyntaxException {
+        if (trimmedRegex == null
+                || trimmedRegex.isEmpty()
+                || regexes != null && regexes.contains(trimmedRegex)) {
+            return false;
+        }
+        Pattern.compile(trimmedRegex, Pattern.CASE_INSENSITIVE);
+        return true;
+    }
+
+    private void importButtonClicked() {
+        File file = selectImportFile();
+        if (file != null) {
+            List<String> regexes = new ArrayList<String>(getRegexes());
+
+            try (BufferedReader br =
+                    Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    String trimmedLine = line.trim();
+                    if (validateRegexAndCheckForDuplicates(trimmedLine, regexes)) {
+                        regexes.add(trimmedLine);
+                    }
+                }
+            } catch (IOException | PatternSyntaxException e) {
+                View.getSingleton()
+                        .showWarningDialog(
+                                Constant.messages.getString(
+                                        "context.include.import.error", e.getLocalizedMessage()));
+                return;
+            }
+            setRegexes(regexes);
+        }
+    }
+
+    private File selectImportFile() {
+        JFileChooser chooser = new JFileChooser();
+
+        int rc = chooser.showOpenDialog(this.owner);
+        if (rc == JFileChooser.APPROVE_OPTION) {
+            File file = chooser.getSelectedFile();
+            if (file == null || !file.exists()) {
+                return null;
+            }
+            return file;
+        }
+        return null;
     }
 
     public void setRegexes(List<String> regexes) {
@@ -92,6 +163,8 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
             addDialog = new DialogAddRegex(owner);
             addDialog.pack();
         }
+
+        addDialog.setRegexes(this.getRegexes());
         addDialog.setVisible(true);
 
         String regex = addDialog.getRegex();
@@ -106,6 +179,8 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
             modifyDialog = new DialogModifyRegex(owner);
             modifyDialog.pack();
         }
+
+        modifyDialog.setRegexes(this.getRegexes());
         modifyDialog.setRegex(e);
         modifyDialog.setVisible(true);
 
@@ -161,10 +236,18 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
                 Constant.messages.getString("multiple.options.regexes.dialog.regex.invalid.title");
         private static final String TEXT_INVALID_REGEX_DIALOG =
                 Constant.messages.getString("multiple.options.regexes.dialog.regex.invalid.text");
+        private static final String TEXT_ALREADY_EXIST_INVALID_REGEX_DIALOG =
+                Constant.messages.getString(
+                        "multiple.options.regexes.dialog.regex.invalid.alreadyExist.text");
+        private static final String TITLE_ALREADY_EXIST_INVALID_REGEX_DIALOG =
+                Constant.messages.getString(
+                        "multiple.options.regexes.dialog.regex.invalid.alreadyExist.title");
 
         private ZapTextField regexTextField;
 
         protected String regex;
+
+        private List<String> regexes;
 
         public DialogAddRegex(Dialog owner) {
             super(owner, DIALOG_TITLE);
@@ -211,8 +294,19 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
         @Override
         protected boolean validateFields() {
+            String trimmedRegex = getRegexTextField().getText().trim();
             try {
-                Pattern.compile(getRegexTextField().getText(), Pattern.CASE_INSENSITIVE);
+                if (validateRegexAndCheckForDuplicates(trimmedRegex, regexes)) {
+                    return true;
+                }
+                JOptionPane.showMessageDialog(
+                        this,
+                        TEXT_ALREADY_EXIST_INVALID_REGEX_DIALOG,
+                        TITLE_ALREADY_EXIST_INVALID_REGEX_DIALOG,
+                        JOptionPane.INFORMATION_MESSAGE);
+                getRegexTextField().requestFocusInWindow();
+                return false;
+
             } catch (PatternSyntaxException e) {
                 JOptionPane.showMessageDialog(
                         this,
@@ -222,12 +316,11 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
                 getRegexTextField().requestFocusInWindow();
                 return false;
             }
-            return true;
         }
 
         @Override
         protected void performAction() {
-            regex = getRegexTextField().getText();
+            regex = getRegexTextField().getText().trim();
         }
 
         @Override
@@ -265,7 +358,7 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
                                     private void checkAndEnableConfirmButton() {
                                         setConfirmButtonEnabled(
-                                                getRegexTextField().getDocument().getLength() > 0);
+                                                !getRegexTextField().getText().trim().isEmpty());
                                     }
                                 });
             }
@@ -275,6 +368,10 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
 
         public void clear() {
             this.regex = null;
+        }
+
+        public void setRegexes(List<String> regexes) {
+            this.regexes = regexes;
         }
     }
 
@@ -306,6 +403,12 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
         protected void init() {
             getRegexTextField().setText(regex);
             getRegexTextField().discardAllEdits();
+        }
+
+        @Override
+        protected boolean validateFields() {
+            String trimmedRegex = getRegexTextField().getText().trim();
+            return regex.equals(trimmedRegex) || super.validateFields();
         }
     }
 

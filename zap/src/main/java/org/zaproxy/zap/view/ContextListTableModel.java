@@ -58,16 +58,8 @@ public class ContextListTableModel extends AbstractTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        switch (columnIndex) {
-            case 0:
-                return false;
-            case 1:
-                return false;
-            case 2:
-                return false; // TODO ideally want to be able to change this here...
-            default:
-                return false;
-        }
+        // TODO ideally columnIndex == 2 (enable) would be able to change here...
+        return false;
     }
 
     @Override

@@ -1,0 +1,33 @@
+- [ ] Create/update admin config files
+  - [ ] ZapVersions
+  - [ ] News
+- [ ] Create branch
+- [ ] Build release
+- [ ] Test installers
+  - [ ] Windows 64
+  - [ ] Windows 32
+  - [ ] Linux
+  - [ ] Mac
+- [ ] Publish release
+- [ ] Docs
+  - [ ] Update User Guide
+  - [ ] Update version in questionnaire
+  - [ ] Update version on https://bugcrowd.com/owaspzap
+- [ ] Update Downloads page
+- [ ] Announce
+  - [ ] Twitter
+  - [ ] ZAP Groups
+  - [ ] OWASP Slack
+- [ ] Inform package maintainers
+  - [ ] Kali
+  - [ ] Linux distros (Cabelo)
+  - [ ] Homebrew
+  - [ ] Flathub
+- [ ] Update Docker images
+  - [ ] Stable
+  - [ ] Bare
+- [ ] Update Snapcraft
+- [ ] Release to Maven Central
+- [ ] Release APIs
+  - [ ] Java
+  - [ ] Python

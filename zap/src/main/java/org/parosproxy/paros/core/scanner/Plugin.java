@@ -36,9 +36,11 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Date;
+import java.util.List;
 import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.extension.alert.ExampleAlertProvider;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
@@ -47,7 +49,7 @@ import org.zaproxy.zap.model.TechSet;
  * AbstractHostPlugin}, {@link AbstractAppPlugin}, {@link AbstractAppParamPlugin} implement this
  * interface and is a good starting point for writing new plugins.
  */
-public interface Plugin extends Runnable {
+public interface Plugin extends Runnable, ExampleAlertProvider {
 
     public enum AlertThreshold {
         /**
@@ -372,4 +374,14 @@ public interface Plugin extends Runnable {
      * @since 2.4.0
      */
     AddOn.Status getStatus();
+
+    /**
+     * Gets a list of example alerts that the plugin can raise.
+     *
+     * @since 2.10.0
+     */
+    @Override
+    default List<Alert> getExampleAlerts() {
+        return null;
+    }
 }

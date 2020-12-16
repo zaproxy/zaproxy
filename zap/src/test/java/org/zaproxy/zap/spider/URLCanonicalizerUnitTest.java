@@ -25,9 +25,6 @@ import static org.hamcrest.Matchers.is;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
@@ -39,11 +36,6 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
  * before during the spider phase.
  */
 public class URLCanonicalizerUnitTest {
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getLogger(URLCanonicalizer.class).addAppender(new NullAppender());
-    }
 
     @Test
     public void shouldRemoveDefaultPortOfHttpUriWhenCanonicalizing() {

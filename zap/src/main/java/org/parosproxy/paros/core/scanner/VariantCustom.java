@@ -27,6 +27,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
+import org.zaproxy.zap.model.SessionStructure;
 
 /**
  * Custom Variant based on an implemented Script
@@ -72,6 +73,19 @@ public class VariantCustom implements Variant {
                 this.extension.handleScriptException(wrapper, ex);
             }
         }
+    }
+
+    /**
+     * Constructs a {@code VariantCustom} with the given values.
+     *
+     * @param wrapper the script wrapper.
+     * @param script the script.
+     * @param extension the script extension.
+     */
+    public VariantCustom(ScriptWrapper wrapper, VariantScript script, ExtensionScript extension) {
+        this.wrapper = wrapper;
+        this.script = script;
+        this.extension = extension;
     }
 
     /**
@@ -229,6 +243,19 @@ public class VariantCustom implements Variant {
     }
 
     /**
+     * The standard name given to nodes in the sites tree for the given parameters
+     *
+     * @param nodeName the name of the node, typically the last element of the path
+     * @param msg the message
+     * @param params the url and post parameters for the given message
+     * @return the name to be used in the Sites Map
+     */
+    public String getStandardLeafName(
+            String nodeName, HttpMessage msg, List<NameValuePair> params) {
+        return SessionStructure.getLeafName(nodeName, msg, params);
+    }
+
+    /**
      * Inner method for correct scripting
      *
      * @param msg the message that need to be modified
@@ -261,5 +288,29 @@ public class VariantCustom implements Variant {
         }
 
         return value;
+    }
+
+    @Override
+    public String getLeafName(String nodeName, HttpMessage msg) {
+        if (script != null) {
+            try {
+                return this.script.getLeafName(this, nodeName, msg);
+            } catch (Exception e) {
+                extension.handleScriptException(wrapper, e);
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<String> getTreePath(HttpMessage msg) {
+        if (script != null) {
+            try {
+                return this.script.getTreePath(this, msg);
+            } catch (Exception e) {
+                extension.handleScriptException(wrapper, e);
+            }
+        }
+        return null;
     }
 }

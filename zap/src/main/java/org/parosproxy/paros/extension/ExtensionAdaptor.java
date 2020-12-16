@@ -47,6 +47,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/12 Remove getURL().
 // ZAP: 2019/09/30 Add hasView().
+// ZAP: 2020/03/09 Handle extensions without package.
 package org.parosproxy.paros.extension;
 
 import java.util.Collections;
@@ -251,9 +252,14 @@ public abstract class ExtensionAdaptor implements Extension {
     @Override
     public String getI18nPrefix() {
         if (this.i18nPrefix == null) {
-            // Default to the (last part of the )name of the package
-            String packageName = this.getClass().getPackage().getName();
-            this.i18nPrefix = packageName.substring(packageName.lastIndexOf(".") + 1);
+            Package extPackage = this.getClass().getPackage();
+            if (extPackage == null) {
+                this.i18nPrefix = "";
+            } else {
+                // Default to the (last part of the) name of the package
+                String packageName = extPackage.getName();
+                this.i18nPrefix = packageName.substring(packageName.lastIndexOf(".") + 1);
+            }
         }
         return this.i18nPrefix;
     }

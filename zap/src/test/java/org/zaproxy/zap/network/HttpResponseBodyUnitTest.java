@@ -27,9 +27,6 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.startsWith;
 
 import java.nio.charset.StandardCharsets;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HttpResponseBody}. */
@@ -37,11 +34,6 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
 
     private static final byte[] BODY_1_BYTES_UTF_16 =
             BODY_1_STRING.getBytes(StandardCharsets.UTF_16);
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     @Test
     public void shouldCreateBodyWithNullByteArray() {

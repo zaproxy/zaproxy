@@ -19,6 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import java.util.List;
 import javax.script.ScriptException;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -34,4 +35,12 @@ public interface VariantScript {
     public void setParameter(
             VariantCustom variant, HttpMessage msg, String param, String value, boolean escaped)
             throws ScriptException;
+
+    default String getLeafName(VariantCustom variant, String nodeName, HttpMessage msg) {
+        return null;
+    }
+
+    default List<String> getTreePath(VariantCustom variant, HttpMessage msg) {
+        return null;
+    }
 }

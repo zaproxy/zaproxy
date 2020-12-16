@@ -42,11 +42,11 @@ public class SpinnerSearch extends AbstractComponentSearch<JSpinner> {
         HighlightedComponent highlightedUpAndDownComponent =
                 HighlighterUtils.highlightBackground(
                         new JComponentWithBackground(component),
-                        HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+                        HighlighterUtils.getHighlightColor());
         HighlightedComponent highlightedEditorComponent =
                 HighlighterUtils.highlightBackground(
                         new SpinnerSearchComponentWithBackground(component),
-                        HighlighterUtils.DEFAULT_HIGHLIGHT_COLOR);
+                        HighlighterUtils.getHighlightColor());
 
         highlightedUpAndDownComponent.put(HIGHLIGHTED_EDITOR, highlightedEditorComponent);
         return highlightedUpAndDownComponent;

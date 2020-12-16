@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.httppanel.component;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import org.apache.commons.configuration.FileConfiguration;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
@@ -54,10 +55,11 @@ public interface HttpPanelComponentInterface {
 
     void setMessage(Message aMessage);
 
-    // The component is requested to save data from the UI into the current Message.
-    // For example, the user selects a new message in the history tab. Or in break mode, want to
-    // send the modified message.
-
+    /**
+     * Saves the data shown in the views into the current message.
+     *
+     * @throws InvalidMessageDataException if unable to save the data (e.g. malformed).
+     */
     void save();
 
     void addView(HttpPanelView view, Object options, FileConfiguration fileConfiguration);

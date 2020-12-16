@@ -19,8 +19,8 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight;
 
-import java.awt.Color;
 import java.awt.Component;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
@@ -34,11 +34,13 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.RSyntaxDocument;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.fife.ui.rsyntaxtextarea.Theme;
 import org.fife.ui.rtextarea.RTextArea;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.parosproxy.paros.Constant;
@@ -48,6 +50,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.menus.SyntaxMenu;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.menus.ViewMenu;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.FontUtils.FontType;
 import org.zaproxy.zap.view.HighlightSearchEntry;
@@ -57,7 +60,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
 
     private static final long serialVersionUID = -9082089105656842054L;
 
-    private static Logger log = Logger.getLogger(HttpPanelSyntaxHighlightTextArea.class);
+    private static Logger log = LogManager.getLogger(HttpPanelSyntaxHighlightTextArea.class);
 
     public static final String PLAIN_SYNTAX_LABEL =
             Constant.messages.getString("http.panel.view.syntaxtext.syntax.plain");
@@ -70,10 +73,13 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
     private static final String FADE_CURRENT_HIGHLIGHT_LINE = "fadehighlightline";
     private static final String SHOW_WHITESPACE_CHARACTERS = "whitespaces";
     private static final String SHOW_NEWLINE_CHARACTERS = "newlines";
-    private static final String MARK_OCCURRENCES = "markocurrences";
+    private static final String MARK_OCCURRENCES = "markoccurrences";
     private static final String ROUNDED_SELECTION_EDGES = "roundedselection";
     private static final String BRACKET_MATCHING = "bracketmatch";
     private static final String ANIMATED_BRACKET_MATCHING = "animatedbracketmatch";
+
+    private static final String RESOURCE_DARK = "/org/fife/ui/rsyntaxtextarea/themes/dark.xml";
+    private static final String RESOURCE_LIGHT = "/org/fife/ui/rsyntaxtextarea/themes/default.xml";
 
     private Message message;
     private Vector<SyntaxStyle> syntaxStyles;
@@ -88,6 +94,8 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
     private static TextAreaMenuItem undoAction = null;
     private static TextAreaMenuItem redoAction = null;
     private static TextAreaMenuItem selectAllAction = null;
+
+    private Boolean darkLaF;
 
     public HttpPanelSyntaxHighlightTextArea() {
         ((RSyntaxDocument) getDocument()).setTokenMakerFactory(getTokenMakerFactory());
@@ -129,7 +137,37 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
         this.setFont(
                 FontUtils.getFontWithFallback(FontType.workPanels, this.getFont().getFontName()));
 
+        if (DisplayUtils.isDarkLookAndFeel()) {
+            darkLaF = true;
+            setLookAndFeel(darkLaF);
+        } else {
+            darkLaF = false;
+        }
         initHighlighter();
+    }
+
+    private void setLookAndFeel(boolean dark) {
+        try {
+            Theme theme =
+                    Theme.load(
+                            this.getClass()
+                                    .getResourceAsStream(dark ? RESOURCE_DARK : RESOURCE_LIGHT));
+
+            theme.apply(this);
+        } catch (IOException e) {
+            // Ignore
+        }
+    }
+
+    @Override
+    public void updateUI() {
+
+        if (darkLaF == null || darkLaF == DisplayUtils.isDarkLookAndFeel()) {
+            return;
+        }
+
+        darkLaF = DisplayUtils.isDarkLookAndFeel();
+        setLookAndFeel(darkLaF);
     }
 
     /**
@@ -229,10 +267,10 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
 
     protected void highlight(int start, int end) {
         Highlighter hilite = this.getHighlighter();
-        HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
+        HighlightPainter painter =
+                new DefaultHighlighter.DefaultHighlightPainter(DisplayUtils.getHighlightColor());
 
         try {
-            // DOBIN
             removeAllHighlights();
             hilite.addHighlight(start, end, painter);
             this.setCaretPosition(start);

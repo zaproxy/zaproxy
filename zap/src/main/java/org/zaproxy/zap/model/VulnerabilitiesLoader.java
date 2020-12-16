@@ -37,7 +37,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.lang.Validate;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -48,7 +49,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  */
 public class VulnerabilitiesLoader {
 
-    private static final Logger logger = Logger.getLogger(VulnerabilitiesLoader.class);
+    private static final Logger logger = LogManager.getLogger(VulnerabilitiesLoader.class);
 
     private final Path directory;
     private final String fileName;

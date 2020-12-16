@@ -22,7 +22,7 @@ package org.zaproxy.zap.extension.stdmenus;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JMenuItem;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
@@ -77,7 +77,7 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageC
                         .getExtensionLoader()
                         .getExtension(ExtensionUserManagement.class);
         if (extensionUserAuth == null || !extensionUserAuth.isEnabled()) {
-            Logger.getLogger(PopupUserMenuItemHolder.class)
+            LogManager.getLogger(PopupUserMenuItemHolder.class)
                     .warn(
                             ExtensionUserManagement.class
                                     + " is not enabled but is required for getting info about Users.");

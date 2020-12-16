@@ -56,6 +56,7 @@
 // ZAP: 2018/05/29 Allow to use add-on icons in SiteNode.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -70,7 +71,8 @@ import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.view.View;
@@ -93,7 +95,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     private ArrayList<String> icons = null;
     private ArrayList<Boolean> clearIfManual = null;
 
-    private static Logger log = Logger.getLogger(SiteNode.class);
+    private static Logger log = LogManager.getLogger(SiteNode.class);
     private boolean isIncludedInScope = false;
     private boolean isExcludedFromScope = false;
     private boolean filtered = false;
@@ -317,10 +319,14 @@ public class SiteNode extends DefaultMutableTreeNode {
         } else if (this.getParent().isRoot()) {
             hierarchicNodeName = this.getNodeName();
         } else {
-            String name =
-                    this.getParent().getHierarchicNodeName(specialNodesAsRegex)
-                            + "/"
-                            + this.getCleanNodeName(specialNodesAsRegex);
+            String nodeName = this.getCleanNodeName(specialNodesAsRegex);
+            String name;
+            if (nodeName.startsWith("/")) {
+                // Leaf nodes ending with a slash have a name of "/"
+                name = this.getParent().getHierarchicNodeName(specialNodesAsRegex) + nodeName;
+            } else {
+                name = this.getParent().getHierarchicNodeName(specialNodesAsRegex) + "/" + nodeName;
+            }
             if (!specialNodesAsRegex) {
                 // Dont cache the non regex version
                 return name;

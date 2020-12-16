@@ -24,6 +24,8 @@ import javax.swing.text.JTextComponent;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
+/** @deprecated No alternative. */
+@Deprecated
 public class PopupEncoder2Menu extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;

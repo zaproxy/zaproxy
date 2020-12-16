@@ -64,6 +64,11 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/21 Use and expose Alert builder.
+// ZAP: 2020/01/27 Extracted code from sendAndReceive method into regenerateAntiCsrfToken method in
+// ExtensionAntiCSRF.
+// ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
+// ZAP: 2020/11/17 Use new TechSet#getAllTech().
+// ZAP: 2020/11/26 Use Log4j2 getLogger() and deprecate Log4j1.x.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -72,22 +77,22 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert.Source;
-import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.control.AddOn;
-import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
+import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
@@ -103,12 +108,11 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private HostProcess parent = null;
     private HttpMessage msg = null;
     private boolean enabled = true;
-    private Logger log = Logger.getLogger(this.getClass());
+    private Logger logger = LogManager.getLogger(this.getClass());
     private Configuration config = null;
     // ZAP Added delayInMs
     private int delayInMs;
     private ExtensionAntiCSRF extAntiCSRF = null;
-    private Encoder encoder = new Encoder();
     private AlertThreshold defaultAttackThreshold = AlertThreshold.MEDIUM;
     private static final AlertThreshold[] alertThresholdsSupported =
             new AlertThreshold[] {AlertThreshold.MEDIUM};
@@ -122,7 +126,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     /** Default Constructor */
     public AbstractPlugin() {
-        this.techSet = TechSet.AllTech;
+        this.techSet = TechSet.getAllTech();
     }
 
     @Override
@@ -277,15 +281,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                                 .getExtension(ExtensionAntiCSRF.class);
             }
             if (extAntiCSRF != null) {
-                List<AntiCsrfToken> tokens = extAntiCSRF.getTokens(message);
-                AntiCsrfToken antiCsrfToken = null;
-                if (tokens.size() > 0) {
-                    antiCsrfToken = tokens.get(0);
-                }
-
-                if (antiCsrfToken != null) {
-                    regenerateAntiCsrfToken(message, antiCsrfToken);
-                }
+                extAntiCSRF.regenerateAntiCsrfToken(
+                        message, tokenMsg -> sendAndReceive(tokenMsg, true, false));
             }
         }
 
@@ -322,46 +319,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         // ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(message, this);
-    }
-
-    private void regenerateAntiCsrfToken(HttpMessage msg, AntiCsrfToken antiCsrfToken) {
-        if (antiCsrfToken == null) {
-            return;
-        }
-
-        String tokenValue = null;
-        try {
-            HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
-
-            // Ensure we dont loop
-            sendAndReceive(tokenMsg, true, false);
-
-            tokenValue = extAntiCSRF.getTokenValue(tokenMsg, antiCsrfToken.getName());
-
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-
-        if (tokenValue != null) {
-            // Replace token value - only supported in the body right now
-            log.debug(
-                    "regenerateAntiCsrfToken replacing "
-                            + antiCsrfToken.getValue()
-                            + " with "
-                            + encoder.getURLEncode(tokenValue));
-            String replaced = msg.getRequestBody().toString();
-            replaced =
-                    replaced.replace(
-                            encoder.getURLEncode(antiCsrfToken.getValue()),
-                            encoder.getURLEncode(tokenValue));
-            msg.setRequestBody(replaced);
-            extAntiCSRF.registerAntiCsrfToken(
-                    new AntiCsrfToken(
-                            msg,
-                            antiCsrfToken.getName(),
-                            tokenValue,
-                            antiCsrfToken.getFormIndex()));
-        }
     }
 
     @Override
@@ -627,13 +584,166 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     /**
-     * Tells whether or not the file exists, based on previous analysis.
+     * Tells whether or not the file exists, based on {@code CustomPage} definition or previous
+     * analysis. Falls back to use {@code Analyser} which analyzes specific behavior and status
+     * codes.
      *
      * @param msg the message that will be checked
      * @return {@code true} if the file exists, {@code false} otherwise
      */
     protected boolean isFileExist(HttpMessage msg) {
+        return isPage200(msg);
+    }
+
+    /**
+     * Tells whether or not the message matches the specific {@code CustomPage.Type}.
+     *
+     * @param msg the message that will be checked
+     * @param cpType the custom page type to be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.10.0
+     */
+    private boolean isCustomPage(HttpMessage msg, CustomPage.Type cpType) {
+        return parent.isCustomPage(msg, cpType);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPage.Type.OK_200} definitions. Falls
+     * back to use {@code Analyser} which analyzes specific behavior and status codes. Checks if the
+     * message matches {@code CustomPage.Type.ERROR_500} or {@code CusotmPage.Type.NOTFOUND_404}
+     * first, in case the user is trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.10.0
+     */
+    protected boolean isPage200(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.OK_200)) {
+            return true;
+        }
         return parent.getAnalyser().isFileExist(msg);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPage.Type.ERROR_500} definitions. Falls
+     * back to simply checking the response status code for "500 - Internal Server Error". Checks if
+     * the message matches {@code CustomPage.Type.OK_200} or {@code CusotmPage.Type.NOTFOUND_404}
+     * first, in case the user is trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.10.0
+     */
+    protected boolean isPage500(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.NOTFOUND_404)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return true;
+        }
+        return msg.getResponseHeader().getStatusCode() == HttpStatusCode.INTERNAL_SERVER_ERROR;
+    }
+
+    /**
+     * Tells whether or not the message matches a {@code CustomPage.Type.NOTFOUND_404} definition.
+     * Falls back to {@code Analyser}. Checks if the message matches {@code CustomPage.Type.OK_200}
+     * or {@code CustomPage.Type.ERROR_500} first, in case the user is trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.10.0
+     */
+    protected boolean isPage404(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)) {
+            return true;
+        }
+        return !parent.getAnalyser().isFileExist(msg);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPage.Type.OTHER} definitions.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.10.0
+     */
+    protected boolean isPageOther(HttpMessage msg) {
+        return isCustomPage(msg, CustomPage.Type.OTHER);
+    }
+
+    /**
+     * Tells whether or not the response has a status code between 200 and 299 (inclusive), or
+     * {@code CustomPage.Type.OK_200} and {@code Analyser#isFileExist(HttpMessage)}. Checks if the
+     * message matches {@code CustomPage.Type.NOTFOUND_404} or {@code CustomPage.Type.ERROR_500}
+     * first, in case the user is trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.10.0
+     * @see {@code Analyser#isFileExist(HttpMessage)}
+     */
+    public boolean isSuccess(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.OK_200) || parent.getAnalyser().isFileExist(msg)) {
+            return true;
+        }
+        return HttpStatusCode.isSuccess(msg.getResponseHeader().getStatusCode());
+    }
+
+    /**
+     * Tells whether or not the response has a status code between 400 and 499 (inclusive), or
+     * {@code CustomPage.Type.NOTFOUND_404} and {@code Analyser#isFileExist(HttpMessage)}. Checks if
+     * the message matches {@code CustomPage.Type.OK_200} or {@code CustomPage.Type.ERROR_500}
+     * first, in case the user is trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.10.0
+     * @see {@code Analyser#isFileExist(HttpMessage)}
+     */
+    public boolean isClientError(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
+                || !parent.getAnalyser().isFileExist(msg)) {
+            return true;
+        }
+        return HttpStatusCode.isClientError(msg.getResponseHeader().getStatusCode());
+    }
+
+    /**
+     * Tells whether or not the response has a status code between 500 and 599 (inclusive), or
+     * {@code CustomPage.Type.EROOR_500}. Checks if the message matches {@code
+     * CustomPage.Type.OK_200} or {@code CustomPage.Type.NOTFOUND_404} first, in case the user is
+     * trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.10.0
+     */
+    public boolean isServerError(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)
+                || isCustomPage(msg, CustomPage.Type.NOTFOUND_404)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.ERROR_500)) {
+            return true;
+        }
+        return HttpStatusCode.isServerError(msg.getResponseHeader().getStatusCode());
     }
 
     /**
@@ -946,8 +1056,25 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return getParent().getKb();
     }
 
-    protected Logger getLog() {
-        return log;
+    /**
+     * Gets the logger.
+     *
+     * @return the logger, never {@code null}.
+     * @deprecated (2.10.0) Use {@link #getLogger()} instead.
+     */
+    @Deprecated
+    protected org.apache.log4j.Logger getLog() {
+        return org.apache.log4j.Logger.getLogger(getClass());
+    }
+
+    /**
+     * Gets the logger.
+     *
+     * @return the logger, never {@code null}.
+     * @since 2.10.0
+     */
+    protected Logger getLogger() {
+        return logger;
     }
 
     public String getProperty(String key) {
@@ -1309,6 +1436,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             return this;
         }
 
+        @Override
+        public AlertBuilder setAlertRef(String alertRef) {
+            super.setAlertRef(alertRef);
+            return this;
+        }
+
         /**
          * Raises the alert with specified data.
          *
@@ -1321,8 +1454,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             }
 
             Alert alert = build();
-            if (plugin.log.isDebugEnabled()) {
-                plugin.log.debug(
+            if (plugin.logger.isDebugEnabled()) {
+                plugin.logger.debug(
                         "New alert pluginid="
                                 + alert.getPluginId()
                                 + " "

@@ -26,12 +26,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.UnaryOperator;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.DefaultNameValuePair;
 import org.zaproxy.zap.model.NameValuePair;
+import org.zaproxy.zap.users.User;
 
 /**
  * An {@link AuthenticationMethodType} where the Users are authenticated by posting a form ({@code
@@ -47,7 +50,8 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
 
     private static final String API_METHOD_NAME = "formBasedAuthentication";
 
-    private static final Logger LOGGER = Logger.getLogger(FormBasedAuthenticationMethodType.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(FormBasedAuthenticationMethodType.class);
 
     private static final UnaryOperator<String> PARAM_ENCODER =
             value -> {
@@ -113,6 +117,12 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
         protected AuthenticationMethod duplicate() {
             return new FormBasedAuthenticationMethod(this);
         }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+            PostBasedAuthenticationMethodType.replaceUserCredentialsDataInPollRequest(
+                    msg, user, PARAM_ENCODER);
+        }
     }
 
     /** The options panel to configure a {@link FormBasedAuthenticationMethod}. */
@@ -135,8 +145,12 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
             List<NameValuePair> parameters = new ArrayList<>();
             getContext()
                     .getPostParamParser()
-                    .parse(postData)
-                    .forEach((k, v) -> parameters.add(new DefaultNameValuePair(k, v)));
+                    .parseParameters(postData)
+                    .forEach(
+                            (nvp) ->
+                                    parameters.add(
+                                            new DefaultNameValuePair(
+                                                    nvp.getName(), nvp.getValue())));
             return parameters;
         }
 

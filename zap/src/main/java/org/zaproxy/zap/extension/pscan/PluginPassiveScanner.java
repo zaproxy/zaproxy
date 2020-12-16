@@ -32,9 +32,11 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.extension.alert.ExampleAlertProvider;
 import org.zaproxy.zap.utils.Enableable;
 
-public abstract class PluginPassiveScanner extends Enableable implements PassiveScanner {
+public abstract class PluginPassiveScanner extends Enableable
+        implements PassiveScanner, ExampleAlertProvider {
 
     /**
      * The (base) configuration key used to saved the configurations of a passive scanner, ID, alert
@@ -359,6 +361,16 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
     }
 
     /**
+     * Gets a list of example alerts that the plugin can raise.
+     *
+     * @since 2.10.0
+     */
+    @Override
+    public List<Alert> getExampleAlerts() {
+        return null;
+    }
+
+    /**
      * Gets a helper object to be used by scan rules in order to retrieve {@code Context}
      * information.
      *
@@ -520,6 +532,12 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
         @Override
         public AlertBuilder setSource(Source source) {
             super.setSource(source);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setAlertRef(String alertRef) {
+            super.setAlertRef(alertRef);
             return this;
         }
 

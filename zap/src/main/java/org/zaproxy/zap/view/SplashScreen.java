@@ -23,7 +23,9 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -31,20 +33,29 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
+import java.util.function.Consumer;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
+import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.border.Border;
 import javax.swing.plaf.basic.BasicProgressBarUI;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
-import org.apache.log4j.WriterAppender;
-import org.apache.log4j.spi.LoggingEvent;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.Filter;
+import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.StringLayout;
+import org.apache.logging.log4j.core.appender.AbstractAppender;
+import org.apache.logging.log4j.core.config.Property;
+import org.apache.logging.log4j.core.filter.AbstractFilter;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
@@ -55,10 +66,9 @@ public class SplashScreen extends JFrame {
     private static final String TIPS_PREFIX = "tips";
     private static final String TIPS_TIP_PREFIX = TIPS_PREFIX + ".tip.";
 
-    private static final Logger LOGGER = Logger.getLogger(SplashScreen.class);
+    private static final Logger LOGGER = LogManager.getLogger(SplashScreen.class);
 
     private static final long serialVersionUID = 1L;
-    private static final char NEWLINE = '\n';
 
     private JScrollPane logScrollPane = null;
     private JScrollPane tipsScrollPane = null;
@@ -71,7 +81,7 @@ public class SplashScreen extends JFrame {
     private final Random random = new Random();
     private boolean tipsLoaded = false;
     private double currentPerc;
-    private SplashOutputWriter splashOutputWriter;
+    private SplashScreenAppender splashScreenAppender;
 
     public SplashScreen() {
         super();
@@ -81,11 +91,11 @@ public class SplashScreen extends JFrame {
         setTitle(Constant.PROGRAM_NAME);
         setIconImages(DisplayUtils.getZapIconImages());
 
-        BackgroundImagePanel panel = new BackgroundImagePanel();
+        JPanel panel = new JPanel(new GridBagLayout());
         panel.setPreferredSize(DisplayUtils.getScaledDimension(420, 430));
-        panel.setLayout(new GridBagLayout());
-        panel.setBackgroundImage(
-                SplashScreen.class.getResource("/resource/zap-splash-screen.png"), 0.5);
+        if (!DisplayUtils.isDarkLookAndFeel()) {
+            panel.setBackground(Color.decode("#F4FAFF"));
+        }
 
         Border margin = BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED);
         Border padding = BorderFactory.createEmptyBorder(4, 4, 4, 4);
@@ -108,28 +118,50 @@ public class SplashScreen extends JFrame {
         // ProgramName is at the beginning of the panel (0,0)
         panel.add(
                 lblProgramName,
-                LayoutHelper.getGBC(0, 0, 2, 1, DisplayUtils.getScaledInsets(40, 30, 0, 1)));
+                LayoutHelper.getGBC(0, 0, 1, 1, DisplayUtils.getScaledInsets(40, 30, 0, 1)));
         // Version is +8 horizontally respect to the other components
         panel.add(
                 lblVersion,
-                LayoutHelper.getGBC(0, 1, 2, 1, DisplayUtils.getScaledInsets(0, 30, 0, 1)));
+                LayoutHelper.getGBC(0, 1, 1, 1, DisplayUtils.getScaledInsets(0, 30, 0, 1)));
         // Progress bar (height 12) is +56 and then +24
         // vertically respect the other elements (tot + 92)
         panel.add(
                 getLoadingJProgressBar(),
-                LayoutHelper.getGBC(0, 2, 1, 1.0, DisplayUtils.getScaledInsets(20, 30, 64, 70)));
-        panel.add(Box.createHorizontalGlue(), LayoutHelper.getGBC(1, 2, 1, 1.0));
+                LayoutHelper.getGBC(
+                        0,
+                        2,
+                        1,
+                        1.0,
+                        0.0,
+                        GridBagConstraints.HORIZONTAL,
+                        DisplayUtils.getScaledInsets(20, 30, 64, 0)));
+
+        panel.add(
+                new JLabel(createSplashScreenImage()),
+                LayoutHelper.getGBC(1, 0, 1, 3, 0.0, DisplayUtils.getScaledInsets(0, 0, 0, 15)));
+
         // Panels should be with different heights for a good view
         panel.add(getTipsJScrollPane(), LayoutHelper.getGBC(0, 3, 2, 1.0, 1.0));
         panel.add(getLogJScrollPane(), LayoutHelper.getGBC(0, 4, 2, 1.0, 0.5));
 
-        this.add(panel);
+        setContentPane(panel);
         this.pack();
 
-        splashOutputWriter = new SplashOutputWriter();
-        Logger.getRootLogger().addAppender(splashOutputWriter);
+        splashScreenAppender = new SplashScreenAppender(this::appendMsg);
+        LoggerContext.getContext()
+                .getConfiguration()
+                .getRootLogger()
+                .addAppender(splashScreenAppender, null, null);
 
         setVisible(true);
+    }
+
+    private static ImageIcon createSplashScreenImage() {
+        ImageIcon image =
+                new ImageIcon(SplashScreen.class.getResource("/resource/zap-splash-screen.png"));
+        int width = DisplayUtils.getScaledSize((int) (image.getIconWidth() * 0.5));
+        int height = DisplayUtils.getScaledSize((int) (image.getIconHeight() * 0.5));
+        return new ImageIcon(image.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
     }
 
     /**
@@ -257,7 +289,11 @@ public class SplashScreen extends JFrame {
 
     /** Close current splash screen */
     public void close() {
-        Logger.getRootLogger().removeAppender(splashOutputWriter);
+        splashScreenAppender.stop();
+        LoggerContext.getContext()
+                .getConfiguration()
+                .getRootLogger()
+                .removeAppender(splashScreenAppender.getName());
         dispose();
     }
 
@@ -290,40 +326,34 @@ public class SplashScreen extends JFrame {
         vertical.setValue(vertical.getMaximum());
     }
 
-    private class SplashOutputWriter extends WriterAppender {
+    static class SplashScreenAppender extends AbstractAppender {
+
+        private static final Property[] NO_PROPERTIES = {};
+
+        private final Consumer<String> logConsumer;
+
+        SplashScreenAppender(Consumer<String> logConsumer) {
+            super(
+                    "ZAP-SplashScreenAppender",
+                    new LevelFilter(),
+                    PatternLayout.newBuilder().withPattern("%p: %m%n").build(),
+                    true,
+                    NO_PROPERTIES);
+            this.logConsumer = logConsumer;
+            start();
+        }
 
         @Override
-        public void append(final LoggingEvent event) {
-            if (!EventQueue.isDispatchThread()) {
-                EventQueue.invokeLater(
-                        new Runnable() {
+        public void append(LogEvent event) {
+            logConsumer.accept(((StringLayout) getLayout()).toSerializable(event));
+        }
 
-                            @Override
-                            public void run() {
-                                append(event);
-                            }
-                        });
-                return;
-            }
+        private static class LevelFilter extends AbstractFilter {
 
-            if (event.getLevel().equals(Level.INFO)) {
-                String renderedmessage = event.getRenderedMessage();
-                if (renderedmessage != null) {
-                    appendMsg(
-                            new StringBuilder("INFO: ")
-                                    .append(renderedmessage)
-                                    .append(NEWLINE)
-                                    .toString());
-                }
-            } else if (event.getLevel().equals(Level.ERROR)) {
-                String renderedmessage = event.getRenderedMessage();
-                if (renderedmessage != null) {
-                    appendMsg(
-                            new StringBuilder("ERROR: ")
-                                    .append(renderedmessage)
-                                    .append(NEWLINE)
-                                    .toString());
-                }
+            @Override
+            public Filter.Result filter(LogEvent event) {
+                Level level = event.getLevel();
+                return level == Level.INFO || level == Level.ERROR ? Result.ACCEPT : Result.DENY;
             }
         }
     }

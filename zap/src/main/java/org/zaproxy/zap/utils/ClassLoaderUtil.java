@@ -25,7 +25,8 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 // Based on code from http://twit88.com/blog/2007/10/04/java-dynamic-loading-of-class-and-jar-file/
 
@@ -37,7 +38,7 @@ import org.apache.log4j.Logger;
 public class ClassLoaderUtil {
 
     // Log object
-    private static Logger log = Logger.getLogger(ClassLoaderUtil.class);
+    private static Logger log = LogManager.getLogger(ClassLoaderUtil.class);
 
     // Parameters
     private static final Class<?>[] parameters = new Class<?>[] {URL.class};

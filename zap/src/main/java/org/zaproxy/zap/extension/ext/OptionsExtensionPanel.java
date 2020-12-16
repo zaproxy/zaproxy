@@ -32,7 +32,8 @@ import javax.swing.JTextArea;
 import javax.swing.SortOrder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.OptionsParam;
@@ -60,7 +61,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
     private JScrollPane extDescScrollPane = null;
     private JButton urlLaunchButton = null;
 
-    private static Logger log = Logger.getLogger(OptionsExtensionPanel.class);
+    private static Logger log = LogManager.getLogger(OptionsExtensionPanel.class);
 
     public OptionsExtensionPanel(ExtensionExtension ext) {
         super();

@@ -20,7 +20,8 @@
 package org.zaproxy.zap.common;
 
 import org.apache.commons.configuration.ConversionException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 /**
@@ -34,7 +35,7 @@ import org.parosproxy.paros.common.AbstractParam;
  */
 public abstract class VersionedAbstractParam extends AbstractParam {
 
-    private final Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(this.getClass());
 
     /**
      * The key to read/write the version of the configurations, as an attribute. It should be used

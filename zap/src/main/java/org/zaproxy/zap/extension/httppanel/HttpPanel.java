@@ -46,11 +46,13 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.edit.ExtensionEdit;
 import org.parosproxy.paros.view.FindDialog;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
@@ -68,7 +70,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
 
     private static final long serialVersionUID = 5221591643257366570L;
 
-    private static final Logger logger = Logger.getLogger(HttpPanel.class);
+    private static final Logger logger = LogManager.getLogger(HttpPanel.class);
 
     private static final String NO_SUITABLE_COMPONENT_FOUND_LABEL =
             Constant.messages.getString("http.panel.noSuitableComponentFound");
@@ -344,6 +346,13 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         }
     }
 
+    /**
+     * Saves the data shown in the views into the current message.
+     *
+     * <p>Has not effect if there's no UI component or message.
+     *
+     * @throws InvalidMessageDataException if unable to save the data (e.g. malformed).
+     */
     public void saveData() {
         if (message == null || currentComponent == null) {
             return;
@@ -353,7 +362,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
     }
 
     private void switchComponent(String name) {
-        if (this.currentComponent != null && currentComponent.getName().equals(name)) {
+        if (isCurrentComponent(name)) {
             currentComponent.setSelected(true);
             return;
         }
@@ -399,6 +408,10 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
 
         currentComponent.setSelected(true);
         fireComponentChangedEvent(previousComponent, currentComponent);
+    }
+
+    private boolean isCurrentComponent(String name) {
+        return currentComponent != null && currentComponent.getName().equals(name);
     }
 
     protected List<HttpPanelComponentInterface> getEnabledComponents() {
@@ -647,11 +660,27 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (isEditable()) {
-                saveData();
+            String componentName = e.getActionCommand();
+            if (isEditable() && !isCurrentComponent(componentName)) {
+                try {
+                    saveData();
+                } catch (InvalidMessageDataException e1) {
+                    components.get(componentName).getButton().setSelected(false);
+
+                    StringBuilder warnMessage = new StringBuilder(150);
+                    warnMessage.append(
+                            Constant.messages.getString("http.panel.component.warn.datainvalid"));
+
+                    String exceptionMessage = e1.getLocalizedMessage();
+                    if (exceptionMessage != null && !exceptionMessage.isEmpty()) {
+                        warnMessage.append('\n').append(exceptionMessage);
+                    }
+                    View.getSingleton().showWarningDialog(warnMessage.toString());
+                    return;
+                }
             }
 
-            switchComponent(e.getActionCommand());
+            switchComponent(componentName);
         }
     }
 

@@ -54,28 +54,37 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
+// ZAP: 2020/07/31 Tidy up parameter methods
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2020/12/09 Handle content encodings in request/response bodies.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
+import org.zaproxy.zap.model.NameValuePair;
+import org.zaproxy.zap.network.HttpEncoding;
+import org.zaproxy.zap.network.HttpEncodingDeflate;
+import org.zaproxy.zap.network.HttpEncodingGzip;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 import org.zaproxy.zap.users.User;
@@ -106,7 +115,7 @@ public class HttpMessage implements Message {
     // ZAP: Added historyRef
     private HistoryReference historyRef = null;
     // ZAP: Added logger
-    private static Logger log = Logger.getLogger(HttpMessage.class);
+    private static Logger log = LogManager.getLogger(HttpMessage.class);
     // ZAP: Added HttpSession
     private HttpSession httpSession = null;
     // ZAP: Added support for requesting the message to be sent as a particular User
@@ -341,6 +350,8 @@ public class HttpMessage implements Message {
     /**
      * Sets the request body of this message.
      *
+     * <p><strong>Note:</strong> No encodings are set to the request body to match the header.
+     *
      * @param reqBody the new request body
      * @throws IllegalArgumentException if parameter {@code reqBody} is {@code null}.
      */
@@ -363,6 +374,8 @@ public class HttpMessage implements Message {
     /**
      * Sets the response body of this message.
      *
+     * <p><strong>Note:</strong> No encodings are set to the response body to match the header.
+     *
      * @param resBody the new response body
      * @throws IllegalArgumentException if parameter {@code resBody} is {@code null}.
      */
@@ -374,35 +387,122 @@ public class HttpMessage implements Message {
         getResponseBody().setCharset(getResponseHeader().getCharset());
     }
 
+    /**
+     * Sets the given string as the request header.
+     *
+     * <p><strong>Note:</strong> No encodings are set to the request body to match the header.
+     *
+     * @param reqHeader the new request header.
+     * @throws HttpMalformedHeaderException if the given header is malformed.
+     * @see #setContentEncodings(HttpHeader, HttpBody)
+     */
     public void setRequestHeader(String reqHeader) throws HttpMalformedHeaderException {
         HttpRequestHeader newHeader = new HttpRequestHeader(reqHeader);
         setRequestHeader(newHeader);
     }
 
+    /**
+     * Sets the given string as the response header.
+     *
+     * <p><strong>Note:</strong> No encodings are set to the response body to match the header.
+     *
+     * @param resHeader the new response header.
+     * @throws HttpMalformedHeaderException if the given header is malformed.
+     * @see #setContentEncodings(HttpHeader, HttpBody)
+     */
     public void setResponseHeader(String resHeader) throws HttpMalformedHeaderException {
         HttpResponseHeader newHeader = new HttpResponseHeader(resHeader);
         setResponseHeader(newHeader);
     }
 
+    /**
+     * Sets the content encodings defined in the header into the body.
+     *
+     * <p><strong>Note:</strong> Supports only {@code gzip} and {@code deflate}.
+     *
+     * @param header the header.
+     * @param body the body.
+     */
+    public static void setContentEncodings(HttpHeader header, HttpBody body) {
+        String encoding = header.getHeader(HttpHeader.CONTENT_ENCODING);
+        if (encoding == null || encoding.isEmpty()) {
+            body.setContentEncodings(Collections.emptyList());
+            return;
+        }
+
+        List<HttpEncoding> encodings = new ArrayList<>(1);
+        if (encoding.contains(HttpHeader.DEFLATE)) {
+            encodings.add(HttpEncodingDeflate.getSingleton());
+        } else if (encoding.contains(HttpHeader.GZIP)) {
+            encodings.add(HttpEncodingGzip.getSingleton());
+        }
+
+        body.setContentEncodings(encodings);
+    }
+
+    /**
+     * Sets the given string body as the request body.
+     *
+     * <p>The defined request header content encodings are set to the body, the string body will be
+     * encoded accordingly.
+     *
+     * @param body the new body.
+     * @see HttpBody#setContentEncodings(List)
+     */
     public void setRequestBody(String body) {
+        setContentEncodings(getRequestHeader(), getRequestBody());
+
         getRequestBody().setCharset(getRequestHeader().getCharset());
         getRequestBody().setBody(body);
     }
 
+    /**
+     * Sets the given byte body as the request body.
+     *
+     * <p>The defined request header content encodings are set to the body, the byte body is assumed
+     * to be properly encoded.
+     *
+     * @param body the new body.
+     * @see HttpBody#setContentEncodings(List)
+     */
     public void setRequestBody(byte[] body) {
         getRequestBody().setBody(body);
         getRequestBody().setCharset(getRequestHeader().getCharset());
+
+        setContentEncodings(getRequestHeader(), getRequestBody());
     }
 
+    /**
+     * Sets the given string body as the response body.
+     *
+     * <p>The defined response header content encodings are set to the body, the string body will be
+     * encoded accordingly.
+     *
+     * @param body the new body.
+     * @see HttpBody#setContentEncodings(List)
+     */
     public void setResponseBody(String body) {
+        setContentEncodings(getResponseHeader(), getResponseBody());
+
         getResponseBody().setCharset(getResponseHeader().getCharset());
         getResponseBody().setDetermineCharset(getResponseHeader().isText());
         getResponseBody().setBody(body);
     }
 
+    /**
+     * Sets the given byte body as the response body.
+     *
+     * <p>The defined response header content encodings are set to the body, the byte body is
+     * assumed to be properly encoded.
+     *
+     * @param body the new body.
+     * @see HttpBody#setContentEncodings(List)
+     */
     public void setResponseBody(byte[] body) {
         getResponseBody().setBody(body);
         getResponseBody().setCharset(getResponseHeader().getCharset());
+
+        setContentEncodings(getResponseHeader(), getResponseBody());
     }
 
     /**
@@ -625,18 +725,8 @@ public class HttpMessage implements Message {
     }
 
     /**
-     * @deprecated (2.4.2) Use {@link
-     *     #getParamNameSet(org.parosproxy.paros.network.HtmlParameter.Type)} instead, it will be
-     *     removed in a following release.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public TreeSet<String> getParamNameSet(HtmlParameter.Type type, String params) {
-        return getParamNameSet(type);
-    }
-
-    /**
-     * Returns the names of the parameters of the given {@code type}.
+     * Returns the names of the parameters of the given {@code type}. As a Set is used no names will
+     * be duplicated.
      *
      * @param type the type of the parameters that will be extracted from the message
      * @return a {@code TreeSet} with the names of the parameters of the given {@code type}, never
@@ -645,22 +735,57 @@ public class HttpMessage implements Message {
      */
     public TreeSet<String> getParamNameSet(HtmlParameter.Type type) {
         TreeSet<String> set = new TreeSet<>();
-        Map<String, String> paramMap = Model.getSingleton().getSession().getParams(this, type);
+        List<NameValuePair> paramList = Model.getSingleton().getSession().getParameters(this, type);
 
-        for (Entry<String, String> param : paramMap.entrySet()) {
-            set.add(param.getKey());
+        for (NameValuePair nvp : paramList) {
+            set.add(nvp.getName());
         }
         return set;
     }
 
+    /**
+     * Returns the names of the parameters of the given {@code type} in a List. The List can return
+     * duplicated names.
+     *
+     * @param type the type of the parameters that will be extracted from the message
+     * @return a {@code List} with the names of the parameters of the given {@code type}, never
+     *     {@code null}
+     * @since 2.10.0
+     */
+    public List<String> getParameterNames(HtmlParameter.Type type) {
+        List<String> list = new ArrayList<String>();
+        Model.getSingleton()
+                .getSession()
+                .getParameters(this, type)
+                .forEach((nvp) -> list.add(nvp.getName()));
+        return list;
+    }
+
     private TreeSet<HtmlParameter> getParamsSet(HtmlParameter.Type type) {
         TreeSet<HtmlParameter> set = new TreeSet<>();
-        Map<String, String> paramMap = Model.getSingleton().getSession().getParams(this, type);
+        List<NameValuePair> paramList = Model.getSingleton().getSession().getParameters(this, type);
 
-        for (Entry<String, String> param : paramMap.entrySet()) {
-            set.add(new HtmlParameter(type, param.getKey(), param.getValue()));
+        for (NameValuePair nvp : paramList) {
+            set.add(new HtmlParameter(type, nvp.getName(), nvp.getValue()));
         }
         return set;
+    }
+
+    /**
+     * Returns the parameters of the given {@code type} in a List. The List can return duplicated
+     * parameter names.
+     *
+     * @param type the type of the parameters that will be extracted from the message
+     * @return a {@code List} with the parameters of the given {@code type}, never {@code null}
+     * @since 2.10.0
+     */
+    public List<HtmlParameter> getParameters(HtmlParameter.Type type) {
+        List<HtmlParameter> list = new ArrayList<HtmlParameter>();
+        Model.getSingleton()
+                .getSession()
+                .getParameters(this, type)
+                .forEach((nvp) -> list.add(new HtmlParameter(type, nvp.getName(), nvp.getValue())));
+        return list;
     }
 
     // ZAP: Added getParamNames

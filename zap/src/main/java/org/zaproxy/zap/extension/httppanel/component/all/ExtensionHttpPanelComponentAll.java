@@ -30,7 +30,7 @@ import org.zaproxy.zap.view.HttpPanelManager.HttpPanelComponentFactory;
 
 public class ExtensionHttpPanelComponentAll extends ExtensionAdaptor {
 
-    public static final String NAME = "ExtensionHttpPanelComponentonentAll";
+    public static final String NAME = "ExtensionHttpPanelComponentAll";
 
     public ExtensionHttpPanelComponentAll() {
         super(NAME);

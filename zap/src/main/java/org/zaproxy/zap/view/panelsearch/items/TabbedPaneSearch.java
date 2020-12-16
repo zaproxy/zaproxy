@@ -30,7 +30,9 @@ public class TabbedPaneSearch extends AbstractComponentSearch<JTabbedPane> {
         ArrayList<TabbedPaneElement> elements = new ArrayList<>();
         for (Component childComponent : component.getComponents()) {
             int tabIndex = component.indexOfComponent(childComponent);
-            elements.add(new TabbedPaneElement(childComponent, component, tabIndex));
+            if (tabIndex != -1) {
+                elements.add(new TabbedPaneElement(childComponent, component, tabIndex));
+            }
         }
         return elements.toArray();
     }

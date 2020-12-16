@@ -26,7 +26,8 @@ import java.awt.HeadlessException;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -37,7 +38,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public class AlertAddDialog extends AbstractDialog {
 
-    private static final Logger logger = Logger.getLogger(AlertAddDialog.class);
+    private static final Logger logger = LogManager.getLogger(AlertAddDialog.class);
 
     private static final long serialVersionUID = 1L;
 

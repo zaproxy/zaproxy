@@ -28,8 +28,10 @@ import static com.github.tomakehurst.wiremock.client.WireMock.matching;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.VerificationException;
@@ -204,6 +206,39 @@ public class HttpSenderUnitTest {
                         .withHeader("Host", matching("localhost:" + server.port())));
         server.verifyNoRequests();
         assertThat(message.getResponseBody().toString(), is(equalTo(PROXY_RESPONSE)));
+    }
+
+    @Test
+    void shouldSetContentEncodingsToResponse() throws Exception {
+        // Given
+        server.stubFor(
+                get(urlMatching("/"))
+                        .willReturn(
+                                aResponse()
+                                        .withHeader(HttpHeader.CONTENT_ENCODING, HttpHeader.GZIP)));
+        HttpMessage message = createMessage("GET", "/");
+        HttpSender httpSender = new HttpSender(createOptions(), false, -1);
+        // When
+        httpSender.sendAndReceive(message);
+        // Then
+        server.verifyExactly(
+                getRequestedFor(urlMatching("/"))
+                        .withHeader("Host", matching("localhost:" + server.port())));
+        assertThat(message.getResponseBody().getContentEncodings(), is(not(empty())));
+    }
+
+    @Test
+    void shouldNotSetContentEncodingsToResponseIfNoneInHeader() throws Exception {
+        // Given
+        HttpMessage message = createMessage("GET", "/");
+        HttpSender httpSender = new HttpSender(createOptions(), false, -1);
+        // When
+        httpSender.sendAndReceive(message);
+        // Then
+        server.verifyExactly(
+                getRequestedFor(urlMatching("/"))
+                        .withHeader("Host", matching("localhost:" + server.port())));
+        assertThat(message.getResponseBody().getContentEncodings(), is(empty()));
     }
 
     private HttpMessage createMessage(String method, String path) throws Exception {

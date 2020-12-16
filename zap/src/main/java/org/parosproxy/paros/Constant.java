@@ -104,6 +104,12 @@
 // ZAP: 2020/01/06 Set latest version to default config.
 // ZAP: 2020/01/10 Correct the MailTo autoTagScanner regex pattern when upgrading from 2.8 or
 // earlier.
+// ZAP: 2020/04/22 Check ControlOverrides when determining the locale.
+// ZAP: 2020/09/17 Correct the Syntax Highlighting markoccurrences config key name when upgrading
+// from 2.9 or earlier.
+// ZAP: 2020/10/07 Changes for Log4j 2 migration.
+// ZAP: 2020/11/02 Do not backup old Log4j config if already present.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -112,7 +118,6 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -138,14 +143,16 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOnLoader;
+import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -174,9 +181,10 @@ public final class Constant {
     private static final String VERSION_ELEMENT = "version";
 
     // Accessible for tests
-    static final long VERSION_TAG = 2009000;
+    static final long VERSION_TAG = 2010000;
 
     // Old version numbers - for upgrade
+    private static final long V_2_9_0_TAG = 2009000;
     private static final long V_2_8_0_TAG = 2008000;
     private static final long V_2_7_0_TAG = 2007000;
     private static final long V_2_5_0_TAG = 2005000;
@@ -371,7 +379,7 @@ public final class Constant {
     public static final URL SPIDER_IMAGE_URL =
             Constant.class.getResource("/resource/icon/10/spider.png");
 
-    private static Logger LOG = Logger.getLogger(Constant.class);
+    private static Logger LOG = LogManager.getLogger(Constant.class);
 
     public static String getEyeCatcher() {
         return staticEyeCatcher;
@@ -382,7 +390,11 @@ public final class Constant {
     }
 
     public Constant() {
-        initializeFilesAndDirectories();
+        this(null);
+    }
+
+    private Constant(ControlOverrides overrides) {
+        initializeFilesAndDirectories(overrides);
         setAcceleratorKeys();
     }
 
@@ -500,6 +512,10 @@ public final class Constant {
     }
 
     public void initializeFilesAndDirectories() {
+        initializeFilesAndDirectories(null);
+    }
+
+    private void initializeFilesAndDirectories(ControlOverrides overrides) {
 
         FileCopier copier = new FileCopier();
         File f = null;
@@ -678,6 +694,9 @@ public final class Constant {
                     if (ver <= V_2_8_0_TAG) {
                         upgradeFrom2_8_0(config);
                     }
+                    if (ver <= V_2_9_0_TAG) {
+                        upgradeFrom2_9_0(config);
+                    }
 
                     // Execute always to pick installer choices.
                     updateCfuFromDefaultConfig(config);
@@ -698,75 +717,67 @@ public final class Constant {
         }
 
         // ZAP: Init i18n
-        String lang;
-        Locale locale = Locale.ENGLISH;
-
-        try {
-            // Select the correct locale
-            // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when
-            // reading/writing configurations.
-            XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
-            config.setAutoSave(false);
-
-            lang = config.getString(OptionsParamView.LOCALE, OptionsParamView.DEFAULT_LOCALE);
-            if (lang.length() == 0) {
-                lang = OptionsParamView.DEFAULT_LOCALE;
-            }
-
-            String[] langArray = lang.split("_");
-            locale = new Locale(langArray[0], langArray[1]);
-
-        } catch (Exception e) {
-            System.out.println("Failed to initialise locale " + e);
-        }
+        Locale locale = loadLocale(overrides);
 
         Locale.setDefault(locale);
 
         messages = new I18N(locale);
     }
 
-    private void setUpLogging() throws IOException {
-        String fileName = "log4j.properties";
-        File logFile = new File(zapHome, fileName);
-        if (!logFile.exists()) {
-            copyFileToHome(
-                    logFile.toPath(), "xml/" + fileName, "/org/zaproxy/zap/resources/" + fileName);
-        } else {
-            updateLog4jProperties();
+    private Locale loadLocale(ControlOverrides overrides) {
+        try {
+            String lang = null;
+            if (overrides != null) {
+                lang = overrides.getOrderedConfigs().get(OptionsParamView.LOCALE);
+            }
+            if (lang == null || lang.isEmpty()) {
+                XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
+                config.setAutoSave(false);
+
+                lang = config.getString(OptionsParamView.LOCALE, OptionsParamView.DEFAULT_LOCALE);
+                if (lang.length() == 0) {
+                    lang = OptionsParamView.DEFAULT_LOCALE;
+                }
+            }
+
+            String[] langArray = lang.split("_");
+            return new Locale(langArray[0], langArray[1]);
+
+        } catch (Exception e) {
+            System.out.println("Failed to load locale " + e);
         }
-        System.setProperty("log4j.configuration", logFile.getAbsolutePath());
-        PropertyConfigurator.configure(logFile.getAbsolutePath());
+        return Locale.ENGLISH;
     }
 
-    private void updateLog4jProperties() {
-        // Update only if config version <= 2.7.0
-        if (Files.notExists(Paths.get(FILE_CONFIG))) {
+    private void setUpLogging() throws IOException {
+        backupLegacyLog4jConfig();
+
+        String fileName = "log4j2.properties";
+        File logFile = new File(zapHome, fileName);
+        if (!logFile.exists()) {
+            String defaultConfig = "/org/zaproxy/zap/resources/log4j2-home.properties";
+            copyFileToHome(logFile.toPath(), "xml/" + fileName, defaultConfig);
+        }
+
+        Configurator.reconfigure(logFile.toURI());
+    }
+
+    private static void backupLegacyLog4jConfig() {
+        String fileName = "log4j.properties";
+        Path backupLegacyConfig = Paths.get(zapHome, fileName + ".bak");
+        if (Files.exists(backupLegacyConfig)) {
+            logAndPrintInfo("Ignoring legacy log4j.properties file, backup already exists.");
             return;
         }
 
-        try {
-            XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
-            if (config.getLong(VERSION_ELEMENT) > V_2_7_0_TAG) {
-                return;
+        Path legacyConfig = Paths.get(zapHome, fileName);
+        if (Files.exists(legacyConfig)) {
+            logAndPrintInfo("Creating backup of legacy log4j.properties file...");
+            try {
+                Files.move(legacyConfig, backupLegacyConfig);
+            } catch (IOException e) {
+                logAndPrintError("Failed to backup legacy Log4j configuration file:", e);
             }
-        } catch (Exception ignore) {
-            // Version unknown, don't update.
-            return;
-        }
-
-        try {
-            Path log4jProperties = Paths.get(zapHome, "log4j.properties");
-            String fileContents =
-                    new String(Files.readAllBytes(log4jProperties), StandardCharsets.UTF_8);
-            fileContents =
-                    fileContents.replace(
-                            "log4j.logger.net.htmlparser.jericho=ERROR",
-                            "# Disable Jericho log, it logs HTML parsing issues as errors.\n"
-                                    + "log4j.logger.net.htmlparser.jericho=OFF");
-            Files.write(log4jProperties, fileContents.getBytes(StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            System.err.println(
-                    "An error occured while updating the log4j.properties: " + e.getMessage());
         }
     }
 
@@ -1098,6 +1109,24 @@ public final class Constant {
         updatePscanTagMailtoPattern(config);
     }
 
+    static void upgradeFrom2_9_0(XMLConfiguration config) {
+        String oldKeyName = ".markocurrences"; // This is the typo we want to fix
+        String newKeyName = ".markoccurrences";
+        config.getKeys()
+                .forEachRemaining(
+                        key -> {
+                            if (key.endsWith(oldKeyName)) {
+                                config.setProperty(
+                                        key.replace(oldKeyName, newKeyName),
+                                        config.getProperty(key));
+                                config.clearProperty(key);
+                            }
+                        });
+        // Update to a newer default user agent
+        config.setProperty(
+                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
+    }
+
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
         String autoTagScannersKey = "pscans.autoTagScanners.scanner";
         List<HierarchicalConfiguration> tagScanners = config.configurationsAt(autoTagScannersKey);
@@ -1178,15 +1207,14 @@ public final class Constant {
     public static Constant getInstance() {
         if (instance == null) {
             // ZAP: Changed to use the method createInstance().
-            createInstance();
+            createInstance(null);
         }
         return instance;
     }
 
-    // ZAP: Added method.
-    private static synchronized void createInstance() {
+    public static synchronized void createInstance(ControlOverrides overrides) {
         if (instance == null) {
-            instance = new Constant();
+            instance = new Constant(overrides);
         }
     }
 

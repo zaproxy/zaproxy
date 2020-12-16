@@ -42,7 +42,7 @@ public class SpiderODataAtomParser extends SpiderParser {
 
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
-        log.debug("Parsing an OData Atom resource.");
+        getLogger().debug("Parsing an OData Atom resource.");
 
         // Get the context (base url)
         String baseURL = message.getRequestHeader().getURI().toString();

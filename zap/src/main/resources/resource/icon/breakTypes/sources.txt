@@ -1,0 +1,3 @@
+CSS file from smashicons from https://www.flaticon.com/ is licensed by http://creativecommons.org/licenses/by/3.0/ . This icon was resized and a gray scale version created.
+Javascript file is from https://commons.wikimedia.org/wiki/File:JavaScript-logo.png does not need copyright according to them.
+Multimedia is an adaptation from https://github.com/Remix-Design/RemixIcon.

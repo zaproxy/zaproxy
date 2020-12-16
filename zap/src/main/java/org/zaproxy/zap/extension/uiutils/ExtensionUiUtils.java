@@ -20,12 +20,17 @@
 package org.zaproxy.zap.extension.uiutils;
 
 import java.awt.EventQueue;
-import org.apache.log4j.Logger;
+import java.util.Arrays;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.MainFrame;
 
@@ -40,7 +45,7 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 
     public static final String NAME = "ExtensionUiUtils";
 
-    private static final Logger LOGGER = Logger.getLogger(ExtensionUiUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionUiUtils.class);
 
     public ExtensionUiUtils() {
         super(NAME);
@@ -50,6 +55,16 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
     @Override
     public String getUIName() {
         return Constant.messages.getString("uiutils.name");
+    }
+
+    @Override
+    public void initView(ViewDelegate view) {
+        Arrays.asList(
+                        new LookAndFeelInfo("Flat Light", "com.formdev.flatlaf.FlatLightLaf"),
+                        new LookAndFeelInfo("Flat Dark", "com.formdev.flatlaf.FlatDarkLaf"),
+                        new LookAndFeelInfo("Flat IntelliJ", "com.formdev.flatlaf.FlatIntelliJLaf"),
+                        new LookAndFeelInfo("Flat Darcula", "com.formdev.flatlaf.FlatDarculaLaf"))
+                .forEach(UIManager::installLookAndFeel);
     }
 
     @Override

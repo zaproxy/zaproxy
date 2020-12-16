@@ -29,19 +29,11 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link ExtensionParam}. */
 public class ExtensionParamUnitTest {
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     @Test
     public void shouldNotHaveConfigByDefault() {

@@ -30,6 +30,8 @@
 // ZAP: 2018/08/10 Use non-deprecated HttpRequestHeader constructor (Issue 4846).
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/04 Add menu icon.
+// ZAP: 2020/11/20 Support Send button in response panel in tab mode
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
@@ -50,7 +52,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
@@ -74,7 +77,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         implements OptionsChangedListener {
 
     private static final long serialVersionUID = -5830450800029295419L;
-    private static final Logger logger = Logger.getLogger(ManualHttpRequestEditorDialog.class);
+    private static final Logger logger = LogManager.getLogger(ManualHttpRequestEditorDialog.class);
 
     private ZapMenuItem menuItem;
 
@@ -179,7 +182,10 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         if (requestResponsePanel == null) {
             requestResponsePanel =
                     new RequestResponsePanel(
-                            configurationKey, getRequestPanel(), getResponsePanel());
+                            configurationKey,
+                            getRequestPanel(),
+                            getResponsePanel(),
+                            this::sendButtonTriggered);
 
             if (helpKey != null) {
                 JButton helpButton = new JButton();
@@ -404,8 +410,15 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         private int verticalDividerLocation;
         private int horizontalDividerLocation;
 
+        private JButton responseSendButton;
+
+        private Runnable sendAction;
+
         public RequestResponsePanel(
-                String configurationKey, HttpPanelRequest request, HttpPanelResponse response)
+                String configurationKey,
+                HttpPanelRequest request,
+                HttpPanelResponse response,
+                Runnable sendAction)
                 throws IllegalArgumentException {
             super(new BorderLayout());
             if (request == null || response == null) {
@@ -417,6 +430,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
 
             this.requestPanel = request;
             this.responsePanel = response;
+            this.sendAction = sendAction;
 
             this.currentView = -1;
 
@@ -470,6 +484,8 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
                     });
 
             addToolbarButton(sideBySideButtonView);
+
+            responsePanel.addOptions(getResponseSendButton(), HttpPanel.OptionsLocation.END);
         }
 
         public void loadConfig() {
@@ -604,6 +620,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
             tabbedPane.addTab(REQUEST_CAPTION, null, requestPanel, null);
             tabbedPane.addTab(RESPONSE_CAPTION, null, responsePanel, null);
             tabbedPane.setSelectedIndex(0);
+            getResponseSendButton().setVisible(true);
 
             currentViewPanel = tabbedPane;
         }
@@ -611,6 +628,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         private void switchToAboveView() {
             currentView = ABOVE_VIEW;
             currentButtonView = aboveButtonView;
+            getResponseSendButton().setVisible(false);
 
             currentViewPanel = createSplitPane(JSplitPane.VERTICAL_SPLIT);
         }
@@ -618,6 +636,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         private void switchToSideBySideView() {
             currentView = SIDE_BY_SIDE_VIEW;
             currentButtonView = sideBySideButtonView;
+            getResponseSendButton().setVisible(false);
 
             currentViewPanel = createSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         }
@@ -645,6 +664,19 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
             splitPane.setDividerLocation(dividerLocation);
 
             return splitPane;
+        }
+
+        private JButton getResponseSendButton() {
+            if (responseSendButton == null) {
+                responseSendButton = new JButton(Constant.messages.getString("manReq.button.send"));
+                responseSendButton.addActionListener(
+                        e -> {
+                            responseSendButton.setEnabled(false);
+                            sendAction.run();
+                            responseSendButton.setEnabled(true);
+                        });
+            }
+            return responseSendButton;
         }
     }
 

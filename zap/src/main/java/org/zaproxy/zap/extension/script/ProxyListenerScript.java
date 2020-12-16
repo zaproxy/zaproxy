@@ -19,10 +19,12 @@
  */
 package org.zaproxy.zap.extension.script;
 
-import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.script.ScriptsCache.CachedScript;
+import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
 public class ProxyListenerScript implements ProxyListener {
 
@@ -31,11 +33,20 @@ public class ProxyListenerScript implements ProxyListener {
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER - 2;
 
     private final ExtensionScript extension;
-
-    private static final Logger logger = Logger.getLogger(ProxyListenerScript.class);
+    private final ScriptsCache<ProxyScript> scripts;
 
     public ProxyListenerScript(ExtensionScript extension) {
         this.extension = extension;
+        this.scripts =
+                extension.createScriptsCache(
+                        Configuration.<ProxyScript>builder()
+                                .setScriptType(ExtensionScript.TYPE_PROXY)
+                                .setTargetInterface(ProxyScript.class)
+                                .setInterfaceErrorMessageProvider(
+                                        sw ->
+                                                Constant.messages.getString(
+                                                        "script.interface.proxy.error"))
+                                .build());
     }
 
     @Override
@@ -45,21 +56,22 @@ public class ProxyListenerScript implements ProxyListener {
 
     @Override
     public boolean onHttpRequestSend(HttpMessage msg) {
+        scripts.refresh();
+
         return invokeProxyScripts(msg, true);
     }
 
-    private boolean invokeProxyScripts(HttpMessage msg, boolean processRequest) {
-        for (ScriptWrapper script : extension.getScripts(ExtensionScript.TYPE_PROXY)) {
-            if (script.isEnabled()) {
-                try {
-                    if (!extension.invokeProxyScript(script, msg, processRequest)) {
-                        // The script is telling us to drop the message
-                        return false;
-                    }
-
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+    private boolean invokeProxyScripts(HttpMessage msg, boolean request) {
+        for (CachedScript<ProxyScript> cachedScript : scripts.getCachedScripts()) {
+            ProxyScript script = cachedScript.getScript();
+            try {
+                boolean dropMessage =
+                        request ? script.proxyRequest(msg) : script.proxyResponse(msg);
+                if (dropMessage) {
+                    return false;
                 }
+            } catch (Exception e) {
+                extension.handleScriptException(cachedScript.getScriptWrapper(), e);
             }
         }
         // No scripts, or they all passed

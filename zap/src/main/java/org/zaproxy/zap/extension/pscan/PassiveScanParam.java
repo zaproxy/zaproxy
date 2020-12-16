@@ -23,7 +23,8 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
@@ -31,7 +32,7 @@ import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 public class PassiveScanParam extends AbstractParam {
 
-    private static final Logger logger = Logger.getLogger(PassiveScanParam.class);
+    private static final Logger logger = LogManager.getLogger(PassiveScanParam.class);
 
     static final String PASSIVE_SCANS_BASE_KEY = "pscans";
     private static final String ALL_AUTO_TAG_SCANNERS_KEY =
@@ -54,6 +55,8 @@ public class PassiveScanParam extends AbstractParam {
     private static final String SCAN_FUZZER_MESSAGES_KEY =
             PASSIVE_SCANS_BASE_KEY + ".scanFuzzerMessages";
     private static final String MAX_ALERTS_PER_RULE = PASSIVE_SCANS_BASE_KEY + ".maxAlertsPerRule";
+    private static final String MAX_BODY_SIZE_IN_BYTES =
+            PASSIVE_SCANS_BASE_KEY + ".maxBodySizeInBytes";
 
     private List<RegexAutoTagScanner> autoTagScanners = new ArrayList<>(0);
 
@@ -81,6 +84,8 @@ public class PassiveScanParam extends AbstractParam {
      * useful for automated scanning.
      */
     private int maxAlertsPerRule;
+
+    private int maxBodySizeInBytesToScan;
 
     public PassiveScanParam() {}
 
@@ -121,6 +126,7 @@ public class PassiveScanParam extends AbstractParam {
         this.scanFuzzerMessages = getBoolean(SCAN_FUZZER_MESSAGES_KEY, false);
         setFuzzerOptin(this.scanFuzzerMessages);
         this.maxAlertsPerRule = this.getInt(MAX_ALERTS_PER_RULE, 0);
+        this.maxBodySizeInBytesToScan = this.getInt(MAX_BODY_SIZE_IN_BYTES, 0);
     }
 
     public void setAutoTagScanners(List<RegexAutoTagScanner> scanners) {
@@ -255,5 +261,14 @@ public class PassiveScanParam extends AbstractParam {
     public void setMaxAlertsPerRule(int maxAlertsPerRule) {
         this.maxAlertsPerRule = maxAlertsPerRule;
         getConfig().setProperty(MAX_ALERTS_PER_RULE, maxAlertsPerRule);
+    }
+
+    public int getMaxBodySizeInBytesToScan() {
+        return maxBodySizeInBytesToScan;
+    }
+
+    public void setMaxBodySizeInBytesToScan(int maxBodySizeInBytesToScan) {
+        this.maxBodySizeInBytesToScan = maxBodySizeInBytesToScan;
+        getConfig().setProperty(MAX_BODY_SIZE_IN_BYTES, maxBodySizeInBytesToScan);
     }
 }

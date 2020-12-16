@@ -26,7 +26,8 @@ import java.io.IOException;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.Date;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.utils.HashUtils;
 
 public class Downloader extends Thread {
@@ -42,7 +43,7 @@ public class Downloader extends Thread {
     private String hash = null;
     private boolean validated = false;
 
-    private static final Logger logger = Logger.getLogger(Downloader.class);
+    private static final Logger logger = LogManager.getLogger(Downloader.class);
 
     public Downloader(URL url, Proxy proxy, File targetFile, String hash) {
         this(url, proxy, targetFile, 0, hash);
@@ -96,15 +97,7 @@ public class Downloader extends Thread {
              * fos.getChannel().transferFrom(rbc, 0, 1 << 24);
              */
 
-            // XXX Change to use HttpClient instead of URL to download the file. The
-            // java.net.Authenticator is shared by all
-            // the URLConnection, it may be changed by 3rd party add-ons/libraries and it can't be
-            // set on a single connection
-            // (see bug 4941958 [1]) in which case the authentication will not succeed (hence the
-            // file will not be downloaded).
-            //
-            // [1] http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4941958
-
+            // XXX Change to use HttpClient to respect all proxy settings (e.g. use of SOCKS).
             in = new BufferedInputStream(url.openConnection(proxy).getInputStream());
             out = new FileOutputStream(this.targetFile);
             byte[] data = new byte[1024];

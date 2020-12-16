@@ -27,7 +27,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -49,7 +50,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantODataFilterQuery implements Variant {
 
-    private static final Logger log = Logger.getLogger(VariantODataFilterQuery.class);
+    private static final Logger log = LogManager.getLogger(VariantODataFilterQuery.class);
 
     // Extract the content of the $filter parameter
     private static final Pattern patternFilterParameters =

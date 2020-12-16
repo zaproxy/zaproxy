@@ -16,3 +16,6 @@ A clear and concise description of any alternative solutions or features you've 
 
 **Additional context**
 Add any other context or screenshots about the feature request here.
+
+**Would you like to help implementing this feature?**
+Just say if you'd like to try and help implementing this feature. We'll provide any advice and guidance you need.

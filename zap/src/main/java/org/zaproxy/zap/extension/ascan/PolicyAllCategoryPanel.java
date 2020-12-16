@@ -53,7 +53,8 @@ import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.table.TableColumn;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
@@ -70,7 +71,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     // private static final String ILLEGAL_CHRS = "/`?*\\<>|\":\t\n\r";
 
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = Logger.getLogger(PolicyAllCategoryPanel.class);
+    private static final Logger logger = LogManager.getLogger(PolicyAllCategoryPanel.class);
 
     private ZapTextField policyName = null;
     private JTable tableTest = null;

@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: Create a report to help us improve
+about: Create a report to help us improve (not for questions - use the User Group for those)
 labels: bug
 
 ---
@@ -33,3 +33,6 @@ See https://www.zaproxy.org/faq/what-is-the-default-directory-that-zap-uses/ for
 
 **Additional context**
 Add any other context about the problem here.
+
+**Would you like to help fix this issue?**
+Just say if you'd like to try and help fix this issue. We'll provide any advice and guidance you need.

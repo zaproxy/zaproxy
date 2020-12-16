@@ -23,7 +23,8 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -39,7 +40,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class PersistedHttpMessagesList extends AbstractList<HttpMessage> {
 
-    private static final Logger LOGGER = Logger.getLogger(PersistedHttpMessagesList.class);
+    private static final Logger LOGGER = LogManager.getLogger(PersistedHttpMessagesList.class);
 
     private final List<HistoryReference> historyReferences;
 

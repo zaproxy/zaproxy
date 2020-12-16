@@ -48,7 +48,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -90,7 +91,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
     private static final int METHOD_IDENTIFIER = 2;
 
     private static final Logger LOG =
-            Logger.getLogger(ScriptBasedSessionManagementMethodType.class);
+            LogManager.getLogger(ScriptBasedSessionManagementMethodType.class);
 
     private static final String METHOD_NAME =
             Constant.messages.getString("sessionmanagement.method.sc.name");
@@ -687,6 +688,17 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
             extensionScript =
                     Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         return extensionScript;
+    }
+
+    /**
+     * Sets the {@code ExtensionScript}.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @param extension the script extension.
+     */
+    public static void setExtensionScript(ExtensionScript extension) {
+        extensionScript = extension;
     }
 
     private static SessionScript getScriptInterface(ScriptWrapper script) {

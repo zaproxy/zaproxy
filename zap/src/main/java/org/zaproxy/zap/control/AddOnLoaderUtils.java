@@ -24,7 +24,8 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
@@ -35,7 +36,7 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
  */
 final class AddOnLoaderUtils {
 
-    private static final Logger LOGGER = Logger.getLogger(AddOnLoaderUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(AddOnLoaderUtils.class);
 
     private AddOnLoaderUtils() {}
 

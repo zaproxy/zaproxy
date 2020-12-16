@@ -30,7 +30,8 @@ import java.util.Map;
 import javax.swing.JList;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -67,7 +68,7 @@ public class ExtensionBreak extends ExtensionAdaptor
 
     public static final String NAME = "ExtensionBreak";
 
-    private static final Logger logger = Logger.getLogger(ExtensionBreak.class);
+    private static final Logger logger = LogManager.getLogger(ExtensionBreak.class);
 
     private BreakPanel breakPanel = null;
     private ProxyListenerBreak proxyListener = null;
@@ -141,6 +142,7 @@ public class ExtensionBreak extends ExtensionAdaptor
             breakpointMessageHandler = new BreakpointMessageHandler2(breakPanel);
             breakpointMessageHandler.setEnabledBreakpoints(
                     getBreakpointsModel().getBreakpointsEnabledList());
+            breakpointMessageHandler.setEnabledIgnoreRules(breakPanel.getIgnoreRulesEnableList());
             breakpointManagementInterface = breakPanel;
 
             ExtensionHookView pv = extensionHook.getHookView();
@@ -174,6 +176,8 @@ public class ExtensionBreak extends ExtensionAdaptor
 
             breakpointMessageHandler = new BreakpointMessageHandler2(breakpointManagementInterface);
             breakpointMessageHandler.setEnabledBreakpoints(
+                    new ArrayList<BreakpointMessageInterface>());
+            breakpointMessageHandler.setEnabledIgnoreRules(
                     new ArrayList<BreakpointMessageInterface>());
         }
     }
@@ -674,6 +678,9 @@ public class ExtensionBreak extends ExtensionAdaptor
 
         breakPanel.setButtonsLocation(options.getViewParam().getBrkPanelViewOption());
         breakPanel.setButtonMode(options.getParamSet(BreakpointsParam.class).getButtonMode());
+        breakPanel.setShowIgnoreFilesButtons(
+                options.getParamSet(BreakpointsParam.class).isShowIgnoreFilesButtons());
+        breakPanel.updateIgnoreFileTypesRegexs();
     }
 
     @Override

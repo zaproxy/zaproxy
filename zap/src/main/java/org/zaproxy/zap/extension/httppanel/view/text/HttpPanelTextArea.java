@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.text;
 
-import java.awt.Color;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -27,9 +26,11 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.HighlightPainter;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.HighlightSearchEntry;
 import org.zaproxy.zap.view.HighlighterManager;
@@ -41,7 +42,7 @@ public abstract class HttpPanelTextArea extends ZapTextArea {
 
     private static final long serialVersionUID = 1L;
 
-    private static Logger log = Logger.getLogger(HttpPanelTextArea.class);
+    private static Logger log = LogManager.getLogger(HttpPanelTextArea.class);
 
     private Message message;
 
@@ -114,10 +115,10 @@ public abstract class HttpPanelTextArea extends ZapTextArea {
 
     protected void highlight(int start, int end) {
         Highlighter hilite = this.getHighlighter();
-        HighlightPainter painter = new DefaultHighlighter.DefaultHighlightPainter(Color.LIGHT_GRAY);
+        HighlightPainter painter =
+                new DefaultHighlighter.DefaultHighlightPainter(DisplayUtils.getHighlightColor());
 
         try {
-            // DOBIN
             removeAllHighlights();
             hilite.addHighlight(start, end, painter);
             this.setCaretPosition(start);

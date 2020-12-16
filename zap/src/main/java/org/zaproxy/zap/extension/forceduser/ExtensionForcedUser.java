@@ -29,7 +29,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JToggleButton;
 import org.apache.commons.configuration.Configuration;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordContext;
@@ -82,8 +83,11 @@ public class ExtensionForcedUser extends ExtensionAdaptor
     /** The NAME of the extension. */
     public static final String NAME = "ExtensionForcedUser";
 
+    /** The ID that indicates that there's no forced user. */
+    private static final int NO_FORCED_USER = -1;
+
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(ExtensionForcedUser.class);
+    private static final Logger log = LogManager.getLogger(ExtensionForcedUser.class);
 
     /** The map of context panels. */
     private Map<Integer, ContextForcedUserPanel> contextPanelsMap = new HashMap<>();
@@ -329,7 +333,8 @@ public class ExtensionForcedUser extends ExtensionAdaptor
         if (!forcedUserModeEnabled
                 || msg.getRequestHeader().isImage()
                 || (initiator == HttpSender.AUTHENTICATION_INITIATOR
-                        || initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR)) {
+                        || initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR
+                        || initiator == HttpSender.AUTHENTICATION_POLL_INITIATOR)) {
             // Not relevant
             return;
         }
@@ -409,16 +414,17 @@ public class ExtensionForcedUser extends ExtensionAdaptor
         if (user != null) {
             config.setProperty("context.forceduser", user.getId());
         } else {
-            config.setProperty("context.forceduser", -1);
+            config.setProperty("context.forceduser", NO_FORCED_USER);
         }
     }
 
     @Override
     public void importContextData(Context ctx, Configuration config) {
-        int id = config.getInt("context.forceduser");
-        if (id >= 0) {
-            this.setForcedUser(ctx.getId(), id);
+        int id = config.getInt("context.forceduser", NO_FORCED_USER);
+        if (id == NO_FORCED_USER) {
+            return;
         }
+        this.setForcedUser(ctx.getId(), id);
     }
 
     /** No database tables used, so all supported */

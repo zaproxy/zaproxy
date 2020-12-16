@@ -20,14 +20,17 @@
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.request;
 
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpByteHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelViewModel {
 
-    private static final Logger logger = Logger.getLogger(RequestByteHttpPanelViewModel.class);
+    private static final Logger logger = LogManager.getLogger(RequestByteHttpPanelViewModel.class);
 
     @Override
     public byte[] getData() {
@@ -48,48 +51,26 @@ public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelView
 
     @Override
     public void setData(byte[] data) {
-        int pos = findHeaderLimit(data);
+        if (httpMessage == null) {
+            return;
+        }
+
+        int pos = HttpPanelViewModelUtils.findHeaderLimit(data);
 
         if (pos == -1) {
             logger.warn("Could not Save Header, limit not found. Header: " + new String(data));
-            return;
+            throw new InvalidMessageDataException(
+                    Constant.messages.getString("http.panel.model.header.warn.notfound"));
         }
 
         try {
             httpMessage.setRequestHeader(new String(data, 0, pos));
         } catch (HttpMalformedHeaderException e) {
             logger.warn("Could not Save Header: " + new String(data, 0, pos), e);
+            throw new InvalidMessageDataException(
+                    Constant.messages.getString("http.panel.model.header.warn.malformed"), e);
         }
 
         httpMessage.getRequestBody().setBody(ArrayUtils.subarray(data, pos, data.length));
-        HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
-    }
-
-    private int findHeaderLimit(byte[] data) {
-        boolean lastIsCRLF = false;
-        boolean lastIsCR = false;
-        boolean lastIsLF = false;
-        int pos = -1;
-
-        for (int i = 0; i < data.length; ++i) {
-            if (!lastIsCR && data[i] == '\r') {
-                lastIsCR = true;
-            } else if (!lastIsLF && data[i] == '\n') {
-                if (lastIsCRLF) {
-                    pos = i;
-                    break;
-                }
-
-                lastIsCRLF = true;
-                lastIsCR = false;
-                lastIsLF = false;
-            } else {
-                lastIsCR = false;
-                lastIsLF = false;
-                lastIsCRLF = false;
-            }
-        }
-
-        return pos;
     }
 }

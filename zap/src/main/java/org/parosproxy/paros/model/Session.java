@@ -80,6 +80,13 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
+// ZAP: 2020/07/31 Tidy up parameter methods
+// ZAP: 2020/08/17 Changed to use the VariantFactory
+// ZAP: 2020/09/04 Added getContextDataString and getContextDataInteger
+// ZAP: 2020/10/01 Remove use of org.jfree.util.Log use normal log4j infrastructure.
+// ZAP: 2020/10/14 Require just the name when importing context.
+// ZAP: 2020/11/02 Validate parameters in getLeafName(...)
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -101,7 +108,8 @@ import javax.swing.tree.TreeNode;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.Database;
@@ -116,6 +124,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.ParameterParser;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.model.Tech;
@@ -126,7 +135,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 public class Session {
 
     // ZAP: Added logger
-    private static Logger log = Logger.getLogger(Session.class);
+    private static Logger log = LogManager.getLogger(Session.class);
 
     private static final String ROOT = "session";
 
@@ -159,7 +168,7 @@ public class Session {
      *
      * @param model
      */
-    protected Session(Model model) {
+    public Session(Model model) {
         configuration = new ZapXmlConfiguration();
         configuration.setRootElementName(ROOT);
 
@@ -1173,6 +1182,52 @@ public class Session {
         return list;
     }
 
+    /**
+     * Returns a context data string of the given type and using the given default value if the
+     * value is not present
+     *
+     * @param contextId the context Id
+     * @param type the data type required
+     * @param defaultValue the default value to use if the type is not present
+     * @return the context data string
+     * @throws DatabaseException
+     * @since 2.10.0
+     */
+    public String getContextDataString(int contextId, int type, String defaultValue)
+            throws DatabaseException {
+        List<RecordContext> dataList =
+                model.getDb().getTableContext().getDataForContextAndType(contextId, type);
+        if (dataList.size() > 0) {
+            return dataList.get(0).getData();
+        }
+        return defaultValue;
+    }
+
+    /**
+     * Returns a context data integer of the given type and using the given default value if the
+     * value is not present
+     *
+     * @param contextId the context Id
+     * @param type the data type required
+     * @param defaultValue the default value to use if the type is not present
+     * @return the context data integer
+     * @throws DatabaseException
+     * @since 2.10.0
+     */
+    public int getContextDataInteger(int contextId, int type, int defaultValue)
+            throws DatabaseException {
+        List<RecordContext> dataList =
+                model.getDb().getTableContext().getDataForContextAndType(contextId, type);
+        if (dataList.size() > 0) {
+            try {
+                return Integer.parseInt(dataList.get(0).getData());
+            } catch (NumberFormatException e) {
+                log.error("Failed to parse context value type " + type, e);
+            }
+        }
+        return defaultValue;
+    }
+
     public void setContextData(int contextId, int type, String data) throws DatabaseException {
         List<String> list = new ArrayList<>();
         list.add(data);
@@ -1482,7 +1537,7 @@ public class Session {
         Context c = createContext(name);
 
         c.setDescription(config.getString(Context.CONTEXT_CONFIG_DESC));
-        c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
+        c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE, false));
         for (Object obj : config.getList(Context.CONTEXT_CONFIG_INC_REGEXES)) {
             c.addIncludeInContextRegex(obj.toString());
         }
@@ -1504,6 +1559,9 @@ public class Session {
             // Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
             urlParserClass = config.getString(Context.CONTEXT_CONFIG_URLPARSER);
         }
+        if (urlParserClass == null) {
+            urlParserClass = StandardParameterParser.class.getCanonicalName();
+        }
         Class<?> cl = ExtensionFactory.getAddOnLoader().loadClass(urlParserClass);
         if (cl == null) {
             throw new ConfigurationException(
@@ -1521,6 +1579,9 @@ public class Session {
             // Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
             postParserClass = config.getString(urlParserClass);
             postParserConfig = config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG);
+        }
+        if (postParserClass == null) {
+            postParserClass = StandardParameterParser.class.getCanonicalName();
         }
         cl = ExtensionFactory.getAddOnLoader().loadClass(postParserClass);
         if (cl == null) {
@@ -1583,7 +1644,10 @@ public class Session {
      * @param msg
      * @param type
      * @return
+     * @deprecated 2.10.0 use #getParameters(String) This method will lose duplicated parameter
+     *     names
      */
+    @Deprecated
     public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
         switch (type) {
             case form:
@@ -1639,7 +1703,9 @@ public class Session {
      * @param uri
      * @return
      * @throws URIException
+     * @deprecated 2.10.0 use #getUrlParameters(String)
      */
+    @Deprecated
     public Map<String, String> getUrlParams(URI uri) throws URIException {
         Map<String, String> map = new HashMap<>();
         for (NameValuePair parameter :
@@ -1654,25 +1720,57 @@ public class Session {
     }
 
     /**
+     * Returns the URL parameters for the given URL based on the parser associated with the first
+     * context found that includes the URL, or the default parser if it is not in a context
+     *
+     * @param uri
+     * @return the URL parameters for the given URL
+     * @throws URIException
+     * @since 2.10.0
+     */
+    public List<NameValuePair> getUrlParameters(URI uri) throws URIException {
+        return getUrlParamParser(uri.toString()).parseParameters(uri.getEscapedQuery());
+    }
+
+    /**
      * Returns the FORM parameters for the given URL based on the parser associated with the first
      * context found that includes the URL, or the default parser if it is not in a context
      *
      * @param uri
      * @param formData
-     * @return
+     * @return the FORM parameters for the given URL
      * @throws URIException
+     * @deprecated 2.10.0 use #getFormParameters(String)
      */
+    @Deprecated
     public Map<String, String> getFormParams(URI uri, String formData) throws URIException {
         return this.getFormParamParser(uri.toString()).parse(formData);
     }
 
-    public List<String> getTreePath(URI uri) throws URIException {
-        return this.getUrlParamParser(uri.toString()).getTreePath(uri);
+    /**
+     * Returns the FORM parameters for the given URL based on the parser associated with the first
+     * context found that includes the URL, or the default parser if it is not in a context
+     *
+     * @param uri
+     * @param formData
+     * @return the FORM parameters for the given URL
+     * @throws URIException
+     * @since 2.10.0
+     */
+    public List<NameValuePair> getFormParameters(URI uri, String formData) throws URIException {
+        return this.getFormParamParser(uri.toString()).parseParameters(formData);
     }
 
+    /** @deprecated use {@link SessionStructure#getTeeePath(Model, URI)} */
+    @Deprecated
+    public List<String> getTreePath(URI uri) throws URIException {
+        return SessionStructure.getTreePath(Model.getSingleton(), uri);
+    }
+
+    /** @deprecated use {@link SessionStructure#getTeeePath(Model, HttpMessage)} */
+    @Deprecated
     public List<String> getTreePath(HttpMessage msg) throws URIException {
-        URI uri = msg.getRequestHeader().getURI();
-        return this.getUrlParamParser(uri.toString()).getTreePath(msg);
+        return SessionStructure.getTreePath(Model.getSingleton(), msg);
     }
 
     // ZAP: Added listeners for contexts changed events.

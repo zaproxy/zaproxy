@@ -25,7 +25,8 @@ import java.util.ArrayList;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpParser;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * A utility class to parse HTTP response headers.
@@ -36,7 +37,7 @@ import org.apache.log4j.Logger;
  */
 public class ZapHttpParser {
 
-    private static final Logger logger = Logger.getLogger(ZapHttpParser.class);
+    private static final Logger logger = LogManager.getLogger(ZapHttpParser.class);
 
     private ZapHttpParser() {}
 

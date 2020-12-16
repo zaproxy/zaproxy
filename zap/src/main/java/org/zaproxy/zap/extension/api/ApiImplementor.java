@@ -92,7 +92,7 @@ public abstract class ApiImplementor {
         validateApiElement(elements, element);
         String descKey = element.getDescriptionTag();
         if (StringUtils.isEmpty(descKey)) {
-            descKey = getPrefix() + ".api." + type.name() + "." + element.getName();
+            descKey = getI18nPrefix() + ".api." + type.name() + "." + element.getName();
             element.setDescriptionTag(descKey);
         }
 
@@ -440,16 +440,29 @@ public abstract class ApiImplementor {
     public abstract String getPrefix();
 
     /**
+     * Gets the prefix for default resource keys for the description of the API implementor and its
+     * elements.
+     *
+     * <p>Defaults to {@code getPrefix()}.
+     *
+     * @return the prefix for i18n keys.
+     * @since 2.10.0
+     */
+    protected String getI18nPrefix() {
+        return getPrefix();
+    }
+
+    /**
      * Gets the resource key of the description.
      *
-     * <p>Defaults to {@code getPrefix() + ".api.desc"}.
+     * <p>Defaults to {@code getI18nPrefix() + ".api.desc"}.
      *
      * @return the key of the description.
      * @since 2.9.0
      * @see org.zaproxy.zap.utils.I18N#getString(String)
      */
     public String getDescriptionKey() {
-        return getPrefix() + ".api.desc";
+        return getI18nPrefix() + ".api.desc";
     }
 
     public ApiAction getApiAction(String name) {
@@ -499,6 +512,14 @@ public abstract class ApiImplementor {
     protected int getParam(JSONObject params, String name, int defaultValue) {
         try {
             return params.getInt(name);
+        } catch (Exception e) {
+            return defaultValue;
+        }
+    }
+
+    protected long getParam(JSONObject params, String name, long defaultValue) {
+        try {
+            return params.getLong(name);
         } catch (Exception e) {
             return defaultValue;
         }

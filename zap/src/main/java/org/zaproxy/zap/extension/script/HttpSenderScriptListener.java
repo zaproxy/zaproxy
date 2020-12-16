@@ -19,19 +19,27 @@
  */
 package org.zaproxy.zap.extension.script;
 
-import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 import org.zaproxy.zap.network.HttpSenderListener;
 
 class HttpSenderScriptListener implements HttpSenderListener {
 
-    private static final Logger logger = Logger.getLogger(HttpSenderScriptListener.class);
-
-    private final ExtensionScript extension;
+    private final ScriptsCache<HttpSenderScript> scriptsCache;
 
     public HttpSenderScriptListener(ExtensionScript extension) {
-        this.extension = extension;
+        this.scriptsCache =
+                extension.createScriptsCache(
+                        Configuration.<HttpSenderScript>builder()
+                                .setScriptType(ExtensionScript.TYPE_HTTP_SENDER)
+                                .setTargetInterface(HttpSenderScript.class)
+                                .setInterfaceErrorMessageProvider(
+                                        sw ->
+                                                Constant.messages.getString(
+                                                        "script.interface.httpsender.error"))
+                                .build());
     }
 
     @Override
@@ -41,27 +49,15 @@ class HttpSenderScriptListener implements HttpSenderListener {
 
     @Override
     public void onHttpRequestSend(HttpMessage msg, int initiator, HttpSender sender) {
-        for (ScriptWrapper script : extension.getScripts(ExtensionScript.TYPE_HTTP_SENDER)) {
-            if (script.isEnabled()) {
-                try {
-                    extension.invokeSenderScript(script, msg, initiator, sender, true);
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        }
+        scriptsCache.refresh();
+
+        HttpSenderScriptHelper scriptHelper = new HttpSenderScriptHelper(sender);
+        scriptsCache.execute(script -> script.sendingRequest(msg, initiator, scriptHelper));
     }
 
     @Override
     public void onHttpResponseReceive(HttpMessage msg, int initiator, HttpSender sender) {
-        for (ScriptWrapper script : extension.getScripts(ExtensionScript.TYPE_HTTP_SENDER)) {
-            if (script.isEnabled()) {
-                try {
-                    extension.invokeSenderScript(script, msg, initiator, sender, false);
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        }
+        HttpSenderScriptHelper scriptHelper = new HttpSenderScriptHelper(sender);
+        scriptsCache.execute(script -> script.responseReceived(msg, initiator, scriptHelper));
     }
 }

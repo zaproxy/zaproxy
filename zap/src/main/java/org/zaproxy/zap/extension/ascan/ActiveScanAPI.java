@@ -36,7 +36,8 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
@@ -73,7 +74,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class ActiveScanAPI extends ApiImplementor {
 
-    private static Logger log = Logger.getLogger(ActiveScanAPI.class);
+    private static Logger log = LogManager.getLogger(ActiveScanAPI.class);
 
     private static final String PREFIX = "ascan";
     private static final String ACTION_SCAN = "scan";
@@ -882,6 +883,10 @@ public class ActiveScanAPI extends ApiImplementor {
         if (useUrl) {
             URI startURI;
             try {
+                if (scanChildren && url.endsWith("/")) {
+                    // Always choose the non leaf node if scanChildren option selected
+                    url = url.substring(0, url.length() - 1);
+                }
                 startURI = new URI(url, true);
             } catch (URIException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
@@ -895,12 +900,12 @@ public class ActiveScanAPI extends ApiImplementor {
             }
 
             try {
-                long sessionId = Model.getSingleton().getSession().getSessionId();
-                node = SessionStructure.find(sessionId, startURI, method, postData);
+                Model model = Model.getSingleton();
+                node = SessionStructure.find(model, startURI, method, postData);
                 if (node == null && "GET".equalsIgnoreCase(method)) {
                     // Check if there's a non-leaf node that matches the URI, to scan the subtree.
                     // (GET is the default method, but non-leaf nodes do not have any method.)
-                    node = SessionStructure.find(sessionId, startURI, null, postData);
+                    node = SessionStructure.find(model, startURI, null, postData);
                 }
             } catch (Exception e) {
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);

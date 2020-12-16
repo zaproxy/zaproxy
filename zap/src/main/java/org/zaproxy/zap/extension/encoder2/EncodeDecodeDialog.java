@@ -34,14 +34,16 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 
+/** @deprecated No alternative. */
+@Deprecated
 public class EncodeDecodeDialog extends AbstractFrame {
 
     private static final long serialVersionUID = 1L;
@@ -49,7 +51,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
     public static final String ENCODE_DECODE_FIELD = "EncodeDecodeInputField";
     public static final String ENCODE_DECODE_RESULTFIELD = "EncodeDecodeResultField";
 
-    private static final Logger log = Logger.getLogger(EncodeDecodeDialog.class);
+    private static final Logger log = LogManager.getLogger(EncodeDecodeDialog.class);
 
     private JTabbedPane jTabbed = null;
     private JPanel jPanel = null;
@@ -75,7 +77,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
     private ZapTextArea escapedTextField = null;
     private ZapTextArea unescapedTextField = null;
 
-    private Encoder encoder = null;
+    private org.parosproxy.paros.extension.encoder.Encoder encoder = null;
 
     /** @throws HeadlessException */
     public EncodeDecodeDialog() throws HeadlessException {
@@ -110,8 +112,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
                         title,
                         TitledBorder.DEFAULT_JUSTIFICATION,
                         javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                        FontUtils.getFont(FontUtils.Size.standard),
-                        java.awt.Color.black));
+                        FontUtils.getFont(FontUtils.Size.standard)));
 
         parent.add(jsp, gbc);
     }
@@ -289,8 +290,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
                             Constant.messages.getString("enc2.label.text"),
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             // addField(jPanel, 1, getInputField(), "Text to be encoded/decoded/hashed");
             // addField(jPanel, 2, jTabbed, "Text to be encoded/decoded/hashed");
@@ -496,9 +496,9 @@ public class EncodeDecodeDialog extends AbstractFrame {
         return unescapedTextField;
     }
 
-    private Encoder getEncoder() {
+    private org.parosproxy.paros.extension.encoder.Encoder getEncoder() {
         if (encoder == null) {
-            encoder = new Encoder();
+            encoder = new org.parosproxy.paros.extension.encoder.Encoder();
         }
         return encoder;
     }

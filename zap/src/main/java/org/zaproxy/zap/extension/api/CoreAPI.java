@@ -54,7 +54,8 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
@@ -97,7 +98,7 @@ import org.zaproxy.zap.utils.HarUtils;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
-    private static final Logger logger = Logger.getLogger(CoreAPI.class);
+    private static final Logger logger = LogManager.getLogger(CoreAPI.class);
 
     private enum ScanReportType {
         HTML,
@@ -1057,7 +1058,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
         ApiResponse result = null;
-        Session session = Model.getSingleton().getSession();
+        Model model = Model.getSingleton();
+        Session session = model.getSession();
 
         if (VIEW_HOSTS.equals(name)) {
             result = new ApiResponseList(name);
@@ -1076,7 +1078,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             }
         } else if (VIEW_SITES.equals(name)) {
             ApiResponseList sitesList = new ApiResponseList(name);
-            StructuralNode root = SessionStructure.getRootNode();
+            StructuralNode root = SessionStructure.getRootNode(model);
             if (root != null) {
                 for (Iterator<StructuralNode> it = root.getChildIterator(); it.hasNext(); ) {
                     sitesList.addItem(new ApiResponseElement("site", it.next().getName()));
@@ -1096,12 +1098,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             String url = this.getParam(params, PARAM_URL, "");
 
             if (url.trim().length() == 0) {
-                node = SessionStructure.getRootNode();
+                node = SessionStructure.getRootNode(model);
             } else {
                 try {
                     node =
                             SessionStructure.find(
-                                    session.getSessionId(), new URI(url, false), null, null);
+                                    Model.getSingleton(), new URI(url, false), null, null);
                 } catch (URIException e) {
                     throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
                 } catch (DatabaseException e) {

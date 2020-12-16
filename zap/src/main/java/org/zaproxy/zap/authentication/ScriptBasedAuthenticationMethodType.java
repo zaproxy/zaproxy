@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import javax.script.ScriptException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
@@ -47,7 +48,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -87,7 +89,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
     public static final int METHOD_IDENTIFIER = 4;
 
-    private static final Logger log = Logger.getLogger(ScriptBasedAuthenticationMethodType.class);
+    private static final Logger log =
+            LogManager.getLogger(ScriptBasedAuthenticationMethodType.class);
 
     /** The Constant SCRIPT_TYPE_AUTH. */
     public static final String SCRIPT_TYPE_AUTH = "authentication";
@@ -253,6 +256,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 throws UnsupportedAuthenticationCredentialsException {
             // type check
             if (!(credentials instanceof GenericAuthenticationCredentials)) {
+                user.getAuthenticationState()
+                        .setLastAuthFailure("Credentials not GenericAuthenticationCredentials");
                 throw new UnsupportedAuthenticationCredentialsException(
                         "Script based Authentication method only supports "
                                 + GenericAuthenticationCredentials.class.getSimpleName()
@@ -290,6 +295,9 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 // implementations
                 // might throw other exceptions on script errors (e.g.
                 // jdk.nashorn.internal.runtime.ECMAException)
+                user.getAuthenticationState()
+                        .setLastAuthFailure(
+                                "Error running authentication script " + e.getMessage());
                 log.error(
                         "An error occurred while trying to authenticate using the Authentication Script: "
                                 + this.script.getName(),
@@ -303,6 +311,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                         String.format(
                                 "Auth request returned by the script '%s' does not have the request-target.",
                                 this.script.getName());
+                user.getAuthenticationState().setLastAuthFailure(error);
                 log.error(error);
                 error = "ERROR: " + error + "\n";
                 getScriptsExtension().handleScriptError(this.script, error);
@@ -312,16 +321,21 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 return null;
             }
 
-            if (this.isAuthenticated(msg)) {
+            if (this.isAuthenticated(msg, user, true)) {
                 // Let the user know it worked
+                user.getAuthenticationState().setLastAuthFailure("");
                 AuthenticationHelper.notifyOutputAuthSuccessful(msg);
             } else {
                 // Let the user know it failed
+                user.getAuthenticationState().setLastAuthFailure("User is not authenticated");
                 AuthenticationHelper.notifyOutputAuthFailure(msg);
             }
 
             // Add message to history
             AuthenticationHelper.addAuthMessageToHistory(msg);
+
+            user.getAuthenticationState()
+                    .setLastAuthRequestHistoryId(msg.getHistoryRef().getHistoryId());
 
             // Return the web session as extracted by the session management method
             return sessionManagementMethod.extractWebSession(msg);
@@ -334,6 +348,12 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             values.put("scriptName", script.getName());
             values.putAll(paramValues);
             return new AuthMethodApiResponseRepresentation<>(values);
+        }
+
+        @Override
+        public void replaceUserDataInPollRequest(HttpMessage msg, User user) {
+            AuthenticationHelper.replaceUserDataInRequest(
+                    msg, wrapKeys(this.paramValues), NULL_ENCODER);
         }
     }
 
@@ -775,6 +795,11 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         try {
             AuthenticationScriptV2 authScript =
                     getScriptsExtension().getInterface(script, AuthenticationScriptV2.class);
+            if (authScript == null) {
+                log.debug(
+                        "Script '{}' is not a AuthenticationScriptV2 interface.", script::getName);
+                return null;
+            }
 
             // Some ScriptEngines do not verify if all Interface Methods are contained in the
             // script.
@@ -797,6 +822,18 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             }
         }
         return null;
+    }
+
+    private static Map<String, String> wrapKeys(Map<String, String> kvPairs) {
+        Map<String, String> map = new HashMap<String, String>();
+        for (Entry<String, String> kv : kvPairs.entrySet()) {
+            map.put(
+                    AuthenticationMethod.TOKEN_PREFIX
+                            + kv.getKey()
+                            + AuthenticationMethod.TOKEN_POSTFIX,
+                    kv.getValue());
+        }
+        return map;
     }
 
     /** The Interface that needs to be implemented by an Authentication Script. */

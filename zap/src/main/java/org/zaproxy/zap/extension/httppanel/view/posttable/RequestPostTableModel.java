@@ -32,7 +32,8 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.table.AbstractTableModel;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
 public class RequestPostTableModel extends AbstractTableModel {
@@ -48,7 +49,7 @@ public class RequestPostTableModel extends AbstractTableModel {
     private boolean isChanged = false;
 
     // ZAP: Added logger
-    private static final Logger logger = Logger.getLogger(RequestPostTableModel.class);
+    private static final Logger logger = LogManager.getLogger(RequestPostTableModel.class);
 
     public boolean isEditable() {
         return editable;

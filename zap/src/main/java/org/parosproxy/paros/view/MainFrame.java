@@ -33,6 +33,8 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/13 Display the primary proxy details (host:port) in the footer (Issue 2016).
+// ZAP: 2020/09/29 Add support for dynamic Look and Feel switching (Issue 6201)
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -42,6 +44,8 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -49,9 +53,11 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
+import javax.swing.UIManager;
 import javax.swing.WindowConstants;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
@@ -60,10 +66,11 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.MainToolbarPanel;
 import org.zaproxy.zap.view.ZapToggleButton;
+import org.zaproxy.zap.view.widgets.PopupButton;
 
 public class MainFrame extends AbstractFrame {
 
-    private static final Logger LOGGER = Logger.getLogger(MainFrame.class);
+    private static final Logger LOGGER = LogManager.getLogger(MainFrame.class);
 
     private static final String TABS_VIEW_TOOL_TIP =
             Constant.messages.getString("view.toolbar.messagePanelsPosition.tabs");
@@ -199,6 +206,8 @@ public class MainFrame extends AbstractFrame {
      */
     private ZapToggleButton panelsResponsePanelPositionButton;
 
+    private PopupButton lookAndFeelButton;
+
     /**
      * @deprecated (2.5.0) Use {@link #MainFrame(OptionsParam, AbstractPanel, AbstractPanel)}
      *     instead.
@@ -330,6 +339,9 @@ public class MainFrame extends AbstractFrame {
     public MainToolbarPanel getMainToolbarPanel() {
         if (mainToolbarPanel == null) {
             mainToolbarPanel = new MainToolbarPanel();
+
+            mainToolbarPanel.addToolBarComponent(getLookAndFeelButton());
+            mainToolbarPanel.addSeparator();
 
             mainToolbarPanel.addButton(getShowAllTabsButton());
             mainToolbarPanel.addButton(getHideAllTabsButton());
@@ -540,6 +552,49 @@ public class MainFrame extends AbstractFrame {
             aboveResponsePanelPositionButton.setDisabledToolTipText(DISABLED_ABOVE_VIEW_TOOL_TIP);
         }
         return aboveResponsePanelPositionButton;
+    }
+
+    private PopupButton getLookAndFeelButton() {
+        if (lookAndFeelButton == null) {
+            lookAndFeelButton =
+                    new PopupButton() {
+                        private static final long serialVersionUID = 1L;
+
+                        @Override
+                        public List<String> getMenuItemNames() {
+                            List<String> list = new ArrayList<>();
+                            UIManager.LookAndFeelInfo[] looks =
+                                    UIManager.getInstalledLookAndFeels();
+                            for (UIManager.LookAndFeelInfo look : looks) {
+                                list.add(look.getName());
+                            }
+                            return list;
+                        }
+
+                        @Override
+                        public void menuItemSelected(String option) {
+                            UIManager.LookAndFeelInfo[] looks =
+                                    UIManager.getInstalledLookAndFeels();
+                            for (UIManager.LookAndFeelInfo look : looks) {
+                                if (look.getName().equals(option)) {
+                                    options.getViewParam().setLookAndFeelInfo(look);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public String getSelectedMenuItem() {
+                            return options.getViewParam().getLookAndFeel();
+                        }
+                    };
+            lookAndFeelButton.setIcon(
+                    new ImageIcon(
+                            WorkbenchPanel.class.getResource(
+                                    "/resource/icon/fugue/ui-color-picker-switch.png")));
+            lookAndFeelButton.setToolTipText(
+                    Constant.messages.getString("view.toolbar.switchLookAndFeel"));
+        }
+        return lookAndFeelButton;
     }
 
     // ZAP: Added footer toolbar panel

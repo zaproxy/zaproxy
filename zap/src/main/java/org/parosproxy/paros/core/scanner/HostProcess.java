@@ -90,7 +90,13 @@
 // ZAP: 2019/01/19 Handle counting alerts raised by scan (Issue 3929).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
-// ZAP: 2019/11/09 Ability to filter to active scan (Issue 5278)
+// ZAP: 2019/11/09 Ability to filter to active scan (Issue 5278).
+// ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
+// ZAP: 2020/10/19 Tweak JavaDoc and init startNodes in the constructor.
+// ZAP: 2020/06/30 Fix bug that makes zap test same request twice (Issue 6043).
+// ZAP: 2020/11/17 Use new TechSet#getAllTech().
+// ZAP: 2020/11/23 Expose getScannerParam() for tests.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -99,11 +105,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.control.Control;
@@ -112,13 +120,16 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
 import org.zaproxy.zap.extension.ascan.filters.FilterResult;
 import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
+import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfig;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.TechSet;
@@ -128,10 +139,10 @@ import org.zaproxy.zap.users.User;
 
 public class HostProcess implements Runnable {
 
-    private static final Logger log = Logger.getLogger(HostProcess.class);
+    private static final Logger log = LogManager.getLogger(HostProcess.class);
     private static final DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
 
-    private List<StructuralNode> startNodes = null;
+    private List<StructuralNode> startNodes;
     private boolean isStop = false;
     private PluginFactory pluginFactory;
     private ScannerParam scannerParam = null;
@@ -145,6 +156,7 @@ public class HostProcess implements Runnable {
     private TechSet techSet;
     private RuleConfigParam ruleConfigParam;
     private String stopReason = null;
+    private Context context;
 
     /**
      * A {@code Map} from plugin IDs to corresponding {@link PluginStats}.
@@ -254,6 +266,7 @@ public class HostProcess implements Runnable {
         this.ruleConfigParam = ruleConfigParam;
         this.messageIdToHostScan = -1;
         this.messagesIdsToAppScan = new ArrayList<>();
+        this.startNodes = new ArrayList<>();
 
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
         httpSender.setUser(this.user);
@@ -270,23 +283,29 @@ public class HostProcess implements Runnable {
         }
 
         threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
-        this.techSet = TechSet.AllTech;
+        this.techSet = TechSet.getAllTech();
     }
 
     /**
-     * Set the initial starting node. Should be set after the HostProcess initialization
+     * Sets the initial starting node.
+     *
+     * <p>Nodes previously added are removed.
      *
      * @param startNode the start node we should start from
+     * @see #addStartNode(StructuralNode)
      */
     public void setStartNode(StructuralNode startNode) {
-        this.startNodes = new ArrayList<StructuralNode>();
+        this.startNodes.clear();
         this.startNodes.add(startNode);
     }
 
+    /**
+     * Adds the given node, to start scanning from.
+     *
+     * @param startNode a start node.
+     * @see #setStartNode(StructuralNode)
+     */
     public void addStartNode(StructuralNode startNode) {
-        if (this.startNodes == null) {
-            this.startNodes = new ArrayList<StructuralNode>();
-        }
         this.startNodes.add(startNode);
     }
 
@@ -313,15 +332,25 @@ public class HostProcess implements Runnable {
             }
 
             for (StructuralNode startNode : startNodes) {
+                Map<String, Integer> historyIdsToAdd = new LinkedHashMap<>();
                 traverse(
                         startNode,
                         true,
                         node -> {
                             if (canScanNode(node)) {
-                                messagesIdsToAppScan.add(node.getHistoryReference().getHistoryId());
+                                int nodeHistoryId = node.getHistoryReference().getHistoryId();
+                                if (node.getMethod().equals(HttpRequestHeader.GET)) {
+                                    boolean nodeSeen = historyIdsToAdd.containsKey(nodeHash(node));
+                                    if (!nodeSeen || !isTemporary(node)) {
+                                        historyIdsToAdd.put(nodeHash(node), nodeHistoryId);
+                                    }
+                                } else {
+                                    messagesIdsToAppScan.add(nodeHistoryId);
+                                }
                             }
                         });
 
+                messagesIdsToAppScan.addAll(historyIdsToAdd.values());
                 getAnalyser().start(startNode);
             }
             nodeInScopeCount = messagesIdsToAppScan.size();
@@ -361,6 +390,16 @@ public class HostProcess implements Runnable {
             notifyHostComplete();
             getHttpSender().shutdown();
         }
+    }
+
+    private String nodeHash(StructuralNode node) {
+        String nodeMethod = node.getMethod();
+        String nodeURI = node.getURI().getEscapedURI();
+        return nodeMethod + nodeURI;
+    }
+
+    private boolean isTemporary(StructuralNode node) {
+        return node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_TEMPORARY;
     }
 
     /**
@@ -683,9 +722,9 @@ public class HostProcess implements Runnable {
     }
 
     /**
-     * ZAP: method to get back the number of tests that need to be performed
+     * Gets the number of messages that will be scanned.
      *
-     * @return the number of tests that need to be executed for this Scanner
+     * @return the number of messages that will be scanned.
      */
     public int getTestTotalCount() {
         return nodeInScopeCount;
@@ -1119,7 +1158,14 @@ public class HostProcess implements Runnable {
         return kb;
     }
 
-    protected ScannerParam getScannerParam() {
+    /**
+     * Gets the scanner parameters.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @return the scanner parameters.
+     */
+    public ScannerParam getScannerParam() {
         return scannerParam;
     }
 
@@ -1282,6 +1328,30 @@ public class HostProcess implements Runnable {
         synchronized (mapPluginStats) {
             return mapPluginStats.get(pluginId);
         }
+    }
+
+    /**
+     * Tells whether or not the message matches the specific {@code CustomPage.Type}. (Does not
+     * leverage {@code Analyzer}).
+     *
+     * @param msg the message that will be checked
+     * @param cpType the custom page type to be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.10.0
+     */
+    protected boolean isCustomPage(HttpMessage msg, CustomPage.Type cpType) {
+        if (getContext() != null) {
+            return getContext().isCustomPage(msg, cpType);
+        }
+        return false;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public void setContext(Context context) {
+        this.context = context;
     }
 
     /**

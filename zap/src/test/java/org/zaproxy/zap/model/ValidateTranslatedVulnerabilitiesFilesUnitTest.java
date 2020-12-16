@@ -28,9 +28,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.testutils.TestUtils;
@@ -50,11 +47,6 @@ public class ValidateTranslatedVulnerabilitiesFilesUnitTest extends TestUtils {
 
     private VulnerabilitiesLoader loader =
             new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, FILE_EXTENSION);
-
-    @BeforeAll
-    public static void suppressLogging() {
-        Logger.getRootLogger().addAppender(new NullAppender());
-    }
 
     @Test
     public void shouldLoadAllVulnerabilitiesFilesAvailable() {

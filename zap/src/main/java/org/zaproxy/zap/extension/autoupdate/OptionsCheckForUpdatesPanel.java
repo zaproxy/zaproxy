@@ -88,8 +88,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
                             Constant.messages.getString("cfu.options.zap.border"),
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             zapPanel.add(getChkDownloadNewRelease(), LayoutHelper.getGBC(0, 1, 1, 1.0D));
 
@@ -101,8 +100,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
                             Constant.messages.getString("cfu.options.updates.border"),
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             updPanel.add(getChkCheckAddonUpdates(), LayoutHelper.getGBC(0, 0, 1, 1.0D));
             updPanel.add(getChkInstallAddonUpdates(), LayoutHelper.getGBC(0, 1, 1, 1.0D));
@@ -116,8 +114,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
                             Constant.messages.getString("cfu.options.new.border"),
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             newPanel.add(getChkReportReleaseAddons(), LayoutHelper.getGBC(0, 0, 1, 1.0D));
             newPanel.add(getChkReportBetaAddons(), LayoutHelper.getGBC(0, 1, 1, 1.0D));
@@ -131,8 +128,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
                             Constant.messages.getString("cfu.options.dir.border"),
                             TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             dirsPanel.add(
                     new CfuDirsOptionsPanel(getScriptDirModel()),

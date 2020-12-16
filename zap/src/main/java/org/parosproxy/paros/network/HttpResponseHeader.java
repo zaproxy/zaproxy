@@ -39,6 +39,8 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
+// ZAP: 2020/11/10 Add convenience method isCss().
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -50,7 +52,8 @@ import java.util.Locale;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class HttpResponseHeader extends HttpHeader {
 
@@ -90,9 +93,10 @@ public class HttpResponseHeader extends HttpHeader {
     public static final String SERVER = "Server";
 
     private static final long serialVersionUID = 2812716126742059785L;
-    private static final Logger log = Logger.getLogger(HttpResponseHeader.class);
+    private static final Logger log = LogManager.getLogger(HttpResponseHeader.class);
 
     public static final String HTTP_CLIENT_BAD_REQUEST = "HTTP/1.0 400 Bad request" + CRLF + CRLF;
+    private static final String _CONTENT_TYPE_CSS = "css";
     private static final String _CONTENT_TYPE_IMAGE = "image";
     private static final String _CONTENT_TYPE_TEXT = "text";
     private static final String _CONTENT_TYPE_HTML = "html";
@@ -276,6 +280,10 @@ public class HttpResponseHeader extends HttpHeader {
 
     public boolean isJavaScript() {
         return hasContentType(_CONTENT_TYPE_JAVASCRIPT);
+    }
+
+    public boolean isCss() {
+        return hasContentType(_CONTENT_TYPE_CSS);
     }
 
     public static boolean isStatusLine(String data) {

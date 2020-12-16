@@ -4,9 +4,6 @@ import unittest
 from glob import glob
 from operator import itemgetter
 
-# Include modules from directory above
-sys.path.append("..")
-
 
 def module_name_to_class(module_name):
     class_name = module_name.replace('_', ' ')
@@ -38,8 +35,11 @@ def run_tests(directory="./"):
     test_load = unittest.TestLoader()
     cases = [test_load.loadTestsFromTestCase(t) for t in test_list]
     test_suite = unittest.TestSuite(cases)
-    unittest.TextTestRunner(verbosity=9).run(test_suite)
+    return unittest.TextTestRunner(verbosity=9).run(test_suite)
 
 if __name__ == '__main__':
-    run_tests("./")
+    tests_dir = os.path.dirname(os.path.realpath(__file__))
+    # Include modules from parent directory
+    sys.path.append("{}/..".format(tests_dir))
+    sys.exit(run_tests(tests_dir).wasSuccessful() is False)
     

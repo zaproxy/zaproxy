@@ -33,10 +33,12 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
@@ -64,7 +66,7 @@ public class TabbedPanel2 extends TabbedPanel {
     // A fake component that never actually get displayed - used for the 'hidden tab list tab'
     private Component hiddenComponent = new JLabel();
 
-    private final Logger logger = Logger.getLogger(TabbedPanel2.class);
+    private final Logger logger = LogManager.getLogger(TabbedPanel2.class);
 
     private int prevTabIndex = -1;
 
@@ -92,6 +94,14 @@ public class TabbedPanel2 extends TabbedPanel {
                         }
                     }
                 });
+    }
+
+    @Override
+    public void updateUI() {
+        super.updateUI();
+        if (hiddenTabs != null) {
+            hiddenTabs.forEach(tab -> SwingUtilities.updateComponentTreeUI(tab));
+        }
     }
 
     /**

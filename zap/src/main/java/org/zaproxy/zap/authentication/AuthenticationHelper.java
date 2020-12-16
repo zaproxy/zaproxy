@@ -21,9 +21,17 @@ package org.zaproxy.zap.authentication;
 
 import java.awt.EventQueue;
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.UnaryOperator;
 import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -51,7 +59,7 @@ public class AuthenticationHelper {
         this.user = user;
     }
 
-    private static final Logger log = Logger.getLogger(AuthenticationHelper.class);
+    private static final Logger log = LogManager.getLogger(AuthenticationHelper.class);
 
     private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
     public static final String AUTH_SUCCESS_STATS = "stats.auth.success";
@@ -149,6 +157,41 @@ public class AuthenticationHelper {
         msg.setRequestingUser(user);
 
         return msg;
+    }
+
+    public static String replaceUserData(
+            String data, Map<String, String> keyValuePairs, UnaryOperator<String> encoder) {
+        for (Entry<String, String> kvp : keyValuePairs.entrySet()) {
+            data = data.replace(kvp.getKey(), encoder.apply(kvp.getValue()));
+        }
+        return data;
+    }
+
+    public static void replaceUserDataInRequest(
+            HttpMessage msg, Map<String, String> userDataMap, UnaryOperator<String> bodyEncoder) {
+        try {
+            Map<String, String> kvMap = new HashMap<>(userDataMap.size());
+            for (Entry<String, String> userdata : userDataMap.entrySet()) {
+                kvMap.put(
+                        URLEncoder.encode(userdata.getKey(), StandardCharsets.UTF_8.name()),
+                        userdata.getValue());
+            }
+            String uri =
+                    AuthenticationHelper.replaceUserData(
+                            msg.getRequestHeader().getURI().toString(),
+                            kvMap,
+                            PostBasedAuthenticationMethodType::encodeParameter);
+            msg.getRequestHeader().setURI(new URI(uri, true));
+        } catch (Exception e) {
+            log.error(
+                    "Failed to replace user data in request " + msg.getRequestHeader().getURI(), e);
+        }
+        if (msg.getRequestBody().length() > 0) {
+            msg.setRequestBody(
+                    AuthenticationHelper.replaceUserData(
+                            msg.getRequestBody().toString(), userDataMap, bodyEncoder));
+            msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+        }
     }
 
     public User getRequestingUser() {

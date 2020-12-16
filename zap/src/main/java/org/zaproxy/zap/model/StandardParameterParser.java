@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.BiFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -35,7 +36,8 @@ import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpMessage;
@@ -46,6 +48,9 @@ public class StandardParameterParser implements ParameterParser {
     private static final String CONFIG_KV_SEPARATORS = "kvs";
     private static final String CONFIG_STRUCTURAL_PARAMS = "struct";
 
+    private static final String DEFAULT_KV_PAIR_SEPARATOR = "&";
+    private static final String DEFAULT_KV_SEPARATOR = "=";
+
     private Context context;
     private Pattern keyValuePairSeparatorPattern;
     private Pattern keyValueSeparatorPattern;
@@ -53,7 +58,7 @@ public class StandardParameterParser implements ParameterParser {
     private String keyValueSeparators;
     private List<String> structuralParameters = new ArrayList<String>();
 
-    private static Logger log = Logger.getLogger(StandardParameterParser.class);
+    private static Logger log = LogManager.getLogger(StandardParameterParser.class);
 
     public StandardParameterParser(String keyValuePairSeparators, String keyValueSeparators)
             throws PatternSyntaxException {
@@ -63,7 +68,7 @@ public class StandardParameterParser implements ParameterParser {
     }
 
     public StandardParameterParser() {
-        this("&", "=");
+        this(DEFAULT_KV_PAIR_SEPARATOR, DEFAULT_KV_SEPARATOR);
     }
 
     private Pattern getKeyValuePairSeparatorPattern() {
@@ -76,6 +81,13 @@ public class StandardParameterParser implements ParameterParser {
 
     @Override
     public void init(String config) {
+        if (config == null || config.isEmpty()) {
+            setKeyValuePairSeparators(DEFAULT_KV_PAIR_SEPARATOR);
+            setKeyValueSeparators(DEFAULT_KV_SEPARATOR);
+            structuralParameters.clear();
+            return;
+        }
+
         try {
             JSONObject json = JSONObject.fromObject(config);
             this.setKeyValuePairSeparators(json.getString(CONFIG_KV_PAIR_SEPARATORS));
@@ -102,6 +114,11 @@ public class StandardParameterParser implements ParameterParser {
         return json.toString();
     }
 
+    /**
+     * @deprecated 2.10.0 use #getParameters(String) This method will lose duplicated parameter
+     *     names
+     */
+    @Deprecated
     @Override
     public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
         if (msg == null) {
@@ -200,8 +217,7 @@ public class StandardParameterParser implements ParameterParser {
         if (this.keyValuePairSeparators != null && this.keyValuePairSeparators.length() > 0) {
             return this.keyValuePairSeparators.substring(0, 1);
         }
-        // The default
-        return "&";
+        return DEFAULT_KV_PAIR_SEPARATOR;
     }
 
     @Override
@@ -209,8 +225,7 @@ public class StandardParameterParser implements ParameterParser {
         if (this.keyValueSeparators != null && this.keyValueSeparators.length() > 0) {
             return this.keyValueSeparators.substring(0, 1);
         }
-        // The default
-        return "=";
+        return DEFAULT_KV_SEPARATOR;
     }
 
     public List<String> getStructuralParameters() {
@@ -222,6 +237,11 @@ public class StandardParameterParser implements ParameterParser {
         this.structuralParameters.addAll(structuralParameters);
     }
 
+    /**
+     * @deprecated 2.10.0 use #parseParameters(String) This method will lose duplicated parameter
+     *     names
+     */
+    @Deprecated
     @Override
     public Map<String, String> parse(String paramStr) {
         Map<String, String> map = new HashMap<String, String>();
@@ -246,6 +266,17 @@ public class StandardParameterParser implements ParameterParser {
 
     @Override
     public List<NameValuePair> parseParameters(String parameters) {
+        return createParameters(
+                parameters,
+                (name, value) -> {
+                    String decodedName = urlDecode(name);
+                    String decodedValue = value != null ? urlDecode(value) : "";
+                    return new DefaultNameValuePair(decodedName, decodedValue);
+                });
+    }
+
+    private List<NameValuePair> createParameters(
+            String parameters, BiFunction<String, String, NameValuePair> nameValuePairFactory) {
         if (parameters == null) {
             return new ArrayList<>(0);
         }
@@ -254,13 +285,9 @@ public class StandardParameterParser implements ParameterParser {
         String[] pairs = getKeyValuePairSeparatorPattern().split(parameters);
         for (String pair : pairs) {
             String[] nameValuePair = getKeyValueSeparatorPattern().split(pair, 2);
-            if (nameValuePair.length == 1) {
-                parametersList.add(new DefaultNameValuePair(urlDecode(nameValuePair[0])));
-            } else {
-                parametersList.add(
-                        new DefaultNameValuePair(
-                                urlDecode(nameValuePair[0]), urlDecode(nameValuePair[1])));
-            }
+            String name = nameValuePair[0];
+            String value = nameValuePair.length == 1 ? null : nameValuePair[1];
+            parametersList.add(nameValuePairFactory.apply(name, value));
         }
         return parametersList;
     }
@@ -268,10 +295,17 @@ public class StandardParameterParser implements ParameterParser {
     private static String urlDecode(String value) {
         try {
             return URLDecoder.decode(value, "UTF-8");
+        } catch (IllegalArgumentException e) {
+            return value;
         } catch (UnsupportedEncodingException ignore) {
             // Shouldn't happen UTF-8 is a standard charset (see java.nio.charset.StandardCharsets)
         }
         return "";
+    }
+
+    @Override
+    public List<NameValuePair> parseRawParameters(String parameters) {
+        return createParameters(parameters, DefaultNameValuePair::new);
     }
 
     @Override
@@ -336,6 +370,9 @@ public class StandardParameterParser implements ParameterParser {
             for (int i = 1; i < pathList.length; i++) {
                 list.add(pathList[i]);
             }
+            if (path.endsWith("/")) {
+                list.add("/");
+            }
         }
         if (incStructParams) {
             // Add any structural params (url param) in key order
@@ -360,15 +397,12 @@ public class StandardParameterParser implements ParameterParser {
         List<String> list = getTreePath(uri);
 
         // Add any structural params (form params) in key order
-        Map<String, String> formParams = this.parse(msg.getRequestBody().toString());
-        List<String> keys = new ArrayList<String>(formParams.keySet());
-        Collections.sort(keys);
-        for (String key : keys) {
-            if (this.structuralParameters.contains(key)) {
-                list.add(formParams.get(key));
-            }
-        }
-
+        List<NameValuePair> formParams = this.parseParameters(msg.getRequestBody().toString());
+        formParams.stream()
+                .map(NameValuePair::getName)
+                .filter(structuralParameters::contains)
+                .sorted()
+                .forEach(list::add);
         return list;
     }
 

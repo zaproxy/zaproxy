@@ -84,7 +84,6 @@ public final class CoreFunctionality {
             extensions.add(new org.zaproxy.zap.extension.callback.ExtensionCallback());
             extensions.add(new org.zaproxy.zap.extension.compare.ExtensionCompare());
             extensions.add(new org.zaproxy.zap.extension.dynssl.ExtensionDynSSL());
-            extensions.add(new org.zaproxy.zap.extension.encoder2.ExtensionEncoder2());
             extensions.add(new org.zaproxy.zap.extension.ext.ExtensionExtension());
             extensions.add(new org.zaproxy.zap.extension.forceduser.ExtensionForcedUser());
             extensions.add(
@@ -132,6 +131,7 @@ public final class CoreFunctionality {
             extensions.add(new org.zaproxy.zap.extension.stdmenus.ExtensionStdMenus());
             extensions.add(new org.zaproxy.zap.extension.uiutils.ExtensionUiUtils());
             extensions.add(new org.zaproxy.zap.extension.users.ExtensionUserManagement());
+            extensions.add(new org.zaproxy.zap.extension.custompages.ExtensionCustomPages());
             extensions.trimToSize();
 
             builtInExtensions = Collections.unmodifiableList(extensions);

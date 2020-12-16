@@ -19,18 +19,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
-import org.parosproxy.paros.network.HttpHeader;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class ResponseBodyStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
 
@@ -38,31 +27,6 @@ public class ResponseBodyStringHttpPanelViewModel extends AbstractHttpStringHttp
     public String getData() {
         if (httpMessage == null) {
             return "";
-        }
-
-        if (HttpHeader.GZIP.equals(
-                httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
-            // Uncompress gziped content
-            try {
-                ByteArrayInputStream bais =
-                        new ByteArrayInputStream(httpMessage.getResponseBody().getBytes());
-                GZIPInputStream gis = new GZIPInputStream(bais);
-                InputStreamReader isr = new InputStreamReader(gis);
-                BufferedReader br = new BufferedReader(isr);
-                StringBuilder sb = new StringBuilder();
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
-                br.close();
-                isr.close();
-                gis.close();
-                bais.close();
-                return sb.toString();
-            } catch (IOException e) {
-                // this.log.error(e.getMessage(), e);
-                System.out.println(e);
-            }
         }
 
         return httpMessage.getResponseBody().toString();
@@ -73,26 +37,7 @@ public class ResponseBodyStringHttpPanelViewModel extends AbstractHttpStringHttp
         if (httpMessage == null) {
             return;
         }
-        if (HttpHeader.GZIP.equals(
-                httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
-            // Recompress gziped content
-            try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                GZIPOutputStream gis = new GZIPOutputStream(baos);
-                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(gis, "UTF-8"));
-                bw.write(data);
-                bw.close();
-                gis.close();
-                baos.close();
-                httpMessage.getResponseBody().setBody(baos.toByteArray());
-                HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
-            } catch (IOException e) {
-                // this.log.error(e.getMessage(), e);
-                System.out.println(e);
-            }
-        } else {
-            httpMessage.getResponseBody().setBody(data);
-            HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
-        }
+
+        httpMessage.getResponseBody().setBody(data);
     }
 }

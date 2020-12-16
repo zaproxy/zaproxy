@@ -28,7 +28,8 @@ import java.util.List;
 import java.util.Map;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -43,7 +44,7 @@ import org.zaproxy.zap.extension.api.ApiView;
 
 public class AutoUpdateAPI extends ApiImplementor {
 
-    private static Logger log = Logger.getLogger(AutoUpdateAPI.class);
+    private static Logger log = LogManager.getLogger(AutoUpdateAPI.class);
 
     private static final String PREFIX = "autoupdate";
     private static final String ACTION_DOWNLOAD_LATEST_RELEASE = "downloadLatestRelease";

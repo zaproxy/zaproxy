@@ -19,7 +19,8 @@
  */
 package org.zaproxy.zap.view;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
@@ -33,7 +34,7 @@ public abstract class PopupMenuHttpMessage extends PopupMenuHistoryReference {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger log = Logger.getLogger(PopupMenuHttpMessage.class);
+    private static final Logger log = LogManager.getLogger(PopupMenuHttpMessage.class);
 
     /** @param label */
     public PopupMenuHttpMessage(String label) {

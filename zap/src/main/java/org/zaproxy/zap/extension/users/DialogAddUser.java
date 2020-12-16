@@ -28,7 +28,8 @@ import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.authentication.AbstractCredentialsOptionsPanel;
 import org.zaproxy.zap.authentication.AuthenticationCredentials;
@@ -46,7 +47,7 @@ public class DialogAddUser extends AbstractFormDialog {
     private static final long serialVersionUID = -7210879426146833234L;
 
     /** The Constant logger. */
-    protected final Logger log = Logger.getLogger(getClass());
+    protected final Logger log = LogManager.getLogger(getClass());
 
     private static final String DIALOG_TITLE =
             Constant.messages.getString("users.dialog.add.title");

@@ -46,7 +46,8 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -261,6 +262,7 @@ public class AddOn {
     private String notBeforeVersion = null;
     private String notFromVersion = null;
     private String hash = null;
+    private String releaseDate;
 
     /**
      * The installation status of the add-on.
@@ -320,7 +322,7 @@ public class AddOn {
      */
     private HelpSetData helpSetData = HelpSetData.EMPTY_HELP_SET;
 
-    private static final Logger logger = Logger.getLogger(AddOn.class);
+    private static final Logger logger = LogManager.getLogger(AddOn.class);
 
     /**
      * Tells whether or not the given file name matches the name of a ZAP add-on.
@@ -555,7 +557,7 @@ public class AddOn {
     }
 
     private static String extractAddOnId(String fileName) {
-        return fileName.substring(0, fileName.indexOf('.')).split("-")[0];
+        return fileName.substring(0, fileName.lastIndexOf('.')).split("-")[0];
     }
 
     private void loadManifestFile() throws IOException {
@@ -651,6 +653,7 @@ public class AddOn {
         this.notFromVersion = addOnData.getNotFromVersion();
         this.info = createUrl(addOnData.getInfo());
         this.repo = createUrl(addOnData.getRepo());
+        this.releaseDate = addOnData.getDate();
         this.hash = addOnData.getHash();
 
         loadManifestFile();
@@ -1744,6 +1747,21 @@ public class AddOn {
 
     public String getHash() {
         return hash;
+    }
+
+    /**
+     * Gets the date when the add-on was released.
+     *
+     * <p>The date has the format {@code YYYY-MM-DD}.
+     *
+     * <p><strong>Note:</strong> The date is only available for add-ons created from the
+     * marketplace.
+     *
+     * @return the release date, or {@code null} if not available.
+     * @since 2.10.0
+     */
+    public String getReleaseDate() {
+        return releaseDate;
     }
 
     /**

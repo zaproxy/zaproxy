@@ -20,9 +20,9 @@
 package org.zaproxy.zap.extension.pscan.scanner;
 
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.List;
 import net.htmlparser.jericho.Source;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.network.HttpMessage;
@@ -32,30 +32,40 @@ import org.zaproxy.zap.extension.pscan.PassiveScript;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
+import org.zaproxy.zap.extension.script.ScriptsCache;
+import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
 public class ScriptsPassiveScanner extends PluginPassiveScanner {
 
-    private static final Logger logger = Logger.getLogger(ScriptsPassiveScanner.class);
+    private static final Logger logger = LogManager.getLogger(ScriptsPassiveScanner.class);
 
-    private ExtensionScript extension = null;
+    private final ScriptsCache<PassiveScript> scripts;
     private PassiveScanThread parent = null;
 
     private int currentHRefId;
     private int currentHistoryType;
 
-    public ScriptsPassiveScanner() {}
+    public ScriptsPassiveScanner() {
+        ExtensionScript extension =
+                Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
+        scripts =
+                extension != null
+                        ? extension.createScriptsCache(
+                                Configuration.<PassiveScript>builder()
+                                        .setScriptType(ExtensionPassiveScan.SCRIPT_TYPE_PASSIVE)
+                                        .setTargetInterface(PassiveScript.class)
+                                        .setInterfaceErrorMessageProvider(
+                                                sw ->
+                                                        Constant.messages.getString(
+                                                                "pscan.scripts.interface.passive.error",
+                                                                sw.getName()))
+                                        .build())
+                        : null;
+    }
 
     @Override
     public String getName() {
         return Constant.messages.getString("pscan.scripts.passivescanner.title");
-    }
-
-    private ExtensionScript getExtension() {
-        if (extension == null) {
-            extension =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
-        }
-        return extension;
     }
 
     @Override
@@ -65,34 +75,17 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 
     @Override
     public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-        if (this.getExtension() != null) {
-            currentHRefId = id;
-            List<ScriptWrapper> scripts =
-                    extension.getScripts(ExtensionPassiveScan.SCRIPT_TYPE_PASSIVE);
-            for (ScriptWrapper script : scripts) {
-                try {
-                    if (script.isEnabled()) {
-                        PassiveScript s = extension.getInterface(script, PassiveScript.class);
-
-                        if (s != null) {
-                            if (appliesToCurrentHistoryType(script, s)) {
-                                s.scan(this, msg, source);
-                            }
-
-                        } else {
-                            extension.handleFailedScriptInterface(
-                                    script,
-                                    Constant.messages.getString(
-                                            "pscan.scripts.interface.passive.error",
-                                            script.getName()));
-                        }
-                    }
-
-                } catch (Exception e) {
-                    extension.handleScriptException(script, e);
-                }
-            }
+        if (scripts == null) {
+            return;
         }
+
+        currentHRefId = id;
+        scripts.refreshAndExecute(
+                (sw, script) -> {
+                    if (appliesToCurrentHistoryType(sw, script)) {
+                        script.scan(this, msg, source);
+                    }
+                });
     }
 
     private boolean appliesToCurrentHistoryType(ScriptWrapper wrapper, PassiveScript ps) {

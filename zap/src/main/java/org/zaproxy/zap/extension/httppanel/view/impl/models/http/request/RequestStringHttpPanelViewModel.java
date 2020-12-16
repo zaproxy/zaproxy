@@ -19,15 +19,18 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.request;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
 
-    private static final Logger logger = Logger.getLogger(RequestStringHttpPanelViewModel.class);
+    private static final Logger logger =
+            LogManager.getLogger(RequestStringHttpPanelViewModel.class);
 
     @Override
     public String getData() {
@@ -41,6 +44,10 @@ public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanel
 
     @Override
     public void setData(String data) {
+        if (httpMessage == null) {
+            return;
+        }
+
         String[] parts = data.split(HttpHeader.LF + HttpHeader.LF);
         String header = parts[0].replaceAll("(?<!\r)\n", HttpHeader.CRLF);
         // Note that if the body has LF, those characters will not be replaced by CRLF.
@@ -49,13 +56,14 @@ public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanel
             httpMessage.setRequestHeader(header);
         } catch (HttpMalformedHeaderException e) {
             logger.warn("Could not Save Header: " + header, e);
+            throw new InvalidMessageDataException(
+                    Constant.messages.getString("http.panel.model.header.warn.malformed"), e);
         }
 
+        String body = "";
         if (parts.length > 1) {
-            httpMessage.setRequestBody(data.substring(parts[0].length() + 2));
-        } else {
-            httpMessage.setRequestBody("");
+            body = data.substring(parts[0].length() + 2);
         }
-        HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
+        httpMessage.getRequestBody().setBody(body);
     }
 }

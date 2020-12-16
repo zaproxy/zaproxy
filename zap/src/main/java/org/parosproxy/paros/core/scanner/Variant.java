@@ -23,9 +23,11 @@
 // ZAP: 2016/05/04 Add JavaDoc to getParamList()
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/08/27 Added default methods for modifying the Sites tree
 package org.parosproxy.paros.core.scanner;
 
 import java.util.List;
+import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMessage;
 
 public interface Variant {
@@ -44,4 +46,39 @@ public interface Variant {
 
     public String setEscapedParameter(
             HttpMessage msg, NameValuePair originalPair, String param, String value);
+
+    /**
+     * Gets the name of the node to be used for the given {@code msg} in the Site Map. Returning
+     * null is taken to mean use the default name. This is currently the last element of the path
+     * (given in {@code nodeName}) followed by the url parameter names in brackets (if any) followed
+     * by the form parameter names in brackets (if any).
+     *
+     * @param nodeName the last element of the path
+     * @param msg the message
+     */
+    default String getLeafName(String nodeName, HttpMessage msg) {
+        return null;
+    }
+
+    /**
+     * Returns the tree path elements for the given {@code message}. Returning null is taken to mean
+     * use the default methods for obtaining tree path elements. This will determine the position of
+     * this message in the Site Map.
+     *
+     * <p>By default the elements are returned for the following URL are:
+     *
+     * <ul>
+     *   <li><i>http://example.org/path/to/element?aa=bb&cc==dd</i> : ["path", "to", "element"]
+     *   <li><i>http://example.org/path/to/element</i> : ["path", "to", "element"]
+     *   <li><i>http://example.org/path/to/</i> : ["path", "to"]
+     *   <li><i>http://example.org/path/to</i> : ["path", "to"]
+     * </ul>
+     *
+     * @param msg
+     * @return a {@code List} containing the tree path elements
+     * @throws URIException
+     */
+    default List<String> getTreePath(HttpMessage msg) throws URIException {
+        return null;
+    }
 }

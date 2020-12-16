@@ -101,8 +101,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
                             Constant.messages.getString("api.options.addr.title"),
                             javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
 
             jPanel.add(getProxyPermittedAddressesPanel(), LayoutHelper.getGBC(0, 0, 1, 1.0, 1.0));
             panelMisc.add(jPanel, LayoutHelper.getGBC(0, y++, 2, 1.0, 1.0));

@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.anticsrf;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -34,7 +35,10 @@ import java.util.TreeSet;
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -42,7 +46,6 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.history.HistoryFilter;
 import org.parosproxy.paros.model.HistoryReference;
@@ -69,9 +72,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
     private OptionsAntiCsrfPanel optionsAntiCsrfPanel = null;
     private PopupMenuGenerateForm popupMenuGenerateForm = null;
 
-    private Encoder encoder = new Encoder();
-
-    private static Logger log = Logger.getLogger(ExtensionAntiCSRF.class);
+    private static Logger log = LogManager.getLogger(ExtensionAntiCSRF.class);
 
     private AntiCsrfParam antiCsrfParam;
     private AntiCsrfDetectScanner antiCsrfDetectScanner;
@@ -187,6 +188,10 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         return antiCsrfParam;
     }
 
+    void setParam(AntiCsrfParam antiCsrfParam) {
+        this.antiCsrfParam = antiCsrfParam;
+    }
+
     /**
      * Gets the names of the anti-csrf tokens handled by this extension.
      *
@@ -246,7 +251,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                 }
 
                 token.setHistoryReferenceId(hRef.getHistoryId());
-                valueToToken.put(encoder.getURLEncode(token.getValue()), token);
+                valueToToken.put(getURLEncode(token.getValue()), token);
             } catch (HttpMalformedHeaderException | DatabaseException e) {
                 log.error("Failed to persist the message: ", e);
             }
@@ -364,24 +369,14 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
                         String attId = inputElement.getAttributeValue("ID");
                         boolean found = false;
-                        if (attId != null) {
-                            for (String tokenName : this.getAntiCsrfTokenNames()) {
-                                if (tokenName.equalsIgnoreCase(attId)) {
-                                    list.add(new AntiCsrfToken(msg, attId, value, formIndex));
-                                    found = true;
-                                    break;
-                                }
-                            }
+                        if (isKnownAntiCsrfToken(attId)) {
+                            list.add(new AntiCsrfToken(msg, attId, value, formIndex));
+                            found = true;
                         }
                         if (!found) {
                             String name = inputElement.getAttributeValue("NAME");
-                            if (name != null) {
-                                for (String tokenName : this.getAntiCsrfTokenNames()) {
-                                    if (tokenName.equalsIgnoreCase(name)) {
-                                        list.add(new AntiCsrfToken(msg, name, value, formIndex));
-                                        break;
-                                    }
-                                }
+                            if (isKnownAntiCsrfToken(name)) {
+                                list.add(new AntiCsrfToken(msg, name, value, formIndex));
                             }
                         }
                     }
@@ -390,6 +385,20 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
             }
         }
         return list;
+    }
+
+    private boolean isKnownAntiCsrfToken(String name) {
+        if (name == null) {
+            return false;
+        }
+        for (String tokenName : this.getAntiCsrfTokenNames()) {
+            if (this.getParam().isPartialMatchingEnabled()
+                            && StringUtils.containsIgnoreCase(name, tokenName)
+                    || tokenName.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -488,17 +497,18 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         sb.append("<html>\n");
         sb.append("<body>\n");
         sb.append("<h3>");
-        sb.append(requestUri);
+        String uriEscaped = StringEscapeUtils.escapeHtml(requestUri);
+        sb.append(uriEscaped);
         sb.append("</h3>");
-        sb.append("<form id=\"f1\" method=\"POST\" action=\"").append(requestUri).append("\">\n");
+        sb.append("<form id=\"f1\" method=\"POST\" action=\"").append(uriEscaped).append("\">\n");
         sb.append("<table>\n");
 
         TreeSet<HtmlParameter> params = msg.getFormParams();
         Iterator<HtmlParameter> iter = params.iterator();
         while (iter.hasNext()) {
             HtmlParameter htmlParam = iter.next();
-            String name = URLDecoder.decode(htmlParam.getName(), "UTF-8");
-            String value = URLDecoder.decode(htmlParam.getValue(), "UTF-8");
+            String name = StringEscapeUtils.escapeHtml(urlDecode(htmlParam.getName()));
+            String value = StringEscapeUtils.escapeHtml(urlDecode(htmlParam.getValue()));
             sb.append("<tr><td>\n");
             sb.append(name);
             sb.append("<td>");
@@ -519,9 +529,79 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         return sb.toString();
     }
 
+    private static String urlDecode(String value) {
+        try {
+            return URLDecoder.decode(value, "UTF-8");
+        } catch (UnsupportedEncodingException ignore) {
+            // Shouldn't happen UTF-8 is a standard Charset (see java.nio.charset.StandardCharsets)
+        }
+        return value;
+    }
+
     static interface HistoryReferenceFactory {
 
         HistoryReference createHistoryReference(int id)
                 throws DatabaseException, HttpMalformedHeaderException;
+    }
+
+    /**
+     * Regenerates the {@link AntiCsrfToken} of a {@link HttpMessage} if one exists to obtain the
+     * new {@link AntiCsrfToken}.
+     *
+     * @param message The {@link HttpMessage} to be checked.
+     * @param httpSender The {@code sendAndReceive} implementation of the caller.
+     * @since 2.10.0
+     */
+    public void regenerateAntiCsrfToken(HttpMessage message, HttpMessageSender httpSender) {
+        List<AntiCsrfToken> tokens = getTokens(message);
+        AntiCsrfToken antiCsrfToken = null;
+        if (tokens.size() > 0) {
+            antiCsrfToken = tokens.get(0);
+        }
+
+        if (antiCsrfToken == null) {
+            return;
+        }
+        String tokenValue = null;
+        try {
+            HttpMessage tokenMsg = antiCsrfToken.getMsg().cloneAll();
+
+            httpSender.sendAndReceive(tokenMsg);
+
+            tokenValue = getTokenValue(tokenMsg, antiCsrfToken.getName());
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+
+        if (tokenValue != null) {
+            // Replace token value - only supported in the body right now
+            log.debug(
+                    "regenerateAntiCsrfToken replacing "
+                            + antiCsrfToken.getValue()
+                            + " with "
+                            + getURLEncode(tokenValue));
+            String replaced = message.getRequestBody().toString();
+            replaced =
+                    replaced.replace(
+                            getURLEncode(antiCsrfToken.getValue()), getURLEncode(tokenValue));
+            message.setRequestBody(replaced);
+            registerAntiCsrfToken(
+                    new AntiCsrfToken(
+                            message,
+                            antiCsrfToken.getName(),
+                            tokenValue,
+                            antiCsrfToken.getFormIndex()));
+        }
+    }
+
+    private static String getURLEncode(String msg) {
+        String result = "";
+        try {
+            result = URLEncoder.encode(msg, "UTF8");
+        } catch (UnsupportedEncodingException e) {
+            log.error(e.getMessage(), e);
+        }
+        return result;
     }
 }

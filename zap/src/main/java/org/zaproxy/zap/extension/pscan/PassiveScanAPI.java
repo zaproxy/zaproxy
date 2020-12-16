@@ -23,7 +23,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.sf.json.JSONObject;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -37,7 +38,7 @@ import org.zaproxy.zap.utils.ApiUtils;
 
 public class PassiveScanAPI extends ApiImplementor {
 
-    private static final Logger logger = Logger.getLogger(PassiveScanAPI.class);
+    private static final Logger logger = LogManager.getLogger(PassiveScanAPI.class);
 
     private static final String PREFIX = "pscan";
 

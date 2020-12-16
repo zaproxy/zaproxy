@@ -31,10 +31,13 @@ class HistoryTableModel extends DefaultHistoryReferencesTableModel {
         super(
                 new Column[] {
                     Column.HREF_ID,
+                    Column.HREF_TYPE_INFO,
                     Column.REQUEST_TIMESTAMP,
                     Column.RESPONSE_TIMESTAMP,
                     Column.METHOD,
                     Column.URL,
+                    Column.HOSTNAME,
+                    Column.PATH_AND_QUERY,
                     Column.STATUS_CODE,
                     Column.STATUS_REASON,
                     Column.RTT,

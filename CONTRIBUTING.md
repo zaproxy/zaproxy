@@ -6,7 +6,7 @@ There are lots of ways you can contribute:
 ## Got a Question or Problem?
 If you have a question or problem relating to using ZAP then the first thing to do is to check the [Frequently Asked Questions](https://www.zaproxy.org/faq/).
 
-We also include a comprehensive User Guide with ZAP which is also available online: https://github.com/zaproxy/zap-core-help/wiki
+We also include a comprehensive User Guide with ZAP which is also available online: https://www.zaproxy.org/docs/desktop/
 
 If they don't help then please ask on the [User Group](https://groups.google.com/group/zaproxy-users)
 

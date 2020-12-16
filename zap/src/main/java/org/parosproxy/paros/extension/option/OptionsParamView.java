@@ -42,14 +42,32 @@
 // ZAP: 2018/06/11 Added options for Work Panels Font.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/02/24 Persist the class of the selected look and feel.
+// ZAP: 2020/09/29 Add support for dynamic Look and Feel switching (Issue 6201)
+// ZAP: 2020/10/26 Update pop up menus when changing look and feel.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.option;
 
+import java.awt.Window;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.extension.httppanel.view.largerequest.LargeRequestUtil;
 import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
@@ -58,6 +76,8 @@ import org.zaproxy.zap.utils.FontUtils;
 // ZAP: Added support for selecting the locale
 
 public class OptionsParamView extends AbstractParam {
+
+    private static final Logger LOG = LogManager.getLogger(OptionsParamView.class);
 
     private static final String DEFAULT_TIME_STAMP_FORMAT =
             Constant.messages.getString("timestamp.format.datetime");
@@ -97,6 +117,15 @@ public class OptionsParamView extends AbstractParam {
     public static final String SCALE_IMAGES = "view.scaleImages";
     public static final String SHOW_DEV_WARNING = "view.showDevWarning";
     public static final String LOOK_AND_FEEL = "view.lookAndFeel";
+    public static final String LOOK_AND_FEEL_CLASS = "view.lookAndFeelClass";
+
+    /**
+     * The default look and feel: Flat Light.
+     *
+     * @since 2.10.0
+     */
+    public static final LookAndFeelInfo DEFAULT_LOOK_AND_FEEL =
+            new LookAndFeelInfo("Flat Light", "com.formdev.flatlaf.FlatLightLaf");
 
     private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY =
             "view.confirmRemoveProxyExcludeRegex";
@@ -142,7 +171,7 @@ public class OptionsParamView extends AbstractParam {
     private int largeResponseSize = LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH;
     private boolean scaleImages = true;
     private boolean showDevWarning = true;
-    private String lookAndFeel = "";
+    private LookAndFeelInfo lookAndFeelInfo = DEFAULT_LOOK_AND_FEEL;
 
     private boolean confirmRemoveProxyExcludeRegex;
     private boolean confirmRemoveScannerExcludeRegex;
@@ -204,7 +233,10 @@ public class OptionsParamView extends AbstractParam {
 
         scaleImages = getBoolean(SCALE_IMAGES, true);
         showDevWarning = getBoolean(SHOW_DEV_WARNING, true);
-        lookAndFeel = getString(LOOK_AND_FEEL, "");
+        lookAndFeelInfo =
+                new LookAndFeelInfo(
+                        getString(LOOK_AND_FEEL, DEFAULT_LOOK_AND_FEEL.getName()),
+                        getString(LOOK_AND_FEEL_CLASS, DEFAULT_LOOK_AND_FEEL.getClassName()));
 
         // Special cases - set via static methods
         LargeRequestUtil.setMinContentLength(largeRequestSize);
@@ -535,13 +567,85 @@ public class OptionsParamView extends AbstractParam {
         getConfig().setProperty(getFontNameConfKey(fontType), fontName);
     }
 
+    /**
+     * Gets the the name of the selected look and feel.
+     *
+     * @return the name, might be {@code null} or empty if none selected (i.e. using default).
+     * @see #getLookAndFeelInfo()
+     * @since 2.8.0
+     */
     public String getLookAndFeel() {
-        return this.lookAndFeel;
+        return this.lookAndFeelInfo.getName();
     }
 
+    /**
+     * Sets the name of the selected look and feel.
+     *
+     * @param lookAndFeel the name.
+     * @since 2.8.0
+     * @deprecated (2.10.0) Use {@link #setLookAndFeelInfo(LookAndFeelInfo)} instead, which
+     *     preserves the class of the look and feel.
+     */
+    @Deprecated
     public void setLookAndFeel(String lookAndFeel) {
-        this.lookAndFeel = lookAndFeel;
-        getConfig().setProperty(LOOK_AND_FEEL, lookAndFeel);
+        setLookAndFeelInfo(new LookAndFeelInfo(lookAndFeel, ""));
+    }
+
+    /**
+     * Gets the info of the selected look and feel.
+     *
+     * @return the info of the look and feel.
+     * @since 2.10.0
+     * @see #getLookAndFeel()
+     */
+    public LookAndFeelInfo getLookAndFeelInfo() {
+        return this.lookAndFeelInfo;
+    }
+
+    /**
+     * Sets the info of the selected look and feel.
+     *
+     * @param lookAndFeelInfo the info of the look and feel.
+     * @throws NullPointerException if the given parameter is null.
+     * @since 2.10.0
+     */
+    public void setLookAndFeelInfo(LookAndFeelInfo lookAndFeelInfo) {
+        LookAndFeelInfo oldLookAndFeel = this.lookAndFeelInfo;
+        this.lookAndFeelInfo = Objects.requireNonNull(lookAndFeelInfo);
+
+        if (!oldLookAndFeel.getClassName().equals(this.getLookAndFeelInfo().getClassName())) {
+            // Only dynamically apply the LaF if its changed
+            getConfig().setProperty(LOOK_AND_FEEL, lookAndFeelInfo.getName());
+            getConfig().setProperty(LOOK_AND_FEEL_CLASS, lookAndFeelInfo.getClassName());
+
+            if (View.isInitialised()) {
+                final JDialog dialog = new SwitchingLookAndFeelDialog();
+                dialog.setVisible(true);
+                // Wait for 1/2 sec to allow the warning dialog to be rendered
+                Timer timer =
+                        new Timer(
+                                500,
+                                e -> {
+                                    try {
+                                        UIManager.setLookAndFeel(lookAndFeelInfo.getClassName());
+                                        Arrays.asList(Window.getWindows()).stream()
+                                                .forEach(SwingUtilities::updateComponentTreeUI);
+                                        View.getSingleton()
+                                                .getPopupList()
+                                                .forEach(SwingUtilities::updateComponentTreeUI);
+                                    } catch (Exception e2) {
+                                        LOG.warn(
+                                                "Failed to set the look and feel: "
+                                                        + e2.getMessage());
+                                    } finally {
+                                        dialog.setVisible(false);
+                                        dialog.dispose();
+                                    }
+                                });
+                timer.setRepeats(false);
+                timer.start();
+            }
+        }
     }
 
     public boolean isScaleImages() {
@@ -632,5 +736,25 @@ public class OptionsParamView extends AbstractParam {
 
     private String getFontSizeConfKey(FontUtils.FontType fontType) {
         return getFontConfKey(fontType, FONT_SIZE_POSTFIX);
+    }
+
+    private static class SwitchingLookAndFeelDialog extends AbstractDialog {
+        private static final long serialVersionUID = 1L;
+        private JPanel mainPanel;
+
+        public SwitchingLookAndFeelDialog() {
+            super(View.getSingleton().getMainFrame(), false);
+            this.setContentPane(getMainPanel());
+            this.pack();
+        }
+
+        private JPanel getMainPanel() {
+            if (mainPanel == null) {
+                mainPanel = new JPanel();
+                mainPanel.add(
+                        new JLabel(Constant.messages.getString("view.options.warn.applylaf")));
+            }
+            return mainPanel;
+        }
     }
 }

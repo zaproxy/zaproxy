@@ -27,6 +27,7 @@
 // ZAP: 2016/02/10 Issue 1958: Allow to disable database (HSQLDB) log
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
@@ -39,7 +40,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.hsqldb.Server;
 import org.parosproxy.paros.db.DatabaseServer;
 import org.parosproxy.paros.extension.option.DatabaseParam;
@@ -49,7 +51,7 @@ public class ParosDatabaseServer implements DatabaseServer {
     public static final int DEFAULT_SERVER_PORT = 9001;
 
     // ZAP: Added the class variable.
-    private static final Logger logger = Logger.getLogger(DatabaseServer.class);
+    private static final Logger logger = LogManager.getLogger(ParosDatabaseServer.class);
 
     //  change the url to reflect your preferred db location and name
     //  String url = "jdbc:hsqldb:hsql://localhost/yourtest";

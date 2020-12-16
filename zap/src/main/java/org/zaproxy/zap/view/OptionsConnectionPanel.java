@@ -104,8 +104,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
                             Constant.messages.getString("conn.options.proxy.auth.auth"),
                             javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                             javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                            FontUtils.getFont(FontUtils.Size.standard),
-                            java.awt.Color.black));
+                            FontUtils.getFont(FontUtils.Size.standard)));
             gridBagConstraints16.gridx = 0;
             gridBagConstraints16.gridy = 0;
             gridBagConstraints16.insets = new java.awt.Insets(2, 2, 2, 2);

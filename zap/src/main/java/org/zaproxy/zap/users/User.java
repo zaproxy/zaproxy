@@ -22,7 +22,8 @@ package org.zaproxy.zap.users;
 import java.util.List;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.httpclient.HttpState;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -39,7 +40,7 @@ import org.zaproxy.zap.utils.Enableable;
 public class User extends Enableable {
 
     /** The Constant log. */
-    private static final Logger log = Logger.getLogger(User.class);
+    private static final Logger log = LogManager.getLogger(User.class);
 
     /** The id source. */
     private static int ID_SOURCE = 0;
@@ -70,11 +71,10 @@ public class User extends Enableable {
     /** The extension auth. */
     private static ExtensionAuthentication extensionAuth;
 
-    /** The last successful auth time. */
-    private long lastSuccessfulAuthTime;
-
     /** The context. */
     private Context context;
+
+    private AuthenticationState authenticationState = new AuthenticationState();
 
     /**
      * Instantiates a new user.
@@ -179,8 +179,16 @@ public class User extends Enableable {
                 }
             }
         }
+        processMessageToMatchAuthenticatedSession(message);
+    }
 
-        // Modify the message accordingly
+    /**
+     * Modifies a message so its Request Header/Body matches the web session corresponding to this
+     * user.
+     *
+     * @param message the message
+     */
+    public void processMessageToMatchAuthenticatedSession(HttpMessage message) {
         getContext()
                 .getSessionManagementMethod()
                 .processMessageToMatchSession(message, authenticatedSession);
@@ -223,7 +231,8 @@ public class User extends Enableable {
      */
     public void queueAuthentication(HttpMessage unauthenticatedMessage) {
         synchronized (this) {
-            if (unauthenticatedMessage.getTimeSentMillis() >= getLastSuccessfulAuthTime())
+            if (unauthenticatedMessage.getTimeSentMillis()
+                    >= this.getAuthenticationState().getLastSuccessfulAuthTime())
                 authenticatedSession = null;
         }
     }
@@ -232,9 +241,11 @@ public class User extends Enableable {
      * Gets the last successful auth time.
      *
      * @return the time of last successful authentication
+     * @deprecated use #getAuthenticationState().getLastSuccessfulAuthTime()
      */
+    @Deprecated
     protected long getLastSuccessfulAuthTime() {
-        return lastSuccessfulAuthTime;
+        return this.getAuthenticationState().getLastSuccessfulAuthTime();
     }
 
     /**
@@ -244,7 +255,7 @@ public class User extends Enableable {
      * @return true, if is authenticated
      */
     public boolean isAuthenticated(HttpMessage msg) {
-        return getContext().getAuthenticationMethod().isAuthenticated(msg);
+        return getContext().getAuthenticationMethod().isAuthenticated(msg, this);
     }
 
     /**
@@ -271,7 +282,7 @@ public class User extends Enableable {
         }
         // no issues appear if a simultaneous call to #queueAuthentication() is made
         synchronized (this) {
-            this.lastSuccessfulAuthTime = System.currentTimeMillis();
+            this.getAuthenticationState().setLastSuccessfulAuthTime(System.currentTimeMillis());
             this.authenticatedSession = result;
         }
     }
@@ -400,5 +411,15 @@ public class User extends Enableable {
 
     public void setAuthenticatedSession(WebSession session) {
         this.authenticatedSession = session;
+    }
+
+    /**
+     * Returns the authentication state for this user.
+     *
+     * @return the authentication state
+     * @since 2.10.0
+     */
+    public AuthenticationState getAuthenticationState() {
+        return authenticationState;
     }
 }

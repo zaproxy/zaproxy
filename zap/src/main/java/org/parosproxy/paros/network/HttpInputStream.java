@@ -24,6 +24,9 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/08/25 Correctly read chunks of the body.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2020/12/09 Set content encoding to the request body.
 package org.parosproxy.paros.network;
 
 import java.io.BufferedInputStream;
@@ -31,14 +34,15 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import javax.net.ssl.SSLSocket;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 
 public class HttpInputStream extends BufferedInputStream {
-    private static Logger log = Logger.getLogger(HttpInputStream.class);
+    private static Logger log = LogManager.getLogger(HttpInputStream.class);
 
-    private static final int BUFFER_SIZE = 4096;
+    static final int BUFFER_SIZE = 4096;
     private static final String CRLF = "\r\n";
     private static final String CRLF2 = CRLF + CRLF;
     private static final String LF = "\n";
@@ -134,6 +138,8 @@ public class HttpInputStream extends BufferedInputStream {
 
         readBody(contentLength, body);
 
+        HttpMessage.setContentEncodings(httpHeader, body);
+
         return body;
     }
 
@@ -201,7 +207,7 @@ public class HttpInputStream extends BufferedInputStream {
 
         } else {
             remainingLen = contentLength - readBodyLength;
-            if (remainingLen < buffer.length && remainingLen > 0) {
+            if (remainingLen <= buffer.length && remainingLen > 0) {
                 //				len = in.read(buffer,0,remainingLen);
                 len = super.read(buffer, 0, remainingLen);
 

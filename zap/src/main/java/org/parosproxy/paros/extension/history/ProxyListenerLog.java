@@ -35,11 +35,14 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/30 Use instance variable for view checks.
+// ZAP: 2020/08/04 Changed to use new SessionStructure method
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
@@ -57,7 +60,7 @@ import org.zaproxy.zap.model.StructuralNode;
 public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListener {
 
     // ZAP: Added logger
-    private static final Logger log = Logger.getLogger(ProxyListenerLog.class);
+    private static final Logger log = LogManager.getLogger(ProxyListenerLog.class);
 
     // ZAP: Must be the last one of all listeners to be notified, as is the one that saves the
     // HttpMessage
@@ -91,12 +94,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
         //	    }
 
         try {
-            StructuralNode node =
-                    SessionStructure.find(
-                            model.getSession().getSessionId(),
-                            msg.getRequestHeader().getURI(),
-                            msg.getRequestHeader().getMethod(),
-                            msg.getRequestBody().toString());
+            StructuralNode node = SessionStructure.find(model, msg);
             if (node != null) {
                 HttpMessage existingMsg = node.getHistoryReference().getHttpMessage();
                 // check if a msg of the same type exist
@@ -201,7 +199,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
             return;
         }
 
-        SessionStructure.addPath(model.getSession(), ref, msg);
+        SessionStructure.addPath(model, ref, msg);
         if (isFirstAccess && !Constant.isLowMemoryOptionSet()) {
             isFirstAccess = false;
             if (hasView()) {

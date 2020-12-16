@@ -19,7 +19,8 @@
  */
 package org.zaproxy.zap.spider.filters;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -28,8 +29,26 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public abstract class ParseFilter {
 
-    /** The Constant log. */
-    protected static final Logger log = Logger.getLogger(ParseFilter.class);
+    /**
+     * The Constant log.
+     *
+     * @deprecated (2.10.0) Use {@link #getLogger()} instead.
+     */
+    @Deprecated
+    protected static final org.apache.log4j.Logger log =
+            org.apache.log4j.Logger.getLogger(ParseFilter.class);
+
+    private final Logger logger = LogManager.getLogger(getClass());
+
+    /**
+     * Gets the logger.
+     *
+     * @return the logger, never {@code null}.
+     * @since 2.10.0
+     */
+    protected Logger getLogger() {
+        return logger;
+    }
 
     /**
      * Checks if the resource must be ignored and not processed.
@@ -70,6 +89,12 @@ public abstract class ParseFilter {
 
         /** Indicates that the resource was not filtered. */
         public static final FilterResult NOT_FILTERED = new FilterResult();
+
+        /**
+         * Indicates that the resource is wanted by a custom parser. The resource skips the default
+         * filter, if no other filter filters it out.
+         */
+        public static final FilterResult WANTED = new FilterResult();
 
         /** Indicates that the resource was filtered, with no specific reason. */
         public static final FilterResult FILTERED = new FilterResult("");

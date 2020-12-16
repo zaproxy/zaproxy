@@ -26,13 +26,15 @@
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.TreeMap;
 import java.util.Vector;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Knowledge base records the properties or result found during a scan. It is mainly used to share
@@ -45,7 +47,7 @@ import org.apache.log4j.Logger;
 public class Kb {
 
     // ZAP: Added logger.
-    private static final Logger logger = Logger.getLogger(Kb.class);
+    private static final Logger logger = LogManager.getLogger(Kb.class);
 
     // KB related
     // ZAP: Added the type arguments.

@@ -40,6 +40,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/13 Handle proxy port conflict at startup (issue 2016).
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -57,7 +58,8 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 import javax.swing.JOptionPane;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpUtil;
@@ -84,7 +86,7 @@ public class ProxyServer implements Runnable {
     protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<>();
     private List<Pattern> excludeUrls = null;
     private boolean enableApi = false;
-    private static Logger log = Logger.getLogger(ProxyServer.class);
+    private static Logger log = LogManager.getLogger(ProxyServer.class);
     private String threadName = "ZAP-ProxyServer";
     private boolean shouldPrompt = false;
 

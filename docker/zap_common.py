@@ -30,8 +30,9 @@ import sys
 import time
 import traceback
 import errno
-import imp
 import zapv2
+from types import ModuleType
+from importlib.machinery import SourceFileLoader
 from random import randint
 from six.moves.urllib.request import urlopen
 from six import binary_type
@@ -43,12 +44,22 @@ except ImportError:
     logging.warning('Error importing pkg_resources. Is setuptools installed?')
 
 
+class ScanNotStartedException(Exception):
+    pass
+
+class UserInputException(Exception):
+    pass
+
 OLD_ZAP_CLIENT_WARNING = '''A newer version of python_owasp_zap_v2.4
  is available. Please run \'pip install -U python_owasp_zap_v2.4\' to update to
  the latest version.'''.replace('\n', '')
 
 zap_conf_lvls = ["PASS", "IGNORE", "INFO", "WARN", "FAIL"]
 zap_hooks = None
+context_id = None
+context_name = None
+context_users = None
+scan_user = None
 
 def load_custom_hooks(hooks_file=None):
     """ Loads a custom python module which modifies zap scripts behaviour
@@ -59,10 +70,19 @@ def load_custom_hooks(hooks_file=None):
     hooks_file = os.path.expanduser(hooks_file)
 
     if not os.path.exists(hooks_file):
-        logging.debug('Could not find custom hooks file at %s ' % hooks_file)
+        # Check to see if its in the wrk directory
+        hooks_file2 = os.path.expanduser('wrk/' + hooks_file)
+        if os.path.exists(hooks_file2):
+            hooks_file = hooks_file2
+        
+    if not os.path.exists(hooks_file):
+        logging.warning('Could not find custom hooks file at %s ' % os.path.abspath(hooks_file))
         return
 
-    zap_hooks = imp.load_source("zap_hooks", hooks_file)
+    loader = SourceFileLoader("zap_hooks", hooks_file)
+    hooks_module = ModuleType(loader.name)
+    loader.exec_module(hooks_module)
+    zap_hooks = hooks_module
 
 
 def hook(hook_name=None, **kwargs):
@@ -240,7 +260,7 @@ def cp_to_docker(cid, file, dir):
 
 
 def running_in_docker():
-    return os.path.exists('/.dockerenv')
+    return os.path.exists('/.dockerenv') or os.path.exists('/run/.containerenv') or os.environ.get("IS_CONTAINERIZED") == "true"
 
 
 def add_zap_options(params, zap_options):
@@ -257,13 +277,14 @@ def start_zap(port, extra_zap_params):
         'zap-x.sh', '-daemon',
         '-port', str(port),
         '-host', '0.0.0.0',
+        '-config', 'database.recoverylog=false',
         '-config', 'api.disablekey=true',
         '-config', 'api.addrs.addr.name=.*',
         '-config', 'api.addrs.addr.regex=true']
 
     params.extend(extra_zap_params)
 
-    logging.info('Params: ' + str(params))
+    logging.debug('Params: ' + str(params))
 
     with open('zap.out', "w") as outfile:
         subprocess.Popen(params, stdout=outfile)
@@ -312,13 +333,14 @@ def start_docker_zap(docker_image, port, extra_zap_params, mount_dir):
             'zap-x.sh', '-daemon',
             '-port', str(port),
             '-host', '0.0.0.0',
+            '-config', 'database.recoverylog=false',
             '-config', 'api.disablekey=true',
             '-config', 'api.addrs.addr.name=.*',
             '-config', 'api.addrs.addr.regex=true'])
 
     params.extend(extra_zap_params)
 
-    logging.info('Params: ' + str(params))
+    logging.debug('Params: ' + str(params))
 
     cid = subprocess.check_output(params).rstrip().decode('utf-8')
     logging.debug('Docker CID: ' + cid)
@@ -365,10 +387,29 @@ def zap_access_target(zap, target):
         raise IOError(errno.EIO, 'ZAP failed to access: {0}'.format(target))
 
 
+def zap_tune(zap):
+    logging.debug('Tune')
+    logging.debug('Disable all tags')
+    zap.pscan.disable_all_tags()
+    logging.debug('Set max pscan alerts')
+    zap.pscan.set_max_alerts_per_rule(10)
+
+
+def raise_scan_not_started():
+    raise ScanNotStartedException('Failed to start the scan, check the log/output for more details.')
+
+
 @hook(wrap=True)
 def zap_spider(zap, target):
-    logging.debug('Spider ' + target)
-    spider_scan_id = zap.spider.scan(target)
+    if scan_user:
+        logging.debug('Spider %s as user %s', target, scan_user['name'])
+        spider_scan_id = zap.spider.scan_as_user(context_id, scan_user['id'])
+    else:
+        logging.debug('Spider %s', target)
+        spider_scan_id = zap.spider.scan(target, contextname=context_name)
+
+    if not str(spider_scan_id).isdigit():
+        raise_scan_not_started()
     time.sleep(5)
 
     while (int(zap.spider.status(spider_scan_id)) < 100):
@@ -379,22 +420,34 @@ def zap_spider(zap, target):
 
 @hook(wrap=True)
 def zap_ajax_spider(zap, target, max_time):
-    logging.debug('AjaxSpider ' + target)
     if max_time:
         zap.ajaxSpider.set_option_max_duration(str(max_time))
-    zap.ajaxSpider.scan(target)
+    if scan_user:
+        logging.debug('AjaxSpider %s as user %s', target, scan_user['name'])
+        result = zap.ajaxSpider.scan_as_user(context_name, scan_user['name'], target)
+    else:
+        logging.debug('AjaxSpider %s', target)
+        result = zap.ajaxSpider.scan(target, contextname=context_name)
+    if result != "OK":
+        raise_scan_not_started()
     time.sleep(5)
 
     while (zap.ajaxSpider.status == 'running'):
-        logging.debug('Ajax Spider running, found urls: ' + zap.ajaxSpider.number_of_results)
+        logging.debug('Ajax Spider running, found urls: %s', zap.ajaxSpider.number_of_results)
         time.sleep(5)
     logging.debug('Ajax Spider complete')
 
 
 @hook(wrap=True)
 def zap_active_scan(zap, target, policy):
-    logging.debug('Active Scan ' + target + ' with policy ' + policy)
-    ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy)
+    if scan_user:
+        logging.debug('Active Scan %s with policy %s as user %s', target, policy, scan_user['name'])
+        ascan_scan_id = zap.ascan.scan_as_user(target, recurse=True, scanpolicyname=policy, contextid=context_id, userid=scan_user['id'])
+    else:
+        logging.debug('Active Scan %s with policy %s', target, policy)
+        ascan_scan_id = zap.ascan.scan(target, recurse=True, scanpolicyname=policy, contextid=context_id)
+    if not str(ascan_scan_id).isdigit():
+        raise_scan_not_started()
     time.sleep(5)
 
     while(int(zap.ascan.status(ascan_scan_id)) < 100):
@@ -423,7 +476,7 @@ def zap_wait_for_passive_scan(zap, timeout_in_secs = 0):
 
 
 @hook(wrap=True)
-def zap_get_alerts(zap, baseurl, blacklist, out_of_scope_dict):
+def zap_get_alerts(zap, baseurl, ignore_scan_rules, out_of_scope_dict):
     # Retrieve the alerts using paging in case there are lots of them
     st = 0
     pg = 5000
@@ -435,7 +488,7 @@ def zap_get_alerts(zap, baseurl, blacklist, out_of_scope_dict):
         alert_count += len(alerts)
         for alert in alerts:
             plugin_id = alert.get('pluginId')
-            if plugin_id in blacklist:
+            if plugin_id in ignore_scan_rules:
                 continue
             if not is_in_scope(plugin_id, alert.get('url'), out_of_scope_dict):
                 continue
@@ -457,10 +510,6 @@ def get_latest_zap_client_version():
     try:
         version_info = urlopen('https://pypi.python.org/pypi/python-owasp-zap-v2.4/json', timeout=10)
     except Exception as e:
-        logging.warning('Error fetching latest ZAP Python API client version: %s' % e)
-        return None
-
-    if version_info is None:
         logging.warning('Error fetching latest ZAP Python API client version: %s' % e)
         return None
 
@@ -508,8 +557,26 @@ def write_report(file_path, report):
 
 @hook(wrap=True)
 def zap_import_context(zap, context_file):
+    global context_id
+    global context_name
+    global context_users
     res = context_id = zap.context.import_context(context_file)
-    if res.startswith("ZAP Error"):
+    try:
+        int(res)
+        context_name = zap.context.context_list[-1]
+        context_users = zap.users.users_list(context_id)
+        
+    except ValueError:
         context_id = None
         logging.error('Failed to load context file ' + context_file + ' : ' + res)
     return context_id
+
+@hook(wrap=True)
+def zap_set_scan_user(zap, username):
+    global scan_user
+    for usr in context_users:
+        if usr['name'] == username:
+            logging.debug('Found user ' + username)
+            scan_user = usr
+            return
+    raise UserInputException('ZAP failed to find user: {0}'.format(username))

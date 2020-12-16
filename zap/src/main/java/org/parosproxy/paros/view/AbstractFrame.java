@@ -25,6 +25,8 @@
 // ZAP: 2015/09/07 Move icon loading to a utility class
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/11/05 Remove abstract modifier.
+// ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.view;
 
 import java.awt.Dimension;
@@ -41,7 +43,8 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.DisplayUtils;
 
@@ -61,7 +64,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  * #setPreferredSize(Dimension)} instead. Also, don't use {@link #setLocation(Point)}. This abstract
  * class will automatically take care of size and position.
  */
-public abstract class AbstractFrame extends JFrame {
+public class AbstractFrame extends JFrame {
 
     private static final long serialVersionUID = 6751593232255236597L;
 
@@ -76,7 +79,7 @@ public abstract class AbstractFrame extends JFrame {
     private final Preferences preferences;
 
     private final String prefnzPrefix = this.getClass().getSimpleName() + ".";
-    private final Logger logger = Logger.getLogger(AbstractFrame.class);
+    private final Logger logger = LogManager.getLogger(AbstractFrame.class);
 
     /** This is the default constructor */
     public AbstractFrame() {
