@@ -1644,8 +1644,8 @@ public class Session {
      * @param msg
      * @param type
      * @return
-     * @deprecated 2.10.0 use #getParameters(String) This method will lose duplicated
-     *     parameter names
+     * @deprecated 2.10.0 use #getParameters(String) This method will lose duplicated parameter
+     *     names
      */
     @Deprecated
     public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {

@@ -583,8 +583,8 @@ public class OptionsParamView extends AbstractParam {
      *
      * @param lookAndFeel the name.
      * @since 2.8.0
-     * @deprecated (2.10.0) Use {@link #setLookAndFeelInfo(LookAndFeelInfo)} instead,
-     *     which preserves the class of the look and feel.
+     * @deprecated (2.10.0) Use {@link #setLookAndFeelInfo(LookAndFeelInfo)} instead, which
+     *     preserves the class of the look and feel.
      */
     @Deprecated
     public void setLookAndFeel(String lookAndFeel) {

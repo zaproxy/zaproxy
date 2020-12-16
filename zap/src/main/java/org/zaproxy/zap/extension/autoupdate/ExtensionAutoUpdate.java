@@ -94,8 +94,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     private static final String NAME = "ExtensionAutoUpdate";
 
-    // The short URL means that the number of checkForUpdates can be tracked - see
-    // https://bitly.com/u/psiinon
+    // The short URL means that the number of checkForUpdates can be tracked
     // Note that URLs must now use https (unless you change the code;)
 
     private static final String ZAP_VERSIONS_REL_XML_DESKTOP_SHORT =
