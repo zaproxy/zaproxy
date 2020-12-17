@@ -19,8 +19,8 @@ plugins {
 }
 
 group = "org.zaproxy"
-version = "2.10.0"
-val versionBC = "2.9.0"
+version = "2.11.0-SNAPSHOT"
+val versionBC = "2.10.0"
 
 val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
@@ -139,36 +139,13 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     newClasspath = files(tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).map { it.archivePath })
     setIgnoreMissingClasses(true)
 
-    packageExcludes = listOf(
-        // Not intended to be used (directly) by add-ons.
-        "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers"
-    )
+    packageExcludes = listOf()
 
-    fieldExcludes = listOf(
-        // Not part of the public API:
-        "org.zaproxy.zap.extension.autoupdate.AddOnsTableModel#logger",
-        "org.zaproxy.zap.extension.users.DialogAddUser#log",
-        "org.zaproxy.zap.ZAP#JERICHO_LOGGER_PROVIDER"
-    )
+    fieldExcludes = listOf()
 
-    classExcludes = listOf(
-        "org.parosproxy.paros.db.paros.ParosTableAlert",
-        "org.parosproxy.paros.db.RecordAlert",
-        "org.zaproxy.zap.db.sql.SqlTableAlert",
-        "org.zaproxy.zap.extension.log4j.ZapOutputWriter",
-        "org.zaproxy.zap.extension.script.PacScript"
-    )
+    classExcludes = listOf()
 
-    methodExcludes = listOf(
-        "org.parosproxy.paros.network.HttpMessage#getParamNameSet(org.parosproxy.paros.network.HtmlParameter\$Type,java.lang.String)",
-        "org.parosproxy.paros.core.scanner.Variant#getLeafName(java.lang.String,org.parosproxy.paros.network.HttpMessage)",
-        "org.parosproxy.paros.core.scanner.Variant#getTreePath(org.parosproxy.paros.network.HttpMessage)",
-        "org.parosproxy.paros.core.scanner.VariantScript#getLeafName(org.parosproxy.paros.core.scanner.VariantCustom,java.lang.String,org.parosproxy.paros.network.HttpMessage)",
-        "org.parosproxy.paros.core.scanner.VariantScript#getTreePath(org.parosproxy.paros.core.scanner.VariantCustom,org.parosproxy.paros.network.HttpMessage)",
-        "org.parosproxy.paros.db.TableAlert#write(int,int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int)",
-        "org.zaproxy.zap.CommandLineBootstrap#getLogger()",
-        "org.zaproxy.zap.model.ParameterParser#parseRawParameters(java.lang.String)"
-    )
+    methodExcludes = listOf()
 
     richReport {
         destinationDir = file("$buildDir/reports/japicmp/")
