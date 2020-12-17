@@ -124,8 +124,11 @@ public class OptionsParamView extends AbstractParam {
      *
      * @since 2.10.0
      */
+    public static final String DEFAULT_LOOK_AND_FEEL_NAME = "Flat Light";
+
+    public static final String DEFAULT_LOOK_AND_FEEL_CLASS = "com.formdev.flatlaf.FlatLightLaf";
     public static final LookAndFeelInfo DEFAULT_LOOK_AND_FEEL =
-            new LookAndFeelInfo("Flat Light", "com.formdev.flatlaf.FlatLightLaf");
+            new LookAndFeelInfo(DEFAULT_LOOK_AND_FEEL_NAME, DEFAULT_LOOK_AND_FEEL_CLASS);
 
     private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY =
             "view.confirmRemoveProxyExcludeRegex";

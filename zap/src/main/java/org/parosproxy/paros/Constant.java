@@ -1125,6 +1125,11 @@ public final class Constant {
         // Update to a newer default user agent
         config.setProperty(
                 ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
+        // Use new Look and Feel
+        config.setProperty(
+                OptionsParamView.LOOK_AND_FEEL, OptionsParamView.DEFAULT_LOOK_AND_FEEL_NAME);
+        config.setProperty(
+                OptionsParamView.LOOK_AND_FEEL_CLASS, OptionsParamView.DEFAULT_LOOK_AND_FEEL_CLASS);
     }
 
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
