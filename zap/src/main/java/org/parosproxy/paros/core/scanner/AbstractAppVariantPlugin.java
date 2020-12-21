@@ -16,7 +16,6 @@ import org.zaproxy.zap.extension.ascan.VariantFactory;
 public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
 
     private final Logger logger = Logger.getLogger(this.getClass());
-    private Variant variant = null;
 
     @Override
     public void scan() {
@@ -38,10 +37,10 @@ public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
 
             HttpMessage msg = getNewMsg();
             // ZAP: Removed unnecessary cast.
-            variant = listVariant.get(i);
+            Variant variant = listVariant.get(i);
             try {
                 variant.setMessage(msg);
-                scanVariant();
+                scanVariant(variant);
 
             } catch (Exception e) {
                 logger.error(
@@ -58,7 +57,7 @@ public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
     }
 
     /** Scan the current message using the current Variant */
-    private void scanVariant() {
+    private void scanVariant(Variant variant) {
         HttpMessage msg = getNewMsg();
         try {
             scan(msg, variant);
@@ -68,47 +67,10 @@ public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
     }
 
     /**
-     * Plugin method that need to be implemented for the specific test. The passed message is a copy
-     * which maintains only the Request's information so if the plugin need to manage the original
-     * Response body a getBaseMsg() call should be done. the param name and the value are the
-     * original value retrieved by the crawler and the current applied Variant.
+     * Scan the current message using the provided Variant
      *
      * @param msg a copy of the HTTP message currently under scanning
      * @param variant
      */
     public abstract void scan(HttpMessage msg, Variant variant);
-
-    /**
-     * Sets the parameter into the given {@code message}. If both parameter name and value are
-     * {@code null}, the parameter will be removed.
-     *
-     * @param message the message that will be changed
-     * @param originalPair original name value pair
-     * @param param the name of the parameter
-     * @param value the value of the parameter
-     * @return the parameter set
-     * @see #setEscapedParameter(HttpMessage, NameValuePair, String, String)
-     */
-    public String setParameter(
-            HttpMessage message, NameValuePair originalPair, String param, String value) {
-        return variant.setParameter(message, originalPair, param, value);
-    }
-
-    /**
-     * Sets the parameter into the given {@code message}. If both parameter name and value are
-     * {@code null}, the parameter will be removed.
-     *
-     * <p>The value is expected to be properly encoded/escaped.
-     *
-     * @param message the message that will be changed
-     * @param originalPair original name value pair
-     * @param param the name of the parameter
-     * @param value the value of the parameter
-     * @return the parameter set
-     * @see #setParameter(HttpMessage,NameValuePair, String, String)
-     */
-    public String setEscapedParameter(
-            HttpMessage message, NameValuePair originalPair, String param, String value) {
-        return variant.setEscapedParameter(message, originalPair, param, value);
-    }
 }
