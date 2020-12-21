@@ -212,7 +212,7 @@ public class BreakpointMessageHandler2 {
 
     protected boolean isSkipOnIgnoreRules(
             Message aMessage, boolean isRequest, boolean onlyIfInScope) {
-        if (enabledIgnoreRules.isEmpty()) {
+        if (enabledIgnoreRules == null || enabledIgnoreRules.isEmpty()) {
             // No Ignoring rules
             return false;
         }
