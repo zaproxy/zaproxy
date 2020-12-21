@@ -54,8 +54,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppVariantPlugin {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
     private NameValuePair originalPair = null;
-    private Variant variant = null;
-
+    
     /** Scan the current message using the current Variant */
     public void scan(HttpMessage msg, Variant variant) {
     	for (int i = 0; i < variant.getParamList().size() && !isStop(); i++) {
@@ -159,7 +158,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppVariantPlugin {
      * @see #setEscapedParameter(HttpMessage, String, String)
      */
     protected String setParameter(HttpMessage message, String param, String value) {
-        return variant.setParameter(message, originalPair, param, value);
+        return super.setParameter(message, originalPair, param, value);
     }
 
     /**
@@ -175,6 +174,6 @@ public abstract class AbstractAppParamPlugin extends AbstractAppVariantPlugin {
      * @see #setParameter(HttpMessage, String, String)
      */
     protected String setEscapedParameter(HttpMessage message, String param, String value) {
-        return variant.setEscapedParameter(message, originalPair, param, value);
+        return super.setEscapedParameter(message, originalPair, param, value);
     }
 }
