@@ -2,7 +2,7 @@
 // By default it will raise 'Low' level alerts for content types that are not expected to be returned by APIs.
 // But it can be easily changed.
 
-var pluginid = 100001	// https://github.com/zaproxy/zaproxy/blob/develop/docs/scanners.md
+var pluginid = 100001	// https://github.com/zaproxy/zaproxy/blob/main/docs/scanners.md
 
 var extensionAlert = org.parosproxy.paros.control.Control.getSingleton().getExtensionLoader().getExtension(
 		org.zaproxy.zap.extension.alert.ExtensionAlert.NAME)
