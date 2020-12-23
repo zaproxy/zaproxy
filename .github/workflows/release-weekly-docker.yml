@@ -21,3 +21,5 @@ jobs:
           path: docker
           dockerfile: docker/Dockerfile-weekly
           tags: w${{ env.REL_DATE }},latest
+          build-args: |
+            WEBSWING_TOKEN=${{ secrets.WEBSWING_TOKEN }}
