@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2020-12-23
+ - Update Webswing to download prod version if valid key supplied.
+
 ### 2020-12-16
  - Update Webswing to latest version (20.2.1) to work with newer Java versions.
  - Update Java in stable image to version 11.
