@@ -21,7 +21,7 @@ jobs:
         name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
-          push: true
+          load: true
           context: docker
           file: docker/Dockerfile-weekly
           tags: |
@@ -29,3 +29,5 @@ jobs:
             owasp/zap2docker-weekly:latest
           build-args: |
             WEBSWING_TOKEN=${{ secrets.WEBSWING_TOKEN }}
+      - run: docker push owasp/zap2docker-weekly:w${{ env.REL_DATE }}
+      - run: docker push owasp/zap2docker-weekly:latest
