@@ -18,7 +18,7 @@ jobs:
           username: zapbot
           password: ${{ secrets.ZAPBOT_DOCKER_TOKEN }}
       -
-        name: Build and push Docker image
+        name: Build Docker image
         uses: docker/build-push-action@v2
         with:
           load: true
