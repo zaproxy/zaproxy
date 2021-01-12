@@ -1,7 +1,6 @@
 [
   {
     "cloneUrl": "https://github.com/zaproxy/zap-extensions.git",
-    "branch": "master",
     "projects": [
       ":addOns:accessControl",
       ":addOns:alertFilters",
@@ -48,13 +47,11 @@
   },
   {
     "cloneUrl": "https://github.com/zaproxy/zap-core-help.git",
-    "branch": "master",
     "projects": [
         ":addOns:help"
     ]
   },
   {
-    "cloneUrl": "https://github.com/zaproxy/zap-hud.git",
-    "branch": "develop"
+    "cloneUrl": "https://github.com/zaproxy/zap-hud.git"
   }
 ]
