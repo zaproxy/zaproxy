@@ -4,7 +4,7 @@ plugins {
     id("com.github.ben-manes.versions") version "0.33.0"
 }
 
-apply(from = "$rootDir/gradle/travis-ci.gradle.kts")
+apply(from = "$rootDir/gradle/ci.gradle.kts")
 
 allprojects {
     apply(plugin = "com.diffplug.gradle.spotless")
