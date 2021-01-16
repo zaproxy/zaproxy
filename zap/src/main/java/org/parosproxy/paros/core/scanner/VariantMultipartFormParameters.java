@@ -236,7 +236,7 @@ public class VariantMultipartFormParameters implements Variant {
                             + mpPart.getEnd());
         }
         newBodyBuilder.replace(mpPart.getStart(), mpPart.getEnd(), value);
-        int offset = value.length() - mpPart.getEnd() + mpPart.getStart() - 1;
+        int offset = value.length() - mpPart.getEnd() + mpPart.getStart();
         mpPart.setEnd(mpPart.getEnd() + offset);
         // As we have updated one value and this can impact other multipart params
         // Hence this logic is to update the other multipart params
