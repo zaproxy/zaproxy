@@ -56,6 +56,14 @@ public class MultipartFormParameter {
         return start;
     }
 
+    void setStart(int start) {
+        this.start = start;
+    }
+
+    void setEnd(int end) {
+        this.end = end;
+    }
+
     public int getEnd() {
         return end;
     }
