@@ -42,7 +42,7 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.1.1")
+    api("com.fifesoft:rsyntaxtextarea:3.1.2")
     api("com.github.zafarkhaja:java-semver:0.9.0")
     api("commons-beanutils:commons-beanutils:1.9.4")
     api("commons-codec:commons-codec:1.15")
@@ -77,7 +77,7 @@ dependencies {
     implementation("org.jitsi:ice4j:1.0") {
         setTransitive(false)
     }
-    implementation("com.formdev:flatlaf:0.45")
+    implementation("com.formdev:flatlaf:0.46")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
