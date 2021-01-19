@@ -2,11 +2,12 @@ import unittest
 from datetime import datetime
 from unittest.mock import Mock, PropertyMock, patch
 
-import zap_common
 import zapv2
 
-class TestZapCommon(unittest.TestCase):
+import zap_common
 
+
+class TestZapCommon(unittest.TestCase):
     def setUp(self):
         zap_common.context_id = None
         zap_common.context_name = None
@@ -22,14 +23,11 @@ class TestZapCommon(unittest.TestCase):
     def test_load_config(self):
         pass
 
-
     def test_is_in_scope(self):
         pass
 
-
     def zap_get_alerts(self):
         pass
-
 
     def test_zap_spider(self):
         """Spider is started and waits until finished."""
@@ -62,7 +60,9 @@ class TestZapCommon(unittest.TestCase):
         """AJAX Spider is started and waits until finished."""
         zap = Mock()
         zap.ajaxSpider.scan.return_value = "OK"
-        status = PropertyMock(side_effect=Mock(side_effect=["running", "running", "stopped"]))
+        status = PropertyMock(
+            side_effect=Mock(side_effect=["running", "running", "stopped"])
+        )
         type(zap.ajaxSpider).status = status
         number_of_results = PropertyMock(return_value=10)
         type(zap.ajaxSpider).number_of_results = number_of_results
@@ -118,7 +118,9 @@ class TestZapCommon(unittest.TestCase):
         with patch("time.sleep"):
             zap_common.zap_active_scan(zap, target, scan_policy_name)
 
-        zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name, contextid=None)
+        zap.ascan.scan.assert_called_once_with(
+            target, recurse=True, scanpolicyname=scan_policy_name, contextid=None
+        )
         zap.ascan.status.assert_called_with(scan_id)
         self.assertEqual(3, zap.ascan.status.call_count)
 
@@ -132,13 +134,17 @@ class TestZapCommon(unittest.TestCase):
         with self.assertRaises(zap_common.ScanNotStartedException):
             zap_common.zap_active_scan(zap, target, scan_policy_name)
 
-        zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name, contextid=None)
+        zap.ascan.scan.assert_called_once_with(
+            target, recurse=True, scanpolicyname=scan_policy_name, contextid=None
+        )
         zap.ascan.status.assert_not_called()
 
     def test_zap_wait_for_passive_scan(self):
         """Waits for the passive scan to finish."""
         zap = Mock()
-        records_to_scan = PropertyMock(side_effect=Mock(side_effect=["15", "10", "5", "0"]))
+        records_to_scan = PropertyMock(
+            side_effect=Mock(side_effect=["15", "10", "5", "0"])
+        )
         type(zap.pscan).records_to_scan = records_to_scan
         timeout_in_secs = None
 
@@ -168,7 +174,9 @@ class TestZapCommon(unittest.TestCase):
         zap.context.import_context.return_value = context_id
         context_file = "MyContext.context"
         context_name = "My Context"
-        type(zap.context).context_list = PropertyMock(return_value=["Default Context", context_name])
+        type(zap.context).context_list = PropertyMock(
+            return_value=["Default Context", context_name]
+        )
 
         imported_context_id = zap_common.zap_import_context(zap, context_file)
 
@@ -199,8 +207,10 @@ class TestZapCommon(unittest.TestCase):
 
         context_file = "MyContext.context"
         context_name = "My Context"
-        context_users = [{'name': 'user1', 'id': '1'}]
-        type(zap.context).context_list = PropertyMock(return_value=["Default Context", context_name])
+        context_users = [{"name": "user1", "id": "1"}]
+        type(zap.context).context_list = PropertyMock(
+            return_value=["Default Context", context_name]
+        )
         zap.users.users_list.return_value = context_users
 
         imported_context_id = zap_common.zap_import_context(zap, context_file)
@@ -234,7 +244,7 @@ class TestZapCommon(unittest.TestCase):
 
         user = "user1"
         user_id = "12"
-        zap_common.scan_user = {'name': user, 'id': user_id}
+        zap_common.scan_user = {"name": user, "id": user_id}
 
         zap = Mock()
         scan_id = 1
@@ -254,7 +264,9 @@ class TestZapCommon(unittest.TestCase):
 
         zap = Mock()
         zap.ajaxSpider.scan.return_value = "OK"
-        type(zap.ajaxSpider).status = PropertyMock(side_effect=Mock(side_effect=["stopped"]))
+        type(zap.ajaxSpider).status = PropertyMock(
+            side_effect=Mock(side_effect=["stopped"])
+        )
         target = "http://target.example.com"
         max_time = None
 
@@ -270,18 +282,22 @@ class TestZapCommon(unittest.TestCase):
 
         user_name = "user1"
         user_id = "12"
-        zap_common.scan_user = {'name': user_name, 'id': user_id}
+        zap_common.scan_user = {"name": user_name, "id": user_id}
 
         zap = Mock()
         zap.ajaxSpider.scan_as_user.return_value = "OK"
-        type(zap.ajaxSpider).status = PropertyMock(side_effect=Mock(side_effect=["stopped"]))
+        type(zap.ajaxSpider).status = PropertyMock(
+            side_effect=Mock(side_effect=["stopped"])
+        )
         target = "http://target.example.com"
         max_time = None
 
         with patch("time.sleep"):
             zap_common.zap_ajax_spider(zap, target, max_time)
 
-        zap.ajaxSpider.scan_as_user.assert_called_once_with(context_name, user_name, target)
+        zap.ajaxSpider.scan_as_user.assert_called_once_with(
+            context_name, user_name, target
+        )
 
     def test_zap_active_scan_uses_imported_context(self):
         """Active Scan uses imported context."""
@@ -297,8 +313,9 @@ class TestZapCommon(unittest.TestCase):
         with patch("time.sleep"):
             zap_common.zap_active_scan(zap, target, scan_policy_name)
 
-        zap.ascan.scan.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name,
-                                               contextid=context_id)
+        zap.ascan.scan.assert_called_once_with(
+            target, recurse=True, scanpolicyname=scan_policy_name, contextid=context_id
+        )
 
     def test_zap_active_scan_uses_user(self):
         """Active Scan uses specified user."""
@@ -306,7 +323,7 @@ class TestZapCommon(unittest.TestCase):
         zap_common.context_id = context_id
 
         user_id = "12"
-        zap_common.scan_user = {'name': 'user1', 'id': user_id}
+        zap_common.scan_user = {"name": "user1", "id": user_id}
 
         zap = Mock()
         zap.ascan.scan_as_user.return_value = 1
@@ -317,13 +334,18 @@ class TestZapCommon(unittest.TestCase):
         with patch("time.sleep"):
             zap_common.zap_active_scan(zap, target, scan_policy_name)
 
-        zap.ascan.scan_as_user.assert_called_once_with(target, recurse=True, scanpolicyname=scan_policy_name,
-                                               contextid=context_id, userid=user_id)
+        zap.ascan.scan_as_user.assert_called_once_with(
+            target,
+            recurse=True,
+            scanpolicyname=scan_policy_name,
+            contextid=context_id,
+            userid=user_id,
+        )
 
     def test_zap_tune(self):
         """Tune makes expected API calls."""
         zap = Mock()
-        
+
         zap.pscan.disable_all_tags.return_value = "OK"
         zap.pscan.set_max_alerts_per_rule.return_value = "OK"
 
@@ -337,8 +359,8 @@ class TestZapCommon(unittest.TestCase):
         context_id = "1"
         zap = Mock()
 
-        user_name = 'user1'
-        user = {'name': user_name, 'id': '1'}
+        user_name = "user1"
+        user = {"name": user_name, "id": "1"}
         zap_common.context_users = [user]
 
         zap_common.zap_set_scan_user(zap, user_name)
@@ -350,9 +372,9 @@ class TestZapCommon(unittest.TestCase):
         context_id = "1"
         zap = Mock()
 
-        user_name = 'user2'
-        user = {'name': user_name, 'id': '1'}
-        zap_common.context_users = [{'name': 'user1', 'id': '1'}, user]
+        user_name = "user2"
+        user = {"name": user_name, "id": "1"}
+        zap_common.context_users = [{"name": "user1", "id": "1"}, user]
 
         zap_common.zap_set_scan_user(zap, user_name)
 
@@ -365,7 +387,7 @@ class TestZapCommon(unittest.TestCase):
         zap_common.context_users = []
 
         with self.assertRaises(zap_common.UserInputException):
-            zap_common.zap_set_scan_user(zap, 'user1')
+            zap_common.zap_set_scan_user(zap, "user1")
 
         self.assertEqual(None, zap_common.scan_user)
 
@@ -374,12 +396,11 @@ class TestZapCommon(unittest.TestCase):
         context_id = "1"
         zap = Mock()
 
-        user_name = 'user1'
-        user = {'name': 'user2', 'id': '1'}
+        user_name = "user1"
+        user = {"name": "user2", "id": "1"}
         zap_common.context_users = [user]
 
         with self.assertRaises(zap_common.UserInputException):
             zap_common.zap_set_scan_user(zap, user_name)
 
         self.assertEqual(None, zap_common.scan_user)
-
