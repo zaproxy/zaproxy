@@ -66,6 +66,7 @@ from zap_common import *
 class NoUrlsException(Exception):
     pass
 
+SUPPORTED_FORMATS = ["openapi", "soap", "graphql"]
 
 config_dict = {}
 config_msg = {}
@@ -241,8 +242,8 @@ def main(argv):
     if len(target) == 0:
         usage()
         sys.exit(3)
-    if format != 'openapi' and format != 'soap' and format != 'graphql':
-        logging.warning('Format must be either \'openapi\', \'soap\', or \'graphql\'')
+    if format not in SUPPORTED_FORMATS:
+        logging.warning('Format must be one of %r', SUPPORTED_FORMATS)
         usage()
         sys.exit(3)
 
@@ -261,7 +262,7 @@ def main(argv):
         sys.exit(3)
 
     target_file = ''
-    if target.startswith('http://') or target.startswith('https://'):
+    if target.startswith(('http://', 'https://')):
         target_url = target
     elif format == 'graphql':
         logging.warning('Target must start with \'http://\' or \'https://\' and be a valid GraphQL endpoint.')
@@ -279,7 +280,7 @@ def main(argv):
 
     schema_file = ''
     if schema and format == 'graphql':
-        if schema.startswith('http://') or schema.startswith('https://'):
+        if schema.startswith(('http://', 'https://')):
             schema_url = schema
         else:
             # assume its a file
@@ -295,7 +296,7 @@ def main(argv):
     if port == 0:
         port = get_free_port()
 
-    logging.debug('Using port: ' + str(port))
+    logging.debug('Using port: %s', port)
 
     if config_file:
         # load config file from filestore
@@ -445,7 +446,7 @@ def main(argv):
                 res = zap.graphql.import_file(target, base_dir + schema) if schema_file else zap.graphql.import_url(target, schema_url)
             else:
                 res = zap.graphql.import_url(target)
-            logging.info('About ' + str(zap.core.number_of_messages()) + ' requests sent.')
+            logging.info('About %r requests sent.', zap.core.number_of_messages())
             urls = zap.core.urls()
 
         logging.debug('Import warnings: ' + str(res))
@@ -518,7 +519,7 @@ def main(argv):
                     f.write('# Only the rule identifiers are used - the names are just for info\n')
                     f.write('# You can add your own messages to each rule by appending them after a tab on each line.\n')
                     for key, rule in sorted(all_dict.items()):
-                        f.write(key + '\tWARN\t(' + rule + ')\n')
+                        f.write(f'{key}\tWARN\t({rule})\n')
 
             # print out the passing rules
             pass_dict = {}
@@ -601,13 +602,13 @@ def main(argv):
     except IOError as e:
         exception_raised = True
         print("ERROR %s" % e)
-        logging.warning('I/O error: ' + str(e))
+        logging.warning('I/O error: %s', e)
         dump_log_file(cid)
 
     except:
         exception_raised = True
         print("ERROR " + str(sys.exc_info()[0]))
-        logging.warning('Unexpected error: ' + str(sys.exc_info()[0]))
+        logging.warning('Unexpected error: %r', sys.exc_info()[0])
         dump_log_file(cid)
 
     if not running_in_docker():
