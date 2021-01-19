@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-01-19
+ - Python 3.5 is no longer supported.
+
 ### 2020-12-23
  - Update Webswing to download prod version if valid key supplied.
 
