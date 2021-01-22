@@ -72,8 +72,12 @@ public class SSLContextManager {
     public static final String SUN_PKCS11_CANONICAL_CLASS_NAME = "sun.security.pkcs11.SunPKCS11";
 
     /** The canonical class name of IBMPKCS11Impl Provider. */
-    public static final String IBM_PKCS11_CONONICAL_CLASS_NAME =
+    public static final String IBM_PKCS11_CANONICAL_CLASS_NAME =
             "com.ibm.crypto.pkcs11impl.provider.IBMPKCS11Impl";
+
+    /** @deprecated (2.11.0) Use {@link #IBM_PKCS11_CANONICAL_CLASS_NAME} */
+    @Deprecated
+    public static final String IBM_PKCS11_CONONICAL_CLASS_NAME = IBM_PKCS11_CANONICAL_CLASS_NAME;
 
     /** The name of Sun PKCS#11 Provider. */
     private static final String SUN_PKCS11_PROVIDER_NAME = "SunPKCS11";
@@ -156,7 +160,7 @@ public class SSLContextManager {
                     Class.forName(SUN_PKCS11_CANONICAL_CLASS_NAME);
                     return true;
                 } catch (Throwable ignore) {
-                    Class.forName(IBM_PKCS11_CONONICAL_CLASS_NAME);
+                    Class.forName(IBM_PKCS11_CANONICAL_CLASS_NAME);
                     return true;
                 }
             } else if (type.equals("msks")) {
@@ -391,7 +395,7 @@ public class SSLContextManager {
         } else if (isIbmPKCS11Provider()) {
             pkcs11 =
                     createInstance(
-                            IBM_PKCS11_CONONICAL_CLASS_NAME,
+                            IBM_PKCS11_CANONICAL_CLASS_NAME,
                             BufferedReader.class,
                             new BufferedReader(
                                     new InputStreamReader(configuration.toInpuStream())));
@@ -436,7 +440,7 @@ public class SSLContextManager {
 
     private static boolean isIbmPKCS11Provider() {
         try {
-            Class.forName(IBM_PKCS11_CONONICAL_CLASS_NAME);
+            Class.forName(IBM_PKCS11_CANONICAL_CLASS_NAME);
             return true;
         } catch (Throwable ignore) {
         }
