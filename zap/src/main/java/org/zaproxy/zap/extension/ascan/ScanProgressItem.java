@@ -57,7 +57,7 @@ public class ScanProgressItem {
         return pluginStats.getPluginName();
     }
 
-    /** @deprecated use {link #getAttackStrengthLabel} */
+    /** @deprecated (2.11.0) Use {@link #getAttackStrengthLabel} */
     @Deprecated
     public String getAttackStrenghtLabel() {
         return getAttackStrengthLabel();

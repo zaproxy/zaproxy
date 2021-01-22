@@ -75,10 +75,9 @@ public class SSLContextManager {
     public static final String IBM_PKCS11_CANONICAL_CLASS_NAME =
             "com.ibm.crypto.pkcs11impl.provider.IBMPKCS11Impl";
 
-    /** @deprecated use {link IBM_PKCS11_CANONICAL_CLASS_NAME} */
+    /** @deprecated (2.11.0) Use {@link #IBM_PKCS11_CANONICAL_CLASS_NAME} */
     @Deprecated
-    public static final String IBM_PKCS11_CONONICAL_CLASS_NAME =
-            "com.ibm.crypto.pkcs11impl.provider.IBMPKCS11Impl";
+    public static final String IBM_PKCS11_CONONICAL_CLASS_NAME = IBM_PKCS11_CANONICAL_CLASS_NAME;
 
     /** The name of Sun PKCS#11 Provider. */
     private static final String SUN_PKCS11_PROVIDER_NAME = "SunPKCS11";
