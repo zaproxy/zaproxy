@@ -33,6 +33,8 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -81,6 +83,60 @@ public class VariantJSONQueryUnitTest {
         // Then
         assertThat(parameters, is(empty()));
         assertLogEvent(Level.WARN, "EOF reached while reading JSON field name");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "True", "false", "False"})
+    public void shouldNotFindParametersForBooleanValues(String value)
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(
+                getMessageWithBody("{\"a\":" + value + ", \"b\":[" + value + "]}"));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"null", "Null"})
+    public void shouldNotFindParametersForNullValues(String value)
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(
+                getMessageWithBody("{\"a\":" + value + ", \"b\":[" + value + "]}"));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"[]", "{\"a\":[]}"})
+    public void shouldNotFindParametersWithEmptyArrays(String json)
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody(json));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"{}", "{\"a\":{}}", "[{}]"})
+    public void shouldNotFindParametersWithEmptyJsonObjects(String json)
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody(json));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
     }
 
     @Test
