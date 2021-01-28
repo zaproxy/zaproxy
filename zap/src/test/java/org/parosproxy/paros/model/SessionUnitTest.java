@@ -36,10 +36,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.parosproxy.paros.core.scanner.Variant;
@@ -58,7 +56,6 @@ public class SessionUnitTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        WithConfigsTest.setUpConstant();
         factory = new VariantFactory();
         Model model = mock(Model.class);
         given(model.getVariantFactory()).willReturn(factory);
@@ -66,11 +63,6 @@ public class SessionUnitTest {
 
         session = new Session(model);
         given(model.getSession()).willReturn(session);
-    }
-
-    @AfterEach
-    void cleanUp() {
-        Constant.messages = null;
     }
 
     /** Tests related to {@link Context}. */

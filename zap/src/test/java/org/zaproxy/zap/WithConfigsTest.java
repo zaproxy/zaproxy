@@ -94,7 +94,8 @@ public abstract class WithConfigsTest extends TestUtils {
         extensionLoader = mock(ExtensionLoader.class, withSettings().lenient());
 
         // Init all the things
-        setUpConstant();
+        Constant.getInstance();
+        setUpConstantMessages();
         Control.initSingletonForTesting(Model.getSingleton(), extensionLoader);
         Model.getSingleton().getOptionsParam().load(new ZapXmlConfiguration());
     }
@@ -104,8 +105,7 @@ public abstract class WithConfigsTest extends TestUtils {
         Constant.messages = null;
     }
 
-    public static void setUpConstant() {
-        Constant.getInstance();
+    public static void setUpConstantMessages() {
         I18N i18n = Mockito.mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), any())).willReturn("");
