@@ -1388,7 +1388,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                     String response = sw.toString();
                     msg.setResponseHeader(
                             API.getDefaultResponseHeader(
-                                    "application/pkix-cert;", response.length()));
+                                            "application/pkix-cert;", response.length())
+                                    + "Content-Disposition: attachment; filename=\"ZAPCACert.cer\"\r\n");
 
                     msg.setResponseBody(response);
                 } catch (Exception e) {

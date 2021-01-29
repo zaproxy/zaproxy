@@ -480,6 +480,14 @@ public class WebUI {
                                 + "="
                                 + API.getInstance()
                                         .getLongLivedNonce("/OTHER/core/other/proxy.pac/")));
+        sb.append(
+                Constant.messages.getString(
+                        "api.home.cacert",
+                        "/?"
+                                + API.API_NONCE_PARAM
+                                + "="
+                                + API.getInstance()
+                                        .getLongLivedNonce("/OTHER/core/other/rootcert/")));
         sb.append(Constant.messages.getString("api.home.links.header"));
         if (apiEnabled) {
             sb.append(Constant.messages.getString("api.home.links.api.enabled"));
