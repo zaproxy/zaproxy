@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-02-01
+ - Allow more flexibility to specify ZAP command line options when using Webswing:
+  - The default options stay as `-host 0.0.0.0 -port 8090` unless
+  - You specify an env var `ZAP_WEBSWING_OPTS` in which case that replaces the defaults
+  - If not then if a `/zap/wrk/owasp_zap_root_ca.key` file exists then this is loaded as the ZAP root cert
+  - If not then if the `/zap/wrk` is writable then ZAP will output the public and private ZAP cert into that directory
+  
 ### 2021-01-19
  - Python 3.5 is no longer supported.
 
