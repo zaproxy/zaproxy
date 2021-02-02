@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
  *
  * <p>Contains the host, port, version, and if names should be resolved by the proxy.
  *
- * @since TODO add version
+ * @since 2.10.0
  */
 public class SocksProxy {
 

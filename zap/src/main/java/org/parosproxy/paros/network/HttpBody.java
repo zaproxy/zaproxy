@@ -588,7 +588,7 @@ public abstract class HttpBody {
      * @param encodings the encodings
      * @throws NullPointerException if the given list or any of the encodings contained in the list
      *     are {@code null}.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public void setContentEncodings(List<HttpEncoding> encodings) {
         Objects.requireNonNull(encodings);
@@ -605,7 +605,7 @@ public abstract class HttpBody {
      * Gets the content encodings of the body.
      *
      * @return the encodings, never {@code null}.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public List<HttpEncoding> getContentEncodings() {
         return encodings;

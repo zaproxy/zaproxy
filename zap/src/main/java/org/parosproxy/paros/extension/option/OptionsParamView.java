@@ -122,10 +122,13 @@ public class OptionsParamView extends AbstractParam {
     /**
      * The default look and feel: Flat Light.
      *
-     * @since TODO add version
+     * @since 2.10.0
      */
+    public static final String DEFAULT_LOOK_AND_FEEL_NAME = "Flat Light";
+
+    public static final String DEFAULT_LOOK_AND_FEEL_CLASS = "com.formdev.flatlaf.FlatLightLaf";
     public static final LookAndFeelInfo DEFAULT_LOOK_AND_FEEL =
-            new LookAndFeelInfo("Flat Light", "com.formdev.flatlaf.FlatLightLaf");
+            new LookAndFeelInfo(DEFAULT_LOOK_AND_FEEL_NAME, DEFAULT_LOOK_AND_FEEL_CLASS);
 
     private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY =
             "view.confirmRemoveProxyExcludeRegex";
@@ -583,8 +586,8 @@ public class OptionsParamView extends AbstractParam {
      *
      * @param lookAndFeel the name.
      * @since 2.8.0
-     * @deprecated (TODO add version) Use {@link #setLookAndFeelInfo(LookAndFeelInfo)} instead,
-     *     which preserves the class of the look and feel.
+     * @deprecated (2.10.0) Use {@link #setLookAndFeelInfo(LookAndFeelInfo)} instead, which
+     *     preserves the class of the look and feel.
      */
     @Deprecated
     public void setLookAndFeel(String lookAndFeel) {
@@ -595,7 +598,7 @@ public class OptionsParamView extends AbstractParam {
      * Gets the info of the selected look and feel.
      *
      * @return the info of the look and feel.
-     * @since TODO add version
+     * @since 2.10.0
      * @see #getLookAndFeel()
      */
     public LookAndFeelInfo getLookAndFeelInfo() {
@@ -607,7 +610,7 @@ public class OptionsParamView extends AbstractParam {
      *
      * @param lookAndFeelInfo the info of the look and feel.
      * @throws NullPointerException if the given parameter is null.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public void setLookAndFeelInfo(LookAndFeelInfo lookAndFeelInfo) {
         LookAndFeelInfo oldLookAndFeel = this.lookAndFeelInfo;

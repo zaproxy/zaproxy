@@ -22,6 +22,7 @@
 // ZAP: 2018/07/27 Address JavaDoc warns.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/01/22 Fix typo.
 package org.parosproxy.paros.network;
 
 public final class HttpStatusCode {
@@ -73,8 +74,11 @@ public final class HttpStatusCode {
     public static final int NOT_IMPLEMENTED = 501;
     public static final int BAD_GATEWAY = 502;
     public static final int SERVICE_UNAVAILABLE = 503;
-    public static final int GATEWAY_TIEMOUT = 504;
+    public static final int GATEWAY_TIMEOUT = 504;
     public static final int HTTP_VERSION_NOT_SUPPORTED = 505;
+
+    /** @deprecated (2.11.0) Use {@link #GATEWAY_TIMEOUT} */
+    @Deprecated public static final int GATEWAY_TIEMOUT = 504;
 
     // ZAP: Added code array
     public static final int[] CODES = {
@@ -116,9 +120,15 @@ public final class HttpStatusCode {
         NOT_IMPLEMENTED,
         BAD_GATEWAY,
         SERVICE_UNAVAILABLE,
-        GATEWAY_TIEMOUT,
+        GATEWAY_TIMEOUT,
         HTTP_VERSION_NOT_SUPPORTED
     };
+
+    /** @deprecated (2.11.0) Use {@link #isInformational} */
+    @Deprecated
+    public static boolean isInformatinal(int statusCode) {
+        return isInformational(statusCode);
+    }
 
     /**
      * Check if a status code is informational. (100 &le; status &lt; 200)
@@ -126,7 +136,7 @@ public final class HttpStatusCode {
      * @param statusCode
      * @return true if informational
      */
-    public static boolean isInformatinal(int statusCode) {
+    public static boolean isInformational(int statusCode) {
         if (statusCode >= 100 && statusCode < 200) return true;
         else return false;
     }

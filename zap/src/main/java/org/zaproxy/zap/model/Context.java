@@ -818,7 +818,7 @@ public class Context {
      *     be evaluated
      * @return {@code true} if the HTTP message is a Custom Page of the type in question, {@code
      *     false} otherwise
-     * @since TODO add version
+     * @since 2.10.0
      * @see #isCustomPageWithFallback(HttpMessage,
      *     org.zaproxy.zap.extension.custompages.CustomPage.Type)
      */
@@ -835,7 +835,7 @@ public class Context {
      *     be evaluated
      * @return {@code true} if the HTTP message is a Custom Page of the type in question or the
      *     response has a relevant status code (500, 404, etc), {@code false} otherwise
-     * @since TODO add version
+     * @since 2.10.0
      * @see #isCustomPage(HttpMessage, org.zaproxy.zap.extension.custompages.CustomPage.Type)
      */
     public boolean isCustomPageWithFallback(HttpMessage msg, CustomPage.Type cpType) {

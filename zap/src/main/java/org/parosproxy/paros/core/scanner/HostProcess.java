@@ -1337,7 +1337,7 @@ public class HostProcess implements Runnable {
      * @param msg the message that will be checked
      * @param cpType the custom page type to be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     protected boolean isCustomPage(HttpMessage msg, CustomPage.Type cpType) {
         if (getContext() != null) {

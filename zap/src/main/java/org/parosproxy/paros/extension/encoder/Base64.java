@@ -159,7 +159,7 @@ import org.apache.logging.log4j.LogManager;
  * @author rob@iharder.net
  * @version 2.3.7
  *
- * @deprecated (TODO Add version) use {@link java.util.Base64}.
+ * @deprecated (2.10.0) use {@link java.util.Base64}.
  */
 @Deprecated
 public class Base64

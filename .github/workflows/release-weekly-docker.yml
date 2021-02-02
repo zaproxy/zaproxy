@@ -1,5 +1,4 @@
 name: Release Weekly Docker
-
 on:
   workflow_dispatch:
   repository_dispatch:
@@ -12,12 +11,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: echo "REL_DATE=$(date +%F)" >> $GITHUB_ENV
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v1
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1 
         with:
           username: zapbot
           password: ${{ secrets.ZAPBOT_DOCKER_TOKEN }}
-          repository: owasp/zap2docker-weekly
-          path: docker
-          dockerfile: docker/Dockerfile-weekly
-          tags: w${{ env.REL_DATE }},latest
+      -
+        name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          load: true
+          context: docker
+          file: docker/Dockerfile-weekly
+          tags: |
+            owasp/zap2docker-weekly:w${{ env.REL_DATE }}
+            owasp/zap2docker-weekly:latest
+          build-args: |
+            WEBSWING_TOKEN=${{ secrets.WEBSWING_TOKEN }}
+      - run: docker push owasp/zap2docker-weekly:w${{ env.REL_DATE }}
+      - run: docker push owasp/zap2docker-weekly:latest

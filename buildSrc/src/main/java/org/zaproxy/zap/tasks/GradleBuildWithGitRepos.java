@@ -155,8 +155,11 @@ public class GradleBuildWithGitRepos extends DefaultTask {
                                     if (quiet.get()) {
                                         execArgs.add("-q");
                                     }
-                                    execArgs.add("--branch");
-                                    execArgs.add(repoData.getBranch());
+                                    String branch = repoData.getBranch();
+                                    if (branch != null && !branch.isEmpty()) {
+                                        execArgs.add("--branch");
+                                        execArgs.add(branch);
+                                    }
                                     execArgs.add("--depth");
                                     execArgs.add("1");
                                     execArgs.add(cloneUrl);

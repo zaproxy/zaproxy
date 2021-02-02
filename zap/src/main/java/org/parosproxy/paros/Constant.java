@@ -181,7 +181,7 @@ public final class Constant {
     private static final String VERSION_ELEMENT = "version";
 
     // Accessible for tests
-    static final long VERSION_TAG = 2009000;
+    static final long VERSION_TAG = 2010000;
 
     // Old version numbers - for upgrade
     private static final long V_2_9_0_TAG = 2009000;
@@ -1125,6 +1125,11 @@ public final class Constant {
         // Update to a newer default user agent
         config.setProperty(
                 ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
+        // Use new Look and Feel
+        config.setProperty(
+                OptionsParamView.LOOK_AND_FEEL, OptionsParamView.DEFAULT_LOOK_AND_FEEL_NAME);
+        config.setProperty(
+                OptionsParamView.LOOK_AND_FEEL_CLASS, OptionsParamView.DEFAULT_LOOK_AND_FEEL_CLASS);
     }
 
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {

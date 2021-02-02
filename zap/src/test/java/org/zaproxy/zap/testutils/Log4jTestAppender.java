@@ -21,6 +21,7 @@ package org.zaproxy.zap.testutils;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.Property;
@@ -39,7 +40,10 @@ public class Log4jTestAppender extends AbstractAppender {
     @Override
     public void append(LogEvent event) {
         logEvents.add(
-                new AppendedLogEvent(event.getMessage().getFormattedMessage(), event.getThrown()));
+                new AppendedLogEvent(
+                        event.getLevel(),
+                        event.getMessage().getFormattedMessage(),
+                        event.getThrown()));
     }
 
     public List<AppendedLogEvent> getLogEvents() {
@@ -47,12 +51,18 @@ public class Log4jTestAppender extends AbstractAppender {
     }
 
     public static class AppendedLogEvent {
+        private final Level level;
         private final String message;
         private final Throwable exception;
 
-        private AppendedLogEvent(String message, Throwable exception) {
+        private AppendedLogEvent(Level level, String message, Throwable exception) {
+            this.level = level;
             this.message = message;
             this.exception = exception;
+        }
+
+        public Level getLevel() {
+            return level;
         }
 
         public String getMessage() {

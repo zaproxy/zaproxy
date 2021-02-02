@@ -19,4 +19,4 @@
  */
 package org.zaproxy.zap.internal
 
-data class RepoData(val cloneUrl: String, val branch: String, val projects: List<String>)
+data class RepoData(val cloneUrl: String, val branch: String?, val projects: List<String>)

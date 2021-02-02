@@ -240,7 +240,12 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
         } else {
             throw new IllegalArgumentException(
-                    "Unknown value type at position " + sr.getPosition());
+                    "Unknown value type '"
+                            + chr
+                            + "' for field '"
+                            + fieldName
+                            + "' at position "
+                            + sr.getPosition());
         }
     }
 

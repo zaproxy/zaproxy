@@ -229,7 +229,7 @@ public abstract class AuthenticationMethod {
         return httpSender;
     }
 
-    /** Deprecated TODO add version. */
+    /** Deprecated 2.10.0. */
     @Deprecated
     public boolean isAuthenticated(HttpMessage msg) {
         return this.isAuthenticated(msg, null, false);

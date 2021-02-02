@@ -8,6 +8,7 @@
 https://github.com/zaproxy/zap-extensions/releases/download/alertFilters-v10/alertFilters-release-10.zap b49fb21e407694ecc52b9202fa53a0edc02b122b253b97b3308e24bcb9df0ab6
 https://github.com/zaproxy/zap-extensions/releases/download/ascanrules-v38/ascanrules-release-38.zap 9f57189d59301874cafd40bdc58cabce3b091a420b7a46eefb23055553e743ed
 https://github.com/zaproxy/zap-extensions/releases/download/bruteforce-v10/bruteforce-beta-10.zap eb466993d97db676a422a459bdef85793da0910b1a0f830fd2e711c64fa162cc
+https://github.com/zaproxy/zap-extensions/releases/download/commonlib-v1.2.0/commonlib-release-1.2.0.zap 2199e76d008ad827c546b36c8204af663636239679f03932881802891c420a14
 https://github.com/zaproxy/zap-extensions/releases/download/diff-v10/diff-beta-10.zap 49f3637cc752b588be6dea182ecf362007e37d70976fd0dadff61925ae0dfd7b
 https://github.com/zaproxy/zap-extensions/releases/download/directorylistv1-v4/directorylistv1-release-4.zap 37581b311526009a8c7f070c1b843c6798c81a90856b04e9b63fb35001ef1317
 https://github.com/zaproxy/zap-extensions/releases/download/domxss-v10/domxss-beta-10.zap 12002f1582abf8d8be521d2ceec7c44846dde2916e16a29a11d92c86588f663e

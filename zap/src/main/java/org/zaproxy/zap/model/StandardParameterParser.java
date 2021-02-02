@@ -115,8 +115,8 @@ public class StandardParameterParser implements ParameterParser {
     }
 
     /**
-     * @deprecated TODO add version use #getParameters(String) This method will lose duplicated
-     *     parameter names
+     * @deprecated 2.10.0 use #getParameters(String) This method will lose duplicated parameter
+     *     names
      */
     @Deprecated
     @Override
@@ -238,8 +238,8 @@ public class StandardParameterParser implements ParameterParser {
     }
 
     /**
-     * @deprecated TODO add version use #parseParameters(String) This method will lose duplicated
-     *     parameter names
+     * @deprecated 2.10.0 use #parseParameters(String) This method will lose duplicated parameter
+     *     names
      */
     @Deprecated
     @Override

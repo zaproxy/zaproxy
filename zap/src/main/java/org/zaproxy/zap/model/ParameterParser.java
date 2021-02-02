@@ -32,8 +32,8 @@ public interface ParameterParser {
     void init(String config);
 
     /**
-     * @deprecated TODO add version use #getParameters(String) This method will lose duplicated
-     *     parameter names
+     * @deprecated 2.10.0 use #getParameters(String) This method will lose duplicated parameter
+     *     names
      */
     @Deprecated
     Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type);
@@ -58,8 +58,8 @@ public interface ParameterParser {
     List<NameValuePair> getParameters(HttpMessage msg, HtmlParameter.Type type);
 
     /**
-     * @deprecated TODO add version use #parseParameters(String) This method will lose duplicated
-     *     parameter names
+     * @deprecated 2.10.0 use #parseParameters(String) This method will lose duplicated parameter
+     *     names
      */
     @Deprecated
     Map<String, String> parse(String paramStr);

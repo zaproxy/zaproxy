@@ -1758,7 +1758,7 @@ public class AddOn {
      * marketplace.
      *
      * @return the release date, or {@code null} if not available.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public String getReleaseDate() {
         return releaseDate;

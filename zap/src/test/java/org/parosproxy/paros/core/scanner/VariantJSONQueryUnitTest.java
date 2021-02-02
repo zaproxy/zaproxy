@@ -21,17 +21,46 @@ package org.parosproxy.paros.core.scanner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
+import org.apache.logging.log4j.Level;
+import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.network.HttpRequestBody;
+import org.zaproxy.zap.testutils.Log4jTestAppender;
+import org.zaproxy.zap.testutils.Log4jTestAppender.AppendedLogEvent;
 
 /** Unit test for {@link VariantJSONQuery}. */
 public class VariantJSONQueryUnitTest {
+
+    private Log4jTestAppender testAppender;
+
+    @BeforeEach
+    void setup() {
+        LoggerContext context = LoggerContext.getContext();
+        context.getRootLogger()
+                .getAppenders()
+                .values()
+                .forEach(context.getRootLogger()::removeAppender);
+    }
+
+    @AfterEach
+    void cleanup() throws Exception {
+        Configurator.reconfigure(getClass().getResource("/log4j2-test.properties").toURI());
+    }
+
     @Test
     public void shouldHaveParametersListEmptyByDefault() {
         // Given
@@ -40,6 +69,87 @@ public class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
         assertThat(parameters, is(empty()));
+    }
+
+    @Test
+    public void shouldNotFindParameterFromMalformedJsonObject()
+            throws HttpMalformedHeaderException {
+        // Given
+        withLoggerAppender();
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody("{\"foo\":\""));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+        assertLogEvent(Level.WARN, "EOF reached while reading JSON field name");
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "True", "false", "False"})
+    public void shouldNotFindParametersForBooleanValues(String value)
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(
+                getMessageWithBody("{\"a\":" + value + ", \"b\":[" + value + "]}"));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"null", "Null"})
+    public void shouldNotFindParametersForNullValues(String value)
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(
+                getMessageWithBody("{\"a\":" + value + ", \"b\":[" + value + "]}"));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"[]", "{\"a\":[]}"})
+    public void shouldNotFindParametersWithEmptyArrays(String json)
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody(json));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"{}", "{\"a\":{}}", "[{}]"})
+    public void shouldNotFindParametersWithEmptyJsonObjects(String json)
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody(json));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+    }
+
+    @Test
+    public void shouldNotFindParameterFromUnknownValueType() throws HttpMalformedHeaderException {
+        // Given
+        withLoggerAppender();
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody("{\"foo\":something}"));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+        assertLogEvent(Level.WARN, "Unknown value type '115' for field 'foo' at position 8");
     }
 
     @Test
@@ -227,5 +337,27 @@ public class VariantJSONQueryUnitTest {
                 new HttpRequestHeader(
                         "POST / HTTP/1.1\nHost: www.example.com\nContent-Type: application/json"),
                 new HttpRequestBody(body));
+    }
+
+    private void assertLogEvent(Level level, String message) {
+        for (AppendedLogEvent logEvent : testAppender.getLogEvents()) {
+            String logMessage = logEvent.getMessage();
+            if (logMessage != null && logMessage.contains(message)) {
+                assertThat(
+                        "Log message with unexpected level.",
+                        logEvent.getLevel(),
+                        is(equalTo(level)));
+                return;
+            }
+        }
+        fail("Log message not found: " + message);
+    }
+
+    private void withLoggerAppender() {
+        testAppender = new Log4jTestAppender();
+        LoggerContext context = LoggerContext.getContext();
+        Logger logger = context.getLogger(VariantJSONQuery.class.getCanonicalName());
+        context.getConfiguration().addLoggerAppender(logger, testAppender);
+        logger.setLevel(Level.ALL);
     }
 }
