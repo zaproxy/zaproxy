@@ -165,7 +165,7 @@ Scanners:
 40036   JWT Scanner
 40037   CustomActiveScanForZAP (3rd Party)
 40038   Bypassing 403
-40039   CORS Active scan
+40040	CORS active scan rule
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
