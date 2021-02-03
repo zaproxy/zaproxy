@@ -139,7 +139,10 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     newClasspath = files(tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).map { it.archivePath })
     setIgnoreMissingClasses(true)
 
-    packageExcludes = listOf()
+    packageExcludes = listOf(
+        // Deprecated in 2.10, removal part of 2.11 milestone
+        "org.parosproxy.paros.extension.encoder",
+        "org.zaproxy.zap.extension.encoder2")
 
     fieldExcludes = listOf()
 
