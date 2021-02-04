@@ -536,10 +536,7 @@ public class BreakPanelToolbarFactory {
         isBreakRequest = false;
         isBreakResponse = false;
         isBreakAll = false;
-        setBreakOnJavaScript(true);
-        setBreakOnCssAndFonts(true);
-        setBreakOnMultimedia(true);
-        setOnlyBreakOnScope(breakpointsParams.isInScopeOnly());
+        setShowIgnoreFilesButtons(false);
         countCaughtMessages = 0;
     }
 
@@ -604,7 +601,7 @@ public class BreakPanelToolbarFactory {
             setBreakOnJavaScript(true);
             setBreakOnCssAndFonts(true);
             setBreakOnMultimedia(true);
-            setOnlyBreakOnScope(false);
+            setOnlyBreakOnScope(breakpointsParams.isInScopeOnly());
         }
     }
 
