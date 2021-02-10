@@ -403,7 +403,7 @@ def raise_scan_not_started():
 def zap_spider(zap, target):
     if scan_user:
         logging.debug('Spider %s as user %s', target, scan_user['name'])
-        spider_scan_id = zap.spider.scan_as_user(context_id, scan_user['id'])
+        spider_scan_id = zap.spider.scan_as_user(context_id, scan_user['id'],target)
     else:
         logging.debug('Spider %s', target)
         spider_scan_id = zap.spider.scan(target, contextname=context_name)
