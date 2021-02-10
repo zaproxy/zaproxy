@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-02-10
+ - Check if messages being analyzed by API scan scripts are globally excluded or not.
+
 ### 2021-02-01
  - Allow more flexibility to specify ZAP command line options when using Webswing:
   - The default options stay as `-host 0.0.0.0 -port 8090` unless
