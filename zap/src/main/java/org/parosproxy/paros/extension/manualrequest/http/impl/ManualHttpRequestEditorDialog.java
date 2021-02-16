@@ -32,6 +32,7 @@
 // ZAP: 2019/10/04 Add menu icon.
 // ZAP: 2020/11/20 Support Send button in response panel in tab mode
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/02/12 Add shortcut key to Send button (Issue 6448).
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
@@ -669,6 +670,8 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         private JButton getResponseSendButton() {
             if (responseSendButton == null) {
                 responseSendButton = new JButton(Constant.messages.getString("manReq.button.send"));
+                responseSendButton.setMnemonic(KeyEvent.VK_ENTER);
+                responseSendButton.setToolTipText(getBtnSendTooltip());
                 responseSendButton.addActionListener(
                         e -> {
                             responseSendButton.setEnabled(false);
