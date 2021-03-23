@@ -74,7 +74,10 @@ public class SearchResultsTableModel
                 .registerConsumer(
                         this,
                         HistoryReferenceEventPublisher.getPublisher().getPublisherName(),
-                        HistoryReferenceEventPublisher.EVENT_REMOVED);
+                        HistoryReferenceEventPublisher.EVENT_REMOVED,
+                        HistoryReferenceEventPublisher.EVENT_TAG_ADDED,
+                        HistoryReferenceEventPublisher.EVENT_TAG_REMOVED,
+                        HistoryReferenceEventPublisher.EVENT_TAGS_SET);
     }
 
     public void addSearchResult(SearchResult sr) {
@@ -294,6 +297,27 @@ public class SearchResultsTableModel
         String idStr =
                 event.getParameters()
                         .get(HistoryReferenceEventPublisher.FIELD_HISTORY_REFERENCE_ID);
-        this.removeEntry(Integer.parseInt(idStr));
+        int historyId = Integer.parseInt(idStr);
+        switch (event.getEventType()) {
+            case HistoryReferenceEventPublisher.EVENT_REMOVED:
+                this.removeEntry(historyId);
+                break;
+            case HistoryReferenceEventPublisher.EVENT_TAG_ADDED:
+            case HistoryReferenceEventPublisher.EVENT_TAG_REMOVED:
+            case HistoryReferenceEventPublisher.EVENT_TAGS_SET:
+                boolean rowsUpdated = false;
+                for (int i = 0; i < results.size(); i++) {
+                    SearchResultTableEntry entry = results.get(i);
+                    if (entry.getHistoryId() == historyId) {
+                        entry.refreshCachedValues();
+                        rowsUpdated = true;
+                    }
+                }
+
+                if (rowsUpdated) {
+                    fireTableRowsUpdated(0, results.size() - 1);
+                }
+                break;
+        }
     }
 }
