@@ -1,6 +1,6 @@
 plugins {
     id("com.diffplug.gradle.spotless")
-    id("org.sonarqube") version "3.0"
+    id("org.sonarqube") version "3.1.1"
     id("com.github.ben-manes.versions") version "0.33.0"
 }
 
