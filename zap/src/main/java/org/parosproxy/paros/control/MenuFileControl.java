@@ -76,8 +76,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -360,14 +360,14 @@ public class MenuFileControl implements SessionListener {
         customChooser.setVisible(true);
     }
 
-    private class SessionChooser extends JFrame {
+    private class SessionChooser extends JDialog {
         private static final long serialVersionUID = 2L;
         private JFileChooser chooser;
         private SessionDetailsPanel detailsPanel;
 
         private SessionChooser() {
             this.setTitle("Open");
-            this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+            this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
             this.setLayout(new BorderLayout());
             detailsPanel = new SessionDetailsPanel();
             initFileChooser();
@@ -403,9 +403,9 @@ public class MenuFileControl implements SessionListener {
                                 } catch (Exception exc) {
                                     log.error(exc.getMessage(), exc);
                                 }
-                                ((JFrame) SwingUtilities.getWindowAncestor(chooser)).dispose();
+                                ((JDialog) SwingUtilities.getWindowAncestor(chooser)).dispose();
                             } else if (e.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)) {
-                                ((JFrame) SwingUtilities.getWindowAncestor(chooser)).dispose();
+                                ((JDialog) SwingUtilities.getWindowAncestor(chooser)).dispose();
                             }
                         }
                     });
@@ -424,11 +424,20 @@ public class MenuFileControl implements SessionListener {
         private void getFields(File sessionFile)
                 throws DatabaseException, ClassNotFoundException, SQLException {
             File sessionDataFile = new File(sessionFile.getAbsolutePath() + ".data");
-            this.size = String.valueOf(sessionDataFile.length() / 1024) + "kB";
+            File sessionLobFile = new File(sessionFile.getAbsolutePath() + ".lob");
+            if (sessionLobFile.isFile()) {
+                this.size =
+                        String.valueOf((sessionDataFile.length() + sessionLobFile.length()) / 1024)
+                                + "kB";
+            } else {
+                this.size = String.valueOf(sessionDataFile.length() / 1024) + "kB";
+            }
             Class.forName("org.hsqldb.jdbcDriver");
             Connection conn =
                     DriverManager.getConnection(
-                            "jdbc:hsqldb:file:" + sessionFile.getAbsolutePath(), "sa", "");
+                            "jdbc:hsqldb:file:" + sessionFile.getAbsolutePath() + ";shutdown=true",
+                            "sa",
+                            "");
             Statement stmt =
                     conn.createStatement(
                             ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
@@ -486,7 +495,7 @@ public class MenuFileControl implements SessionListener {
             c.gridx = 0;
             c.gridy = 0;
             c.insets = new Insets(0, 5, 5, 5);
-            sizeLabel = new JLabel("Sesssion Data Size: ");
+            sizeLabel = new JLabel(Constant.messages.getString("menu.file.openSession.size"));
             this.add(sizeLabel, c);
 
             c = new GridBagConstraints();
@@ -501,7 +510,8 @@ public class MenuFileControl implements SessionListener {
             c.gridx = 0;
             c.gridy = 1;
             c.insets = new Insets(5, 5, 5, 5);
-            requestsLabel = new JLabel("Number of Requests: ");
+            requestsLabel =
+                    new JLabel(Constant.messages.getString("menu.file.openSession.requests"));
             this.add(requestsLabel, c);
 
             c = new GridBagConstraints();
@@ -516,7 +526,8 @@ public class MenuFileControl implements SessionListener {
             c.gridx = 2;
             c.gridy = 0;
             c.insets = new Insets(0, 5, 5, 5);
-            startTimeLabel = new JLabel("Session Start Time: ");
+            startTimeLabel =
+                    new JLabel(Constant.messages.getString("menu.file.openSession.starttime"));
             this.add(startTimeLabel, c);
 
             c = new GridBagConstraints();
@@ -531,7 +542,7 @@ public class MenuFileControl implements SessionListener {
             c.gridx = 2;
             c.gridy = 1;
             c.insets = new Insets(5, 5, 5, 5);
-            endTimeLabel = new JLabel("Session End Time: ");
+            endTimeLabel = new JLabel(Constant.messages.getString("menu.file.openSession.endtime"));
             this.add(endTimeLabel, c);
 
             c = new GridBagConstraints();
