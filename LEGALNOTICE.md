@@ -50,10 +50,10 @@ and subject to their respective licenses.
 | commons-validator-1.7.jar           | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
 | flatlaf-1.1.1.jar                   | Apache 2.0                |
-| harlib-1.1.2.jar                    | Apache 2.0                |
+| harlib-1.1.3.jar                    | Apache 2.0                |
 | hsqldb-2.5.1.jar                    | BSD                       |
 | ice4j-1.0.jar                       | Apache 2.0                |
-| jackson-core-asl-1.8.5.jar          | Apache 2.0                |
+| jackson-core-asl-1.9.13.jar         | Apache 2.0                |
 | javahelp-2.0.05.jar                 | GPL + classpath exception |
 | java-semver-0.9.0.jar               | MIT                       |
 | jcommon-1.0.23.jar                  | LGPL                      |
