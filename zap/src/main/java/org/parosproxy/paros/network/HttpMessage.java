@@ -57,6 +57,7 @@
 // ZAP: 2020/07/31 Tidy up parameter methods
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2020/12/09 Handle content encodings in request/response bodies.
+// ZAP: 2021/04/01 Detect WebSocket upgrade messages having multiple Connection directives
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -1079,13 +1080,22 @@ public class HttpMessage implements Message {
      * @return True if this connection should be upgraded to WebSockets.
      */
     public boolean isWebSocketUpgrade() {
-        if (!getResponseHeader().isEmpty()) {
-            String connectionHeader = getResponseHeader().getHeader("connection");
-            String upgradeHeader = getResponseHeader().getHeader("upgrade");
+        HttpHeader messageHeader = getResponseHeader();
+        if (messageHeader.isEmpty()) {
+            messageHeader = getRequestHeader();
+        }
 
-            if (connectionHeader != null && connectionHeader.equalsIgnoreCase("upgrade")) {
-                if (upgradeHeader != null && upgradeHeader.equalsIgnoreCase("websocket")) {
-                    return true;
+        if (!messageHeader.isEmpty()) {
+            String connectionHeader = messageHeader.getHeader("connection");
+            String upgradeHeader = messageHeader.getHeader("upgrade");
+
+            if (upgradeHeader != null && upgradeHeader.equalsIgnoreCase("websocket")) {
+                if (connectionHeader != null) {
+                    for (String directive : connectionHeader.split(",")) {
+                        if (directive.trim().equalsIgnoreCase("upgrade")) {
+                            return true;
+                        }
+                    }
                 }
             }
         }

@@ -335,6 +335,78 @@ public class HttpMessageUnitTest {
         verify(body).setContentEncodings(Collections.emptyList());
     }
 
+    @Test
+    public void
+            shouldBeWebSocketUpgradeIfRequestConnectionHeaderContainsUpgradeAndUpgradeHeaderEqualsWebsocket()
+                    throws Exception {
+        // Given
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "GET / HTTP/1.1\r\nConnection: keep-alive, Upgrade\r\nUpgrade: websocket"));
+        // When
+        boolean webSocketUpgrade = message.isWebSocketUpgrade();
+        // Then
+        assertThat(webSocketUpgrade, is(equalTo(true)));
+    }
+
+    @Test
+    public void
+            shouldBeWebSocketUpgradeIfResponseConnectionHeaderEqualsUpgradeAndUpgradeHeaderEqualsWebsocket()
+                    throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setResponseHeader(
+                new HttpResponseHeader(
+                        "HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nUpgrade: websocket"));
+        // When
+        boolean webSocketUpgrade = message.isWebSocketUpgrade();
+        // Then
+        assertThat(webSocketUpgrade, is(equalTo(true)));
+    }
+
+    @Test
+    public void
+            shouldBeWebSocketUpgradeIfResponseConnectionHeaderContainsUpgradeAndUpgradeHeaderEqualsWebsocket()
+                    throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setResponseHeader(
+                new HttpResponseHeader(
+                        "HTTP/1.1 101 Switching Protocols\r\nConnection: keep-alive, Upgrade\r\nUpgrade: websocket"));
+        // When
+        boolean webSocketUpgrade = message.isWebSocketUpgrade();
+        // Then
+        assertThat(webSocketUpgrade, is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldNotBeWebSocketUpgradeIfResponseConnectionHeaderMissUpgradeValue()
+            throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setResponseHeader(
+                new HttpResponseHeader(
+                        "HTTP/1.1 101 Switching Protocols\r\nConnection: keep-alive\r\nUpgrade: websocket"));
+        // When
+        boolean webSocketUpgrade = message.isWebSocketUpgrade();
+        // Then
+        assertThat(webSocketUpgrade, is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldNotBeWebSocketUpgradeIfResponseMissUpgradeHeader() throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setResponseHeader(
+                new HttpResponseHeader(
+                        "HTTP/1.1 101 Switching Protocols\r\nConnection: keep-alive, Upgrade"));
+        // When
+        boolean webSocketUpgrade = message.isWebSocketUpgrade();
+        // Then
+        assertThat(webSocketUpgrade, is(equalTo(false)));
+    }
+
     private static HttpMessage newHttpMessage() throws Exception {
         HttpMessage message =
                 new HttpMessage(
