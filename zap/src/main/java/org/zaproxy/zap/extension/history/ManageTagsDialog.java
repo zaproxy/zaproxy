@@ -35,15 +35,12 @@ import javax.swing.ListSelectionModel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.utils.SortedListModel;
 
 public class ManageTagsDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;
-    private static final int panelWidth = 250;
-    private static final int panelHeight = 300;
     private JPanel jPanel = null;
     private JComboBox<String> txtTagAdd = null;
     private JButton btnAdd = null;
@@ -78,9 +75,6 @@ public class ManageTagsDialog extends AbstractDialog {
     private void initialize() {
         this.setTitle(Constant.messages.getString("history.managetags.title"));
         this.setContentPane(getJPanel());
-        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-            this.setSize(panelWidth, panelHeight);
-        }
         this.addWindowListener(
                 new java.awt.event.WindowAdapter() {
                     @Override
@@ -111,8 +105,6 @@ public class ManageTagsDialog extends AbstractDialog {
 
             jPanel = new JPanel();
             jPanel.setLayout(new GridBagLayout());
-            jPanel.setPreferredSize(new java.awt.Dimension(panelWidth, panelHeight));
-            jPanel.setMinimumSize(new java.awt.Dimension(panelWidth, panelHeight));
 
             gridBagConstraints00.gridy = 0;
             gridBagConstraints00.gridx = 0;
@@ -128,6 +120,7 @@ public class ManageTagsDialog extends AbstractDialog {
 
             gridBagConstraints11.gridy = 1;
             gridBagConstraints11.gridx = 1;
+            gridBagConstraints11.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints11.insets = new java.awt.Insets(2, 2, 2, 2);
             gridBagConstraints11.anchor = java.awt.GridBagConstraints.EAST;
 
@@ -148,6 +141,7 @@ public class ManageTagsDialog extends AbstractDialog {
 
             gridBagConstraints31.gridy = 3;
             gridBagConstraints31.gridx = 1;
+            gridBagConstraints31.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints31.insets = new java.awt.Insets(2, 2, 2, 2);
             gridBagConstraints31.anchor = java.awt.GridBagConstraints.NORTHEAST;
 
@@ -158,6 +152,7 @@ public class ManageTagsDialog extends AbstractDialog {
 
             gridBagConstraints41.gridy = 4;
             gridBagConstraints41.gridx = 1;
+            gridBagConstraints41.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints41.insets = new java.awt.Insets(2, 2, 2, 2);
             gridBagConstraints41.anchor = java.awt.GridBagConstraints.EAST;
 
@@ -238,9 +233,6 @@ public class ManageTagsDialog extends AbstractDialog {
         if (btnAdd == null) {
             btnAdd = new JButton();
             btnAdd.setText(Constant.messages.getString("history.managetags.button.add"));
-            btnAdd.setMinimumSize(new java.awt.Dimension(75, 30));
-            btnAdd.setPreferredSize(new java.awt.Dimension(75, 30));
-            btnAdd.setMaximumSize(new java.awt.Dimension(100, 40));
             btnAdd.addActionListener(
                     new java.awt.event.ActionListener() {
 
@@ -262,9 +254,6 @@ public class ManageTagsDialog extends AbstractDialog {
         if (btnDelete == null) {
             btnDelete = new JButton();
             btnDelete.setText(Constant.messages.getString("history.managetags.button.delete"));
-            btnDelete.setMinimumSize(new java.awt.Dimension(75, 30));
-            btnDelete.setPreferredSize(new java.awt.Dimension(75, 30));
-            btnDelete.setMaximumSize(new java.awt.Dimension(100, 40));
             btnDelete.setEnabled(true);
             btnDelete.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -282,9 +271,6 @@ public class ManageTagsDialog extends AbstractDialog {
         if (btnSave == null) {
             btnSave = new JButton();
             btnSave.setText(Constant.messages.getString("history.managetags.button.save"));
-            btnSave.setMinimumSize(new java.awt.Dimension(75, 30));
-            btnSave.setPreferredSize(new java.awt.Dimension(75, 30));
-            btnSave.setMaximumSize(new java.awt.Dimension(100, 40));
             btnSave.setEnabled(true);
             btnSave.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -303,9 +289,6 @@ public class ManageTagsDialog extends AbstractDialog {
         if (btnCancel == null) {
             btnCancel = new JButton();
             btnCancel.setText(Constant.messages.getString("all.button.cancel"));
-            btnCancel.setMinimumSize(new java.awt.Dimension(75, 30));
-            btnCancel.setPreferredSize(new java.awt.Dimension(75, 30));
-            btnCancel.setMaximumSize(new java.awt.Dimension(100, 40));
             btnCancel.setEnabled(true);
             btnCancel.addActionListener(
                     new java.awt.event.ActionListener() {
