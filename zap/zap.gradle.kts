@@ -51,30 +51,30 @@ dependencies {
     api("commons-httpclient:commons-httpclient:3.1")
     api("commons-io:commons-io:2.8.0")
     api("commons-lang:commons-lang:2.6")
-    api("org.apache.commons:commons-lang3:3.11")
+    api("org.apache.commons:commons-lang3:3.12.0")
     api("org.apache.commons:commons-text:1.9")
     api("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
-    val log4jVersion = "2.14.0"
+    val log4jVersion = "2.14.1"
     api("org.apache.logging.log4j:log4j-api:$log4jVersion")
     api("org.apache.logging.log4j:log4j-1.2-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.8")
-    val bcVersion = "1.67"
+    val bcVersion = "1.68"
     api("org.bouncycastle:bcmail-jdk15on:$bcVersion")
     api("org.bouncycastle:bcprov-jdk15on:$bcVersion")
     api("org.bouncycastle:bcpkix-jdk15on:$bcVersion")
     api("org.hsqldb:hsqldb:2.5.1")
-    api("org.jfree:jfreechart:1.5.1")
+    api("org.jfree:jfreechart:1.5.3")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
-    api("org.xerial:sqlite-jdbc:3.32.3.2")
+    api("org.xerial:sqlite-jdbc:3.34.0")
 
     implementation("commons-validator:commons-validator:1.7")
     // Don't need its dependencies, for now.
-    implementation("org.jitsi:ice4j:1.0") {
+    implementation("org.jitsi:ice4j:3.0-24-g34c2ce5") {
         setTransitive(false)
     }
     implementation("com.formdev:flatlaf:1.1.1")
