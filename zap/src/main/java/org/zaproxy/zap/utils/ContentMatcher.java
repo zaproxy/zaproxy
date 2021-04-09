@@ -35,10 +35,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  */
 public class ContentMatcher {
 
-    private static final String TAG_PATTERNS = "Patterns";
     private static final String TAG_PATTERN = "Pattern";
     private static final String ATTRIBUTE_TYPE = "[@type]";
-    private static final String TAG_PATTERN_TYPE_STRING = "string";
     private static final String TAG_PATTERN_TYPE_REGEX = "regex";
 
     private List<BoyerMooreMatcher> strings;
