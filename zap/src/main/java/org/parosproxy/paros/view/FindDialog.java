@@ -30,6 +30,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/04/08 Remove boilerplate javadoc.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -117,7 +118,6 @@ public class FindDialog extends AbstractDialog {
         initialize();
     }
 
-    /** This method initializes this */
     private void initialize() {
         this.setTitle(Constant.messages.getString("edit.find.title"));
         this.infoLabel = new JLabel(Constant.messages.getString("edit.find.label.notfound"));
@@ -212,11 +212,7 @@ public class FindDialog extends AbstractDialog {
             LOGGER.error("An error occurred while finding:", e);
         }
     }
-    /**
-     * This method initializes jPanel
-     *
-     * @return javax.swing.JPanel
-     */
+
     private JPanel getJPanel() {
         if (jPanel == null) {
             javax.swing.JLabel jLabel =
@@ -251,11 +247,7 @@ public class FindDialog extends AbstractDialog {
         }
         return jPanel;
     }
-    /**
-     * This method initializes btnFind
-     *
-     * @return javax.swing.JButton
-     */
+
     private JButton getBtnFind() {
         if (btnFind == null) {
             btnFind = new JButton();
@@ -272,11 +264,7 @@ public class FindDialog extends AbstractDialog {
         }
         return btnFind;
     }
-    /**
-     * This method initializes btnCancel
-     *
-     * @return javax.swing.JButton
-     */
+
     private JButton getBtnCancel() {
         if (btnCancel == null) {
             btnCancel = new JButton();
@@ -295,22 +283,14 @@ public class FindDialog extends AbstractDialog {
         }
         return btnCancel;
     }
-    /**
-     * This method initializes txtFind
-     *
-     * @return org.zaproxy.zap.utils.ZapTextField
-     */
+
     private ZapTextField getTxtFind() {
         if (txtFind == null) {
             txtFind = new ZapTextField(15);
         }
         return txtFind;
     }
-    /**
-     * This method initializes jPanel1
-     *
-     * @return javax.swing.JPanel
-     */
+
     private JPanel getJPanel1() {
         if (jPanel1 == null) {
             jPanel1 = new JPanel(new FlowLayout(FlowLayout.TRAILING));
