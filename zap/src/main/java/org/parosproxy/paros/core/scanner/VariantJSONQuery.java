@@ -41,27 +41,17 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
         super(NameValuePair.TYPE_JSON);
     }
 
-    /**
-     * @param contentType
-     * @return
-     */
     @Override
     public boolean isValidContentType(String contentType) {
         return contentType.startsWith(JSON_RPC_CONTENT_TYPE);
     }
 
-    /** @param content */
     @Override
     public void parseContent(String content) {
         sr = new SimpleStringReader(content);
         parseObject();
     }
 
-    /**
-     * @param value
-     * @param toQuote
-     * @return
-     */
     @Override
     public String getEscapedValue(String value, boolean toQuote) {
         String result = StringEscapeUtils.escapeJava(value);
@@ -177,7 +167,6 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
         }
     }
 
-    /** @param fieldName */
     private void parseValue(String fieldName) {
         int chr = sr.read();
 
@@ -353,7 +342,6 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             next--;
         }
 
-        /** @return */
         public int getPosition() {
             return next;
         }

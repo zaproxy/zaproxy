@@ -109,40 +109,18 @@ public class VariantCookie implements Variant {
         return params;
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @return
-     */
     @Override
     public String setParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
         return setParameter(msg, originalPair, name, value, false);
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @return
-     */
     @Override
     public String setEscapedParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
         return setParameter(msg, originalPair, name, value, true);
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @param escaped
-     * @return
-     */
     private String setParameter(
             HttpMessage msg,
             NameValuePair originalPair,
