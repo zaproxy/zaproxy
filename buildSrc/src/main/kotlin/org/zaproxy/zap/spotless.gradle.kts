@@ -130,7 +130,6 @@ spotless {
         targetExclude(listOf(
             "src/main/java/org/apache/**/*.java",
             "src/main/java/org/parosproxy/paros/network/GenericMethod.java",
-            "src/main/java/org/parosproxy/paros/extension/encoder/Base64.java",
             "src/main/java/org/zaproxy/zap/extension/stats/StatsdClient.java",
             "src/main/java/org/zaproxy/zap/network/ZapNTLMEngineImpl.java",
             "src/main/java/org/zaproxy/zap/network/ZapNTLMScheme.java"
