@@ -62,26 +62,16 @@ public class VariantDirectWebRemotingQuery extends VariantAbstractRPCQuery {
         return contentType.startsWith(DWR_CONTENT_TYPE);
     }
 
-    /**
-     * @param value
-     * @param toQuote
-     * @return
-     */
     @Override
     public String getEscapedValue(String value, boolean toQuote) {
         return StringEscapeUtils.escapeJava(value);
     }
 
-    /**
-     * @param value
-     * @return
-     */
     @Override
     public String getUnescapedValue(String value) {
         return StringEscapeUtils.unescapeJava(value);
     }
 
-    /** @param content */
     @Override
     public void parseContent(String content) {
         // System.out.println("Getting parameters from ["+content + "]");
