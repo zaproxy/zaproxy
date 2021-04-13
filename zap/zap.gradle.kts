@@ -66,7 +66,7 @@ dependencies {
     api("org.bouncycastle:bcmail-jdk15on:$bcVersion")
     api("org.bouncycastle:bcprov-jdk15on:$bcVersion")
     api("org.bouncycastle:bcpkix-jdk15on:$bcVersion")
-    api("org.hsqldb:hsqldb:2.5.1")
+    api("org.hsqldb:hsqldb:2.5.2")
     api("org.jfree:jfreechart:1.5.3")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
