@@ -38,6 +38,8 @@ import java.util.List;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
@@ -204,6 +206,22 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
         assertThat(variants.get(0).getClass(), is(equalTo(TestVariant.class)));
     }
 
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldScanNullJsonValuesAsDefinedInOptions(boolean scanNulls) {
+        // Given
+        ScannerParam scanOptions = mock(ScannerParam.class);
+        given(scanOptions.getTargetParamsInjectable()).willReturn(ScannerParam.TARGET_POSTDATA);
+        given(scanOptions.getTargetParamsEnabledRPC()).willReturn(ScannerParam.RPC_JSON);
+        given(scanOptions.isScanNullJsonValues()).willReturn(scanNulls);
+        HttpMessage message = new HttpMessage();
+        // When
+        List<Variant> variants = factory.createVariants(scanOptions, message);
+        // Then
+        VariantJSONQuery jsonVariant = getVariant(variants, VariantJSONQuery.class);
+        assertThat(jsonVariant.isScanNullValues(), is(equalTo(scanNulls)));
+    }
+
     @Test
     void shouldNotCreateVariantScriptsIfExtensionScriptIsDisabled() {
         // Given
@@ -285,6 +303,17 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
                 HttpMessage msg, NameValuePair originalPair, String param, String value) {
             return null;
         }
+    }
+
+    private static <T> T getVariant(List<Variant> variants, Class<T> clazz) {
+        return clazz.cast(
+                variants.stream()
+                        .filter(v -> v.getClass() == clazz)
+                        .findFirst()
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Variant " + clazz + " not found in the list.")));
     }
 
     @SuppressWarnings("unchecked")

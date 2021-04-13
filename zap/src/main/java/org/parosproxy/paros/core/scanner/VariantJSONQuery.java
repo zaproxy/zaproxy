@@ -36,9 +36,34 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
     public static final int BACKSLASH = '\\';
 
     private SimpleStringReader sr;
+    private boolean scanNullValues;
 
     public VariantJSONQuery() {
         super(NameValuePair.TYPE_JSON);
+    }
+
+    /**
+     * Sets whether or not to scan null values.
+     *
+     * <p>The null values are handled as if they were strings, that is, the payload injected is a
+     * string.
+     *
+     * @param scan {@code true} if null values should be scanned, {@code false} otherwise.
+     * @since 2.11.0
+     * @see #isScanNullValues()
+     */
+    public void setScanNullValues(boolean scan) {
+        scanNullValues = scan;
+    }
+
+    /**
+     * Tells whether or not to scan null values.
+     *
+     * @return {@code true} if null values should be scanned, {@code false} otherwise.
+     * @see #setScanNullValues(boolean)
+     */
+    public boolean isScanNullValues() {
+        return scanNullValues;
     }
 
     @Override
@@ -222,6 +247,10 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
         } else if (chr == 'n' || chr == 'N') {
             sr.unreadLastCharacter();
+            if (scanNullValues) {
+                int start = sr.getPosition();
+                addParameter(fieldName, start, start + 4, true, null);
+            }
             parseToken("null");
 
         } else if (chr == -1) {
