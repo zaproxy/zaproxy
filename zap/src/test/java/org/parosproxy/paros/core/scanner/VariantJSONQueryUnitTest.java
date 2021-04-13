@@ -23,6 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.List;
@@ -101,7 +102,7 @@ public class VariantJSONQueryUnitTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"null", "Null"})
-    public void shouldNotFindParametersForNullValues(String value)
+    public void shouldNotFindParametersForNullValuesByDefault(String value)
             throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
@@ -111,6 +112,54 @@ public class VariantJSONQueryUnitTest {
         List<NameValuePair> parameters = variantJSONQuery.getParamList();
         // Then
         assertThat(parameters, is(empty()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"null", "Null"})
+    void shouldFindParametersForNullValuesIfEnabled(String value)
+            throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setScanNullValues(true);
+        variantJSONQuery.setMessage(
+                getMessageWithBody("{\"a\":" + value + ", \"b\":[" + value + ", " + value + "]}"));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters.get(0).getName(), is("a"));
+        assertThat(parameters.get(0).getValue(), is(nullValue()));
+        assertThat(parameters.get(1).getName(), is("b[0]"));
+        assertThat(parameters.get(1).getValue(), is(nullValue()));
+        assertThat(parameters.get(2).getName(), is("b[1]"));
+        assertThat(parameters.get(2).getValue(), is(nullValue()));
+    }
+
+    @Test
+    void shouldReplaceNullValueAsStringInObject() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setScanNullValues(true);
+        HttpMessage message = getMessageWithBody("{\"a\": null}");
+        variantJSONQuery.setMessage(message);
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        variantJSONQuery.setParameter(message, parameters.get(0), "", "injection");
+        // Then
+        assertThat(message.getRequestBody().toString(), is("{\"a\": \"injection\"}"));
+    }
+
+    @Test
+    void shouldReplaceNullValueAsStringInArray() throws HttpMalformedHeaderException {
+        // Given
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setScanNullValues(true);
+        HttpMessage message = getMessageWithBody("[null, null]");
+        variantJSONQuery.setMessage(message);
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        variantJSONQuery.setParameter(message, parameters.get(1), "", "injection");
+        // Then
+        assertThat(message.getRequestBody().toString(), is("[null, \"injection\"]"));
     }
 
     @ParameterizedTest
