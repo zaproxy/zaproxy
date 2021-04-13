@@ -89,6 +89,7 @@
 // ZAP: 2020/05/14 Hook HttpSenderListener when starting single extension.
 // ZAP: 2020/08/27 Added support for plugable variants
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/04/13 Issue 6536: Stop and destroy extensions being removed.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -1473,6 +1474,9 @@ public class ExtensionLoader {
     /**
      * Removes the given extension and any components added through its extension hook.
      *
+     * <p>The extension is also {@link Extension#stop() stopped} and {@link Extension#destroy()
+     * destroyed}.
+     *
      * <p><strong>Note:</strong> This method should be called only by bootstrap classes.
      *
      * @param extension the extension to remove.
@@ -1482,6 +1486,12 @@ public class ExtensionLoader {
         extensionList.remove(extension);
         extensionsMap.remove(extension.getClass());
 
+        extension.stop();
+        unhook(extension);
+        extension.destroy();
+    }
+
+    private void unhook(Extension extension) {
         ExtensionHook hook = extensionHooks.remove(extension);
         if (hook == null) {
             logger.error("ExtensionHook not found for: " + extension.getClass().getCanonicalName());
