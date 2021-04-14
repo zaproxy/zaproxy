@@ -51,7 +51,7 @@ and subject to their respective licenses.
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
 | flatlaf-1.1.2.jar                   | Apache 2.0                |
 | harlib-1.1.3.jar                    | Apache 2.0                |
-| hsqldb-2.5.1.jar                    | BSD                       |
+| hsqldb-2.5.2.jar                    | BSD                       |
 | ice4j-3.0-24-g34c2ce5.jar           | Apache 2.0                |
 | jackson-core-asl-1.9.13.jar         | Apache 2.0                |
 | javahelp-2.0.05.jar                 | GPL + classpath exception |
