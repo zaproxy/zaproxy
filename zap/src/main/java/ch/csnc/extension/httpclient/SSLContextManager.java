@@ -276,7 +276,7 @@ public class SSLContextManager {
             throw new KeyStoreException(e.getMessage());
         }
 
-        String dn = x509.getSubjectDN().getName();
+        String dn = x509.getSubjectX500Principal().getName();
 
         log.info("Fingerprint is " + buff.toString().toUpperCase());
 
