@@ -81,7 +81,7 @@ dependencies {
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
-    runtimeOnly("com.io7m.xom:xom:1.2.10") {
+    runtimeOnly("xom:xom:1.3.7") {
         setTransitive(false)
     }
 

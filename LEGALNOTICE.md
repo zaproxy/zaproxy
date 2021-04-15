@@ -67,4 +67,4 @@ and subject to their respective licenses.
 | sqlite-jdbc-3.34.0.jar              | BSD-2 clause              |
 | - NestedVM                          | Apache 2.0                |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
-| xom-1.2.10.jar                      | LGPL                      |
+| xom-1.3.7.jar                       | LGPL                      |
