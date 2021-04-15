@@ -56,7 +56,6 @@ and subject to their respective licenses.
 | jackson-core-asl-1.9.13.jar         | Apache 2.0                |
 | javahelp-2.0.05.jar                 | GPL + classpath exception |
 | java-semver-0.9.0.jar               | MIT                       |
-| jcommon-1.0.23.jar                  | LGPL                      |
 | jericho-html-3.4.jar                | EPL / LGPL dual license   |
 | jfreechart-1.5.3.jar                | LGPL                      |
 | jgrapht-core-0.9.0.jar              | LGPL 2.1                  |
