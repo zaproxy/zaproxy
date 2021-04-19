@@ -22,11 +22,8 @@ package org.zaproxy.zap.authentication;
 import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
@@ -39,21 +36,16 @@ import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
 import org.zaproxy.zap.authentication.PostBasedAuthenticationMethodType.PostBasedAuthenticationMethod;
-import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.session.SessionManagementMethod;
-import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.testutils.NanoServerHandler;
-import org.zaproxy.zap.testutils.TestUtils;
+import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 
-public class JsonBasedAuthenticationMethodTypeUnitTest extends TestUtils {
+public class JsonBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
 
     private static final String LOGGED_IN_INDICATOR = "logged in";
     private static final String LOGGED_IN_BODY =
@@ -64,13 +56,9 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends TestUtils {
 
     private AuthenticationMethod method;
     private JsonBasedAuthenticationMethodType type;
-    private static Context mockedContext;
-    private static SessionManagementMethod mockedSessionManagementMethod;
 
     @BeforeEach
     public void setUp() throws Exception {
-
-        WithConfigsTest.setUpConstant();
 
         type = new JsonBasedAuthenticationMethodType();
         method = type.createAuthenticationMethod(1);
@@ -79,21 +67,11 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends TestUtils {
         method.setPollFrequency(5);
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
-        // Make sure no actual message processing is done
-        mockedSessionManagementMethod = Mockito.mock(SessionManagementMethod.class);
-        doNothing()
-                .when(mockedSessionManagementMethod)
-                .processMessageToMatchSession((HttpMessage) any(), (WebSession) any());
-
-        mockedContext = Mockito.mock(Context.class);
-        when(mockedContext.getSessionManagementMethod()).thenReturn(mockedSessionManagementMethod);
-
         this.startServer();
     }
 
     @AfterEach
-    void cleanUp() {
-        Constant.messages = null;
+    void cleanUpServer() {
         stopServer();
     }
 
@@ -133,10 +111,10 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends TestUtils {
         method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
         method.setPollData(pollData);
 
-        User user = spy(new User(0, "user"));
-        user.setAuthenticationCredentials(
-                new UsernamePasswordAuthenticationCredentials(username, ""));
-        doReturn(mockedContext).when(user).getContext();
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+        given(user.getAuthenticationCredentials())
+                .willReturn(new UsernamePasswordAuthenticationCredentials(username, ""));
 
         // When/Then
         assertThat(method.isAuthenticated(testMsg, user), is(true));
@@ -176,10 +154,10 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends TestUtils {
         method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
         method.setPollData(pollData);
 
-        User user = spy(new User(0, "user"));
-        user.setAuthenticationCredentials(
-                new UsernamePasswordAuthenticationCredentials("", password));
-        doReturn(mockedContext).when(user).getContext();
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+        given(user.getAuthenticationCredentials())
+                .willReturn(new UsernamePasswordAuthenticationCredentials("", password));
 
         // When/Then
         assertThat(method.isAuthenticated(testMsg, user), is(true));
@@ -217,10 +195,10 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends TestUtils {
         method.setPollUrl(pollMsg.getRequestHeader().getURI().toString());
         method.setPollData(pollData);
 
-        User user = spy(new User(0, "user"));
-        user.setAuthenticationCredentials(
-                new UsernamePasswordAuthenticationCredentials(username, ""));
-        doReturn(mockedContext).when(user).getContext();
+        User user = mock(User.class);
+        given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+        given(user.getAuthenticationCredentials())
+                .willReturn(new UsernamePasswordAuthenticationCredentials(username, ""));
 
         // When/Then
         assertThat(method.isAuthenticated(testMsg, user), is(true));

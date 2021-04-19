@@ -3,6 +3,7 @@ FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG WEBSWING_TOKEN=""
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -44,12 +45,14 @@ RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersio
 	cp -R ZAP*/* . &&  \
 	rm -R ZAP* && \
 	# Setup Webswing
-	curl -s -L https://storage.googleapis.com/builds.webswing.org/releases/webswing-20.2.1.zip > webswing.zip && \
+	if [ -z "$WEBSWING_TOKEN" ] ; \
+	then curl -s -L  "https://storage.googleapis.com/builds.webswing.org/releases/webswing-20.2.1.zip" > webswing.zip; \
+	else curl -s -L  "https://dev.webswing.org/${WEBSWING_TOKEN}/nexus/repository/Webswing-Public/webswing-agpl-dist/webswing-20.2.1-distribution.zip" > webswing.zip; fi && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
 	mv webswing-* webswing && \
 	# Remove Webswing bundled examples
-	rm -R webswing/apps/
+	rm -Rf webswing/apps/
 
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH

@@ -133,13 +133,6 @@ public class VariantHeader implements Variant {
         return params;
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @return
-     */
     @Override
     public String setParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
@@ -150,13 +143,6 @@ public class VariantHeader implements Variant {
         return originalPair.getName() + ": " + value;
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @return
-     */
     @Override
     public String setEscapedParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {

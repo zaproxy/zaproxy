@@ -37,7 +37,7 @@ public class VariantUserDefined implements Variant {
 
     private int[][] injectionPoints = null;
 
-    private static final Logger logger = LogManager.getLogger(VariantUserDefined.class);
+    private static final Logger LOGGER = LogManager.getLogger(VariantUserDefined.class);
 
     public VariantUserDefined() {
         super();
@@ -69,7 +69,7 @@ public class VariantUserDefined implements Variant {
                 if (isInHeader(this.injectionPoints[i]) || isInBody(this.injectionPoints[i])) {
                     list.add(new NameValuePair(NameValuePair.TYPE_UNDEFINED, "", "", i));
                 } else {
-                    logger.warn(
+                    LOGGER.warn(
                             "Invalid injection point: "
                                     + java.util.Arrays.toString(this.injectionPoints[i]));
                 }
@@ -91,7 +91,7 @@ public class VariantUserDefined implements Variant {
             try {
                 msg.getRequestHeader().setMessage(sb.toString());
             } catch (HttpMalformedHeaderException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         } else {
             String body = msg.getRequestBody().toString();

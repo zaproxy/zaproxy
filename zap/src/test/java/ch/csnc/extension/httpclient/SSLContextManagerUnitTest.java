@@ -43,7 +43,7 @@ public class SSLContextManagerUnitTest {
             Class.forName(SSLContextManager.SUN_PKCS11_CANONICAL_CLASS_NAME);
         } catch (ClassNotFoundException e) {
             try {
-                Class.forName(SSLContextManager.IBM_PKCS11_CONONICAL_CLASS_NAME);
+                Class.forName(SSLContextManager.IBM_PKCS11_CANONICAL_CLASS_NAME);
             } catch (ClassNotFoundException e2) {
                 pkcs11ProviderAvailable = false;
             }

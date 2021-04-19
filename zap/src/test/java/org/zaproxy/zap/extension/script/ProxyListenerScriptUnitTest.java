@@ -99,7 +99,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
     @SuppressWarnings("unchecked")
     void shouldRefreshScriptsAndCallOnHttpRequestSend() throws Exception {
         // Given
-        ProxyScript script = mock(TARGET_INTERFACE);
+        ProxyScript script = mockProxyScript();
         CachedScript<ProxyScript> cachedScript = createCachedScript(script);
         ScriptsCache<ProxyScript> scriptsCache = createScriptsCache(cachedScript);
         given(extensionScript.<ProxyScript>createScriptsCache(any())).willReturn(scriptsCache);
@@ -117,7 +117,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
     @SuppressWarnings("unchecked")
     void shouldHandleExceptionsThrownByScriptsOnHttpRequestSend() throws Exception {
         // Given
-        ProxyScript script = mock(TARGET_INTERFACE);
+        ProxyScript script = mockProxyScript();
         Exception exception = mock(ScriptException.class);
         given(script.proxyRequest(any())).willThrow(exception);
         ScriptWrapper scriptWrapper = mock(ScriptWrapper.class);
@@ -136,10 +136,10 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
     @SuppressWarnings("unchecked")
     void shouldDropMessageOnHttpRequestSend() throws Exception {
         // Given
-        ProxyScript script1 = mock(TARGET_INTERFACE);
-        given(script1.proxyRequest(any())).willReturn(true);
+        ProxyScript script1 = mockProxyScript();
+        given(script1.proxyRequest(any())).willReturn(false);
         CachedScript<ProxyScript> cachedScript1 = createCachedScript(script1);
-        ProxyScript script2 = mock(TARGET_INTERFACE);
+        ProxyScript script2 = mockProxyScript();
         CachedScript<ProxyScript> cachedScript2 = createCachedScript(script2);
         ScriptsCache<ProxyScript> scriptsCache = createScriptsCache(cachedScript1, cachedScript2);
         given(extensionScript.<ProxyScript>createScriptsCache(any())).willReturn(scriptsCache);
@@ -156,7 +156,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
     @SuppressWarnings("unchecked")
     void shouldCallOnHttpResponseReceive() throws Exception {
         // Given
-        ProxyScript script = mock(TARGET_INTERFACE);
+        ProxyScript script = mockProxyScript();
         CachedScript<ProxyScript> cachedScript = createCachedScript(script);
         ScriptsCache<ProxyScript> scriptsCache = createScriptsCache(cachedScript);
         given(extensionScript.<ProxyScript>createScriptsCache(any())).willReturn(scriptsCache);
@@ -174,7 +174,7 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
     @SuppressWarnings("unchecked")
     void shouldHandleExceptionsThrownByScriptsOnHttpResponseReceive() throws Exception {
         // Given
-        ProxyScript script = mock(TARGET_INTERFACE);
+        ProxyScript script = mockProxyScript();
         Exception exception = mock(ScriptException.class);
         given(script.proxyResponse(any())).willThrow(exception);
         ScriptWrapper scriptWrapper = mock(ScriptWrapper.class);
@@ -193,10 +193,10 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
     @SuppressWarnings("unchecked")
     void shouldDropMessageOnHttpResponseReceive() throws Exception {
         // Given
-        ProxyScript script1 = mock(TARGET_INTERFACE);
-        given(script1.proxyResponse(any())).willReturn(true);
+        ProxyScript script1 = mockProxyScript();
+        given(script1.proxyResponse(any())).willReturn(false);
         CachedScript<ProxyScript> cachedScript1 = createCachedScript(script1);
-        ProxyScript script2 = mock(TARGET_INTERFACE);
+        ProxyScript script2 = mockProxyScript();
         CachedScript<ProxyScript> cachedScript2 = createCachedScript(script2);
         ScriptsCache<ProxyScript> scriptsCache = createScriptsCache(cachedScript1, cachedScript2);
         given(extensionScript.<ProxyScript>createScriptsCache(any())).willReturn(scriptsCache);
@@ -207,6 +207,13 @@ class ProxyListenerScriptUnitTest extends WithConfigsTest {
         assertThat(forwardMessage, is(equalTo(false)));
         verify(script1, times(1)).proxyResponse(message);
         verify(script2, times(0)).proxyResponse(message);
+    }
+
+    private static ProxyScript mockProxyScript() throws ScriptException {
+        ProxyScript script = mock(TARGET_INTERFACE, withSettings().lenient());
+        given(script.proxyRequest(any())).willReturn(true);
+        given(script.proxyResponse(any())).willReturn(true);
+        return script;
     }
 
     private static <T> CachedScript<T> createCachedScript(T script) {

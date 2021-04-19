@@ -100,7 +100,9 @@ public class VariantFactory {
             }
 
             if ((enabledRPC & ScannerParam.RPC_JSON) != 0) {
-                listVariant.add(new VariantJSONQuery());
+                VariantJSONQuery variant = new VariantJSONQuery();
+                variant.setScanNullValues(scanOptions.isScanNullJsonValues());
+                listVariant.add(variant);
             }
 
             if ((enabledRPC & ScannerParam.RPC_GWT) != 0) {

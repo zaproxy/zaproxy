@@ -5,6 +5,10 @@
 /buildSrc/build
 /zap/build
 
+# JVM
+#----
+hs_err_pid*
+
 # IDEA
 # ----
 *~

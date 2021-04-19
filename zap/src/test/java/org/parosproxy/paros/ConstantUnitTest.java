@@ -33,7 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Stream;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -223,19 +223,17 @@ public class ConstantUnitTest {
     }
 
     private String getNameBackupMalformedConfig() throws IOException {
-        Optional<Path> file =
-                Files.list(zapHomeDir)
-                        .filter(
-                                f -> {
-                                    String name = f.getFileName().toString();
-                                    return name.startsWith("config-") && name.endsWith(".xml.bak");
-                                })
-                        .findFirst();
-
-        if (file.isPresent()) {
-            return file.get().getFileName().toString();
+        try (Stream<Path> files = Files.list(zapHomeDir)) {
+            return files.filter(
+                            f -> {
+                                String name = f.getFileName().toString();
+                                return name.startsWith("config-") && name.endsWith(".xml.bak");
+                            })
+                    .findFirst()
+                    .map(Path::getFileName)
+                    .map(Path::toString)
+                    .orElse(null);
         }
-        return null;
     }
 
     @Test

@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.view.HrefTypeInfo;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 
@@ -96,10 +97,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
 
         uri = hasColumn(sortedColumns, Column.URL) ? historyReference.getURI().toString() : null;
 
-        hostname =
-                hasColumn(sortedColumns, Column.HOSTNAME)
-                        ? new String(historyReference.getURI().getRawHost())
-                        : null;
+        hostname = hasColumn(sortedColumns, Column.HOSTNAME) ? getHostName(historyReference) : null;
         pathAndQuery =
                 hasColumn(sortedColumns, Column.PATH_AND_QUERY)
                         ? historyReference.getURI().getEscapedPathQuery()
@@ -138,6 +136,17 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         alertRiskCellItem = super.getHighestAlert();
 
         refreshCachedValues();
+    }
+
+    private static String getHostName(HistoryReference historyReference) {
+        char[] rawHost = historyReference.getURI().getRawHost();
+        if (rawHost != null) {
+            return new String(rawHost);
+        }
+        if (HttpRequestHeader.CONNECT.equalsIgnoreCase(historyReference.getMethod())) {
+            return historyReference.getURI().toString();
+        }
+        return null;
     }
 
     private Long extractMessageSize(HistoryReference historyReference, boolean required) {

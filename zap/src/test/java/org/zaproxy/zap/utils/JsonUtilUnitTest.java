@@ -52,6 +52,28 @@ public class JsonUtilUnitTest {
     }
 
     @Test
+    public void shouldQuoteValueThatLooksLikeAFunction() {
+        // Given
+        String value = "function() { }";
+        // When
+        String processedValue = JsonUtil.getJsonFriendlyString(value);
+        // Then
+        assertThat(processedValue, is(equalTo(quoted(value))));
+        assertDoubleQuotedValueAfterJsonObject(processedValue, value);
+    }
+
+    @Test
+    public void shouldQuoteValueThatLooksLikeAFunctionWithWhitespaceEtc() {
+        // Given
+        String value = "function ( param ) { misc stuff in here with \\\"quotes\\\"}";
+        // When
+        String processedValue = JsonUtil.getJsonFriendlyString(value);
+        // Then
+        assertThat(processedValue, is(equalTo(quoted(value))));
+        assertDoubleQuotedValueAfterJsonObject(processedValue, value);
+    }
+
+    @Test
     public void shouldNotQuoteValueThatLooksLikeAnArrayButStartsWithSpace() {
         // Given
         String value = " [ 1, 2, 3, 4]";
@@ -106,6 +128,17 @@ public class JsonUtilUnitTest {
         assertValueAfterJsonObject(processedValue, value);
     }
 
+    @Test
+    public void shouldNotQuoteFunctionHeader() {
+        // Given
+        String value = "function()";
+        // When
+        String processedValue = JsonUtil.getJsonFriendlyString(value);
+        // Then
+        assertThat(processedValue, is(equalTo(value)));
+        assertValueAfterJsonObject(processedValue, value);
+    }
+
     private static void assertValueAfterJsonObject(String processedValue, String value) {
         // Given processedValue
         String key = "key";
@@ -116,7 +149,22 @@ public class JsonUtilUnitTest {
         assertThat(jsonObject.getString(key), is(equalTo(value)));
     }
 
+    private static void assertDoubleQuotedValueAfterJsonObject(
+            String processedValue, String value) {
+        // Given processedValue
+        String key = "key";
+        JSONObject jsonObject = new JSONObject();
+        // When
+        jsonObject.put(key, processedValue);
+        // Then
+        assertThat(jsonObject.getString(key), is(equalTo(doubleQuoted(value))));
+    }
+
     private static String quoted(String value) {
         return "'" + value + "'";
+    }
+
+    private static String doubleQuoted(String value) {
+        return "\"" + value + "\"";
     }
 }

@@ -1,12 +1,12 @@
 [
   {
     "cloneUrl": "https://github.com/zaproxy/zap-extensions.git",
-    "branch": "master",
     "projects": [
       ":addOns:accessControl",
       ":addOns:alertFilters",
       ":addOns:ascanrules",
       ":addOns:ascanrulesBeta",
+      ":addOns:automation",
       ":addOns:bruteforce",
       ":addOns:commonlib",
       ":addOns:coreLang",
@@ -29,6 +29,7 @@
       ":addOns:pscanrulesBeta",
       ":addOns:quickstart",
       ":addOns:replacer",
+      ":addOns:reports",
       ":addOns:retire",
       ":addOns:reveal",
       ":addOns:saverawmessage",
@@ -48,13 +49,11 @@
   },
   {
     "cloneUrl": "https://github.com/zaproxy/zap-core-help.git",
-    "branch": "master",
     "projects": [
         ":addOns:help"
     ]
   },
   {
-    "cloneUrl": "https://github.com/zaproxy/zap-hud.git",
-    "branch": "develop"
+    "cloneUrl": "https://github.com/zaproxy/zap-hud.git"
   }
 ]

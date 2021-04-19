@@ -296,7 +296,13 @@ public class ScriptWrapper {
         return null;
     }
 
+    /** @deprecated (2.11.0) Use {@link #isRunnableStandalone} */
+    @Deprecated
     public boolean isRunableStandalone() {
+        return isRunnableStandalone();
+    }
+
+    public boolean isRunnableStandalone() {
         return this.getType() != null
                 && ExtensionScript.TYPE_STANDALONE.equals(this.getType().getName());
     }

@@ -28,10 +28,12 @@ import static org.mockito.Mockito.mock;
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.httpclient.URI;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Variant;
 import org.parosproxy.paros.model.Model;
@@ -51,7 +53,7 @@ public class SessionStructureUnitTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        WithConfigsTest.setUpConstant();
+        WithConfigsTest.setUpConstantMessages();
         factory = new VariantFactory();
         model = mock(Model.class);
         session = new Session(model);
@@ -59,6 +61,11 @@ public class SessionStructureUnitTest {
         given(model.getVariantFactory()).willReturn(factory);
         Control.initSingletonForTesting(model);
         msg = new HttpMessage();
+    }
+
+    @AfterEach
+    void cleanUp() {
+        Constant.messages = null;
     }
 
     static Stream<String> methodProvider() {

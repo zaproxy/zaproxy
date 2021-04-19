@@ -40,6 +40,7 @@
 // ZAP: 2020/11/03 Warn when unable to save the message (Issue 4235).
 // ZAP: 2020/11/20 Support Send button in response panel in tab mode
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/02/12 Add shortcut key to Send button (Issue 6448).
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
@@ -47,6 +48,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.HeadlessException;
+import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import javax.net.ssl.SSLException;
@@ -221,9 +223,17 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
             btnSend = new JButton();
             btnSend.setText(Constant.messages.getString("manReq.button.send"));
             btnSend.setEnabled(isSendEnabled);
+            btnSend.setMnemonic(KeyEvent.VK_ENTER);
+            btnSend.setToolTipText(getBtnSendTooltip());
             btnSend.addActionListener(e -> sendButtonTriggered());
         }
         return btnSend;
+    }
+
+    protected static String getBtnSendTooltip() {
+        return !Constant.isMacOsX()
+                ? Constant.messages.getString("manReq.button.send.tooltip")
+                : Constant.messages.getString("manReq.button.send.tooltip.mac");
     }
 
     /** Do not forget to enable the send button again i */
