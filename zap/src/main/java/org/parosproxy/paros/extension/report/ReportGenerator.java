@@ -175,13 +175,14 @@ public class ReportGenerator {
             try {
                 try (BufferedReader br =
                         Files.newBufferedReader(
-                                new File(tempOutfilename).toPath(), StandardCharsets.UTF_8) ){
+                                new File(tempOutfilename).toPath(), StandardCharsets.UTF_8)){
                     try (BufferedWriter bw =
-                        Files.newBufferedWriter(
-                                new File(outfilename).toPath(), StandardCharsets.UTF_8) ){
+                            Files.newBufferedWriter(
+                                    new File(outfilename).toPath(), StandardCharsets.UTF_8)){
 
                         while ((line = br.readLine()) != null) {
-                            bw.write(line.replace("&lt;p&gt;", "<p>").replace("&lt;/p&gt;", "</p>"));
+                            bw.write(
+                                line.replace("&lt;p&gt;", "<p>").replace("&lt;/p&gt;", "</p>"));
                             bw.newLine();
                         }
                     }
