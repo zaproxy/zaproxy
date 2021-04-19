@@ -170,36 +170,26 @@ public class ReportGenerator {
             // Replace the escaped tags used to make the report look slightly better.
             // This is a temp fix to ensure reports always get generated
             // we should really adopt something other than XSLT ;)
-            BufferedReader br = null;
-            BufferedWriter bw = null;
             String line;
 
             try {
-                br =
+                try (BufferedReader br =
                         Files.newBufferedReader(
-                                new File(tempOutfilename).toPath(), StandardCharsets.UTF_8);
-                bw =
+                                new File(tempOutfilename).toPath(), StandardCharsets.UTF_8) ){
+                    try (BufferedWriter bw =
                         Files.newBufferedWriter(
-                                new File(outfilename).toPath(), StandardCharsets.UTF_8);
+                                new File(outfilename).toPath(), StandardCharsets.UTF_8) ){
 
-                while ((line = br.readLine()) != null) {
-                    bw.write(line.replace("&lt;p&gt;", "<p>").replace("&lt;/p&gt;", "</p>"));
-                    bw.newLine();
+                        while ((line = br.readLine()) != null) {
+                            bw.write(line.replace("&lt;p&gt;", "<p>").replace("&lt;/p&gt;", "</p>"));
+                            bw.newLine();
+                        }
+                    }
                 }
 
             } catch (IOException e) {
                 showDialogForGUI();
                 logger.error(e.getMessage(), e);
-            } finally {
-                try {
-                    if (br != null) {
-                        br.close();
-                    }
-                    if (bw != null) {
-                        bw.close();
-                    }
-                } catch (IOException ex) {
-                }
             }
             // Remove the temporary file
             outfile.delete();
