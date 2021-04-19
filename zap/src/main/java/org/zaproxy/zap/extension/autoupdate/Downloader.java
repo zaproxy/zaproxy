@@ -95,8 +95,9 @@ public class Downloader extends Thread {
              */
 
             // XXX Change to use HttpClient to respect all proxy settings (e.g. use of SOCKS).
-            try( BufferedInputStream in = new BufferedInputStream(url.openConnection(proxy).getInputStream()) ){
-                try( FileOutputStream out = new FileOutputStream(this.targetFile) ){
+            try(BufferedInputStream in =
+                new BufferedInputStream(url.openConnection(proxy).getInputStream())){
+                try(FileOutputStream out = new FileOutputStream(this.targetFile)){
                     byte[] data = new byte[1024];
                     int count;
                     while (!cancelDownload && (count = in.read(data, 0, 1024)) != -1) {
