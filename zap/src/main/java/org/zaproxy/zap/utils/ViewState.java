@@ -55,7 +55,7 @@ public class ViewState {
     public static String encode(Serializable o) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         try {
-            try ( ObjectOutputStream oos = new ObjectOutputStream(bos) ){
+            try (ObjectOutputStream oos = new ObjectOutputStream(bos)){
                 oos.writeObject(o);
                 oos.flush();
             }
