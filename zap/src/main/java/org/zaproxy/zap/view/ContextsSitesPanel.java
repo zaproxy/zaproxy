@@ -110,7 +110,12 @@ public class ContextsSitesPanel extends JPanel {
         public int getScrollableUnitIncrement(
                 Rectangle visibleRect, int orientation, int direction) {
             if (visibleRect.getY() < sitesTree.getBounds().getY()) {
-                return contextsTree.getScrollableUnitIncrement(visibleRect, orientation, direction);
+                int unitIncrement =
+                        contextsTree.getScrollableUnitIncrement(
+                                visibleRect, orientation, direction);
+                if (unitIncrement != 0) {
+                    return unitIncrement;
+                }
             }
             return sitesTree.getScrollableUnitIncrement(visibleRect, orientation, direction);
         }
