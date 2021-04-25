@@ -63,7 +63,7 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
     @Override
     public void performAction(SiteNode sn) {
         try {
-            performAction(sn.getNodeName(), new StructuralSiteNode(sn).getRegexPattern());
+            performAction(sn.getNodeName(), createRegex(sn));
         } catch (DatabaseException e) {
             // Ignore
         }
@@ -101,6 +101,10 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
         // Manually create the UI shared contexts so any modifications are done
         // on an UI shared Context, so changes can be undone by pressing Cancel
         View.getSingleton().getSessionDialog().recreateUISharedContexts(session);
+    }
+
+    protected String createRegex(SiteNode sn) throws DatabaseException {
+        return new StructuralSiteNode(sn).getRegexPattern();
     }
 
     @Override
