@@ -206,6 +206,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
 
     private void runGradle(Path repoDir, List<String> args) {
         List<String> execArgs = new ArrayList<>();
+        execArgs.add("-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m");
         if (quiet.get()) {
             execArgs.add("-q");
         }
