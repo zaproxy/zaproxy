@@ -134,13 +134,12 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
         setCloseMarkupTags(false);
         setClearWhitespaceLinesEnabled(false);
 
-        setFont();
-
         if (DisplayUtils.isDarkLookAndFeel()) {
             darkLaF = true;
             setLookAndFeel(darkLaF);
         } else {
             darkLaF = false;
+            setFont();
         }
         initHighlighter();
     }
