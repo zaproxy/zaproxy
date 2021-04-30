@@ -12,10 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup Java 8
+    - name: Setup Java
       uses: actions/setup-java@v1
       with:
-        java-version: 8
+        java-version: 11
     - name: Build and Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
