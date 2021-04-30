@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-04-30
+ - Alert_on_Unexpected_Content_Types.js > Added Content-Type text/yaml to the list of expected types.
+
 ### 2021-02-10
  - Check if messages being analyzed by API scan scripts are globally excluded or not.
 
