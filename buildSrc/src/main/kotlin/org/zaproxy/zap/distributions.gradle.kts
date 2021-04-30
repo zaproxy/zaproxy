@@ -157,7 +157,8 @@ val macOsJreFile = File(macOsJreDir, "jdk$macOsJreVersion-jre.tar.gz")
 val downloadMacOsJre by tasks.registering(Download::class) {
     src("https://api.adoptopenjdk.net/v2/binary/releases/openjdk8?openjdk_impl=hotspot&os=mac&arch=x64&type=jre&release=jdk$macOsJreVersion")
     dest(macOsJreFile)
-    timeout(60_000)
+    connectTimeout(60_000)
+    readTimeout(60_000)
     onlyIfModified(true)
     doFirst {
         require (Os.isFamily(Os.FAMILY_MAC)) {
