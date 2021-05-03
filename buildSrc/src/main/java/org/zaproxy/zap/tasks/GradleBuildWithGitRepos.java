@@ -214,6 +214,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
         getProject()
                 .exec(
                         spec -> {
+                            spec.environment("ZAP_RELEASE", "1");
                             spec.setWorkingDir(repoDir);
                             spec.setExecutable(gradleWrapper());
                             spec.args(execArgs);
