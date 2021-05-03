@@ -54,6 +54,13 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
     private Pattern attPattern = Pattern.compile(attRegex);
     private Pattern tagPattern = Pattern.compile(tagRegex);
 
+    private static final String SHORT_NAME = "xml";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
+
     /**
      * @param contentType
      * @return

@@ -601,6 +601,12 @@ public abstract class PluginPassiveScanner extends Enableable
         }
 
         @Override
+        public AlertBuilder setInputVector(String inputVector) {
+            super.setInputVector(inputVector);
+            return this;
+        }
+
+        @Override
         public AlertBuilder setCweId(int cweId) {
             super.setCweId(cweId);
             return this;

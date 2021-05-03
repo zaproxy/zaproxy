@@ -24,6 +24,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/08/27 Added default methods for modifying the Sites tree
+// ZAP: 2021/05/06 Add method to get a short name of the variant
 package org.parosproxy.paros.core.scanner;
 
 import java.util.List;
@@ -56,6 +57,16 @@ public interface Variant {
      * @since 2.11.0
      */
     default void setParameters(HttpMessage message, List<InputVector> inputVectors) {}
+
+    /**
+     * Gets a short name of the Variant
+     *
+     * @return a {@code String} the short name of the variant
+     * @since 2.12.0
+     */
+    default String getShortName() {
+        return "";
+    }
 
     /**
      * Gets the name of the node to be used for the given {@code msg} in the Site Map. Returning

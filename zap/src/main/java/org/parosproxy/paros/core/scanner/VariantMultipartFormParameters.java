@@ -59,6 +59,13 @@ public class VariantMultipartFormParameters implements Variant {
     private List<NameValuePair> params = Collections.emptyList();
     private List<MultipartFormParameter> multiPartParams = new ArrayList<>();
 
+    private static final String SHORT_NAME = "multipart";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
+
     @Override
     public void setMessage(HttpMessage msg) {
         if (msg == null) {

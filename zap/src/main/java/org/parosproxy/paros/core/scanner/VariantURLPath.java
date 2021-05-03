@@ -84,6 +84,13 @@ public class VariantURLPath implements Variant {
     private final List<NameValuePair> stringParam = new ArrayList<>();
     private String[] segments;
 
+    private static final String SHORT_NAME = "urlpath";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
+
     @Override
     public void setMessage(HttpMessage msg) {
         /*

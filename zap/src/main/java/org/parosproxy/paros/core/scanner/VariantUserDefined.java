@@ -39,6 +39,13 @@ public class VariantUserDefined implements Variant {
 
     private static final Logger LOGGER = LogManager.getLogger(VariantUserDefined.class);
 
+    private static final String SHORT_NAME = "userdefined";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
+
     public VariantUserDefined() {
         super();
     }
