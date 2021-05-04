@@ -269,6 +269,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
             out.write("\n");
             out.write("/**\n");
             out.write(" * This file was automatically generated.\n");
+            out.write(" * @property Zap $zap\n");
             out.write(" */\n");
             out.write("class " + className + " {\n\n");
 
