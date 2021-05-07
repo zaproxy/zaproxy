@@ -188,23 +188,5 @@ public class SessionUnitTest {
                 HttpMessage msg, NameValuePair originalPair, String param, String value) {
             return null;
         }
-
-        @Override
-        public String setParameters(
-                HttpMessage msg,
-                List<NameValuePair> originalPairs,
-                List<String> params,
-                List<String> values) {
-            return null;
-        }
-
-        @Override
-        public String setEscapedParameters(
-                HttpMessage msg,
-                List<NameValuePair> originalPairs,
-                List<String> params,
-                List<String> values) {
-            return null;
-        }
     }
 }
