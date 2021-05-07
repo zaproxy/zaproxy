@@ -16,6 +16,7 @@ import org.zaproxy.zap.extension.ascan.VariantFactory;
 public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
 
     private final Logger logger = Logger.getLogger(this.getClass());
+    private Variant variant;
 
     @Override
     public void scan() {
@@ -60,7 +61,8 @@ public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
     private void scanVariant(Variant variant) {
         HttpMessage msg = getNewMsg();
         try {
-            scan(msg, variant);
+            this.variant = variant;
+            scan(msg, variant.getParamList());
         } catch (Exception e) {
             logger.error("Error occurred while scanning a message:", e);
         }
@@ -70,7 +72,81 @@ public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
      * Scan the current message using the provided Variant
      *
      * @param msg a copy of the HTTP message currently under scanning
-     * @param variant
+     * @param nameValuePairs ParamList of a Variant
      */
-    public abstract void scan(HttpMessage msg, Variant variant);
+    public abstract void scan(HttpMessage msg, List<NameValuePair> nameValuePairs);
+
+    /**
+     * Sets the parameter into the given {@code message}. If both parameter name and value are
+     * {@code null}, the parameter will be removed.
+     *
+     * @param message the message that will be changed
+     * @param nameValuePair of the message
+     * @param param the name of the parameter
+     * @param value the value of the parameter
+     * @return the parameter set
+     * @see #setEscapedParameter(HttpMessage, NameValuePair, String, String)
+     */
+    protected String setParameter(
+            HttpMessage message, NameValuePair originalPair, String param, String value) {
+        return variant.setParameter(message, originalPair, param, value);
+    }
+
+    /**
+     * Sets the parameters into the given {@code message}. If both parameter name and value are
+     * {@code null}, the parameter will be removed.
+     *
+     * <p>The value is expected to be properly encoded/escaped.
+     *
+     * @param message the message that will be changed
+     * @param nameValuePairs of the message
+     * @param params list of name of the parameter
+     * @param values list of value of the parameter
+     * @return the parameter set
+     * @see #setParameters(HttpMessage, List, List, List)
+     */
+    protected String setEscapedParameters(
+            HttpMessage message,
+            List<NameValuePair> originalPairs,
+            List<String> params,
+            List<String> values) {
+        return variant.setEscapedParameters(message, originalPairs, params, values);
+    }
+
+    /**
+     * Sets the parameters into the given {@code message}. If both parameter name and value are
+     * {@code null}, the parameter will be removed.
+     *
+     * @param message the message that will be changed
+     * @param nameValuePairs of the message
+     * @param params list of name of the parameter
+     * @param values list of value of the parameter
+     * @return the parameter set
+     * @see #setEscapedParameters(HttpMessage, List, List, List)
+     */
+    protected String setParameters(
+            HttpMessage message,
+            List<NameValuePair> originalPairs,
+            List<String> params,
+            List<String> values) {
+        return variant.setParameters(message, originalPairs, params, values);
+    }
+
+    /**
+     * Sets the parameter into the given {@code message}. If both parameter name and value are
+     * {@code null}, the parameter will be removed.
+     *
+     * <p>The value is expected to be properly encoded/escaped.
+     *
+     * @param message the message that will be changed
+     * @param nameValuePair of the message
+     * @param param the name of the parameter
+     * @param value the value of the parameter
+     * @return the parameter set
+     * @see #setParameter(HttpMessage, NameValuePair, String, String)
+     */
+    protected String setEscapedParameter(
+            HttpMessage message, NameValuePair originalPair, String param, String value) {
+        return variant.setEscapedParameter(message, originalPair, param, value);
+    }
 }

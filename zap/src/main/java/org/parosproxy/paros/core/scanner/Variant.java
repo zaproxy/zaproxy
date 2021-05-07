@@ -48,6 +48,46 @@ public interface Variant {
             HttpMessage msg, NameValuePair originalPair, String param, String value);
 
     /**
+     * Sets the parameters into the given {@code message}. If both parameter name and value are
+     * {@code null}, the parameter will be removed.
+     *
+     * @param message the message that will be changed
+     * @param nameValuePairs of the message
+     * @param params list of name of the parameter
+     * @param values list of value of the parameter
+     * @return the parameter set
+     * @see #setEscapedParameters(HttpMessage, List, List, List)
+     */
+    default String setParameters(
+            HttpMessage msg,
+            List<NameValuePair> originalPairs,
+            List<String> params,
+            List<String> values) {
+        return null;
+    };
+
+    /**
+     * Sets the parameter into the given {@code message}. If both parameter name and value are
+     * {@code null}, the parameter will be removed.
+     *
+     * <p>The value is expected to be properly encoded/escaped.
+     *
+     * @param message the message that will be changed
+     * @param nameValuePair of the message
+     * @param param the name of the parameter
+     * @param value the value of the parameter
+     * @return the parameter set
+     * @see #setParameter(HttpMessage, NameValuePair, String, String)
+     */
+    default String setEscapedParameters(
+            HttpMessage msg,
+            List<NameValuePair> originalPairs,
+            List<String> params,
+            List<String> values) {
+        return null;
+    }
+
+    /**
      * Gets the name of the node to be used for the given {@code msg} in the Site Map. Returning
      * null is taken to mean use the default name. This is currently the last element of the path
      * (given in {@code nodeName}) followed by the url parameter names in brackets (if any) followed

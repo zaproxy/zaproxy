@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
@@ -323,17 +324,20 @@ public class VariantMultipartFormParametersUnitTest {
         String newValue = "somefile9";
         variant.setMessage(message);
         // When
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+        List<String> params = new ArrayList<>();
+        List<String> values = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            variant.setParameter(
-                    message,
+            nameValuePairs.add(
                     new NameValuePair(
                             NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                             paramName + i,
                             DEFAULT_FILE_NAME,
-                            3),
-                    paramName,
-                    newValue);
+                            3));
+            params.add(paramName);
+            values.add(newValue);
         }
+        variant.setEscapedParameters(message, nameValuePairs, params, values);
         HttpMessage newMsg =
                 createMessage(
                         DEFAULT_PARAM_CONTENT,
@@ -356,42 +360,42 @@ public class VariantMultipartFormParametersUnitTest {
         String origContent = "contents of the file";
         variant.setMessage(message);
         // When
-        variant.setParameter(
-                message,
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+        List<String> params = new ArrayList<>();
+        List<String> values = new ArrayList<>();
+        nameValuePairs.add(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_PARAM,
                         "person",
                         DEFAULT_PARAM_CONTENT,
-                        1),
-                paramName,
-                newValue);
-        variant.setMessage(message);
-        // When
-        variant.setParameter(
-                message,
+                        1));
+        params.add(paramName);
+        values.add(newValue);
+
+        nameValuePairs.add(
                 new NameValuePair(
-                        NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origContent, 2),
-                newContent,
-                newValue);
-        variant.setParameter(
-                message,
+                        NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origContent, 2));
+        params.add(newContent);
+        values.add(newValue);
+
+        nameValuePairs.add(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                         paramName,
                         DEFAULT_FILE_NAME,
-                        3),
-                paramName,
-                newValue);
-        variant.setParameter(
-                message,
+                        3));
+        params.add(paramName);
+        values.add(newValue);
+
+        nameValuePairs.add(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
                         paramName,
                         DEFAULT_CONTENT_TYPE,
-                        4),
-                paramName,
-                newValue);
-
+                        4));
+        params.add(paramName);
+        values.add(newValue);
+        variant.setParameters(message, nameValuePairs, params, values);
         HttpMessage newMsg = createMessage(newValue, newValue, newValue, newContent);
         // Then
         assertThat(
@@ -409,42 +413,42 @@ public class VariantMultipartFormParametersUnitTest {
         String origContent = "contents of the file";
         variant.setMessage(message);
         // When
-        variant.setParameter(
-                message,
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+        List<String> params = new ArrayList<>();
+        List<String> values = new ArrayList<>();
+        nameValuePairs.add(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_PARAM,
                         "person",
                         DEFAULT_PARAM_CONTENT,
-                        1),
-                paramName,
-                newValue);
-        variant.setMessage(message);
-        // When
-        variant.setParameter(
-                message,
+                        1));
+        params.add(paramName);
+        values.add(newValue);
+
+        nameValuePairs.add(
                 new NameValuePair(
-                        NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origContent, 2),
-                paramName,
-                newContent);
-        variant.setParameter(
-                message,
+                        NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origContent, 2));
+        params.add(paramName);
+        values.add(newContent);
+
+        nameValuePairs.add(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                         paramName,
                         DEFAULT_FILE_NAME,
-                        3),
-                paramName,
-                newValue);
-        variant.setParameter(
-                message,
+                        3));
+        params.add(paramName);
+        values.add(newValue);
+
+        nameValuePairs.add(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
                         paramName,
                         DEFAULT_CONTENT_TYPE,
-                        4),
-                paramName,
-                newValue);
-
+                        4));
+        params.add(paramName);
+        values.add(newValue);
+        variant.setParameters(message, nameValuePairs, params, values);
         HttpMessage newMsg = createMessage(newValue, newValue, newValue, newContent);
         // Then
         assertThat(
@@ -462,42 +466,42 @@ public class VariantMultipartFormParametersUnitTest {
         String origContent = "contents of the file";
         variant.setMessage(message);
         // When
-        variant.setParameter(
-                message,
+        List<NameValuePair> nameValuePairs = new ArrayList<>();
+        List<String> params = new ArrayList<>();
+        List<String> values = new ArrayList<>();
+        nameValuePairs.add(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_PARAM,
                         "person",
                         DEFAULT_PARAM_CONTENT,
-                        1),
-                paramName,
-                newValue);
-        variant.setMessage(message);
-        // When
-        variant.setParameter(
-                message,
+                        1));
+        params.add(paramName);
+        values.add(newValue);
+
+        nameValuePairs.add(
                 new NameValuePair(
-                        NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origContent, 2),
-                paramName,
-                newContent);
-        variant.setParameter(
-                message,
+                        NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origContent, 2));
+        params.add(paramName);
+        values.add(newContent);
+
+        nameValuePairs.add(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                         paramName,
                         DEFAULT_FILE_NAME,
-                        3),
-                paramName,
-                newValue);
-        variant.setParameter(
-                message,
+                        3));
+        params.add(paramName);
+        values.add(newValue);
+
+        nameValuePairs.add(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
                         paramName,
                         DEFAULT_CONTENT_TYPE,
-                        4),
-                paramName,
-                newValue);
-
+                        4));
+        params.add(paramName);
+        values.add(newValue);
+        variant.setParameters(message, nameValuePairs, params, values);
         HttpMessage newMsg = createMessage(newValue, newValue, newValue, newContent);
         // Then
         assertThat(
