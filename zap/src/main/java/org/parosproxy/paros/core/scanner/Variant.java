@@ -59,8 +59,8 @@ public interface Variant {
      * @see #setEscapedParameters(HttpMessage, List, List, List)
      */
     default String setParameters(
-            HttpMessage msg,
-            List<NameValuePair> originalPairs,
+            HttpMessage message,
+            List<NameValuePair> nameValuePairs,
             List<String> params,
             List<String> values) {
         return null;
@@ -73,15 +73,15 @@ public interface Variant {
      * <p>The value is expected to be properly encoded/escaped.
      *
      * @param message the message that will be changed
-     * @param nameValuePair of the message
-     * @param param the name of the parameter
-     * @param value the value of the parameter
+     * @param nameValuePairs of the message
+     * @param params list of name of the parameter
+     * @param values list of value of the parameter
      * @return the parameter set
      * @see #setParameter(HttpMessage, NameValuePair, String, String)
      */
     default String setEscapedParameters(
-            HttpMessage msg,
-            List<NameValuePair> originalPairs,
+            HttpMessage message,
+            List<NameValuePair> nameValuePairs,
             List<String> params,
             List<String> values) {
         return null;

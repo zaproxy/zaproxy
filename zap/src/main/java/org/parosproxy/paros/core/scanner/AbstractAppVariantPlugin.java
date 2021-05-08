@@ -88,8 +88,8 @@ public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
      * @see #setEscapedParameter(HttpMessage, NameValuePair, String, String)
      */
     protected String setParameter(
-            HttpMessage message, NameValuePair originalPair, String param, String value) {
-        return variant.setParameter(message, originalPair, param, value);
+            HttpMessage message, NameValuePair nameValuePair, String param, String value) {
+        return variant.setParameter(message, nameValuePair, param, value);
     }
 
     /**
@@ -107,10 +107,10 @@ public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
      */
     protected String setEscapedParameters(
             HttpMessage message,
-            List<NameValuePair> originalPairs,
+            List<NameValuePair> nameValuePairs,
             List<String> params,
             List<String> values) {
-        return variant.setEscapedParameters(message, originalPairs, params, values);
+        return variant.setEscapedParameters(message, nameValuePairs, params, values);
     }
 
     /**
@@ -126,10 +126,10 @@ public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
      */
     protected String setParameters(
             HttpMessage message,
-            List<NameValuePair> originalPairs,
+            List<NameValuePair> nameValuePairs,
             List<String> params,
             List<String> values) {
-        return variant.setParameters(message, originalPairs, params, values);
+        return variant.setParameters(message, nameValuePairs, params, values);
     }
 
     /**
@@ -146,7 +146,7 @@ public abstract class AbstractAppVariantPlugin extends AbstractAppPlugin {
      * @see #setParameter(HttpMessage, NameValuePair, String, String)
      */
     protected String setEscapedParameter(
-            HttpMessage message, NameValuePair originalPair, String param, String value) {
-        return variant.setEscapedParameter(message, originalPair, param, value);
+            HttpMessage message, NameValuePair nameValuePair, String param, String value) {
+        return variant.setEscapedParameter(message, nameValuePair, param, value);
     }
 }
