@@ -47,70 +47,28 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.ascan.VariantFactory;
 
-public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
+public abstract class AbstractAppParamPlugin extends AbstractAppVariantPlugin {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
-    private List<Variant> listVariant;
     private NameValuePair originalPair = null;
-    private Variant variant = null;
-
-    @Override
-    public void scan() {
-        VariantFactory factory = Model.getSingleton().getVariantFactory();
-
-        listVariant = factory.createVariants(this.getParent().getScannerParam(), this.getBaseMsg());
-
-        if (listVariant.isEmpty()) {
-            getParent()
-                    .pluginSkipped(
-                            this,
-                            Constant.messages.getString(
-                                    "ascan.progress.label.skipped.reason.noinputvectors"));
-            return;
-        }
-
-        for (int i = 0; i < listVariant.size() && !isStop(); i++) {
-
-            HttpMessage msg = getNewMsg();
-            // ZAP: Removed unnecessary cast.
-            variant = listVariant.get(i);
-            try {
-                variant.setMessage(msg);
-                scanVariant();
-
-            } catch (Exception e) {
-                logger.error(
-                        "Error occurred while scanning with variant "
-                                + variant.getClass().getCanonicalName(),
-                        e);
-            }
-
-            // ZAP: Implement pause and resume
-            while (getParent().isPaused() && !isStop()) {
-                Util.sleep(500);
-            }
-        }
-    }
 
     /** Scan the current message using the current Variant */
-    private void scanVariant() {
-        for (int i = 0; i < variant.getParamList().size() && !isStop(); i++) {
+    @Override
+    public void scan(HttpMessage msg, List<NameValuePair> paramList) {
+        for (int i = 0; i < paramList.size() && !isStop(); i++) {
             // ZAP: Removed unnecessary cast.
-            originalPair = variant.getParamList().get(i);
+            originalPair = paramList.get(i);
 
             if (!isToExclude(originalPair)) {
 
                 // We need to use a fresh copy of the original message
                 // for further analysis inside all plugins
-                HttpMessage msg = getNewMsg();
+                HttpMessage newMsg = getNewMsg();
 
                 try {
-                    scan(msg, originalPair);
+                    scan(newMsg, originalPair);
 
                 } catch (Exception e) {
                     logger.error("Error occurred while scanning a message:", e);
@@ -200,7 +158,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      * @see #setEscapedParameter(HttpMessage, String, String)
      */
     protected String setParameter(HttpMessage message, String param, String value) {
-        return variant.setParameter(message, originalPair, param, value);
+        return super.setParameter(message, originalPair, param, value);
     }
 
     /**
@@ -216,6 +174,6 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      * @see #setParameter(HttpMessage, String, String)
      */
     protected String setEscapedParameter(HttpMessage message, String param, String value) {
-        return variant.setEscapedParameter(message, originalPair, param, value);
+        return super.setEscapedParameter(message, originalPair, param, value);
     }
 }

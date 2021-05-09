@@ -44,6 +44,16 @@ public class MultipartFormParameter {
         this.type = type;
     }
 
+    public MultipartFormParameter(MultipartFormParameter multipartFormParameter) {
+        this(
+                multipartFormParameter.name,
+                multipartFormParameter.value,
+                multipartFormParameter.start,
+                multipartFormParameter.end,
+                multipartFormParameter.position,
+                multipartFormParameter.type);
+    }
+
     public String getName() {
         return name;
     }
@@ -54,6 +64,14 @@ public class MultipartFormParameter {
 
     public int getStart() {
         return start;
+    }
+
+    void setStart(int start) {
+        this.start = start;
+    }
+
+    void setEnd(int end) {
+        this.end = end;
     }
 
     public int getEnd() {
