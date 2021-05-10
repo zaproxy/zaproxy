@@ -56,6 +56,7 @@ import org.apache.commons.httpclient.util.EncodingUtil;
  *  - Fix unchecked/rawtypes warnings (required by lint checks).
  *  - Allow to use underscores in hostnames.
  *  - Use neutral Locale when converting to lower case.
+ *  - Allow to create a URI from the authority component.
  */
 /**
  * The interface for the URI(Uniform Resource Identifiers) version of RFC 2396.
@@ -2185,6 +2186,22 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
         return -1;
     }
 
+    /**
+     * Creates a {@code URI} from the given authority.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @param authority the authority component.
+     * @return the URI.
+     * @throws URIException if an error occurred while parsing the authority.
+     */
+    public static URI fromAuthority(String authority) throws URIException {
+        URI uri = new URI();
+        uri.parseAuthority(authority, true);
+        uri.setURI();
+        uri._uri = authority.toCharArray();
+        return uri;
+    }
 
     /**
      * Parse the authority component.

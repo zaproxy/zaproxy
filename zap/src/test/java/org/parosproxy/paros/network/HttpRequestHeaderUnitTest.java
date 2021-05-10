@@ -70,6 +70,22 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
+    void shouldCreateConnectRequest() throws Exception {
+        // Given
+        String data = "CONNECT example.com:443 HTTP/1.1\\r\\nHost: example.com:443\\r\\n\\r\\n";
+        // When
+        HttpRequestHeader header = new HttpRequestHeader(data);
+        // Then
+        assertThat(header.getMethod(), is(equalTo("CONNECT")));
+        assertThat(header.getHostName(), is(equalTo("example.com")));
+        assertThat(header.getHostPort(), is(equalTo(443)));
+        assertThat(header.getURI().getAuthority(), is(equalTo("example.com:443")));
+        assertThat(header.getURI().getHost(), is(equalTo("example.com")));
+        assertThat(header.getURI().getPort(), is(equalTo(443)));
+        assertThat(header.getURI().toString(), is(equalTo("example.com:443")));
+    }
+
+    @Test
     public void shouldNotBeImageIfItHasNoRequestUri() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();

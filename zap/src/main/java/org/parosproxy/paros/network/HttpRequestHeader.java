@@ -59,6 +59,7 @@
 // ZAP: 2020/11/10 Add convenience method isCss(), refactor isImage() to use new private method
 // isSpecificType(Pattern).
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/10 Use authority for CONNECT requests.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -465,7 +466,7 @@ public class HttpRequestHeader extends HttpHeader {
 
         if (mMethod.equalsIgnoreCase(CONNECT)) {
             parseHostName(sUri);
-            mUri = parseURI(mHostName);
+            mUri = URI.fromAuthority(sUri);
 
         } else {
             mUri = parseURI(sUri);
