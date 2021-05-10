@@ -49,11 +49,11 @@ class DefaultHistoryReferencesTableEntryUnitTest {
     }
 
     @Test
-    void shouldHaveHostNameForUriWithJustAuthority() {
+    void shouldHaveHostNameForUriWithJustAuthority() throws Exception {
         // Given
         HistoryReference historyReference = mock(HistoryReference.class);
         given(historyReference.getMethod()).willReturn("CONNECT");
-        given(historyReference.getURI()).willReturn(createUri("example.com"));
+        given(historyReference.getURI()).willReturn(URI.fromAuthority("example.com:443"));
         Column[] columns = {Column.HOSTNAME};
         // When
         DefaultHistoryReferencesTableEntry entry =
