@@ -96,6 +96,16 @@ public abstract class PluginPassiveScanner extends Enableable
         setParent(parent);
     }
 
+    /**
+     * <strong>Note:</strong> This method should no longer need to be overridden, the functionality
+     * provided by the {@code parent} can be obtained directly with {@link #newAlert()} and {@link
+     * #addTag(String)}.
+     */
+    @Override
+    public void setParent(PassiveScanThread parent) {
+        // Nothing to do.
+    }
+
     void clean() {
         parent = null;
         message = null;
@@ -379,6 +389,16 @@ public abstract class PluginPassiveScanner extends Enableable
      */
     public PassiveScanData getHelper() {
         return passiveScanData;
+    }
+
+    /**
+     * Adds the given tag to the message being passive scanned.
+     *
+     * @param tag the name of the tag.
+     * @since 2.11.0
+     */
+    protected void addTag(String tag) {
+        parent.addTag(tag);
     }
 
     /**
