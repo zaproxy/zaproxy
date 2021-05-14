@@ -59,6 +59,7 @@
 // ZAP: 2020/12/09 Handle content encodings in request/response bodies.
 // ZAP: 2021/04/01 Detect WebSocket upgrade messages having multiple Connection directives
 // ZAP: 2021/05/11 Fixed conversion of Request Method to/from CONNECT
+// ZAP: 2021/05/14 Add missing override annotation.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -1234,6 +1235,7 @@ public class HttpMessage implements Message {
      *
      * @since 2.8.0
      */
+    @Override
     public String getType() {
         return MESSAGE_TYPE;
     }

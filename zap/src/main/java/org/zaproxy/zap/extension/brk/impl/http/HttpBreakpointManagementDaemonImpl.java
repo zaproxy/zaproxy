@@ -130,6 +130,7 @@ public class HttpBreakpointManagementDaemonImpl implements BreakpointManagementI
         }
     }
 
+    @Override
     public boolean isRequest() {
         return this.request;
     }

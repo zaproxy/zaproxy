@@ -328,6 +328,7 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
      * @param tokenType The token's type.
      * @param startOffset The offset in the document at which this token occurs.
      */
+    @Override
     public void addToken(char[] array, int start, int end, int tokenType, int startOffset) {
         super.addToken(array, start, end, tokenType, startOffset);
         zzStartRead = zzMarkedPos;
@@ -343,6 +344,7 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
      * @return The first <code>Token</code> in a linked list representing the syntax highlighted
      *     text.
      */
+    @Override
     public Token getTokenList(Segment text, int initialTokenType, int startOffset) {
         resetTokenList();
         this.offsetShift = -text.offset + startOffset;

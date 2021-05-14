@@ -62,14 +62,17 @@ public class AliasTableModel extends AbstractTableModel {
         return _aliases.get(row).getAlias();
     }
 
+    @Override
     public int getColumnCount() {
         return 1;
     }
 
+    @Override
     public int getRowCount() {
         return _aliases.size();
     }
 
+    @Override
     public Object getValueAt(int row, int col) {
         return _aliases.get(row).getName();
     }

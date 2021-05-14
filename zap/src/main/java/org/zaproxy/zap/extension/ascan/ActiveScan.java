@@ -172,6 +172,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
             // For now this is only supported in the desktop UI
             final Runnable requestCounter =
                     new Runnable() {
+                        @Override
                         public void run() {
                             if (isStop()) {
                                 schedHandle.cancel(true);

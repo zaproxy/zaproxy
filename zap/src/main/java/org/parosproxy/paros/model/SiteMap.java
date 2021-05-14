@@ -70,7 +70,7 @@
 // ZAP: 2020/08/17 Changed to use getTreePath(msg) method
 // ZAP: 2020/11/02 Do not get leaf name if finding branch nodes.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
-// ZAP: 2021/05/14 Remove empty statement.
+// ZAP: 2021/05/14 Remove empty statement and add missing override annotation.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -868,6 +868,7 @@ class SortedTreeModel extends DefaultTreeModel {
 }
 
 class SiteNodeStringComparator implements Comparator<SiteNode> {
+    @Override
     public int compare(SiteNode sn1, SiteNode sn2) {
         String s1 = sn1.getName();
         String s2 = sn2.getName();
