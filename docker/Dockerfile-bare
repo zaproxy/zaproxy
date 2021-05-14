@@ -27,7 +27,8 @@ RUN echo "http://dl-3.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories
     chown -R zap:zap /home/zap/.ZAP/
 
 #Change to the zap user so things get done as the right person (apart from copy)
-USER zap
+RUN export userId=$(id -u zap)
+USER $userId
 
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 ENV ZAP_PATH /zap/zap.sh
