@@ -31,12 +31,12 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link Statistics}. */
-public class StatisticsUnitTest {
+class StatisticsUnitTest {
 
     private static final String STAT_KEY = "stat.key";
 
     @Test
-    public void shouldReturnNullValueIfStatNotPresent() throws Exception {
+    void shouldReturnNullValueIfStatNotPresent() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         // When
@@ -46,7 +46,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldIncreaseCounter() throws Exception {
+    void shouldIncreaseCounter() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         // When
@@ -56,7 +56,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldIncreaseExistingCounter() throws Exception {
+    void shouldIncreaseExistingCounter() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         statistics.incCounter(STAT_KEY);
@@ -67,7 +67,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldIncreaseCounterWithGivenValue() throws Exception {
+    void shouldIncreaseCounterWithGivenValue() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         // When
@@ -77,7 +77,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldIncreaseExistingCounterWithGivenValue() throws Exception {
+    void shouldIncreaseExistingCounterWithGivenValue() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         statistics.incCounter(STAT_KEY);
@@ -88,7 +88,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldIncreaseCounterWithNegativeValues() throws Exception {
+    void shouldIncreaseCounterWithNegativeValues() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         // When
@@ -98,7 +98,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldDecreaseCounter() throws Exception {
+    void shouldDecreaseCounter() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         // When
@@ -108,7 +108,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldDecreaseExistingCounter() throws Exception {
+    void shouldDecreaseExistingCounter() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         statistics.decCounter(STAT_KEY);
@@ -119,7 +119,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldDecreaseCounterWithGivenValue() throws Exception {
+    void shouldDecreaseCounterWithGivenValue() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         // When
@@ -129,7 +129,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldDecreaseExistingCounterWithGivenValue() throws Exception {
+    void shouldDecreaseExistingCounterWithGivenValue() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         statistics.decCounter(STAT_KEY);
@@ -140,7 +140,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldDecreaseCounterWithNegativeValues() throws Exception {
+    void shouldDecreaseCounterWithNegativeValues() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         // When
@@ -150,7 +150,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldReturnStatsWithSamePrefix() throws Exception {
+    void shouldReturnStatsWithSamePrefix() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         statistics.incCounter("stats.a");
@@ -170,7 +170,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldReturnNoStatsIfNoneWithGivenPrefix() throws Exception {
+    void shouldReturnNoStatsIfNoneWithGivenPrefix() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         statistics.incCounter("other.stats.a");
@@ -183,7 +183,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldClearAllStats() throws Exception {
+    void shouldClearAllStats() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         statistics.incCounter("stats.a");
@@ -196,7 +196,7 @@ public class StatisticsUnitTest {
     }
 
     @Test
-    public void shouldClearStatsWithSamePrefix() throws Exception {
+    void shouldClearStatsWithSamePrefix() throws Exception {
         // Given
         Statistics statistics = new Statistics();
         statistics.incCounter("stats");

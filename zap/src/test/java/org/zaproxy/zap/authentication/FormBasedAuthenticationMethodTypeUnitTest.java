@@ -45,7 +45,7 @@ import org.zaproxy.zap.testutils.NanoServerHandler;
 import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 
-public class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
+class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
 
     private static final String LOGGED_IN_INDICATOR = "logged in";
     private static final String LOGGED_IN_BODY =
@@ -58,7 +58,7 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
     private FormBasedAuthenticationMethodType type;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
 
         type = new FormBasedAuthenticationMethodType();
         method = type.createAuthenticationMethod(1);
@@ -76,7 +76,7 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReplaceUsernameInPollRequest() throws NullPointerException, IOException {
+    void shouldReplaceUsernameInPollRequest() throws NullPointerException, IOException {
         // Given
         String test = "/shouldReplaceUsernameInPollRequest/test";
         String encodedPattern =
@@ -127,7 +127,7 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldNotReplacePasswordInPollRequest() throws NullPointerException, IOException {
+    void shouldNotReplacePasswordInPollRequest() throws NullPointerException, IOException {
         // Given
         String test = "/shouldNotReplacePasswordInPollRequest/test";
         String pollUrl = "/shouldNotReplacePasswordInPollRequest/pollUrl";
@@ -166,8 +166,7 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldUrlEncodeUsernameInPollRequestBody()
-            throws NullPointerException, IOException {
+    void shouldUrlEncodeUsernameInPollRequestBody() throws NullPointerException, IOException {
         // Given
         String test = "/shouldEncodeSpacesInBody/test";
         String pollUrl = "/shouldEncodeSpacesInBody/pollUrl";

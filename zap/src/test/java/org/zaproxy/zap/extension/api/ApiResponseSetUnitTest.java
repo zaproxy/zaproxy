@@ -26,10 +26,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ApiResponseSet}. */
-public class ApiResponseSetUnitTest {
+class ApiResponseSetUnitTest {
 
     @Test
-    public void shouldReturnCorrectJsonObjectWithStdStringValues() throws ApiException {
+    void shouldReturnCorrectJsonObjectWithStdStringValues() throws ApiException {
         // Given
         String name = "name";
         String value = "value";
@@ -43,7 +43,7 @@ public class ApiResponseSetUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectJsonObjectWithSingleQuotedStringValues() throws ApiException {
+    void shouldReturnCorrectJsonObjectWithSingleQuotedStringValues() throws ApiException {
         // Given
         String name = "name";
         String value = "'value'";
@@ -57,7 +57,7 @@ public class ApiResponseSetUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectJsonObjectWithDoubleQuotedStringValues() throws ApiException {
+    void shouldReturnCorrectJsonObjectWithDoubleQuotedStringValues() throws ApiException {
         // Given
         String name = "name";
         String value = "\"value\"";
@@ -71,7 +71,7 @@ public class ApiResponseSetUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectJsonObjectWithJsonStringValues() throws ApiException {
+    void shouldReturnCorrectJsonObjectWithJsonStringValues() throws ApiException {
         // Given
         String name = "name";
         String value = "{\"key\":\"value\"}";

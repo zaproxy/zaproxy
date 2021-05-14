@@ -33,10 +33,10 @@ import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
 
 /** Unit test for {@link VariantCustom}. */
-public class VariantCustomUnitTest {
+class VariantCustomUnitTest {
 
     @Test
-    public void shouldCallScriptForGetLeafName() throws Exception {
+    void shouldCallScriptForGetLeafName() throws Exception {
         // Given
         ScriptWrapper scriptWrapper = mock(ScriptWrapper.class);
         given(scriptWrapper.isEnabled()).willReturn(true);
@@ -57,7 +57,7 @@ public class VariantCustomUnitTest {
     }
 
     @Test
-    public void shouldCallScriptForGetTreePath() throws Exception {
+    void shouldCallScriptForGetTreePath() throws Exception {
         // Given
         ScriptWrapper scriptWrapper = mock(ScriptWrapper.class);
         given(scriptWrapper.isEnabled()).willReturn(true);
@@ -80,7 +80,7 @@ public class VariantCustomUnitTest {
     }
 
     @Test
-    public void shouldReturnNullLeafNameWithDisabledScript() throws Exception {
+    void shouldReturnNullLeafNameWithDisabledScript() throws Exception {
         // Given
         ScriptWrapper scriptWrapper = mock(ScriptWrapper.class);
         given(scriptWrapper.isEnabled()).willReturn(false);
@@ -101,7 +101,7 @@ public class VariantCustomUnitTest {
     }
 
     @Test
-    public void shouldReturnNullTreePathWithDisabledScript() throws Exception {
+    void shouldReturnNullTreePathWithDisabledScript() throws Exception {
         // Given
         ScriptWrapper scriptWrapper = mock(ScriptWrapper.class);
         given(scriptWrapper.isEnabled()).willReturn(false);
@@ -121,7 +121,7 @@ public class VariantCustomUnitTest {
     }
 
     @Test
-    public void shouldReturnNullLeafNameWithScriptException() throws Exception {
+    void shouldReturnNullLeafNameWithScriptException() throws Exception {
         // Given
         ScriptWrapper scriptWrapper = mock(ScriptWrapper.class);
         String nodeName = "name";
@@ -141,7 +141,7 @@ public class VariantCustomUnitTest {
     }
 
     @Test
-    public void shouldReturnNullTreePathWithScriptException() throws Exception {
+    void shouldReturnNullTreePathWithScriptException() throws Exception {
         // Given
         ScriptWrapper scriptWrapper = mock(ScriptWrapper.class);
         String expectedPath = "newpath";

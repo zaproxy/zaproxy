@@ -27,10 +27,10 @@ import net.sf.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link JsonUtil}. */
-public class JsonUtilUnitTest {
+class JsonUtilUnitTest {
 
     @Test
-    public void shouldQuoteValueThatLooksLikeAnArray() {
+    void shouldQuoteValueThatLooksLikeAnArray() {
         // Given
         String value = "[ 1, 2, 3, 4]";
         // When
@@ -41,7 +41,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldQuoteValueThatLooksLikeAnObject() {
+    void shouldQuoteValueThatLooksLikeAnObject() {
         // Given
         String value = "{ \"1\" : \"2\", \"3\" : \"4\" }";
         // When
@@ -52,7 +52,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldQuoteValueThatLooksLikeAFunction() {
+    void shouldQuoteValueThatLooksLikeAFunction() {
         // Given
         String value = "function() { }";
         // When
@@ -63,7 +63,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldQuoteValueThatLooksLikeAFunctionWithWhitespaceEtc() {
+    void shouldQuoteValueThatLooksLikeAFunctionWithWhitespaceEtc() {
         // Given
         String value = "function ( param ) { misc stuff in here with \\\"quotes\\\"}";
         // When
@@ -74,7 +74,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteValueThatLooksLikeAnArrayButStartsWithSpace() {
+    void shouldNotQuoteValueThatLooksLikeAnArrayButStartsWithSpace() {
         // Given
         String value = " [ 1, 2, 3, 4]";
         // When
@@ -85,7 +85,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteValueThatLooksLikeAnObjectButStartsWithSpace() {
+    void shouldNotQuoteValueThatLooksLikeAnObjectButStartsWithSpace() {
         // Given
         String value = " { \"1\" : \"2\", \"3\" : \"4\" }";
         // When
@@ -96,7 +96,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteSingleQuotedValue() {
+    void shouldNotQuoteSingleQuotedValue() {
         // Given
         String value = "'value'";
         // When
@@ -107,7 +107,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteDoubleQuotedValue() {
+    void shouldNotQuoteDoubleQuotedValue() {
         // Given
         String value = "\"value\"";
         // When
@@ -118,7 +118,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteNullLiteralValue() {
+    void shouldNotQuoteNullLiteralValue() {
         // Given
         String value = "null";
         // When
@@ -129,7 +129,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteFunctionHeader() {
+    void shouldNotQuoteFunctionHeader() {
         // Given
         String value = "function()";
         // When

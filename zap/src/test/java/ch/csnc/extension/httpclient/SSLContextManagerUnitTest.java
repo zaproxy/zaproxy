@@ -26,17 +26,17 @@ import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class SSLContextManagerUnitTest {
+class SSLContextManagerUnitTest {
 
     private SSLContextManager sslContextManager;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         sslContextManager = new SSLContextManager();
     }
 
     @Test
-    public void shouldReturnAvailabilityOfPKCS11Provider() {
+    void shouldReturnAvailabilityOfPKCS11Provider() {
         // Given
         boolean pkcs11ProviderAvailable = true;
         try {
@@ -56,7 +56,7 @@ public class SSLContextManagerUnitTest {
     }
 
     @Test
-    public void shouldReturnAvailabilityOfMsksProvider() {
+    void shouldReturnAvailabilityOfMsksProvider() {
         // Given
         boolean msks11ProviderAvailable = true;
         try {
@@ -71,7 +71,7 @@ public class SSLContextManagerUnitTest {
     }
 
     @Test
-    public void shouldAlwaysReturnFalseForOtherThanPKCS11AndMsksProvider() {
+    void shouldAlwaysReturnFalseForOtherThanPKCS11AndMsksProvider() {
         // Given
         // When
         boolean result = sslContextManager.isProviderAvailable("thisProviderDoesNotExist");

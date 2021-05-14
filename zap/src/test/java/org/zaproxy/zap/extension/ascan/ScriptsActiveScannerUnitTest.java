@@ -57,7 +57,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link ScriptsActiveScanner}. */
-public class ScriptsActiveScannerUnitTest extends WithConfigsTest {
+class ScriptsActiveScannerUnitTest extends WithConfigsTest {
 
     private static final String SCRIPT_TYPE = ExtensionActiveScan.SCRIPT_TYPE_ACTIVE;
     private static final Class<ActiveScript> TARGET_INTERFACE_CACHE = ActiveScript.class;

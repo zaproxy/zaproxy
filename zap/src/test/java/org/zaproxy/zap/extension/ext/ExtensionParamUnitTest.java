@@ -33,10 +33,10 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link ExtensionParam}. */
-public class ExtensionParamUnitTest {
+class ExtensionParamUnitTest {
 
     @Test
-    public void shouldNotHaveConfigByDefault() {
+    void shouldNotHaveConfigByDefault() {
         // Given / When
         ExtensionParam param = new ExtensionParam();
         // Then
@@ -44,7 +44,7 @@ public class ExtensionParamUnitTest {
     }
 
     @Test
-    public void shouldBeCloneableByDefault() {
+    void shouldBeCloneableByDefault() {
         // Given
         ExtensionParam param = new ExtensionParam();
         // When
@@ -54,7 +54,7 @@ public class ExtensionParamUnitTest {
     }
 
     @Test
-    public void shouldParseLoadedFileConfiguration() {
+    void shouldParseLoadedFileConfiguration() {
         // Given
         ExtensionParam param = new ExtensionParam();
         FileConfiguration config = createTestConfig(false, true, false, true, true);
@@ -69,7 +69,7 @@ public class ExtensionParamUnitTest {
     }
 
     @Test
-    public void shouldDefaultToAllExtensionsEnabledIfLoadingMalformedFileConfiguration() {
+    void shouldDefaultToAllExtensionsEnabledIfLoadingMalformedFileConfiguration() {
         // Given
         ExtensionParam param = new ExtensionParam();
         // When
@@ -81,7 +81,7 @@ public class ExtensionParamUnitTest {
     }
 
     @Test
-    public void shouldHaveLoadedConfigsAfterCloning() {
+    void shouldHaveLoadedConfigsAfterCloning() {
         // Given
         ExtensionParam param = new ExtensionParam();
         FileConfiguration config = createTestConfig(false, true, false);
@@ -95,7 +95,7 @@ public class ExtensionParamUnitTest {
     }
 
     @Test
-    public void shouldFailToPersistNullExtensionsState() {
+    void shouldFailToPersistNullExtensionsState() {
         // Given
         ExtensionParam param = new ExtensionParam();
         // When / Then
@@ -103,7 +103,7 @@ public class ExtensionParamUnitTest {
     }
 
     @Test
-    public void shouldFailToPersistExtensionsStateWithoutConfigurationFile() {
+    void shouldFailToPersistExtensionsStateWithoutConfigurationFile() {
         // Given
         ExtensionParam param = new ExtensionParam();
         // When / Then
@@ -113,7 +113,7 @@ public class ExtensionParamUnitTest {
     }
 
     @Test
-    public void shouldSetExtensionsState() {
+    void shouldSetExtensionsState() {
         // Given
         ExtensionParam param = new ExtensionParam();
         FileConfiguration config = createTestConfig();
@@ -131,7 +131,7 @@ public class ExtensionParamUnitTest {
     }
 
     @Test
-    public void shouldPersistDisabledExtensions() {
+    void shouldPersistDisabledExtensions() {
         // Given
         ExtensionParam param = new ExtensionParam();
         FileConfiguration config = createTestConfig();
@@ -149,7 +149,7 @@ public class ExtensionParamUnitTest {
     }
 
     @Test
-    public void shouldNotPersistNullExtensionNamesOrNullEnabledState() {
+    void shouldNotPersistNullExtensionNamesOrNullEnabledState() {
         // Given
         ExtensionParam param = new ExtensionParam();
         FileConfiguration config = createTestConfig();

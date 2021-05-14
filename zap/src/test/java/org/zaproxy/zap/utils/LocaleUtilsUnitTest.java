@@ -41,7 +41,7 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link LocaleUtils}. */
-public class LocaleUtilsUnitTest {
+class LocaleUtilsUnitTest {
 
     private static final ResourceBundle.Control HELPER_CONTROL =
             ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_DEFAULT);
@@ -52,7 +52,7 @@ public class LocaleUtilsUnitTest {
     private static final String FILE_EXTENSION = ".extension";
 
     @Test
-    public void shouldThrowExceptionWhenGettingResourceFilesRegexWithNullFileName() {
+    void shouldThrowExceptionWhenGettingResourceFilesRegexWithNullFileName() {
         // Given
         String nullFileName = null;
         // When / Then
@@ -62,7 +62,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenGettingResourceFilesRegexWithNullFileExtension() {
+    void shouldThrowExceptionWhenGettingResourceFilesRegexWithNullFileExtension() {
         // Given
         String nullFileExtension = null;
         // When / Then
@@ -72,8 +72,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void
-            shouldReturnValidRegexWhenGettingResourceFilesRegexWithNonNullFileNameAndFileExtension() {
+    void shouldReturnValidRegexWhenGettingResourceFilesRegexWithNonNullFileNameAndFileExtension() {
         // Given
         String regex = LocaleUtils.createResourceFilesRegex(FILE_NAME, FILE_EXTENSION);
         // When / Then = valid regex
@@ -81,7 +80,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldAcceptFileNameWithSpecialRegexCharsWhenGettingResourceFilesRegex() {
+    void shouldAcceptFileNameWithSpecialRegexCharsWhenGettingResourceFilesRegex() {
         // Given
         String fileNameWithSpecialRegexChars = "?]|*-)(^[:.";
         // When / Then = valid regex
@@ -93,7 +92,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldAcceptFileExtensionWithSpecialRegexCharsWhenGettingResourceFilesRegex() {
+    void shouldAcceptFileExtensionWithSpecialRegexCharsWhenGettingResourceFilesRegex() {
         // Given
         String fileExtensionWithSpecialRegexChars = "?]|*-)(^[:.";
         // When / Then = valid regex
@@ -105,7 +104,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldProduceSameRegexForCreateResourceFilesRegexAsCreateResourceFilesPattern() {
+    void shouldProduceSameRegexForCreateResourceFilesRegexAsCreateResourceFilesPattern() {
         // Given
         String regex = LocaleUtils.createResourceFilesRegex(FILE_NAME, FILE_EXTENSION);
         Pattern pattern = LocaleUtils.createResourceFilesPattern(FILE_NAME, FILE_EXTENSION);
@@ -116,7 +115,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldMatchValidResourceFilesWithCreatedResourceFilesPattern() {
+    void shouldMatchValidResourceFilesWithCreatedResourceFilesPattern() {
         // Given
         String[] resourceFiles = {
             "FileName.extension",
@@ -135,7 +134,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotMatchInvalidResourceFilesWithCreatedResourceFilesPattern() {
+    void shouldNotMatchInvalidResourceFilesWithCreatedResourceFilesPattern() {
         // Given
         String[] resourceFiles = {
             "Vulnerabilities.xml",
@@ -153,7 +152,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldMatchValidMessagesPropertiesFilesWithCreateMessagesPropertiesFilePattern() {
+    void shouldMatchValidMessagesPropertiesFilesWithCreateMessagesPropertiesFilePattern() {
         // Given
         String[] resourceFiles = {
             "Messages.properties",
@@ -172,8 +171,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void
-            shouldNotMatchInvalidMessagesPropertiesFilesWithCreateMessagesPropertiesFilePattern() {
+    void shouldNotMatchInvalidMessagesPropertiesFilesWithCreateMessagesPropertiesFilePattern() {
         // Given
         String[] resourceFiles = {
             "Vulnerabilities.xml",
@@ -191,7 +189,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldAvailableLocalesBeNonEmpty() {
+    void shouldAvailableLocalesBeNonEmpty() {
         // Given
         List<String> locales = LocaleUtils.getAvailableLocales();
 
@@ -200,7 +198,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldHaveEnglishAsFirstAvailableLocale() {
+    void shouldHaveEnglishAsFirstAvailableLocale() {
         // Given
         List<String> locales = LocaleUtils.getAvailableLocales();
 
@@ -212,7 +210,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldFindResourcesWithDefaultControl() {
+    void shouldFindResourcesWithDefaultControl() {
         Locale defaultLocale = Locale.getDefault();
         try {
             // Given
@@ -242,7 +240,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldFindResourcesWithDefaultControlAndLocaleTokenReplaced() {
+    void shouldFindResourcesWithDefaultControlAndLocaleTokenReplaced() {
         Locale defaultLocale = Locale.getDefault();
         try {
             // Given
@@ -273,7 +271,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldFindResourcesWithGivenControlWithoutFallbackLocale() {
+    void shouldFindResourcesWithGivenControlWithoutFallbackLocale() {
         // Given
         ResourceBundle.Control control = mockResourceBundleControl();
         List<String> resources = new ArrayList<>();
@@ -297,7 +295,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldFindResourcesWithGivenControlAndFallbackLocale() {
+    void shouldFindResourcesWithGivenControlAndFallbackLocale() {
         // Given
         ResourceBundle.Control control = mockResourceBundleControl();
         given(control.getFallbackLocale(anyString(), any())).willReturn(Locale.FRANCE);
@@ -324,7 +322,7 @@ public class LocaleUtilsUnitTest {
     }
 
     @Test
-    public void shouldFindResourcesWithGivenControlAndLocaleTokenReplaced() {
+    void shouldFindResourcesWithGivenControlAndLocaleTokenReplaced() {
         // Given
         ResourceBundle.Control control = mockResourceBundleControl();
         List<String> resources = new ArrayList<>();

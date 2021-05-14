@@ -30,7 +30,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ZapXmlConfiguration}. */
-public class ZapXmlConfigurationUnitTest {
+class ZapXmlConfigurationUnitTest {
 
     private static final String INDENTED_XML =
             "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n"
@@ -44,7 +44,7 @@ public class ZapXmlConfigurationUnitTest {
                     + "</a>\n";
 
     @Test
-    public void shouldSaveNewConfigurationIndented() throws Exception {
+    void shouldSaveNewConfigurationIndented() throws Exception {
         // Given
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ZapXmlConfiguration conf = new ZapXmlConfiguration();
@@ -60,7 +60,7 @@ public class ZapXmlConfigurationUnitTest {
     }
 
     @Test
-    public void shouldSaveLoadedConfigurationIndented() throws Exception {
+    void shouldSaveLoadedConfigurationIndented() throws Exception {
         // Given
         ByteArrayInputStream inputStream =
                 new ByteArrayInputStream(INDENTED_XML.getBytes(StandardCharsets.UTF_8));

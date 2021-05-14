@@ -25,7 +25,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.core.scanner.Alert;
 
-public class ExtensionAlertUnitTest {
+class ExtensionAlertUnitTest {
 
     private static final String ORIGINAL_NAME = "Original Name";
     private static final String ORIGINAL_DESC = "Original Desc";
@@ -42,7 +42,7 @@ public class ExtensionAlertUnitTest {
     private ExtensionAlert extAlert;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         extAlert = new ExtensionAlert();
     }
 
@@ -57,7 +57,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldReplaceAlertNameCorrectly() {
+    void shouldReplaceAlertNameCorrectly() {
         extAlert.setAlertOverrideProperty("1.name", NEW_NAME);
 
         Alert alert1 = newAlert(1);
@@ -81,7 +81,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldAppendAlertNameCorrectly() {
+    void shouldAppendAlertNameCorrectly() {
         extAlert.setAlertOverrideProperty("1.name", "+" + NEW_NAME);
 
         Alert alert1 = newAlert(1);
@@ -105,7 +105,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldPrependAlertNameCorrectly() {
+    void shouldPrependAlertNameCorrectly() {
         extAlert.setAlertOverrideProperty("1.name", "-" + NEW_NAME);
 
         Alert alert1 = newAlert(1);
@@ -129,7 +129,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldReplaceAlertDescCorrectly() {
+    void shouldReplaceAlertDescCorrectly() {
         extAlert.setAlertOverrideProperty("1.description", NEW_DESC);
 
         Alert alert1 = newAlert(1);
@@ -153,7 +153,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldAppendAlertDescCorrectly() {
+    void shouldAppendAlertDescCorrectly() {
         extAlert.setAlertOverrideProperty("1.description", "+" + NEW_DESC);
 
         Alert alert1 = newAlert(1);
@@ -177,7 +177,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldPrependAlertDescCorrectly() {
+    void shouldPrependAlertDescCorrectly() {
         extAlert.setAlertOverrideProperty("1.description", "-" + NEW_DESC);
 
         Alert alert1 = newAlert(1);
@@ -201,7 +201,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldReplaceAlertSolnCorrectly() {
+    void shouldReplaceAlertSolnCorrectly() {
         extAlert.setAlertOverrideProperty("1.solution", NEW_SOLN);
 
         Alert alert1 = newAlert(1);
@@ -225,7 +225,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldAppendAlertSolnCorrectly() {
+    void shouldAppendAlertSolnCorrectly() {
         extAlert.setAlertOverrideProperty("1.solution", "+" + NEW_SOLN);
 
         Alert alert1 = newAlert(1);
@@ -249,7 +249,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldPrependAlertSolnCorrectly() {
+    void shouldPrependAlertSolnCorrectly() {
         extAlert.setAlertOverrideProperty("1.solution", "-" + NEW_SOLN);
 
         Alert alert1 = newAlert(1);
@@ -273,7 +273,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldReplaceAlertOtherCorrectly() {
+    void shouldReplaceAlertOtherCorrectly() {
         extAlert.setAlertOverrideProperty("1.otherInfo", NEW_OTHER);
 
         Alert alert1 = newAlert(1);
@@ -297,7 +297,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldAppendAlertOtherCorrectly() {
+    void shouldAppendAlertOtherCorrectly() {
         extAlert.setAlertOverrideProperty("1.otherInfo", "+" + NEW_OTHER);
 
         Alert alert1 = newAlert(1);
@@ -321,7 +321,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldPrependAlertOtherCorrectly() {
+    void shouldPrependAlertOtherCorrectly() {
         extAlert.setAlertOverrideProperty("1.otherInfo", "-" + NEW_OTHER);
 
         Alert alert1 = newAlert(1);
@@ -345,7 +345,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldReplaceAlertRefCorrectly() {
+    void shouldReplaceAlertRefCorrectly() {
         extAlert.setAlertOverrideProperty("1.reference", NEW_REF);
 
         Alert alert1 = newAlert(1);
@@ -369,7 +369,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldAppendAlertRefCorrectly() {
+    void shouldAppendAlertRefCorrectly() {
         extAlert.setAlertOverrideProperty("1.reference", "+" + NEW_REF);
 
         Alert alert1 = newAlert(1);
@@ -393,7 +393,7 @@ public class ExtensionAlertUnitTest {
     }
 
     @Test
-    public void shouldPrependAlertRefCorrectly() {
+    void shouldPrependAlertRefCorrectly() {
         extAlert.setAlertOverrideProperty("1.reference", "-" + NEW_REF);
 
         Alert alert1 = newAlert(1);

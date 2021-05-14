@@ -34,7 +34,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
 /** Unit test for {@link SpiderHtmlParser}. */
-public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
+class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
@@ -43,7 +43,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
             getResourcePath("html", SpiderHtmlParserUnitTest.class);
 
     @Test
-    public void shouldFailToCreateParserWithUndefinedSpiderOptions() {
+    void shouldFailToCreateParserWithUndefinedSpiderOptions() {
         // Given
         SpiderParam undefinedSpiderOptions = null;
         // When / Then
@@ -52,7 +52,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFailToEvaluateAnUndefinedMessage() {
+    void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -63,7 +63,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseHtmlResponse() {
+    void shouldParseHtmlResponse() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         HttpMessage messageHtmlResponse = createMessageWith("NoURLsSpiderHtmlParser.html");
@@ -75,7 +75,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseHtmlResponseEvenIfProvidedPathIsNull() {
+    void shouldParseHtmlResponseEvenIfProvidedPathIsNull() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         HttpMessage messageHtmlResponse = createMessageWith("NoURLsSpiderHtmlParser.html");
@@ -87,7 +87,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseHtmlResponseIfAlreadyParsed() {
+    void shouldNotParseHtmlResponseIfAlreadyParsed() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         HttpMessage messageHtmlResponse = createMessageWith("NoURLsSpiderHtmlParser.html");
@@ -99,7 +99,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFailToParseAnUndefinedMessage() {
+    void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -111,7 +111,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseMessageEvenWithoutSource() {
+    void shouldParseMessageEvenWithoutSource() {
         // Given
         Source source = null;
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -121,7 +121,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNeverConsiderCompletelyParsed() {
+    void shouldNeverConsiderCompletelyParsed() {
         // Given
         Source source = null;
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -134,7 +134,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInAElements() {
+    void shouldFindUrlsInAElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -160,7 +160,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInAnchorPingElements() {
+    void shouldFindUrlsInAnchorPingElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -208,7 +208,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInAreaPingElements() {
+    void shouldFindUrlsInAreaPingElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -256,7 +256,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldUseMessageUriIfNoBaseElement() {
+    void shouldUseMessageUriIfNoBaseElement() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -274,7 +274,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldUseAbsolutePathBaseElement() {
+    void shouldUseAbsolutePathBaseElement() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -296,7 +296,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldUseRelativePathBaseElement() {
+    void shouldUseRelativePathBaseElement() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -318,7 +318,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreBaseAndUseMessageUriIfBaseElementDoesNotHaveHref() {
+    void shouldIgnoreBaseAndUseMessageUriIfBaseElementDoesNotHaveHref() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -336,7 +336,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreBaseAndUseMessageUriIfBaseElementHaveEmptyHref() {
+    void shouldIgnoreBaseAndUseMessageUriIfBaseElementHaveEmptyHref() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -354,7 +354,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInAreaElements() throws Exception {
+    void shouldFindUrlsInAreaElements() throws Exception {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -380,7 +380,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInFrameElements() {
+    void shouldFindUrlsInFrameElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -406,7 +406,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInIFrameElements() {
+    void shouldFindUrlsInIFrameElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -432,7 +432,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInLinkElements() {
+    void shouldFindUrlsInLinkElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -458,7 +458,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInScriptElements() {
+    void shouldFindUrlsInScriptElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -484,7 +484,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInImgElements() {
+    void shouldFindUrlsInImgElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -510,7 +510,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInMetaElements() {
+    void shouldFindUrlsInMetaElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -541,7 +541,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInCommentsWithElements() {
+    void shouldFindUrlsInCommentsWithElements() {
         // AKA shouldNotFindPlainUrlsInCommentsWithElements
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -571,7 +571,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotFindUrlsInCommentsWithElementsIfNotEnabledToParseComments() {
+    void shouldNotFindUrlsInCommentsWithElementsIfNotEnabledToParseComments() {
         // Given
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setParseComments(false);
@@ -591,7 +591,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInCommentsWithoutElements() {
+    void shouldFindUrlsInCommentsWithoutElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -621,7 +621,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotFindUrlsInCommentsWithoutElementsIfNotEnabledToParseComments() {
+    void shouldNotFindUrlsInCommentsWithoutElementsIfNotEnabledToParseComments() {
         // Given
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setParseComments(false);

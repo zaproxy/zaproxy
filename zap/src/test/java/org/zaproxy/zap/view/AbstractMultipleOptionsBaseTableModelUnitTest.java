@@ -30,10 +30,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@code AbstractMultipleOptionsBaseTableModel}. */
-public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTestUtils {
+class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTestUtils {
 
     @Test
-    public void shouldFailToGetNonExistingElement() {
+    void shouldFailToGetNonExistingElement() {
         // Given
         AbstractMultipleOptionsBaseTableModel<Object> tableModel =
                 new MultipleOptionsBaseTableModelImpl();
@@ -42,7 +42,7 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
     }
 
     @Test
-    public void shouldAddElement() {
+    void shouldAddElement() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         AbstractMultipleOptionsBaseTableModel<Object> tableModel =
@@ -60,7 +60,7 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
     }
 
     @Test
-    public void shouldFailToModifyNonExistingElement() {
+    void shouldFailToModifyNonExistingElement() {
         // Given
         AbstractMultipleOptionsBaseTableModel<Object> tableModel =
                 new MultipleOptionsBaseTableModelImpl();
@@ -70,7 +70,7 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
     }
 
     @Test
-    public void shouldModifyElement() {
+    void shouldModifyElement() {
         // Given
         List<Object> elements = new ArrayList<>();
         elements.add(new Object());
@@ -90,7 +90,7 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
     }
 
     @Test
-    public void shouldFailToRemoveNonExistingElement() {
+    void shouldFailToRemoveNonExistingElement() {
         // Given
         AbstractMultipleOptionsBaseTableModel<Object> tableModel =
                 new MultipleOptionsBaseTableModelImpl();
@@ -99,7 +99,7 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
     }
 
     @Test
-    public void shouldRemoveElement() {
+    void shouldRemoveElement() {
         // Given
         List<Object> elements = new ArrayList<>();
         Object element = new Object();
@@ -120,7 +120,7 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
     }
 
     @Test
-    public void shouldClearElements() {
+    void shouldClearElements() {
         // Given
         List<Object> elements = new ArrayList<>();
         elements.add(new Object());
@@ -143,11 +143,11 @@ public class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTes
 
         private List<Object> elements;
 
-        public MultipleOptionsBaseTableModelImpl() {
+        MultipleOptionsBaseTableModelImpl() {
             elements = new ArrayList<>();
         }
 
-        public MultipleOptionsBaseTableModelImpl(List<Object> elements) {
+        MultipleOptionsBaseTableModelImpl(List<Object> elements) {
             this.elements = elements;
         }
 

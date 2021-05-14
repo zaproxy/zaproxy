@@ -32,7 +32,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link VariantMultipartFormParameters}. */
-public class VariantMultipartFormParametersUnitTest {
+class VariantMultipartFormParametersUnitTest {
 
     private static final String CRLF = "\r\n";
     private static final String DEFAULT_PARAM_CONTENT = "anonymous" + CRLF + "anonymous2";
@@ -41,7 +41,7 @@ public class VariantMultipartFormParametersUnitTest {
     private static final String DEFAULT_FILE_PARAM_CONTENT = "contents of the file";
 
     @Test
-    public void shouldHaveParametersListEmptyByDefault() {
+    void shouldHaveParametersListEmptyByDefault() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         // When
@@ -51,7 +51,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedParametersList() {
+    void shouldNotAllowToModifyReturnedParametersList() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         NameValuePair param =
@@ -61,7 +61,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldFailToExtractParametersFromUndefinedMessage() {
+    void shouldFailToExtractParametersFromUndefinedMessage() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage undefinedMessage = null;
@@ -71,7 +71,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldExtractParametersFromAllParts() {
+    void shouldExtractParametersFromAllParts() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         // When
@@ -102,7 +102,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldExtractParametersFromAllPartsEventIfTheyContainRegexChars() {
+    void shouldExtractParametersFromAllPartsEventIfTheyContainRegexChars() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createBaseMessage();
@@ -146,7 +146,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueModificationInGeneralParam() {
+    void shouldInjectParamValueModificationInGeneralParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -175,7 +175,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueModificationInFileParam() {
+    void shouldInjectParamValueModificationInFileParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -199,7 +199,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueModificationInFileNameParam() {
+    void shouldInjectParamValueModificationInFileNameParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -228,7 +228,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueModificationInFileContentTypeParam() {
+    void shouldInjectParamValueModificationInFileContentTypeParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();

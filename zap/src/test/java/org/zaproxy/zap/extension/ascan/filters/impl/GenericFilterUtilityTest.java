@@ -34,12 +34,12 @@ import org.zaproxy.zap.extension.ascan.filters.FilterResult;
 import org.zaproxy.zap.model.StructuralNode;
 
 /** @author KSASAN preetkaran20@gmail.com */
-public class GenericFilterUtilityTest extends WithConfigsTest {
+class GenericFilterUtilityTest extends WithConfigsTest {
 
     private AbstractGenericScanFilter<String, String> abstractGenericScanFilter;
 
     @BeforeEach
-    public void init() {
+    void init() {
         abstractGenericScanFilter =
                 new AbstractGenericScanFilter<String, String>() {
 
@@ -56,7 +56,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testEmptyFilterValuesIncludeCriteria() {
+    void testEmptyFilterValuesIncludeCriteria() {
         // Given
         List<String> genericFilterData = new ArrayList<>();
         abstractGenericScanFilter.setFilterData(genericFilterData);
@@ -72,7 +72,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testIncludeCriteriaWithSameValues() {
+    void testIncludeCriteriaWithSameValues() {
         // Given
         List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
@@ -90,7 +90,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testIncludeCriteriaWithMoreFilterValues() {
+    void testIncludeCriteriaWithMoreFilterValues() {
         // Given
         List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
@@ -109,7 +109,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testIncludeCriteriaWithMoreValues() {
+    void testIncludeCriteriaWithMoreValues() {
         // Given
         List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
@@ -127,7 +127,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testShouldFailWhenValuesAndFilterDataValuesMismatchIncludeCriteria() {
+    void testShouldFailWhenValuesAndFilterDataValuesMismatchIncludeCriteria() {
         // Given
         List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
@@ -145,7 +145,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testEmptyValuesInExcludeCriteria() {
+    void testEmptyValuesInExcludeCriteria() {
         // Given
         List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
@@ -163,7 +163,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testShouldFailWhenSameValuesInExcludeCriteria() {
+    void testShouldFailWhenSameValuesInExcludeCriteria() {
         // Given
         List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
@@ -182,7 +182,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testShouldFailInExcludeCriteriaWithMoreFilterValues() {
+    void testShouldFailInExcludeCriteriaWithMoreFilterValues() {
         // Given
         List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
@@ -202,7 +202,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testShouldFailWhenExcludeCriteriaWithMoreValues() {
+    void testShouldFailWhenExcludeCriteriaWithMoreValues() {
         // Given
         List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
@@ -222,7 +222,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     }
 
     @Test
-    public void testShouldPassForValuesAndFilterValuesMismatchInExcludeCriteria() {
+    void testShouldPassForValuesAndFilterValuesMismatchInExcludeCriteria() {
         // Given
         List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");

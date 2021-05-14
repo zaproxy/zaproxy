@@ -39,7 +39,7 @@ import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthenticationMethodIndicatorsUnitTest {
+class AuthenticationMethodIndicatorsUnitTest {
 
     private static final String LOGGED_OUT_COMPLEX_INDICATOR = "User [^\\s]* logged out";
     private static final String LOGGED_OUT_COMPLEX_BODY =
@@ -63,7 +63,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     private AuthenticationMethod method;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         loginMessage = new HttpMessage();
         HttpRequestHeader header = new HttpRequestHeader();
         header.setURI(new URI("http://www.example.com", true));
@@ -73,7 +73,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldStoreSetLoggedInIndicator() {
+    void shouldStoreSetLoggedInIndicator() {
         // Given
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
 
@@ -82,7 +82,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldStoreSetLoggedOutIndicator() {
+    void shouldStoreSetLoggedOutIndicator() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
 
@@ -91,7 +91,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldNotStoreNullOrEmptyLoggedInIndicator() {
+    void shouldNotStoreNullOrEmptyLoggedInIndicator() {
         // Given
         method.setLoggedInIndicatorPattern(null);
 
@@ -106,7 +106,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldNotStoreNullOrEmptyLoggedOutIndicator() {
+    void shouldNotStoreNullOrEmptyLoggedOutIndicator() {
         // Given
         method.setLoggedOutIndicatorPattern(null);
 
@@ -121,7 +121,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedInResponseBodyWhenLoggedInIndicatorIsSet() {
+    void shouldIdentifyLoggedInResponseBodyWhenLoggedInIndicatorIsSet() {
         // Given
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.setResponseBody(LOGGED_IN_BODY);
@@ -134,7 +134,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedOutResponseBodyWhenLoggedInIndicatorIsSet() {
+    void shouldIdentifyLoggedOutResponseBodyWhenLoggedInIndicatorIsSet() {
         // Given
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
@@ -147,7 +147,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedInResponseHeaderWhenLoggedInIndicatorIsSet() {
+    void shouldIdentifyLoggedInResponseHeaderWhenLoggedInIndicatorIsSet() {
         // Given
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_IN_INDICATOR);
@@ -160,7 +160,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedOutResponseHeaderWhenLoggedInIndicatorIsSet() {
+    void shouldIdentifyLoggedOutResponseHeaderWhenLoggedInIndicatorIsSet() {
         // Given
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_OUT_INDICATOR);
@@ -173,7 +173,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedOutResponseBodyWhenLoggedOutIndicatorIsSet() {
+    void shouldIdentifyLoggedOutResponseBodyWhenLoggedOutIndicatorIsSet() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
@@ -186,7 +186,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedInResponseBodyWhenLoggedOutIndicatorIsSet() {
+    void shouldIdentifyLoggedInResponseBodyWhenLoggedOutIndicatorIsSet() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.setResponseBody(LOGGED_IN_BODY);
@@ -199,7 +199,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedOutResponseHeaderWhenLoggedOutIndicatorIsSet() {
+    void shouldIdentifyLoggedOutResponseHeaderWhenLoggedOutIndicatorIsSet() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_OUT_INDICATOR);
@@ -212,7 +212,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedInResponseHeaderWhenLoggedOutIndicatorIsSet() {
+    void shouldIdentifyLoggedInResponseHeaderWhenLoggedOutIndicatorIsSet() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         loginMessage.getResponseHeader().addHeader("test", LOGGED_IN_INDICATOR);
@@ -225,7 +225,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedOutResponseWithComplexRegex() {
+    void shouldIdentifyLoggedOutResponseWithComplexRegex() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_COMPLEX_BODY);
@@ -238,7 +238,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedInResponseWithComplexRegex() {
+    void shouldIdentifyLoggedInResponseWithComplexRegex() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
@@ -251,7 +251,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyResponseAsLoggedInWhenNoIndicatorIsSet() {
+    void shouldIdentifyResponseAsLoggedInWhenNoIndicatorIsSet() {
         // Given
         loginMessage.setResponseBody(LOGGED_OUT_BODY);
 
@@ -263,7 +263,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedInRequestBodyWhenLoggedInIndicatorIsSet() {
+    void shouldIdentifyLoggedInRequestBodyWhenLoggedInIndicatorIsSet() {
         // Given
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
@@ -277,7 +277,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedOutRequestBodyWhenLoggedInIndicatorIsSet() {
+    void shouldIdentifyLoggedOutRequestBodyWhenLoggedInIndicatorIsSet() {
         // Given
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
@@ -291,7 +291,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedInRequestHeaderWhenLoggedInIndicatorIsSet() {
+    void shouldIdentifyLoggedInRequestHeaderWhenLoggedInIndicatorIsSet() {
         // Given
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
@@ -305,7 +305,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedOutRequestHeaderWhenLoggedInIndicatorIsSet() {
+    void shouldIdentifyLoggedOutRequestHeaderWhenLoggedInIndicatorIsSet() {
         // Given
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
@@ -319,7 +319,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedOutRequestBodyWhenLoggedOutIndicatorIsSet() {
+    void shouldIdentifyLoggedOutRequestBodyWhenLoggedOutIndicatorIsSet() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
@@ -333,7 +333,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedInRequestBodyWhenLoggedOutIndicatorIsSet() {
+    void shouldIdentifyLoggedInRequestBodyWhenLoggedOutIndicatorIsSet() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
@@ -347,7 +347,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedOutRequestHeaderWhenLoggedOutIndicatorIsSet() {
+    void shouldIdentifyLoggedOutRequestHeaderWhenLoggedOutIndicatorIsSet() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
@@ -361,7 +361,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedInRequestHeaderWhenLoggedOutIndicatorIsSet() {
+    void shouldIdentifyLoggedInRequestHeaderWhenLoggedOutIndicatorIsSet() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_INDICATOR);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
@@ -375,7 +375,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedOutRequestWithComplexRegex() {
+    void shouldIdentifyLoggedOutRequestWithComplexRegex() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
@@ -389,7 +389,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyLoggedInRequestWithComplexRegex() {
+    void shouldIdentifyLoggedInRequestWithComplexRegex() {
         // Given
         method.setLoggedOutIndicatorPattern(LOGGED_OUT_COMPLEX_INDICATOR);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);
@@ -403,7 +403,7 @@ public class AuthenticationMethodIndicatorsUnitTest {
     }
 
     @Test
-    public void shouldIdentifyRequestAsLoggedInWhenNoIndicatorIsSet() {
+    void shouldIdentifyRequestAsLoggedInWhenNoIndicatorIsSet() {
         // Given
         loginMessage.setRequestBody(LOGGED_OUT_BODY);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_REQ);

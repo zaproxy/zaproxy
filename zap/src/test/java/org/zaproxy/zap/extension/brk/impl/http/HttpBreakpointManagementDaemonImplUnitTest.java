@@ -30,7 +30,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.WithConfigsTest;
 
-public class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest {
+class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest {
 
     private static String OK_RESPONSE =
             "HTTP/1.1 200 OK"
@@ -42,19 +42,19 @@ public class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest 
     private HttpBreakpointManagementDaemonImpl impl;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         impl = new HttpBreakpointManagementDaemonImpl();
     }
 
     @Test
-    public void shouldInitBreakPointsToFalseOnInit() {
+    void shouldInitBreakPointsToFalseOnInit() {
         assertFalse(impl.isBreakAll());
         assertFalse(impl.isBreakRequest());
         assertFalse(impl.isBreakResponse());
     }
 
     @Test
-    public void shouldBreakOnAllHttpRequestsAndResponses() throws HttpMalformedHeaderException {
+    void shouldBreakOnAllHttpRequestsAndResponses() throws HttpMalformedHeaderException {
         impl.setBreakAll(true);
         HttpMessage msg = new HttpMessage();
         assertTrue(impl.isHoldMessage(msg));
@@ -65,7 +65,7 @@ public class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest 
     }
 
     @Test
-    public void shouldBreakOnJustHttpRequests() throws HttpMalformedHeaderException {
+    void shouldBreakOnJustHttpRequests() throws HttpMalformedHeaderException {
         impl.setBreakAllRequests(true);
         HttpMessage msg = new HttpMessage();
         assertTrue(impl.isHoldMessage(msg));
@@ -76,7 +76,7 @@ public class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest 
     }
 
     @Test
-    public void shouldBreakOnJustHttpResponses() throws HttpMalformedHeaderException {
+    void shouldBreakOnJustHttpResponses() throws HttpMalformedHeaderException {
         impl.setBreakAllResponses(true);
         HttpMessage msg = new HttpMessage();
         assertFalse(impl.isHoldMessage(msg));
@@ -87,7 +87,7 @@ public class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest 
     }
 
     @Test
-    public void shouldStep() throws HttpMalformedHeaderException {
+    void shouldStep() throws HttpMalformedHeaderException {
         impl.setBreakAll(true);
         HttpMessage msg = new HttpMessage();
         assertTrue(impl.isHoldMessage(msg));
@@ -113,7 +113,7 @@ public class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest 
     }
 
     @Test
-    public void shouldClearBreaksOnContinue() throws HttpMalformedHeaderException {
+    void shouldClearBreaksOnContinue() throws HttpMalformedHeaderException {
         impl.setBreakAll(true);
         HttpMessage msg = new HttpMessage();
         assertTrue(impl.isHoldMessage(msg));
@@ -131,7 +131,7 @@ public class HttpBreakpointManagementDaemonImplUnitTest extends WithConfigsTest 
     }
 
     @Test
-    public void shouldDrop() throws HttpMalformedHeaderException {
+    void shouldDrop() throws HttpMalformedHeaderException {
         impl.setBreakAll(true);
         HttpMessage msg = new HttpMessage();
         assertTrue(impl.isHoldMessage(msg));

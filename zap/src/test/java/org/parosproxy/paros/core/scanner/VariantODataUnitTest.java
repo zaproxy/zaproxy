@@ -29,7 +29,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
 /** Tests VariantODataIdQuery and VariantODataFilterQuery */
-public class VariantODataUnitTest {
+class VariantODataUnitTest {
 
     private static final Variant VARIANT_ODATA_ID_QUERY = new VariantODataIdQuery();
     private static final Variant VARIANT_ODATA_FILTER_QUERY = new VariantODataFilterQuery();
@@ -43,7 +43,7 @@ public class VariantODataUnitTest {
      * @throws CloneNotSupportedException
      */
     @Test
-    public void shouldAbleToInjectValueInODataSimpleResourceID()
+    void shouldAbleToInjectValueInODataSimpleResourceID()
             throws URIException, NullPointerException, CloneNotSupportedException {
         doTestInjectParameter(
                 VARIANT_ODATA_ID_QUERY,
@@ -69,7 +69,7 @@ public class VariantODataUnitTest {
      * @throws CloneNotSupportedException
      */
     @Test
-    public void shouldAbleToInjectValueInODataCompositeResourceID()
+    void shouldAbleToInjectValueInODataCompositeResourceID()
             throws URIException, NullPointerException, CloneNotSupportedException {
         doTestInjectParameter(
                 VARIANT_ODATA_ID_QUERY,
@@ -94,7 +94,7 @@ public class VariantODataUnitTest {
      * @throws CloneNotSupportedException
      */
     @Test
-    public void shouldAbleToInjectValueInODataCompositeResourceID2()
+    void shouldAbleToInjectValueInODataCompositeResourceID2()
             throws URIException, NullPointerException, CloneNotSupportedException {
         doTestInjectParameter(
                 VARIANT_ODATA_ID_QUERY,
@@ -119,7 +119,7 @@ public class VariantODataUnitTest {
      * @throws CloneNotSupportedException
      */
     @Test
-    public void shouldBeAbleToInjectValueInODataFilterParameters()
+    void shouldBeAbleToInjectValueInODataFilterParameters()
             throws URIException, NullPointerException, CloneNotSupportedException {
         doTestInjectParameter(
                 VARIANT_ODATA_FILTER_QUERY,
@@ -145,7 +145,7 @@ public class VariantODataUnitTest {
      * @throws CloneNotSupportedException
      */
     @Test
-    public void shouldBeAbleToInjectValueInODataFilterParametersHavingBlanksNearEquals1()
+    void shouldBeAbleToInjectValueInODataFilterParametersHavingBlanksNearEquals1()
             throws URIException, NullPointerException, CloneNotSupportedException {
         doTestInjectParameter(
                 VARIANT_ODATA_FILTER_QUERY,
@@ -171,7 +171,7 @@ public class VariantODataUnitTest {
      * @throws CloneNotSupportedException
      */
     @Test
-    public void shouldBeAbleToInjectValueInODataFilterParametersHavingBlanksNearEquals2()
+    void shouldBeAbleToInjectValueInODataFilterParametersHavingBlanksNearEquals2()
             throws URIException, NullPointerException, CloneNotSupportedException {
         doTestInjectParameter(
                 VARIANT_ODATA_FILTER_QUERY,
@@ -197,7 +197,7 @@ public class VariantODataUnitTest {
      * @throws CloneNotSupportedException
      */
     @Test
-    public void shouldBeAbleToInjectValueInODataFilterParametersHavingBlanksNearEquals3()
+    void shouldBeAbleToInjectValueInODataFilterParametersHavingBlanksNearEquals3()
             throws URIException, NullPointerException, CloneNotSupportedException {
         doTestInjectParameter(
                 VARIANT_ODATA_FILTER_QUERY,
@@ -222,7 +222,7 @@ public class VariantODataUnitTest {
      * @throws CloneNotSupportedException
      */
     @Test
-    public void shouldBeAbleToHandleURIwithoutQuery()
+    void shouldBeAbleToHandleURIwithoutQuery()
             throws URIException, NullPointerException, CloneNotSupportedException {
         URI sourceURI = new URI("http", null, "localhost", 15050, "/remoting/servlet.svc/Book");
         doTestInjectParameter(
@@ -242,7 +242,7 @@ public class VariantODataUnitTest {
      * @throws CloneNotSupportedException
      */
     @Test
-    public void shouldBeAbleToHandleURIwithoutPath()
+    void shouldBeAbleToHandleURIwithoutPath()
             throws URIException, NullPointerException, CloneNotSupportedException {
         URI sourceURI = new URI("http", null, "localhost", 15050);
         doTestInjectParameter(

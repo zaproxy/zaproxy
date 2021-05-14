@@ -44,7 +44,7 @@ import org.zaproxy.zap.testutils.Log4jTestAppender;
 import org.zaproxy.zap.testutils.Log4jTestAppender.AppendedLogEvent;
 
 /** Unit test for {@link VariantJSONQuery}. */
-public class VariantJSONQueryUnitTest {
+class VariantJSONQueryUnitTest {
 
     private Log4jTestAppender testAppender;
 
@@ -63,7 +63,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldHaveParametersListEmptyByDefault() {
+    void shouldHaveParametersListEmptyByDefault() {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         // When
@@ -73,8 +73,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldNotFindParameterFromMalformedJsonObject()
-            throws HttpMalformedHeaderException {
+    void shouldNotFindParameterFromMalformedJsonObject() throws HttpMalformedHeaderException {
         // Given
         withLoggerAppender();
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
@@ -88,8 +87,7 @@ public class VariantJSONQueryUnitTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"true", "True", "false", "False"})
-    public void shouldNotFindParametersForBooleanValues(String value)
-            throws HttpMalformedHeaderException {
+    void shouldNotFindParametersForBooleanValues(String value) throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(
@@ -102,7 +100,7 @@ public class VariantJSONQueryUnitTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"null", "Null"})
-    public void shouldNotFindParametersForNullValuesByDefault(String value)
+    void shouldNotFindParametersForNullValuesByDefault(String value)
             throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
@@ -164,8 +162,7 @@ public class VariantJSONQueryUnitTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"[]", "{\"a\":[]}"})
-    public void shouldNotFindParametersWithEmptyArrays(String json)
-            throws HttpMalformedHeaderException {
+    void shouldNotFindParametersWithEmptyArrays(String json) throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody(json));
@@ -177,7 +174,7 @@ public class VariantJSONQueryUnitTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"{}", "{\"a\":{}}", "[{}]"})
-    public void shouldNotFindParametersWithEmptyJsonObjects(String json)
+    void shouldNotFindParametersWithEmptyJsonObjects(String json)
             throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
@@ -189,7 +186,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldNotFindParameterFromUnknownValueType() throws HttpMalformedHeaderException {
+    void shouldNotFindParameterFromUnknownValueType() throws HttpMalformedHeaderException {
         // Given
         withLoggerAppender();
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
@@ -202,7 +199,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindStringValueInJsonObject() throws HttpMalformedHeaderException {
+    void shouldFindStringValueInJsonObject() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\":\"bar\"}"));
@@ -214,8 +211,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindStringWithEscapedCharacterInJsonObject()
-            throws HttpMalformedHeaderException {
+    void shouldFindStringWithEscapedCharacterInJsonObject() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\":\"bar\n\"}"));
@@ -227,7 +223,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindStringWithEscapedQuotationMarkInJsonObject()
+    void shouldFindStringWithEscapedQuotationMarkInJsonObject()
             throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
@@ -240,8 +236,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindPropertyWithEscapedCharacterInJsonObject()
-            throws HttpMalformedHeaderException {
+    void shouldFindPropertyWithEscapedCharacterInJsonObject() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("{\"foo\n\":\"bar\"}"));
@@ -253,7 +248,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindPropertyWithEscapedQuotationMarkInJsonObject()
+    void shouldFindPropertyWithEscapedQuotationMarkInJsonObject()
             throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
@@ -266,8 +261,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldFindValueWithEscapedQuotationMarkInJsonArray()
-            throws HttpMalformedHeaderException {
+    void shouldFindValueWithEscapedQuotationMarkInJsonArray() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("[\"bar\\\"\"]"));
@@ -279,7 +273,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldExtractNumbersInJsonObject() throws HttpMalformedHeaderException {
+    void shouldExtractNumbersInJsonObject() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(
@@ -301,7 +295,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldExtractNumbersInJsonArray() throws HttpMalformedHeaderException {
+    void shouldExtractNumbersInJsonArray() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         variantJSONQuery.setMessage(getMessageWithBody("[ 1, -2, 3.4e5, -6E+7, 8e-9 ]"));
@@ -321,7 +315,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldReplaceNumberInJsonObject() throws HttpMalformedHeaderException {
+    void shouldReplaceNumberInJsonObject() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         HttpMessage message =
@@ -338,7 +332,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldReplaceNumberEscapedInJsonObject() throws HttpMalformedHeaderException {
+    void shouldReplaceNumberEscapedInJsonObject() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         HttpMessage message =
@@ -355,7 +349,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldReplaceNumberInJsonArray() throws HttpMalformedHeaderException {
+    void shouldReplaceNumberInJsonArray() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         HttpMessage message = getMessageWithBody("[ 1, -2, 3.4e5, -6E+7, 8e-9 ]");
@@ -369,7 +363,7 @@ public class VariantJSONQueryUnitTest {
     }
 
     @Test
-    public void shouldReplaceNumberEscapedInJsonArray() throws HttpMalformedHeaderException {
+    void shouldReplaceNumberEscapedInJsonArray() throws HttpMalformedHeaderException {
         // Given
         VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
         HttpMessage message = getMessageWithBody("[ 1, -2, 3.4e5, -6E+7, 8e-9 ]");

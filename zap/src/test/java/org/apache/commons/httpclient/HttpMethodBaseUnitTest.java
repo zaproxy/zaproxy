@@ -25,16 +25,16 @@ import static org.hamcrest.Matchers.is;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-public class HttpMethodBaseUnitTest {
+class HttpMethodBaseUnitTest {
 
     @Test
-    public void testParseCookieHeaderEmpty() {
+    void testParseCookieHeaderEmpty() {
         List<Cookie> cookies = HttpMethodBase.parseCookieHeader("example.com", "");
         assertThat(cookies.size(), is(0));
     }
 
     @Test
-    public void testParseCookieHeaderWithOneCookie() {
+    void testParseCookieHeaderWithOneCookie() {
         List<Cookie> cookies =
                 HttpMethodBase.parseCookieHeader(
                         "example.com", "JSESSIONID=5DFA94B903A0063839E0440118808875");
@@ -42,7 +42,7 @@ public class HttpMethodBaseUnitTest {
     }
 
     @Test
-    public void testParseCookieHeaderWithTwoCookie() {
+    void testParseCookieHeaderWithTwoCookie() {
         List<Cookie> cookies =
                 HttpMethodBase.parseCookieHeader(
                         "example.com", "has_js=1;JSESSIONID=5DFA94B903A0063839E0440118808875");

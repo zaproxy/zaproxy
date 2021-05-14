@@ -44,7 +44,7 @@ import org.zaproxy.zap.testutils.TestUtils;
  * Unit test to verify that the {@code Messages.properties} files are loaded with expected {@code
  * Locale}.
  */
-public class MessagesLocaleUnitTest extends TestUtils {
+class MessagesLocaleUnitTest extends TestUtils {
 
     private static final Path DIRECTORY =
             getResourcePath("/" + Constant.LANG_DIR, MessagesLocaleUnitTest.class);
@@ -53,7 +53,7 @@ public class MessagesLocaleUnitTest extends TestUtils {
     private static final String FILE_EXTENSION = ".properties";
 
     @Test
-    public void shouldLoadAllMessagesFilesAvailable() throws Exception {
+    void shouldLoadAllMessagesFilesAvailable() throws Exception {
         try (URLClassLoader classLoader =
                 new URLClassLoader(new URL[] {DIRECTORY.toUri().toURL()})) {
             List<String> brokenLocales = new ArrayList<>();
