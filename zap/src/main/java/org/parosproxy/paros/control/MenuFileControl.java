@@ -54,16 +54,35 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/03/29 Modified the Open Session dialog to display session information
 package org.parosproxy.paros.control;
 
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -336,28 +355,210 @@ public class MenuFileControl implements SessionListener {
     }
 
     private void openFileBasedSession() {
-        JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
-        chooser.setFileHidingEnabled(
-                false); // By default ZAP on linux puts timestamped sessions under a 'dot' directory
-        File file = null;
-        chooser.setFileFilter(SessionFileChooser.SESSION_FILE_FILTER);
-        int rc = chooser.showOpenDialog(view.getMainFrame());
-        if (rc == JFileChooser.APPROVE_OPTION) {
-            try {
-                file = chooser.getSelectedFile();
-                if (file == null) {
-                    return;
-                }
-                model.getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-                log.info("opening session file " + file.getAbsolutePath());
-                waitMessageDialog =
-                        view.getWaitMessageDialog(
-                                Constant.messages.getString("menu.file.loadSession"));
-                control.openSession(file, this);
-                waitMessageDialog.setVisible(true);
-            } catch (Exception e) {
-                log.error(e.getMessage(), e);
+        SessionChooser customChooser = new SessionChooser();
+        customChooser.pack();
+        customChooser.setVisible(true);
+    }
+
+    private class SessionChooser extends JDialog {
+        private static final long serialVersionUID = 2L;
+        private JFileChooser chooser;
+        private SessionDetailsPanel detailsPanel;
+
+        private SessionChooser() {
+            this.setTitle("Open");
+            this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+            this.setLayout(new BorderLayout());
+            detailsPanel = new SessionDetailsPanel();
+            initFileChooser();
+            this.add(chooser, BorderLayout.NORTH);
+            this.add(detailsPanel, BorderLayout.WEST);
+        }
+
+        private void initFileChooser() {
+            chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
+            chooser.setFileHidingEnabled(
+                    false); // By default ZAP on linux puts timestamped sessions under a 'dot'
+            // directory
+            chooser.setFileFilter(SessionFileChooser.SESSION_FILE_FILTER);
+            chooser.addActionListener(
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            if (e.getActionCommand().equals(JFileChooser.APPROVE_SELECTION)) {
+                                try {
+                                    File file = chooser.getSelectedFile();
+                                    if (file == null) {
+                                        return;
+                                    }
+                                    model.getOptionsParam()
+                                            .setUserDirectory(chooser.getCurrentDirectory());
+                                    log.info("opening session file " + file.getAbsolutePath());
+                                    waitMessageDialog =
+                                            view.getWaitMessageDialog(
+                                                    Constant.messages.getString(
+                                                            "menu.file.loadSession"));
+                                    control.openSession(file, MenuFileControl.this);
+                                    waitMessageDialog.setVisible(true);
+                                } catch (Exception exc) {
+                                    log.error(exc.getMessage(), exc);
+                                }
+                                ((JDialog) SwingUtilities.getWindowAncestor(chooser)).dispose();
+                            } else if (e.getActionCommand().equals(JFileChooser.CANCEL_SELECTION)) {
+                                ((JDialog) SwingUtilities.getWindowAncestor(chooser)).dispose();
+                            }
+                        }
+                    });
+            chooser.addPropertyChangeListener(new SessionChooserListener(detailsPanel));
+        }
+    }
+
+    private class SessionChooserListener implements PropertyChangeListener {
+        private SessionDetailsPanel detailsPanel;
+        private String size, requests, startTime, endTime;
+
+        private SessionChooserListener(SessionDetailsPanel detailsPanel) {
+            this.detailsPanel = detailsPanel;
+        }
+
+        private void getFields(File sessionFile)
+                throws DatabaseException, ClassNotFoundException, SQLException {
+            File sessionDataFile = new File(sessionFile.getAbsolutePath() + ".data");
+            File sessionLobFile = new File(sessionFile.getAbsolutePath() + ".lob");
+            if (sessionLobFile.isFile()) {
+                this.size =
+                        String.valueOf((sessionDataFile.length() + sessionLobFile.length()) / 1024)
+                                + "kB";
+            } else {
+                this.size = String.valueOf(sessionDataFile.length() / 1024) + "kB";
             }
+            Class.forName("org.hsqldb.jdbcDriver");
+            Connection conn =
+                    DriverManager.getConnection(
+                            "jdbc:hsqldb:file:" + sessionFile.getAbsolutePath() + ";shutdown=true",
+                            "sa",
+                            "");
+            Statement stmt =
+                    conn.createStatement(
+                            ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            String query = "SELECT TIMESENTMILLIS FROM HISTORY";
+            ResultSet rs = stmt.executeQuery(query);
+
+            rs.next();
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd,yyyy HH:mm");
+            this.startTime = sdf.format(new Date(rs.getLong(1)));
+
+            rs.last();
+            this.endTime = sdf.format(new Date(rs.getLong(1)));
+
+            this.requests = String.valueOf(rs.getRow());
+
+            rs.close();
+            stmt.close();
+            conn.close();
+        }
+
+        @Override
+        public void propertyChange(PropertyChangeEvent evt) {
+            if (JFileChooser.SELECTED_FILE_CHANGED_PROPERTY.equals(evt.getPropertyName())) {
+                Thread t =
+                        new Thread(
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            getFields(((File) evt.getNewValue()));
+                                        } catch (Exception e) {
+                                            log.debug(e);
+                                        }
+                                    }
+                                });
+                t.start();
+                try {
+                    t.join();
+                } catch (InterruptedException ie) {
+                    log.debug(ie);
+                }
+                detailsPanel.setFields(size, requests, startTime, endTime);
+            }
+        }
+    }
+
+    private class SessionDetailsPanel extends JPanel {
+        private static final long serialVersionUID = 3L;
+        private JLabel sizeLabel, requestsLabel, startTimeLabel, endTimeLabel;
+        private JTextField sizeField, requestsField, startTimeField, endTimeField;
+
+        private SessionDetailsPanel() {
+            this.setLayout(new GridBagLayout());
+            GridBagConstraints c = new GridBagConstraints();
+            c.gridx = 0;
+            c.gridy = 0;
+            c.insets = new Insets(0, 5, 5, 5);
+            sizeLabel = new JLabel(Constant.messages.getString("menu.file.openSession.size"));
+            this.add(sizeLabel, c);
+
+            c = new GridBagConstraints();
+            c.gridx = 1;
+            c.gridy = 0;
+            c.insets = new Insets(0, 5, 5, 5);
+            sizeField = new JTextField(15);
+            sizeField.setEditable(false);
+            this.add(sizeField, c);
+
+            c = new GridBagConstraints();
+            c.gridx = 0;
+            c.gridy = 1;
+            c.insets = new Insets(5, 5, 5, 5);
+            requestsLabel =
+                    new JLabel(Constant.messages.getString("menu.file.openSession.requests"));
+            this.add(requestsLabel, c);
+
+            c = new GridBagConstraints();
+            c.gridx = 1;
+            c.gridy = 1;
+            c.insets = new Insets(5, 5, 5, 5);
+            requestsField = new JTextField(15);
+            requestsField.setEditable(false);
+            this.add(requestsField, c);
+
+            c = new GridBagConstraints();
+            c.gridx = 2;
+            c.gridy = 0;
+            c.insets = new Insets(0, 5, 5, 5);
+            startTimeLabel =
+                    new JLabel(Constant.messages.getString("menu.file.openSession.starttime"));
+            this.add(startTimeLabel, c);
+
+            c = new GridBagConstraints();
+            c.gridx = 3;
+            c.gridy = 0;
+            c.insets = new Insets(0, 5, 5, 5);
+            startTimeField = new JTextField(15);
+            startTimeField.setEditable(false);
+            this.add(startTimeField, c);
+
+            c = new GridBagConstraints();
+            c.gridx = 2;
+            c.gridy = 1;
+            c.insets = new Insets(5, 5, 5, 5);
+            endTimeLabel = new JLabel(Constant.messages.getString("menu.file.openSession.endtime"));
+            this.add(endTimeLabel, c);
+
+            c = new GridBagConstraints();
+            c.gridx = 3;
+            c.gridy = 1;
+            c.insets = new Insets(5, 5, 5, 5);
+            endTimeField = new JTextField(15);
+            endTimeField.setEditable(false);
+            this.add(endTimeField, c);
+        }
+
+        private void setFields(String size, String requests, String startTime, String endTime) {
+            sizeField.setText(size);
+            requestsField.setText(requests);
+            startTimeField.setText(startTime);
+            endTimeField.setText(endTime);
         }
     }
 
