@@ -94,11 +94,7 @@ public class PopupFlagCustomPageIndicatorMenu extends ExtensionPopupMenuItem {
 
             // Is anything selected?
             selectedText = txtComponent.getSelectedText();
-            if (selectedText == null || selectedText.length() == 0) {
-                this.setEnabled(false);
-            } else {
-                this.setEnabled(true);
-            }
+            this.setEnabled(selectedText != null && selectedText.length() != 0);
 
             return true;
         } else {

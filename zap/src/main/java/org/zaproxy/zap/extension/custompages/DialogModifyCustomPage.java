@@ -52,9 +52,7 @@ class DialogModifyCustomPage extends DialogAddCustomPage {
             throw new IllegalStateException(
                     "A working Context should be set before setting the 'Add Dialog' visible.");
         }
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Initializing modify Custom Page dialog for: " + customPage);
-        }
+        LOGGER.debug("Initializing modify Custom Page dialog for: {}", customPage);
 
         // Handle escape key to close the dialog
         KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
