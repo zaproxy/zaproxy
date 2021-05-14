@@ -138,7 +138,7 @@ public class SiteMapPanel extends AbstractPanel {
     private JButton importContextButton = null;
     private JButton exportContextButton = null;
 
-    // ZAP: Added SiteMapListenners
+    // ZAP: Added SiteMapListeners
     private List<SiteMapListener> listeners = new ArrayList<>();
 
     /** This is the default constructor */
@@ -412,7 +412,7 @@ public class SiteMapPanel extends AbstractPanel {
 
                                 getView().displayMessage(msg);
 
-                                // ZAP: Call SiteMapListenners
+                                // ZAP: Call SiteMapListeners
                                 for (SiteMapListener listener : listeners) {
                                     listener.nodeSelected(node);
                                 }
@@ -639,9 +639,9 @@ public class SiteMapPanel extends AbstractPanel {
         }
     }
 
-    // ZAP: Added addSiteMapListenners
-    public void addSiteMapListener(SiteMapListener listenner) {
-        this.listeners.add(listenner);
+    // ZAP: Added addSiteMapListeners
+    public void addSiteMapListener(SiteMapListener listener) {
+        this.listeners.add(listener);
     }
 
     public void removeSiteMapListener(SiteMapListener listener) {

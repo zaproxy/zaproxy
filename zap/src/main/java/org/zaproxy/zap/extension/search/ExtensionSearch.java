@@ -166,7 +166,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
         this.searchPanel.resetSearchResults();
         this.search(
                 filter,
-                this.searchPanel,
+                (SearchListener) this.searchPanel,
                 reqType,
                 customSearcherName,
                 setToolbar,
@@ -178,15 +178,32 @@ public class ExtensionSearch extends ExtensionAdaptor {
                 getSearchParam().getMaximumSearchResultsGUI());
     }
 
+    /** @deprecated use {link #search(String, SearchListener, Type, boolean, boolean)} */
+    @Deprecated
     public void search(
             String filter,
             SearchListenner listenner,
             Type reqType,
             boolean setToolbar,
             boolean inverse) {
-        this.search(filter, listenner, reqType, setToolbar, inverse, null, -1, -1);
+        SearchListener listener = new SearchListenerAdapter(listenner);
+        this.search(filter, listener, reqType, setToolbar, inverse, null, -1, -1);
     }
 
+    public void search(
+            String filter,
+            SearchListener listener,
+            Type reqType,
+            boolean setToolbar,
+            boolean inverse) {
+        this.search(filter, listener, reqType, setToolbar, inverse, null, -1, -1);
+    }
+
+    /**
+     * @deprecated use {link #search(String, SearchListener, Type, boolean, boolean, String, int,
+     *     int)}
+     */
+    @Deprecated
     public void search(
             String filter,
             SearchListenner listenner,
@@ -196,9 +213,27 @@ public class ExtensionSearch extends ExtensionAdaptor {
             String baseUrl,
             int start,
             int count) {
-        search(filter, listenner, reqType, setToolbar, inverse, baseUrl, start, count, true);
+        SearchListener listener = new SearchListenerAdapter(listenner);
+        search(filter, listener, reqType, setToolbar, inverse, baseUrl, start, count, true);
     }
 
+    public void search(
+            String filter,
+            SearchListener listener,
+            Type reqType,
+            boolean setToolbar,
+            boolean inverse,
+            String baseUrl,
+            int start,
+            int count) {
+        search(filter, listener, reqType, setToolbar, inverse, baseUrl, start, count, true);
+    }
+
+    /**
+     * @deprecated use {link #search(String, SearchListener, Type, boolean, boolean, String, int,
+     *     int, boolean)}
+     */
+    @Deprecated
     public void search(
             String filter,
             SearchListenner listenner,
@@ -209,9 +244,10 @@ public class ExtensionSearch extends ExtensionAdaptor {
             int start,
             int count,
             boolean searchAllOccurrences) {
+        SearchListener listener = new SearchListenerAdapter(listenner);
         search(
                 filter,
-                listenner,
+                listener,
                 reqType,
                 setToolbar,
                 inverse,
@@ -224,6 +260,34 @@ public class ExtensionSearch extends ExtensionAdaptor {
 
     public void search(
             String filter,
+            SearchListener listener,
+            Type reqType,
+            boolean setToolbar,
+            boolean inverse,
+            String baseUrl,
+            int start,
+            int count,
+            boolean searchAllOccurrences) {
+        search(
+                filter,
+                listener,
+                reqType,
+                setToolbar,
+                inverse,
+                baseUrl,
+                start,
+                count,
+                searchAllOccurrences,
+                -1);
+    }
+
+    /**
+     * @deprecated use {link #search(String, SearchListener, Type, boolean, boolean, String, int,
+     *     int, boolean, int)}
+     */
+    @Deprecated
+    public void search(
+            String filter,
             SearchListenner listenner,
             Type reqType,
             boolean setToolbar,
@@ -233,9 +297,10 @@ public class ExtensionSearch extends ExtensionAdaptor {
             int count,
             boolean searchAllOccurrences,
             int maxOccurrences) {
+        SearchListener listener = new SearchListenerAdapter(listenner);
         search(
                 filter,
-                listenner,
+                listener,
                 reqType,
                 null,
                 setToolbar,
@@ -249,7 +314,64 @@ public class ExtensionSearch extends ExtensionAdaptor {
 
     public void search(
             String filter,
+            SearchListener listener,
+            Type reqType,
+            boolean setToolbar,
+            boolean inverse,
+            String baseUrl,
+            int start,
+            int count,
+            boolean searchAllOccurrences,
+            int maxOccurrences) {
+        search(
+                filter,
+                listener,
+                reqType,
+                null,
+                setToolbar,
+                inverse,
+                baseUrl,
+                start,
+                count,
+                searchAllOccurrences,
+                maxOccurrences);
+    }
+
+    /**
+     * @deprecated use {link #search(String, SearchListener, Type, boolean, boolean, String, int,
+     *     int, boolean, int)}
+     */
+    @Deprecated
+    public void search(
+            String filter,
             SearchListenner listenner,
+            Type reqType,
+            String customSearcherName,
+            boolean setToolbar,
+            boolean inverse,
+            String baseUrl,
+            int start,
+            int count,
+            boolean searchAllOccurrences,
+            int maxOccurrences) {
+        SearchListener listener = new SearchListenerAdapter(listenner);
+        search(
+                filter,
+                listener,
+                reqType,
+                null,
+                setToolbar,
+                inverse,
+                baseUrl,
+                start,
+                count,
+                searchAllOccurrences,
+                maxOccurrences);
+    }
+
+    public void search(
+            String filter,
+            SearchListener listener,
             Type reqType,
             String customSearcherName,
             boolean setToolbar,
@@ -282,7 +404,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
                             filter,
                             reqType,
                             customSearcherName,
-                            listenner,
+                            listener,
                             inverse,
                             searchJustInScope,
                             baseUrl,

@@ -45,6 +45,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.model.ScanListener2;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
@@ -643,7 +644,7 @@ public class ExtensionSpider extends ExtensionAdaptor
         }
 
         this.getSpiderPanel().scannerStarted(scan);
-        scan.setListener(getSpiderPanel()); // So the UI gets updated
+        scan.setListener((ScanListener2) getSpiderPanel()); // So the UI gets updated
         this.getSpiderPanel().switchView(scan);
         this.getSpiderPanel().setTabFocus();
     }

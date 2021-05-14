@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2013 The ZAP Development Team
+ * Copyright 2012 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.control;
+package org.zaproxy.zap.extension.search;
 
-import java.util.Comparator;
+public interface SearchListener {
 
-/*
- * @deprecated use (@link ZapReleaseComparator} instead.
- */
-@Deprecated
-public class ZapReleaseComparitor implements Comparator<ZapRelease> {
+    void addSearchResult(SearchResult str);
 
-    @Override
-    @Deprecated
-    public int compare(ZapRelease zr1, ZapRelease zr2) {
-        return new ZapReleaseComparator().compare(zr1, zr2);
-    }
+    default void searchStarted() {}
+
+    void searchComplete();
 }

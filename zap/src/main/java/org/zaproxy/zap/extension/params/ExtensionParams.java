@@ -444,7 +444,7 @@ public class ExtensionParams extends ExtensionAdaptor
 
     @Override
     public void nodeSelected(SiteNode node) {
-        // Event from SiteMapListenner
+        // Event from SiteMapListener
         this.getParamsPanel().nodeSelected(node);
     }
 

@@ -42,6 +42,7 @@ import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.model.ScanListener2;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -51,7 +52,7 @@ import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<ActiveScan>>
-        implements ScanListenner2, ScannerListener {
+        implements ScanListener2, ScannerListener, ScanListenner2 {
 
     private static final Logger LOGGER = LogManager.getLogger(ActiveScanPanel.class);
 
@@ -345,7 +346,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 
     @Override
     public void hostComplete(int id, String hostAndPort) {
-        this.scanFinshed(id, hostAndPort);
+        this.scanFinished(id, hostAndPort);
     }
 
     @Override
@@ -360,7 +361,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 
     @Override
     public void scannerComplete(int id) {
-        this.scanFinshed(id, this.getName());
+        this.scanFinished(id, this.getName());
     }
 
     private void updateRequestCount() {

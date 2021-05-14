@@ -48,7 +48,7 @@ import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
+import org.parosproxy.paros.security.CachedSslCertificateServiceImpl;
 import org.parosproxy.paros.security.SslCertificateService;
 
 /**
@@ -148,7 +148,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
 
     public void setRootCa(KeyStore rootca)
             throws UnrecoverableKeyException, KeyStoreException, NoSuchAlgorithmException {
-        CachedSslCertifificateServiceImpl.getService().initializeRootCA(rootca);
+        CachedSslCertificateServiceImpl.getService().initializeRootCA(rootca);
     }
 
     public Certificate getRootCA() throws KeyStoreException {

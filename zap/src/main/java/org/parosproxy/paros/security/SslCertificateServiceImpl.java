@@ -64,7 +64,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
  * This is a singleton class. Use {@link #getService()} method to obtain a service bean. This
  * implementation is totally unbuffered and creates every time you call {@link
  * SslCertificateService#createCertForHost(CertData)} a new certificate. If you want to have a
- * cached solution, have a look at {@link CachedSslCertifificateServiceImpl}. This class is designed
+ * cached solution, have a look at {@link CachedSslCertificateServiceImpl}. This class is designed
  * to be thread safe.
  *
  * <p>A word about serial numbers ... There have to be different serial numbers generated, cause if
@@ -72,7 +72,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
  * browser gets crazy. At least, Firefox v3.x does.
  *
  * @author MaWoKi
- * @see CachedSslCertifificateServiceImpl for a cached SslCertificateService
+ * @see CachedSslCertificateServiceImpl for a cached SslCertificateService
  */
 public final class SslCertificateServiceImpl implements SslCertificateService {
 

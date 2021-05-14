@@ -808,16 +808,22 @@ public abstract class ScanPanel extends AbstractPanel {
         }
     }
 
+    /** @deprecated use {link #scanFinished} */
+    @Deprecated
     public void scanFinshed(final String host) {
+        scanFinished(host);
+    }
+
+    public void scanFinished(final String host) {
         if (EventQueue.isDispatchThread()) {
-            scanFinshedEventHandler(host);
+            scanFinishedEventHandler(host);
         } else {
             try {
                 EventQueue.invokeLater(
                         new Runnable() {
                             @Override
                             public void run() {
-                                scanFinshedEventHandler(host);
+                                scanFinishedEventHandler(host);
                             }
                         });
             } catch (Exception e) {
@@ -826,7 +832,7 @@ public abstract class ScanPanel extends AbstractPanel {
         }
     }
 
-    private void scanFinshedEventHandler(String host) {
+    private void scanFinishedEventHandler(String host) {
         log.debug("scanFinished " + prefix + " on " + currentSite);
         if (host != null && host.equals(currentSite)) {
             resetScanButtonsAndProgressBarStates(true);

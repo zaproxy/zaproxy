@@ -94,7 +94,7 @@ import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
+import org.parosproxy.paros.security.CachedSslCertificateServiceImpl;
 import org.parosproxy.paros.security.CertData;
 import org.parosproxy.paros.security.SslCertificateService;
 
@@ -735,7 +735,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
                     new CertData.Name(CertData.Name.IP_ADDRESS, hostname));
         }
 
-        KeyStore ks = CachedSslCertifificateServiceImpl.getService().createCertForHost(certData);
+        KeyStore ks = CachedSslCertificateServiceImpl.getService().createCertForHost(certData);
         keyManagerFactory.init(ks, SslCertificateService.PASSPHRASE);
     }
 

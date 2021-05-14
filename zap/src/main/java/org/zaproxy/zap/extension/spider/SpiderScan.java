@@ -38,6 +38,9 @@ import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanEventPublisher;
+import org.zaproxy.zap.model.ScanListener;
+import org.zaproxy.zap.model.ScanListener2;
+import org.zaproxy.zap.model.ScanListener2Adapter;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.model.Target;
@@ -50,7 +53,7 @@ import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 
-public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner2 {
+public class SpiderScan implements ScanListener, ScanListenner, SpiderListener, GenericScanner2 {
 
     private static enum State {
         NOT_STARTED,
@@ -98,7 +101,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
     private int progress;
 
-    private ScanListenner2 listener = null;
+    private ScanListener2 listener = null;
 
     private volatile boolean cleared;
 
@@ -170,7 +173,12 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
         state = State.NOT_STARTED;
 
         spiderThread =
-                new SpiderThread(Integer.toString(scanId), extension, spiderParams, name, this);
+                new SpiderThread(
+                        Integer.toString(scanId),
+                        extension,
+                        spiderParams,
+                        name,
+                        (ScanListener) this);
 
         spiderThread.setStartURI(spiderURI);
         spiderThread.setStartNode(target.getStartNode());
@@ -416,7 +424,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
             lock.unlock();
         }
         if (listener != null) {
-            listener.scanFinshed(this.getScanId(), this.getDisplayName());
+            listener.scanFinished(this.getScanId(), this.getDisplayName());
         }
     }
 
@@ -496,8 +504,15 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
         return this.spiderThread.isRunning();
     }
 
+    /** @deprecated use {link #scanFinished} */
     @Override
+    @Deprecated
     public void scanFinshed(String host) {
+        this.spiderComplete(true);
+    }
+
+    @Override
+    public void scanFinished(String host) {
         this.spiderComplete(true);
     }
 
@@ -525,7 +540,14 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
         return messagesTableModel;
     }
 
-    public void setListener(ScanListenner2 listener) {
+    /** @deprecated use {link #setListener(ScanListener2)} */
+    @Deprecated
+    public void setListener(ScanListenner2 listenner) {
+        ScanListener2 listener = new ScanListener2Adapter(listenner);
+        this.listener = listener;
+    }
+
+    public void setListener(ScanListener2 listener) {
         this.listener = listener;
     }
 
