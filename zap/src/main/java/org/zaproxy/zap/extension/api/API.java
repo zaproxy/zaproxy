@@ -65,14 +65,14 @@ public class API {
         JSONP,
         UI,
         OTHER
-    };
+    }
 
     public enum RequestType {
         action,
         view,
         other,
         pconn
-    };
+    }
 
     /**
      * The custom domain to access the ZAP API while proxying through ZAP.

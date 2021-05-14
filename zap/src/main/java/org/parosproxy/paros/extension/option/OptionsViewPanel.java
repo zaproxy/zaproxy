@@ -37,7 +37,7 @@
 // ZAP: 2020/02/24 Use LookAndFeelInfo when setting the look and feel option.
 // ZAP: 2020/03/25 Remove hardcoded colour in titled border (Issue 5542).
 // ZAP: 2020/12/03 Add constants for indexes of possible break buttons locations
-// ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2021/05/14 Remove redundant type arguments and empty statement.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -570,7 +570,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
                         public void itemStateChanged(ItemEvent e) {
                             timeStampsFormatSelect.setEnabled(
                                     e.getStateChange() == ItemEvent.SELECTED);
-                        };
+                        }
                     });
         }
         return chkOutputTabTimeStamping;
@@ -599,7 +599,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
                                     (String) getTimeStampsFormatSelect().getSelectedItem();
                             outputTabTimeStampExampleLabel.setText(
                                     TimeStampUtils.currentFormattedTimeStamp(selectedDateFormat));
-                        };
+                        }
                     });
         }
         return timeStampsFormatSelect;

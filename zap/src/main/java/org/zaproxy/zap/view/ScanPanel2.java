@@ -66,7 +66,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
         beforeButtons,
         beforeProgressBar,
         afterProgressBar
-    };
+    }
 
     private final String prefix;
 

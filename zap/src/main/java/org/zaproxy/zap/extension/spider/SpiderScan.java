@@ -57,7 +57,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
         RUNNING,
         PAUSED,
         FINISHED
-    };
+    }
 
     private static final EnumSet<FetchStatus> FETCH_STATUS_IN_SCOPE =
             EnumSet.of(FetchStatus.VALID, FetchStatus.SEED);

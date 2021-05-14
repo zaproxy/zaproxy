@@ -25,7 +25,7 @@ public class MultipartFormParameter {
         GENERAL,
         FILE_NAME,
         FILE_CONTENT_TYPE
-    };
+    }
 
     private String name;
     private String value;

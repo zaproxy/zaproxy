@@ -83,6 +83,7 @@
 // 2016).
 // ZAP: 2020/11/23 Allow to initialise the singleton with an ExtensionLoader for tests.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove empty statement.
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -114,7 +115,7 @@ public class Control extends AbstractControl implements SessionListener {
         protect,
         standard,
         attack
-    };
+    }
 
     private static Logger log = LogManager.getLogger(Control.class);
 

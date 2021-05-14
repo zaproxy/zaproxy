@@ -64,7 +64,7 @@ public class ExtensionBreak extends ExtensionAdaptor
         ADD,
         EDIT,
         REMOVE
-    };
+    }
 
     public static final String NAME = "ExtensionBreak";
 

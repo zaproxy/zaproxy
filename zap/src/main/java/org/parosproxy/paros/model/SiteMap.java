@@ -70,6 +70,7 @@
 // ZAP: 2020/08/17 Changed to use getTreePath(msg) method
 // ZAP: 2020/11/02 Do not get leaf name if finding branch nodes.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove empty statement.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -106,7 +107,7 @@ public class SiteMap extends SortedTreeModel {
     private enum EventType {
         ADD,
         REMOVE
-    };
+    }
 
     private static Map<Integer, SiteNode> hrefMap = new HashMap<>();
 

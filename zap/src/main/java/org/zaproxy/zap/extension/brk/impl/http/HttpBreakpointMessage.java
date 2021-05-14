@@ -37,12 +37,12 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
         request_body,
         response_header,
         response_body
-    };
+    }
 
     public enum Match {
         contains,
         regex
-    };
+    }
 
     private static final Logger logger = LogManager.getLogger(HttpBreakpointMessage.class);
 

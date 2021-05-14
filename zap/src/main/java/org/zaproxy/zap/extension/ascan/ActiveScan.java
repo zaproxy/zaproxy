@@ -59,7 +59,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         RUNNING,
         PAUSED,
         FINISHED
-    };
+    }
 
     private String displayName = null;
     private int progress = 0;

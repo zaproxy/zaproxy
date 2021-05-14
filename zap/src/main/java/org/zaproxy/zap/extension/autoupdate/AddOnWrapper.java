@@ -28,7 +28,7 @@ public class AddOnWrapper extends Enableable {
     public enum Status {
         newAddon,
         newVersion
-    };
+    }
 
     private AddOn addOn = null;
     private AddOn.InstallationStatus installationStatus;

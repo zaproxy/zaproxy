@@ -54,7 +54,7 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
     public enum LogicalOperator {
         AND,
         OR
-    };
+    }
 
     protected LogicalOperator logicalOperator;
     protected int statusCode;

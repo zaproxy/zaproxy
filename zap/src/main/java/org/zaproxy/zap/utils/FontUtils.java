@@ -37,12 +37,12 @@ public class FontUtils {
         larger,
         much_larger,
         huge
-    };
+    }
 
     public static enum FontType {
         general,
         workPanels
-    };
+    }
 
     private static float scale = -1;
     private static EnumMap<FontType, Font> defaultFonts = new EnumMap<>(FontType.class);

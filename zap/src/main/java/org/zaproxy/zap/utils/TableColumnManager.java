@@ -430,5 +430,5 @@ public class TableColumnManager
                         }
                     });
         }
-    };
+    }
 }

@@ -66,7 +66,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         BEGIN,
         AFTER_COMPONENTS,
         END
-    };
+    }
 
     private static final long serialVersionUID = 5221591643257366570L;
 
