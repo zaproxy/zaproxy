@@ -87,6 +87,7 @@ RUN chown zap:zap /zap/* && \
 	chmod a+x /home/zap/.xinitrc
 
 #Change back to zap at the end
-USER zap
+RUN export userId=$(id -u zap)
+USER $userId
 
 HEALTHCHECK --retries=5 --interval=5s CMD zap-cli status
