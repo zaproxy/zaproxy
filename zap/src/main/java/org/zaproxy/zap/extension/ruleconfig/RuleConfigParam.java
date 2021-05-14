@@ -95,7 +95,7 @@ public class RuleConfigParam extends AbstractParam {
     private static final String RULES_BASE_KEY = "rules";
     private static final String RULES_DEFAULT_KEY_EXT = ".default";
 
-    private Map<String, RuleConfig> ruleConfigs = new HashMap<String, RuleConfig>();
+    private Map<String, RuleConfig> ruleConfigs = new HashMap<>();
 
     public RuleConfigParam() {}
 
@@ -154,7 +154,7 @@ public class RuleConfigParam extends AbstractParam {
     }
 
     public List<RuleConfig> getAllRuleConfigs() {
-        ArrayList<RuleConfig> list = new ArrayList<RuleConfig>();
+        ArrayList<RuleConfig> list = new ArrayList<>();
         for (RuleConfig rc : ruleConfigs.values()) {
             list.add(rc.clone());
         }

@@ -162,10 +162,10 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
         setDisplayName(name);
 
         numberOfURIsFound = new AtomicInteger();
-        foundURIs = Collections.synchronizedSet(new HashSet<String>());
-        resourcesFound = Collections.synchronizedList(new ArrayList<SpiderResource>());
-        resourcesIoErrors = Collections.synchronizedList(new ArrayList<SpiderResource>());
-        foundURIsOutOfScope = Collections.synchronizedSet(new HashSet<String>());
+        foundURIs = Collections.synchronizedSet(new HashSet<>());
+        resourcesFound = Collections.synchronizedList(new ArrayList<>());
+        resourcesIoErrors = Collections.synchronizedList(new ArrayList<>());
+        foundURIsOutOfScope = Collections.synchronizedSet(new HashSet<>());
 
         state = State.NOT_STARTED;
 

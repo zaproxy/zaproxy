@@ -71,7 +71,7 @@ public class ProxiesAPI extends ApiImplementor {
             ApiResponseList response = new ApiResponseList(name);
 
             for (ProxiesParamProxy p : (this.extension.getAdditionalProxies())) {
-                Map<String, String> map = new HashMap<String, String>();
+                Map<String, String> map = new HashMap<>();
                 map.put("address", p.getAddress());
                 map.put("port", Integer.toString(p.getPort()));
                 map.put("enabled", Boolean.toString(p.isEnabled()));
@@ -80,7 +80,7 @@ public class ProxiesAPI extends ApiImplementor {
                 map.put(
                         "removeUnsupportedEncodings",
                         Boolean.toString(p.isRemoveUnsupportedEncodings()));
-                response.addItem(new ApiResponseSet<String>("proxy", map));
+                response.addItem(new ApiResponseSet<>("proxy", map));
             }
 
             return response;

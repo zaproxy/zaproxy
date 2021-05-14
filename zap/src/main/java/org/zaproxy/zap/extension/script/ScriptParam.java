@@ -101,7 +101,7 @@ public class ScriptParam extends AbstractParam {
         }
 
         try {
-            this.scriptDirs = new ArrayList<File>();
+            this.scriptDirs = new ArrayList<>();
             for (Object dirName : getConfig().getList(SCRIPT_DIRS)) {
                 File f = new File((String) dirName);
                 if (!f.exists() || !f.isDirectory()) {

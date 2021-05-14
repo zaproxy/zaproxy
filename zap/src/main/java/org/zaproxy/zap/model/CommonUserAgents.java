@@ -39,8 +39,8 @@ public class CommonUserAgents {
     private static final Logger logger = LogManager.getLogger(CommonUserAgents.class);
 
     static {
-        nameToString = new HashMap<String, String>();
-        stringToName = new HashMap<String, String>();
+        nameToString = new HashMap<>();
+        stringToName = new HashMap<>();
 
         String fileName =
                 Constant.getZapInstall()

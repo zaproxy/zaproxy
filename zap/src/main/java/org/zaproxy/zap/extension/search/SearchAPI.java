@@ -216,7 +216,7 @@ public class SearchAPI extends ApiImplementor {
                                         "code",
                                         String.valueOf(msg.getResponseHeader().getStatusCode()));
                                 map.put("time", String.valueOf(msg.getTimeElapsedMillis()));
-                                result.addItem(new ApiResponseSet<String>(name, map));
+                                result.addItem(new ApiResponseSet<>(name, map));
                             }
                         };
             }

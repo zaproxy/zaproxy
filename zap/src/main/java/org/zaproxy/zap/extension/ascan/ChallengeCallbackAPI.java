@@ -57,7 +57,7 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
     // The registered callbacks for this API
     // Use a synchronized collection
     private final Map<String, RegisteredCallback> regCallbacks =
-            Collections.synchronizedMap(new TreeMap<String, RegisteredCallback>());
+            Collections.synchronizedMap(new TreeMap<>());
 
     /** Default constructor */
     public ChallengeCallbackAPI() {

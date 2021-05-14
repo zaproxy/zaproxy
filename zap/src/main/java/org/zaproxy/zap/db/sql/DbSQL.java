@@ -58,7 +58,7 @@ public class DbSQL implements DatabaseListener {
 
     private static final Logger logger = LogManager.getLogger(DbSQL.class);
 
-    private Map<String, StatementPool> stmtPool = new HashMap<String, StatementPool>();
+    private Map<String, StatementPool> stmtPool = new HashMap<>();
 
     public static DbSQL getSingleton() {
         if (singleton == null) {
@@ -236,8 +236,8 @@ public class DbSQL implements DatabaseListener {
     private class StatementPool {
         private static final int MAX_FREE_POOL_SIZE = 5;
 
-        private Deque<PreparedStatement> inUsePool = new ConcurrentLinkedDeque<PreparedStatement>();
-        private Deque<PreparedStatement> freePool = new ConcurrentLinkedDeque<PreparedStatement>();
+        private Deque<PreparedStatement> inUsePool = new ConcurrentLinkedDeque<>();
+        private Deque<PreparedStatement> freePool = new ConcurrentLinkedDeque<>();
 
         public SqlPreparedStatementWrapper getPreparedStatement(String key, String sql)
                 throws SQLException {

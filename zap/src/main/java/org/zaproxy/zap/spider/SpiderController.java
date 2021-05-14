@@ -95,7 +95,7 @@ public class SpiderController implements SpiderParserListener {
         this.fetchFilters = new LinkedList<>();
         this.parseFilters = new LinkedList<>();
         this.visitedGet = new HashSet<>();
-        this.visitedPost = new HashMap<String, ArrayList<String>>();
+        this.visitedPost = new HashMap<>();
 
         prepareDefaultParsers();
         for (SpiderParser parser : customParsers) {
@@ -346,7 +346,7 @@ public class SpiderController implements SpiderParserListener {
                 if (visitedPost.containsKey(uri)) {
                     visitedPost.get(uri).add(requestBody);
                 } else {
-                    ArrayList<String> l = new ArrayList<String>();
+                    ArrayList<String> l = new ArrayList<>();
                     l.add(requestBody);
                     visitedPost.put(uri, l);
                 }

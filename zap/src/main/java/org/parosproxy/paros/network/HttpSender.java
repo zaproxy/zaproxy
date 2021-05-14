@@ -86,6 +86,7 @@
 // ZAP: 2020/09/04 Added AUTHENTICATION_POLL_INITIATOR
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2020/12/09 Set content encoding to the response body.
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -177,7 +178,7 @@ public class HttpSender {
 
     private static HttpMethodHelper helper = new HttpMethodHelper();
     private static String userAgent = "";
-    private static final ThreadLocal<Boolean> IN_LISTENER = new ThreadLocal<Boolean>();
+    private static final ThreadLocal<Boolean> IN_LISTENER = new ThreadLocal<>();
 
     private HttpClient client = null;
     private HttpClient clientViaProxy = null;

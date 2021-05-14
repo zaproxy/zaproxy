@@ -54,6 +54,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros.control;
 
 import java.awt.EventQueue;
@@ -363,7 +364,7 @@ public class MenuFileControl implements SessionListener {
 
     private void openDbBasedSession() {
         try {
-            List<String> sessionList = new ArrayList<String>();
+            List<String> sessionList = new ArrayList<>();
             for (RecordSession rs : model.getDb().getTableSession().listSessions()) {
                 sessionList.add("" + rs.getSessionId());
             }

@@ -89,7 +89,7 @@ public class BackgroundImagePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         if (img != null) {
             setOpaque(false);
-            Map<RenderingHints.Key, Object> hints = new HashMap<RenderingHints.Key, Object>();
+            Map<RenderingHints.Key, Object> hints = new HashMap<>();
             hints.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
             hints.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
             hints.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);

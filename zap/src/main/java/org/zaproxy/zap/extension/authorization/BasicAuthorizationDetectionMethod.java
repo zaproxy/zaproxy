@@ -262,6 +262,6 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
         values.put(AuthorizationAPI.PARAM_STATUS_CODE, Integer.toString(this.statusCode));
         values.put(AuthorizationAPI.PARAM_LOGICAL_OPERATOR, this.logicalOperator.name());
         values.put(AuthorizationAPI.RESPONSE_TYPE, "basic");
-        return new ApiResponseSet<String>(AuthorizationAPI.RESPONSE_TAG, values);
+        return new ApiResponseSet<>(AuthorizationAPI.RESPONSE_TAG, values);
     }
 }

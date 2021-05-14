@@ -96,7 +96,7 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                         orderedReqUrls.add(
                                 session.getUri() + "?" + session.getQueryParameterString());
 
-                        HashMap<String, String> map = new HashMap<String, String>();
+                        HashMap<String, String> map = new HashMap<>();
                         try {
                             session.parseBody(map);
                             orderedReqData.add(map.get("postData"));
@@ -139,7 +139,7 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                 new NanoServerHandler(pollUrl) {
                     @Override
                     protected Response serve(IHTTPSession session) {
-                        HashMap<String, String> map = new HashMap<String, String>();
+                        HashMap<String, String> map = new HashMap<>();
                         try {
                             session.parseBody(map);
                             orderedReqData.add(map.get("postData"));
@@ -179,7 +179,7 @@ public class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                 new NanoServerHandler(pollUrl) {
                     @Override
                     protected Response serve(IHTTPSession session) {
-                        HashMap<String, String> map = new HashMap<String, String>();
+                        HashMap<String, String> map = new HashMap<>();
                         try {
                             session.parseBody(map);
                             orderedReqData.add(map.get("postData"));

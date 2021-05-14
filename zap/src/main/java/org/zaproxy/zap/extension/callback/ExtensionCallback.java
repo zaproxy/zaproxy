@@ -58,7 +58,7 @@ public class ExtensionCallback extends ExtensionAdaptor
     private CallbackParam callbackParam;
     private OptionsCallbackPanel optionsCallbackPanel;
 
-    private Map<String, CallbackImplementor> callbacks = new HashMap<String, CallbackImplementor>();
+    private Map<String, CallbackImplementor> callbacks = new HashMap<>();
     private int actualPort;
     private String currentConfigLocalAddress;
     private int currentConfigPort;

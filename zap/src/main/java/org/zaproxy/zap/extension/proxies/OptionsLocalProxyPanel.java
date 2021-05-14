@@ -51,7 +51,7 @@ public class OptionsLocalProxyPanel extends JPanel {
 
     private JComboBox<String> getLocalAddress() {
         if (localAddress == null) {
-            localAddress = new JComboBox<String>();
+            localAddress = new JComboBox<>();
             localAddress.setEditable(true);
             List<String> allAddrs = NetworkUtils.getAvailableAddresses(false);
             localAddress.addItem("localhost");

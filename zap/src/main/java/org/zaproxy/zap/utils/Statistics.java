@@ -26,7 +26,7 @@ import java.util.Map.Entry;
 
 public class Statistics {
 
-    private Map<String, Long> stats = new HashMap<String, Long>();
+    private Map<String, Long> stats = new HashMap<>();
 
     public void incCounter(String key) {
         incCounter(key, 1);
@@ -63,7 +63,7 @@ public class Statistics {
     }
 
     public Map<String, Long> getStats(String keyPrefix) {
-        Map<String, Long> map = new HashMap<String, Long>();
+        Map<String, Long> map = new HashMap<>();
         for (Entry<String, Long> stat : stats.entrySet()) {
             if (stat.getKey().startsWith(keyPrefix)) {
                 map.put(stat.getKey(), stat.getValue());

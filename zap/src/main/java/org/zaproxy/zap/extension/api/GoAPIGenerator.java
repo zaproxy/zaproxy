@@ -215,7 +215,7 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 
     // Writes the function arguments
     private void writeOutArgs(List<ApiParameter> parameters, Writer out) throws IOException {
-        ArrayList<String> args = new ArrayList<String>();
+        ArrayList<String> args = new ArrayList<>();
         for (ApiParameter parameter : parameters) {
             String name = parameter.getName();
             if (name.equalsIgnoreCase("boolean")) {

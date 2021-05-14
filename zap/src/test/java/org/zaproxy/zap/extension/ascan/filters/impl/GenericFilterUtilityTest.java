@@ -58,7 +58,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testEmptyFilterValuesIncludeCriteria() {
         // Given
-        List<String> genericFilterData = new ArrayList<String>();
+        List<String> genericFilterData = new ArrayList<>();
         abstractGenericScanFilter.setFilterData(genericFilterData);
 
         Set<String> values = new HashSet<>();
@@ -74,7 +74,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testIncludeCriteriaWithSameValues() {
         // Given
-        List<String> genericFilterData = new ArrayList<String>();
+        List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
 
         abstractGenericScanFilter.setFilterData(genericFilterData);
@@ -92,7 +92,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testIncludeCriteriaWithMoreFilterValues() {
         // Given
-        List<String> genericFilterData = new ArrayList<String>();
+        List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
         genericFilterData.add("Dummy1");
 
@@ -111,7 +111,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testIncludeCriteriaWithMoreValues() {
         // Given
-        List<String> genericFilterData = new ArrayList<String>();
+        List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
 
         abstractGenericScanFilter.setFilterData(genericFilterData);
@@ -129,7 +129,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testShouldFailWhenValuesAndFilterDataValuesMismatchIncludeCriteria() {
         // Given
-        List<String> genericFilterData = new ArrayList<String>();
+        List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
 
         abstractGenericScanFilter.setFilterData(genericFilterData);
@@ -147,7 +147,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testEmptyValuesInExcludeCriteria() {
         // Given
-        List<String> genericFilterData = new ArrayList<String>();
+        List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
 
         abstractGenericScanFilter.setFilterData(genericFilterData);
@@ -165,7 +165,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testShouldFailWhenSameValuesInExcludeCriteria() {
         // Given
-        List<String> genericFilterData = new ArrayList<String>();
+        List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
 
         abstractGenericScanFilter.setFilterData(genericFilterData);
@@ -184,7 +184,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testShouldFailInExcludeCriteriaWithMoreFilterValues() {
         // Given
-        List<String> genericFilterData = new ArrayList<String>();
+        List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
         genericFilterData.add("Dummy1");
 
@@ -204,7 +204,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testShouldFailWhenExcludeCriteriaWithMoreValues() {
         // Given
-        List<String> genericFilterData = new ArrayList<String>();
+        List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
 
         abstractGenericScanFilter.setFilterData(genericFilterData);
@@ -224,7 +224,7 @@ public class GenericFilterUtilityTest extends WithConfigsTest {
     @Test
     public void testShouldPassForValuesAndFilterValuesMismatchInExcludeCriteria() {
         // Given
-        List<String> genericFilterData = new ArrayList<String>();
+        List<String> genericFilterData = new ArrayList<>();
         genericFilterData.add("Dummy");
 
         abstractGenericScanFilter.setFilterData(genericFilterData);

@@ -2131,7 +2131,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     @Override
     public List<String> getHandledExtensions() {
         // The list of all of the script extensions that can be handled from the command line
-        List<String> exts = new ArrayList<String>();
+        List<String> exts = new ArrayList<>();
         for (ScriptEngineWrapper sew : this.engineWrappers) {
             exts.addAll(sew.getExtensions());
         }

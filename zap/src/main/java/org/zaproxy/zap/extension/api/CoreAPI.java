@@ -625,7 +625,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             }
         } else if (ACTION_CLEAR_EXCLUDED_FROM_PROXY.equals(name)) {
             try {
-                session.setExcludeFromProxyRegexs(new ArrayList<String>());
+                session.setExcludeFromProxyRegexs(new ArrayList<>());
             } catch (DatabaseException e) {
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             }
@@ -1091,7 +1091,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             addUrlsToList(
                     getParam(params, PARAM_BASE_URL, ""),
                     root,
-                    new HashSet<String>(),
+                    new HashSet<>(),
                     (ApiResponseList) result);
         } else if (VIEW_CHILD_NODES.equals(name)) {
             StructuralNode node;
@@ -1277,7 +1277,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         nodeData.put("uri", node.getURI().toString());
         nodeData.put("isLeaf", node.isLeaf());
         nodeData.put("hrefId", node.getHistoryReference().getHistoryId());
-        return new ApiResponseSet<Object>("node", nodeData);
+        return new ApiResponseSet<>("node", nodeData);
     }
 
     private ApiResponse proxyChainExcludedDomainsToApiResponseList(
@@ -1293,7 +1293,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             domainData.put("value", domain.getValue());
             domainData.put("regex", domain.isRegex());
             domainData.put("enabled", domain.isEnabled());
-            apiResponse.addItem(new ApiResponseSet<Object>("domain", domainData));
+            apiResponse.addItem(new ApiResponseSet<>("domain", domainData));
         }
         return apiResponse;
     }

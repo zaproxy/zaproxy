@@ -44,7 +44,7 @@ public class StructuralNodeModifiersTableModel
     private static final long serialVersionUID = 4463944219657112162L;
 
     /** The users. */
-    private List<StructuralNodeModifier> snms = new ArrayList<StructuralNodeModifier>();
+    private List<StructuralNodeModifier> snms = new ArrayList<>();
 
     /**
      * Instantiates a new structural node modifiers table model. An internal copy of the provided

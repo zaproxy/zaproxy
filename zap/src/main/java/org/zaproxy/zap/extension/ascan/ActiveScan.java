@@ -68,14 +68,14 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     private SiteNode startNode = null;
     private ResponseCountSnapshot rcTotals = new ResponseCountSnapshot();
     private ResponseCountSnapshot rcLastSnapshot = new ResponseCountSnapshot();
-    private List<ResponseCountSnapshot> rcHistory = new ArrayList<ResponseCountSnapshot>();
+    private List<ResponseCountSnapshot> rcHistory = new ArrayList<>();
 
     private Date timeStarted = null;
     private Date timeFinished = null;
     private int maxResultsToList = 0;
 
-    private final List<Integer> hRefs = Collections.synchronizedList(new ArrayList<Integer>());
-    private final List<Integer> alerts = Collections.synchronizedList(new ArrayList<Integer>());
+    private final List<Integer> hRefs = Collections.synchronizedList(new ArrayList<>());
+    private final List<Integer> alerts = Collections.synchronizedList(new ArrayList<>());
 
     private ScheduledExecutorService scheduler;
     private ScheduledFuture<?> schedHandle;

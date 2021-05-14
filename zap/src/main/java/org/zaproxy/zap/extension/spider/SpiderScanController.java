@@ -88,7 +88,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
         this.spiderScansLock = new ReentrantLock();
         this.extension = extension;
         this.spiderScanMap = new HashMap<>();
-        this.spiderScanList = new ArrayList<SpiderScan>();
+        this.spiderScanList = new ArrayList<>();
     }
 
     @Override
@@ -98,9 +98,9 @@ public class SpiderScanController implements ScanController<SpiderScan> {
             int id = this.scanIdCounter++;
 
             SpiderParam spiderParams = extension.getSpiderParam();
-            List<SpiderParser> customSpiderParsers = new ArrayList<SpiderParser>();
-            List<FetchFilter> customFetchFilters = new ArrayList<FetchFilter>();
-            List<ParseFilter> customParseFilters = new ArrayList<ParseFilter>();
+            List<SpiderParser> customSpiderParsers = new ArrayList<>();
+            List<FetchFilter> customFetchFilters = new ArrayList<>();
+            List<ParseFilter> customParseFilters = new ArrayList<>();
             URI startUri = null;
 
             if (contextSpecificObjects != null) {
@@ -175,7 +175,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 
     @Override
     public List<SpiderScan> getAllScans() {
-        List<SpiderScan> list = new ArrayList<SpiderScan>();
+        List<SpiderScan> list = new ArrayList<>();
         spiderScansLock.lock();
         try {
             for (SpiderScan scan : spiderScanList) {
@@ -189,7 +189,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 
     @Override
     public List<SpiderScan> getActiveScans() {
-        List<SpiderScan> list = new ArrayList<SpiderScan>();
+        List<SpiderScan> list = new ArrayList<>();
         spiderScansLock.lock();
         try {
             for (SpiderScan scan : spiderScanList) {

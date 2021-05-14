@@ -755,7 +755,7 @@ public class HttpMessage implements Message {
      * @since 2.10.0
      */
     public List<String> getParameterNames(HtmlParameter.Type type) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         Model.getSingleton()
                 .getSession()
                 .getParameters(this, type)
@@ -782,7 +782,7 @@ public class HttpMessage implements Message {
      * @since 2.10.0
      */
     public List<HtmlParameter> getParameters(HtmlParameter.Type type) {
-        List<HtmlParameter> list = new ArrayList<HtmlParameter>();
+        List<HtmlParameter> list = new ArrayList<>();
         Model.getSingleton()
                 .getSession()
                 .getParameters(this, type)
@@ -1218,7 +1218,7 @@ public class HttpMessage implements Message {
      */
     @Override
     public Map<String, String> toEventData() {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(EVENT_DATA_URI, getRequestHeader().getURI().toString());
         map.put(EVENT_DATA_REQUEST_HEADER, getRequestHeader().toString());
         map.put(EVENT_DATA_REQUEST_BODY, getRequestBody().toString());

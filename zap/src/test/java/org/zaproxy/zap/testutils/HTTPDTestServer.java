@@ -25,7 +25,7 @@ import java.util.List;
 
 public class HTTPDTestServer extends NanoHTTPD {
 
-    private List<NanoServerHandler> handlers = new ArrayList<NanoServerHandler>();
+    private List<NanoServerHandler> handlers = new ArrayList<>();
 
     private NanoServerHandler handler404 =
             new NanoServerHandler("") {

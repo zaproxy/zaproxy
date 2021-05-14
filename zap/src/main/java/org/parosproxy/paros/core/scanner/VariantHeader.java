@@ -86,7 +86,7 @@ public class VariantHeader implements Variant {
     };
     // a hashset of (lowercase) headers that we can look up quickly and easily
     private static final HashSet<String> NON_INJECTABLE_HEADERS =
-            new HashSet<String>(Arrays.asList(injectablesTempArray));
+            new HashSet<>(Arrays.asList(injectablesTempArray));
 
     /**
      * The list of parameters (that is, headers) extracted from the request header of the message,

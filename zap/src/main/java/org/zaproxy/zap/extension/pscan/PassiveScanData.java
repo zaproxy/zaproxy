@@ -167,7 +167,7 @@ public class PassiveScanData {
             return false;
         }
         if (customPageMap == null) {
-            customPageMap = new HashMap<CustomPage.Type, Boolean>();
+            customPageMap = new HashMap<>();
         }
         return customPageMap.computeIfAbsent(
                 cpType, type -> context.isCustomPageWithFallback(msg, type));
