@@ -41,7 +41,8 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 WORKDIR /zap-src
 
 #Change to the zap user so things get done as the right person (apart from copy)
-USER zap
+RUN export userId=$(id -u zap)
+USER $userId
 
 RUN mkdir /home/zap/.vnc
 
@@ -98,6 +99,5 @@ RUN chown zap:zap /zap/* && \
 
 WORKDIR /zap
 
-RUN export userId=$(id -u zap)
 USER $userId
 HEALTHCHECK --retries=5 --interval=5s CMD zap-cli status
