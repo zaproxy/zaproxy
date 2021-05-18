@@ -101,16 +101,11 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
         }
 
         StringBuilder sb = new StringBuilder();
-        try {
-            BufferedReader fr = new BufferedReader(new FileReader(file));
+        try (BufferedReader fr = new BufferedReader(new FileReader(file))) {
             String line;
-            try {
-                while ((line = fr.readLine()) != null) {
-                    sb.append(line);
-                    sb.append("\n");
-                }
-            } finally {
-                fr.close();
+            while ((line = fr.readLine()) != null) {
+                sb.append(line);
+                sb.append("\n");
             }
             return sb.toString();
 

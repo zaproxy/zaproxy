@@ -1,18 +1,12 @@
 package org.zaproxy.zap
 
-import com.diffplug.spotless.generic.LicenseHeaderStep
-
 plugins {
-    com.diffplug.gradle.spotless
+    com.diffplug.spotless
 }
 
 spotless {
     format ("license", {
-        addStep(LicenseHeaderStep.createFromFile(
-            project.file("$rootDir/gradle/spotless/license.java"),
-            getEncoding(),
-            "package ",
-            LicenseHeaderStep.defaultYearDelimiter()))
+        licenseHeaderFile(project.file("$rootDir/gradle/spotless/license.java"), "package ")
 
         target(project.fileTree(project.projectDir) {
             include(listOf(
@@ -124,7 +118,7 @@ spotless {
 
     java {
         clearSteps()
-        googleJavaFormat().aosp()
+        googleJavaFormat("1.7").aosp()
 
         // Exclude forked/3rd-party/generated files.
         targetExclude(listOf(

@@ -27,12 +27,19 @@ val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.no
 val distDir = file("src/main/dist/")
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    // Compile ZAP with Java 8 when building releases.
+    if (System.getenv("GITHUB_REF")?.contains("refs/tags/") ?: false) {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(8))
+        }
+    } else {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
 jacoco {
-    toolVersion = "0.8.5"
+    toolVersion = "0.8.6"
 }
 
 tasks.named<JacocoReport>("jacocoTestReport") {
@@ -85,7 +92,7 @@ dependencies {
         setTransitive(false)
     }
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.27.2") {
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.28.0") {
         // Not needed.
         exclude(group = "org.junit")
     }
@@ -146,7 +153,8 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     fieldExcludes = listOf()
 
-    classExcludes = listOf()
+    classExcludes = listOf(
+        "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel")
 
     methodExcludes = listOf()
 

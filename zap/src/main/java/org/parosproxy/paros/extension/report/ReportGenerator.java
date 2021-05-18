@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ZAP: 2020/08/06 Issue 6084: Added date time to html report.
 // ZAP: 2020/10/29 Issue 6267: Fix bug to allow writing reports with file path containing '#'.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/04/19 Use try-with-resource statements.
 package org.parosproxy.paros.extension.report;
 
 import java.io.BufferedReader;
@@ -170,17 +171,14 @@ public class ReportGenerator {
             // Replace the escaped tags used to make the report look slightly better.
             // This is a temp fix to ensure reports always get generated
             // we should really adopt something other than XSLT ;)
-            BufferedReader br = null;
-            BufferedWriter bw = null;
             String line;
 
-            try {
-                br =
-                        Files.newBufferedReader(
-                                new File(tempOutfilename).toPath(), StandardCharsets.UTF_8);
-                bw =
-                        Files.newBufferedWriter(
-                                new File(outfilename).toPath(), StandardCharsets.UTF_8);
+            try (BufferedReader br =
+                            Files.newBufferedReader(
+                                    new File(tempOutfilename).toPath(), StandardCharsets.UTF_8);
+                    BufferedWriter bw =
+                            Files.newBufferedWriter(
+                                    new File(outfilename).toPath(), StandardCharsets.UTF_8)) {
 
                 while ((line = br.readLine()) != null) {
                     bw.write(line.replace("&lt;p&gt;", "<p>").replace("&lt;/p&gt;", "</p>"));
@@ -190,16 +188,6 @@ public class ReportGenerator {
             } catch (IOException e) {
                 showDialogForGUI();
                 logger.error(e.getMessage(), e);
-            } finally {
-                try {
-                    if (br != null) {
-                        br.close();
-                    }
-                    if (bw != null) {
-                        bw.close();
-                    }
-                } catch (IOException ex) {
-                }
             }
             // Remove the temporary file
             outfile.delete();

@@ -54,14 +54,9 @@ public class ViewState {
      */
     public static String encode(Serializable o) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            try {
-                oos.writeObject(o);
-                oos.flush();
-            } finally {
-                oos.close();
-            }
+        try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+            oos.writeObject(o);
+            oos.flush();
             return Base64.getEncoder().encodeToString(bos.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);

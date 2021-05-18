@@ -260,7 +260,7 @@ class DialogAddCustomPage extends AbstractFormDialog {
 
     protected JComboBox<CustomPage.Type> getCustomPageTypesCombo() {
         if (customPageTypesCombo == null) {
-            customPageTypesCombo = new JComboBox<CustomPage.Type>(CustomPage.Type.values());
+            customPageTypesCombo = new JComboBox<>(CustomPage.Type.values());
         }
         return customPageTypesCombo;
     }
@@ -268,7 +268,7 @@ class DialogAddCustomPage extends AbstractFormDialog {
     protected JComboBox<CustomPageMatcherLocation> getCustomPagePageMatcherLocationsCombo() {
         if (customPagePageMatcherLocationsCombo == null) {
             customPagePageMatcherLocationsCombo =
-                    new JComboBox<CustomPageMatcherLocation>(CustomPageMatcherLocation.values());
+                    new JComboBox<>(CustomPageMatcherLocation.values());
         }
         return customPagePageMatcherLocationsCombo;
     }

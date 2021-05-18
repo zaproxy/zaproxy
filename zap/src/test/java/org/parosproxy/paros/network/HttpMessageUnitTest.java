@@ -201,6 +201,62 @@ public class HttpMessageUnitTest {
     }
 
     @Test
+    public void shouldCorrectlyMutateFromConnectHttpMethodWhenGenericPort() throws Exception {
+        // Given
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "CONNECT "
+                                        + "www.example.com:9000 HTTP/1.1\r\nHost: www.example.com:9000"));
+        // When
+        message.mutateHttpMethod(HttpRequestHeader.GET);
+        // Then
+        assertThat(message.getRequestHeader().getMethod(), is(HttpRequestHeader.GET));
+        assertThat(
+                message.getRequestHeader().getURI().toString(), is("http://www.example.com:9000"));
+        assertThat(
+                message.getRequestHeader().getHeader(HttpRequestHeader.HOST),
+                is("www.example.com:9000"));
+    }
+
+    @Test
+    public void shouldCorrectlyMutateFromConnectHttpMethodWhenHttpsPort() throws Exception {
+        // Given
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "CONNECT "
+                                        + "www.example.com:443 HTTP/1.1\r\nHost: www.example.com:443"));
+        // When
+        message.mutateHttpMethod(HttpRequestHeader.GET);
+        // Then
+        assertThat(message.getRequestHeader().getMethod(), is(HttpRequestHeader.GET));
+        assertThat(
+                message.getRequestHeader().getURI().toString(), is("https://www.example.com:443"));
+        assertThat(
+                message.getRequestHeader().getHeader(HttpRequestHeader.HOST),
+                is("www.example.com:443"));
+    }
+
+    @Test
+    public void shouldCorrectlyMutateToConnectHttpMethod() throws Exception {
+        // Given
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "GET "
+                                        + "http://www.example.com:9000/path HTTP/1.1\r\nHost: www.example.com:9000"));
+        // When
+        message.mutateHttpMethod(HttpRequestHeader.CONNECT);
+        // Then
+        assertThat(message.getRequestHeader().getMethod(), is(HttpRequestHeader.CONNECT));
+        assertThat(message.getRequestHeader().getURI().toString(), is("www.example.com:9000"));
+        assertThat(
+                message.getRequestHeader().getHeader(HttpRequestHeader.HOST),
+                is("www.example.com:9000"));
+    }
+
+    @Test
     void shouldNotSetContentEncodingsWhenSettingHttpRequestBody() {
         // Given
         HttpRequestHeader header = mock(HttpRequestHeader.class);

@@ -3,7 +3,7 @@ FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG WEBSWING_TOKEN=""
+ARG WEBSWING_URL=""
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -48,6 +48,8 @@ RUN mkdir /home/zap/.vnc
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
+ENV WEBSWING_VERSION 21.1
+
 # Pull the ZAP repo
 RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 	# Build ZAP with weekly add-ons
@@ -57,9 +59,9 @@ RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 	rm -rf /zap-src/* && \
 	cd /zap/ && \
 	# Setup Webswing
-	if [ -z "$WEBSWING_TOKEN" ] ; \
-	then curl -s -L  "https://storage.googleapis.com/builds.webswing.org/releases/webswing-20.2.1.zip" > webswing.zip; \
-	else curl -s -L  "https://dev.webswing.org/${WEBSWING_TOKEN}/nexus/repository/Webswing-Public/webswing-agpl-dist/webswing-20.2.1-distribution.zip" > webswing.zip; fi && \
+	if [ -z "$WEBSWING_URL" ] ; \
+	then curl -s -L  "https://storage.googleapis.com/builds.webswing.org/releases/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
 	mv webswing-* webswing && \

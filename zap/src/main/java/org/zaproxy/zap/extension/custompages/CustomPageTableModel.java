@@ -166,17 +166,15 @@ class CustomPageTableModel extends AbstractMultipleOptionsTableModel<CustomPage>
 
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        if (columnIndex == 0) {
-            if (aValue instanceof Boolean) {
-                customPages.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
-                fireTableCellUpdated(rowIndex, columnIndex);
-            }
+        if (!(aValue instanceof Boolean)) {
+            return;
         }
-        if (columnIndex == 3) {
-            if (aValue instanceof Boolean) {
-                customPages.get(rowIndex).setRegex(((Boolean) aValue).booleanValue());
-                fireTableCellUpdated(rowIndex, columnIndex);
-            }
+        if (columnIndex == 0) {
+            customPages.get(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+            fireTableCellUpdated(rowIndex, columnIndex);
+        } else if (columnIndex == 3) {
+            customPages.get(rowIndex).setRegex(((Boolean) aValue).booleanValue());
+            fireTableCellUpdated(rowIndex, columnIndex);
         }
     }
 }

@@ -30,6 +30,7 @@ import java.util.stream.Stream;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -308,6 +309,119 @@ public class SessionStructureUnitTest {
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
         assertThat(nodeName, is(equalTo(uri + " (a,c)(a,c)")));
+    }
+
+    @Nested
+    static class RegexGenerationTests {
+
+        private StructuralSiteNode sitesNode;
+        private StructuralSiteNode hostNode;
+
+        @BeforeEach
+        void setup() throws Exception {
+            sitesNode = mock(StructuralSiteNode.class);
+            given(sitesNode.isRoot()).willReturn(true);
+            hostNode = mock(StructuralSiteNode.class);
+            given(hostNode.getParent()).willReturn(sitesNode);
+            given(hostNode.isLeaf()).willReturn(true);
+            URI uri = new URI("https://www.example.com", true);
+            given(hostNode.getURI()).willReturn(uri);
+            given(hostNode.getName()).willReturn("https://www.example.com");
+        }
+
+        @Test
+        public void shouldReturnCorrectRegexForNoPathNoSlashNoParams() throws Exception {
+            // Given / When
+            String nodeRegex = SessionStructure.getRegexPattern(hostNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com.*")));
+        }
+
+        @Test
+        public void shouldReturnCorrectRegexForNoPathWithSlashNoParams() throws Exception {
+            // Given
+            StructuralNode leafNode = getLeafNode("https://www.example.com/");
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/.*")));
+        }
+
+        @Test
+        public void shouldReturnCorrectRegexForNoPathNoSlashWithParams() throws Exception {
+            // Given
+            URI uri = new URI("https://www.example.com?a=b&c=d", true);
+            given(hostNode.getURI()).willReturn(uri);
+            given(hostNode.getName()).willReturn("https://www.example.com?a=b&c=d");
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(hostNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com\\?a\\=b&c\\=d.*")));
+        }
+
+        @Test
+        public void shouldReturnCorrectRegexForNoPathWithSlashWithParams() throws Exception {
+            // Given
+            StructuralSiteNode leafNode = getLeafNode("https://www.example.com/?a=b&c=d");
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/\\?a\\=b&c\\=d.*")));
+        }
+
+        @Test
+        public void shouldReturnCorrectRegexForWithPathNoSlashNoParams() throws Exception {
+            // Given
+            StructuralSiteNode leafNode = getLeafNode("https://www.example.com/path");
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/path.*")));
+        }
+
+        @Test
+        public void shouldReturnCorrectRegexForWithPathWithSlashNoParams() throws Exception {
+            // Given
+            StructuralSiteNode leafNode = getLeafNode("https://www.example.com/path");
+            StructuralSiteNode leafLeafNode = getLeafNode("https://www.example.com/path/");
+            given(leafLeafNode.getParent()).willReturn(leafNode);
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafLeafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/path/.*")));
+        }
+
+        @Test
+        public void shouldReturnCorrectRegexForWithPathWithSlashWithParams() throws Exception {
+            // Given
+            StructuralSiteNode leafNode = getLeafNode("https://www.example.com/path");
+            StructuralSiteNode leafLeafNode = getLeafNode("https://www.example.com/path/?a=b&c=d");
+            given(leafLeafNode.getParent()).willReturn(leafNode);
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafLeafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/path/\\?a\\=b&c\\=d.*")));
+        }
+
+        @Test
+        public void shouldReturnCorrectRegexForWithPathNoSlashWithParams() throws Exception {
+            // Given
+            StructuralSiteNode leafNode = getLeafNode("https://www.example.com/path?a=b&c=d");
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/path\\?a\\=b&c\\=d.*")));
+        }
+
+        private StructuralSiteNode getLeafNode(String url) throws Exception {
+            StructuralSiteNode leafNode = mock(StructuralSiteNode.class);
+            URI leafUri = new URI(url, true);
+            given(leafNode.getParent()).willReturn(hostNode);
+            given(leafNode.isLeaf()).willReturn(true);
+            given(leafNode.getURI()).willReturn(leafUri);
+            given(leafNode.getName()).willReturn(url);
+            return leafNode;
+        }
     }
 
     @Test

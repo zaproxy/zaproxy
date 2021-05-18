@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.autoupdate;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.Date;
@@ -85,8 +84,6 @@ public class Downloader extends Thread {
     }
 
     private void downloadFile() {
-        BufferedInputStream in = null;
-        FileOutputStream out = null;
         try {
             /*
              * The following code may be more efficient, but doesn't give us the option
@@ -98,26 +95,17 @@ public class Downloader extends Thread {
              */
 
             // XXX Change to use HttpClient to respect all proxy settings (e.g. use of SOCKS).
-            in = new BufferedInputStream(url.openConnection(proxy).getInputStream());
-            out = new FileOutputStream(this.targetFile);
-            byte[] data = new byte[1024];
-            int count;
-            while (!cancelDownload && (count = in.read(data, 0, 1024)) != -1) {
-                out.write(data, 0, count);
+            try (BufferedInputStream in =
+                            new BufferedInputStream(url.openConnection(proxy).getInputStream());
+                    FileOutputStream out = new FileOutputStream(this.targetFile)) {
+                byte[] data = new byte[1024];
+                int count;
+                while (!cancelDownload && (count = in.read(data, 0, 1024)) != -1) {
+                    out.write(data, 0, count);
+                }
             }
         } catch (Exception e) {
             this.exception = e;
-        } finally {
-            try {
-                if (in != null) {
-                    in.close();
-                }
-                if (out != null) {
-                    out.close();
-                }
-            } catch (IOException e) {
-                // Ignore
-            }
         }
     }
 
