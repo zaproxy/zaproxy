@@ -167,10 +167,4 @@ public class OptionsLocalePanel extends AbstractParamPanel {
             options.getViewParam().setLocale(selectedLocale.getLocale());
         }
     }
-
-    @Override
-    public String getHelpIndex() {
-        // TODO no help page?
-        return "ui.dialogs.options.locale";
-    }
 }

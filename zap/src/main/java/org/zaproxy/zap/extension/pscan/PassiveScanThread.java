@@ -388,7 +388,25 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
         }
     }
 
+    /**
+     * Adds the given tag to the message being passive scanned.
+     *
+     * @param id not used.
+     * @param tag the name of the tag.
+     * @deprecated (2.11.0) Use {@link #addTag(String)} instead, the id is not used.
+     */
+    @Deprecated
     public void addTag(int id, String tag) {
+        addTag(tag);
+    }
+
+    /**
+     * Adds the given tag to the message being passive scanned.
+     *
+     * @param tag the name of the tag.
+     * @since 2.11.0
+     */
+    public void addTag(String tag) {
         if (shutDown) {
             return;
         }

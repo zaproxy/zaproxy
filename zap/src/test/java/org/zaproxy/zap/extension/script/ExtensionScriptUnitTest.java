@@ -37,7 +37,7 @@ class ExtensionScriptUnitTest {
 
     @BeforeEach
     void setUp() {
-        WithConfigsTest.setUpConstant();
+        WithConfigsTest.setUpConstantMessages();
     }
 
     @AfterEach

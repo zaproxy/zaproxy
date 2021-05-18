@@ -36,32 +36,47 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
     public static final int BACKSLASH = '\\';
 
     private SimpleStringReader sr;
+    private boolean scanNullValues;
 
     public VariantJSONQuery() {
         super(NameValuePair.TYPE_JSON);
     }
 
     /**
-     * @param contentType
-     * @return
+     * Sets whether or not to scan null values.
+     *
+     * <p>The null values are handled as if they were strings, that is, the payload injected is a
+     * string.
+     *
+     * @param scan {@code true} if null values should be scanned, {@code false} otherwise.
+     * @since 2.11.0
+     * @see #isScanNullValues()
      */
+    public void setScanNullValues(boolean scan) {
+        scanNullValues = scan;
+    }
+
+    /**
+     * Tells whether or not to scan null values.
+     *
+     * @return {@code true} if null values should be scanned, {@code false} otherwise.
+     * @see #setScanNullValues(boolean)
+     */
+    public boolean isScanNullValues() {
+        return scanNullValues;
+    }
+
     @Override
     public boolean isValidContentType(String contentType) {
         return contentType.startsWith(JSON_RPC_CONTENT_TYPE);
     }
 
-    /** @param content */
     @Override
     public void parseContent(String content) {
         sr = new SimpleStringReader(content);
         parseObject();
     }
 
-    /**
-     * @param value
-     * @param toQuote
-     * @return
-     */
     @Override
     public String getEscapedValue(String value, boolean toQuote) {
         String result = StringEscapeUtils.escapeJava(value);
@@ -177,7 +192,6 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
         }
     }
 
-    /** @param fieldName */
     private void parseValue(String fieldName) {
         int chr = sr.read();
 
@@ -233,6 +247,10 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
         } else if (chr == 'n' || chr == 'N') {
             sr.unreadLastCharacter();
+            if (scanNullValues) {
+                int start = sr.getPosition();
+                addParameter(fieldName, start, start + 4, true, null);
+            }
             parseToken("null");
 
         } else if (chr == -1) {
@@ -240,7 +258,12 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
         } else {
             throw new IllegalArgumentException(
-                    "Unknown value type at position " + sr.getPosition());
+                    "Unknown value type '"
+                            + chr
+                            + "' for field '"
+                            + fieldName
+                            + "' at position "
+                            + sr.getPosition());
         }
     }
 
@@ -348,7 +371,6 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             next--;
         }
 
-        /** @return */
         public int getPosition() {
             return next;
         }

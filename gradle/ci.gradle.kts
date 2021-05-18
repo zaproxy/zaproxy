@@ -1,8 +1,8 @@
-// Build tweaks when running in Travis CI
+// Build tweaks when running in GitHub CI
 
 fun isEnvVarTrue(envvar: String) = System.getenv(envvar) == "true"
 
-if (isEnvVarTrue("TRAVIS") && isEnvVarTrue("CI")) {
+if (isEnvVarTrue("CI") && System.getenv("GITHUB_WORKFLOW") == "Java CI") {
 
     allprojects {
         tasks.withType(Test::class).configureEach {

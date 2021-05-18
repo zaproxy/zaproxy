@@ -34,7 +34,13 @@ public class OptionsParamExperimentalSliSupport extends AbstractParam {
         expSliSupportEnabled = getBoolean(EXPERIMENTAL_SLOT_LIST_INDEXES, false);
     }
 
+    /** @deprecated (2.11.0) Use {@link #isExperimentalSliSupportEnabled()} */
+    @Deprecated
     public boolean isExerimentalSliSupportEnabled() {
+        return isExperimentalSliSupportEnabled();
+    }
+
+    public boolean isExperimentalSliSupportEnabled() {
         return expSliSupportEnabled;
     }
 

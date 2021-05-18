@@ -2,7 +2,10 @@
 // By default it will raise 'Low' level alerts for content types that are not expected to be returned by APIs.
 // But it can be easily changed.
 
-var pluginid = 100001	// https://github.com/zaproxy/zaproxy/blob/develop/docs/scanners.md
+var Pattern = Java.type("java.util.regex.Pattern")
+var model = Java.type("org.parosproxy.paros.model.Model").getSingleton()
+
+var pluginid = 100001	// https://github.com/zaproxy/zaproxy/blob/main/docs/scanners.md
 
 var extensionAlert = org.parosproxy.paros.control.Control.getSingleton().getExtensionLoader().getExtension(
 		org.zaproxy.zap.extension.alert.ExtensionAlert.NAME)
@@ -18,7 +21,8 @@ var expectedTypes = [
 		"application/xml",
 		"application/x-yaml",
 		"text/x-json",
-		"text/json"
+		"text/json",
+		"text/yaml"
 	]
 
 function sendingRequest(msg, initiator, helper) {
@@ -26,7 +30,7 @@ function sendingRequest(msg, initiator, helper) {
 }
 
 function responseReceived(msg, initiator, helper) {
-	if (initiator == 7) { // CHECK_FOR_UPDATES_INITIATOR
+	if (isGloballyExcluded(msg) || initiator == 7) { // CHECK_FOR_UPDATES_INITIATOR
 		// Not of interest.
 		return
 	}
@@ -95,4 +99,15 @@ function responseReceived(msg, initiator, helper) {
 			}
 		}
 	}
+}
+
+function isGloballyExcluded(msg) {
+	var url = msg.getRequestHeader().getURI().toString()
+	var regexes = model.getSession().getGlobalExcludeURLRegexs()
+	for (var i in regexes) {
+		if (Pattern.compile(regexes[i], Pattern.CASE_INSENSITIVE).matcher(url).matches()) {
+			return true
+		}
+	}
+	return false
 }

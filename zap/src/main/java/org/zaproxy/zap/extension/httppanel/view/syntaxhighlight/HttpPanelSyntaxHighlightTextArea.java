@@ -134,14 +134,12 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
         setCloseMarkupTags(false);
         setClearWhitespaceLinesEnabled(false);
 
-        this.setFont(
-                FontUtils.getFontWithFallback(FontType.workPanels, this.getFont().getFontName()));
-
         if (DisplayUtils.isDarkLookAndFeel()) {
             darkLaF = true;
             setLookAndFeel(darkLaF);
         } else {
             darkLaF = false;
+            setFont();
         }
         initHighlighter();
     }
@@ -154,9 +152,15 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
                                     .getResourceAsStream(dark ? RESOURCE_DARK : RESOURCE_LIGHT));
 
             theme.apply(this);
+            setFont();
         } catch (IOException e) {
             // Ignore
         }
+    }
+
+    private void setFont() {
+        this.setFont(
+                FontUtils.getFontWithFallback(FontType.workPanels, this.getFont().getFontName()));
     }
 
     @Override

@@ -25,7 +25,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -191,6 +193,11 @@ public class SearchThread extends Thread {
                 return;
             }
 
+            ExtensionHistory extensionHistory =
+                    Control.getSingleton()
+                            .getExtensionLoader()
+                            .getExtension(ExtensionHistory.class);
+
             List<Integer> list =
                     Model.getSingleton()
                             .getDb()
@@ -211,7 +218,13 @@ public class SearchThread extends Thread {
                 try {
                     currentRecordId = index;
                     // Create the href to ensure the msg is set up correctly
-                    HistoryReference href = new HistoryReference(historyId);
+                    HistoryReference href = null;
+                    if (extensionHistory != null) {
+                        href = extensionHistory.getHistoryReference(historyId);
+                    }
+                    if (href == null) {
+                        href = new HistoryReference(historyId);
+                    }
                     HttpMessage message = href.getHttpMessage();
                     if (searchJustInScope
                             && !session.isInScope(message.getRequestHeader().getURI().toString())) {

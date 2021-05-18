@@ -24,8 +24,9 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
-import net.htmlparser.jericho.Source;
 import org.apache.commons.configuration.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -490,18 +491,22 @@ public class PluginPassiveScannerUnitTest {
         assertThat(configuration.containsKey("pscans.pscanner(3).id"), is(false));
     }
 
+    @Test
+    void shouldCallParentWithTagAdded() {
+        // Given
+        String tag = "tag";
+        PassiveScanThread parent = mock(PassiveScanThread.class);
+        TestPluginPassiveScanner scanner = new TestPluginPassiveScanner();
+        scanner.init(parent, mock(HttpMessage.class), mock(PassiveScanData.class));
+        // When
+        scanner.addTag(tag);
+        // Then
+        verify(parent).addTag(tag);
+    }
+
     private static class TestPluginPassiveScanner extends PluginPassiveScanner {
 
         private static final int PLUGIN_ID = -1;
-
-        @Override
-        public void setParent(PassiveScanThread parent) {}
-
-        @Override
-        public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {}
-
-        @Override
-        public void scanHttpRequestSend(HttpMessage msg, int id) {}
 
         @Override
         public String getName() {

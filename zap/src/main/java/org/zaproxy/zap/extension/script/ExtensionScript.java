@@ -1988,7 +1988,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             Thread.currentThread().setContextClassLoader(previousContextClassLoader);
         }
 
-        if (script.isRunableStandalone()) {
+        if (script.isRunnableStandalone()) {
             return null;
         }
 

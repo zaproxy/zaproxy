@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
@@ -204,12 +205,12 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
 
     private static void assertInstalledLibs(AddOn addOn, String... fileNames) throws IOException {
         Path addOnLibsDir = addOnDataLibsDir(addOn);
-        assertThat(
-                Files.list(addOnLibsDir)
-                        .map(Path::getFileName)
-                        .map(Path::toString)
-                        .collect(Collectors.toList()),
-                containsInAnyOrder(fileNames));
+
+        try (Stream<Path> files = Files.list(addOnLibsDir)) {
+            assertThat(
+                    files.map(Path::getFileName).map(Path::toString).collect(Collectors.toList()),
+                    containsInAnyOrder(fileNames));
+        }
     }
 
     private static String contents(Path file) throws IOException {

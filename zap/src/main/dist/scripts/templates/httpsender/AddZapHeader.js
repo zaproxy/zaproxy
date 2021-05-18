@@ -5,7 +5,7 @@
 // Right click the script in the Scripts tree and select "enable"  
 
 // For the latest list of 'initiator' values see the HttpSender class:
-// https://github.com/zaproxy/zaproxy/blob/master/zap/src/main/java/org/parosproxy/paros/network/HttpSender.java
+// https://github.com/zaproxy/zaproxy/blob/main/zap/src/main/java/org/parosproxy/paros/network/HttpSender.java
 // 'helper' just has one method at the moment: helper.getHttpSender() which returns the HttpSender 
 // instance used to send the request.
 
