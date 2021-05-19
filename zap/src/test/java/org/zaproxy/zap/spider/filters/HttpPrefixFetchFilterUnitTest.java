@@ -29,10 +29,10 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 /** Unit test for {@link HttpPrefixFetchFilter}. */
-public class HttpPrefixFetchFilterUnitTest {
+class HttpPrefixFetchFilterUnitTest {
 
     @Test
-    public void shouldFailToCreateFetchFilterWithUndefinedURI() {
+    void shouldFailToCreateFetchFilterWithUndefinedURI() {
         // Given
         URI undefinedUri = null;
         // When / Then
@@ -40,7 +40,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFailToCreateFetchFilterWithNoScheme() throws Exception {
+    void shouldFailToCreateFetchFilterWithNoScheme() throws Exception {
         // Given
         URI prefixUri = new URI("example.org/", true);
         // When / Then
@@ -48,7 +48,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFailToCreateFetchFilterWithNonHttpOrHttpsScheme() throws Exception {
+    void shouldFailToCreateFetchFilterWithNonHttpOrHttpsScheme() throws Exception {
         // Given
         URI prefixUri = new URI("ftp://example.org/", true);
         // When / Then
@@ -56,7 +56,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFailToCreateFetchFilterWithNoHost() throws Exception {
+    void shouldFailToCreateFetchFilterWithNoHost() throws Exception {
         // Given
         URI prefixUri = new URI("http://", true);
         // When / Then
@@ -64,7 +64,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFailToCreateFetchFilterWithMalformedHost() throws Exception {
+    void shouldFailToCreateFetchFilterWithMalformedHost() throws Exception {
         // Given
         URI prefixUri = new URI("http://a%0/", true);
         // When / Then
@@ -72,7 +72,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldNotAddPathToNormalisedPrefixIfPrefixDoesNotHavePath() throws Exception {
+    void shouldNotAddPathToNormalisedPrefixIfPrefixDoesNotHavePath() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -83,7 +83,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldDiscardUserInfoFromPrefix() throws Exception {
+    void shouldDiscardUserInfoFromPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("http://user:pass@example.org", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -94,7 +94,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldDiscardEverythingAfterPathComponentFromPrefix() throws Exception {
+    void shouldDiscardEverythingAfterPathComponentFromPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("https://example.org/path?query#fragment", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -105,7 +105,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldDiscardDefaultHttpPortFromPrefix() throws Exception {
+    void shouldDiscardDefaultHttpPortFromPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org:80/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -116,7 +116,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldDiscardDefaultHttpsPortFromPrefix() throws Exception {
+    void shouldDiscardDefaultHttpsPortFromPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("https://example.org:443/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -127,7 +127,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldKeepNonDefaultPortFromPrefix() throws Exception {
+    void shouldKeepNonDefaultPortFromPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("https://example.org:8443/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -138,7 +138,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldKeepDefaultHttpPortInHttpsPrefix() throws Exception {
+    void shouldKeepDefaultHttpPortInHttpsPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("https://example.org:80/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -149,7 +149,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldKeepDefaultHttpsPortInHttpPrefix() throws Exception {
+    void shouldKeepDefaultHttpsPortInHttpPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org:443/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -160,7 +160,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUndefinedUriAsOutOfScope() throws Exception {
+    void shouldFilterUndefinedUriAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -171,7 +171,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithNoSchemeAsOutOfScope() throws Exception {
+    void shouldFilterUriWithNoSchemeAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -183,7 +183,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithNonHttpOrHttpsSchemeAsOutOfScope() throws Exception {
+    void shouldFilterUriWithNonHttpOrHttpsSchemeAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -195,7 +195,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithNoHostAsOutOfScope() throws Exception {
+    void shouldFilterUriWithNoHostAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -207,7 +207,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithMalformedHostAsOutOfScope() throws Exception {
+    void shouldFilterUriWithMalformedHostAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -219,7 +219,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithDifferentSchemeAsOutOfScope() throws Exception {
+    void shouldFilterUriWithDifferentSchemeAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -231,7 +231,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithDifferentSchemeButSamePortAsOutOfScope() throws Exception {
+    void shouldFilterUriWithDifferentSchemeButSamePortAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -243,7 +243,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithDifferentPortAsOutOfScope() throws Exception {
+    void shouldFilterUriWithDifferentPortAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -255,7 +255,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithDifferentHostAsOutOfScope() throws Exception {
+    void shouldFilterUriWithDifferentHostAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -267,7 +267,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithDifferentSmallerPathAsOutOfScope() throws Exception {
+    void shouldFilterUriWithDifferentSmallerPathAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/path", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -279,7 +279,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithDifferentPathAsOutOfScope() throws Exception {
+    void shouldFilterUriWithDifferentPathAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/path", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -291,7 +291,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithDifferentNonEmptyPathAsOutOfScope() throws Exception {
+    void shouldFilterUriWithDifferentNonEmptyPathAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -303,7 +303,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithSamePathPrefixAsValid() throws Exception {
+    void shouldFilterUriWithSamePathPrefixAsValid() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/path", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -315,7 +315,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriAsValidWhenPathPrefixIsEmpty() throws Exception {
+    void shouldFilterUriAsValidWhenPathPrefixIsEmpty() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
@@ -327,8 +327,7 @@ public class HttpPrefixFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithSamePathPrefixEvenIfHasQueryOrFragmentAsValid()
-            throws Exception {
+    void shouldFilterUriWithSamePathPrefixEvenIfHasQueryOrFragmentAsValid() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/path", true);
         HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);

@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link OptionsParamApi}. */
-public class OptionsParamApiUnitTest {
+class OptionsParamApiUnitTest {
 
     private static final String API_ENABLED_KEY = "api.enabled";
     private static final String API_SECURE_KEY = "api.secure";
@@ -46,7 +46,7 @@ public class OptionsParamApiUnitTest {
     private static final String API_REPORT_PERM_ERRORS = "api.reportpermerrors";
 
     @Test
-    public void shouldNotHaveConfigByDefault() {
+    void shouldNotHaveConfigByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -54,7 +54,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveEnabledStateByDefault() {
+    void shouldHaveEnabledStateByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -62,7 +62,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldFailToSetEnabledStateWithoutConfig() {
+    void shouldFailToSetEnabledStateWithoutConfig() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         // When / Then
@@ -70,7 +70,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldSetEnabledStateWithConfig() {
+    void shouldSetEnabledStateWithConfig() {
         // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
@@ -81,7 +81,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveSecureOnlyDisabledByDefault() {
+    void shouldHaveSecureOnlyDisabledByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -89,7 +89,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldFailToSetSecureOnlyWithoutConfig() {
+    void shouldFailToSetSecureOnlyWithoutConfig() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         // When / Then
@@ -97,7 +97,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldSetSecureOnlyWithConfig() {
+    void shouldSetSecureOnlyWithConfig() {
         // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
@@ -108,7 +108,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveKeyEnabledByDefault() {
+    void shouldHaveKeyEnabledByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -116,7 +116,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldFailToSetDisableKeyWithoutConfig() {
+    void shouldFailToSetDisableKeyWithoutConfig() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         // When / Then
@@ -124,7 +124,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldSetDisableKeyWithConfig() {
+    void shouldSetDisableKeyWithConfig() {
         // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
@@ -135,7 +135,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveIncErrorDetailsDisabledByDefault() {
+    void shouldHaveIncErrorDetailsDisabledByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -143,7 +143,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldFailToSetIncErrorDetailsWithoutConfig() {
+    void shouldFailToSetIncErrorDetailsWithoutConfig() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         // When / Then
@@ -151,7 +151,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldSetIncErrorDetailsWithConfig() {
+    void shouldSetIncErrorDetailsWithConfig() {
         // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
@@ -162,7 +162,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveAutofillKeyDisabledByDefault() {
+    void shouldHaveAutofillKeyDisabledByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -170,7 +170,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldFailToSetAutofillKeyWithoutConfig() {
+    void shouldFailToSetAutofillKeyWithoutConfig() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         // When / Then
@@ -178,7 +178,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldSetAutofillKeyWithConfig() {
+    void shouldSetAutofillKeyWithConfig() {
         // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
@@ -189,7 +189,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveEnableJSONPDisabledByDefault() {
+    void shouldHaveEnableJSONPDisabledByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -197,7 +197,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldFailToSetEnableJSONPWithoutConfig() {
+    void shouldFailToSetEnableJSONPWithoutConfig() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         // When / Then
@@ -205,7 +205,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldSetEnableJSONPWithConfig() {
+    void shouldSetEnableJSONPWithConfig() {
         // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
@@ -216,7 +216,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveReportPermErrorsDisabledByDefault() {
+    void shouldHaveReportPermErrorsDisabledByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -224,7 +224,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldFailToSetReportPermErrorsWithoutConfig() {
+    void shouldFailToSetReportPermErrorsWithoutConfig() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         // When / Then
@@ -232,7 +232,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldSetReportPermErrorsWithConfig() {
+    void shouldSetReportPermErrorsWithConfig() {
         // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
@@ -243,7 +243,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveNonceTimeToLiveInSecsSetTo5MinsByDefault() {
+    void shouldHaveNonceTimeToLiveInSecsSetTo5MinsByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -251,7 +251,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveNoKeyForViewsOrSafeOthersDisabledByDefault() {
+    void shouldHaveNoKeyForViewsOrSafeOthersDisabledByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -259,7 +259,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldFailToSetNoKeyForViewsOrSafeOthersWithoutConfig() {
+    void shouldFailToSetNoKeyForViewsOrSafeOthersWithoutConfig() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         // When / Then
@@ -267,7 +267,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldSetNoKeyForViewsOrSafeOthersWithConfig() {
+    void shouldSetNoKeyForViewsOrSafeOthersWithConfig() {
         // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         // When
@@ -278,7 +278,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveEmptyRealKeyByDefault() {
+    void shouldHaveEmptyRealKeyByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -286,7 +286,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveGeneratedKeyByDefault() {
+    void shouldHaveGeneratedKeyByDefault() {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
@@ -294,7 +294,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldFailToSetKeyWithoutConfig() {
+    void shouldFailToSetKeyWithoutConfig() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         // When / Then
@@ -302,7 +302,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldSetKeyWithConfig() {
+    void shouldSetKeyWithConfig() {
         // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         String apiKey = "Key";
@@ -314,7 +314,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldSaveGeneratedKeyWithConfig() {
+    void shouldSaveGeneratedKeyWithConfig() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         Configuration conf = new Configuration();
@@ -329,7 +329,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyKeyIfKeyDisabled() {
+    void shouldReturnEmptyKeyIfKeyDisabled() {
         // Given
         OptionsParamApi param = createOptionsParamApiWithConfig();
         param.setDisableKey(true);
@@ -342,7 +342,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldParseLoadedFileConfiguration() {
+    void shouldParseLoadedFileConfiguration() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         FileConfiguration config = createTestConfig();
@@ -359,7 +359,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldBeCloneableByDefault() {
+    void shouldBeCloneableByDefault() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         // When
@@ -376,7 +376,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldHaveLoadedConfigsAfterCloning() {
+    void shouldHaveLoadedConfigsAfterCloning() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         FileConfiguration config = createTestConfig();
@@ -395,7 +395,7 @@ public class OptionsParamApiUnitTest {
     }
 
     @Test
-    public void shouldUseDefaultValuesWhenLoadingFileConfigurationWithInvalidValues() {
+    void shouldUseDefaultValuesWhenLoadingFileConfigurationWithInvalidValues() {
         // Given
         OptionsParamApi param = new OptionsParamApi();
         FileConfiguration config = createTestConfigWithInvalidValues();
@@ -455,7 +455,7 @@ public class OptionsParamApiUnitTest {
             saved = true;
         }
 
-        public boolean isSaved() {
+        boolean isSaved() {
             return saved;
         }
     }

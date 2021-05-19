@@ -80,7 +80,7 @@ public class SqlTableSession extends SqlAbstractTable implements TableSession {
         SqlPreparedStatementWrapper psList = null;
         try {
             psList = DbSQL.getSingleton().getPreparedStatement("session.ps.list");
-            List<RecordSession> result = new ArrayList<RecordSession>();
+            List<RecordSession> result = new ArrayList<>();
             try (ResultSet rs = psList.getPs().executeQuery()) {
                 RecordSession ra = build(rs);
                 while (ra != null) {

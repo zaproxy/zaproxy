@@ -25,9 +25,9 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public interface PassiveScanner {
 
-    default void scanHttpRequestSend(HttpMessage msg, int id) {};
+    default void scanHttpRequestSend(HttpMessage msg, int id) {}
 
-    default void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {};
+    default void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {}
 
     void setParent(PassiveScanThread parent);
 

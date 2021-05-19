@@ -144,7 +144,8 @@ public class StatsdClient extends TimerTask {
         }
     }
 
-    public void run() {     // used by Timer, we're a Runnable TimerTask
+    @Override
+	public void run() {     // used by Timer, we're a Runnable TimerTask
         flush();
     }
 

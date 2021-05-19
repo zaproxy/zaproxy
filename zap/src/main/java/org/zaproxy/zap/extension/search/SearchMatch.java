@@ -34,7 +34,7 @@ public class SearchMatch {
         REQUEST_BODY,
         RESPONSE_HEAD,
         RESPONSE_BODY
-    };
+    }
 
     private Location location;
     private int start;

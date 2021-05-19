@@ -45,8 +45,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
     private static final String CONFIRM_REMOVE_TOKEN_KEY =
             GLOBAL_EXCLUDE_URL_BASE_KEY + ".confirmRemoveToken";
 
-    private static ArrayList<GlobalExcludeURLParamToken> defaultList =
-            new ArrayList<GlobalExcludeURLParamToken>();
+    private static ArrayList<GlobalExcludeURLParamToken> defaultList = new ArrayList<>();
 
     /**
      * Fills in the list of default regexs to ignore. In a future version, this could be read from a

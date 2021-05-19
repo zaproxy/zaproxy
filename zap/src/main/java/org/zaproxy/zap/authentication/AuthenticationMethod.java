@@ -83,12 +83,12 @@ public abstract class AuthenticationMethod {
         EACH_REQ,
         EACH_REQ_RESP,
         POLL_URL
-    };
+    }
 
     public static enum AuthPollFrequencyUnits {
         REQUESTS,
         SECONDS
-    };
+    }
 
     private AuthCheckingStrategy authCheckingStrategy = AuthCheckingStrategy.EACH_RESP;
 

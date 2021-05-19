@@ -37,19 +37,19 @@ import org.zaproxy.zap.session.ScriptBasedSessionManagementMethodType;
 import org.zaproxy.zap.session.ScriptBasedSessionManagementMethodType.ScriptBasedSessionManagementMethod;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-public class ExtensionSessionManagementUnitTest extends WithConfigsTest {
+class ExtensionSessionManagementUnitTest extends WithConfigsTest {
 
     private ExtensionSessionManagement extSessMgmt;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         ScriptBasedSessionManagementMethodType.setExtensionScript(null);
         extSessMgmt = new ExtensionSessionManagement();
         extSessMgmt.hook(mock(ExtensionHook.class));
     }
 
     @Test
-    public void shouldImportContextWithNoSessionMgmtType() throws ConfigurationException {
+    void shouldImportContextWithNoSessionMgmtType() throws ConfigurationException {
         // Given
         Context context = mock(Context.class);
         Configuration config = new ZapXmlConfiguration();
@@ -62,7 +62,7 @@ public class ExtensionSessionManagementUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldImportContextWithCookieSessionMgmtType() throws ConfigurationException {
+    void shouldImportContextWithCookieSessionMgmtType() throws ConfigurationException {
         // Given
         Context context = mock(Context.class);
         Configuration config = new ZapXmlConfiguration();
@@ -77,7 +77,7 @@ public class ExtensionSessionManagementUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldImportContextWithHttpSessionMgmtType() throws ConfigurationException {
+    void shouldImportContextWithHttpSessionMgmtType() throws ConfigurationException {
         // Given
         Context context = mock(Context.class);
         Configuration config = new ZapXmlConfiguration();
@@ -92,7 +92,7 @@ public class ExtensionSessionManagementUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldImportContextWithScriptSessionMgmtType() throws ConfigurationException {
+    void shouldImportContextWithScriptSessionMgmtType() throws ConfigurationException {
         // Given
         Context context = mock(Context.class);
         Configuration config = new ZapXmlConfiguration();
@@ -107,7 +107,7 @@ public class ExtensionSessionManagementUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldImportContextWithUnknownSessionMgmtType() throws ConfigurationException {
+    void shouldImportContextWithUnknownSessionMgmtType() throws ConfigurationException {
         // Given
         Context context = mock(Context.class);
         Configuration config = new ZapXmlConfiguration();

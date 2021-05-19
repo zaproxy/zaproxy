@@ -313,7 +313,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 
     private JComboBox<String> getDownloadDirCombo() {
         if (downloadDir == null) {
-            downloadDir = new JComboBox<String>();
+            downloadDir = new JComboBox<>();
             repopulateDownloadDirs();
         }
         return downloadDir;

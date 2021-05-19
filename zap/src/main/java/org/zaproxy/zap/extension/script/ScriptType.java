@@ -48,7 +48,7 @@ public class ScriptType {
     /** Flag that indicates if the scripts of this script type should be enabled by default. */
     private final boolean enabledByDefault;
 
-    private final Set<String> capabilitiesSet = new HashSet<String>();
+    private final Set<String> capabilitiesSet = new HashSet<>();
 
     /**
      * Constructs a {@code ScriptType} with the given data.

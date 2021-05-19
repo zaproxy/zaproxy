@@ -40,19 +40,19 @@ import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 /** Unit test for {@link DefaultFetchFilter}. */
 @ExtendWith(MockitoExtension.class)
-public class DefaultFetchFilterUnitTest {
+class DefaultFetchFilterUnitTest {
 
     @Mock Context context;
 
     private DefaultFetchFilter filter;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         filter = new DefaultFetchFilter();
     }
 
     @Test
-    public void shouldFilterUriWithNonSchemeAsIllegalProtocol() throws Exception {
+    void shouldFilterUriWithNonSchemeAsIllegalProtocol() throws Exception {
         // Given
         URI uri = createUri("example.com");
         // When
@@ -62,7 +62,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithNonHttpOrHttpsSchemeAsIllegalProtocol() throws Exception {
+    void shouldFilterUriWithNonHttpOrHttpsSchemeAsIllegalProtocol() throws Exception {
         // Given
         URI uri = createUri("ftp://example.com");
         // When
@@ -72,7 +72,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithHttpSchemeAsOutOfScopeByDefault() throws Exception {
+    void shouldFilterUriWithHttpSchemeAsOutOfScopeByDefault() throws Exception {
         // Given
         URI uri = createUri("http://example.com");
         // When
@@ -82,7 +82,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterUriWithHttpsSchemeAsOutOfScopeByDefault() throws Exception {
+    void shouldFilterUriWithHttpsSchemeAsOutOfScopeByDefault() throws Exception {
         // Given
         URI uri = createUri("https://example.com");
         // When
@@ -92,7 +92,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterOutOfScopeUriAsOutOfScope() throws Exception {
+    void shouldFilterOutOfScopeUriAsOutOfScope() throws Exception {
         // Given
         filter.addScopeRegex("scope.example.com");
         URI uri = createUri("http://example.com");
@@ -103,7 +103,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterInScopeUriAsValid() throws Exception {
+    void shouldFilterInScopeUriAsValid() throws Exception {
         // Given
         filter.addScopeRegex("example.com");
         URI uri = createUri("http://example.com");
@@ -114,7 +114,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterNonAlwaysInScopeUriAsOutOfScope() throws Exception {
+    void shouldFilterNonAlwaysInScopeUriAsOutOfScope() throws Exception {
         // Given
         filter.setDomainsAlwaysInScope(domainsAlwaysInScope("scope.example.com"));
         URI uri = createUri("https://example.com");
@@ -125,7 +125,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterAlwaysInScopeUriAsValid() throws Exception {
+    void shouldFilterAlwaysInScopeUriAsValid() throws Exception {
         // Given
         filter.setDomainsAlwaysInScope(domainsAlwaysInScope("example.com"));
         URI uri = createUri("https://example.com");
@@ -136,7 +136,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterExcludedInScopeUriAsUserRules() throws Exception {
+    void shouldFilterExcludedInScopeUriAsUserRules() throws Exception {
         // Given
         filter.addScopeRegex("example.com");
         filter.setExcludeRegexes(excludeRegexes(".*example\\.com.*"));
@@ -148,7 +148,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterExcludedAlwaysInScopeUriAsUserRules() throws Exception {
+    void shouldFilterExcludedAlwaysInScopeUriAsUserRules() throws Exception {
         // Given
         filter.setDomainsAlwaysInScope(domainsAlwaysInScope("example.com"));
         filter.setExcludeRegexes(excludeRegexes(".*example\\.com.*"));
@@ -160,7 +160,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterNonExcludedInScopeUriAsValid() throws Exception {
+    void shouldFilterNonExcludedInScopeUriAsValid() throws Exception {
         // Given
         filter.addScopeRegex("example.com");
         filter.setExcludeRegexes(excludeRegexes("subdomain\\.example\\.com.*"));
@@ -172,7 +172,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterNonExcludedAlwaysInScopeUriAsValid() throws Exception {
+    void shouldFilterNonExcludedAlwaysInScopeUriAsValid() throws Exception {
         // Given
         filter.setDomainsAlwaysInScope(domainsAlwaysInScope("example.com"));
         filter.setExcludeRegexes(excludeRegexes("subdomain\\.example\\.com.*"));
@@ -184,7 +184,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterOutOfContextUriAsOutOfContext() throws Exception {
+    void shouldFilterOutOfContextUriAsOutOfContext() throws Exception {
         // Given
         filter.setScanContext(contextInScope(false));
         URI uri = createUri("http://example.com");
@@ -195,7 +195,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterInContextUriAsValid() throws Exception {
+    void shouldFilterInContextUriAsValid() throws Exception {
         // Given
         filter.setScanContext(contextInScope(true));
         URI uri = createUri("http://example.com");
@@ -206,7 +206,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterExcludedInContextUriAsUserRules() throws Exception {
+    void shouldFilterExcludedInContextUriAsUserRules() throws Exception {
         // Given
         filter.setScanContext(contextInScope(true));
         filter.setExcludeRegexes(excludeRegexes(".*example\\.com.*"));
@@ -218,7 +218,7 @@ public class DefaultFetchFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterNonExcludedInContextUriAsValid() throws Exception {
+    void shouldFilterNonExcludedInContextUriAsValid() throws Exception {
         // Given
         filter.setScanContext(contextInScope(true));
         filter.setExcludeRegexes(excludeRegexes("subdomain\\.example\\.com.*"));

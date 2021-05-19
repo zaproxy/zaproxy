@@ -35,13 +35,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.zaproxy.zap.network.SocksProxy.Version;
 
 /** Unit test for {@link SocksProxy}. */
-public class SocksProxyUnitTest {
+class SocksProxyUnitTest {
 
     private static final String HOST = "localhost";
     private static final int PORT = 1080;
 
     @Test
-    public void shouldNotCreateSocksProxyWithNullHost() {
+    void shouldNotCreateSocksProxyWithNullHost() {
         // Given
         String host = null;
         // When / Then
@@ -52,7 +52,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldNotCreateSocksProxyWithEmptyHost() {
+    void shouldNotCreateSocksProxyWithEmptyHost() {
         // Given
         String host = "";
         // When / Then
@@ -65,7 +65,7 @@ public class SocksProxyUnitTest {
 
     @ParameterizedTest
     @ValueSource(ints = {0, -1, 65546})
-    public void shouldNotCreateSocksProxyWithInvalidPort(int port) {
+    void shouldNotCreateSocksProxyWithInvalidPort(int port) {
         // Given port
         // When / Then
         assertThrows(IllegalArgumentException.class, () -> new SocksProxy(HOST, port));
@@ -76,7 +76,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldNotCreateSocksProxyWithNullVersion() {
+    void shouldNotCreateSocksProxyWithNullVersion() {
         // Given
         Version version = null;
         // When / Then
@@ -84,7 +84,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldCreateSocksProxy() {
+    void shouldCreateSocksProxy() {
         // Given
         String host = "127.0.1.1";
         int port = 1234;
@@ -110,7 +110,7 @@ public class SocksProxyUnitTest {
 
     @ParameterizedTest
     @MethodSource
-    public void shouldProduceConsistentHashCodes(SocksProxy instance, int hashCode) {
+    void shouldProduceConsistentHashCodes(SocksProxy instance, int hashCode) {
         // Given instance, hashCode
         // When / Then
         assertThat(instance.hashCode(), is(equalTo(hashCode)));
@@ -124,7 +124,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldBeEqualToItself() {
+    void shouldBeEqualToItself() {
         // Given
         SocksProxy socksProxy = new SocksProxy(HOST, PORT);
         // When
@@ -134,7 +134,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldBeEqualToDifferentSocksProxyWithSameContents() {
+    void shouldBeEqualToDifferentSocksProxyWithSameContents() {
         // Given
         SocksProxy socksProxy = new SocksProxy(HOST, PORT, Version.SOCKS4a, false);
         SocksProxy otherEqualSocksProxy = new SocksProxy(HOST, PORT, Version.SOCKS4a, false);
@@ -145,7 +145,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToNull() {
+    void shouldNotBeEqualToNull() {
         // Given
         SocksProxy socksProxy = new SocksProxy(HOST, PORT, Version.SOCKS4a, false);
         // When
@@ -155,7 +155,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToSocksProxyWithJustDifferentHost() {
+    void shouldNotBeEqualToSocksProxyWithJustDifferentHost() {
         // Given
         SocksProxy socksProxy = new SocksProxy(HOST, PORT);
         SocksProxy otherSocksProxy = new SocksProxy("example.com", PORT);
@@ -166,7 +166,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToSocksProxyWithJustDifferentPort() {
+    void shouldNotBeEqualToSocksProxyWithJustDifferentPort() {
         // Given
         SocksProxy socksProxy = new SocksProxy(HOST, PORT);
         SocksProxy otherSocksProxy = new SocksProxy(HOST, 1234);
@@ -177,7 +177,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToSocksProxyWithJustDifferentVersion() {
+    void shouldNotBeEqualToSocksProxyWithJustDifferentVersion() {
         // Given
         SocksProxy socksProxy = new SocksProxy(HOST, PORT, Version.SOCKS4a, false);
         SocksProxy otherSocksProxy = new SocksProxy(HOST, PORT, Version.SOCKS5, false);
@@ -188,7 +188,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToSocksProxyWithJustDifferentUseDns() {
+    void shouldNotBeEqualToSocksProxyWithJustDifferentUseDns() {
         // Given
         SocksProxy socksProxy = new SocksProxy(HOST, PORT, Version.SOCKS4a, false);
         SocksProxy otherSocksProxy = new SocksProxy(HOST, PORT, Version.SOCKS4a, true);
@@ -199,7 +199,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToExtendedSocksProxy() {
+    void shouldNotBeEqualToExtendedSocksProxy() {
         // Given
         SocksProxy socksProxy = new SocksProxy(HOST, PORT);
         SocksProxy otherSocksProxy = new SocksProxy(HOST, PORT) {
@@ -213,7 +213,7 @@ public class SocksProxyUnitTest {
 
     @ParameterizedTest
     @MethodSource
-    public void shouldProduceConsistentStringRepresentations(
+    void shouldProduceConsistentStringRepresentations(
             SocksProxy socksProxy, String representation) {
         // Given socksProxy, representation
         // When / Then
@@ -231,7 +231,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldGetSocks4From4() {
+    void shouldGetSocks4From4() {
         // Given
         String value = "4";
         // When
@@ -241,7 +241,7 @@ public class SocksProxyUnitTest {
     }
 
     @Test
-    public void shouldGetSocks5From5() {
+    void shouldGetSocks5From5() {
         // Given
         String value = "5";
         // When
@@ -253,7 +253,7 @@ public class SocksProxyUnitTest {
     @ParameterizedTest
     @NullAndEmptySource
     @ValueSource(strings = {"3", "NotAVersion"})
-    public void shouldGetSocks5FromInvalidValues(String value) {
+    void shouldGetSocks5FromInvalidValues(String value) {
         // Given value
         // When
         Version version = Version.from(value);
@@ -263,7 +263,7 @@ public class SocksProxyUnitTest {
 
     @ParameterizedTest
     @MethodSource
-    public void shouldGetExpectedVersionNumberFromVersion(Version version, int number) {
+    void shouldGetExpectedVersionNumberFromVersion(Version version, int number) {
         // Given version, number
         // When / Then
         assertThat(version.number(), is(equalTo(number)));

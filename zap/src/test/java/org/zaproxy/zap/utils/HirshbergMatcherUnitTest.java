@@ -28,13 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HirshbergMatcher} */
-public class HirshbergMatcherUnitTest {
+class HirshbergMatcherUnitTest {
 
     private static final String EMPTY_STRING = "";
     private static final String NON_EMPTY_STRING = "Non Empty String";
 
     @Test
-    public void shouldFailToGetLCSIfStringAIsNull() {
+    void shouldFailToGetLCSIfStringAIsNull() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         String strA = null;
@@ -44,7 +44,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldFailToGetLCSIfStringBIsNull() {
+    void shouldFailToGetLCSIfStringBIsNull() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         String strA = NON_EMPTY_STRING;
@@ -54,7 +54,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyStringWhenGettingLCSIfStringAIsEmpty() {
+    void shouldReturnEmptyStringWhenGettingLCSIfStringAIsEmpty() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         // When
@@ -64,7 +64,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyStringWhenGettingLCSIfStringBIsEmpty() {
+    void shouldReturnEmptyStringWhenGettingLCSIfStringBIsEmpty() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         // When
@@ -74,7 +74,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyStringWhenGettingLCSOfEmptyStrings() {
+    void shouldReturnEmptyStringWhenGettingLCSOfEmptyStrings() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         // When
@@ -84,7 +84,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnLCSWhenGettingLCSOfCommonStrings() {
+    void shouldReturnLCSWhenGettingLCSOfCommonStrings() {
         // Given
         String stringA = "GTCGTTCGGAATGCCGTTGCTCTGTAAA";
         String stringB = "ACCGGTCGAGTGCGCGGAAGCCGGCCGAA";
@@ -96,7 +96,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnSameLCSWhenSwitchingPositionsOfCommonStrings() {
+    void shouldReturnSameLCSWhenSwitchingPositionsOfCommonStrings() {
         // Given
         String stringA = "human";
         String stringB = "chimpanzee";
@@ -110,7 +110,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnLCSEqualToStringsIfStringsAreEqual() {
+    void shouldReturnLCSEqualToStringsIfStringsAreEqual() {
         // Given
         String stringA = "ABC";
         String stringB = stringA;
@@ -122,7 +122,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyStringWhenGettingLCSOfUncommonStrings() {
+    void shouldReturnEmptyStringWhenGettingLCSOfUncommonStrings() {
         // Given
         String stringA = "man";
         String stringB = "pig";
@@ -134,7 +134,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnMinMatchRatioIfStringAIsNull() {
+    void shouldReturnMinMatchRatioIfStringAIsNull() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         // When
@@ -144,7 +144,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnMinMatchRatioIfStringBIsNull() {
+    void shouldReturnMinMatchRatioIfStringBIsNull() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         // When
@@ -154,7 +154,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnMaxMatchRatioIfBothStringsAreNull() {
+    void shouldReturnMaxMatchRatioIfBothStringsAreNull() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         // When
@@ -164,7 +164,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnMinMatchRatioIfStringAIsEmpty() {
+    void shouldReturnMinMatchRatioIfStringAIsEmpty() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         // When
@@ -174,7 +174,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnMinMatchRatioIfStringBIsEmpty() {
+    void shouldReturnMinMatchRatioIfStringBIsEmpty() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         // When
@@ -184,7 +184,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnMaxMatchRatioIfBothStringsAreEmpty() {
+    void shouldReturnMaxMatchRatioIfBothStringsAreEmpty() {
         // Given
         HirshbergMatcher matcher = new HirshbergMatcher();
         // When
@@ -194,7 +194,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectMatchRatioForCommonStrings() {
+    void shouldReturnCorrectMatchRatioForCommonStrings() {
         // Given
         String stringA = "capital";
         String stringB = "apple";
@@ -206,7 +206,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnMaxMatchRatioForEqualStrings() {
+    void shouldReturnMaxMatchRatioForEqualStrings() {
         // Given
         String stringA = "ca";
         String stringB = stringA;
@@ -218,7 +218,7 @@ public class HirshbergMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnZeroMatchRatioForUncommonStrings() {
+    void shouldReturnZeroMatchRatioForUncommonStrings() {
         // Given
         String stringA = "ABC";
         String stringB = "XYZ";

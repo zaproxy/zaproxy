@@ -808,7 +808,7 @@ public class AddOnLoader extends URLClassLoader {
      * @see #getExtensions(AddOn)
      */
     public List<Extension> getExtensions() {
-        List<Extension> list = new ArrayList<Extension>();
+        List<Extension> list = new ArrayList<>();
         for (AddOn addOn : getAddOnCollection().getAddOns()) {
             list.addAll(getExtensions(addOn));
         }

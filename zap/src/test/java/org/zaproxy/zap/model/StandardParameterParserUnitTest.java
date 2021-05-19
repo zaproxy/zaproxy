@@ -40,23 +40,23 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 /** Unit test for {@link StandardParameterParser}. */
-public class StandardParameterParserUnitTest {
+class StandardParameterParserUnitTest {
 
     private StandardParameterParser spp;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         spp = new StandardParameterParser();
     }
 
     @Test
-    public void defaultValues() {
+    void defaultValues() {
         assertEquals(spp.getDefaultKeyValuePairSeparator(), "&");
         assertEquals(spp.getDefaultKeyValueSeparator(), "=");
     }
 
     @Test
-    public void defaultParser() {
+    void defaultParser() {
         assertEquals(spp.getKeyValuePairSeparators(), "&");
         assertEquals(spp.getKeyValueSeparators(), "=");
         assertEquals(spp.getStructuralParameters().size(), 0);
@@ -189,7 +189,7 @@ public class StandardParameterParserUnitTest {
     }
 
     @Test
-    public void nonDefaultParser() {
+    void nonDefaultParser() {
         spp.setKeyValuePairSeparators(";");
         spp.setKeyValueSeparators(":=");
         List<String> sps = new ArrayList<>();
@@ -216,7 +216,7 @@ public class StandardParameterParserUnitTest {
     }
 
     @Test
-    public void saveAndLoad() {
+    void saveAndLoad() {
         spp.setKeyValuePairSeparators(";");
         spp.setKeyValueSeparators(":=");
         List<String> sps = new ArrayList<>();
@@ -283,7 +283,7 @@ public class StandardParameterParserUnitTest {
      * @throws URIException if an error occurred while accessing the provided uri
      */
     @Test
-    public void ancestorPath() throws Exception {
+    void ancestorPath() throws Exception {
         // standard urls
         assertEquals(
                 "", spp.getAncestorPath(new URI("http://example.org/path/to/element", true), 0));

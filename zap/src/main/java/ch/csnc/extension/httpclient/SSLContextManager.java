@@ -110,25 +110,28 @@ public class SSLContextManager {
      */
     private static Boolean java9SunPKCS11;
 
-    private Map<String, SSLContext> _contextMaps = new TreeMap<String, SSLContext>();
+    private Map<String, SSLContext> _contextMaps = new TreeMap<>();
     private SSLContext _noClientCertContext;
     private String _defaultKey = null;
-    private Map<String, Map<?, ?>> _aliasPasswords = new HashMap<String, Map<?, ?>>();
-    private List<KeyStore> _keyStores = new ArrayList<KeyStore>();
-    private Map<KeyStore, String> _keyStoreDescriptions = new HashMap<KeyStore, String>();
-    private Map<KeyStore, String> _keyStorePasswords = new HashMap<KeyStore, String>();
+    private Map<String, Map<?, ?>> _aliasPasswords = new HashMap<>();
+    private List<KeyStore> _keyStores = new ArrayList<>();
+    private Map<KeyStore, String> _keyStoreDescriptions = new HashMap<>();
+    private Map<KeyStore, String> _keyStorePasswords = new HashMap<>();
 
     private static Logger log = LogManager.getLogger(SSLContextManager.class);
 
     private static TrustManager[] _trustAllCerts =
             new TrustManager[] {
                 new X509TrustManager() {
+                    @Override
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
 
+                    @Override
                     public void checkClientTrusted(X509Certificate[] certs, String authType) {}
 
+                    @Override
                     public void checkServerTrusted(X509Certificate[] certs, String authType) {}
                 }
             };
@@ -219,7 +222,7 @@ public class SSLContextManager {
     }
 
     private List<AliasCertificate> getAliases(KeyStore ks) {
-        List<AliasCertificate> aliases = new ArrayList<AliasCertificate>();
+        List<AliasCertificate> aliases = new ArrayList<>();
         try {
             Enumeration<String> en = ks.aliases();
 

@@ -36,7 +36,7 @@ import org.zaproxy.zap.testutils.TestUtils;
  * Validates that the translated vulnerabilities files have expected content (e.g. same number of
  * vulnerabilities as the source file).
  */
-public class ValidateTranslatedVulnerabilitiesFilesUnitTest extends TestUtils {
+class ValidateTranslatedVulnerabilitiesFilesUnitTest extends TestUtils {
 
     private static final Path DIRECTORY =
             getResourcePath(
@@ -49,7 +49,7 @@ public class ValidateTranslatedVulnerabilitiesFilesUnitTest extends TestUtils {
             new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, FILE_EXTENSION);
 
     @Test
-    public void shouldLoadAllVulnerabilitiesFilesAvailable() {
+    void shouldLoadAllVulnerabilitiesFilesAvailable() {
         // Given
         Map<String, Vulnerability> mainVulns =
                 loadFile(getResourcePath("/org/zaproxy/zap/resources/" + SOURCE_FILE));

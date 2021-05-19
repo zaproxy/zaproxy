@@ -111,7 +111,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
 
         private ScriptWrapper script;
         private SessionWrapper session;
-        private Map<String, String> paramValues = new HashMap<String, String>();
+        private Map<String, String> paramValues = new HashMap<>();
 
         /**
          * Always return a new SessionWrapper, but reuse the session if one exists
@@ -196,7 +196,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
         public SessionManagementMethod clone() {
             ScriptBasedSessionManagementMethod method = new ScriptBasedSessionManagementMethod();
             method.script = this.script;
-            method.paramValues = new HashMap<String, String>(this.paramValues);
+            method.paramValues = new HashMap<>(this.paramValues);
             return method;
         }
 
@@ -213,7 +213,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
     public static class ScriptBasedSession extends WebSession {
 
         private static int generatedNameIndex;
-        private Map<String, Object> map = new HashMap<String, Object>();
+        private Map<String, Object> map = new HashMap<>();
 
         public ScriptBasedSession(String name) {
             super(name, new HttpState());
@@ -589,7 +589,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
             paramValues = EncodingUtils.stringToMap(paramValuesS.get(0));
             method.paramValues = paramValues;
         } else {
-            method.paramValues = new HashMap<String, String>();
+            method.paramValues = new HashMap<>();
             LOG.error(
                     "Unable to load script parameter values loading Script Based Session Management Method for name: "
                             + scriptName);
@@ -613,7 +613,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
     }
 
     private static List<String> objListToStrList(List<Object> oList) {
-        List<String> sList = new ArrayList<String>(oList.size());
+        List<String> sList = new ArrayList<>(oList.size());
         for (Object o : oList) {
             sList.add(o.toString());
         }
@@ -664,7 +664,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                                     + Arrays.toString(optionalParams));
                 }
 
-                Map<String, String> paramValues = new HashMap<String, String>();
+                Map<String, String> paramValues = new HashMap<>();
                 for (String rp : requiredParams) {
                     // If one of the required parameters is not present, it will throw
                     // an exception

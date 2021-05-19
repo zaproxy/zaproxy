@@ -28,10 +28,10 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ContentMatcher}. */
-public class ContentMatcherUnitTest {
+class ContentMatcherUnitTest {
 
     @Test
-    public void shouldCreateContentMatcherFromFile() throws Exception {
+    void shouldCreateContentMatcherFromFile() throws Exception {
         // Given
         String file = "content-matcher-patterns.xml";
         // When

@@ -38,20 +38,20 @@ import org.zaproxy.zap.utils.I18N;
  * Verifies that the {@link ApiElement}s and its parameters of all core {@link ApiImplementor}s have
  * resource keys for the descriptions.
  */
-public class VerifyApiImplementors {
+class VerifyApiImplementors {
 
     private static I18N i18n;
     private static List<String> missingKeys;
 
     @BeforeAll
-    public static void setup() throws Exception {
+    static void setup() throws Exception {
         i18n = new I18N(Locale.ENGLISH);
         Constant.messages = i18n;
         missingKeys = new ArrayList<>();
     }
 
     @Test
-    public void shouldHaveDescriptionsForAllApis() {
+    void shouldHaveDescriptionsForAllApis() {
         // Given / When
         List<ApiImplementor> apis = ApiGeneratorUtils.getAllImplementors();
         apis.sort((a, b) -> a.getPrefix().compareTo(b.getPrefix()));

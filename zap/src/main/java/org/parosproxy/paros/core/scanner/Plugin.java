@@ -33,6 +33,7 @@
 // ZAP: 2017/07/12 and 2017/09/21 JavaDoc tweaks.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2021/05/14 Remove empty statement.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Date;
@@ -64,7 +65,7 @@ public interface Plugin extends Runnable, ExampleAlertProvider {
         LOW,
         MEDIUM,
         HIGH
-    };
+    }
 
     public enum AttackStrength {
         /**
@@ -76,7 +77,7 @@ public interface Plugin extends Runnable, ExampleAlertProvider {
         MEDIUM,
         HIGH,
         INSANE
-    };
+    }
 
     /**
      * Unique Paros ID of this plugin.

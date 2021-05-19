@@ -265,7 +265,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
     public boolean requestHasToken(String reqBody) {
         Set<String> values;
         synchronized (valueToToken) {
-            values = Collections.unmodifiableSet(new HashSet<String>(valueToToken.keySet()));
+            values = Collections.unmodifiableSet(new HashSet<>(valueToToken.keySet()));
         }
         for (String token : values) {
             if (reqBody.indexOf(token) >= 0) {
@@ -284,7 +284,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         List<AntiCsrfToken> tokens = new ArrayList<>();
         Set<String> values;
         synchronized (valueToToken) {
-            values = Collections.unmodifiableSet(new HashSet<String>(valueToToken.keySet()));
+            values = Collections.unmodifiableSet(new HashSet<>(valueToToken.keySet()));
         }
 
         for (String value : values) {

@@ -310,7 +310,7 @@ public class NodeSelectDialog extends AbstractDialog {
                         }
                     });
 
-            treeSite.setCellRenderer(new SiteMapTreeCellRenderer(new ArrayList<SiteMapListener>()));
+            treeSite.setCellRenderer(new SiteMapTreeCellRenderer(new ArrayList<>()));
         }
         return treeSite;
     }

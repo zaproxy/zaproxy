@@ -301,12 +301,12 @@ public class AlertAPI extends ApiImplementor {
                     counts[alert.getRisk()] += 1;
                 }
             }
-            Map<String, Integer> map = new HashMap<String, Integer>();
+            Map<String, Integer> map = new HashMap<>();
             map.put(Alert.MSG_RISK[Alert.RISK_HIGH], counts[Alert.RISK_HIGH]);
             map.put(Alert.MSG_RISK[Alert.RISK_MEDIUM], counts[Alert.RISK_MEDIUM]);
             map.put(Alert.MSG_RISK[Alert.RISK_LOW], counts[Alert.RISK_LOW]);
             map.put(Alert.MSG_RISK[Alert.RISK_INFO], counts[Alert.RISK_INFO]);
-            result = new ApiResponseSet<Integer>(name, map);
+            result = new ApiResponseSet<>(name, map);
         } else {
             throw new ApiException(ApiException.Type.BAD_VIEW);
         }
@@ -501,7 +501,7 @@ public class AlertAPI extends ApiImplementor {
                         ? String.valueOf(alert.getHistoryRef().getHistoryId())
                         : "");
 
-        return new ApiResponseSet<String>("alert", map);
+        return new ApiResponseSet<>("alert", map);
     }
 
     private ApiResponseSet<String> alertSummaryToSet(Alert alert) {
@@ -513,7 +513,7 @@ public class AlertAPI extends ApiImplementor {
         map.put("url", alert.getUri());
         map.put("param", alert.getParam());
 
-        return new ApiResponseSet<String>("alertsummary", map);
+        return new ApiResponseSet<>("alertsummary", map);
     }
 
     private static void throwInvalidRiskId() throws ApiException {
@@ -586,7 +586,7 @@ public class AlertAPI extends ApiImplementor {
     }
 
     private List<Integer> getAlertIds(String alertIds) throws ApiException {
-        List<Integer> idsList = new ArrayList<Integer>();
+        List<Integer> idsList = new ArrayList<>();
         StringTokenizer tokenizer = new StringTokenizer(alertIds, ",");
         while (tokenizer.hasMoreTokens()) {
             String alertIdStr = tokenizer.nextToken().trim();

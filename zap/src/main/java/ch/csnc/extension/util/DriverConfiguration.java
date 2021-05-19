@@ -63,10 +63,10 @@ public class DriverConfiguration {
     }
 
     private void load() {
-        names = new Vector<String>();
-        paths = new Vector<String>();
-        slots = new Vector<Integer>();
-        slotListIndexes = new Vector<Integer>();
+        names = new Vector<>();
+        paths = new Vector<>();
+        slots = new Vector<>();
+        slotListIndexes = new Vector<>();
 
         try {
             ZapXmlConfiguration configuration =

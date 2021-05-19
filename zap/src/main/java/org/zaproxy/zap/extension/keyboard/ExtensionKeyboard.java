@@ -228,7 +228,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 
     public List<KeyboardShortcut> getShortcuts(boolean reset) {
         if (hasView()) {
-            List<KeyboardShortcut> kss = new ArrayList<KeyboardShortcut>();
+            List<KeyboardShortcut> kss = new ArrayList<>();
             processMainMenuBarMenus(menu -> addAllMenuItems(kss, menu, reset));
             return kss;
         }

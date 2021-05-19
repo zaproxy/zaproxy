@@ -145,7 +145,7 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
     private void importButtonClicked() {
         File file = selectImportFile();
         if (file != null) {
-            List<String> regexes = new ArrayList<String>(getRegexes());
+            List<String> regexes = new ArrayList<>(getRegexes());
 
             try (BufferedReader br =
                     Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {

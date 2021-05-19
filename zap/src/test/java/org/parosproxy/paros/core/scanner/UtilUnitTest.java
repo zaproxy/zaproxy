@@ -25,10 +25,10 @@ import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
 
-public class UtilUnitTest {
+class UtilUnitTest {
 
     @Test
-    public void shouldPauseForGivenDuration() {
+    void shouldPauseForGivenDuration() {
         // Given
         int intendedPause = 500;
         // When

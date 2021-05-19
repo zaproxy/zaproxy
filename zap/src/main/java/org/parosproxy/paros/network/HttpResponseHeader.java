@@ -41,6 +41,7 @@
 // ZAP: 2019/12/09 Address deprecation of getHeaders(String) Vector method.
 // ZAP: 2020/11/10 Add convenience method isCss().
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -355,7 +356,7 @@ public class HttpResponseHeader extends HttpHeader {
                 }
             }
         }
-        return new ArrayList<HttpCookie>();
+        return new ArrayList<>();
     }
 
     /**

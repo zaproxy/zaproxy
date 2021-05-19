@@ -33,7 +33,7 @@ import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod
 import org.zaproxy.zap.network.HttpResponseBody;
 
 @ExtendWith(MockitoExtension.class)
-public class BasicAuthorizationDetectionMethodUnitTest {
+class BasicAuthorizationDetectionMethodUnitTest {
 
     private static final String RESPONSE_TARGET_TEXT = "Unauthorized";
     private static final String LOCATION_URL = "http://www.example.com/login";
@@ -60,7 +60,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     private BasicAuthorizationDetectionMethod authorizationMethod;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         message = Mockito.mock(HttpMessage.class, withSettings().lenient());
         HttpResponseHeader mockedHeader =
                 Mockito.mock(HttpResponseHeader.class, withSettings().lenient());
@@ -74,7 +74,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldNotReturnUnauthorizeWhenNothingIsSetWithAnd() {
+    void shouldNotReturnUnauthorizeWhenNothingIsSetWithAnd() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(null, null, null, LogicalOperator.AND);
@@ -84,7 +84,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldNotReturnUnauthorizeWhenNothingIsSetWithOr() {
+    void shouldNotReturnUnauthorizeWhenNothingIsSetWithOr() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(null, "", "", LogicalOperator.OR);
@@ -94,7 +94,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldReturnUnauthorizeWhenJustStatusCodeIsSetWithOr() {
+    void shouldReturnUnauthorizeWhenJustStatusCodeIsSetWithOr() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(STATUS_CODE, "", "", LogicalOperator.OR);
@@ -104,7 +104,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldReturnUnauthorizeWhenJustBodyIsSetWithOr() {
+    void shouldReturnUnauthorizeWhenJustBodyIsSetWithOr() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(
@@ -115,7 +115,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldReturnUnauthorizeWhenJustHeaderIsSetWithOr() {
+    void shouldReturnUnauthorizeWhenJustHeaderIsSetWithOr() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(
@@ -126,7 +126,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldNotReturnUnauthorizeWhenJustStatusCodeIsSetWithOr() {
+    void shouldNotReturnUnauthorizeWhenJustStatusCodeIsSetWithOr() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(STATUS_CODE + 1, "", "", LogicalOperator.OR);
@@ -136,7 +136,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldNotReturnUnauthorizeWhenJustBodyIsSetWithOr() {
+    void shouldNotReturnUnauthorizeWhenJustBodyIsSetWithOr() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(
@@ -147,7 +147,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldReturnNotUnauthorizeWhenJustHeaderIsSetWithOr() {
+    void shouldReturnNotUnauthorizeWhenJustHeaderIsSetWithOr() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(
@@ -158,7 +158,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldReturnUnauthorizeWhenJustStatusCodeIsSetWithAnd() {
+    void shouldReturnUnauthorizeWhenJustStatusCodeIsSetWithAnd() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(STATUS_CODE, "", "", LogicalOperator.AND);
@@ -168,7 +168,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldReturnUnauthorizeWhenJustBodyIsSetWithAnd() {
+    void shouldReturnUnauthorizeWhenJustBodyIsSetWithAnd() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(
@@ -179,7 +179,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldReturnUnauthorizeWhenJustHeaderIsSetWithAnd() {
+    void shouldReturnUnauthorizeWhenJustHeaderIsSetWithAnd() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(
@@ -190,7 +190,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldReturnUnauthorizedWithOr() {
+    void shouldReturnUnauthorizedWithOr() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(
@@ -220,7 +220,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldNotReturnUnauthorizedWithOr() {
+    void shouldNotReturnUnauthorizedWithOr() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(
@@ -242,7 +242,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldReturnUnauthorizedWithAnd() {
+    void shouldReturnUnauthorizedWithAnd() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(
@@ -261,7 +261,7 @@ public class BasicAuthorizationDetectionMethodUnitTest {
     }
 
     @Test
-    public void shouldNotReturnUnauthorizedWithAnd() {
+    void shouldNotReturnUnauthorizedWithAnd() {
         // Given
         authorizationMethod =
                 new BasicAuthorizationDetectionMethod(

@@ -31,14 +31,14 @@ import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link SpiderTextParser}. */
-public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
+class SpiderTextParserUnitTest extends SpiderParserTestUtils {
 
     private static final String EMPTY_BODY = "";
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
     @Test
-    public void shouldFailToEvaluateAnUndefinedMessage() {
+    void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderTextParser spiderParser = new SpiderTextParser();
@@ -49,7 +49,7 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseMessageIfAlreadyParsed() {
+    void shouldNotParseMessageIfAlreadyParsed() {
         // Given
         SpiderTextParser spiderParser = new SpiderTextParser();
         boolean parsed = true;
@@ -60,7 +60,7 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseNonTextResponse() {
+    void shouldNotParseNonTextResponse() {
         // Given
         HttpMessage message = createMessageWith("application/xyz", EMPTY_BODY);
         SpiderTextParser spiderParser = new SpiderTextParser();
@@ -72,7 +72,7 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseTextHtmlResponse() {
+    void shouldNotParseTextHtmlResponse() {
         // Given
         HttpMessage message = createMessageWith("text/html", EMPTY_BODY);
         SpiderTextParser spiderParser = new SpiderTextParser();
@@ -84,7 +84,7 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseTextResponse() {
+    void shouldParseTextResponse() {
         // Given
         SpiderTextParser spiderParser = new SpiderTextParser();
         HttpMessage messageHtmlResponse = createMessageWith(EMPTY_BODY);
@@ -96,7 +96,7 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseTextResponseEvenIfProvidedPathIsNull() {
+    void shouldParseTextResponseEvenIfProvidedPathIsNull() {
         // Given
         SpiderTextParser spiderParser = new SpiderTextParser();
         HttpMessage messageHtmlResponse = createMessageWith(EMPTY_BODY);
@@ -108,7 +108,7 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseTextResponseIfAlreadyParsed() {
+    void shouldNotParseTextResponseIfAlreadyParsed() {
         // Given
         SpiderTextParser spiderParser = new SpiderTextParser();
         HttpMessage messageHtmlResponse = createMessageWith(EMPTY_BODY);
@@ -120,7 +120,7 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFailToParseAnUndefinedMessage() {
+    void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderTextParser spiderParser = new SpiderTextParser();
@@ -132,7 +132,7 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNeverConsiderCompletelyParsed() {
+    void shouldNeverConsiderCompletelyParsed() {
         // Given
         SpiderTextParser spiderParser = new SpiderTextParser();
         HttpMessage message = createMessageWith("Non Empty Body...");
@@ -144,7 +144,7 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotFindUrlsIfThereIsNone() {
+    void shouldNotFindUrlsIfThereIsNone() {
         // Given
         SpiderTextParser spiderParser = new SpiderTextParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -166,7 +166,7 @@ public class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInCommentsWithoutElements() {
+    void shouldFindUrlsInCommentsWithoutElements() {
         // Given
         SpiderTextParser spiderParser = new SpiderTextParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();

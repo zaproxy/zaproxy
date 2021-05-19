@@ -42,7 +42,7 @@ public class EncodingUtils {
     }
 
     public static Map<String, String> stringToMap(String input) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
         String[] nameValuePairs = input.split("&");
         for (String nameValuePair : nameValuePairs) {

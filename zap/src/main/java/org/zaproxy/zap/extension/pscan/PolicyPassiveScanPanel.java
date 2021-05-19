@@ -67,8 +67,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
             this.setSize(375, 204);
         }
         this.setName(Constant.messages.getString("pscan.options.policy.title"));
-        JPanel passiveScannersFilterPanel =
-                new TableFilterPanel<JXTable>(getPassiveScanRulesTable());
+        JPanel passiveScannersFilterPanel = new TableFilterPanel<>(getPassiveScanRulesTable());
 
         // 'Apply to' controls
         JPanel applyToPanel = new JPanel();
@@ -188,7 +187,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
             passiveScanRulesTable.setAutoCreateRowSorter(true);
 
             // Default sort by name (column 0)
-            List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
+            List<RowSorter.SortKey> sortKeys = new ArrayList<>(1);
             sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
             passiveScanRulesTable.getRowSorter().setSortKeys(sortKeys);
 

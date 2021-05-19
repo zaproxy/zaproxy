@@ -29,12 +29,12 @@ import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
-public class HttpSenderAuthHeaderListenerUnitTest {
+class HttpSenderAuthHeaderListenerUnitTest {
 
     private HttpSenderAuthHeaderListener authHeaderListener;
 
     @Test
-    public void shouldNotAddAuthHeaderWhenNotDefined() {
+    void shouldNotAddAuthHeaderWhenNotDefined() {
         // Given
         HashMap<String, String> map = new HashMap<>();
         authHeaderListener = new HttpSenderAuthHeaderListener(map::get);
@@ -48,7 +48,7 @@ public class HttpSenderAuthHeaderListenerUnitTest {
     }
 
     @Test
-    public void shouldAddAuthHeaderWhenDefined() {
+    void shouldAddAuthHeaderWhenDefined() {
         // Given
         HashMap<String, String> map = new HashMap<>();
         String headerValue = "example header value";
@@ -65,7 +65,7 @@ public class HttpSenderAuthHeaderListenerUnitTest {
     }
 
     @Test
-    public void shouldIgnoreEmptyValue() {
+    void shouldIgnoreEmptyValue() {
         // Given
         HashMap<String, String> map = new HashMap<>();
         map.put(HttpSenderAuthHeaderListener.ZAP_AUTH_HEADER_VALUE, "");
@@ -80,7 +80,7 @@ public class HttpSenderAuthHeaderListenerUnitTest {
     }
 
     @Test
-    public void shouldAddSpecifiedHeaderWhenDefined() {
+    void shouldAddSpecifiedHeaderWhenDefined() {
         // Given
         HashMap<String, String> map = new HashMap<>();
         String headerType = "My-header";
@@ -99,7 +99,7 @@ public class HttpSenderAuthHeaderListenerUnitTest {
     }
 
     @Test
-    public void shouldIgnoreEmptyHeaderType() {
+    void shouldIgnoreEmptyHeaderType() {
         // Given
         HashMap<String, String> map = new HashMap<>();
         String headerValue = "example header value";
@@ -117,7 +117,7 @@ public class HttpSenderAuthHeaderListenerUnitTest {
     }
 
     @Test
-    public void shouldNotChangeResponse() {
+    void shouldNotChangeResponse() {
         // Given
         HashMap<String, String> map = new HashMap<>();
         String headerType = "My-header";
@@ -135,7 +135,7 @@ public class HttpSenderAuthHeaderListenerUnitTest {
     }
 
     @Test
-    public void shouldAddSpecifiedHeaderToSpecifiedHost() throws Exception {
+    void shouldAddSpecifiedHeaderToSpecifiedHost() throws Exception {
         // Given
         HashMap<String, String> map = new HashMap<>();
         String headerType = "My-header";
@@ -158,7 +158,7 @@ public class HttpSenderAuthHeaderListenerUnitTest {
     }
 
     @Test
-    public void shouldIgnoreEmptyHost() throws Exception {
+    void shouldIgnoreEmptyHost() throws Exception {
         // Given
         HashMap<String, String> map = new HashMap<>();
         String headerType = "My-header";

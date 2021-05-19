@@ -29,12 +29,12 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.extension.api.ApiException;
 
 /** Unit test for {@link ApiUtils}. */
-public class ApiUtilsUnitTest {
+class ApiUtilsUnitTest {
 
     private static final String HOST = "example.com";
 
     @Test
-    public void shouldThrowNullPointerExceptionWhenGettingIntFromNullParams() throws Exception {
+    void shouldThrowNullPointerExceptionWhenGettingIntFromNullParams() throws Exception {
         // Given
         JSONObject params = null;
         // When / Then
@@ -42,7 +42,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldThrowMissingParameterWhenGettingIntIfMissingParam() {
+    void shouldThrowMissingParameterWhenGettingIntIfMissingParam() {
         // Given
         String name = "ParamNotInObject";
         JSONObject params = new JSONObject();
@@ -56,7 +56,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldThrowIllegalParameterWhenGettingIntIfParamNotInt() {
+    void shouldThrowIllegalParameterWhenGettingIntIfParamNotInt() {
         // Given
         String name = "ParamNotInt";
         JSONObject params = new JSONObject();
@@ -71,7 +71,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnIntValueWhenGettingInt() throws Exception {
+    void shouldReturnIntValueWhenGettingInt() throws Exception {
         // Given
         String name = "ParamInt";
         int value = 0;
@@ -84,7 +84,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldThrowNullPointerExceptionWhenGettingBooleanFromNullParams() throws Exception {
+    void shouldThrowNullPointerExceptionWhenGettingBooleanFromNullParams() throws Exception {
         // Given
         JSONObject params = null;
         // When / Then
@@ -92,7 +92,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldThrowMissingParameterWhenGettingBooleanIfMissingParam() {
+    void shouldThrowMissingParameterWhenGettingBooleanIfMissingParam() {
         // Given
         String name = "ParamNotInObject";
         JSONObject params = new JSONObject();
@@ -106,7 +106,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldThrowIllegalParameterWhenGettingBooleanIfParamNotBoolean() {
+    void shouldThrowIllegalParameterWhenGettingBooleanIfParamNotBoolean() {
         // Given
         String name = "ParamNotBoolean";
         JSONObject params = new JSONObject();
@@ -121,7 +121,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnBooleanValueWhenGettingBoolean() throws Exception {
+    void shouldReturnBooleanValueWhenGettingBoolean() throws Exception {
         // Given
         String name = "ParamBoolean";
         boolean value = true;
@@ -134,7 +134,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenGettingAuthorityFromNullSite() {
+    void shouldThrowExceptionWhenGettingAuthorityFromNullSite() {
         // Given
         String nullSite = null;
         // When / Then
@@ -142,7 +142,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptySiteWhenGettingAuthorityFromEmptySite() {
+    void shouldReturnEmptySiteWhenGettingAuthorityFromEmptySite() {
         // Given
         String emptySite = "";
         // When
@@ -152,7 +152,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotRemovePortWhenGettingAuthorityFromSite() {
+    void shouldNotRemovePortWhenGettingAuthorityFromSite() {
         // Given
         String siteWithPort = HOST + ":8080";
         // When
@@ -162,7 +162,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldRemoveHttpSchemeAndAddDefaultPortWhenGettingAuthorityFromSite() {
+    void shouldRemoveHttpSchemeAndAddDefaultPortWhenGettingAuthorityFromSite() {
         // Given
         String site = "http://" + HOST;
         // When
@@ -172,7 +172,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldRemoveSecureHttpSchemeAndKeepNonDefaultPortWhenGettingAuthorityFromSite() {
+    void shouldRemoveSecureHttpSchemeAndKeepNonDefaultPortWhenGettingAuthorityFromSite() {
         // Given
         String site = "https://" + HOST + ":8443";
         // When
@@ -182,7 +182,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldRemoveSecureHttpSchemeAndAddDefaultPortWhenGettingAuthorityFromSite() {
+    void shouldRemoveSecureHttpSchemeAndAddDefaultPortWhenGettingAuthorityFromSite() {
         // Given
         String site = "https://" + HOST;
         // When
@@ -192,7 +192,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldIgnoreEmptyPathComponentWhenGettingAuthorityFromSite() {
+    void shouldIgnoreEmptyPathComponentWhenGettingAuthorityFromSite() {
         // Given
         String site = HOST;
         // When
@@ -202,7 +202,7 @@ public class ApiUtilsUnitTest {
     }
 
     @Test
-    public void shouldRemoveNonEmptyPathComponentWhenGettingAuthorityFromSite() {
+    void shouldRemoveNonEmptyPathComponentWhenGettingAuthorityFromSite() {
         // Given
         String site = HOST + "/path";
         // When

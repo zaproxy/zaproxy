@@ -38,12 +38,12 @@ class DefaultCustomPageUnitTest {
                     StandardCharsets.US_ASCII);
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Constant.messages = mock(I18N.class);
     }
 
     @Test
-    public void shouldEncodeCustomPage() {
+    void shouldEncodeCustomPage() {
         // Given
         DefaultCustomPage customPage =
                 new DefaultCustomPage(
@@ -60,7 +60,7 @@ class DefaultCustomPageUnitTest {
     }
 
     @Test
-    public void shouldDecodeCustomPage() {
+    void shouldDecodeCustomPage() {
         // Given
         String encodedCustomPage = BASE64_TEST_PATTERN + ";1;true;1;true;";
         DefaultCustomPage expectedCustomPage =
@@ -78,7 +78,7 @@ class DefaultCustomPageUnitTest {
     }
 
     @Test
-    public void shouldDecodeCustomPageWithDefaultTypeIfTypeIdInvalid() {
+    void shouldDecodeCustomPageWithDefaultTypeIfTypeIdInvalid() {
         // Given/When
         DefaultCustomPage actual =
                 DefaultCustomPage.decode(0, BASE64_TEST_PATTERN + ";1;true;5;true;");
@@ -95,7 +95,7 @@ class DefaultCustomPageUnitTest {
     }
 
     @Test
-    public void shouldDecodeCustomPageWithDefaultMatcherLocationIfMatcherLocationIdInvalid() {
+    void shouldDecodeCustomPageWithDefaultMatcherLocationIfMatcherLocationIdInvalid() {
         // Given/When
         DefaultCustomPage actual =
                 DefaultCustomPage.decode(0, BASE64_TEST_PATTERN + ";5;true;1;true;");
@@ -112,7 +112,7 @@ class DefaultCustomPageUnitTest {
     }
 
     @Test
-    public void shouldDecodeCustomPageWithIsRegexFalseWhenIsRegexComponentInvalid() {
+    void shouldDecodeCustomPageWithIsRegexFalseWhenIsRegexComponentInvalid() {
         // Given/When
         DefaultCustomPage actual =
                 DefaultCustomPage.decode(0, BASE64_TEST_PATTERN + ";1;foo;1;true;");
@@ -129,7 +129,7 @@ class DefaultCustomPageUnitTest {
     }
 
     @Test
-    public void shouldDecodeCustomPageWithEnabledFalseWhenEnabledComponentInvalid() {
+    void shouldDecodeCustomPageWithEnabledFalseWhenEnabledComponentInvalid() {
         // Given/When
         DefaultCustomPage actual =
                 DefaultCustomPage.decode(0, BASE64_TEST_PATTERN + ";1;true;1;foo;");

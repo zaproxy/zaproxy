@@ -63,7 +63,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache.ScriptWrapperAction;
 import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link ScriptsPassiveScanner}. */
-public class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
+class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
 
     private static final String SCRIPT_TYPE = ExtensionPassiveScan.SCRIPT_TYPE_PASSIVE;
     private static final Class<PassiveScript> TARGET_INTERFACE = PassiveScript.class;

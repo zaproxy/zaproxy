@@ -48,7 +48,7 @@ public abstract class BaseContextScannerThread<
     public BaseContextScannerThread(int contextId) {
         super();
         this.contextId = contextId;
-        this.listeners = new LinkedHashSet<Listener>();
+        this.listeners = new LinkedHashSet<>();
     }
 
     /**

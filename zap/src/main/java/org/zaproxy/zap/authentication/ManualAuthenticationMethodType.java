@@ -225,7 +225,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
             Map<String, String> values = new HashMap<>();
             values.put("type", API_NAME);
             values.put("sessionName", selectedSession != null ? selectedSession.getName() : "");
-            return new ApiResponseSet<String>("credentials", values);
+            return new ApiResponseSet<>("credentials", values);
         }
     }
 

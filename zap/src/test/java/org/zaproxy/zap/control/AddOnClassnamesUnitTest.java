@@ -31,10 +31,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link AddOnClassnames}. */
-public class AddOnClassnamesUnitTest {
+class AddOnClassnamesUnitTest {
 
     @Test
-    public void shouldFailToCreateAddOnClassnamesWithNullAllowed() throws Exception {
+    void shouldFailToCreateAddOnClassnamesWithNullAllowed() throws Exception {
         // Given
         List<String> allowed = null;
         // When
@@ -47,7 +47,7 @@ public class AddOnClassnamesUnitTest {
     }
 
     @Test
-    public void shouldFailToCreateAddOnClassnamesWithNullRestricted() throws Exception {
+    void shouldFailToCreateAddOnClassnamesWithNullRestricted() throws Exception {
         // Given
         List<String> restricted = null;
         // When
@@ -60,7 +60,7 @@ public class AddOnClassnamesUnitTest {
     }
 
     @Test
-    public void shouldAllowAllWithAllAllowed() {
+    void shouldAllowAllWithAllAllowed() {
         // Given AddOnClassnames.ALL_ALLOWED
         // When / Then
         assertThat(AddOnClassnames.ALL_ALLOWED.isAllowed("org.example.X"), is(equalTo(true)));
@@ -68,7 +68,7 @@ public class AddOnClassnamesUnitTest {
     }
 
     @Test
-    public void shouldBeAllowedIfNothingAllowedNorRestricted() {
+    void shouldBeAllowedIfNothingAllowedNorRestricted() {
         // Given
         List<String> allowed = Collections.emptyList();
         List<String> restricted = Collections.emptyList();
@@ -80,7 +80,7 @@ public class AddOnClassnamesUnitTest {
     }
 
     @Test
-    public void shouldNotBeAllowedIfNotAllowed() {
+    void shouldNotBeAllowedIfNotAllowed() {
         // Given
         String allowedClass = "org.example.AllowedClass";
         String allowedPackage = "org.example.allowed.";
@@ -99,7 +99,7 @@ public class AddOnClassnamesUnitTest {
     }
 
     @Test
-    public void shouldBeAllowedIfNotRestricted() {
+    void shouldBeAllowedIfNotRestricted() {
         // Given
         String restrictedClass = "org.example.RestrictedClass";
         String restrictedPackage = "org.example.restricted.";
@@ -116,7 +116,7 @@ public class AddOnClassnamesUnitTest {
     }
 
     @Test
-    public void shouldFailIfClassnameIsNull() throws Exception {
+    void shouldFailIfClassnameIsNull() throws Exception {
         // Given
         String classname = null;
         // When / Then

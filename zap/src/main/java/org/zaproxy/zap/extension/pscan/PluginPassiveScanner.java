@@ -73,7 +73,7 @@ public abstract class PluginPassiveScanner extends Enableable
             };
 
     private static final Set<Integer> DEFAULT_HISTORY_TYPES_SET =
-            Collections.unmodifiableSet(new HashSet<Integer>(Arrays.asList(DEFAULT_HISTORY_TYPES)));
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_HISTORY_TYPES)));
 
     private AlertThreshold alertThreshold = AlertThreshold.DEFAULT;
     private AlertThreshold defaultAlertThreshold = AlertThreshold.MEDIUM;

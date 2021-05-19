@@ -56,6 +56,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -82,14 +83,14 @@ public class PluginFactory {
     private static List<AbstractPlugin> loadedPlugins = null;
     private static Map<Integer, Plugin> mapLoadedPlugins;
 
-    private List<Plugin> listAllPlugin = new ArrayList<Plugin>();
+    private List<Plugin> listAllPlugin = new ArrayList<>();
     private LinkedHashMap<Integer, Plugin> mapAllPlugin =
             new LinkedHashMap<>(); // insertion-ordered
     private LinkedHashMap<String, Plugin> mapAllPluginOrderCodeName =
             new LinkedHashMap<>(); // insertion-ordered
-    private List<Plugin> listPending = new ArrayList<Plugin>();
-    private List<Plugin> listRunning = new ArrayList<Plugin>();
-    private List<Plugin> listCompleted = new ArrayList<Plugin>();
+    private List<Plugin> listPending = new ArrayList<>();
+    private List<Plugin> listRunning = new ArrayList<>();
+    private List<Plugin> listCompleted = new ArrayList<>();
     private int totalPluginToRun = 0;
     private boolean init = false;
     private Configuration config;

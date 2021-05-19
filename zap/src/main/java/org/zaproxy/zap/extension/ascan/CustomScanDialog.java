@@ -808,7 +808,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     /** Use the save method to launch a scan */
     @Override
     public void save() {
-        List<Object> contextSpecificObjects = new ArrayList<Object>();
+        List<Object> contextSpecificObjects = new ArrayList<>();
 
         techTreeState = getTechTree().getTechSet();
 

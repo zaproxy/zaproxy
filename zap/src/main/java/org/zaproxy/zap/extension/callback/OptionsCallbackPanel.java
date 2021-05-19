@@ -134,14 +134,14 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
 
     private JComboBox<String> getLocalAddress() {
         if (localAddress == null) {
-            localAddress = new JComboBox<String>();
+            localAddress = new JComboBox<>();
         }
         return localAddress;
     }
 
     private JComboBox<String> getRemoteAddress() {
         if (remoteAddress == null) {
-            remoteAddress = new JComboBox<String>();
+            remoteAddress = new JComboBox<>();
             remoteAddress.setEditable(true);
         }
         return remoteAddress;

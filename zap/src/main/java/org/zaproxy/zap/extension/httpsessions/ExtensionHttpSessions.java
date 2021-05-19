@@ -574,7 +574,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
      * @return all of the sites with http sessions
      */
     public List<String> getSites() {
-        List<String> sites = new ArrayList<String>();
+        List<String> sites = new ArrayList<>();
         if (this.sessions == null) {
             return sites;
         }

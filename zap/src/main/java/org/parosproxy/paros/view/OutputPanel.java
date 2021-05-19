@@ -32,6 +32,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove empty statement.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -123,7 +124,7 @@ public class OutputPanel extends AbstractPanel {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             getTxtOutput().setText("");
-                        };
+                        }
                     });
 
             mainToolBar.add(clearButton);

@@ -32,7 +32,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
 /** Unit test for {@link SpiderSitemapXMLParser}. */
-public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
+class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
@@ -41,7 +41,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
             getResourcePath("sitemapxml", SpiderSitemapXMLParserUnitTest.class);
 
     @Test
-    public void shouldFailToCreateParserWithUndefinedSpiderOptions() {
+    void shouldFailToCreateParserWithUndefinedSpiderOptions() {
         // Given
         SpiderParam undefinedSpiderOptions = null;
         // When / Then
@@ -51,7 +51,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotFailToEvaluateAnUndefinedMessage() {
+    void shouldNotFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
@@ -62,7 +62,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFailToEvaluateAnUndefinedPath() {
+    void shouldFailToEvaluateAnUndefinedPath() {
         // Given
         String undefinedPath = null;
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
@@ -73,7 +73,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParsePathThatEndsWithSitemapXml() {
+    void shouldParsePathThatEndsWithSitemapXml() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         boolean parsed = false;
@@ -84,7 +84,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseMessageEvenIfAlreadyParsed() {
+    void shouldParseMessageEvenIfAlreadyParsed() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         boolean parsed = true;
@@ -95,7 +95,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseAnUndefinedMessage() {
+    void shouldNotParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
@@ -107,7 +107,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotRequireSourceToParseMessage() {
+    void shouldNotRequireSourceToParseMessage() {
         // Given
         Source undefinedSource = null;
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
@@ -119,7 +119,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseMessageIfParseOfSitemapXmlIsDisabled() {
+    void shouldNotParseMessageIfParseOfSitemapXmlIsDisabled() {
         // Given
         SpiderParam params = createSpiderParamWithConfig();
         params.setParseSitemapXml(false);
@@ -132,7 +132,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseNonXmlMessage() {
+    void shouldNotParseNonXmlMessage() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("text/html", "NoUrlsSitemap.xml");
@@ -143,7 +143,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseXmlMessageIfClientError() {
+    void shouldNotParseXmlMessageIfClientError() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("404 Not Found", "text/xml", "NoUrlsSitemap.xml");
@@ -154,7 +154,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseXmlMessageIfServerError() {
+    void shouldNotParseXmlMessageIfServerError() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         HttpMessage message =
@@ -166,7 +166,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseEmptyXmlMessage() {
+    void shouldNotParseEmptyXmlMessage() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("EmptyFile.xml");
@@ -177,7 +177,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseMalformedXmlMessage() {
+    void shouldNotParseMalformedXmlMessage() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("MalformedSitemap.xml");
@@ -188,7 +188,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseXmlMessageWithDoctype() {
+    void shouldNotParseXmlMessageWithDoctype() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("DoctypeSitemap.xml");
@@ -199,7 +199,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotFindUrlsIfNoneDefinedInSitemap() {
+    void shouldNotFindUrlsIfNoneDefinedInSitemap() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -213,7 +213,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotFindUrlsIfUrlHasNoLocationIsEmptyInSitemap() {
+    void shouldNotFindUrlsIfUrlHasNoLocationIsEmptyInSitemap() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -227,7 +227,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotFindUrlsIfUrlLocationIsEmptyInSitemap() {
+    void shouldNotFindUrlsIfUrlLocationIsEmptyInSitemap() {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -241,7 +241,7 @@ public class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrlsInValidSitemapXml() throws Exception {
+    void shouldFindUrlsInValidSitemapXml() throws Exception {
         // Given
         SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();

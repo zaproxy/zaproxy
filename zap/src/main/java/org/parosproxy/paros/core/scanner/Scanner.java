@@ -51,6 +51,7 @@
 // ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -110,7 +111,7 @@ public class Scanner implements Runnable {
     private boolean scanChildren = true;
     private User user = null;
     private TechSet techSet;
-    private Set<ScriptCollection> scriptCollections = new HashSet<ScriptCollection>();
+    private Set<ScriptCollection> scriptCollections = new HashSet<>();
     private List<ScanFilter> scanFilters = new ArrayList<>();
     private int id;
 
@@ -249,7 +250,7 @@ public class Scanner implements Runnable {
                     }
                 }
             } else {
-                Map<String, HostProcess> processMap = new HashMap<String, HostProcess>();
+                Map<String, HostProcess> processMap = new HashMap<>();
                 for (StructuralNode node : nodes) {
                     // Loop through the nodes creating new HostProcesss's as required
                     String hostAndPort = getHostAndPort(node);
