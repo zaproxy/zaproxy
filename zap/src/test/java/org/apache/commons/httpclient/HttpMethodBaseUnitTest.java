@@ -21,40 +21,32 @@ package org.apache.commons.httpclient;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.List;
-import org.junit.jupiter.api.Test;
+import java.util.stream.Stream;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.Arguments;
 
 public class HttpMethodBaseUnitTest {
 
-    @Test
-    public void testParseCookieHeaderEmpty() {
-        List<Cookie> cookies = HttpMethodBase.parseCookieHeader("example.com", "");
-        assertThat(cookies.size(), is(0));
+    @ParameterizedTest
+    @MethodSource("cookieHeaderProvider")
+    public void testParseCookieHeader(String cookieHeaderValue, int cookieSize){
+        List<Cookie> cookies =
+                HttpMethodBase.parseCookieHeader("example.com", cookieHeaderValue);
+        assertThat(cookies.size(), is(cookieSize));
     }
 
-    @Test
-    public void testParseCookieHeaderWithOneCookie() {
-        List<Cookie> cookies =
-                HttpMethodBase.parseCookieHeader(
-                        "example.com", "JSESSIONID=5DFA94B903A0063839E0440118808875");
-        assertThat(cookies.size(), is(1));
-    }
-
-    @Test
-    public void testParseCookieHeaderWithTwoCookie() {
-        List<Cookie> cookies =
-                HttpMethodBase.parseCookieHeader(
-                        "example.com", "has_js=1;JSESSIONID=5DFA94B903A0063839E0440118808875");
-        assertThat(cookies.size(), is(2));
-        cookies =
-                HttpMethodBase.parseCookieHeader(
-                        "example.com", "has_js=1; JSESSIONID=5DFA94B903A0063839E0440118808875");
-        assertThat(cookies.size(), is(2));
-        // empty value
-        cookies =
-                HttpMethodBase.parseCookieHeader(
-                        "example.com", "has_js=;JSESSIONID=5DFA94B903A0063839E0440118808875");
-        assertThat(cookies.size(), is(2));
+    static Stream<Arguments> cookieHeaderProvider() {
+        return Stream.of(
+                arguments("", 0),
+                arguments("JSESSIONID=5DFA94B903A0063839E0440118808875", 1),
+                arguments("has_js=1;JSESSIONID=5DFA94B903A0063839E0440118808875", 2),
+                arguments("has_js=1; JSESSIONID=5DFA94B903A0063839E0440118808875", 2),
+                arguments("has_js=;JSESSIONID=5DFA94B903A0063839E0440118808875",2)
+        );
     }
 }
