@@ -20,24 +20,22 @@
 package org.apache.commons.httpclient;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
 import java.util.List;
 import java.util.stream.Stream;
-
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 public class HttpMethodBaseUnitTest {
 
     @ParameterizedTest
     @MethodSource("cookieHeaderProvider")
-    public void testParseCookieHeader(String cookieHeaderValue, int cookieSize){
-        List<Cookie> cookies =
-                HttpMethodBase.parseCookieHeader("example.com", cookieHeaderValue);
-        assertThat(cookies.size(), is(cookieSize));
+    public void testParseCookieHeader(String cookieHeaderValue, int cookieSize) {
+        List<Cookie> cookies = HttpMethodBase.parseCookieHeader("example.com", cookieHeaderValue);
+        assertThat(cookies, hasSize(cookieSize));
     }
 
     static Stream<Arguments> cookieHeaderProvider() {
@@ -46,7 +44,6 @@ public class HttpMethodBaseUnitTest {
                 arguments("JSESSIONID=5DFA94B903A0063839E0440118808875", 1),
                 arguments("has_js=1;JSESSIONID=5DFA94B903A0063839E0440118808875", 2),
                 arguments("has_js=1; JSESSIONID=5DFA94B903A0063839E0440118808875", 2),
-                arguments("has_js=;JSESSIONID=5DFA94B903A0063839E0440118808875",2)
-        );
+                arguments("has_js=;JSESSIONID=5DFA94B903A0063839E0440118808875", 2));
     }
 }
