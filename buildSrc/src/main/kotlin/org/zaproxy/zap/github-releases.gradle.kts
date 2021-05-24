@@ -5,7 +5,34 @@ import com.netflix.gradle.plugins.deb.Deb
 import org.zaproxy.zap.GitHubUser
 import org.zaproxy.zap.GitHubRepo
 import org.zaproxy.zap.tasks.CreateGitHubRelease
+import org.zaproxy.zap.tasks.CreateTagAndGitHubRelease
 import org.zaproxy.zap.tasks.HandleWeeklyRelease
+
+val ghUser = GitHubUser("zapbot", "12745184+zapbot@users.noreply.github.com", System.getenv("ZAPBOT_TOKEN"))
+
+tasks.register<CreateTagAndGitHubRelease>("createWeeklyRelease") {
+    val dateProvider = provider { project.extra["creationDate"] }
+    val tagName = dateProvider.map { "w$it" }
+
+    user.set(ghUser)
+    authToken.set(System.getenv("GITHUB_TOKEN"))
+    repo.set(System.getenv("GITHUB_REPOSITORY"))
+    tag.set(tagName)
+    tagMessage.set(dateProvider.map { "Weekly release $it" })
+
+    title.set(tagName)
+    body.set("")
+    checksumAlgorithm.set("SHA-256")
+    draft.set(true)
+    prerelease.set(true)
+
+    assets {
+        register("weekly") {
+            file.set(tasks.named<Zip>("distWeekly").flatMap { it.archiveFile })
+            contentType.set("application/zip")
+        }
+    }
+}
 
 System.getenv("GITHUB_REF")?.let { ref ->
     if ("refs/tags/" !in ref) {
@@ -73,35 +100,6 @@ System.getenv("GITHUB_REF")?.let { ref ->
         }
     }
 
-    tasks.register<CreateGitHubRelease>("createWeeklyReleaseFromGitHubRef") {
-        val targetDailyVersion = targetTag.removePrefix("w")
-
-        authToken.set(System.getenv("GITHUB_TOKEN"))
-        repo.set(System.getenv("GITHUB_REPOSITORY"))
-        tag.set(targetTag)
-
-        title.set("$targetTag")
-        body.set("")
-        checksumAlgorithm.set("SHA-256")
-        draft.set(true)
-        prerelease.set(true)
-
-        assets {
-            register("weekly") {
-                file.set(tasks.named<Zip>("distWeekly").flatMap { it.archiveFile })
-                contentType.set("application/zip")
-            }
-        }
-
-        doFirst {
-            val creationDate = project.extra["creationDate"]
-            require(creationDate == targetDailyVersion) {
-                "Version of the tag $targetDailyVersion does not match the creation date $creationDate"
-            }
-        }
-    }
-
-    val ghUser = GitHubUser("zapbot", "12745184+zapbot@users.noreply.github.com", System.getenv("ZAPBOT_TOKEN"))
     val adminRepo = GitHubRepo("zaproxy", "zap-admin")
 
     val handleWeeklyRelease by tasks.registering(HandleWeeklyRelease::class) {

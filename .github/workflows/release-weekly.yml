@@ -1,14 +1,11 @@
 name: Release Weekly
 
 on:
-  push:
-    tags:
-      - 'w*'
+  workflow_dispatch:
 
 jobs:
   release:
     name: Build and Release
-    if: github.actor == 'kingthorin' || github.actor == 'psiinon' || github.actor == 'thc202'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -19,4 +16,4 @@ jobs:
     - name: Build and Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createWeeklyReleaseFromGitHubRef
+      run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createWeeklyRelease
