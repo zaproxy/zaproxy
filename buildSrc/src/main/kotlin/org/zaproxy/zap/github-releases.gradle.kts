@@ -2,7 +2,10 @@ package org.zaproxy.zap
 
 import com.install4j.gradle.Install4jTask
 import com.netflix.gradle.plugins.deb.Deb
+import org.zaproxy.zap.GitHubUser
+import org.zaproxy.zap.GitHubRepo
 import org.zaproxy.zap.tasks.CreateGitHubRelease
+import org.zaproxy.zap.tasks.HandleWeeklyRelease
 
 System.getenv("GITHUB_REF")?.let { ref ->
     if ("refs/tags/" !in ref) {
@@ -95,6 +98,26 @@ System.getenv("GITHUB_REF")?.let { ref ->
             require(creationDate == targetDailyVersion) {
                 "Version of the tag $targetDailyVersion does not match the creation date $creationDate"
             }
+        }
+    }
+
+    val ghUser = GitHubUser("zapbot", "12745184+zapbot@users.noreply.github.com", System.getenv("ZAPBOT_TOKEN"))
+    val adminRepo = GitHubRepo("zaproxy", "zap-admin")
+
+    val handleWeeklyRelease by tasks.registering(HandleWeeklyRelease::class) {
+        val targetDailyVersion = targetTag.removePrefix("w")
+        downloadUrl.set("https://github.com/zaproxy/zaproxy/releases/download/w$targetDailyVersion/ZAP_WEEKLY_D-$targetDailyVersion.zip")
+        checksumAlgorithm.set("SHA-256")
+
+        gitHubUser.set(ghUser)
+        gitHubRepo.set(adminRepo)
+
+        eventType.set("daily-release")
+    }
+
+    tasks.register("handleReleaseFromGitHubRef") {
+        if (targetTag.startsWith("w")) {
+            dependsOn(handleWeeklyRelease)
         }
     }
 }
