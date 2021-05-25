@@ -42,6 +42,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/25 Change the default value of userDirectory from null to the user's home directory.
 package org.parosproxy.paros.model;
 
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
@@ -50,6 +51,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
@@ -92,7 +94,7 @@ public class OptionsParam extends AbstractParam {
     private Vector<AbstractParam> paramSetList = new Vector<>();
     private Map<Class<? extends AbstractParam>, AbstractParam> abstractParamsMap = new HashMap<>();
     private boolean gui = true;
-    private File userDirectory = null;
+    private File userDirectory = SystemUtils.getUserHome();
 
     public OptionsParam() {}
 

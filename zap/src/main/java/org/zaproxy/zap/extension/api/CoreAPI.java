@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Stream;
 import javax.swing.tree.TreeNode;
 import javax.xml.transform.stream.StreamSource;
 import net.sf.json.JSONException;
@@ -344,18 +345,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiView(new ApiView(VIEW_MODE));
         this.addApiView(new ApiView(VIEW_VERSION));
         this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
-        this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
         this.addApiView(new ApiView(VIEW_SESSION_LOCATION));
         this.addApiView(new ApiView(VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS));
-        ApiView apiView = new ApiView(VIEW_OPTION_PROXY_CHAIN_SKIP_NAME);
-        apiView.setDeprecated(true);
-        this.addApiView(apiView);
-        apiView = new ApiView(VIEW_OPTION_PROXY_EXCLUDED_DOMAINS);
-        apiView.setDeprecated(true);
-        this.addApiView(apiView);
-        apiView = new ApiView(VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED);
-        apiView.setDeprecated(true);
-        this.addApiView(apiView);
         this.addApiView(new ApiView(VIEW_ZAP_HOME_PATH));
 
         this.addApiView(new ApiView(VIEW_OPTION_MAXIMUM_ALERT_INSTANCES));
@@ -363,6 +354,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiView(new ApiView(VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH));
 
         // Deprecated views
+        Stream.of(
+                        VIEW_HOME_DIRECTORY,
+                        VIEW_OPTION_PROXY_CHAIN_SKIP_NAME,
+                        VIEW_OPTION_PROXY_EXCLUDED_DOMAINS,
+                        VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED)
+                .map(ApiView::new)
+                .peek(t -> t.setDeprecated(true))
+                .forEach(this::addApiView);
         this.addApiView(depreciatedAlertApi(new ApiView(VIEW_ALERT, new String[] {PARAM_ID})));
         this.addApiView(
                 depreciatedAlertApi(
