@@ -47,6 +47,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/09 Issue 5619: Ensure -configfile maintains key order
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -414,7 +415,7 @@ public class CommandLine {
             Properties prop =
                     new Properties() {
                         // Override methods to ensure keys returned in order
-                        List<Object> orderedKeys = new ArrayList<Object>();
+                        List<Object> orderedKeys = new ArrayList<>();
                         private static final long serialVersionUID = 1L;
 
                         @Override

@@ -56,7 +56,7 @@ public class Target {
 
     public Target(StructuralNode startNode) {
         super();
-        this.startNodes = new ArrayList<StructuralNode>();
+        this.startNodes = new ArrayList<>();
         this.startNodes.add(startNode);
     }
 

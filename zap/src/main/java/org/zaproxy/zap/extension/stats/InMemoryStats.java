@@ -31,7 +31,7 @@ import org.zaproxy.zap.utils.StatsListener;
 public class InMemoryStats implements StatsListener {
 
     private Statistics stats = new Statistics();
-    private Map<String, Statistics> siteStats = new HashMap<String, Statistics>();
+    private Map<String, Statistics> siteStats = new HashMap<>();
 
     private Statistics getStatistics(String site) {
         if (site == null) {
@@ -151,7 +151,7 @@ public class InMemoryStats implements StatsListener {
     }
 
     public Map<String, Map<String, Long>> getAllSiteStats(String keyPrefix) {
-        Map<String, Map<String, Long>> allStats = new HashMap<String, Map<String, Long>>();
+        Map<String, Map<String, Long>> allStats = new HashMap<>();
         for (Entry<String, Statistics> st : siteStats.entrySet()) {
             allStats.put(st.getKey(), st.getValue().getStats(keyPrefix));
         }
@@ -162,11 +162,11 @@ public class InMemoryStats implements StatsListener {
         if (siteStats.containsKey(site)) {
             return getStatistics(site).getStats(keyPrefix);
         }
-        return new HashMap<String, Long>();
+        return new HashMap<>();
     }
 
     public List<String> getSites() {
-        List<String> sites = new ArrayList<String>(siteStats.keySet());
+        List<String> sites = new ArrayList<>(siteStats.keySet());
         Collections.sort(sites);
         return sites;
     }

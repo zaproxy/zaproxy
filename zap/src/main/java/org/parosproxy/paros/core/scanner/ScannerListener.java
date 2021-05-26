@@ -24,6 +24,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/10 Issue 5278: Adding filtered messages to active scan panel.
+// ZAP: 2021/05/14 Remove empty statement.
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.network.HttpMessage;
@@ -49,5 +50,5 @@ public interface ScannerListener {
      * @param msg
      * @param reason
      */
-    default void filteredMessage(HttpMessage msg, String reason) {};
+    default void filteredMessage(HttpMessage msg, String reason) {}
 }

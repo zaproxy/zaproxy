@@ -36,12 +36,12 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link VariantAbstractQuery}. */
-public class VariantAbstractQueryUnitTest {
+class VariantAbstractQueryUnitTest {
 
     private static final int NAME_VALUE_PAIR_TYPE = -1;
 
     @Test
-    public void shouldHaveParametersListEmptyByDefault() {
+    void shouldHaveParametersListEmptyByDefault() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
         // When
@@ -51,7 +51,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedParametersList() {
+    void shouldNotAllowToModifyReturnedParametersList() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
         NameValuePair param = param("Name", "Value", 0);
@@ -62,7 +62,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldFailToProcessUndefinedParameters() {
+    void shouldFailToProcessUndefinedParameters() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
         List<org.zaproxy.zap.model.NameValuePair> undefinedParameters = null;
@@ -75,7 +75,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldCreateOneDummyNameValuePairIfNoParametersProvidedAndAddQueryParamTrue() {
+    void shouldCreateOneDummyNameValuePairIfNoParametersProvidedAndAddQueryParamTrue() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
         variantAbstractQuery.setAddQueryParam(true);
@@ -89,7 +89,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldNotCreateOneDummyNameValuePairIfNoParametersProvidedAndAddQueryParamFalse() {
+    void shouldNotCreateOneDummyNameValuePairIfNoParametersProvidedAndAddQueryParamFalse() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
         variantAbstractQuery.setAddQueryParam(false);
@@ -101,7 +101,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldCreateNameValuePairsFromProvidedParameters() {
+    void shouldCreateNameValuePairsFromProvidedParameters() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
         List<org.zaproxy.zap.model.NameValuePair> parameters =
@@ -117,7 +117,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldCreateNameValuePairsFromProvidedParametersWithNullNameOrValue() {
+    void shouldCreateNameValuePairsFromProvidedParametersWithNullNameOrValue() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
         List<org.zaproxy.zap.model.NameValuePair> parameters =
@@ -133,7 +133,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldCreateNameValuePairsWithIndexedNamesFromProvidedArrayParameters() {
+    void shouldCreateNameValuePairsWithIndexedNamesFromProvidedArrayParameters() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
         List<org.zaproxy.zap.model.NameValuePair> parameters =
@@ -157,7 +157,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldNotAccumulateProvidedParameters() {
+    void shouldNotAccumulateProvidedParameters() {
         // Given
         VariantAbstractQuery variantAbstractQuery = new VariantAbstractQueryImpl();
         List<org.zaproxy.zap.model.NameValuePair> parameters =
@@ -175,7 +175,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldNotCallGetEscapedValueForInjectedValueIfEscapedWhenSettingParameter() {
+    void shouldNotCallGetEscapedValueForInjectedValueIfEscapedWhenSettingParameter() {
         // Given
         List<String> values = new ArrayList<>();
         VariantAbstractQuery variantAbstractQuery =
@@ -198,7 +198,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldCallGetEscapedValueForInjectedValueIfNotEscapedWhenSettingParameter() {
+    void shouldCallGetEscapedValueForInjectedValueIfNotEscapedWhenSettingParameter() {
         // Given
         List<String> values = new ArrayList<>();
         VariantAbstractQuery variantAbstractQuery =
@@ -221,7 +221,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldCallGetEscapedNameForEachNameWhenSettingParameter() {
+    void shouldCallGetEscapedNameForEachNameWhenSettingParameter() {
         // Given
         List<String> names = new ArrayList<>();
         VariantAbstractQuery variantAbstractQuery =
@@ -244,7 +244,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldUseOriginalNamesForArraysWhenSettingParameter() {
+    void shouldUseOriginalNamesForArraysWhenSettingParameter() {
         // Given
         List<String> names = new ArrayList<>();
         VariantAbstractQuery variantAbstractQuery =
@@ -272,7 +272,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldUseInjectedNameWhenSettingArrayParameter() {
+    void shouldUseInjectedNameWhenSettingArrayParameter() {
         // Given
         List<String> names = new ArrayList<>();
         VariantAbstractQuery variantAbstractQuery =
@@ -294,7 +294,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldUseInjectedNameEvenIfEqualToIndexedNameWhenSettingArrayParameter() {
+    void shouldUseInjectedNameEvenIfEqualToIndexedNameWhenSettingArrayParameter() {
         // Given
         List<String> names = new ArrayList<>();
         VariantAbstractQuery variantAbstractQuery =
@@ -316,7 +316,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldSetNameAndValueOfDummyParameter() {
+    void shouldSetNameAndValueOfDummyParameter() {
         // Given
         List<String> names = new ArrayList<>();
         List<String> values = new ArrayList<>();
@@ -347,7 +347,7 @@ public class VariantAbstractQueryUnitTest {
     }
 
     @Test
-    public void shouldCallBuildMessageWhenSettingParameter() {
+    void shouldCallBuildMessageWhenSettingParameter() {
         // Given
         MutableBoolean buildMessageCalled = new MutableBoolean();
         VariantAbstractQuery variantAbstractQuery =

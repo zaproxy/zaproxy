@@ -33,7 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.testutils.TestUtils;
 
 /** Unit test for {@link VulnerabilitiesLoader}. */
-public class VulnerabilitiesLoaderUnitTest extends TestUtils {
+class VulnerabilitiesLoaderUnitTest extends TestUtils {
 
     private static final Path DIRECTORY =
             getResourcePath("/vulnerabilities/", VulnerabilitiesLoaderUnitTest.class);
@@ -42,10 +42,10 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     private static final String FILE_NAME = "vulnerabilities-test";
     private static final String FILE_EXTENSION = ".xml";
 
-    public VulnerabilitiesLoader loader;
+    VulnerabilitiesLoader loader;
 
     @Test
-    public void shouldThrownExceptionIfDirectoryIsNull() {
+    void shouldThrownExceptionIfDirectoryIsNull() {
         // Given
         Path directory = null;
         // When / Then
@@ -55,7 +55,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldThrownExceptionIfFileNameIsNull() {
+    void shouldThrownExceptionIfFileNameIsNull() {
         // Given
         String fileName = null;
         // When / Then
@@ -65,7 +65,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldThrownExceptionIfFileNameIsEmpty() {
+    void shouldThrownExceptionIfFileNameIsEmpty() {
         // Given
         String fileName = "";
         // When / Then
@@ -75,7 +75,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldThrownExceptionIfFileExtensionIsNull() {
+    void shouldThrownExceptionIfFileExtensionIsNull() {
         // Given
         String fileExtension = null;
         // When / Then
@@ -85,7 +85,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldThrownExceptionIfFileExtensionIsEmpty() {
+    void shouldThrownExceptionIfFileExtensionIsEmpty() {
         // Given
         String fileExtension = "";
         // When / Then
@@ -95,7 +95,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldReturnEmptyListIfVulnerabilitiesFileNotFound() {
+    void shouldReturnEmptyListIfVulnerabilitiesFileNotFound() {
         // Given
         loader = new VulnerabilitiesLoader(DIRECTORY, "FileNotFound", ".NoExtension");
         // When
@@ -105,7 +105,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldReturnListWithVulnerabilitiesForDefaultLocale() {
+    void shouldReturnListWithVulnerabilitiesForDefaultLocale() {
         // Given
         loader = new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, FILE_EXTENSION);
         // When
@@ -132,7 +132,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldLoadFileWithSameLanguageCountryWhenAvailable() {
+    void shouldLoadFileWithSameLanguageCountryWhenAvailable() {
         // Given
         Locale locale = new Locale.Builder().setLanguage("nl").setRegion("NL").build();
         loader = new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, FILE_EXTENSION);
@@ -144,7 +144,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldLoadDefaultFileEvenIfFileWithSameLanguageButDifferentCountryIsAvailable() {
+    void shouldLoadDefaultFileEvenIfFileWithSameLanguageButDifferentCountryIsAvailable() {
         // Given
         Locale.setDefault(new Locale("nl", "XX"));
         Locale locale = new Locale.Builder().setLanguage("nl").setRegion("XX").build();
@@ -157,7 +157,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldLoadFileWithOnlyLanguageMatchWhenLanguageCountryNotAvailable() {
+    void shouldLoadFileWithOnlyLanguageMatchWhenLanguageCountryNotAvailable() {
         // Given
         Locale locale = new Locale.Builder().setLanguage("es").setRegion("AR").build();
         loader = new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, FILE_EXTENSION);
@@ -169,7 +169,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldReturnEmptyListIfFoundFileIsEmpty() {
+    void shouldReturnEmptyListIfFoundFileIsEmpty() {
         // Given
         loader = new VulnerabilitiesLoader(DIRECTORY_INVALID, FILE_NAME + "-empty", FILE_EXTENSION);
         // When
@@ -179,7 +179,7 @@ public class VulnerabilitiesLoaderUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldReturnEmptyListIfFoundFileIsNotValidXml() {
+    void shouldReturnEmptyListIfFoundFileIsNotValidXml() {
         // Given
         loader =
                 new VulnerabilitiesLoader(

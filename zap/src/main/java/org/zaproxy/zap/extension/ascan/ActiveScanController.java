@@ -92,7 +92,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
         this.activeScansLock = new ReentrantLock();
         this.extension = extension;
         this.activeScanMap = new HashMap<>();
-        this.activeScanList = new ArrayList<ActiveScan>();
+        this.activeScanList = new ArrayList<>();
     }
 
     public void setExtAlert(ExtensionAlert extAlert) {
@@ -221,7 +221,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 
     @Override
     public List<ActiveScan> getAllScans() {
-        List<ActiveScan> list = new ArrayList<ActiveScan>();
+        List<ActiveScan> list = new ArrayList<>();
         activeScansLock.lock();
         try {
             for (ActiveScan scan : activeScanList) {
@@ -235,7 +235,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 
     @Override
     public List<ActiveScan> getActiveScans() {
-        List<ActiveScan> list = new ArrayList<ActiveScan>();
+        List<ActiveScan> list = new ArrayList<>();
         activeScansLock.lock();
         try {
             for (ActiveScan scan : activeScanList) {

@@ -28,19 +28,19 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class ByteBuilderUnitTest {
+class ByteBuilderUnitTest {
 
     private ByteBuilder byteBuilder;
 
     private static final byte[] TEST_ARRAY = {(byte) 1, (byte) 2, (byte) 3};
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         byteBuilder = new ByteBuilder();
     }
 
     @Test
-    public void shouldHaveADefaultCapacityOf10() {
+    void shouldHaveADefaultCapacityOf10() {
         // given
         byteBuilder = new ByteBuilder();
         // when
@@ -50,7 +50,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldBeInitializedWithGivenCapacity() {
+    void shouldBeInitializedWithGivenCapacity() {
         // given
         byteBuilder = new ByteBuilder(42);
         // when
@@ -60,7 +60,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldBeInitializedWithDoubleCapacityOfGivenArray() {
+    void shouldBeInitializedWithDoubleCapacityOfGivenArray() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -70,7 +70,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldIncreaseCapacityWhenBiggerThanActual() {
+    void shouldIncreaseCapacityWhenBiggerThanActual() {
         // given
         byteBuilder = new ByteBuilder(5);
         // when
@@ -81,7 +81,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldHaveZeroSizeByDefault() {
+    void shouldHaveZeroSizeByDefault() {
         // given
         byteBuilder = new ByteBuilder();
         // when
@@ -91,7 +91,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldHaveSizeOfGivenArray() {
+    void shouldHaveSizeOfGivenArray() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -101,7 +101,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldProduceStringFromContents() {
+    void shouldProduceStringFromContents() {
         // given
         byteBuilder = new ByteBuilder(new byte[] {65, 45, 90});
         byteBuilder.ensureCapacity(50);
@@ -112,7 +112,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldHaveBytesOfSubSequence() {
+    void shouldHaveBytesOfSubSequence() {
         // given
         byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
         byteBuilder = new ByteBuilder(bytes);
@@ -123,7 +123,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldBeEqualToTheArrayPassed() {
+    void shouldBeEqualToTheArrayPassed() {
         // given
         byte[] bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
         byteBuilder = new ByteBuilder(bytes);
@@ -134,7 +134,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendByteValue() {
+    void shouldAppendByteValue() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -145,7 +145,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendByteArray() {
+    void shouldAppendByteArray() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -156,7 +156,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendSpecificValuesOfByteArray() {
+    void shouldAppendSpecificValuesOfByteArray() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -167,7 +167,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldThrowAnExceptionWhenAppendingValuesToEmptyByteArray() {
+    void shouldThrowAnExceptionWhenAppendingValuesToEmptyByteArray() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // When / Then
@@ -176,7 +176,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendCharValue() {
+    void shouldAppendCharValue() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -187,7 +187,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendCharArray() {
+    void shouldAppendCharArray() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -198,7 +198,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendSpecificValuesOfCharArray() {
+    void shouldAppendSpecificValuesOfCharArray() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -209,7 +209,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldThrowAnExceptionWhenAppendingValuesToEmptyCharArray() {
+    void shouldThrowAnExceptionWhenAppendingValuesToEmptyCharArray() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // When / Then
@@ -218,7 +218,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendBooleanValues() {
+    void shouldAppendBooleanValues() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -230,7 +230,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendShortValue() {
+    void shouldAppendShortValue() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -241,7 +241,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendIntValue() {
+    void shouldAppendIntValue() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -252,7 +252,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendLongValue() {
+    void shouldAppendLongValue() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -263,7 +263,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendFloatValue() {
+    void shouldAppendFloatValue() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -274,7 +274,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendDoubleValue() {
+    void shouldAppendDoubleValue() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -285,7 +285,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendNewObjectValue() {
+    void shouldAppendNewObjectValue() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -301,7 +301,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendObjectValue() {
+    void shouldAppendObjectValue() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -312,7 +312,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendStringValueWithGivenCharset() {
+    void shouldAppendStringValueWithGivenCharset() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -329,7 +329,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendStringValueWithDefaultCharsetByDefault() {
+    void shouldAppendStringValueWithDefaultCharsetByDefault() {
         // Given
         byteBuilder = new ByteBuilder();
         String value = "FooBarBaz£$%^&*";
@@ -340,7 +340,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendStringBufferWithGivenCharset() {
+    void shouldAppendStringBufferWithGivenCharset() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -357,7 +357,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendStringBufferWithDefaultCharsetByDefault() {
+    void shouldAppendStringBufferWithDefaultCharsetByDefault() {
         // given
         byteBuilder = new ByteBuilder();
         String value = "FooBarBaz£$%^&*";
@@ -368,7 +368,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendByteBuilder() {
+    void shouldAppendByteBuilder() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -379,7 +379,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendSpecialPositiveLong() {
+    void shouldAppendSpecialPositiveLong() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when
@@ -390,7 +390,7 @@ public class ByteBuilderUnitTest {
     }
 
     @Test
-    public void shouldAppendSpecialNegativeLong() {
+    void shouldAppendSpecialNegativeLong() {
         // given
         byteBuilder = new ByteBuilder(TEST_ARRAY);
         // when

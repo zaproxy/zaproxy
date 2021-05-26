@@ -55,7 +55,7 @@ public class VariantMultipartFormParameters implements Variant {
     // insensitive & DOTALL, and hit "test")
 
     private List<NameValuePair> params = Collections.emptyList();
-    private List<MultipartFormParameter> multiPartParams = new ArrayList<MultipartFormParameter>();
+    private List<MultipartFormParameter> multiPartParams = new ArrayList<>();
 
     @Override
     public void setMessage(HttpMessage msg) {

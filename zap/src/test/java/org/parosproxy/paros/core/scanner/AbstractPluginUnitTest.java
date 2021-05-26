@@ -52,7 +52,7 @@ import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link AbstractPlugin}. */
-public class AbstractPluginUnitTest extends PluginTestUtils {
+class AbstractPluginUnitTest extends PluginTestUtils {
 
     HostProcess parent;
     HttpMessage message;
@@ -60,7 +60,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     AbstractPlugin plugin;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Constant.messages = mock(I18N.class);
         parent = mock(HostProcess.class);
         message = mock(HttpMessage.class);
@@ -69,7 +69,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldFailToSetNullTechSet() {
+    void shouldFailToSetNullTechSet() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         // When / Then
@@ -77,7 +77,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldHaveAllTechSetByDefault() {
+    void shouldHaveAllTechSetByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -85,7 +85,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldNotHaveConfigByDefault() {
+    void shouldNotHaveConfigByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -93,7 +93,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveConfigSet() {
+    void shouldRetrieveConfigSet() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         Configuration config = new ZapXmlConfiguration();
@@ -104,7 +104,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveClassNameForCodeName() {
+    void shouldRetrieveClassNameForCodeName() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -112,7 +112,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldNotHaveDependenciesByDefault() {
+    void shouldNotHaveDependenciesByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -120,7 +120,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveUndefinedWascId() {
+    void shouldRetrieveUndefinedWascId() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -128,7 +128,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveUndefinedCweId() {
+    void shouldRetrieveUndefinedCweId() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -136,7 +136,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveMediumRiskByDefault() {
+    void shouldRetrieveMediumRiskByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -144,7 +144,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveZeroDelayInMsByDefault() {
+    void shouldRetrieveZeroDelayInMsByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -152,7 +152,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveDelaySet() {
+    void shouldRetrieveDelaySet() {
         // Given
         int aDelayInMs = 1234;
         AbstractPlugin plugin = createAbstractPlugin();
@@ -163,7 +163,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveUnknownStatusByDefault() {
+    void shouldRetrieveUnknownStatusByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -171,7 +171,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveStatusSet() {
+    void shouldRetrieveStatusSet() {
         // Given
         AddOn.Status aStatus = AddOn.Status.example;
         AbstractPlugin plugin = createAbstractPlugin();
@@ -182,7 +182,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldBeEnabledByDefault() {
+    void shouldBeEnabledByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -190,7 +190,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldFailWhenSettingEnabledStateWithoutConfig() {
+    void shouldFailWhenSettingEnabledStateWithoutConfig() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         // When / Then
@@ -198,7 +198,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveEnabledStateSet() {
+    void shouldRetrieveEnabledStateSet() {
         // Given
         boolean aState = false;
         AbstractPlugin plugin = createAbstractPluginWithConfig();
@@ -209,7 +209,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveMediumAttackStrengthByDefault() {
+    void shouldRetrieveMediumAttackStrengthByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -217,7 +217,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldFailWhenSettingAttackStrengthWithoutConfig() {
+    void shouldFailWhenSettingAttackStrengthWithoutConfig() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         // When / Then
@@ -227,7 +227,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveAttackStrengthSet() {
+    void shouldRetrieveAttackStrengthSet() {
         // Given
         Plugin.AttackStrength anAttackStrength = Plugin.AttackStrength.INSANE;
         AbstractPlugin plugin = createAbstractPluginWithConfig();
@@ -238,7 +238,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveDefaultAttackStrengthByDefault() {
+    void shouldRetrieveDefaultAttackStrengthByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -246,7 +246,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveDefaultAttackStrengthSet() {
+    void shouldRetrieveDefaultAttackStrengthSet() {
         // Given
         Plugin.AttackStrength anAttackStrength = Plugin.AttackStrength.LOW;
         AbstractPlugin plugin = createAbstractPluginWithConfig();
@@ -258,7 +258,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveDefaultAttackStrengthSetAsDefault() {
+    void shouldRetrieveDefaultAttackStrengthSetAsDefault() {
         // Given
         Plugin.AttackStrength anAttackStrength = Plugin.AttackStrength.DEFAULT;
         AbstractPlugin plugin = createAbstractPluginWithConfig();
@@ -270,7 +270,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveMediumAlertThresholdByDefault() {
+    void shouldRetrieveMediumAlertThresholdByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -278,7 +278,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldFailWhenSettingAlertThresholdWithoutConfig() {
+    void shouldFailWhenSettingAlertThresholdWithoutConfig() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         // When / Then
@@ -288,7 +288,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveAlertThresholdSet() {
+    void shouldRetrieveAlertThresholdSet() {
         // Given
         Plugin.AlertThreshold anAlertThreshold = Plugin.AlertThreshold.HIGH;
         AbstractPlugin plugin = createAbstractPluginWithConfig();
@@ -299,7 +299,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldDisablePluginWhenAlertThresholdSetToOff() {
+    void shouldDisablePluginWhenAlertThresholdSetToOff() {
         // Given
         AbstractPlugin plugin = createAbstractPluginWithConfig();
         plugin.setAlertThreshold(Plugin.AlertThreshold.HIGH);
@@ -311,7 +311,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldEnablePluginWhenAlertThresholdSetToNonOff() {
+    void shouldEnablePluginWhenAlertThresholdSetToNonOff() {
         // Given
         AbstractPlugin plugin = createAbstractPluginWithConfig();
         plugin.setAlertThreshold(Plugin.AlertThreshold.OFF);
@@ -323,7 +323,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldSetAlertThresholdToDefaultWhenEnablingPluginWithOffAlertThreshold() {
+    void shouldSetAlertThresholdToDefaultWhenEnablingPluginWithOffAlertThreshold() {
         // Given
         AbstractPlugin plugin = createAbstractPluginWithConfig();
         plugin.setAlertThreshold(Plugin.AlertThreshold.OFF);
@@ -334,7 +334,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveDefaultAlertThresholdByDefault() {
+    void shouldRetrieveDefaultAlertThresholdByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
@@ -342,7 +342,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveOffAlertThresholdByDefaultIfDisabled() {
+    void shouldRetrieveOffAlertThresholdByDefaultIfDisabled() {
         // Given / When
         AbstractPlugin plugin = createAbstractPluginWithConfig();
         plugin.setEnabled(false);
@@ -351,7 +351,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveDefaultAlertThresholdSet() {
+    void shouldRetrieveDefaultAlertThresholdSet() {
         // Given
         Plugin.AlertThreshold anAlertThreshold = Plugin.AlertThreshold.LOW;
         AbstractPlugin plugin = createAbstractPluginWithConfig();
@@ -363,7 +363,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRetrieveDefaultAlertThresholdSetAsDefault() {
+    void shouldRetrieveDefaultAlertThresholdSetAsDefault() {
         // Given
         Plugin.AlertThreshold anAlertThreshold = Plugin.AlertThreshold.DEFAULT;
         AbstractPlugin plugin = createAbstractPluginWithConfig();
@@ -375,7 +375,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldFailToCloneIntoNonAbstractPlugin() {
+    void shouldFailToCloneIntoNonAbstractPlugin() {
         // Given
         AbstractPlugin pluginA = createAbstractPluginWithConfig();
         Plugin pluginB = createNonAbstractPlugin();
@@ -384,7 +384,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldFailToCloneIntoPluginWithoutConfig() {
+    void shouldFailToCloneIntoPluginWithoutConfig() {
         // Given
         AbstractPlugin pluginA = createAbstractPluginWithConfig();
         AbstractPlugin pluginB = createAbstractPlugin();
@@ -393,7 +393,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldCloneIntoPlugin() {
+    void shouldCloneIntoPlugin() {
         // Given
         AbstractPlugin pluginA = createAbstractPluginWithConfig();
         pluginA.setAlertThreshold(Plugin.AlertThreshold.HIGH);
@@ -417,7 +417,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldNotBeEqualToNonAbstractPlugin() {
+    void shouldNotBeEqualToNonAbstractPlugin() {
         // Given
         AbstractPlugin pluginA = createAbstractPlugin();
         Plugin pluginB = createNonAbstractPlugin();
@@ -428,7 +428,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldNotBeEqualToAbstractPluginWithDifferentId() {
+    void shouldNotBeEqualToAbstractPluginWithDifferentId() {
         // Given
         AbstractPlugin pluginA = createAbstractPlugin(1);
         AbstractPlugin pluginB = createAbstractPlugin(5);
@@ -439,7 +439,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldBeEqualToAbstractPluginWithSameId() {
+    void shouldBeEqualToAbstractPluginWithSameId() {
         // Given
         AbstractPlugin pluginA = createAbstractPlugin(1);
         AbstractPlugin pluginB = createAbstractPlugin(1);
@@ -450,7 +450,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldBeLesserThanAbstractPluginWithGreaterId() {
+    void shouldBeLesserThanAbstractPluginWithGreaterId() {
         // Given
         AbstractPlugin pluginA = createAbstractPlugin(1);
         AbstractPlugin pluginB = createAbstractPlugin(10);
@@ -461,7 +461,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldBeSameAsAbstractPluginWithSameId() {
+    void shouldBeSameAsAbstractPluginWithSameId() {
         // Given
         AbstractPlugin pluginA = createAbstractPlugin(10);
         AbstractPlugin pluginB = createAbstractPlugin(10);
@@ -472,7 +472,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldBeGreaterThanAbstractPluginWithLesserId() {
+    void shouldBeGreaterThanAbstractPluginWithLesserId() {
         // Given
         AbstractPlugin pluginA = createAbstractPlugin(10);
         AbstractPlugin pluginB = createAbstractPlugin(1);
@@ -483,7 +483,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldFailToLoadFromConfigIfConfigNotSet() {
+    void shouldFailToLoadFromConfigIfConfigNotSet() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         Configuration config = new ZapXmlConfiguration();
@@ -492,7 +492,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldNotLoadFromConfigIfPluginHasDifferentId() {
+    void shouldNotLoadFromConfigIfPluginHasDifferentId() {
         // Given
         AbstractPlugin pluginA = createAbstractPluginWithConfig(10);
         pluginA.setAlertThreshold(Plugin.AlertThreshold.HIGH);
@@ -508,7 +508,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldLoadFromConfigIfPluginsHaveSameId() {
+    void shouldLoadFromConfigIfPluginsHaveSameId() {
         // Given
         AbstractPlugin pluginA = createAbstractPluginWithConfig(10);
         pluginA.setAlertThreshold(Plugin.AlertThreshold.HIGH);
@@ -524,7 +524,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldJustSaveEnabledStateToOwnConfigWhenLoadFromEmptyConfig() {
+    void shouldJustSaveEnabledStateToOwnConfigWhenLoadFromEmptyConfig() {
         // Given
         AbstractPlugin plugin = createAbstractPluginWithConfig(15);
         Configuration emptyConfig = new ZapXmlConfiguration();
@@ -539,7 +539,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldSaveToOwnConfigWhenLoadFromOtherConfig() {
+    void shouldSaveToOwnConfigWhenLoadFromOtherConfig() {
         // Given
         AbstractPlugin pluginA = createAbstractPluginWithConfig(10);
         pluginA.setAlertThreshold(Plugin.AlertThreshold.LOW);
@@ -562,7 +562,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith7ParamsBingo() {
+    void shouldRaiseAlertWith7ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -597,7 +597,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith7ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+    void shouldRaiseAlertWith7ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -614,7 +614,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith7ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+    void shouldRaiseAlertWith7ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -631,7 +631,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith8ParamsBingo() {
+    void shouldRaiseAlertWith8ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -667,7 +667,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith8ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+    void shouldRaiseAlertWith8ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -684,7 +684,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith8ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+    void shouldRaiseAlertWith8ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -701,7 +701,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith10ParamsBingo() {
+    void shouldRaiseAlertWith10ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -749,7 +749,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith10ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+    void shouldRaiseAlertWith10ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -767,7 +767,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith10ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+    void shouldRaiseAlertWith10ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -785,7 +785,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith11ParamsBingo() {
+    void shouldRaiseAlertWith11ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -835,7 +835,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith11ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+    void shouldRaiseAlertWith11ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -863,7 +863,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith11ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+    void shouldRaiseAlertWith11ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -891,7 +891,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith13ParamsBingo() {
+    void shouldRaiseAlertWith13ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -945,7 +945,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith13ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+    void shouldRaiseAlertWith13ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -975,7 +975,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith13ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+    void shouldRaiseAlertWith13ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -1005,7 +1005,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith14ParamsBingo() {
+    void shouldRaiseAlertWith14ParamsBingo() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -1061,7 +1061,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith14ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
+    void shouldRaiseAlertWith14ParamsBingoDefaultingToMessageUriWhenGivenUriIsNull() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -1092,7 +1092,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldRaiseAlertWith14ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
+    void shouldRaiseAlertWith14ParamsBingoDefaultingToMessageUriWhenGivenUriIsEmpty() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -1122,7 +1122,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldFailToRaiseAlertWithNewAlertIfNoMessageProvided() {
+    void shouldFailToRaiseAlertWithNewAlertIfNoMessageProvided() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         // When / Then
@@ -1130,7 +1130,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRaiseAlertWithNewAlertUsingPluginData() {
+    void shouldRaiseAlertWithNewAlertUsingPluginData() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -1159,7 +1159,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRaiseAlertWithNewAlert() {
+    void shouldRaiseAlertWithNewAlert() {
         // Given
         AbstractPlugin plugin = createDefaultPlugin();
         HostProcess hostProcess = mock(HostProcess.class);
@@ -1215,7 +1215,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldFailToSaveToConfigIfConfigNotSet() {
+    void shouldFailToSaveToConfigIfConfigNotSet() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         Configuration config = new ZapXmlConfiguration();
@@ -1224,7 +1224,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldSaveToConfig() {
+    void shouldSaveToConfig() {
         // Given
         AbstractPlugin plugin = createAbstractPluginWithConfig(10);
         plugin.setAlertThreshold(Plugin.AlertThreshold.HIGH);
@@ -1244,7 +1244,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldCheckPage200WithParent() {
+    void shouldCheckPage200WithParent() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         given(parent.isCustomPage(message, type)).willReturn(true);
@@ -1260,7 +1260,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    public void shouldCheckPage200WithParentAndFallbackToAnalyser(boolean expectedResult) {
+    void shouldCheckPage200WithParentAndFallbackToAnalyser(boolean expectedResult) {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         given(parent.isCustomPage(message, type)).willReturn(false);
@@ -1276,7 +1276,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage200ShouldReturnFalseIfCustomPage404Matches() {
+    void isPage200ShouldReturnFalseIfCustomPage404Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         given(parent.isCustomPage(message, type)).willReturn(true);
@@ -1292,7 +1292,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage200ShouldReturnFalseIfCustomPage500Matches() {
+    void isPage200ShouldReturnFalseIfCustomPage500Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         given(parent.isCustomPage(message, type)).willReturn(true);
@@ -1309,7 +1309,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldCheckPage404WithParent() {
+    void shouldCheckPage404WithParent() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         given(parent.isCustomPage(message, type)).willReturn(true);
@@ -1323,7 +1323,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    public void shouldCheckPage404WithParentAndFallbacktoAnalyser(boolean expectedResult) {
+    void shouldCheckPage404WithParentAndFallbacktoAnalyser(boolean expectedResult) {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         given(parent.isCustomPage(message, type)).willReturn(false);
@@ -1340,7 +1340,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage404ShouldReturnTrueIfNoCustomPageMatchButStatusCode404() {
+    void isPage404ShouldReturnTrueIfNoCustomPageMatchButStatusCode404() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1357,7 +1357,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage404ShouldReturnTrueIfCustomPageMatches() {
+    void isPage404ShouldReturnTrueIfCustomPageMatches() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1374,7 +1374,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage404ShouldReturnTrueIfCustomPageDoesNotMatchAndAnalyserIndicates404() {
+    void isPage404ShouldReturnTrueIfCustomPageDoesNotMatchAndAnalyserIndicates404() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1395,8 +1395,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void
-            isPage404ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesAndAnalyserIndicates200() {
+    void isPage404ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesAndAnalyserIndicates200() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1417,8 +1416,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void
-            isPage404ShouldReturnTrueIfNoStatusCodeOrCustomPageMatchesAndAnalyserIndicates404() {
+    void isPage404ShouldReturnTrueIfNoStatusCodeOrCustomPageMatchesAndAnalyserIndicates404() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1439,7 +1437,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage404ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage200Does() {
+    void isPage404ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage200Does() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1455,7 +1453,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage404ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage500Does() {
+    void isPage404ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage500Does() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1472,7 +1470,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldCheckPage500WithParent() {
+    void shouldCheckPage500WithParent() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         given(parent.isCustomPage(message, type)).willReturn(true);
@@ -1487,7 +1485,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage500ShouldReturnTrueIfNoCustomPageMatchButStatusCode500() {
+    void isPage500ShouldReturnTrueIfNoCustomPageMatchButStatusCode500() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();
@@ -1504,7 +1502,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage500ShouldReturnTrueIfCustomPageMatches() {
+    void isPage500ShouldReturnTrueIfCustomPageMatches() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();
@@ -1521,7 +1519,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage500ShouldReturnTrueIfCustomPageDoesNotMatchesButStatusCodeDoes() {
+    void isPage500ShouldReturnTrueIfCustomPageDoesNotMatchesButStatusCodeDoes() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();
@@ -1540,7 +1538,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage500ShouldReturnFalseIfNoStatusCodeOrCustomPageMatches() {
+    void isPage500ShouldReturnFalseIfNoStatusCodeOrCustomPageMatches() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();
@@ -1557,7 +1555,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage500ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage200Does() {
+    void isPage500ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage200Does() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();
@@ -1573,7 +1571,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isPage500ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage404Does() {
+    void isPage500ShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButCustomPage404Does() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();
@@ -1591,7 +1589,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
 
     @ParameterizedTest
     @ValueSource(booleans = {true, false})
-    public void shouldCheckPageOtherWithParent(boolean expectedResult) {
+    void shouldCheckPageOtherWithParent(boolean expectedResult) {
         // Given
         CustomPage.Type type = CustomPage.Type.OTHER;
         given(parent.isCustomPage(message, type)).willReturn(expectedResult);
@@ -1604,7 +1602,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isSuccessShouldReturnTrueIfCustomPage200Matches() {
+    void isSuccessShouldReturnTrueIfCustomPage200Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         HttpMessage message = new HttpMessage();
@@ -1624,7 +1622,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isSuccessShouldReturnTrueIfStatusCodeMatches() {
+    void isSuccessShouldReturnTrueIfStatusCodeMatches() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1645,8 +1643,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void
-            isSuccessShouldReturnTrueIfNoStatusCodeNorCustomPageMatchesButAnalyserIndicates200() {
+    void isSuccessShouldReturnTrueIfNoStatusCodeNorCustomPageMatchesButAnalyserIndicates200() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1667,8 +1664,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void
-            isSuccessShouldReturnFalseIfNoStatusCodeNorCustomPageMatchesAndAnalyserIndicates404() {
+    void isSuccessShouldReturnFalseIfNoStatusCodeNorCustomPageMatchesAndAnalyserIndicates404() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         HttpMessage message = new HttpMessage();
@@ -1689,7 +1685,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isSuccessShouldReturnFalseIfCustomPage404Matches() {
+    void isSuccessShouldReturnFalseIfCustomPage404Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1706,7 +1702,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isSuccessShouldReturnFalseIfCustomPage500Matches() {
+    void isSuccessShouldReturnFalseIfCustomPage500Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1725,7 +1721,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isClientErrorShouldReturnTrueIfCustomPage404Matches() {
+    void isClientErrorShouldReturnTrueIfCustomPage404Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1742,7 +1738,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isClientErrorShouldReturnTrueIfStatusCodeMatches() {
+    void isClientErrorShouldReturnTrueIfStatusCodeMatches() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1761,8 +1757,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void
-            isClientErrorShouldReturnTrueIfNoStatusCodeOrCustomPageMatchesButAnalyserIndicates404() {
+    void isClientErrorShouldReturnTrueIfNoStatusCodeOrCustomPageMatchesButAnalyserIndicates404() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1780,8 +1775,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void
-            isClientErrorShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButAnalyserIndicates200() {
+    void isClientErrorShouldReturnFalseIfNoStatusCodeOrCustomPageMatchesButAnalyserIndicates200() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1799,7 +1793,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isClientErrorShouldReturnFalseIfCustomPage200Matches() {
+    void isClientErrorShouldReturnFalseIfCustomPage200Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1816,7 +1810,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isClientErrorShouldReturnFalseIfCustomPage500Matches() {
+    void isClientErrorShouldReturnFalseIfCustomPage500Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = new HttpMessage();
@@ -1834,7 +1828,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isServerErrorShouldReturnTrueIfCustomPage500Matches() {
+    void isServerErrorShouldReturnTrueIfCustomPage500Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();
@@ -1850,7 +1844,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isServerErrorShouldReturnTrueIfStatusCodeMatches() {
+    void isServerErrorShouldReturnTrueIfStatusCodeMatches() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();
@@ -1865,7 +1859,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isServerErrorShouldReturnFalseIfNoStatusCodeOrCustomPageMatches() {
+    void isServerErrorShouldReturnFalseIfNoStatusCodeOrCustomPageMatches() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();
@@ -1881,7 +1875,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isServerErrorShouldReturnFalseIfCustomPage200Matches() {
+    void isServerErrorShouldReturnFalseIfCustomPage200Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();
@@ -1896,7 +1890,7 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void isServerErrorShouldReturnFalseIfCustomPage404Matches() {
+    void isServerErrorShouldReturnFalseIfCustomPage404Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage message = new HttpMessage();

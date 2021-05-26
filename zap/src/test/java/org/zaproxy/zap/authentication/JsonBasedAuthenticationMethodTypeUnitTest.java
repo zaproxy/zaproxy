@@ -45,7 +45,7 @@ import org.zaproxy.zap.testutils.NanoServerHandler;
 import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 
-public class JsonBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
+class JsonBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
 
     private static final String LOGGED_IN_INDICATOR = "logged in";
     private static final String LOGGED_IN_BODY =
@@ -58,7 +58,7 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
     private JsonBasedAuthenticationMethodType type;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
 
         type = new JsonBasedAuthenticationMethodType();
         method = type.createAuthenticationMethod(1);
@@ -76,7 +76,7 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReplaceUsernameInPollRequest() throws NullPointerException, IOException {
+    void shouldReplaceUsernameInPollRequest() throws NullPointerException, IOException {
         // Given
         String test = "/shouldReplaceUsernameInPollRequest/test";
         String encodedPattern =
@@ -96,7 +96,7 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                         orderedReqUrls.add(
                                 session.getUri() + "?" + session.getQueryParameterString());
 
-                        HashMap<String, String> map = new HashMap<String, String>();
+                        HashMap<String, String> map = new HashMap<>();
                         try {
                             session.parseBody(map);
                             orderedReqData.add(map.get("postData"));
@@ -127,7 +127,7 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldNotReplacePasswordInPollRequest() throws NullPointerException, IOException {
+    void shouldNotReplacePasswordInPollRequest() throws NullPointerException, IOException {
         // Given
         String test = "/shouldNotReplacePasswordInPollRequest/test";
         String pollUrl = "/shouldNotReplacePasswordInPollRequest/pollUrl";
@@ -139,7 +139,7 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                 new NanoServerHandler(pollUrl) {
                     @Override
                     protected Response serve(IHTTPSession session) {
-                        HashMap<String, String> map = new HashMap<String, String>();
+                        HashMap<String, String> map = new HashMap<>();
                         try {
                             session.parseBody(map);
                             orderedReqData.add(map.get("postData"));
@@ -166,8 +166,7 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldNotUrlEncodeUsernameInPollRequestBody()
-            throws NullPointerException, IOException {
+    void shouldNotUrlEncodeUsernameInPollRequestBody() throws NullPointerException, IOException {
         // Given
         String test = "/shouldEncodeSpacesInBody/test";
         String pollUrl = "/shouldEncodeSpacesInBody/pollUrl";
@@ -180,7 +179,7 @@ public class JsonBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
                 new NanoServerHandler(pollUrl) {
                     @Override
                     protected Response serve(IHTTPSession session) {
-                        HashMap<String, String> map = new HashMap<String, String>();
+                        HashMap<String, String> map = new HashMap<>();
                         try {
                             session.parseBody(map);
                             orderedReqData.add(map.get("postData"));

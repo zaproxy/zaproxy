@@ -65,7 +65,7 @@ public class VariantFactory {
     }
 
     public List<Variant> createVariants(ScannerParam scanOptions, HttpMessage message) {
-        List<Variant> listVariant = new ArrayList<Variant>();
+        List<Variant> listVariant = new ArrayList<>();
 
         int targets = scanOptions.getTargetParamsInjectable();
         int enabledRPC = scanOptions.getTargetParamsEnabledRPC();
@@ -160,7 +160,7 @@ public class VariantFactory {
     }
 
     public List<Variant> createSiteModifyingVariants() {
-        List<Variant> listVariant = new ArrayList<Variant>();
+        List<Variant> listVariant = new ArrayList<>();
 
         addScriptVariants(listVariant);
         addCustomVariants(listVariant);

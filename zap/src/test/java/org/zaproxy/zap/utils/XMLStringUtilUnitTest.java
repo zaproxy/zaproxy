@@ -24,10 +24,10 @@ import static org.hamcrest.Matchers.is;
 
 import org.junit.jupiter.api.Test;
 
-public class XMLStringUtilUnitTest {
+class XMLStringUtilUnitTest {
 
     @Test
-    public void shouldNotEscapeXmlWithoutControlCharacters() {
+    void shouldNotEscapeXmlWithoutControlCharacters() {
         // given
         String xml = "ABCDEF";
         // when
@@ -37,7 +37,7 @@ public class XMLStringUtilUnitTest {
     }
 
     @Test
-    public void shouldNotRemoveAnythingFromXmlWithoutControlCharacters() {
+    void shouldNotRemoveAnythingFromXmlWithoutControlCharacters() {
         // given
         String xml = "ABCDEF";
         // when
@@ -47,7 +47,7 @@ public class XMLStringUtilUnitTest {
     }
 
     @Test
-    public void shouldEscapeControlCharacters() {
+    void shouldEscapeControlCharacters() {
         // given
         String xml = "A\u0000B\u0001C\u0010D\uFFFEE\uFFFFF";
         // when
@@ -57,7 +57,7 @@ public class XMLStringUtilUnitTest {
     }
 
     @Test
-    public void shouldRemoveControlCharacters() {
+    void shouldRemoveControlCharacters() {
         // given
         String xml = "A\u0000B\u0001C\u0010D\uFFFEE\uFFFFF";
         // when

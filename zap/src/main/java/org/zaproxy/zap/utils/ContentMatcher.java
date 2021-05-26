@@ -96,8 +96,8 @@ public class ContentMatcher {
      */
     protected void loadXMLPatternDefinitions(InputStream xmlInputStream)
             throws ConfigurationException {
-        strings = new ArrayList<BoyerMooreMatcher>();
-        patterns = new ArrayList<Pattern>();
+        strings = new ArrayList<>();
+        patterns = new ArrayList<>();
 
         ZapXmlConfiguration configuration = new ZapXmlConfiguration(xmlInputStream);
         for (HierarchicalConfiguration entry : configuration.configurationsAt(TAG_PATTERN)) {
@@ -146,7 +146,7 @@ public class ContentMatcher {
      */
     public List<String> findAllInContent(String content) {
 
-        List<String> results = new LinkedList<String>();
+        List<String> results = new LinkedList<>();
 
         // First check for all simple exact occurrences
         for (BoyerMooreMatcher matcher : strings) {

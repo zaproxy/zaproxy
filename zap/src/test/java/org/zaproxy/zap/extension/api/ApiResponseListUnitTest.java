@@ -26,10 +26,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ApiResponseList}. */
-public class ApiResponseListUnitTest {
+class ApiResponseListUnitTest {
 
     @Test
-    public void shouldReturnCorrectJsonObjectWithStdStringValues() throws ApiException {
+    void shouldReturnCorrectJsonObjectWithStdStringValues() throws ApiException {
         // Given
         List<ApiResponse> list = new ArrayList<>();
         list.add(new ApiResponseElement("key1", "val1"));
@@ -42,7 +42,7 @@ public class ApiResponseListUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectJsonObjectWithJSONStringValues() throws ApiException {
+    void shouldReturnCorrectJsonObjectWithJSONStringValues() throws ApiException {
         // Given
         List<ApiResponse> list = new ArrayList<>();
         list.add(new ApiResponseElement("key1", "{\"name1\":\"value1\"}"));

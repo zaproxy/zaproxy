@@ -521,7 +521,7 @@ public class TabbedPanel2 extends TabbedPanel {
     }
 
     public List<Component> getSortedTabList() {
-        List<Component> copy = new ArrayList<Component>(this.fullTabList);
+        List<Component> copy = new ArrayList<>(this.fullTabList);
         Collections.sort(copy, NAME_COMPARATOR);
         return copy;
     }

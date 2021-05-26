@@ -32,7 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-public class KbUnitTest {
+class KbUnitTest {
 
     private static final String TEST_KEY = "key";
     private static final String ANOTHER_KEY = "otherKey";
@@ -44,12 +44,12 @@ public class KbUnitTest {
     Kb knowledgeBase;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         knowledgeBase = new Kb();
     }
 
     @Test
-    public void shouldStoreValueForGivenKey() {
+    void shouldStoreValueForGivenKey() {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_1);
         // Then
@@ -58,12 +58,12 @@ public class KbUnitTest {
 
     @Test
     @Disabled
-    public void shouldStoreValueForGivenUriAndKey() {
+    void shouldStoreValueForGivenUriAndKey() {
         fail("Not yet implemented");
     }
 
     @Test
-    public void shouldRetrieveStoredObjectsForGivenKey() {
+    void shouldRetrieveStoredObjectsForGivenKey() {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_1);
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_2);
@@ -75,12 +75,12 @@ public class KbUnitTest {
 
     @Test
     @Disabled
-    public void shouldRetrieveStoredObjectsForGivenUriAndKey() {
+    void shouldRetrieveStoredObjectsForGivenUriAndKey() {
         fail("Not yet implemented");
     }
 
     @Test
-    public void shouldRetrieveStoredBooleanForGivenKey() {
+    void shouldRetrieveStoredBooleanForGivenKey() {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_BOOLEAN);
         // Then
@@ -89,12 +89,12 @@ public class KbUnitTest {
 
     @Test
     @Disabled
-    public void shouldRetrieveStoredBooleanForGivenUriAndKey() {
+    void shouldRetrieveStoredBooleanForGivenUriAndKey() {
         fail("Not yet implemented");
     }
 
     @Test
-    public void shouldRetrieveStoredStringForGivenKey() {
+    void shouldRetrieveStoredStringForGivenKey() {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_STRING);
         // Then
@@ -103,12 +103,12 @@ public class KbUnitTest {
 
     @Test
     @Disabled
-    public void shouldRetrieveStoredStringForGivenUriAndKey() {
+    void shouldRetrieveStoredStringForGivenUriAndKey() {
         fail("Not yet implemented");
     }
 
     @Test
-    public void shouldReturnNullWhenGivenKeyHasNoStoredValue() {
+    void shouldReturnNullWhenGivenKeyHasNoStoredValue() {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_1);
         // Then
@@ -116,7 +116,7 @@ public class KbUnitTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenRetrievingNonBooleanValueAsBoolean() {
+    void shouldReturnFalseWhenRetrievingNonBooleanValueAsBoolean() {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_1);
         // Then
@@ -124,7 +124,7 @@ public class KbUnitTest {
     }
 
     @Test
-    public void shouldReturnNullWhenRetrievingNonStringValueAsString() {
+    void shouldReturnNullWhenRetrievingNonStringValueAsString() {
         // Given/When
         knowledgeBase.add(TEST_KEY, TEST_OBJECT_1);
         // Then

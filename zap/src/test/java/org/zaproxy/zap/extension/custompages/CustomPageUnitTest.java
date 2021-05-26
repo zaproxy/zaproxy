@@ -36,13 +36,13 @@ import org.zaproxy.zap.utils.I18N;
 class CustomPageUnitTest {
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Constant.messages = mock(I18N.class);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {1, 2, 3})
-    public void shouldFindTypeByValidId(int id) {
+    void shouldFindTypeByValidId(int id) {
         // Given/When
         CustomPage.Type type = CustomPage.Type.getCustomPageTypeWithId(id);
         // Then
@@ -51,7 +51,7 @@ class CustomPageUnitTest {
 
     @ParameterizedTest
     @ValueSource(ints = {-1, 15, Integer.MAX_VALUE})
-    public void shouldReturnDefaultTypeForInvalidId(int id) {
+    void shouldReturnDefaultTypeForInvalidId(int id) {
         // Given/When
         CustomPage.Type type = CustomPage.Type.getCustomPageTypeWithId(id);
         // Then
@@ -60,7 +60,7 @@ class CustomPageUnitTest {
 
     @ParameterizedTest
     @ValueSource(ints = {-1, 1, 2, 3})
-    public void shouldNotReturnNullOrEmptyStringRepresentation(int id) {
+    void shouldNotReturnNullOrEmptyStringRepresentation(int id) {
         // Given/When
         CustomPage.Type type = CustomPage.Type.getCustomPageTypeWithId(id);
         // Then
@@ -69,7 +69,7 @@ class CustomPageUnitTest {
     }
 
     @Test
-    public void shouldHaveExpectedI18nTypeNames() {
+    void shouldHaveExpectedI18nTypeNames() {
         // Given
         I18N i18n = new I18N(Locale.ENGLISH);
         // When/Then

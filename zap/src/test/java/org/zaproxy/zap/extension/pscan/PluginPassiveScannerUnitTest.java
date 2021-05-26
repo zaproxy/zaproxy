@@ -36,27 +36,27 @@ import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link PluginPassiveScanner}. */
-public class PluginPassiveScannerUnitTest {
+class PluginPassiveScannerUnitTest {
 
     private PluginPassiveScanner scanner;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         scanner = new TestPluginPassiveScanner();
     }
 
     @Test
-    public void shouldHaveUndefinedPluginIdByDefault() {
+    void shouldHaveUndefinedPluginIdByDefault() {
         assertThat(scanner.getPluginId(), is(equalTo(-1)));
     }
 
     @Test
-    public void shouldHaveUnknownStatusByDefault() {
+    void shouldHaveUnknownStatusByDefault() {
         assertThat(scanner.getStatus(), is(equalTo(AddOn.Status.unknown)));
     }
 
     @Test
-    public void shouldFailToSetNullStatus() {
+    void shouldFailToSetNullStatus() {
         // Given
         AddOn.Status status = null;
         // When / Then
@@ -64,7 +64,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldSetValidStatus() {
+    void shouldSetValidStatus() {
         // Given
         AddOn.Status status = AddOn.Status.beta;
         // When
@@ -74,12 +74,12 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldBeEnabledByDefault() {
+    void shouldBeEnabledByDefault() {
         assertThat(scanner.isEnabled(), is(equalTo(true)));
     }
 
     @Test
-    public void shouldChangeEnabledState() {
+    void shouldChangeEnabledState() {
         // Given
         boolean enabled = true;
         // When
@@ -89,12 +89,12 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldHaveMediumAsDefaultAlertThreshold() {
+    void shouldHaveMediumAsDefaultAlertThreshold() {
         assertThat(scanner.getAlertThreshold(), is(equalTo(AlertThreshold.MEDIUM)));
     }
 
     @Test
-    public void shouldFailToSetNullAlertThreshold() {
+    void shouldFailToSetNullAlertThreshold() {
         // Given
         AlertThreshold alertThreshold = null;
         // When / Then
@@ -103,7 +103,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldSetValidAlertThreshold() {
+    void shouldSetValidAlertThreshold() {
         // Given
         AlertThreshold alertThreshold = AlertThreshold.HIGH;
         // When
@@ -113,7 +113,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldFailToSetNullDefaultAlertThreshold() {
+    void shouldFailToSetNullDefaultAlertThreshold() {
         // Given
         AlertThreshold alertThreshold = null;
         // When / Then
@@ -123,7 +123,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldFailToSetDefaultToDefaultAlertThreshold() {
+    void shouldFailToSetDefaultToDefaultAlertThreshold() {
         // Given
         AlertThreshold alertThreshold = AlertThreshold.DEFAULT;
         // When / Then
@@ -133,7 +133,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldSetValidDefaultAlertThreshold() {
+    void shouldSetValidDefaultAlertThreshold() {
         // Given
         scanner.setAlertThreshold(AlertThreshold.DEFAULT);
         AlertThreshold alertThreshold = AlertThreshold.HIGH;
@@ -144,12 +144,12 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldHaveNoConfigurationByDefault() {
+    void shouldHaveNoConfigurationByDefault() {
         assertThat(scanner.getConfig(), is(nullValue()));
     }
 
     @Test
-    public void shouldFailToSetNullConfiguration() {
+    void shouldFailToSetNullConfiguration() {
         // Given
         Configuration configuration = null;
         // When / Then
@@ -157,7 +157,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldNotChangeEnabledStateOrAlertThresholdIfConfigurationSetIsEmpty() {
+    void shouldNotChangeEnabledStateOrAlertThresholdIfConfigurationSetIsEmpty() {
         Configuration configuration = createEmptyConfiguration();
         // given
         scanner.setEnabled(false);
@@ -170,7 +170,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldNotChangeEnabledStateOrAlertThresholdIfNoApplicableDataIsPresentInConfigurationSet() {
         Configuration configuration =
                 createConfiguration(Integer.MIN_VALUE, Boolean.TRUE, AlertThreshold.LOW);
@@ -185,7 +185,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldEnableByDefaultIfNotSpecifiedInConfigurationSet() {
+    void shouldEnableByDefaultIfNotSpecifiedInConfigurationSet() {
         // given
         Configuration configuration =
                 createConfiguration(TestPluginPassiveScanner.PLUGIN_ID, null, null);
@@ -197,7 +197,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldDisableIfSpecifiedInConfigurationSet() {
+    void shouldDisableIfSpecifiedInConfigurationSet() {
         // given
         Configuration configuration =
                 createConfiguration(TestPluginPassiveScanner.PLUGIN_ID, Boolean.FALSE, null);
@@ -209,7 +209,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldUseDefaultAlertThresholdIfNotSpecifiedInConfigurationSet() {
+    void shouldUseDefaultAlertThresholdIfNotSpecifiedInConfigurationSet() {
         // given
         Configuration configuration =
                 createConfiguration(TestPluginPassiveScanner.PLUGIN_ID, Boolean.TRUE, null);
@@ -222,7 +222,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldUseAlertThresholdSpecifiedInConfigurationSet() {
+    void shouldUseAlertThresholdSpecifiedInConfigurationSet() {
         // given
         Configuration configuration =
                 createConfiguration(TestPluginPassiveScanner.PLUGIN_ID, null, AlertThreshold.HIGH);
@@ -234,7 +234,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldUseClassnameToReadConfigurationSet() {
+    void shouldUseClassnameToReadConfigurationSet() {
         // given
         Configuration configuration =
                 createConfiguration(
@@ -251,7 +251,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldReadConfigurationSetEvenIfThereAreMultipleUnrelatedEntries() {
+    void shouldReadConfigurationSetEvenIfThereAreMultipleUnrelatedEntries() {
         // given
         Configuration configuration = createEmptyConfiguration();
         addConfiguration(configuration, 0, 10, null, null);
@@ -274,14 +274,14 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldFailToSaveByDefault() {
+    void shouldFailToSaveByDefault() {
         // Given scanner
         // When / Then
         assertThrows(IllegalStateException.class, () -> scanner.save());
     }
 
     @Test
-    public void shouldNotPersistEnabledStateOnSaveIfEnabled() {
+    void shouldNotPersistEnabledStateOnSaveIfEnabled() {
         // given
         Configuration configuration = createEmptyConfiguration();
         scanner.setConfig(configuration);
@@ -294,7 +294,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldPersistEnabledStateOnSaveIfDisabled() {
+    void shouldPersistEnabledStateOnSaveIfDisabled() {
         // Given
         Configuration configuration = createEmptyConfiguration();
         scanner.setConfig(configuration);
@@ -311,7 +311,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldNotPersistAlertThresholdOnSaveIfDefaultValue() {
+    void shouldNotPersistAlertThresholdOnSaveIfDefaultValue() {
         // Given
         Configuration configuration = createEmptyConfiguration();
         scanner.setConfig(configuration);
@@ -325,7 +325,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldPersistAlertThresholdOnSaveIfNotDefaultValue() {
+    void shouldPersistAlertThresholdOnSaveIfNotDefaultValue() {
         // Given
         Configuration configuration = createEmptyConfiguration();
         scanner.setConfig(configuration);
@@ -345,7 +345,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldRemoveExistingConfigDataOnSaveIfDefaultValues() {
+    void shouldRemoveExistingConfigDataOnSaveIfDefaultValues() {
         // Given
         Configuration configuration =
                 createConfiguration(
@@ -362,7 +362,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldRemoveClassnameConfigEntryOnSave() {
+    void shouldRemoveClassnameConfigEntryOnSave() {
         // Given
         Configuration configuration =
                 createConfiguration(
@@ -382,7 +382,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldPersistConfigsOnSaveEvenIfThereAreMultipleUnrelatedEntries() {
+    void shouldPersistConfigsOnSaveEvenIfThereAreMultipleUnrelatedEntries() {
         // Given
         Configuration configuration = createEmptyConfiguration();
         addConfiguration(configuration, 0, 10, null, null);
@@ -442,7 +442,7 @@ public class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldRemoveExistingConfigDataOnSaveIfDefaultValuesEvenIfThereAreMultipleUnrelatedEntries() {
         // Given
         Configuration configuration = createEmptyConfiguration();

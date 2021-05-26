@@ -59,7 +59,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         RUNNING,
         PAUSED,
         FINISHED
-    };
+    }
 
     private String displayName = null;
     private int progress = 0;
@@ -68,14 +68,14 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     private SiteNode startNode = null;
     private ResponseCountSnapshot rcTotals = new ResponseCountSnapshot();
     private ResponseCountSnapshot rcLastSnapshot = new ResponseCountSnapshot();
-    private List<ResponseCountSnapshot> rcHistory = new ArrayList<ResponseCountSnapshot>();
+    private List<ResponseCountSnapshot> rcHistory = new ArrayList<>();
 
     private Date timeStarted = null;
     private Date timeFinished = null;
     private int maxResultsToList = 0;
 
-    private final List<Integer> hRefs = Collections.synchronizedList(new ArrayList<Integer>());
-    private final List<Integer> alerts = Collections.synchronizedList(new ArrayList<Integer>());
+    private final List<Integer> hRefs = Collections.synchronizedList(new ArrayList<>());
+    private final List<Integer> alerts = Collections.synchronizedList(new ArrayList<>());
 
     private ScheduledExecutorService scheduler;
     private ScheduledFuture<?> schedHandle;
@@ -172,6 +172,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
             // For now this is only supported in the desktop UI
             final Runnable requestCounter =
                     new Runnable() {
+                        @Override
                         public void run() {
                             if (isStop()) {
                                 schedHandle.cancel(true);

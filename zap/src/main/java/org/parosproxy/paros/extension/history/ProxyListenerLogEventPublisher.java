@@ -72,7 +72,7 @@ public final class ProxyListenerLogEventPublisher implements EventPublisher {
     }
 
     public void publishHrefAddedEvent(HistoryReference href) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(FIELD_HISTORY_REFERENCE_ID, Integer.toString(href.getHistoryId()));
         map.put(FIELD_URI, href.getURI().toString());
         map.put(FIELD_METHOD, href.getMethod());

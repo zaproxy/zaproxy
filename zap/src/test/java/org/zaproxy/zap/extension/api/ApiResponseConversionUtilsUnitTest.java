@@ -39,7 +39,7 @@ import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 
 @ExtendWith(MockitoExtension.class)
-public class ApiResponseConversionUtilsUnitTest {
+class ApiResponseConversionUtilsUnitTest {
 
     @Mock HttpMessage message;
 
@@ -52,7 +52,7 @@ public class ApiResponseConversionUtilsUnitTest {
     @Mock HttpResponseBody responseBody;
 
     @BeforeEach
-    public void prepareMessage() {
+    void prepareMessage() {
         given(message.getRequestHeader()).willReturn(requestHeader);
         given(message.getRequestBody()).willReturn(requestBody);
         given(message.getResponseHeader()).willReturn(responseHeader);
@@ -60,21 +60,21 @@ public class ApiResponseConversionUtilsUnitTest {
     }
 
     @Test
-    public void nameOfApiResponseShouldBeConstant() {
+    void nameOfApiResponseShouldBeConstant() {
         ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
 
         assertThat(response.getName(), is("message"));
     }
 
     @Test
-    public void historyIdShouldBecomeIdOfApiResponse() {
+    void historyIdShouldBecomeIdOfApiResponse() {
         ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(42, message);
 
         assertThat(response.getValues(), hasEntry("id", "42"));
     }
 
     @Test
-    public void shouldHaveUndefinedHistoryTypeByDefault() {
+    void shouldHaveUndefinedHistoryTypeByDefault() {
         // Given / When
         ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
         // Then
@@ -82,7 +82,7 @@ public class ApiResponseConversionUtilsUnitTest {
     }
 
     @Test
-    public void shouldIncludeHistoryTypeInApiResponse() {
+    void shouldIncludeHistoryTypeInApiResponse() {
         // Given
         int historyType = 2;
         // When
@@ -93,7 +93,7 @@ public class ApiResponseConversionUtilsUnitTest {
     }
 
     @Test
-    public void propertiesFromGivenHttpMessageShouldReflectInApiResponse() {
+    void propertiesFromGivenHttpMessageShouldReflectInApiResponse() {
         given(message.getCookieParamsAsString()).willReturn("testCookieParams");
         given(message.getNote()).willReturn("testNote");
         given(requestHeader.toString()).willReturn("testRequestHeader");
@@ -114,7 +114,7 @@ public class ApiResponseConversionUtilsUnitTest {
     }
 
     @Test
-    public void compressedResponseBodyShouldBeDeflatedIntoApiResponse() throws Exception {
+    void compressedResponseBodyShouldBeDeflatedIntoApiResponse() throws Exception {
         given(responseHeader.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
         given(responseBody.getBytes()).willReturn(gzip(new byte[] {97, 98, 99}));
 
@@ -124,7 +124,7 @@ public class ApiResponseConversionUtilsUnitTest {
     }
 
     @Test
-    public void brokenCompressedResponseBodyShouldBeStoredAsStringRepresentationInApiResponse() {
+    void brokenCompressedResponseBodyShouldBeStoredAsStringRepresentationInApiResponse() {
         given(responseHeader.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
         given(responseBody.getBytes()).willReturn(new byte[] {0, 0, 0});
 

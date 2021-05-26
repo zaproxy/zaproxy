@@ -28,7 +28,7 @@ import javax.swing.JTextArea;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HttpTextViewUtils}. */
-public class HttpTextViewUtilsUnitTest {
+class HttpTextViewUtilsUnitTest {
 
     private static final String HEADER =
             "GET /path HTTP/1.1\r\nHost: example.com\r\nX-SomeHeader: x-some-value\r\n\r\n";
@@ -41,7 +41,7 @@ public class HttpTextViewUtilsUnitTest {
     private static final int VIEW_WITH_BODY_LENGTH = VIEW_WITH_BODY.getDocument().getLength();
 
     @Test
-    public void shouldNotAllowUndefinedHeaderWhenGettingHeaderToViewPosition() {
+    void shouldNotAllowUndefinedHeaderWhenGettingHeaderToViewPosition() {
         // Given
         String undefinedHeader = null;
         // When / Then
@@ -51,7 +51,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowUndefinedViewWhenGettingHeaderToViewPosition() {
+    void shouldNotAllowUndefinedViewWhenGettingHeaderToViewPosition() {
         // Given
         JTextArea undefinedView = null;
         // When / Then
@@ -61,7 +61,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowNegativeStartWhenGettingHeaderToViewPosition() {
+    void shouldNotAllowNegativeStartWhenGettingHeaderToViewPosition() {
         // Given
         int start = -1;
         // When / Then
@@ -71,8 +71,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void
-            shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingHeaderToViewPosition() {
+    void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingHeaderToViewPosition() {
         // Given / When
         int pos[] =
                 HttpTextViewUtils.getHeaderToViewPosition(
@@ -82,7 +81,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowNegativeEndWhenGettingHeaderToViewPosition() {
+    void shouldNotAllowNegativeEndWhenGettingHeaderToViewPosition() {
         // Given
         int end = -1;
         // When / Then
@@ -92,7 +91,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingHeaderToViewPosition() {
+    void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingHeaderToViewPosition() {
         // Given / When
         int[] pos = HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, 0, HEADER_LENGTH + 1);
         // Then
@@ -100,7 +99,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowStartGreaterThanEndWhenGettingHeaderToViewPosition() {
+    void shouldNotAllowStartGreaterThanEndWhenGettingHeaderToViewPosition() {
         // Given
         int start = 2;
         int end = 1;
@@ -111,7 +110,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotOffsetPositionsIfOnFirstHeaderLineWhenGettingHeaderToViewPosition()
+    void shouldNotOffsetPositionsIfOnFirstHeaderLineWhenGettingHeaderToViewPosition()
             throws Exception {
         // Given
         int start = 10;
@@ -126,8 +125,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetPositionNotOnFirstLineWhenGettingHeaderToViewPosition()
-            throws Exception {
+    void shouldOffsetPositionNotOnFirstLineWhenGettingHeaderToViewPosition() throws Exception {
         // Given
         int start = 4;
         int end = 65;
@@ -143,8 +141,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetPositionsPerEachLineHeaderWhenGettingHeaderToViewPosition()
-            throws Exception {
+    void shouldOffsetPositionsPerEachLineHeaderWhenGettingHeaderToViewPosition() throws Exception {
         // Given
         int start = 20;
         int end = 52;
@@ -160,7 +157,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetLastLineHeaderWhenGettingHeaderToViewPosition() throws Exception {
+    void shouldOffsetLastLineHeaderWhenGettingHeaderToViewPosition() throws Exception {
         // Given
         int start = 0;
         int end = HEADER_LENGTH;
@@ -178,7 +175,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetTillLastLineHeaderWhenGettingHeaderToViewPosition() {
+    void shouldOffsetTillLastLineHeaderWhenGettingHeaderToViewPosition() {
         // Given
         int start = HEADER_LENGTH;
         int end = HEADER_LENGTH;
@@ -191,7 +188,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldReturnInvalidPositionIfOffsetStartIsGreaterThanViewLengthWhenGettingHeaderToViewPosition() {
         // Given
         JTextArea view = new JTextArea("ABC");
@@ -204,7 +201,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldReturnInvalidPositionIfOffsetEndIsGreaterThanViewLengthWhenGettingHeaderToViewPosition() {
         // Given
         JTextArea view = new JTextArea("ABC");
@@ -217,7 +214,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowUndefinedViewWhenGettingViewToHeaderPosition() {
+    void shouldNotAllowUndefinedViewWhenGettingViewToHeaderPosition() {
         // Given
         JTextArea undefinedView = null;
         // When / Then
@@ -227,7 +224,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowNegativeStartWhenGettingViewToHeaderPosition() {
+    void shouldNotAllowNegativeStartWhenGettingViewToHeaderPosition() {
         // Given
         int start = -1;
         // When / Then
@@ -237,8 +234,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void
-            shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingViewToHeaderPosition() {
+    void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingViewToHeaderPosition() {
         // Given / When
         int[] pos =
                 HttpTextViewUtils.getViewToHeaderPosition(VIEW, VIEW_LENGTH + 1, VIEW_LENGTH + 2);
@@ -247,7 +243,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowNegativeEndWhenGettingViewToHeaderPosition() {
+    void shouldNotAllowNegativeEndWhenGettingViewToHeaderPosition() {
         // Given
         int end = -1;
         // When / Then
@@ -257,7 +253,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingViewToHeaderPosition() {
+    void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingViewToHeaderPosition() {
         // Given / When
         int[] pos = HttpTextViewUtils.getViewToHeaderPosition(VIEW, 0, VIEW_LENGTH + 1);
         // Then
@@ -265,7 +261,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowStartGreaterThanEndWhenGettingViewToHeaderPosition() {
+    void shouldNotAllowStartGreaterThanEndWhenGettingViewToHeaderPosition() {
         // Given
         int start = 2;
         int end = 1;
@@ -276,7 +272,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotOffsetPositionsIfOnFirstHeaderLineWhenGettingViewToHeaderPosition() {
+    void shouldNotOffsetPositionsIfOnFirstHeaderLineWhenGettingViewToHeaderPosition() {
         // Given
         int start = 10;
         int end = 18;
@@ -290,7 +286,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetPositionNotOnFirstLineWhenGettingViewToHeaderPosition() {
+    void shouldOffsetPositionNotOnFirstLineWhenGettingViewToHeaderPosition() {
         // Given
         int start = 4;
         int end = 63;
@@ -306,7 +302,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetPositionsPerEachLineHeaderHeaderWhenGettingViewToHeaderPosition() {
+    void shouldOffsetPositionsPerEachLineHeaderHeaderWhenGettingViewToHeaderPosition() {
         // Given
         int start = 19;
         int end = 50;
@@ -322,7 +318,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetLastLineHeaderWhenGettingViewToHeaderPosition() {
+    void shouldOffsetLastLineHeaderWhenGettingViewToHeaderPosition() {
         // Given
         int start = 0;
         int end = VIEW_LENGTH;
@@ -340,7 +336,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetTillLastLineHeaderWhenGettingViewToHeaderPosition() {
+    void shouldOffsetTillLastLineHeaderWhenGettingViewToHeaderPosition() {
         // Given
         int start = VIEW_LENGTH;
         int end = VIEW_LENGTH;
@@ -353,7 +349,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowUndefinedHeaderWhenGettingBodyToViewPosition() {
+    void shouldNotAllowUndefinedHeaderWhenGettingBodyToViewPosition() {
         // Given
         String undefinedHeader = null;
         // When / Then
@@ -365,7 +361,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowUndefinedViewWhenGettingBodyToViewPosition() {
+    void shouldNotAllowUndefinedViewWhenGettingBodyToViewPosition() {
         // Given
         JTextArea undefinedView = null;
         // When / Then
@@ -375,7 +371,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowNegativeStartWhenGettingBodyToViewPosition() {
+    void shouldNotAllowNegativeStartWhenGettingBodyToViewPosition() {
         // Given
         int start = -1;
         // When / Then
@@ -385,7 +381,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingBodyToViewPosition() {
+    void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingBodyToViewPosition() {
         // Given / When
         int[] pos =
                 HttpTextViewUtils.getBodyToViewPosition(
@@ -398,7 +394,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowNegativeEndWhenGettingBodyToViewPosition() {
+    void shouldNotAllowNegativeEndWhenGettingBodyToViewPosition() {
         // Given
         int end = -1;
         // When / Then
@@ -408,7 +404,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingBodyToViewPosition() {
+    void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingBodyToViewPosition() {
         // Given / When
         int[] pos =
                 HttpTextViewUtils.getBodyToViewPosition(
@@ -418,7 +414,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowStartGreaterThanEndWhenGettingBodyToViewPosition() {
+    void shouldNotAllowStartGreaterThanEndWhenGettingBodyToViewPosition() {
         // Given
         int start = 2;
         int end = 1;
@@ -429,8 +425,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetPositionsPerEachLineHeaderWhenGettingBodyToViewPosition()
-            throws Exception {
+    void shouldOffsetPositionsPerEachLineHeaderWhenGettingBodyToViewPosition() throws Exception {
         // Given
         int start = 0;
         int end = 12;
@@ -444,7 +439,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnInvalidPositionIfViewHasNoHBodyLengthWhenGettingBodyToViewPosition() {
+    void shouldReturnInvalidPositionIfViewHasNoHBodyLengthWhenGettingBodyToViewPosition() {
         // Given
         JTextArea view = new JTextArea("AB");
         int start = 0;
@@ -456,7 +451,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldReturnInvalidPositionIfOffsetStartIsGreaterThanViewLengthWhenGettingBodyToViewPosition() {
         // Given
         int start = 1;
@@ -468,7 +463,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldReturnInvalidPositionIfOffsetEndIsGreaterThanViewLengthWhenGettingBodyToViewPosition() {
         // Given
         int start = 0;
@@ -480,7 +475,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowUndefinedHeaderWhenGettingViewToHeaderBodyPosition() {
+    void shouldNotAllowUndefinedHeaderWhenGettingViewToHeaderBodyPosition() {
         // Given
         String undefinedHeader = null;
         // When / Then
@@ -492,7 +487,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowUndefinedViewWhenGettingViewToHeaderBodyPosition() {
+    void shouldNotAllowUndefinedViewWhenGettingViewToHeaderBodyPosition() {
         // Given
         JTextArea undefinedView = null;
         // When / Then
@@ -502,7 +497,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowNegativeStartWhenGettingViewToHeaderBodyPosition() {
+    void shouldNotAllowNegativeStartWhenGettingViewToHeaderBodyPosition() {
         // Given
         int start = -1;
         // When / Then
@@ -514,8 +509,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void
-            shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
+    void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
         // Given / When
         int[] pos =
                 HttpTextViewUtils.getViewToHeaderBodyPosition(
@@ -528,7 +522,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowNegativeEndWhenGettingViewToHeaderBodyPosition() {
+    void shouldNotAllowNegativeEndWhenGettingViewToHeaderBodyPosition() {
         // Given
         int end = -1;
         // When / Then
@@ -540,8 +534,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void
-            shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
+    void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
         // Given / When
         int[] pos =
                 HttpTextViewUtils.getViewToHeaderBodyPosition(
@@ -551,7 +544,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowStartGreaterThanEndWhenGettingViewToHeaderBodyPosition() {
+    void shouldNotAllowStartGreaterThanEndWhenGettingViewToHeaderBodyPosition() {
         // Given
         int start = 2;
         int end = 1;
@@ -564,7 +557,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldNotOffsetPositionsIfOnFirstHeaderLineWhenGettingViewToHeaderBodyPosition() {
+    void shouldNotOffsetPositionsIfOnFirstHeaderLineWhenGettingViewToHeaderBodyPosition() {
         // Given
         int start = 10;
         int end = 18;
@@ -579,7 +572,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetPositionNotOnFirstLineWhenGettingViewToHeaderBodyPosition() {
+    void shouldOffsetPositionNotOnFirstLineWhenGettingViewToHeaderBodyPosition() {
         // Given
         int start = 4;
         int end = 63;
@@ -596,7 +589,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetPositionsPerEachLineHeaderHeaderWhenGettingViewToHeaderBodyPosition() {
+    void shouldOffsetPositionsPerEachLineHeaderHeaderWhenGettingViewToHeaderBodyPosition() {
         // Given
         int start = 19;
         int end = 50;
@@ -613,7 +606,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetLastLineHeaderWhenGettingViewToHeaderBodyPosition() {
+    void shouldOffsetLastLineHeaderWhenGettingViewToHeaderBodyPosition() {
         // Given
         int start = 0;
         int end = VIEW_LENGTH;
@@ -632,8 +625,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void
-            shouldTruncateEndOffsetIfGreaterThanLastLineHeaderWhenGettingViewToHeaderBodyPosition() {
+    void shouldTruncateEndOffsetIfGreaterThanLastLineHeaderWhenGettingViewToHeaderBodyPosition() {
         // Given
         int start = 0;
         int end = VIEW_WITH_BODY_LENGTH;
@@ -652,7 +644,7 @@ public class HttpTextViewUtilsUnitTest {
     }
 
     @Test
-    public void shouldOffsetToBodyAfterLastLineHeaderWhenGettingViewToHeaderBodyPosition() {
+    void shouldOffsetToBodyAfterLastLineHeaderWhenGettingViewToHeaderBodyPosition() {
         // Given
         int start = VIEW_LENGTH;
         int end = VIEW_WITH_BODY_LENGTH;

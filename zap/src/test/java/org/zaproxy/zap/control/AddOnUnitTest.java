@@ -55,58 +55,58 @@ import org.zaproxy.zap.control.AddOn.ValidationResult;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link AddOn}. */
-public class AddOnUnitTest extends AddOnTestUtils {
+class AddOnUnitTest extends AddOnTestUtils {
 
     private static final File ZAP_VERSIONS_XML =
             getResourcePath("ZapVersions-deps.xml", AddOnUnitTest.class).toFile();
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testIsAddon() throws Exception {
+    void testIsAddon() throws Exception {
         assertTrue(AddOn.isAddOn("test-alpha-1.zap"));
     }
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testNotAddonNoState() throws Exception {
+    void testNotAddonNoState() throws Exception {
         assertFalse(AddOn.isAddOn("test-1.zap"));
     }
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testNotAddonBadExt() throws Exception {
+    void testNotAddonBadExt() throws Exception {
         assertFalse(AddOn.isAddOn("test-beta-1.zip"));
     }
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testNotAddonBadStatus() throws Exception {
+    void testNotAddonBadStatus() throws Exception {
         assertFalse(AddOn.isAddOn("test-xxx-1.zap"));
     }
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testNotAddonBadVersion() throws Exception {
+    void testNotAddonBadVersion() throws Exception {
         assertFalse(AddOn.isAddOn("test-beta-A.zap"));
     }
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testId() throws Exception {
+    void testId() throws Exception {
         AddOn addOn = new AddOn("test-alpha-1.zap");
         assertThat(addOn.getId(), is("test"));
     }
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testStatus() throws Exception {
+    void testStatus() throws Exception {
         AddOn addOn = new AddOn("test-alpha-1.zap");
         assertThat(addOn.getStatus().name(), is("alpha"));
     }
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testVersion() throws Exception {
+    void testVersion() throws Exception {
         AddOn addOn = new AddOn("test-alpha-1.zap");
         assertThat(addOn.getVersion().toString(), is(equalTo("1.0.0")));
         assertThat(addOn.getFileVersion(), is(1));
@@ -114,7 +114,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testAlpha2UpdatesAlpha1() throws Exception {
+    void testAlpha2UpdatesAlpha1() throws Exception {
         AddOn addOnA1 = new AddOn("test-alpha-1.zap");
         AddOn addOnA2 = new AddOn("test-alpha-2.zap");
         assertTrue(addOnA2.isUpdateTo(addOnA1));
@@ -122,7 +122,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testAlpha1DoesNotUpdateAlpha2() throws Exception {
+    void testAlpha1DoesNotUpdateAlpha2() throws Exception {
         AddOn addOnA1 = new AddOn("test-alpha-1.zap");
         AddOn addOnA2 = new AddOn("test-alpha-2.zap");
         assertFalse(addOnA1.isUpdateTo(addOnA2));
@@ -130,7 +130,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testAlpha2UpdatesBeta1() throws Exception {
+    void testAlpha2UpdatesBeta1() throws Exception {
         AddOn addOnB1 = new AddOn("test-beta-1.zap");
         AddOn addOnA2 = new AddOn("test-alpha-2.zap");
         assertTrue(addOnA2.isUpdateTo(addOnB1));
@@ -138,7 +138,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testAlpha2DoesNotUpdateTestyAlpha1() throws Exception {
+    void testAlpha2DoesNotUpdateTestyAlpha1() throws Exception {
         // Given
         AddOn addOnA1 = new AddOn("test-alpha-1.zap");
         AddOn addOnA2 = new AddOn("testy-alpha-2.zap");
@@ -150,7 +150,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeUpdateIfSameVersionWithHigherStatus() throws Exception {
+    void shouldBeUpdateIfSameVersionWithHigherStatus() throws Exception {
         // Given
         String name = "addon.zap";
         String version = "1.0.0";
@@ -163,7 +163,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeUpdateIfSameVersionWithLowerStatus() throws Exception {
+    void shouldNotBeUpdateIfSameVersionWithLowerStatus() throws Exception {
         // Given
         String name = "addon.zap";
         String version = "1.0.0";
@@ -176,7 +176,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeUpdateIfFileIsNewerWithSameStatusAndVersion() throws Exception {
+    void shouldBeUpdateIfFileIsNewerWithSameStatusAndVersion() throws Exception {
         // Given
         String name = "addon.zap";
         String status = "release";
@@ -191,7 +191,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeUpdateIfFileIsOlderWithSameStatusAndVersion() throws Exception {
+    void shouldNotBeUpdateIfFileIsOlderWithSameStatusAndVersion() throws Exception {
         // Given
         String name = "addon.zap";
         String status = "release";
@@ -206,8 +206,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeUpdateIfOtherAddOnDoesNotHaveFileWithSameStatusAndVersion()
-            throws Exception {
+    void shouldBeUpdateIfOtherAddOnDoesNotHaveFileWithSameStatusAndVersion() throws Exception {
         // Given
         String name = "addon.zap";
         String status = "release";
@@ -222,8 +221,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeUpdateIfCurrentAddOnDoesNotHaveFileWithSameStatusAndVersion()
-            throws Exception {
+    void shouldNotBeUpdateIfCurrentAddOnDoesNotHaveFileWithSameStatusAndVersion() throws Exception {
         // Given
         String name = "addon.zap";
         String status = "release";
@@ -239,7 +237,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testCanLoadAddOnNotBefore() throws Exception {
+    void testCanLoadAddOnNotBefore() throws Exception {
         AddOn ao = new AddOn("test-alpha-1.zap");
         ao.setNotBeforeVersion("2.4.0");
         assertTrue(ao.canLoadInVersion("2.4.0"));
@@ -253,7 +251,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testCanLoadAddOnNotFrom() throws Exception {
+    void testCanLoadAddOnNotFrom() throws Exception {
         AddOn ao = new AddOn("test-alpha-1.zap");
         ao.setNotBeforeVersion("2.4.0");
         ao.setNotFromVersion("2.8.0");
@@ -267,7 +265,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void testCanLoadAddOnNotBeforeNotFrom() throws Exception {
+    void testCanLoadAddOnNotBeforeNotFrom() throws Exception {
         AddOn ao = new AddOn("test-alpha-1.zap");
         ao.setNotBeforeVersion("2.4.0");
         assertTrue(ao.canLoadInVersion("2.4.0"));
@@ -281,7 +279,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeAddOnFileNameIfNull() throws Exception {
+    void shouldNotBeAddOnFileNameIfNull() throws Exception {
         // Given
         String fileName = null;
         // When
@@ -291,7 +289,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeAddOnFileNameIfNotEndsWithZapExtension() throws Exception {
+    void shouldNotBeAddOnFileNameIfNotEndsWithZapExtension() throws Exception {
         // Given
         String fileName = "addon.txt";
         // When
@@ -301,7 +299,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeAddOnFileNameIfEndsWithZapExtension() throws Exception {
+    void shouldBeAddOnFileNameIfEndsWithZapExtension() throws Exception {
         // Given
         String fileName = "addon.zap";
         // When
@@ -311,7 +309,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeAddOnFileNameEvenIfZapExtensionIsUpperCase() throws Exception {
+    void shouldBeAddOnFileNameEvenIfZapExtensionIsUpperCase() throws Exception {
         // Given
         String fileName = "addon.ZAP";
         // When
@@ -321,7 +319,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeAddOnIfPathIsNull() throws Exception {
+    void shouldNotBeAddOnIfPathIsNull() throws Exception {
         // Given
         Path file = null;
         // When
@@ -331,7 +329,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeAddOnIfPathIsDirectory() throws Exception {
+    void shouldNotBeAddOnIfPathIsDirectory() throws Exception {
         // Given
         Path file = Files.createDirectory(newTempDir().resolve("addon.zap"));
         // When
@@ -341,7 +339,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeAddOnIfFileNameNotEndsWithZapExtension() throws Exception {
+    void shouldNotBeAddOnIfFileNameNotEndsWithZapExtension() throws Exception {
         // Given
         Path file = createAddOnFile("addon.txt", "alpha", "1");
         // When
@@ -351,7 +349,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeAddOnIfAddOnDoesNotHaveManifestFile() throws Exception {
+    void shouldNotBeAddOnIfAddOnDoesNotHaveManifestFile() throws Exception {
         // Given
         Path file = createEmptyAddOnFile("addon.zap");
         // When
@@ -361,7 +359,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeAddOnIfPathEndsWithZapExtension() throws Exception {
+    void shouldBeAddOnIfPathEndsWithZapExtension() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "alpha", "1");
         // When
@@ -371,7 +369,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeAddOnEvenIfZapExtensionIsUpperCase() throws Exception {
+    void shouldBeAddOnEvenIfZapExtensionIsUpperCase() throws Exception {
         // Given
         Path file = createAddOnFile("addon.ZAP", "alpha", "1");
         // When
@@ -381,7 +379,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeValidAddOnIfPathIsNull() throws Exception {
+    void shouldNotBeValidAddOnIfPathIsNull() throws Exception {
         // Given
         Path file = null;
         // When
@@ -391,7 +389,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeValidAddOnIfPathHasNoFileName() throws Exception {
+    void shouldNotBeValidAddOnIfPathHasNoFileName() throws Exception {
         // Given
         Path file = Paths.get("/");
         // When
@@ -401,7 +399,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeValidAddOnIfFileDoesNotHaveZapExtension() throws Exception {
+    void shouldNotBeValidAddOnIfFileDoesNotHaveZapExtension() throws Exception {
         // Given
         Path file = Files.createFile(newTempDir().resolve("addon.zip"));
         // When
@@ -411,7 +409,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeValidAddOnIfPathIsDirectory() throws Exception {
+    void shouldNotBeValidAddOnIfPathIsDirectory() throws Exception {
         // Given
         Path file = Files.createDirectory(newTempDir().resolve("addon.zap"));
         // When
@@ -421,7 +419,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeValidAddOnIfPathIsNotReadable() throws Exception {
+    void shouldNotBeValidAddOnIfPathIsNotReadable() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "alpha", "1");
         assumeTrue(
@@ -438,7 +436,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeValidAddOnIfNotZipFile() throws Exception {
+    void shouldNotBeValidAddOnIfNotZipFile() throws Exception {
         // Given
         Path file = Files.createFile(newTempDir().resolve("addon.zap"));
         // When
@@ -450,7 +448,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeValidAddOnIfItHasNoManifest() throws Exception {
+    void shouldNotBeValidAddOnIfItHasNoManifest() throws Exception {
         // Given
         Path file = Files.createFile(newTempDir().resolve("addon.zap"));
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file.toFile()))) {
@@ -464,7 +462,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeValidAddOnIfManifestIsMalformed() throws Exception {
+    void shouldNotBeValidAddOnIfManifestIsMalformed() throws Exception {
         // Given
         Path file = Files.createFile(newTempDir().resolve("addon.zap"));
         try (ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file.toFile()))) {
@@ -479,7 +477,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeValidAddOnIfHasMissingLib() throws Exception {
+    void shouldNotBeValidAddOnIfHasMissingLib() throws Exception {
         // Given
         Path file =
                 createAddOnFile(
@@ -497,7 +495,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeValidAddOnIfHasLibWithMissingName() throws Exception {
+    void shouldNotBeValidAddOnIfHasLibWithMissingName() throws Exception {
         // Given
         Path file =
                 createAddOnFile(
@@ -515,7 +513,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeValidAddOnIfValid() throws Exception {
+    void shouldBeValidAddOnIfValid() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "release", "1.0.0");
         // When
@@ -526,7 +524,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldFailToCreateAddOnFromNullFile() {
+    void shouldFailToCreateAddOnFromNullFile() {
         // Given
         Path file = null;
         // When
@@ -536,7 +534,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldFailToCreateAddOnFromFileWithInvalidFileName() throws Exception {
+    void shouldFailToCreateAddOnFromFileWithInvalidFileName() throws Exception {
         // Given
         String invalidFileName = "addon.txt";
         Path file = createAddOnFile(invalidFileName, "alpha", "1");
@@ -548,7 +546,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldCreateAddOnFromFileAndUseManifestData() throws Exception {
+    void shouldCreateAddOnFromFileAndUseManifestData() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "beta", "1.6.7");
         // When
@@ -561,7 +559,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldCreateAddOnWithDotsInId() throws Exception {
+    void shouldCreateAddOnWithDotsInId() throws Exception {
         // Given
         Path file = createAddOnFile("addon.x.zap", "release", "1.0.0");
         // When
@@ -573,7 +571,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldIgnoreStatusInFileNameWhenCreatingAddOnFromFile() throws Exception {
+    void shouldIgnoreStatusInFileNameWhenCreatingAddOnFromFile() throws Exception {
         // Given
         Path file = createAddOnFile("addon-alpha.zap", "release", "1");
         // When
@@ -584,7 +582,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldIgnoreVersionInFileNameWhenCreatingAddOnFromFile() throws Exception {
+    void shouldIgnoreVersionInFileNameWhenCreatingAddOnFromFile() throws Exception {
         // Given
         Path file = createAddOnFile("addon-alpha-2.zap", "alpha", "3.2.10");
         // When
@@ -595,7 +593,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldReturnNormalisedFileName() throws Exception {
+    void shouldReturnNormalisedFileName() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "alpha", "2.8.1");
         AddOn addOn = new AddOn(file);
@@ -606,7 +604,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldHaveNoReleaseDate() throws Exception {
+    void shouldHaveNoReleaseDate() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnFile("addon.zap"));
         // When
@@ -616,7 +614,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldHaveEmptyBundleByDefault() throws Exception {
+    void shouldHaveEmptyBundleByDefault() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "release", "1.0.0");
         AddOn addOn = new AddOn(file);
@@ -630,7 +628,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldHaveDeclaredBundle() throws Exception {
+    void shouldHaveDeclaredBundle() throws Exception {
         // Given
         Path file =
                 createAddOnFile(
@@ -653,7 +651,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldHaveDeclaredBundleWithPrefix() throws Exception {
+    void shouldHaveDeclaredBundleWithPrefix() throws Exception {
         // Given
         Path file =
                 createAddOnFile(
@@ -676,7 +674,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldHaveEmptyHelpSetByDefault() throws Exception {
+    void shouldHaveEmptyHelpSetByDefault() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "release", "1.0.0");
         AddOn addOn = new AddOn(file);
@@ -690,7 +688,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldHaveDeclaredHelpSet() throws Exception {
+    void shouldHaveDeclaredHelpSet() throws Exception {
         // Given
         Path file =
                 createAddOnFile(
@@ -713,7 +711,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldHaveDeclaredHelpSetWithLocaleToken() throws Exception {
+    void shouldHaveDeclaredHelpSetWithLocaleToken() throws Exception {
         // Given
         Path file =
                 createAddOnFile(
@@ -736,7 +734,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldDependOnDependency() throws Exception {
+    void shouldDependOnDependency() throws Exception {
         // Given
         ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
         AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
@@ -748,7 +746,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotDependIfNoDependencies() throws Exception {
+    void shouldNotDependIfNoDependencies() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnFile("AddOn-release-1.zap", "release", "1"));
         AddOn nonDependency = createAddOn("AddOn3", createZapVersionsXml());
@@ -759,7 +757,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotDependOnNonDependency() throws Exception {
+    void shouldNotDependOnNonDependency() throws Exception {
         // Given
         ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
         AddOn addOn = createAddOn("AddOn9", zapVersionsXml);
@@ -771,7 +769,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotDirectlyDependOnNonDirectDependency() throws Exception {
+    void shouldNotDirectlyDependOnNonDirectDependency() throws Exception {
         // Given
         ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
         AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
@@ -783,7 +781,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotDependOnItSelf() throws Exception {
+    void shouldNotDependOnItSelf() throws Exception {
         // Given
         ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
         AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
@@ -795,7 +793,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldDependOnDependencies() throws Exception {
+    void shouldDependOnDependencies() throws Exception {
         // Given
         ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
         AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
@@ -809,7 +807,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotDirectlyDependOnNonDirectDependencies() throws Exception {
+    void shouldNotDirectlyDependOnNonDirectDependencies() throws Exception {
         // Given
         ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
         AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
@@ -823,7 +821,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotDependOnNonDependencies() throws Exception {
+    void shouldNotDependOnNonDependencies() throws Exception {
         // Given
         ZapXmlConfiguration zapVersionsXml = createZapVersionsXml();
         AddOn addOn = createAddOn("AddOn1", zapVersionsXml);
@@ -837,7 +835,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeUpdateToOlderVersionIfNewer() throws Exception {
+    void shouldBeUpdateToOlderVersionIfNewer() throws Exception {
         // Given
         AddOn olderAddOn = new AddOn(createAddOnFile("addon-2.4.8.zap", "release", "2.4.8"));
         AddOn newerAddOn = new AddOn(createAddOnFile("addon-3.5.9.zap", "release", "3.5.9"));
@@ -848,7 +846,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeUpdateToNewerVersionIfOlder() throws Exception {
+    void shouldNotBeUpdateToNewerVersionIfOlder() throws Exception {
         // Given
         AddOn olderAddOn = new AddOn(createAddOnFile("addon-2.4.8.zap", "release", "2.4.8"));
         AddOn newerAddOn = new AddOn(createAddOnFile("addon-3.5.9.zap", "release", "3.5.9"));
@@ -859,7 +857,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeAbleToRunIfItHasNoMinimumJavaVersion() throws Exception {
+    void shouldBeAbleToRunIfItHasNoMinimumJavaVersion() throws Exception {
         // Given
         String minimumJavaVersion = null;
         String runningJavaVersion = "1.8";
@@ -873,7 +871,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeAbleToRunInJava9MajorIfMinimumJavaVersionIsMet() throws Exception {
+    void shouldBeAbleToRunInJava9MajorIfMinimumJavaVersionIsMet() throws Exception {
         // Given
         String minimumJavaVersion = "1.8";
         String runningJavaVersion = "9";
@@ -887,7 +885,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeAbleToRunInJava9MinorIfMinimumJavaVersionIsMet() throws Exception {
+    void shouldBeAbleToRunInJava9MinorIfMinimumJavaVersionIsMet() throws Exception {
         // Given
         String minimumJavaVersion = "1.8";
         String runningJavaVersion = "9.1.2";
@@ -901,7 +899,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeAbleToRunInJava9MajorIfMinimumJavaVersionIsNotMet() throws Exception {
+    void shouldNotBeAbleToRunInJava9MajorIfMinimumJavaVersionIsNotMet() throws Exception {
         // Given
         String minimumJavaVersion = "10";
         String runningJavaVersion = "9";
@@ -915,7 +913,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeAbleToRunInJava9MinorIfMinimumJavaVersionIsNotMet() throws Exception {
+    void shouldNotBeAbleToRunInJava9MinorIfMinimumJavaVersionIsNotMet() throws Exception {
         // Given
         String minimumJavaVersion = "10";
         String runningJavaVersion = "9.1.2";
@@ -929,7 +927,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldReturnLibsInManifest() throws Exception {
+    void shouldReturnLibsInManifest() throws Exception {
         // Given
         String lib1 = "lib1.jar";
         String lib2 = "dir/lib2.jar";
@@ -941,7 +939,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotBeRunnableIfLibsAreNotInFileSystem() throws Exception {
+    void shouldNotBeRunnableIfLibsAreNotInFileSystem() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnWithLibs("lib1.jar", "lib2.jar"));
         // When
@@ -953,7 +951,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldBeRunnableIfLibsAreInFileSystem() throws Exception {
+    void shouldBeRunnableIfLibsAreInFileSystem() throws Exception {
         // Given
         String lib1 = "lib1.jar";
         String lib2 = "lib2.jar";
@@ -970,7 +968,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldCreateAddOnLibFromRootJarPath() throws Exception {
+    void shouldCreateAddOnLibFromRootJarPath() throws Exception {
         // Given
         String jarPath = "lib.jar";
         // When
@@ -981,7 +979,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldCreateAddOnLibFromNonRootJarPath() throws Exception {
+    void shouldCreateAddOnLibFromNonRootJarPath() throws Exception {
         // Given
         String name = "lib.jar";
         String jarPath = "dir/" + name;
@@ -993,7 +991,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotHaveFileSystemUrlInAddOnLibByDefault() throws Exception {
+    void shouldNotHaveFileSystemUrlInAddOnLibByDefault() throws Exception {
         // Given / When
         AddOn.Lib lib = new AddOn.Lib("lib.jar");
         // Then
@@ -1001,7 +999,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldSetFileSystemUrlToAddOnLib() throws Exception {
+    void shouldSetFileSystemUrlToAddOnLib() throws Exception {
         // Given
         AddOn.Lib lib = new AddOn.Lib("lib.jar");
         URL fsUrl = new URL("file:///some/path");
@@ -1012,7 +1010,7 @@ public class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldSetNullFileSystemUrlToAddOnLib() throws Exception {
+    void shouldSetNullFileSystemUrlToAddOnLib() throws Exception {
         // Given
         AddOn.Lib lib = new AddOn.Lib("lib.jar");
         lib.setFileSystemUrl(new URL("file:///some/path"));

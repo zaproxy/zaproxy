@@ -41,7 +41,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  *
  * @see org.zaproxy.zap.spider.parser.SpiderParser
  */
-public class SpiderParserTestUtils extends TestUtils {
+class SpiderParserTestUtils extends TestUtils {
 
     protected static Source createSource(HttpMessage messageHtmlResponse) {
         return new Source(messageHtmlResponse.getResponseBody().toString());
@@ -61,18 +61,17 @@ public class SpiderParserTestUtils extends TestUtils {
         return strBuilder.toString();
     }
 
-    public static TestSpiderParserListener createTestSpiderParserListener() {
+    static TestSpiderParserListener createTestSpiderParserListener() {
         return new TestSpiderParserListener();
     }
 
-    public static TestSpiderParserListener createAndAddTestSpiderParserListener(
-            SpiderParser parser) {
+    static TestSpiderParserListener createAndAddTestSpiderParserListener(SpiderParser parser) {
         TestSpiderParserListener listener = createTestSpiderParserListener();
         parser.addSpiderParserListener(listener);
         return listener;
     }
 
-    public static class TestSpiderParserListener implements SpiderParserListener {
+    protected static class TestSpiderParserListener implements SpiderParserListener {
 
         private final List<SpiderResource> resources;
         private final List<String> urls;
@@ -82,19 +81,19 @@ public class SpiderParserTestUtils extends TestUtils {
             urls = new ArrayList<>();
         }
 
-        public int getNumberOfUrlsFound() {
+        int getNumberOfUrlsFound() {
             return resources.size();
         }
 
-        public List<String> getUrlsFound() {
+        List<String> getUrlsFound() {
             return urls;
         }
 
-        public int getNumberOfResourcesFound() {
+        int getNumberOfResourcesFound() {
             return resources.size();
         }
 
-        public List<SpiderResource> getResourcesFound() {
+        List<SpiderResource> getResourcesFound() {
             return resources;
         }
 
@@ -104,12 +103,12 @@ public class SpiderParserTestUtils extends TestUtils {
             resources.add(new SpiderResource(resourceFound));
         }
 
-        public boolean isResourceFound() {
+        boolean isResourceFound() {
             return false;
         }
     }
 
-    public static SpiderResource uriResource(HttpMessage message, int depth, String uri) {
+    static SpiderResource uriResource(HttpMessage message, int depth, String uri) {
         return new SpiderResource(
                 SpiderResourceFound.builder()
                         .setMessage(message)
@@ -118,12 +117,12 @@ public class SpiderParserTestUtils extends TestUtils {
                         .build());
     }
 
-    public static SpiderResource uriResource(
+    static SpiderResource uriResource(
             HttpMessage message, int depth, String uri, boolean shouldIgnore) {
         return uriResource(message, depth, uri, shouldIgnore, new ArrayList<>());
     }
 
-    public static SpiderResource uriResource(
+    static SpiderResource uriResource(
             HttpMessage message,
             int depth,
             String uri,
@@ -140,12 +139,12 @@ public class SpiderParserTestUtils extends TestUtils {
         return new SpiderResource(resourceFound);
     }
 
-    public static SpiderResource postResource(
+    static SpiderResource postResource(
             HttpMessage message, int depth, String uri, String requestBody) {
         return postResource(message, depth, uri, requestBody, new ArrayList<>());
     }
 
-    public static SpiderResource postResource(
+    static SpiderResource postResource(
             HttpMessage message,
             int depth,
             String uri,
@@ -162,7 +161,7 @@ public class SpiderParserTestUtils extends TestUtils {
         return new SpiderResource(resourceFound);
     }
 
-    public static String params(String... params) {
+    static String params(String... params) {
         if (params == null || params.length == 0) {
             return "";
         }
@@ -177,7 +176,7 @@ public class SpiderParserTestUtils extends TestUtils {
         return strBuilder.toString();
     }
 
-    public static String param(String name, String value) {
+    static String param(String name, String value) {
         try {
             return URLEncoder.encode(name, StandardCharsets.UTF_8.name())
                     + "="
@@ -187,34 +186,34 @@ public class SpiderParserTestUtils extends TestUtils {
         }
     }
 
-    public static class SpiderResource {
+    static class SpiderResource {
         private SpiderResourceFound resourceFound;
 
-        public SpiderResource(SpiderResourceFound resourceFound) {
+        SpiderResource(SpiderResourceFound resourceFound) {
             this.resourceFound = resourceFound;
         }
 
-        public HttpMessage getMessage() {
+        HttpMessage getMessage() {
             return resourceFound.getMessage();
         }
 
-        public int getDepth() {
+        int getDepth() {
             return resourceFound.getDepth();
         }
 
-        public String getUri() {
+        String getUri() {
             return resourceFound.getUri();
         }
 
-        public boolean isShouldIgnore() {
+        boolean isShouldIgnore() {
             return resourceFound.isShouldIgnore();
         }
 
-        public String getRequestBody() {
+        String getRequestBody() {
             return resourceFound.getBody();
         }
 
-        public List<HttpHeaderField> getHeaders() {
+        List<HttpHeaderField> getHeaders() {
             return resourceFound.getRequestHeaders();
         }
 

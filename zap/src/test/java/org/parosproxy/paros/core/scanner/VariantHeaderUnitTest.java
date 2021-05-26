@@ -37,10 +37,10 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
 /** Unit test for {@link VariantHeader}. */
-public class VariantHeaderUnitTest {
+class VariantHeaderUnitTest {
 
     @Test
-    public void shouldHaveParametersListEmptyByDefault() {
+    void shouldHaveParametersListEmptyByDefault() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         // When
@@ -50,7 +50,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedParametersList() {
+    void shouldNotAllowToModifyReturnedParametersList() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         NameValuePair header = header("Name", "Value", 0);
@@ -61,7 +61,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldFailToExtractParametersFromUndefinedMessage() {
+    void shouldFailToExtractParametersFromUndefinedMessage() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage undefinedMessage = null;
@@ -71,7 +71,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotExtractAnyParameterIfThereAreNoHeaders() {
+    void shouldNotExtractAnyParameterIfThereAreNoHeaders() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage messageWithHeaders = createMessageWithoutInjectableHeaders();
@@ -82,7 +82,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotExtractAnyParameterIfThereAreNoInjectableHeaders() {
+    void shouldNotExtractAnyParameterIfThereAreNoInjectableHeaders() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage messageWithHeaders =
@@ -110,7 +110,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldExtractParametersFromInjectableHeaders() {
+    void shouldExtractParametersFromInjectableHeaders() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage messageWithHeaders =
@@ -131,7 +131,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldExtractParametersFromInjectableHeadersEvenIfThereAreNoInjectableHeaders() {
+    void shouldExtractParametersFromInjectableHeadersEvenIfThereAreNoInjectableHeaders() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage messageWithHeaders =
@@ -155,7 +155,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotAccumulateExtractedParameters() {
+    void shouldNotAccumulateExtractedParameters() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage messageWithHeaders =
@@ -182,7 +182,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldInjectHeaderValueModification() {
+    void shouldInjectHeaderValueModification() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage message =
@@ -201,7 +201,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldRemoveHeaderIfInjectedHeaderValueIsNull() {
+    void shouldRemoveHeaderIfInjectedHeaderValueIsNull() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage message =
@@ -220,7 +220,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldIgnoreChangesToHeaderName() {
+    void shouldIgnoreChangesToHeaderName() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage message =
@@ -239,7 +239,7 @@ public class VariantHeaderUnitTest {
     }
 
     @Test
-    public void shouldHaveSameEffectInjectingEscapedHeaderValueModification() {
+    void shouldHaveSameEffectInjectingEscapedHeaderValueModification() {
         // Given
         VariantHeader variantHeader = new VariantHeader();
         HttpMessage message =

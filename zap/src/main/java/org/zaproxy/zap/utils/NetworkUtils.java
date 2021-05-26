@@ -36,7 +36,7 @@ public final class NetworkUtils {
     private static final Logger LOG = LogManager.getLogger(NetworkUtils.class);
 
     public static List<String> getAvailableAddresses(boolean remoteOnly) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         Enumeration<NetworkInterface> e;
         try {
             e = NetworkInterface.getNetworkInterfaces();

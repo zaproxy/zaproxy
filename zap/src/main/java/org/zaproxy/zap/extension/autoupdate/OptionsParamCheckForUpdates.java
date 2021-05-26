@@ -59,7 +59,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
     private boolean reportReleaseAddons = false;
     private boolean reportBetaAddons = false;
     private boolean reportAlphaAddons = false;
-    private List<File> addonDirectories = new ArrayList<File>();
+    private List<File> addonDirectories = new ArrayList<>();
     private File downloadDirectory = new File(Constant.FOLDER_LOCAL_PLUGIN);
 
     // Day last checked is used to ensure if the user has agreed then we only check the first time

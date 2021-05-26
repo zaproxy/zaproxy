@@ -211,7 +211,7 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
         values.put("type", API_NAME);
         values.put("username", username);
         values.put("password", password);
-        return new ApiResponseSet<String>("credentials", values);
+        return new ApiResponseSet<>("credentials", values);
     }
 
     private static final String ACTION_SET_CREDENTIALS = "formBasedAuthenticationCredentials";

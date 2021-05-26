@@ -29,7 +29,7 @@ public class DesktopUtils {
     private static enum BrowserInvoker {
         desktop,
         none
-    };
+    }
 
     private static BrowserInvoker invoker =
             Desktop.isDesktopSupported() ? BrowserInvoker.desktop : BrowserInvoker.none;

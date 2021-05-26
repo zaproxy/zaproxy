@@ -25,14 +25,14 @@ import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for RFC 1808 compliance of {@link org.zaproxy.zap.spider.URLResolver}. */
-public class URLResolverRfc1808ExamplesUnitTest {
+class URLResolverRfc1808ExamplesUnitTest {
 
     /**
      * @see <a href="https://tools.ietf.org/html/rfc1808#section-5.1">RFC 1808 - 5.1. Normal
      *     Examples</a>
      */
     @Test
-    public void resolveRfc1808NormalExamples() {
+    void resolveRfc1808NormalExamples() {
         final String baseUrl = "http://a/b/c/d;p?q#f";
 
         assertThat(URLResolver.resolveUrl(baseUrl, "g:h"), is("g:h"));
@@ -66,7 +66,7 @@ public class URLResolverRfc1808ExamplesUnitTest {
      *     Examples</a>
      */
     @Test
-    public void resolveRfc1808AbnormalExamples() {
+    void resolveRfc1808AbnormalExamples() {
         final String baseUrl = "http://a/b/c/d;p?q#f";
 
         assertThat(URLResolver.resolveUrl(baseUrl, ""), is("http://a/b/c/d;p?q#f"));

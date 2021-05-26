@@ -40,7 +40,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
         ALERT,
         TAG,
         TECH
-    };
+    }
 
     private String name = null;
     private String requestUrlRegex = null;

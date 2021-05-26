@@ -57,7 +57,7 @@ public class PopupMenuExportSelectedURLs extends PopupMenuExportURLs {
 
     private SortedSet<String> getOutputSet(TreePath[] startingPoints) {
         JTree siteTree = extension.getView().getSiteTreePanel().getTreeSite();
-        ArrayList<TreePath> startingPts = new ArrayList<TreePath>();
+        ArrayList<TreePath> startingPts = new ArrayList<>();
 
         if (ArrayUtils.isEmpty(startingPoints)) {
             startingPts.add(new TreePath(siteTree.getModel().getRoot()));
@@ -65,7 +65,7 @@ public class PopupMenuExportSelectedURLs extends PopupMenuExportURLs {
             startingPts.addAll(Arrays.asList(startingPoints));
         }
 
-        SortedSet<String> outputSet = new TreeSet<String>();
+        SortedSet<String> outputSet = new TreeSet<>();
         for (TreePath aPath : startingPts) {
             Enumeration<?> en = (((SiteNode) aPath.getLastPathComponent()).preorderEnumeration());
             while (en.hasMoreElements()) {

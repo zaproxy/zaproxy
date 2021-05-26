@@ -54,7 +54,7 @@ public class PolicyManager {
 
     public synchronized List<String> getAllPolicyNames() {
         if (allPolicyNames == null) {
-            allPolicyNames = new ArrayList<String>();
+            allPolicyNames = new ArrayList<>();
             String[] files = Constant.getPoliciesDir().list();
             if (files != null) {
                 for (String file : files) {

@@ -35,10 +35,10 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
  * <p>It checks the canonicalization mechanism used to verify if a URL has already been visited
  * before during the spider phase.
  */
-public class URLCanonicalizerUnitTest {
+class URLCanonicalizerUnitTest {
 
     @Test
-    public void shouldRemoveDefaultPortOfHttpUriWhenCanonicalizing() {
+    void shouldRemoveDefaultPortOfHttpUriWhenCanonicalizing() {
         // Given
         String uri = "http://example.com:80/";
         // When
@@ -48,7 +48,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldNotRemoveNonDefaultPortOfHttpUriWhenCanonicalizing() {
+    void shouldNotRemoveNonDefaultPortOfHttpUriWhenCanonicalizing() {
         // Given
         String uri = "http://example.com:443/";
         // When
@@ -58,7 +58,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldRemoveDefaultPortOfHttpsUriWhenCanonicalizing() {
+    void shouldRemoveDefaultPortOfHttpsUriWhenCanonicalizing() {
         // Given
         String uri = "https://example.com:443/";
         // When
@@ -68,7 +68,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldNotRemoveNonDefaultPortOfHttpsUriWhenCanonicalizing() {
+    void shouldNotRemoveNonDefaultPortOfHttpsUriWhenCanonicalizing() {
         // Given
         String uri = "https://example.com:80/";
         // When
@@ -78,7 +78,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldAddEmptyPathIfUriHasNoPathWhenCanonicalizing() {
+    void shouldAddEmptyPathIfUriHasNoPathWhenCanonicalizing() {
         // Given
         String uri = "http://example.com";
         // When
@@ -88,7 +88,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeURIsWithAuthority() {
+    void shouldCanonicalizeURIsWithAuthority() {
         // Given
         String[] uris = {"http://example.com/", "https://example.com/", "ftp://example.com/"};
         for (String uri : uris) {
@@ -100,7 +100,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldUseBaseURIToResolveRelativeURIsWhenCanonicalizing() {
+    void shouldUseBaseURIToResolveRelativeURIsWhenCanonicalizing() {
         // Given
         String baseURI = "http://example.com/path/";
         String[] relativeURIs = {"relative", "a/b/c", "../", "/absolute/path", ""};
@@ -120,7 +120,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldNormaliseEmptyAndDotPathSegmentsWhenCanonicalizing() {
+    void shouldNormaliseEmptyAndDotPathSegmentsWhenCanonicalizing() {
         // Given
         String[] uris = {
             "http://example.com/../../x",
@@ -143,7 +143,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldIgnoreURIsWithNoAuthority() {
+    void shouldIgnoreURIsWithNoAuthority() {
         // Given
         String[] uris = {"javascript:ignore()", "mailto:ignore@example.com"};
         for (String uri : uris) {
@@ -155,7 +155,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldReturnCanonicalUriWithPercentEncodedPath() throws URIException {
+    void shouldReturnCanonicalUriWithPercentEncodedPath() throws URIException {
         // Given
         String uri = new URI("http://example.com/path/%C3%A1/", true).toString();
         // When
@@ -165,7 +165,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldReturnCanonicalUriWithPercentEncodedQuery() throws URIException {
+    void shouldReturnCanonicalUriWithPercentEncodedQuery() throws URIException {
         // Given
         String uri = new URI("http://example.com/path/?par%C3%A2m=v%C3%A3lue", true).toString();
         // When
@@ -175,9 +175,8 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void
-            shouldCorrectlyParseQueryParameterNamesAndValuesWithAmpersandsAndEqualsWhenCanonicalizing()
-                    throws URIException {
+    void shouldCorrectlyParseQueryParameterNamesAndValuesWithAmpersandsAndEqualsWhenCanonicalizing()
+            throws URIException {
         // Given
         String uri = new URI("http://example.com/?par%26am%3D1=val%26u%3De1", true).toString();
         // When
@@ -187,7 +186,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldPreserveQueryParametersWithSameNameWhenCanonicalizing() throws URIException {
+    void shouldPreserveQueryParametersWithSameNameWhenCanonicalizing() throws URIException {
         // Given
         String uri =
                 new URI(
@@ -205,7 +204,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldSortQueryParametersByNameAndValueWhenCanonicalizing() throws URIException {
+    void shouldSortQueryParametersByNameAndValueWhenCanonicalizing() throws URIException {
         // Given
         String uri =
                 new URI(
@@ -223,8 +222,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldReturnPercentEncodedUriWhenCleaningParametersIn_USE_ALL_mode()
-            throws URIException {
+    void shouldReturnPercentEncodedUriWhenCleaningParametersIn_USE_ALL_mode() throws URIException {
         // Given
         URI uri = new URI("http://example.com/path/%C3%A1/?par%C3%A2m=v%C3%A3lue", true);
         // When
@@ -237,7 +235,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldReturnPercentEncodedUriWhenCleaningParametersIn_IGNORE_VALUE_mode()
+    void shouldReturnPercentEncodedUriWhenCleaningParametersIn_IGNORE_VALUE_mode()
             throws URIException {
         // Given
         URI uri = new URI("http://example.com/path/%C3%A1/?par%C3%A2m=v%C3%A3lue1", true);
@@ -250,7 +248,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldReturnPercentEncodedUriWhenCleaningParametersIn_IGNORE_COMPLETELY_mode()
+    void shouldReturnPercentEncodedUriWhenCleaningParametersIn_IGNORE_COMPLETELY_mode()
             throws URIException {
         // Given
         URI uri = new URI("http://example.com/path/%C3%A1/?par%C3%A2m=v%C3%A3lue", true);
@@ -263,7 +261,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCorrectlyParseQueryParamNamesAndValuesWithAmpersandsAndEqualsWhenCleaningParametersIn_USE_ALL_mode()
                     throws URIException {
         // Given
@@ -279,7 +277,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCorrectlyParseQueryParamNamesAndValuesWithAmpersandsAndEqualsWhenCleaningParametersIn_IGNORE_VALUE_mode()
                     throws URIException {
         // Given
@@ -293,7 +291,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCorrectlyParseQueryParamNamesAndValuesWithAmpersandsAndEqualsWhenCleaningParametersIn_IGNORE_COMPLETELY_mode()
                     throws URIException {
         // Given
@@ -307,7 +305,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldPreserveQueryParametersWithSameNameWhenCleaningParametersIn_USE_ALL_mode()
+    void shouldPreserveQueryParametersWithSameNameWhenCleaningParametersIn_USE_ALL_mode()
             throws URIException {
         // Given
         URI uri =
@@ -327,9 +325,8 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void
-            shouldKeepJustOneQueryParameterWithSameNameWhenCleaningParametersIn_IGNORE_VALUE_mode()
-                    throws URIException {
+    void shouldKeepJustOneQueryParameterWithSameNameWhenCleaningParametersIn_IGNORE_VALUE_mode()
+            throws URIException {
         // Given
         URI uri =
                 new URI(
@@ -344,7 +341,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldRemoveAllQueryParametersWhenCleaningParametersIn_IGNORE_COMPLETELY_mode()
+    void shouldRemoveAllQueryParametersWhenCleaningParametersIn_IGNORE_COMPLETELY_mode()
             throws URIException {
         // Given
         URI uri =
@@ -362,7 +359,7 @@ public class URLCanonicalizerUnitTest {
     // Test of the legacy behavior
 
     @Test
-    public void shouldCanonicalizeNormalURLWithoutParametersIn_USE_ALL_mode() throws URIException {
+    void shouldCanonicalizeNormalURLWithoutParametersIn_USE_ALL_mode() throws URIException {
         URI uri = new URI("http", null, "host", 9001, "/myservlet");
         String visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
@@ -373,7 +370,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeNormalURLWithoutParametersIn_IGNORE_COMPLETELY_mode()
+    void shouldCanonicalizeNormalURLWithoutParametersIn_IGNORE_COMPLETELY_mode()
             throws URIException {
         URI uri = new URI("http", null, "host", 9001, "/myservlet");
         String visitedURI =
@@ -385,8 +382,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeNormalURLWithoutParametersIn_IGNORE_VALUE_mode()
-            throws URIException {
+    void shouldCanonicalizeNormalURLWithoutParametersIn_IGNORE_VALUE_mode() throws URIException {
         URI uri = new URI("http", null, "host", 9001, "/myservlet");
         String visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
@@ -397,7 +393,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeNormalURLWithParametersIn_USE_ALL_mode() throws URIException {
+    void shouldCanonicalizeNormalURLWithParametersIn_USE_ALL_mode() throws URIException {
 
         URI uri = new URI("http", null, "host", 9001, "/myservlet", "p1=2&p2=myparam");
         String visitedURI =
@@ -409,8 +405,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeNormalURLWithParametersIn_IGNORE_COMPLETELY_mode()
-            throws URIException {
+    void shouldCanonicalizeNormalURLWithParametersIn_IGNORE_COMPLETELY_mode() throws URIException {
         URI uri = new URI("http", null, "host", 9001, "/myservlet", "p1=2&p2=myparam");
         String visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
@@ -421,8 +416,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeNormalURLWithParametersIn_IGNORE_VALUE_mode()
-            throws URIException {
+    void shouldCanonicalizeNormalURLWithParametersIn_IGNORE_VALUE_mode() throws URIException {
         URI uri = new URI("http", null, "host", 9001, "/myservlet", "p1=2&p2=myparam");
         String visitedURI =
                 URLCanonicalizer.buildCleanedParametersURIRepresentation(
@@ -435,7 +429,7 @@ public class URLCanonicalizerUnitTest {
     // Test the OData behavior
 
     @Test
-    public void shouldCanonicalizeODataIDSimpleIn_USE_ALL_mode() throws URIException {
+    void shouldCanonicalizeODataIDSimpleIn_USE_ALL_mode() throws URIException {
         HandleParametersOption spiderOption = HandleParametersOption.USE_ALL;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)");
@@ -452,7 +446,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeODataIDSimpleIn_IGNORE_COMPLETELY_mode() throws URIException {
+    void shouldCanonicalizeODataIDSimpleIn_IGNORE_COMPLETELY_mode() throws URIException {
         HandleParametersOption spiderOption = HandleParametersOption.IGNORE_COMPLETELY;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)");
@@ -469,7 +463,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeODataIDSimpleIn_IGNORE_VALUE_mode() throws URIException {
+    void shouldCanonicalizeODataIDSimpleIn_IGNORE_VALUE_mode() throws URIException {
         HandleParametersOption spiderOption = HandleParametersOption.IGNORE_VALUE;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)");
@@ -486,7 +480,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeODataIDMultipleIn_USE_ALL_mode() throws URIException {
+    void shouldCanonicalizeODataIDMultipleIn_USE_ALL_mode() throws URIException {
         HandleParametersOption spiderOption = HandleParametersOption.USE_ALL;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)");
@@ -503,7 +497,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeODataIDMultipleIn_IGNORE_COMPLETELY_mode() throws URIException {
+    void shouldCanonicalizeODataIDMultipleIn_IGNORE_COMPLETELY_mode() throws URIException {
         HandleParametersOption spiderOption = HandleParametersOption.IGNORE_COMPLETELY;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)");
@@ -520,7 +514,7 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
-    public void shouldCanonicalizeODataIDMultipleIn_IGNORE_VALUE_mode() throws URIException {
+    void shouldCanonicalizeODataIDMultipleIn_IGNORE_VALUE_mode() throws URIException {
         HandleParametersOption spiderOption = HandleParametersOption.IGNORE_VALUE;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)");

@@ -46,10 +46,10 @@ import org.zaproxy.zap.network.HttpBodyTestUtils;
 import org.zaproxy.zap.network.HttpEncoding;
 
 /** Unit test for {@link HttpBody}. */
-public class HttpBodyUnitTest extends HttpBodyTestUtils {
+class HttpBodyUnitTest extends HttpBodyTestUtils {
 
     @Test
-    public void shouldHaveZeroLengthByDefault() {
+    void shouldHaveZeroLengthByDefault() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -59,7 +59,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldHaveEmptyByteContentByDefault() {
+    void shouldHaveEmptyByteContentByDefault() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -70,7 +70,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldHaveEmptyStringRepresentationByDefault() {
+    void shouldHaveEmptyStringRepresentationByDefault() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -80,7 +80,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithNullByteArray() {
+    void shouldCreateBodyWithNullByteArray() {
         // Given
         HttpBody httpBody = new HttpBodyImpl((byte[]) null);
         // When / Then
@@ -92,7 +92,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithByteArray() {
+    void shouldCreateBodyWithByteArray() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_BYTES_DEFAULT_CHARSET);
         // When / Then
@@ -104,7 +104,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithNullString() {
+    void shouldCreateBodyWithNullString() {
         // Given
         HttpBody httpBody = new HttpBodyImpl((String) null);
         // When / Then
@@ -116,7 +116,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithStringUsingDefaultCharset() {
+    void shouldCreateBodyWithStringUsingDefaultCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_STRING);
         // When / Then
@@ -128,7 +128,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithInitialCapacity() {
+    void shouldCreateBodyWithInitialCapacity() {
         // Given
         int initialCapacity = 1024;
         HttpBody httpBody = new HttpBodyImpl(initialCapacity);
@@ -141,7 +141,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithZeroLengthIfInitialCapacityIsNegative() {
+    void shouldCreateBodyWithZeroLengthIfInitialCapacityIsNegative() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(-1);
         // When / Then
@@ -153,7 +153,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldLimitInitialCapacityTo128kBytes() {
+    void shouldLimitInitialCapacityTo128kBytes() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(500000);
         // When / Then
@@ -165,7 +165,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldDetermineCharsetByDefault() {
+    void shouldDetermineCharsetByDefault() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -175,7 +175,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetDetermineCharset() {
+    void shouldSetDetermineCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -185,7 +185,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldDetermineCharsetIfSetAndHasNoCharset() {
+    void shouldDetermineCharsetIfSetAndHasNoCharset() {
         // Given
         HttpBodyImpl httpBody = new HttpBodyImpl();
         httpBody.setDetermineCharset(true);
@@ -197,7 +197,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldNotDetermineCharsetIfNotSet() {
+    void shouldNotDetermineCharsetIfNotSet() {
         // Given
         HttpBodyImpl httpBody = new HttpBodyImpl();
         httpBody.setDetermineCharset(false);
@@ -209,7 +209,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldHaveIso8859CharsetByDefault() {
+    void shouldHaveIso8859CharsetByDefault() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -219,7 +219,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetValidCharset() {
+    void shouldSetValidCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -229,7 +229,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldResetCharsetWithNullCharset() {
+    void shouldResetCharsetWithNullCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         httpBody.setCharset(UTF_8_NAME);
@@ -240,7 +240,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldResetCharsetWithEmptyCharset() {
+    void shouldResetCharsetWithEmptyCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         httpBody.setCharset(UTF_8_NAME);
@@ -251,7 +251,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreInvalidCharset() {
+    void shouldIgnoreInvalidCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         httpBody.setCharset(UTF_8_NAME);
@@ -262,7 +262,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreUnsupportedCharset() {
+    void shouldIgnoreUnsupportedCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         httpBody.setCharset(UTF_8_NAME);
@@ -273,7 +273,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreAlreadySetCharset() {
+    void shouldIgnoreAlreadySetCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         httpBody.setCharset(UTF_8_NAME);
@@ -284,7 +284,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreNullBytesBodySet() {
+    void shouldIgnoreNullBytesBodySet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl("\0");
         // When
@@ -389,7 +389,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreNullStringBodySet() {
+    void shouldIgnoreNullStringBodySet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl("\0");
         // When
@@ -403,7 +403,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetBytesBodyUsingDefaultCharset() {
+    void shouldSetBytesBodyUsingDefaultCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -417,7 +417,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetBytesBodyUsingDefaultCharsetAndNotContentEncode() throws IOException {
+    void shouldSetBytesBodyUsingDefaultCharsetAndNotContentEncode() throws IOException {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         HttpEncoding encoding = mock(HttpEncoding.class);
@@ -437,7 +437,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetStringBodyUsingDefaultCharset() {
+    void shouldSetStringBodyUsingDefaultCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -451,7 +451,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetStringBodyUsingDefaultCharsetAndContentEncode() throws IOException {
+    void shouldSetStringBodyUsingDefaultCharsetAndContentEncode() throws IOException {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         HttpEncoding encoding = mock(HttpEncoding.class);
@@ -471,7 +471,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetBytesBodyUsingCharsetSet() {
+    void shouldSetBytesBodyUsingCharsetSet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         httpBody.setCharset(UTF_8_NAME);
@@ -486,7 +486,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetBytesBodyUsingCharsetSetAndNotContentEncode() throws IOException {
+    void shouldSetBytesBodyUsingCharsetSetAndNotContentEncode() throws IOException {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         httpBody.setCharset(UTF_8_NAME);
@@ -506,7 +506,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetStringBodyUsingCharsetSet() {
+    void shouldSetStringBodyUsingCharsetSet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         httpBody.setCharset(UTF_8_NAME);
@@ -521,7 +521,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetStringBodyUsingCharsetSetAndContentEncode() throws IOException {
+    void shouldSetStringBodyUsingCharsetSetAndContentEncode() throws IOException {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         httpBody.setCharset(UTF_8_NAME);
@@ -541,7 +541,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreNullBytesBodyAppended() {
+    void shouldIgnoreNullBytesBodyAppended() {
         // Given
         HttpBody httpBody = new HttpBodyImpl("\0");
         // When
@@ -555,7 +555,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreNullStringBodyAppended() {
+    void shouldIgnoreNullStringBodyAppended() {
         // Given
         HttpBody httpBody = new HttpBodyImpl("\0");
         // When
@@ -569,7 +569,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendBytesBodyUsingDefaultCharset() {
+    void shouldAppendBytesBodyUsingDefaultCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_STRING);
         // When
@@ -584,7 +584,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendBytesBodyUsingDefaultCharsetAndNotContentEncode() throws IOException {
+    void shouldAppendBytesBodyUsingDefaultCharsetAndNotContentEncode() throws IOException {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_STRING);
         HttpEncoding encoding = mock(HttpEncoding.class);
@@ -605,7 +605,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendStringBodyUsingDefaultCharset() {
+    void shouldAppendStringBodyUsingDefaultCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_STRING);
         // When
@@ -647,7 +647,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendBytesBodyUsingCharsetSet() {
+    void shouldAppendBytesBodyUsingCharsetSet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_BYTES_UTF_8);
         httpBody.setCharset(UTF_8_NAME);
@@ -662,7 +662,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendBytesBodyUsingCharsetSetAndNotContentEncode() throws IOException {
+    void shouldAppendBytesBodyUsingCharsetSetAndNotContentEncode() throws IOException {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_BYTES_UTF_8);
         httpBody.setCharset(UTF_8_NAME);
@@ -682,7 +682,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendStringBodyUsingCharsetSet() {
+    void shouldAppendStringBodyUsingCharsetSet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_BYTES_UTF_8);
         httpBody.setCharset(UTF_8_NAME);
@@ -697,7 +697,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendStringBodyUsingCharsetSetAndContentEncode() throws IOException {
+    void shouldAppendStringBodyUsingCharsetSetAndContentEncode() throws IOException {
         // Given
         HttpBody httpBody = new HttpBodyImpl(BODY_1_BYTES_UTF_8);
         httpBody.setCharset(UTF_8_NAME);
@@ -721,7 +721,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendFullByteArray() {
+    void shouldAppendFullByteArray() {
         // Given
         byte[] chunk = {0, 1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl();
@@ -736,7 +736,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendByteArrayChunk() {
+    void shouldAppendByteArrayChunk() {
         // Given
         byte[] bytes = {1, 2, 3, 4, 5};
         int chunkLen = 3;
@@ -753,7 +753,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendByteArrayToExistingData() {
+    void shouldAppendByteArrayToExistingData() {
         // Given
         byte[] bytes = {1, 2, 3, 4, 5, 6, 7};
         byte[] chunk = Arrays.copyOfRange(bytes, 3, bytes.length);
@@ -769,7 +769,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendByteArrayToBodyWithHigherInitialCapacity() {
+    void shouldAppendByteArrayToBodyWithHigherInitialCapacity() {
         // Given
         int initialCapacity = 10;
         byte[] chunk = {1, 2, 3, 4, 5};
@@ -786,7 +786,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldAppendByteArrayToBodyWithLowerInitialCapacity() {
+    void shouldAppendByteArrayToBodyWithLowerInitialCapacity() {
         // Given
         byte[] chunk = {1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl(3);
@@ -801,7 +801,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreAppendOfNullByteArray() {
+    void shouldIgnoreAppendOfNullByteArray() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -815,7 +815,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreAppendOfByteArrayIfNegativeLength() {
+    void shouldIgnoreAppendOfByteArrayIfNegativeLength() {
         // Given
         byte[] chunk = {1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl();
@@ -830,7 +830,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldApplyCharsetSetToStringRepresentation() {
+    void shouldApplyCharsetSetToStringRepresentation() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -842,7 +842,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldExpandBodyWithSetLength() {
+    void shouldExpandBodyWithSetLength() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -856,7 +856,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldTruncateBodyWithSetLength() {
+    void shouldTruncateBodyWithSetLength() {
         // Given
         byte[] body = {1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl(body);
@@ -872,7 +872,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldProduceSameStringRepresentationEvenIfBodyIsExpandedWithSetLength() {
+    void shouldProduceSameStringRepresentationEvenIfBodyIsExpandedWithSetLength() {
         // Given
         byte[] body = {1, 2, 3, 4, 5};
         HttpBody httpBody = new HttpBodyImpl(body);
@@ -888,7 +888,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreNegativeLengthSet() {
+    void shouldIgnoreNegativeLengthSet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -902,7 +902,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreSameLengthSet() {
+    void shouldIgnoreSameLengthSet() {
         // Given
         HttpBody httpBody = new HttpBodyImpl(50);
         // When
@@ -916,7 +916,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldReturnSameInstanceStringRepresentationOnConsecutiveCalls() {
+    void shouldReturnSameInstanceStringRepresentationOnConsecutiveCalls() {
         // Given
         String body = " X Y Z ";
         HttpBody httpBody = new HttpBodyImpl(body);
@@ -1063,7 +1063,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldNotBeEqualToNull() {
+    void shouldNotBeEqualToNull() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When
@@ -1073,7 +1073,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldBeEqualToEqualHttpBody() {
+    void shouldBeEqualToEqualHttpBody() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         HttpBody otherHttpBody = new HttpBodyImpl();
@@ -1106,7 +1106,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldBeEqualToSameInstance() {
+    void shouldBeEqualToSameInstance() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         // When / Then
@@ -1114,7 +1114,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldNotBeEqualToDifferentHttpBody() {
+    void shouldNotBeEqualToDifferentHttpBody() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         HttpBody otherDifferentHttpBody = new HttpBodyImpl("Different Contents");
@@ -1145,7 +1145,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldNotBeEqualToDifferentHttpBodyImplementation() {
+    void shouldNotBeEqualToDifferentHttpBodyImplementation() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
         HttpBody otherHttpBodyImplementation = new HttpBody() {};
@@ -1154,7 +1154,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldProduceSameHashCodeForEqualBody() {
+    void shouldProduceSameHashCodeForEqualBody() {
         // Given
         HttpBody httpBody = new HttpBodyImpl("X A");
         HttpBody otherHttpBody = new HttpBodyImpl("X A");
@@ -1175,7 +1175,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldProduceDifferentHashCodeFromDifferentBody() {
+    void shouldProduceDifferentHashCodeFromDifferentBody() {
         // Given
         HttpBody httpBody = new HttpBodyImpl("_ X A 1");
         HttpBody otherHttpBody = new HttpBodyImpl("X A 2");
@@ -1213,17 +1213,17 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
 
         private boolean determineCharsetCalled;
 
-        public HttpBodyImpl() {}
+        HttpBodyImpl() {}
 
-        public HttpBodyImpl(int capacity) {
+        HttpBodyImpl(int capacity) {
             super(capacity);
         }
 
-        public HttpBodyImpl(String data) {
+        HttpBodyImpl(String data) {
             super(data);
         }
 
-        public HttpBodyImpl(byte[] data) {
+        HttpBodyImpl(byte[] data) {
             super(data);
         }
 
@@ -1233,7 +1233,7 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
             return super.determineCharset(contents);
         }
 
-        public boolean isDetermineCharsetCalled() {
+        boolean isDetermineCharsetCalled() {
             return determineCharsetCalled;
         }
     }

@@ -32,10 +32,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Unit test for {@link ApiResponseElement}. */
-public class ApiResponseElementUnitTest {
+class ApiResponseElementUnitTest {
 
     @Test
-    public void shouldReturnNullJsonObjectWithANullValue() throws ApiException {
+    void shouldReturnNullJsonObjectWithANullValue() throws ApiException {
         // Given
         String name = "response";
         String value = null;
@@ -47,7 +47,7 @@ public class ApiResponseElementUnitTest {
     }
 
     @Test
-    public void shouldReturnStringJsonObjectWithNonNullValue() throws ApiException {
+    void shouldReturnStringJsonObjectWithNonNullValue() throws ApiException {
         // Given
         String name = "response";
         String value = "value";
@@ -59,7 +59,7 @@ public class ApiResponseElementUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyXmlElementWithANullValue() throws ApiException {
+    void shouldReturnEmptyXmlElementWithANullValue() throws ApiException {
         // Given
         String name = null;
         String value = null;
@@ -74,7 +74,7 @@ public class ApiResponseElementUnitTest {
     }
 
     @Test
-    public void shouldReturnXmlElementWithTextNodeForNonNullValue() throws ApiException {
+    void shouldReturnXmlElementWithTextNodeForNonNullValue() throws ApiException {
         // Given
         String name = null;
         String value = "value";
@@ -89,7 +89,7 @@ public class ApiResponseElementUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectJsonObjectWithJsonStringValues() throws ApiException {
+    void shouldReturnCorrectJsonObjectWithJsonStringValues() throws ApiException {
         // Given
         String name = "name";
         String value = "{\"key\":\"value\"}";
@@ -101,7 +101,7 @@ public class ApiResponseElementUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectJsonObjectWithMapJsonStringValues() throws ApiException {
+    void shouldReturnCorrectJsonObjectWithMapJsonStringValues() throws ApiException {
         // Given
         String name = "name";
         String value = "{\"key\":\"value\"}";

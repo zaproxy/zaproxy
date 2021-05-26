@@ -50,7 +50,7 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link HttpSender}. */
-public class HttpSenderUnitTest {
+class HttpSenderUnitTest {
 
     private static final String PROXY_RESPONSE = "Proxy Response";
     private static final String SERVER_RESPONSE = "Server Response";
@@ -80,7 +80,7 @@ public class HttpSenderUnitTest {
     }
 
     @Test
-    public void shouldProxyIfEnabled() throws Exception {
+    void shouldProxyIfEnabled() throws Exception {
         // Given
         ConnectionParam options = createOptionsWithProxy("localhost", proxy.port());
         options.setUseProxyChain(true);
@@ -99,7 +99,7 @@ public class HttpSenderUnitTest {
     }
 
     @Test
-    public void shouldNotProxyIfDisabled() throws Exception {
+    void shouldNotProxyIfDisabled() throws Exception {
         // Given
         ConnectionParam options = createOptionsWithProxy("localhost", proxy.port());
         options.setUseProxyChain(false);
@@ -116,7 +116,7 @@ public class HttpSenderUnitTest {
     }
 
     @Test
-    public void shouldNotAuthenticateToProxyIfAuthDisabled() throws Exception {
+    void shouldNotAuthenticateToProxyIfAuthDisabled() throws Exception {
         // Given
         proxy.stubFor(
                 get(urlMatching("/"))
@@ -142,7 +142,7 @@ public class HttpSenderUnitTest {
     }
 
     @Test
-    public void shouldBasicAuthenticateToProxy() throws Exception {
+    void shouldBasicAuthenticateToProxy() throws Exception {
         // Given
         String authRealm = "SomeRealm";
         proxy.stubFor(
@@ -181,7 +181,7 @@ public class HttpSenderUnitTest {
     }
 
     @Test
-    public void shouldNotBasicAuthenticateToProxyIfRealmMismatch() throws Exception {
+    void shouldNotBasicAuthenticateToProxyIfRealmMismatch() throws Exception {
         // Given
         proxy.stubFor(
                 get(urlMatching("/"))
@@ -270,17 +270,17 @@ public class HttpSenderUnitTest {
 
     private static class WireMockSequence extends WireMockServer {
 
-        public WireMockSequence(WireMockConfiguration options) {
+        WireMockSequence(WireMockConfiguration options) {
             super(options);
         }
 
-        public void verifyNoRequests() {
+        void verifyNoRequests() {
             List<LoggedRequest> requests =
                     findRequestsMatching(RequestPattern.everything()).getRequests();
             verifyRequestCount(requests, 0);
         }
 
-        public void verifyExactly(RequestPatternBuilder... requestPatternBuilders) {
+        void verifyExactly(RequestPatternBuilder... requestPatternBuilders) {
             List<LoggedRequest> requests =
                     findRequestsMatching(RequestPattern.everything()).getRequests();
             verifyRequestCount(requests, requestPatternBuilders.length);

@@ -29,13 +29,13 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
         url,
         header,
         multipart
-    };
+    }
 
     public enum Flags {
         anticsrf,
         session,
         structural
-    };
+    }
 
     private String name;
     private String value;

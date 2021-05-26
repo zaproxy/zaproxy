@@ -56,7 +56,7 @@ public class RequestSplitComponent<T extends Message>
     public enum ViewComponent {
         HEADER,
         BODY
-    };
+    }
 
     private static final String DIVIDER_LOCATION_CONFIG_KEY = "dividerLocation";
 

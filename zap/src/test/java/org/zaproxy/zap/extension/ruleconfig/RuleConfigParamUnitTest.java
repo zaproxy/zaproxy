@@ -29,26 +29,26 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link RuleConfigParam}. */
-public class RuleConfigParamUnitTest {
+class RuleConfigParamUnitTest {
 
     ZapXmlConfiguration configuration;
 
     RuleConfigParam rcp;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         rcp = new RuleConfigParam();
         configuration = new ZapXmlConfiguration();
         rcp.load(configuration);
     }
 
     @Test
-    public void shouldReturnNullIfNoKey() {
+    void shouldReturnNullIfNoKey() {
         assertThat(rcp.getRuleConfig("key"), is(equalTo(null)));
     }
 
     @Test
-    public void shouldRecordAddedRuleCorrectly() {
+    void shouldRecordAddedRuleCorrectly() {
         rcp.addRuleConfig("key", "defaultValue", "value");
         assertThat(rcp.getRuleConfig("key").getKey(), is(equalTo("key")));
         assertThat(rcp.getRuleConfig("key").getDefaultValue(), is(equalTo("defaultValue")));
@@ -57,7 +57,7 @@ public class RuleConfigParamUnitTest {
     }
 
     @Test
-    public void shouldUpdateRuleCorrectly() {
+    void shouldUpdateRuleCorrectly() {
         rcp.addRuleConfig("key", "defaultValue", "value");
         rcp.setRuleConfigValue("key", "new value");
         assertThat(rcp.getRuleConfig("key").getKey(), is(equalTo("key")));
@@ -67,7 +67,7 @@ public class RuleConfigParamUnitTest {
     }
 
     @Test
-    public void shouldFailToUpdateMissingKey() {
+    void shouldFailToUpdateMissingKey() {
         // Given
         rcp.addRuleConfig("key", "defaultValue", "value");
         // When / Then
@@ -76,7 +76,7 @@ public class RuleConfigParamUnitTest {
     }
 
     @Test
-    public void shouldFailToResetMissingKey() {
+    void shouldFailToResetMissingKey() {
         // Given
         rcp.addRuleConfig("key", "defaultValue", "value");
         // When / Then
@@ -84,7 +84,7 @@ public class RuleConfigParamUnitTest {
     }
 
     @Test
-    public void shouldResetRuleCorrectly() {
+    void shouldResetRuleCorrectly() {
         rcp.addRuleConfig("key", "defaultValue", "value");
         rcp.resetRuleConfigValue("key");
         assertThat(rcp.getRuleConfig("key").getKey(), is(equalTo("key")));
@@ -94,7 +94,7 @@ public class RuleConfigParamUnitTest {
     }
 
     @Test
-    public void shouldResetAllRulesCorrectly() {
+    void shouldResetAllRulesCorrectly() {
         rcp.addRuleConfig("key1", "defaultValue1", "value1");
         rcp.addRuleConfig("key2", "defaultValue2", "value2");
         rcp.resetAllRuleConfigValues();

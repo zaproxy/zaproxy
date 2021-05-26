@@ -37,10 +37,10 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link VariantCookie}. */
-public class VariantCookieUnitTest {
+class VariantCookieUnitTest {
 
     @Test
-    public void shouldHaveParametersListEmptyByDefault() {
+    void shouldHaveParametersListEmptyByDefault() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         // When
@@ -50,7 +50,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedParametersList() {
+    void shouldNotAllowToModifyReturnedParametersList() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         NameValuePair cookie = cookie("Name", "Value", 0);
@@ -61,7 +61,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldFailToExtractParametersFromUndefinedMessage() {
+    void shouldFailToExtractParametersFromUndefinedMessage() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage undefinedMessage = null;
@@ -71,7 +71,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldNotExtractAnyParameterIfThereAreNoCookieHeaders() {
+    void shouldNotExtractAnyParameterIfThereAreNoCookieHeaders() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies = createMessageWithoutCookies();
@@ -82,7 +82,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldNotExtractAnyParameterIfTheCookieHeadersDontHaveCookies() {
+    void shouldNotExtractAnyParameterIfTheCookieHeadersDontHaveCookies() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies = createMessageWithCookies("", "");
@@ -93,7 +93,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldExtractParametersFromWellformedCookieHeader() {
+    void shouldExtractParametersFromWellformedCookieHeader() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies = createMessageWithCookies("a=b; c=\"d\"; e=f");
@@ -107,7 +107,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldExtractParametersFromWellformedCookieHeaders() {
+    void shouldExtractParametersFromWellformedCookieHeaders() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies = createMessageWithCookies("a=b; c=d; e=f", "g=h; i=j; k=l");
@@ -127,7 +127,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldExtractParametersFromMalformedCookieHeader() {
+    void shouldExtractParametersFromMalformedCookieHeader() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies = createMessageWithCookies("a=; =d;e;g=\"h; i=j\"");
@@ -146,7 +146,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldExtractParametersFromMalformedCookieHeaders() {
+    void shouldExtractParametersFromMalformedCookieHeaders() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies =
@@ -169,7 +169,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldDecodeValueFromExtractedParameters() {
+    void shouldDecodeValueFromExtractedParameters() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies =
@@ -189,7 +189,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldNotDecodeNameFromExtractedParameters() {
+    void shouldNotDecodeNameFromExtractedParameters() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies = createMessageWithCookies("%29=b; c=d; e=f", "%26=");
@@ -207,7 +207,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldNotAccumulateExtractedParameters() {
+    void shouldNotAccumulateExtractedParameters() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage messageWithCookies = createMessageWithCookies("a=b; c=d; e=f");
@@ -223,7 +223,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldInjectCookieModificationOnWellformedHeader() {
+    void shouldInjectCookieModificationOnWellformedHeader() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b; c=d; e=f");
@@ -236,7 +236,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldInjectCookieModificationOnMalformedHeader() {
+    void shouldInjectCookieModificationOnMalformedHeader() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a; =b; =d; e=;");
@@ -249,7 +249,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldInjectUnescapedCookieValueModification() {
+    void shouldInjectUnescapedCookieValueModification() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b; c=d; e=f");
@@ -263,7 +263,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldInjectEscapedCookieValueModification() {
+    void shouldInjectEscapedCookieValueModification() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b; c=d; e=f");
@@ -278,7 +278,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldIgnorePreviouslyInjectCookieModifications() {
+    void shouldIgnorePreviouslyInjectCookieModifications() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b; c=d; e=f");
@@ -294,7 +294,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldMergeCookieHeadersWhenInjectingCookieModifications() {
+    void shouldMergeCookieHeadersWhenInjectingCookieModifications() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b", "c=d", "e=f");
@@ -307,7 +307,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldIgnoreNameOfCookieAndUsePositionWhenInjectingCookieModifications() {
+    void shouldIgnoreNameOfCookieAndUsePositionWhenInjectingCookieModifications() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b; c=d");
@@ -321,7 +321,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldIgnoreValueOfOriginalCookieAndUsePositionWhenInjectingCookieModifications() {
+    void shouldIgnoreValueOfOriginalCookieAndUsePositionWhenInjectingCookieModifications() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b; c=d");
@@ -335,7 +335,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldNotInjectCookieModificationsIfPositionOfCookieDoesNotExist() {
+    void shouldNotInjectCookieModificationsIfPositionOfCookieDoesNotExist() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b; c=d");
@@ -347,7 +347,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldRemoveCookieNameIfNameNotInjected() {
+    void shouldRemoveCookieNameIfNameNotInjected() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b; c=d; e=f");
@@ -360,7 +360,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldRemoveCookieValueIfValueNotInjected() {
+    void shouldRemoveCookieValueIfValueNotInjected() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b; c=d; e=f");
@@ -373,7 +373,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldRemoveCookieIfNameAndValueAreNotInjected() {
+    void shouldRemoveCookieIfNameAndValueAreNotInjected() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b; c=d; e=f");
@@ -387,7 +387,7 @@ public class VariantCookieUnitTest {
     }
 
     @Test
-    public void shouldRemoveCookieHeaderIfOnlyCookieIsRemoved() {
+    void shouldRemoveCookieHeaderIfOnlyCookieIsRemoved() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
         HttpMessage message = createMessageWithCookies("a=b");

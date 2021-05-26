@@ -48,7 +48,7 @@ public class ScanProgressTableModel extends AbstractTableModel {
 
     public ScanProgressTableModel() {
         super();
-        values = new ArrayList<ScanProgressItem>();
+        values = new ArrayList<>();
         focusedAction = null;
     }
 

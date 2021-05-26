@@ -93,7 +93,7 @@ public class ScanProgressDialog extends AbstractDialog {
     private boolean stopThread;
 
     private JFreeChart chart;
-    private List<String> labelsAdded = new ArrayList<String>();
+    private List<String> labelsAdded = new ArrayList<>();
     private TimeSeries seriesTotal;
     private TimeSeries series100;
     private TimeSeries series200;
@@ -511,7 +511,7 @@ public class ScanProgressDialog extends AbstractDialog {
 
     private JComboBox<String> getHostSelect() {
         if (hostSelect == null) {
-            hostSelect = new JComboBox<String>();
+            hostSelect = new JComboBox<>();
             hostSelect.addActionListener(
                     new ActionListener() {
                         @Override
