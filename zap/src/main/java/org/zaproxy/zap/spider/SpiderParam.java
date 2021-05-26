@@ -146,7 +146,7 @@ public class SpiderParam extends AbstractParam {
                     return null;
             }
         }
-    };
+    }
 
     /** The max depth of the crawling. */
     private int maxDepth = 5;

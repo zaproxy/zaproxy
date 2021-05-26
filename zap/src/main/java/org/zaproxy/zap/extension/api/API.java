@@ -65,14 +65,14 @@ public class API {
         JSONP,
         UI,
         OTHER
-    };
+    }
 
     public enum RequestType {
         action,
         view,
         other,
         pconn
-    };
+    }
 
     /**
      * The custom domain to access the ZAP API while proxying through ZAP.
@@ -112,7 +112,7 @@ public class API {
 
     private Map<String, ApiImplementor> shortcuts = new HashMap<>();
 
-    private Map<String, Nonce> nonces = Collections.synchronizedMap(new HashMap<String, Nonce>());
+    private Map<String, Nonce> nonces = Collections.synchronizedMap(new HashMap<>());
 
     /**
      * The options for the API.

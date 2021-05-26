@@ -27,10 +27,10 @@ import javax.swing.JButton;
 import javax.swing.JPanel;
 import org.junit.jupiter.api.Test;
 
-public class SearchUnitTest {
+class SearchUnitTest {
 
     @Test
-    public void shouldFindButtonByText() {
+    void shouldFindButtonByText() {
         String btnText = "myCusTomText";
         String panelName = "xyu";
         JPanel panel = new JPanel();

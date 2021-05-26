@@ -26,7 +26,7 @@ import org.apache.logging.log4j.Logger;
 
 public final class Stats {
 
-    private static final List<StatsListener> listeners = new ArrayList<StatsListener>();
+    private static final List<StatsListener> listeners = new ArrayList<>();
 
     private static final Logger logger = LogManager.getLogger(Stats.class);
 

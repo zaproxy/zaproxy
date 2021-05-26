@@ -55,7 +55,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     private Context context;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Constant.messages = mock(I18N.class);
         session = mock(Session.class);
         doReturn(session).when(model).getSession();
@@ -64,7 +64,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldHaveAllTechSetByDefault() {
+    void shouldHaveAllTechSetByDefault() {
         // Given / When
         HttpMessage msg = createMessage();
         PassiveScanData psd = new PassiveScanData(msg);
@@ -73,7 +73,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldHaveEmptyUserListByDefault() {
+    void shouldHaveEmptyUserListByDefault() {
         // Given / When
         HttpMessage msg = createMessage();
         PassiveScanData psd = new PassiveScanData(msg);
@@ -82,7 +82,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldNotHaveContextByDefault() {
+    void shouldNotHaveContextByDefault() {
         // Given / When
         HttpMessage msg = createMessage();
         PassiveScanData psd = new PassiveScanData(msg);
@@ -92,7 +92,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldHaveContextIfMessageIncludedInOne() {
+    void shouldHaveContextIfMessageIncludedInOne() {
         // Given
         HttpMessage msg = createMessage();
         Context context = mock(Context.class);
@@ -106,7 +106,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldUseFirstContextIfMessageApplicableToMultiple() {
+    void shouldUseFirstContextIfMessageApplicableToMultiple() {
         // Given
         HttpMessage msg = createMessage();
         Context matchCtxOne = mock(Context.class);
@@ -121,7 +121,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldUseTechSetOfFirstMatchedContextIfMessageApplicableToMultiple() {
+    void shouldUseTechSetOfFirstMatchedContextIfMessageApplicableToMultiple() {
         // Given
         HttpMessage msg = createMessage();
         Context matchCtxOne = mock(Context.class);
@@ -138,7 +138,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldUseUsersOfFirstMatchedContextIfMessageApplicableToMultiple() {
+    void shouldUseUsersOfFirstMatchedContextIfMessageApplicableToMultiple() {
         // Given
         HttpMessage msg = createMessage();
         int contextId = 3;
@@ -160,7 +160,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldCheckPage200WithContext() {
+    void shouldCheckPage200WithContext() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         HttpMessage msg = createMessage();
@@ -181,7 +181,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage200ShouldReturnFalseIfCustomPage404Matches() {
+    void isPage200ShouldReturnFalseIfCustomPage404Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage message = createMessage();
@@ -197,7 +197,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage200ShouldReturnFalseIfCustomPage500Matches() {
+    void isPage200ShouldReturnFalseIfCustomPage500Matches() {
         // Given
         HttpMessage message = createMessage();
         given(context.isCustomPageWithFallback(message, CustomPage.Type.NOTFOUND_404))
@@ -216,7 +216,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage200ShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatch() {
+    void isPage200ShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatch() {
         // Given
         HttpMessage message = createMessage();
         message.getResponseHeader().setStatusCode(302);
@@ -238,7 +238,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage200ShouldReturnTrueIfCustomPage200DoesNotMatchButStatusCodeDoes() {
+    void isPage200ShouldReturnTrueIfCustomPage200DoesNotMatchButStatusCodeDoes() {
         // Given
         HttpMessage message = createMessage();
         message.getResponseHeader().setStatusCode(200);
@@ -260,7 +260,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldCheckPage404WithContext() {
+    void shouldCheckPage404WithContext() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage msg = createMessage();
@@ -279,7 +279,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage404ShouldReturnFalseIfCustomPage200Matches() {
+    void isPage404ShouldReturnFalseIfCustomPage200Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         HttpMessage message = createMessage();
@@ -295,7 +295,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage404houldReturnFalseIfCustomPage500Matches() {
+    void isPage404houldReturnFalseIfCustomPage500Matches() {
         // Given
         HttpMessage message = createMessage();
         given(context.isCustomPageWithFallback(message, CustomPage.Type.OK_200)).willReturn(false);
@@ -313,7 +313,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage404ShouldReturnFalseIfNeitherCustomPage404NorStatusCodeMatch() {
+    void isPage404ShouldReturnFalseIfNeitherCustomPage404NorStatusCodeMatch() {
         // Given
         HttpMessage message = createMessage();
         message.getResponseHeader().setStatusCode(302);
@@ -335,7 +335,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage404ShouldReturnTrueIfCustomPage404DoesNotMatchButStatusCodeDoes() {
+    void isPage404ShouldReturnTrueIfCustomPage404DoesNotMatchButStatusCodeDoes() {
         // Given
         HttpMessage message = createMessage();
         message.getResponseHeader().setStatusCode(404);
@@ -357,7 +357,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldCheckPage500WithContext() {
+    void shouldCheckPage500WithContext() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage msg = createMessage();
@@ -377,7 +377,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage500ShouldReturnFalseIfCustomPage200Matches() {
+    void isPage500ShouldReturnFalseIfCustomPage200Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         HttpMessage message = createMessage();
@@ -393,7 +393,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage500houldReturnFalseIfCustomPage404Matches() {
+    void isPage500houldReturnFalseIfCustomPage404Matches() {
         // Given
         HttpMessage message = createMessage();
         given(context.isCustomPageWithFallback(message, CustomPage.Type.OK_200)).willReturn(false);
@@ -411,7 +411,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage500ShouldReturnFalseIfNeitherCustomPage500NorStatusCodeMatch() {
+    void isPage500ShouldReturnFalseIfNeitherCustomPage500NorStatusCodeMatch() {
         // Given
         HttpMessage message = createMessage();
         message.getResponseHeader().setStatusCode(302);
@@ -433,7 +433,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isPage500ShouldReturnTrueIfCustomPage500DoesNotMatchButStatusCodeDoes() {
+    void isPage500ShouldReturnTrueIfCustomPage500DoesNotMatchButStatusCodeDoes() {
         // Given
         HttpMessage message = createMessage();
         message.getResponseHeader().setStatusCode(500);
@@ -455,7 +455,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldCheckPageOtherWithContext() {
+    void shouldCheckPageOtherWithContext() {
         // Given
         CustomPage.Type type = CustomPage.Type.OTHER;
         HttpMessage msg = createMessage();
@@ -471,7 +471,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isSuccessShouldReturnTrueIfStatusCodeMatches() {
+    void isSuccessShouldReturnTrueIfStatusCodeMatches() {
         // Given
         HttpMessage msg = createMessage();
         msg.getResponseHeader().setStatusCode(200);
@@ -484,7 +484,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isSuccessShouldReturnTrueIfCustomPage200ButStatusCodeDoesNotMatch() {
+    void isSuccessShouldReturnTrueIfCustomPage200ButStatusCodeDoesNotMatch() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         HttpMessage msg = createMessage();
@@ -504,7 +504,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isSuccessShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatch() {
+    void isSuccessShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatch() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
         HttpMessage msg = createMessage();
@@ -524,8 +524,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void
-            isSuccessShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatchButCustomPage404Does() {
+    void isSuccessShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatchButCustomPage404Does() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage msg = createMessage();
@@ -542,8 +541,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void
-            isSuccessShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatchButCustomPage500Does() {
+    void isSuccessShouldReturnFalseIfNeitherCustomPage200NorStatusCodeMatchButCustomPage500Does() {
         // Given
         HttpMessage msg = createMessage();
         msg.getResponseHeader().setStatusCode(302);
@@ -561,7 +559,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isClientErrorShouldReturnTrueIfStatusCodeMatches() {
+    void isClientErrorShouldReturnTrueIfStatusCodeMatches() {
         // Given
         HttpMessage msg = createMessage();
         msg.getResponseHeader().setStatusCode(403);
@@ -574,7 +572,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isClientErrorShouldReturnTrueIfCustomPage404ButStatusCodeDoesNotMatch() {
+    void isClientErrorShouldReturnTrueIfCustomPage404ButStatusCodeDoesNotMatch() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage msg = createMessage();
@@ -593,7 +591,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isClientErrorShouldReturnFalseIfNeitherCustomPage404NorStatusCodeMatch() {
+    void isClientErrorShouldReturnFalseIfNeitherCustomPage404NorStatusCodeMatch() {
         // Given
         CustomPage.Type type = CustomPage.Type.NOTFOUND_404;
         HttpMessage msg = createMessage();
@@ -612,7 +610,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void
+    void
             isClientErrorShouldReturnFalseIfNeitherCustomPage404NorStatusCodeMatchButCustomPage200Does() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;
@@ -630,7 +628,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void
+    void
             isClientErrorShouldReturnFalseIfNeitherCustomPage404NorStatusCodeMatchButCustomPage500Does() {
         // Given
         HttpMessage msg = createMessage();
@@ -648,7 +646,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isServerErrorShouldReturnTrueIfStatusCodeMatches() {
+    void isServerErrorShouldReturnTrueIfStatusCodeMatches() {
         // Given
         HttpMessage msg = createMessage();
         msg.getResponseHeader().setStatusCode(503);
@@ -661,7 +659,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isServerErrorShouldReturnTrueIfCustomPage500MatchesButStatusCodeDoesNotMatch() {
+    void isServerErrorShouldReturnTrueIfCustomPage500MatchesButStatusCodeDoesNotMatch() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage msg = createMessage();
@@ -681,7 +679,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void isServerErrorShouldReturnFalseIfNeitherCustomPage500ButNorStatusCodeMatch() {
+    void isServerErrorShouldReturnFalseIfNeitherCustomPage500ButNorStatusCodeMatch() {
         // Given
         CustomPage.Type type = CustomPage.Type.ERROR_500;
         HttpMessage msg = createMessage();
@@ -701,7 +699,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void
+    void
             isServerErrorShouldReturnFalseIfNeitherCustomPage500ButNorStatusCodeMatchButCustomPage200Does() {
         // Given
         HttpMessage msg = createMessage();
@@ -718,7 +716,7 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void
+    void
             isServerErrorShouldReturnFalseIfNeitherCustomPage500NorStatusCodeMatchButCustomPage404Does() {
         // Given
         HttpMessage msg = createMessage();

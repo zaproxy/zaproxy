@@ -48,7 +48,7 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
     public GenericAuthenticationCredentials(String[] paramNames) {
         super();
         this.paramNames = paramNames;
-        this.paramValues = new HashMap<String, String>(paramNames.length);
+        this.paramValues = new HashMap<>(paramNames.length);
     }
 
     public String getParam(String paramName) {
@@ -79,7 +79,7 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
     public ApiResponse getApiResponseRepresentation() {
         Map<String, String> values = new HashMap<>(paramValues);
         values.put("type", API_NAME);
-        return new ApiResponseSet<String>("credentials", values);
+        return new ApiResponseSet<>("credentials", values);
     }
 
     /** The Options Panel used for configuring a {@link GenericAuthenticationCredentials}. */

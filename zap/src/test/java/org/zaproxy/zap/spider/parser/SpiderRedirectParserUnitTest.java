@@ -36,7 +36,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 
 /** Unit test for {@link SpiderRedirectParser}. */
-public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
+class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
@@ -59,7 +59,7 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFailToEvaluateAnUndefinedMessage() {
+    void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderRedirectParser redirectParser = new SpiderRedirectParser();
@@ -70,7 +70,7 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseNonRedirectionMessages() {
+    void shouldNotParseNonRedirectionMessages() {
         // Given
         SpiderRedirectParser redirectParser = new SpiderRedirectParser();
         for (int statusCode : NON_REDIRECTION_STATUS_CODES) {
@@ -83,7 +83,7 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseRedirectionMessages() {
+    void shouldParseRedirectionMessages() {
         // Given
         SpiderRedirectParser redirectParser = new SpiderRedirectParser();
         for (int statusCode : REDIRECTION_STATUS_CODES) {
@@ -96,7 +96,7 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseRedirectionMessageEvenIfAlreadyParsed() {
+    void shouldParseRedirectionMessageEvenIfAlreadyParsed() {
         // Given
         boolean alreadyParsed = true;
         SpiderRedirectParser redirectParser = new SpiderRedirectParser();
@@ -108,7 +108,7 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFailToParseAnUndefinedMessage() {
+    void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderRedirectParser redirectParser = new SpiderRedirectParser();
@@ -119,7 +119,7 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldExtractUrlFromLocationHeader() {
+    void shouldExtractUrlFromLocationHeader() {
         // Given
         String location = "http://example.com/redirection";
         HttpMessage msg = createMessageWithLocationAndStatusCode(location, HttpStatusCode.FOUND);
@@ -133,7 +133,7 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldExtractRelativeUrlFromLocationHeader() {
+    void shouldExtractRelativeUrlFromLocationHeader() {
         // Given
         String location = "/rel/redirection";
         HttpMessage msg = createMessageWithLocationAndStatusCode(location, HttpStatusCode.FOUND);
@@ -147,7 +147,7 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotExtractUrlIfLocationHeaderIsEmpty() {
+    void shouldNotExtractUrlIfLocationHeaderIsEmpty() {
         // Given
         String location = "";
         HttpMessage msg = createMessageWithLocationAndStatusCode(location, HttpStatusCode.FOUND);
@@ -161,7 +161,7 @@ public class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotExtractUrlIfLocationHeaderIsNotPresent() {
+    void shouldNotExtractUrlIfLocationHeaderIsNotPresent() {
         // Given
         HttpMessage msg = createMessageWithStatusCode(HttpStatusCode.FOUND);
         SpiderRedirectParser redirectParser = new SpiderRedirectParser();

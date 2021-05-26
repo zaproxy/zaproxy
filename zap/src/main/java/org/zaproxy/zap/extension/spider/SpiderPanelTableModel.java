@@ -226,7 +226,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
     }
 
     public List<String> getAddedNodes() {
-        List<String> list = new ArrayList<String>(this.scanResults.size());
+        List<String> list = new ArrayList<>(this.scanResults.size());
         for (SpiderScanResult res : this.scanResults) {
             list.add(res.uri);
         }

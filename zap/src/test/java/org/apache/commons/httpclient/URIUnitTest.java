@@ -27,10 +27,10 @@ import static org.hamcrest.Matchers.nullValue;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link URI}. */
-public class URIUnitTest {
+class URIUnitTest {
 
     @Test
-    public void shouldReturnPortFromUri() throws Exception {
+    void shouldReturnPortFromUri() throws Exception {
         // Given
         URI uri = new URI("https://example.com:8080/", true);
         // When
@@ -40,7 +40,7 @@ public class URIUnitTest {
     }
 
     @Test
-    public void shouldReturnPortFromUriWithUnderscoresInHostname() throws Exception {
+    void shouldReturnPortFromUriWithUnderscoresInHostname() throws Exception {
         // Given
         URI uri = new URI("http://hive_test_00.example.com:3001/", true);
         // When

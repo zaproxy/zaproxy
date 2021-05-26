@@ -420,8 +420,7 @@ public class SessionStructure {
 
     private static List<org.parosproxy.paros.core.scanner.NameValuePair> convertNVP(
             List<NameValuePair> nvpList, int type) {
-        List<org.parosproxy.paros.core.scanner.NameValuePair> params =
-                new ArrayList<org.parosproxy.paros.core.scanner.NameValuePair>();
+        List<org.parosproxy.paros.core.scanner.NameValuePair> params = new ArrayList<>();
         for (NameValuePair nvp : nvpList) {
             params.add(
                     new org.parosproxy.paros.core.scanner.NameValuePair(
@@ -432,7 +431,7 @@ public class SessionStructure {
 
     private static List<NameValuePair> convertParosNVP(
             List<org.parosproxy.paros.core.scanner.NameValuePair> nvpList, int type) {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        List<NameValuePair> params = new ArrayList<>();
         for (org.parosproxy.paros.core.scanner.NameValuePair nvp : nvpList) {
             if (nvp.getType() == type) {
                 params.add(new DefaultNameValuePair(nvp.getName(), nvp.getValue()));

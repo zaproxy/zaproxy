@@ -31,14 +31,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class AliasCertificateUnitTest {
+class AliasCertificateUnitTest {
 
     private AliasCertificate aliasCertificate;
 
     @Mock private Certificate certificate;
 
     @Test
-    public void shouldRetrieveCnFromUnderlyingCertificate() {
+    void shouldRetrieveCnFromUnderlyingCertificate() {
         // Given
         given(certificate.toString()).willReturn("CN=test\\,certificate,post");
         aliasCertificate = new AliasCertificate(certificate, "");
@@ -49,7 +49,7 @@ public class AliasCertificateUnitTest {
     }
 
     @Test
-    public void shouldMergeCnAndAliasIntoName() {
+    void shouldMergeCnAndAliasIntoName() {
         // Given
         given(certificate.toString()).willReturn("CN=test\\,certificate,post");
         aliasCertificate = new AliasCertificate(certificate, "alias");
@@ -60,7 +60,7 @@ public class AliasCertificateUnitTest {
     }
 
     @Test
-    public void shouldReturnNullAsCnOnUnexpectedUnderlyingCertificateString() {
+    void shouldReturnNullAsCnOnUnexpectedUnderlyingCertificateString() {
         // Given
         given(certificate.toString()).willReturn("xxx");
         aliasCertificate = new AliasCertificate(certificate, "");
@@ -71,7 +71,7 @@ public class AliasCertificateUnitTest {
     }
 
     @Test
-    public void shouldFailRetrievingNameOnNullCn() {
+    void shouldFailRetrievingNameOnNullCn() {
         // Given
         given(certificate.toString()).willReturn("xxx");
         aliasCertificate = new AliasCertificate(certificate, "");

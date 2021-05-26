@@ -250,7 +250,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
                         @Override
                         protected List<Context> getContexts() {
-                            List<Context> contexts = new ArrayList<Context>();
+                            List<Context> contexts = new ArrayList<>();
                             for (Integer id : popupContextTreeMenuDelete.getContextIds()) {
                                 contexts.add(Model.getSingleton().getSession().getContext(id));
                             }

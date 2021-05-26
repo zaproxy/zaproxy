@@ -32,7 +32,7 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.StringHttpPanel
 import org.zaproxy.zap.network.HttpRequestBody;
 
 /** Unit test for {@link RequestStringHttpPanelViewModel}. */
-public class RequestStringHttpPanelViewModelUnitTest
+class RequestStringHttpPanelViewModelUnitTest
         extends StringHttpPanelViewModelTest<HttpRequestHeader, HttpRequestBody> {
 
     @Override

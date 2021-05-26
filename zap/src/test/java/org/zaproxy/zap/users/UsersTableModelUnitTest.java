@@ -48,10 +48,10 @@ import org.zaproxy.zap.view.TableModelTestUtils;
 
 /** Unit test for {@code UsersTableModel}. */
 @ExtendWith(MockitoExtension.class)
-public class UsersTableModelUnitTest extends TableModelTestUtils {
+class UsersTableModelUnitTest extends TableModelTestUtils {
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         I18N i18n = mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), any())).willReturn("");
@@ -59,7 +59,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldFailToCreateInstanceWithUndefinedUsersList() {
+    void shouldFailToCreateInstanceWithUndefinedUsersList() {
         // Given
         List<User> undefinedUsersList = null;
         // When / Then
@@ -67,7 +67,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldAddTableModelListeners() {
+    void shouldAddTableModelListeners() {
         // Given
         TableModelListener listener = createTestTableModelListener();
         UsersTableModel usersTableModel = new UsersTableModel();
@@ -78,7 +78,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldRemoveTableModelListeners() {
+    void shouldRemoveTableModelListeners() {
         // Given
         TableModelListener listener = createTestTableModelListener();
         UsersTableModel usersTableModel = new UsersTableModel();
@@ -90,7 +90,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldHaveJustThreeColumns() {
+    void shouldHaveJustThreeColumns() {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
         // When / Then
@@ -101,7 +101,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldBeEditableJustTheFirstColumnEvenIfHasNoUsers() {
+    void shouldBeEditableJustTheFirstColumnEvenIfHasNoUsers() {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
         // When / Then
@@ -110,7 +110,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldNotHaveUsersByDefault() {
+    void shouldNotHaveUsersByDefault() {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
         // When / Then
@@ -120,7 +120,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldFailToGetValueOfNonExistingRow() {
+    void shouldFailToGetValueOfNonExistingRow() {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
         // When / Then
@@ -128,7 +128,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldCreateInstanceWithUsersList() {
+    void shouldCreateInstanceWithUsersList() {
         // Given
         List<User> usersList = new ArrayList<>();
         usersList.add(createUser());
@@ -143,7 +143,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldReturnUserEnabledStateFromFirstColumn() {
+    void shouldReturnUserEnabledStateFromFirstColumn() {
         // Given
         List<User> usersList = new ArrayList<>();
         usersList.add(createUser());
@@ -157,7 +157,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldReturnUserIdFromSecondColumn() {
+    void shouldReturnUserIdFromSecondColumn() {
         // Given
         List<User> usersList = new ArrayList<>();
         User user1 = createUser();
@@ -175,7 +175,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldReturnUserNameFromThirdColumn() {
+    void shouldReturnUserNameFromThirdColumn() {
         // Given
         List<User> usersList = new ArrayList<>();
         usersList.add(createUser("User 1"));
@@ -189,7 +189,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldReturnNullValueAndColumnClassForNonExistingColumns() {
+    void shouldReturnNullValueAndColumnClassForNonExistingColumns() {
         // Given
         List<User> usersList = new ArrayList<>();
         usersList.add(createUser());
@@ -201,7 +201,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldChangeUsersEnabledState() {
+    void shouldChangeUsersEnabledState() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         List<User> usersList = new ArrayList<>();
@@ -221,7 +221,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldNotChangeUsersEnabledStateIfNonBooleanOrFirstColumn() {
+    void shouldNotChangeUsersEnabledStateIfNonBooleanOrFirstColumn() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         List<User> usersList = new ArrayList<>();
@@ -240,7 +240,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldEnableAllUsers() {
+    void shouldEnableAllUsers() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         List<User> usersList = new ArrayList<>();
@@ -259,7 +259,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldDisableAllUsers() {
+    void shouldDisableAllUsers() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         List<User> usersList = new ArrayList<>();
@@ -278,7 +278,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldNotNotifyOfEnabledStateChangesIfItHasNoUsers() {
+    void shouldNotNotifyOfEnabledStateChangesIfItHasNoUsers() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         UsersTableModel usersTableModel = new UsersTableModel();
@@ -290,7 +290,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldFailToGetNonExistingElement() {
+    void shouldFailToGetNonExistingElement() {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
         // When / Then
@@ -298,7 +298,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldAddElement() {
+    void shouldAddElement() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         UsersTableModel usersTableModel = new UsersTableModel();
@@ -316,7 +316,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldAddUser() {
+    void shouldAddUser() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         UsersTableModel usersTableModel = new UsersTableModel();
@@ -333,7 +333,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldFailToModifyNonExistingElement() {
+    void shouldFailToModifyNonExistingElement() {
         // Given
         List<User> usersList = new ArrayList<>();
         usersList.add(createEnabledUser());
@@ -345,7 +345,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldModifyElement() {
+    void shouldModifyElement() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         List<User> usersList = new ArrayList<>();
@@ -366,7 +366,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldFailToRemoveNonExistingElement() {
+    void shouldFailToRemoveNonExistingElement() {
         // Given
         UsersTableModel usersTableModel = new UsersTableModel();
         // When / Then
@@ -374,7 +374,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldRemoveElement() {
+    void shouldRemoveElement() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         List<User> usersList = new ArrayList<>();
@@ -397,7 +397,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldClearElements() {
+    void shouldClearElements() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         List<User> usersList = new ArrayList<>();
@@ -416,7 +416,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldRemoveAllUsers() {
+    void shouldRemoveAllUsers() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         List<User> usersList = new ArrayList<>();
@@ -435,7 +435,7 @@ public class UsersTableModelUnitTest extends TableModelTestUtils {
     }
 
     @Test
-    public void shouldSetUsers() {
+    void shouldSetUsers() {
         // Given
         TestTableModelListener listener = createTestTableModelListener();
         UsersTableModel usersTableModel = new UsersTableModel();

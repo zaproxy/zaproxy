@@ -30,17 +30,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link SimpleEventBus}. */
-public class SimpleEventBusUnitTest {
+class SimpleEventBusUnitTest {
 
     SimpleEventBus seb;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         seb = new SimpleEventBus();
     }
 
     @Test
-    public void consumerOfAllEventsShouldReceiveThem() {
+    void consumerOfAllEventsShouldReceiveThem() {
         // Given
         TestEventPublisher pub = new TestEventPublisher("Pub1");
         TestEventConsumer cons = new TestEventConsumer();
@@ -60,7 +60,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumerOfSomeEventsShouldReceiveJustThem() {
+    void consumerOfSomeEventsShouldReceiveJustThem() {
         // Given
         TestEventPublisher pub = new TestEventPublisher("Pub1");
         TestEventConsumer cons = new TestEventConsumer();
@@ -80,7 +80,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumerShouldNotReceiveEventsForOtherPublishers() {
+    void consumerShouldNotReceiveEventsForOtherPublishers() {
         // Given
         TestEventPublisher pub1 = new TestEventPublisher("Pub1");
         TestEventPublisher pub2 = new TestEventPublisher("Pub2");
@@ -111,7 +111,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumerShouldNotReceiveEventsAfterDisconnectingFromPublisher() {
+    void consumerShouldNotReceiveEventsAfterDisconnectingFromPublisher() {
         // Given
         TestEventPublisher pub = new TestEventPublisher("Pub1");
         TestEventConsumer cons = new TestEventConsumer();
@@ -132,7 +132,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumerShouldNotReceiveEventsAfterDisconnectingFromAllPublishers() {
+    void consumerShouldNotReceiveEventsAfterDisconnectingFromAllPublishers() {
         // Given
         TestEventPublisher pub1 = new TestEventPublisher("Pub1");
         TestEventPublisher pub2 = new TestEventPublisher("Pub2");
@@ -170,7 +170,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumersShouldReceiveEventsEvenIfRegisteredBeforePublisher() {
+    void consumersShouldReceiveEventsEvenIfRegisteredBeforePublisher() {
         // Given
         TestEventConsumer consumer1 = new TestEventConsumer();
         TestEventConsumer consumer2 = new TestEventConsumer();
@@ -187,7 +187,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumerShouldBeAbleToRemoveItselfDuringEventConsumption() {
+    void consumerShouldBeAbleToRemoveItselfDuringEventConsumption() {
         // Given
         TestEventPublisher publisher = new TestEventPublisher("publisher");
         TestEventConsumer consumer1 =
@@ -222,7 +222,7 @@ public class SimpleEventBusUnitTest {
             this.events.add(event);
         }
 
-        public List<Event> getEvents() {
+        List<Event> getEvents() {
             return events;
         }
     }
@@ -231,7 +231,7 @@ public class SimpleEventBusUnitTest {
 
         private String name;
 
-        public TestEventPublisher(String name) {
+        TestEventPublisher(String name) {
             this.name = name;
         }
 

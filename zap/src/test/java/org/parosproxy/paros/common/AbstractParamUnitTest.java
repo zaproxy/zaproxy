@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link AbstractParam}. */
-public class AbstractParamUnitTest {
+class AbstractParamUnitTest {
 
     private static final String VALUE_KEY = "config.value";
     private static final String VALUE = "Value X";
@@ -51,7 +51,7 @@ public class AbstractParamUnitTest {
     }
 
     @Test
-    public void shouldNotHaveConfigByDefault() {
+    void shouldNotHaveConfigByDefault() {
         // Given / When
         AbstractParam param = createTestAbstractParam();
         // Then
@@ -59,7 +59,7 @@ public class AbstractParamUnitTest {
     }
 
     @Test
-    public void shouldParseLoadedFileConfiguration() {
+    void shouldParseLoadedFileConfiguration() {
         // Given
         TestAbstractParam param = createTestAbstractParam();
         FileConfiguration config = createTestConfig();
@@ -71,7 +71,7 @@ public class AbstractParamUnitTest {
     }
 
     @Test
-    public void shouldBeCloneableByDefault() {
+    void shouldBeCloneableByDefault() {
         // Given
         TestAbstractParam param = createTestAbstractParam();
         // When
@@ -83,7 +83,7 @@ public class AbstractParamUnitTest {
     }
 
     @Test
-    public void shouldHaveLoadedConfigsAfterCloning() {
+    void shouldHaveLoadedConfigsAfterCloning() {
         // Given
         TestAbstractParam param = createTestAbstractParam();
         FileConfiguration config = createTestConfig();
@@ -120,11 +120,11 @@ public class AbstractParamUnitTest {
             }
         }
 
-        public String getValue() {
+        String getValue() {
             return value;
         }
 
-        public List<String> getValues() {
+        List<String> getValues() {
             return values;
         }
 

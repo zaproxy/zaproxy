@@ -315,7 +315,7 @@ class UninstallationProgressDialogue extends AbstractDialog {
             PASSIVE_RULE,
             EXTENSION,
             FINISHED_ADD_ON
-        };
+        }
 
         private final AddOn addOn;
         private final boolean update;

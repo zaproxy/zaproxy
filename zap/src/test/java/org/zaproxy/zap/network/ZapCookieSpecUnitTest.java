@@ -28,7 +28,7 @@ import org.apache.commons.httpclient.cookie.MalformedCookieException;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ZapCookieSpec}. */
-public class ZapCookieSpecUnitTest {
+class ZapCookieSpecUnitTest {
 
     private static final String HOST = "example.com";
     private static final int PORT = 8443;
@@ -36,7 +36,7 @@ public class ZapCookieSpecUnitTest {
     private static final boolean SECURE = true;
 
     @Test
-    public void shouldThrowWhenValidatingWithNullHost() throws MalformedCookieException {
+    void shouldThrowWhenValidatingWithNullHost() throws MalformedCookieException {
         // Given
         CookieSpec cookieSpec = createCookieSpec();
         String host = null;
@@ -47,7 +47,7 @@ public class ZapCookieSpecUnitTest {
     }
 
     @Test
-    public void shouldThrowWhenValidatingWithEmptyHost() throws MalformedCookieException {
+    void shouldThrowWhenValidatingWithEmptyHost() throws MalformedCookieException {
         // Given
         CookieSpec cookieSpec = createCookieSpec();
         String host = "";
@@ -58,7 +58,7 @@ public class ZapCookieSpecUnitTest {
     }
 
     @Test
-    public void shouldThrowWhenValidatingWithNegativePort() throws MalformedCookieException {
+    void shouldThrowWhenValidatingWithNegativePort() throws MalformedCookieException {
         // Given
         CookieSpec cookieSpec = createCookieSpec();
         int port = -1;
@@ -69,7 +69,7 @@ public class ZapCookieSpecUnitTest {
     }
 
     @Test
-    public void shouldThrowWhenValidatingWithNullPath() throws MalformedCookieException {
+    void shouldThrowWhenValidatingWithNullPath() throws MalformedCookieException {
         // Given
         CookieSpec cookieSpec = createCookieSpec();
         String path = null;
@@ -80,7 +80,7 @@ public class ZapCookieSpecUnitTest {
     }
 
     @Test
-    public void shouldThrowWhenValidatingWithNullCookie() throws MalformedCookieException {
+    void shouldThrowWhenValidatingWithNullCookie() throws MalformedCookieException {
         // Given
         CookieSpec cookieSpec = createCookieSpec();
         Cookie cookie = null;
@@ -91,7 +91,7 @@ public class ZapCookieSpecUnitTest {
     }
 
     @Test
-    public void shouldThrowWhenValidatingWithNullCookieDomain() throws MalformedCookieException {
+    void shouldThrowWhenValidatingWithNullCookieDomain() throws MalformedCookieException {
         // Given
         CookieSpec cookieSpec = createCookieSpec();
         Cookie cookie = new Cookie(null, "name", "value");
@@ -102,7 +102,7 @@ public class ZapCookieSpecUnitTest {
     }
 
     @Test
-    public void shouldBeMalformedWhenValidatingWithNegativeCookieVersion()
+    void shouldBeMalformedWhenValidatingWithNegativeCookieVersion()
             throws MalformedCookieException {
         // Given
         CookieSpec cookieSpec = createCookieSpec();
@@ -115,8 +115,7 @@ public class ZapCookieSpecUnitTest {
     }
 
     @Test
-    public void shouldBeValidEvenIfCookiePathIsDifferentThanOrigin()
-            throws MalformedCookieException {
+    void shouldBeValidEvenIfCookiePathIsDifferentThanOrigin() throws MalformedCookieException {
         // Given
         CookieSpec cookieSpec = createCookieSpec();
         Cookie cookie = new Cookie(HOST, "name", "value");

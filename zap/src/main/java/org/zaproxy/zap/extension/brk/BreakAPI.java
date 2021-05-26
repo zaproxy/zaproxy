@@ -282,6 +282,7 @@ public class BreakAPI extends ApiImplementor {
         }
     }
 
+    @Override
     public void handleApiPersistentConnection(
             HttpMessage msg,
             HttpInputStream httpIn,

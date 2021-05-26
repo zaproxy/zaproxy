@@ -33,7 +33,7 @@ import org.zaproxy.zap.control.AddOnCollection.Platform;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link AddOnCollection}. */
-public class AddOnCollectionUnitTest {
+class AddOnCollectionUnitTest {
 
     private ZapXmlConfiguration configA;
     private ZapXmlConfiguration configB;
@@ -140,7 +140,7 @@ public class AddOnCollectionUnitTest {
                     + "</ZAP>";
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         configA = new ZapXmlConfiguration();
         configA.setDelimiterParsingDisabled(true);
         configA.load(new StringReader(CONF_A));
@@ -151,13 +151,13 @@ public class AddOnCollectionUnitTest {
     }
 
     @Test
-    public void testMainVersion() throws Exception {
+    void testMainVersion() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.windows);
         assertThat(coll.getZapRelease().getVersion(), is("2.0.0"));
     }
 
     @Test
-    public void testDailyUrl() throws Exception {
+    void testDailyUrl() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.daily);
         assertThat(
                 coll.getZapRelease().getUrl().toString(),
@@ -165,7 +165,7 @@ public class AddOnCollectionUnitTest {
     }
 
     @Test
-    public void testWinUrl() throws Exception {
+    void testWinUrl() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.windows);
         assertThat(
                 coll.getZapRelease().getUrl().toString(),
@@ -173,7 +173,7 @@ public class AddOnCollectionUnitTest {
     }
 
     @Test
-    public void testLinuxUrl() throws Exception {
+    void testLinuxUrl() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.linux);
         assertThat(
                 coll.getZapRelease().getUrl().toString(),
@@ -181,7 +181,7 @@ public class AddOnCollectionUnitTest {
     }
 
     @Test
-    public void testMacUrl() throws Exception {
+    void testMacUrl() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.mac);
         assertThat(
                 coll.getZapRelease().getUrl().toString(),
@@ -189,13 +189,13 @@ public class AddOnCollectionUnitTest {
     }
 
     @Test
-    public void testDailyVersion() throws Exception {
+    void testDailyVersion() throws Exception {
         AddOnCollection coll = new AddOnCollection(configA, Platform.daily);
         assertThat(coll.getZapRelease().getVersion(), is("D-2012-12-31"));
     }
 
     @Test
-    public void testUpdatedAddons() throws Exception {
+    void testUpdatedAddons() throws Exception {
         AddOnCollection collA = new AddOnCollection(configA, Platform.daily);
         AddOnCollection collB = new AddOnCollection(configB, Platform.daily);
         List<AddOn> updAddOns = collB.getUpdatedAddOns(collA);
@@ -204,7 +204,7 @@ public class AddOnCollectionUnitTest {
     }
 
     @Test
-    public void testNewAddons() throws Exception {
+    void testNewAddons() throws Exception {
         AddOnCollection collA = new AddOnCollection(configA, Platform.daily);
         AddOnCollection collB = new AddOnCollection(configB, Platform.daily);
         List<AddOn> newAddOns = collB.getNewAddOns(collA);
@@ -213,7 +213,7 @@ public class AddOnCollectionUnitTest {
     }
 
     @Test
-    public void shouldAcceptAddOnsWithoutDependencyIssues() throws Exception {
+    void shouldAcceptAddOnsWithoutDependencyIssues() throws Exception {
         // Given
         ZapXmlConfiguration zapVersions = createConfiguration("ZapVersions-deps.xml");
         // When
@@ -232,7 +232,7 @@ public class AddOnCollectionUnitTest {
     }
 
     @Test
-    public void shouldRejectAddOnsWithCircularDependencies() throws Exception {
+    void shouldRejectAddOnsWithCircularDependencies() throws Exception {
         // Given
         ZapXmlConfiguration zapVersions = createConfiguration("ZapVersions-cyclic-deps.xml");
         // When
@@ -246,7 +246,7 @@ public class AddOnCollectionUnitTest {
     }
 
     @Test
-    public void shouldRejectAddOnsWithMissingDependencies() throws Exception {
+    void shouldRejectAddOnsWithMissingDependencies() throws Exception {
         // Given
         ZapXmlConfiguration zapVersions = createConfiguration("ZapVersions-missing-deps.xml");
         // When
@@ -259,7 +259,7 @@ public class AddOnCollectionUnitTest {
     }
 
     @Test
-    public void shouldHaveReleaseDateInAddOn() throws Exception {
+    void shouldHaveReleaseDateInAddOn() throws Exception {
         // Given
         AddOnCollection coll = new AddOnCollection(configA, Platform.windows);
         AddOn addOn = coll.getAddOn("ddd");

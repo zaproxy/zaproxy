@@ -408,7 +408,7 @@ public class ActiveScanAPI extends ApiImplementor {
                 case ACTION_CLEAR_EXCLUDED_FROM_SCAN:
                     try {
                         Session session = Model.getSingleton().getSession();
-                        session.setExcludeFromScanRegexs(new ArrayList<String>());
+                        session.setExcludeFromScanRegexs(new ArrayList<>());
                     } catch (DatabaseException e) {
                         log.error(e.getMessage(), e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -977,7 +977,7 @@ public class ActiveScanAPI extends ApiImplementor {
                     map.put("reqCount", Integer.toString(scan.getTotalRequests()));
                     map.put("alertCount", Integer.toString(scan.getAlertsIds().size()));
                     map.put("newAlertCount", Integer.toString(scan.getTotalNewAlerts()));
-                    resultList.addItem(new ApiResponseSet<String>("scan", map));
+                    resultList.addItem(new ApiResponseSet<>("scan", map));
                 }
                 result = resultList;
                 break;
@@ -1094,7 +1094,7 @@ public class ActiveScanAPI extends ApiImplementor {
                             "alertThreshold",
                             alertThreshold == null ? "" : String.valueOf(alertThreshold));
                     map.put("enabled", String.valueOf(isPolicyEnabled(policy, categoryId)));
-                    resultList.addItem(new ApiResponseSet<String>("policy", map));
+                    resultList.addItem(new ApiResponseSet<>("policy", map));
                 }
 
                 result = resultList;
@@ -1127,7 +1127,7 @@ public class ActiveScanAPI extends ApiImplementor {
                     Map<String, String> typeData = new HashMap<>();
                     typeData.put("id", Integer.toString(type.getKey()));
                     typeData.put("name", type.getValue());
-                    resultList.addItem(new ApiResponseSet<String>("type", typeData));
+                    resultList.addItem(new ApiResponseSet<>("type", typeData));
                 }
                 result = resultList;
                 break;
@@ -1218,7 +1218,7 @@ public class ActiveScanAPI extends ApiImplementor {
             typeData = new HashMap<>();
             typeData.put("id", Integer.toString(param.getType()));
             typeData.put("name", param.getTypeString());
-            type = new ApiResponseSet<String>("type", typeData);
+            type = new ApiResponseSet<>("type", typeData);
         }
 
         @Override

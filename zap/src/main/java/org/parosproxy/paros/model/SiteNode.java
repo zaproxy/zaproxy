@@ -57,6 +57,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -89,7 +90,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     private Vector<HistoryReference> pastHistoryList = new Vector<>(10);
     // ZAP: Support for linking Alerts to SiteNodes
     private SiteMap siteMap = null;
-    private Set<Alert> alerts = Collections.synchronizedSet(new HashSet<Alert>());
+    private Set<Alert> alerts = Collections.synchronizedSet(new HashSet<>());
     private boolean justSpidered = false;
     // private boolean justAJAXSpidered = false;
     private ArrayList<String> icons = null;
@@ -164,7 +165,7 @@ public class SiteNode extends DefaultMutableTreeNode {
      * @since 2.6.0
      */
     public List<ImageIcon> getCustomIcons() {
-        List<ImageIcon> iconList = new ArrayList<ImageIcon>();
+        List<ImageIcon> iconList = new ArrayList<>();
         if (justSpidered) {
             iconList.add(new ImageIcon(Constant.class.getResource("/resource/icon/10/spider.png")));
         }

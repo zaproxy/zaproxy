@@ -71,7 +71,7 @@ public abstract class PopupMenuItemHttpMessageContainer
         FUZZER_PANEL,
         FORCED_BROWSE_PANEL,
         UNKNOWN
-    };
+    }
 
     /** The current invoker of the menu, {@code null} if none or invalid. */
     private Invoker invoker;

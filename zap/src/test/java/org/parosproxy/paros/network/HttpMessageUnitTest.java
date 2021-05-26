@@ -50,10 +50,10 @@ import org.zaproxy.zap.network.HttpResponseBody;
 import org.zaproxy.zap.users.User;
 
 /** Unit test for {@link HttpMessage}. */
-public class HttpMessageUnitTest {
+class HttpMessageUnitTest {
 
     @Test
-    public void shouldBeEventStreamIfRequestWithoutResponseAcceptsEventStream() throws Exception {
+    void shouldBeEventStreamIfRequestWithoutResponseAcceptsEventStream() throws Exception {
         // Given
         HttpMessage message =
                 new HttpMessage(
@@ -65,7 +65,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldNotBeEventStreamIfRequestWithoutResponseDoesNotAcceptJustEventStream()
+    void shouldNotBeEventStreamIfRequestWithoutResponseDoesNotAcceptJustEventStream()
             throws Exception {
         // Given
         HttpMessage message =
@@ -77,7 +77,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldBeEventStreamIfResponseHasEventStreamContentType() throws Exception {
+    void shouldBeEventStreamIfResponseHasEventStreamContentType() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
         message.getResponseHeader()
@@ -89,8 +89,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldNotBeEventStreamIfResponseDoesNotHaveEventStreamContentType()
-            throws Exception {
+    void shouldNotBeEventStreamIfResponseDoesNotHaveEventStreamContentType() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
         message.getResponseHeader()
@@ -102,7 +101,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldCopyHttpMessage() throws Exception {
+    void shouldCopyHttpMessage() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
         // When
@@ -137,7 +136,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldCloneRequest() throws Exception {
+    void shouldCloneRequest() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
         // When
@@ -167,7 +166,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldCloneAll() throws Exception {
+    void shouldCloneAll() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
         // When
@@ -201,7 +200,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldCorrectlyMutateFromConnectHttpMethodWhenGenericPort() throws Exception {
+    void shouldCorrectlyMutateFromConnectHttpMethodWhenGenericPort() throws Exception {
         // Given
         HttpMessage message =
                 new HttpMessage(
@@ -220,7 +219,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldCorrectlyMutateFromConnectHttpMethodWhenHttpsPort() throws Exception {
+    void shouldCorrectlyMutateFromConnectHttpMethodWhenHttpsPort() throws Exception {
         // Given
         HttpMessage message =
                 new HttpMessage(
@@ -239,7 +238,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldCorrectlyMutateToConnectHttpMethod() throws Exception {
+    void shouldCorrectlyMutateToConnectHttpMethod() throws Exception {
         // Given
         HttpMessage message =
                 new HttpMessage(
@@ -392,7 +391,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldBeWebSocketUpgradeIfRequestConnectionHeaderContainsUpgradeAndUpgradeHeaderEqualsWebsocket()
                     throws Exception {
         // Given
@@ -407,7 +406,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldBeWebSocketUpgradeIfResponseConnectionHeaderEqualsUpgradeAndUpgradeHeaderEqualsWebsocket()
                     throws Exception {
         // Given
@@ -422,7 +421,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldBeWebSocketUpgradeIfResponseConnectionHeaderContainsUpgradeAndUpgradeHeaderEqualsWebsocket()
                     throws Exception {
         // Given
@@ -437,8 +436,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldNotBeWebSocketUpgradeIfResponseConnectionHeaderMissUpgradeValue()
-            throws Exception {
+    void shouldNotBeWebSocketUpgradeIfResponseConnectionHeaderMissUpgradeValue() throws Exception {
         // Given
         HttpMessage message = new HttpMessage();
         message.setResponseHeader(
@@ -451,7 +449,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldNotBeWebSocketUpgradeIfResponseMissUpgradeHeader() throws Exception {
+    void shouldNotBeWebSocketUpgradeIfResponseMissUpgradeHeader() throws Exception {
         // Given
         HttpMessage message = new HttpMessage();
         message.setResponseHeader(

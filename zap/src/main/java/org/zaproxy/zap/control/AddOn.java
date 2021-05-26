@@ -168,7 +168,7 @@ public class AddOn {
             INVALID_MANIFEST,
             /** The add-on declared a missing/invalid library. */
             INVALID_LIB,
-        };
+        }
 
         private final Validity validity;
         private final Exception exception;

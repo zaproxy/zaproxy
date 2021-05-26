@@ -95,7 +95,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
             tableTest.setAutoCreateRowSorter(true);
 
             // Default sort by name (column 0)
-            List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
+            List<RowSorter.SortKey> sortKeys = new ArrayList<>(1);
             sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
             tableTest.getRowSorter().setSortKeys(sortKeys);
 

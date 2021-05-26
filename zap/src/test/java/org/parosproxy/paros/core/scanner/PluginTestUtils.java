@@ -33,7 +33,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  *
  * @see Plugin
  */
-public class PluginTestUtils {
+class PluginTestUtils {
 
     protected static AbstractPlugin createAbstractPluginWithConfig() {
         return createAbstractPluginWithConfig(0);
@@ -107,15 +107,15 @@ public class PluginTestUtils {
         private String codeName;
         private String[] dependencies;
 
-        public TestPlugin() {
+        TestPlugin() {
             this(0);
         }
 
-        public TestPlugin(int id) {
+        TestPlugin(int id) {
             this(id, NOT_DEFINED);
         }
 
-        public TestPlugin(int id, int risk) {
+        TestPlugin(int id, int risk) {
             this.id = id;
             this.risk = risk;
             this.name = "Plugin Name";
@@ -124,17 +124,17 @@ public class PluginTestUtils {
             this.reference = "Plugin Reference";
         }
 
-        public TestPlugin(int id, int risk, int cweId, int wascId) {
+        TestPlugin(int id, int risk, int cweId, int wascId) {
             this(id, risk);
             this.cweId = cweId;
             this.wascId = wascId;
         }
 
-        public TestPlugin(int id, String codeName) {
+        TestPlugin(int id, String codeName) {
             this(id, codeName, (String[]) null);
         }
 
-        public TestPlugin(int id, String codeName, String... dependencies) {
+        TestPlugin(int id, String codeName, String... dependencies) {
             this(id);
             this.codeName = codeName;
             this.dependencies = dependencies;
@@ -229,7 +229,7 @@ public class PluginTestUtils {
 
     private static class NonVisibleTestPlugin extends TestPlugin {
 
-        public NonVisibleTestPlugin() {}
+        NonVisibleTestPlugin() {}
 
         @Override
         public boolean isVisible() {
@@ -239,7 +239,7 @@ public class PluginTestUtils {
 
     private static class DeprecatedTestPlugin extends TestPlugin {
 
-        public DeprecatedTestPlugin() {}
+        DeprecatedTestPlugin() {}
 
         @Override
         public boolean isDepreciated() {
@@ -330,8 +330,7 @@ public class PluginTestUtils {
         @Override
         public void saveTo(Configuration conf) {}
 
-        @Override
-        public void loadFrom(Configuration conf) {}
+        public @Override void loadFrom(Configuration conf) {}
 
         @Override
         public void cloneInto(Plugin plugin) {}

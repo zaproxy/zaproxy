@@ -210,7 +210,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
 
     private JComboBox<String> comboNewSessionOption() {
         if (comboNewSessionOption == null) {
-            comboNewSessionOption = new JComboBox<String>();
+            comboNewSessionOption = new JComboBox<>();
             // Note that these need to be in the order specified in
             // org.parosproxy.paros.common.AbstractParam.DatabaseParam
             comboNewSessionOption.addItem(

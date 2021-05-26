@@ -59,6 +59,7 @@
 // ZAP: 2020/12/09 Handle content encodings in request/response bodies.
 // ZAP: 2021/04/01 Detect WebSocket upgrade messages having multiple Connection directives
 // ZAP: 2021/05/11 Fixed conversion of Request Method to/from CONNECT
+// ZAP: 2021/05/14 Add missing override annotation.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -755,7 +756,7 @@ public class HttpMessage implements Message {
      * @since 2.10.0
      */
     public List<String> getParameterNames(HtmlParameter.Type type) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         Model.getSingleton()
                 .getSession()
                 .getParameters(this, type)
@@ -782,7 +783,7 @@ public class HttpMessage implements Message {
      * @since 2.10.0
      */
     public List<HtmlParameter> getParameters(HtmlParameter.Type type) {
-        List<HtmlParameter> list = new ArrayList<HtmlParameter>();
+        List<HtmlParameter> list = new ArrayList<>();
         Model.getSingleton()
                 .getSession()
                 .getParameters(this, type)
@@ -1218,7 +1219,7 @@ public class HttpMessage implements Message {
      */
     @Override
     public Map<String, String> toEventData() {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(EVENT_DATA_URI, getRequestHeader().getURI().toString());
         map.put(EVENT_DATA_REQUEST_HEADER, getRequestHeader().toString());
         map.put(EVENT_DATA_REQUEST_BODY, getRequestBody().toString());
@@ -1234,6 +1235,7 @@ public class HttpMessage implements Message {
      *
      * @since 2.8.0
      */
+    @Override
     public String getType() {
         return MESSAGE_TYPE;
     }

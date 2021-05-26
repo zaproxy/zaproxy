@@ -127,7 +127,7 @@ public class RuleConfigAPI extends ApiImplementor {
                     if (Constant.messages.containsKey(rc2.getKey())) {
                         map.put("description", Constant.messages.getString(rc2.getKey()));
                     }
-                    resultList.addItem(new ApiResponseSet<String>("ruleConfig", map));
+                    resultList.addItem(new ApiResponseSet<>("ruleConfig", map));
                 }
 
                 result = resultList;

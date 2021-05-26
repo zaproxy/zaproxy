@@ -130,7 +130,7 @@ public class DialogEditShortcut extends StandardFieldsDialog {
     }
 
     private List<String> getKeyList() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         list.add(""); // Always start with a blank option - means no key set
         for (char c = 'A'; c <= 'Z'; c++) {
             list.add(String.valueOf(c));

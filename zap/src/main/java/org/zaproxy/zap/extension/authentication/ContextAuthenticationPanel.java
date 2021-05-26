@@ -355,7 +355,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
     private JComboBox<AuthCheckingStrategyType> getAuthenticationVerifComboBox() {
         if (authenticationVerifComboBox == null) {
-            authenticationVerifComboBox = new JComboBox<AuthCheckingStrategyType>();
+            authenticationVerifComboBox = new JComboBox<>();
             for (AuthCheckingStrategyType acst : AuthCheckingStrategyType.getAllValues()) {
                 authenticationVerifComboBox.addItem(acst);
             }
@@ -388,7 +388,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
     private JComboBox<AuthPollFrequencyUnitsType> getAuthFrequencyUnitsComboBox() {
         if (authFrequencyUnitsComboBox == null) {
-            authFrequencyUnitsComboBox = new JComboBox<AuthPollFrequencyUnitsType>();
+            authFrequencyUnitsComboBox = new JComboBox<>();
             for (AuthPollFrequencyUnitsType acst : AuthPollFrequencyUnitsType.getAllValues()) {
                 authFrequencyUnitsComboBox.addItem(acst);
             }
@@ -851,7 +851,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
         }
 
         public static List<AuthCheckingStrategyType> getAllValues() {
-            List<AuthCheckingStrategyType> list = new ArrayList<AuthCheckingStrategyType>();
+            List<AuthCheckingStrategyType> list = new ArrayList<>();
             for (AuthenticationMethod.AuthCheckingStrategy strategy :
                     AuthenticationMethod.AuthCheckingStrategy.values()) {
                 list.add(new AuthCheckingStrategyType(strategy));
@@ -891,7 +891,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
         }
 
         public static List<AuthPollFrequencyUnitsType> getAllValues() {
-            List<AuthPollFrequencyUnitsType> list = new ArrayList<AuthPollFrequencyUnitsType>();
+            List<AuthPollFrequencyUnitsType> list = new ArrayList<>();
             for (AuthenticationMethod.AuthPollFrequencyUnits strategy :
                     AuthenticationMethod.AuthPollFrequencyUnits.values()) {
                 list.add(new AuthPollFrequencyUnitsType(strategy));

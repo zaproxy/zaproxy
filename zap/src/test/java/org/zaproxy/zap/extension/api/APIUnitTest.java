@@ -56,12 +56,12 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link API}. */
 @ExtendWith(MockitoExtension.class)
-public class APIUnitTest {
+class APIUnitTest {
 
     private static final String CUSTOM_API_PATH = "/custom/api/";
 
     @Test
-    public void shouldBeEnabledWhenInDaemonMode() {
+    void shouldBeEnabledWhenInDaemonMode() {
         // Given
         API api = new API();
         // When
@@ -71,7 +71,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldAcceptCallbackIfNoAddressesSet() throws Exception {
+    void shouldAcceptCallbackIfNoAddressesSet() throws Exception {
         // Given
         API api = new API();
         api.setOptionsParamApi(createOptionsParamApi());
@@ -88,7 +88,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldAcceptCallbackEvenIfAddressNotSet() throws Exception {
+    void shouldAcceptCallbackEvenIfAddressNotSet() throws Exception {
         // Given
         API api = new API();
         OptionsParamApi apiOptions = createOptionsParamApi();
@@ -107,7 +107,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldAcceptCallbackEvenIfHostnameNotSet() throws Exception {
+    void shouldAcceptCallbackEvenIfHostnameNotSet() throws Exception {
         // Given
         API api = new API();
         OptionsParamApi apiOptions = createOptionsParamApi();
@@ -126,7 +126,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldAcceptAddressAndHostnameSet() throws Exception {
+    void shouldAcceptAddressAndHostnameSet() throws Exception {
         // Given
         API api = new API();
         OptionsParamApi apiOptions = createOptionsParamApi();
@@ -145,7 +145,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldCreateBaseUrlWithHttpSchemeAndZapAddressIfProxyingAndNotSecure() {
+    void shouldCreateBaseUrlWithHttpSchemeAndZapAddressIfProxyingAndNotSecure() {
         // Given
         boolean proxying = true;
         boolean secure = false;
@@ -160,7 +160,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldCreateBaseUrlWithHttpsSchemeAndZapAddressIfProxyingAndSecure() {
+    void shouldCreateBaseUrlWithHttpsSchemeAndZapAddressIfProxyingAndSecure() {
         // Given
         boolean proxying = true;
         boolean secure = true;
@@ -175,7 +175,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldCreateBaseUrlWithHttpsSchemeAndProxyAddressIfNotProxyingAndNotSecure() {
+    void shouldCreateBaseUrlWithHttpsSchemeAndProxyAddressIfNotProxyingAndNotSecure() {
         // Given
         boolean proxying = false;
         boolean secure = false;
@@ -191,7 +191,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldCreateBaseUrlWithHttpsSchemeAndProxyAddressIfNotProxyingAndSecure() {
+    void shouldCreateBaseUrlWithHttpsSchemeAndProxyAddressIfNotProxyingAndSecure() {
         // Given
         boolean proxying = false;
         boolean secure = true;
@@ -207,7 +207,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCreateBaseUrlWithApiRequestWithHttpSchemeZapAddressAndApiNonceIfProxyingNotSecureAndNotView() {
         // Given
         boolean proxying = true;
@@ -226,7 +226,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCreateBaseUrlWithApiRequestWithHttpsSchemeZapAddressAndApiNonceIfProxyingIsSecureAndNotView() {
         // Given
         boolean proxying = true;
@@ -245,7 +245,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCreateBaseUrlWithApiRequestWithHttpSchemeProxyAddressAndApiNonceIfNotProxyingNotSecureAndNotView() {
         // Given
         boolean proxying = false;
@@ -265,7 +265,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCreateBaseUrlWithApiRequestWithHttpsSchemeProxyAddressAndApiNonceIfNotProxyingIsSecureAndNotView() {
         // Given
         boolean proxying = false;
@@ -285,7 +285,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCreateBaseUrlWithApiRequestWithHttpSchemeZapAddressAndNoApiNonceIfProxyingNotSecureAndView() {
         // Given
         boolean proxying = true;
@@ -302,7 +302,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCreateBaseUrlWithApiRequestWithHttpsSchemeZapAddressAndNoApiNonceIfProxyingIsSecureAndView() {
         // Given
         boolean proxying = true;
@@ -319,7 +319,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCreateBaseUrlWithApiRequestWithHttpSchemeProxyAddressAndNoApiNonceIfNotProxyingNotSecureAndView() {
         // Given
         boolean proxying = false;
@@ -337,7 +337,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldCreateBaseUrlWithApiRequestWithHttpsSchemeProxyAddressAndNoApiNonceIfNotProxyingIsSecureAndView() {
         // Given
         boolean proxying = false;
@@ -355,7 +355,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldGenerateOneTimeApiNonce() throws Exception {
+    void shouldGenerateOneTimeApiNonce() throws Exception {
         // Given
         API api = new API();
         api.setOptionsParamApi(createOptionsParamApi());
@@ -369,7 +369,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldConsumeButNotAcceptOneTimeApiNonceIfPathMismatch() throws Exception {
+    void shouldConsumeButNotAcceptOneTimeApiNonceIfPathMismatch() throws Exception {
         // Given
         API api = new API();
         api.setOptionsParamApi(createOptionsParamApi());
@@ -382,7 +382,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldNotAcceptOneTimeApiNonceIfExpired() throws Exception {
+    void shouldNotAcceptOneTimeApiNonceIfExpired() throws Exception {
         // Given
         int ttlInSecs = 1;
         OptionsParamApi optionsParamApi = Mockito.mock(OptionsParamApi.class);
@@ -398,7 +398,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldExpireExistingOneTimeApiNonces() throws Exception {
+    void shouldExpireExistingOneTimeApiNonces() throws Exception {
         // Given
         int ttlInSecs = 1;
         OptionsParamApi optionsParamApi = Mockito.mock(OptionsParamApi.class);
@@ -417,7 +417,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldGenerateLongLivedApiNonce() {
+    void shouldGenerateLongLivedApiNonce() {
         // Given
         API api = new API();
         api.setOptionsParamApi(createOptionsParamApi());
@@ -431,7 +431,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldNotExpireLongLivedApiNonce() throws Exception {
+    void shouldNotExpireLongLivedApiNonce() throws Exception {
         // Given
         int ttlInSecs = 1;
         OptionsParamApi optionsParamApi = Mockito.mock(OptionsParamApi.class);
@@ -446,7 +446,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldNotAcceptLongLivedApiNonceIfPathMismatch() throws Exception {
+    void shouldNotAcceptLongLivedApiNonceIfPathMismatch() throws Exception {
         // Given
         API api = new API();
         api.setOptionsParamApi(createOptionsParamApi());
@@ -459,7 +459,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldNotHandleShortcutIfNotForcedRequest() throws Exception {
+    void shouldNotHandleShortcutIfNotForcedRequest() throws Exception {
         // Given
         API api = createApiWithoutKey();
         TestApiImplementor apiImplementor = new TestApiImplementor();
@@ -481,7 +481,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldHandleShortcutIfForcedRequest() throws Exception {
+    void shouldHandleShortcutIfForcedRequest() throws Exception {
         // Given
         API api = createApiWithoutKey();
         TestApiImplementor apiImplementor = new TestApiImplementor();
@@ -503,7 +503,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldHandleShortcutIfZapRequest() throws Exception {
+    void shouldHandleShortcutIfZapRequest() throws Exception {
         // Given
         API api = createApiWithoutKey();
         TestApiImplementor apiImplementor = new TestApiImplementor();
@@ -523,7 +523,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldHandleShortcutIfSecureZapRequest() throws Exception {
+    void shouldHandleShortcutIfSecureZapRequest() throws Exception {
         // Given
         API api = createApiWithoutKey();
         TestApiImplementor apiImplementor = new TestApiImplementor();
@@ -544,7 +544,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldFailToGetXmlFromResponseWithNullEndpointName() throws ApiException {
+    void shouldFailToGetXmlFromResponseWithNullEndpointName() throws ApiException {
         // Given
         String endpointName = null;
         ApiResponse response = ApiResponseTest.INSTANCE;
@@ -556,7 +556,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldFailToGetXmlFromResponseWithEmptyEndpointName() throws ApiException {
+    void shouldFailToGetXmlFromResponseWithEmptyEndpointName() throws ApiException {
         // Given
         String endpointName = "";
         ApiResponse response = ApiResponseTest.INSTANCE;
@@ -568,7 +568,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldFailToGetXmlFromResponseWithInvalidXmlEndpointName() throws ApiException {
+    void shouldFailToGetXmlFromResponseWithInvalidXmlEndpointName() throws ApiException {
         // Given
         String endpointName = "<";
         ApiResponse response = ApiResponseTest.INSTANCE;
@@ -580,7 +580,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldFailToGetXmlFromNullResponse() throws ApiException {
+    void shouldFailToGetXmlFromNullResponse() throws ApiException {
         // Given
         String endpointName = "Name";
         ApiResponse response = null;
@@ -592,7 +592,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldGetXmlFromResponse() throws ApiException {
+    void shouldGetXmlFromResponse() throws ApiException {
         // Given
         String endpointName = "Name";
         ApiResponse response = ApiResponseTest.INSTANCE;
@@ -607,7 +607,7 @@ public class APIUnitTest {
     }
 
     @Test
-    public void shouldGetHtmlFromResponse() {
+    void shouldGetHtmlFromResponse() {
         // Given
         ApiResponse response = ApiResponseTest.INSTANCE;
         // When
@@ -620,7 +620,7 @@ public class APIUnitTest {
 
         private static final ApiResponseTest INSTANCE = new ApiResponseTest("");
 
-        public ApiResponseTest(String name) {
+        ApiResponseTest(String name) {
             super(name);
         }
 
@@ -736,7 +736,7 @@ public class APIUnitTest {
 
     private static class TestApiImplementor extends ApiImplementor {
 
-        public static final String PREFIX = "test";
+        static final String PREFIX = "test";
 
         private boolean used;
 
@@ -789,7 +789,7 @@ public class APIUnitTest {
             return new HttpMessage();
         }
 
-        public boolean wasUsed() {
+        boolean wasUsed() {
             return used;
         }
     }

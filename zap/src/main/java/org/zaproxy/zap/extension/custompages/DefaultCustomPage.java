@@ -165,6 +165,7 @@ public class DefaultCustomPage extends Enableable implements CustomPage {
      * @return {@code true} if the HTTP message is a Custom Page of the type in question, {@code
      *     false} otherwise
      */
+    @Override
     public boolean isCustomPage(HttpMessage msg, Type cpt) {
         if (isEnabled() && getType() == cpt) {
             String value = getPageMatcherByType(msg);

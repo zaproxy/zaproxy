@@ -62,14 +62,17 @@ public class AliasKeyManager implements X509KeyManager {
         _keyPassword = keyPassword;
     }
 
+    @Override
     public String chooseClientAlias(String[] str, Principal[] principal, Socket socket) {
         return _alias;
     }
 
+    @Override
     public String chooseServerAlias(String str, Principal[] principal, Socket socket) {
         return _alias;
     }
 
+    @Override
     public X509Certificate[] getCertificateChain(String alias) {
         try {
             Certificate[] certs = _ks.getCertificateChain(alias);
@@ -85,10 +88,12 @@ public class AliasKeyManager implements X509KeyManager {
         }
     }
 
+    @Override
     public String[] getClientAliases(String str, Principal[] principal) {
         return new String[] {_alias};
     }
 
+    @Override
     public PrivateKey getPrivateKey(String alias) {
         try {
             return (PrivateKey) _ks.getKey(alias, _keyPassword.toCharArray());
@@ -104,6 +109,7 @@ public class AliasKeyManager implements X509KeyManager {
         }
     }
 
+    @Override
     public String[] getServerAliases(String str, Principal[] principal) {
         return new String[] {_alias};
     }

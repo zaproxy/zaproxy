@@ -78,7 +78,7 @@ public class UsersMultiSelectList extends JList<User> {
     public void reloadUsers(int contextId) {
         List<User> users = usersExtension.getContextUserAuthManager(contextId).getUsers();
         User[] usersArray = users.toArray(new User[users.size()]);
-        ListModel<User> usersModel = new DefaultComboBoxModel<User>(usersArray);
+        ListModel<User> usersModel = new DefaultComboBoxModel<>(usersArray);
         this.setModel(usersModel);
     }
 }

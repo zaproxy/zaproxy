@@ -1726,7 +1726,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         }
 
         if (getView() != null) {
-            return uninstallAddOnsWithView(caller, addOns, updates, new HashSet<AddOn>());
+            return uninstallAddOnsWithView(caller, addOns, updates, new HashSet<>());
         }
 
         final Set<AddOn> failedUninstallations = new HashSet<>();
@@ -2024,7 +2024,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 AddOnDependencyChecker addOnDependencyChecker =
                         new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
 
-                Set<AddOn> addonSet = new HashSet<AddOn>();
+                Set<AddOn> addonSet = new HashSet<>();
                 addonSet.add(ao);
                 UninstallationResult result =
                         addOnDependencyChecker.calculateUninstallChanges(addonSet);
@@ -2145,7 +2145,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         }
         if (arguments[ARG_CFU_LIST_IDX].isEnabled()) {
             AddOnCollection aoc = this.getLocalVersionInfo();
-            List<AddOn> aolist = new ArrayList<AddOn>(aoc.getAddOns());
+            List<AddOn> aolist = new ArrayList<>(aoc.getAddOns());
             Collections.sort(
                     aolist,
                     new Comparator<AddOn>() {

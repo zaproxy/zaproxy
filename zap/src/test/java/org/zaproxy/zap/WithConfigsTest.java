@@ -66,7 +66,7 @@ public abstract class WithConfigsTest extends TestUtils {
     private static String zapHomeDir;
 
     @BeforeAll
-    public static void beforeClass() throws Exception {
+    static void beforeClass() throws Exception {
         zapInstallDir =
                 Files.createDirectories(tempDir.resolve("install")).toAbsolutePath().toString();
         zapHomeDir = Files.createDirectories(tempDir.resolve("home")).toAbsolutePath().toString();
@@ -84,7 +84,7 @@ public abstract class WithConfigsTest extends TestUtils {
      * @throws Exception if an error occurred while setting up the dirs or core classes.
      */
     @BeforeEach
-    public void setUpZap() throws Exception {
+    void setUpZap() throws Exception {
         Constant.setZapInstall(zapInstallDir);
         Constant.setZapHome(zapHomeDir);
 
