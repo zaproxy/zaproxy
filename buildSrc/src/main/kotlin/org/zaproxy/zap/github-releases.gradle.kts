@@ -6,6 +6,7 @@ import org.zaproxy.zap.GitHubUser
 import org.zaproxy.zap.GitHubRepo
 import org.zaproxy.zap.tasks.CreateGitHubRelease
 import org.zaproxy.zap.tasks.CreateTagAndGitHubRelease
+import org.zaproxy.zap.tasks.HandleMainRelease
 import org.zaproxy.zap.tasks.HandleWeeklyRelease
 
 val ghUser = GitHubUser("zapbot", "12745184+zapbot@users.noreply.github.com", System.getenv("ZAPBOT_TOKEN"))
@@ -113,9 +114,20 @@ System.getenv("GITHUB_REF")?.let { ref ->
         eventType.set("daily-release")
     }
 
+    val handleMainRelease by tasks.registering(HandleMainRelease::class) {
+        version.set(targetTag.removePrefix("v"))
+
+        gitHubUser.set(ghUser)
+        gitHubRepo.set(adminRepo)
+
+        eventType.set("main-release")
+    }
+
     tasks.register("handleReleaseFromGitHubRef") {
         if (targetTag.startsWith("w")) {
             dependsOn(handleWeeklyRelease)
+        } else if (targetTag.startsWith("v")) {
+            dependsOn(handleMainRelease)
         }
     }
 }
