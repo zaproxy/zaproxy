@@ -2,12 +2,15 @@ package org.zaproxy.zap
 
 import com.install4j.gradle.Install4jTask
 import com.netflix.gradle.plugins.deb.Deb
+import java.util.regex.Pattern
 import org.zaproxy.zap.GitHubUser
 import org.zaproxy.zap.GitHubRepo
 import org.zaproxy.zap.tasks.CreateGitHubRelease
+import org.zaproxy.zap.tasks.CreatePullRequest
 import org.zaproxy.zap.tasks.CreateTagAndGitHubRelease
 import org.zaproxy.zap.tasks.HandleMainRelease
 import org.zaproxy.zap.tasks.HandleWeeklyRelease
+import org.zaproxy.zap.tasks.PrepareNextDevIter
 
 val ghUser = GitHubUser("zapbot", "12745184+zapbot@users.noreply.github.com", System.getenv("ZAPBOT_TOKEN"))
 
@@ -33,6 +36,31 @@ tasks.register<CreateTagAndGitHubRelease>("createWeeklyRelease") {
             contentType.set("application/zip")
         }
     }
+}
+
+val prepareNextDevIter by tasks.registering(PrepareNextDevIter::class) {
+    buildFile.set(File(projectDir, "zap.gradle.kts"))
+
+    versionPattern.set(Pattern.compile("""version = "([^"]+)""""))
+    versionBcPattern.set(Pattern.compile("""val versionBC = "([^"]+)""""))
+
+    val listOfExpression = """(?sm)listOf\((.*?)\)$"""
+    clearDataPatterns.set(listOf(
+        Pattern.compile("packageExcludes = $listOfExpression"),
+        Pattern.compile("fieldExcludes = $listOfExpression"),
+        Pattern.compile("classExcludes = $listOfExpression"),
+        Pattern.compile("methodExcludes = $listOfExpression")))
+}
+
+val createPullRequestNextDevIter by tasks.registering(CreatePullRequest::class) {
+    user.set(ghUser)
+    repo.set(GitHubRepo("zaproxy", "zaproxy", rootDir))
+    branchName.set("bump-version")
+
+    commitSummary.set("Prepare next dev iteration")
+    commitDescription.set("Update versions and clear `japicmp` exclusions.")
+
+    dependsOn(prepareNextDevIter)
 }
 
 System.getenv("GITHUB_REF")?.let { ref ->
@@ -128,6 +156,7 @@ System.getenv("GITHUB_REF")?.let { ref ->
             dependsOn(handleWeeklyRelease)
         } else if (targetTag.startsWith("v")) {
             dependsOn(handleMainRelease)
+            dependsOn(createPullRequestNextDevIter)
         }
     }
 }
