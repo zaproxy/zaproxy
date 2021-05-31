@@ -18,4 +18,5 @@ jobs:
     - name: Build and Release
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
       run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createWeeklyRelease
