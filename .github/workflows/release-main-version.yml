@@ -19,4 +19,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         INSTALL4J_LICENSE: ${{ secrets.INSTALL4J_LICENSE }}
+        ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
       run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createMainRelease
