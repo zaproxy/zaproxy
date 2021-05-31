@@ -82,7 +82,7 @@ class SpiderParserTestUtils extends TestUtils {
         }
 
         int getNumberOfUrlsFound() {
-            return resources.size();
+            return urls.size();
         }
 
         List<String> getUrlsFound() {
@@ -217,6 +217,10 @@ class SpiderParserTestUtils extends TestUtils {
             return resourceFound.getRequestHeaders();
         }
 
+        String getMethod() {
+            return resourceFound.getMethod();
+        }
+
         @Override
         public int hashCode() {
             int result = 31 + getDepth();
@@ -224,6 +228,7 @@ class SpiderParserTestUtils extends TestUtils {
             result = 31 * result + ((getRequestBody() == null) ? 0 : getRequestBody().hashCode());
             result = 31 * result + (isShouldIgnore() ? 1231 : 1237);
             result = 31 * result + ((getUri() == null) ? 0 : getUri().hashCode());
+            result = 31 * result + ((getMethod() == null) ? 0 : getMethod().hashCode());
             result = 31 * result + ((getHeaders() == null) ? 0 : getHeaders().hashCode());
             return result;
         }
@@ -267,9 +272,18 @@ class SpiderParserTestUtils extends TestUtils {
             } else if (!getUri().equals(other.getUri())) {
                 return false;
             }
+            if (getMethod() == null) {
+                if (other.getMethod() != null) {
+                    return false;
+                }
+            } else if (!getMethod().equals(other.getMethod())) {
+                return false;
+            }
             if (getHeaders() == null) {
                 if (other.getHeaders() != null) return false;
-            } else if (!getHeaders().equals(other.getHeaders())) return false;
+            } else if (!getHeaders().equals(other.getHeaders())) {
+                return false;
+            }
             return true;
         }
 
@@ -281,6 +295,7 @@ class SpiderParserTestUtils extends TestUtils {
             strBuilder.append(", RequestBody=").append(getRequestBody());
             strBuilder.append(", ShouldIgnore=").append(isShouldIgnore());
             strBuilder.append(", Message=").append(getMessage().hashCode());
+            strBuilder.append(", Method=").append(getMethod());
             strBuilder.append(", Headers=").append(getHeaders().hashCode());
             return strBuilder.toString();
         }
