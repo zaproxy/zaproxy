@@ -269,8 +269,7 @@ public class SpiderController implements SpiderParserListener {
         identifierBuilder.append(" ");
         identifierBuilder.append(visitedURI);
         identifierBuilder.append("\n");
-        String canonicalHeaderRepresentation =
-                getCanonicalHeadersString(resourceFound.getRequestHeaders());
+        identifierBuilder.append(getCanonicalHeadersString(resourceFound.getRequestHeaders()));
         identifierBuilder.append("\n");
         identifierBuilder.append(resourceFound.getBody());
         return identifierBuilder.toString();
@@ -333,7 +332,8 @@ public class SpiderController implements SpiderParserListener {
     }
 
     /**
-     * Builds a canonical string representation for HTTP header fields.
+     * Builds a canonical string representation for HTTP header fields by sorting the headers based
+     * on the name, trimming and lowercasing the name and value, and removing duplicates.
      *
      * @param headers list of HTTP headers
      * @return canonical string representation of headers
@@ -341,7 +341,12 @@ public class SpiderController implements SpiderParserListener {
     private String getCanonicalHeadersString(List<HttpHeaderField> headers) {
         return headers.stream()
                 .sorted((h1, h2) -> h1.getName().compareTo(h2.getName()))
-                .map(h -> h.getName().trim() + "=" + h.getValue().trim())
+                .map(
+                        h ->
+                                h.getName().trim().toLowerCase()
+                                        + "="
+                                        + h.getValue().trim().toLowerCase())
+                .distinct()
                 .collect(Collectors.joining("|"));
     }
 
