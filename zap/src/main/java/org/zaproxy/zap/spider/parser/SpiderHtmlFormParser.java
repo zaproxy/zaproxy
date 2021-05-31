@@ -412,6 +412,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
                         .setMessage(message)
                         .setDepth(depth + 1)
                         .setUri(url)
+                        .setMethod(METHOD_POST)
                         .setBody(requestBody)
                         .build());
     }
