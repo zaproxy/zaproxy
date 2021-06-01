@@ -80,6 +80,12 @@ public abstract class CreatePullRequest extends DefaultTask {
     @Internal
     public abstract Property<String> getCommitDescription();
 
+    @Internal
+    public abstract Property<String> getPullRequestTitle();
+
+    @Internal
+    public abstract Property<String> getPullRequestDescription();
+
     @TaskAction
     public void pullRequest() throws Exception {
         GitHubRepo ghRepo = getRepo().get();
@@ -135,11 +141,13 @@ public abstract class CreatePullRequest extends DefaultTask {
                             .state(GHIssueState.OPEN)
                             .list()
                             .asList();
+            String description =
+                    getPullRequestDescription().getOrElse(getCommitDescription().get());
             if (pulls.isEmpty()) {
-                createPullRequest(
-                        ghRepository, getCommitSummary().get(), getCommitDescription().get());
+                String title = getPullRequestTitle().getOrElse(getCommitSummary().get());
+                createPullRequest(ghRepository, title, description);
             } else {
-                pulls.get(0).setBody(getCommitDescription().get());
+                pulls.get(0).setBody(description);
             }
         }
     }

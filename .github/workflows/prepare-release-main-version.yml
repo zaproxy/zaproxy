@@ -1,0 +1,23 @@
+name: Prepare Release Main Version
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prepare-release:
+    name: Prepare Release
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup Java
+      uses: actions/setup-java@v1
+      with:
+        java-version: 8
+    - name: Prepare Release
+      run: ./gradlew :zap:prepareMainRelease
+    - name: Create Pull Request
+      env:
+        ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
+      run: ./gradlew :zap:createPullRequestMainRelease

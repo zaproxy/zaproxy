@@ -10,9 +10,11 @@ import org.zaproxy.zap.tasks.CreatePullRequest
 import org.zaproxy.zap.tasks.CreateTagAndGitHubRelease
 import org.zaproxy.zap.tasks.HandleMainRelease
 import org.zaproxy.zap.tasks.HandleWeeklyRelease
+import org.zaproxy.zap.tasks.PrepareMainRelease
 import org.zaproxy.zap.tasks.PrepareNextDevIter
 
 val ghUser = GitHubUser("zapbot", "12745184+zapbot@users.noreply.github.com", System.getenv("ZAPBOT_TOKEN"))
+val zaproxyRepo = GitHubRepo("zaproxy", "zaproxy", rootDir)
 
 tasks.register<CreateTagAndGitHubRelease>("createWeeklyRelease") {
     val dateProvider = provider { project.extra["creationDate"] }
@@ -38,10 +40,12 @@ tasks.register<CreateTagAndGitHubRelease>("createWeeklyRelease") {
     }
 }
 
+val buildFileVersionPattern = Pattern.compile("""version = "([^"]+)"""")
+
 val prepareNextDevIter by tasks.registering(PrepareNextDevIter::class) {
     buildFile.set(File(projectDir, "zap.gradle.kts"))
 
-    versionPattern.set(Pattern.compile("""version = "([^"]+)""""))
+    versionPattern.set(buildFileVersionPattern)
     versionBcPattern.set(Pattern.compile("""val versionBC = "([^"]+)""""))
 
     val listOfExpression = """(?sm)listOf\((.*?)\)$"""
@@ -54,13 +58,38 @@ val prepareNextDevIter by tasks.registering(PrepareNextDevIter::class) {
 
 val createPullRequestNextDevIter by tasks.registering(CreatePullRequest::class) {
     user.set(ghUser)
-    repo.set(GitHubRepo("zaproxy", "zaproxy", rootDir))
+    repo.set(zaproxyRepo)
     branchName.set("bump-version")
 
     commitSummary.set("Prepare next dev iteration")
     commitDescription.set("Update versions and clear `japicmp` exclusions.")
 
     dependsOn(prepareNextDevIter)
+}
+
+val prepareMainRelease by tasks.registering(PrepareMainRelease::class) {
+    buildFile.set(File(projectDir, "zap.gradle.kts"))
+
+    versionPattern.set(buildFileVersionPattern)
+}
+
+val createPullRequestMainRelease by tasks.registering(CreatePullRequest::class) {
+    user.set(ghUser)
+    repo.set(zaproxyRepo)
+    branchName.set("release/v${project.version}")
+
+    commitSummary.set("Update version to ${project.version}")
+    commitDescription.set("Remove `-SNAPSHOT` from the version.")
+
+    pullRequestTitle.set("Release version ${project.version}")
+    pullRequestDescription.set("""
+    Pending tasks, update:
+      - [ ] `Constant#VERSION_TAG`
+      - [ ] CFU links (`ExtensionAutoUpdate#ZAP_VERSIONS_REL_XML_DESKTOP_SHORT`, `ZAP_VERSIONS_REL_XML_DAEMON_SHORT`, and `ZAP_VERSIONS_REL_XML_FULL`)
+      - [ ] Add-ons
+      - [ ] macOS JRE
+      - [ ] JavaDoc link in `README`
+    """.trimIndent())
 }
 
 tasks.register<CreateTagAndGitHubRelease>("createMainRelease") {
