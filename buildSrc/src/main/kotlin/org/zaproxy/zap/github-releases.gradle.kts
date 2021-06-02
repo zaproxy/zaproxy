@@ -6,6 +6,7 @@ import java.util.regex.Pattern
 import org.zaproxy.zap.GitHubUser
 import org.zaproxy.zap.GitHubRepo
 import org.zaproxy.zap.tasks.CreateGitHubRelease
+import org.zaproxy.zap.tasks.CreateMainRelease
 import org.zaproxy.zap.tasks.CreatePullRequest
 import org.zaproxy.zap.tasks.CreateTagAndGitHubRelease
 import org.zaproxy.zap.tasks.HandleMainRelease
@@ -92,7 +93,7 @@ val createPullRequestMainRelease by tasks.registering(CreatePullRequest::class) 
     """.trimIndent())
 }
 
-tasks.register<CreateTagAndGitHubRelease>("createMainRelease") {
+tasks.register<CreateMainRelease>("createMainRelease") {
     val tagName = "v${project.version}"
 
     user.set(ghUser)
@@ -106,43 +107,41 @@ tasks.register<CreateTagAndGitHubRelease>("createMainRelease") {
     checksumAlgorithm.set("SHA-256")
     draft.set(true)
 
-    val distDebian by tasks.existing(Deb::class)
-    val installers by tasks.existing(Install4jTask::class)
+    if (!"${project.version}".endsWith("-SNAPSHOT")) {
+        val distDebian by tasks.existing(Deb::class)
+        val installers by tasks.existing(Install4jTask::class)
 
-    // Depend explicitly, not being auto wired.
-    dependsOn(distDebian)
-    dependsOn(installers)
+        val installersFileTree: Provider<FileTree> = installers.map { fileTree(it.destination!!) }
 
-    val installersFileTree: Provider<FileTree> = installers.map { fileTree(it.destination!!) }
-
-    assets {
-        register("core") {
-            file.set(tasks.named<Zip>("distCore").flatMap { it.archiveFile })
-            contentType.set("application/zip")
-        }
-        register("crossplatform") {
-            file.set(tasks.named<Zip>("distCrossplatform").flatMap { it.archiveFile })
-            contentType.set("application/zip")
-        }
-        register("debian") {
-            file.set(distDebian.flatMap { it.archiveFile })
-            contentType.set("application/vnd.debian.binary-package")
-        }
-        register("linux") {
-            file.set(tasks.named<Tar>("distLinux").flatMap { it.archiveFile })
-            contentType.set("application/gzip")
-        }
-        register("linux-installer") {
-            file.set(mapToFile(installersFileTree, "ZAP_${version.toString().replace('.', '_')}_unix.sh"))
-            contentType.set("application/x-shellscript")
-        }
-        register("windows-installer") {
-            file.set(mapToFile(installersFileTree, "ZAP_${version.toString().replace('.', '_')}_windows.exe"))
-            contentType.set("application/x-ms-dos-executable")
-        }
-        register("windows32-installer") {
-            file.set(mapToFile(installersFileTree, "ZAP_${version.toString().replace('.', '_')}_windows-x32.exe"))
-            contentType.set("application/x-ms-dos-executable")
+        assets {
+            register("core") {
+                file.set(tasks.named<Zip>("distCore").flatMap { it.archiveFile })
+                contentType.set("application/zip")
+            }
+            register("crossplatform") {
+                file.set(tasks.named<Zip>("distCrossplatform").flatMap { it.archiveFile })
+                contentType.set("application/zip")
+            }
+            register("debian") {
+                file.set(distDebian.flatMap { it.archiveFile })
+                contentType.set("application/vnd.debian.binary-package")
+            }
+            register("linux") {
+                file.set(tasks.named<Tar>("distLinux").flatMap { it.archiveFile })
+                contentType.set("application/gzip")
+            }
+            register("linux-installer") {
+                file.set(mapToFile(installersFileTree, "ZAP_${version.toString().replace('.', '_')}_unix.sh"))
+                contentType.set("application/x-shellscript")
+            }
+            register("windows-installer") {
+                file.set(mapToFile(installersFileTree, "ZAP_${version.toString().replace('.', '_')}_windows.exe"))
+                contentType.set("application/x-ms-dos-executable")
+            }
+            register("windows32-installer") {
+                file.set(mapToFile(installersFileTree, "ZAP_${version.toString().replace('.', '_')}_windows-x32.exe"))
+                contentType.set("application/x-ms-dos-executable")
+            }
         }
     }
 }
