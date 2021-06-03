@@ -2,6 +2,11 @@ name: Release Main Version
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'zap/zap.gradle.kts'
 
 jobs:
   release:
