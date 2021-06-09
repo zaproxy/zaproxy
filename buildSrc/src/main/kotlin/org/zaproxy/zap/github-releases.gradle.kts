@@ -77,7 +77,7 @@ val prepareMainRelease by tasks.registering(PrepareMainRelease::class) {
 val createPullRequestMainRelease by tasks.registering(CreatePullRequest::class) {
     user.set(ghUser)
     repo.set(zaproxyRepo)
-    branchName.set("release/v${project.version}")
+    branchName.set("release")
 
     commitSummary.set("Update version to ${project.version}")
     commitDescription.set("Remove `-SNAPSHOT` from the version.")
