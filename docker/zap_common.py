@@ -269,44 +269,33 @@ def add_zap_options(params, zap_options):
             params.append(zap_opt)
 
 
+def create_start_options(mode, port, extra_params):
+    params = [
+        'zap-x.sh', mode,
+        '-port', str(port),
+        '-host', '0.0.0.0',
+        '-config', 'database.recoverylog=false',
+        '-config', 'api.disablekey=true',
+        '-config', 'api.addrs.addr.name=.*',
+        '-config', 'api.addrs.addr.regex=true']
+    params.extend(extra_params)
+    logging.debug('Params: ' + str(params))
+    return params
+
 @hook()
 def start_zap(port, extra_zap_params):
     logging.debug('Starting ZAP')
-    # All of the default common params
-    params = [
-        'zap-x.sh', '-daemon',
-        '-port', str(port),
-        '-host', '0.0.0.0',
-        '-config', 'database.recoverylog=false',
-        '-config', 'api.disablekey=true',
-        '-config', 'api.addrs.addr.name=.*',
-        '-config', 'api.addrs.addr.regex=true']
-
-    params.extend(extra_zap_params)
-
-    logging.debug('Params: ' + str(params))
-
     with open('zap.out', "w") as outfile:
-        subprocess.Popen(params, stdout=outfile, stderr=subprocess.DEVNULL)
+        subprocess.Popen(
+            create_start_options('-daemon', port, extra_zap_params), 
+            stdout=outfile, stderr=subprocess.DEVNULL)
+
 
 def run_zap_inline(port, extra_zap_params):
     logging.debug('Starting ZAP')
-    # All of the default common params
-    params = [
-        'zap-x.sh', '-cmd',
-        '-port', str(port),
-        '-host', '0.0.0.0',
-        '-config', 'database.recoverylog=false',
-        '-config', 'api.disablekey=true',
-        '-config', 'api.addrs.addr.name=.*',
-        '-config', 'api.addrs.addr.regex=true']
-
-    params.extend(extra_zap_params)
-
-    logging.debug('Params: ' + str(params))
-
-    process = subprocess.run(params, universal_newlines = True, stdout = subprocess.PIPE, stderr=subprocess.DEVNULL)
-
+    process = subprocess.run(
+        create_start_options('-cmd', port, extra_zap_params),
+        universal_newlines = True, stdout = subprocess.PIPE, stderr=subprocess.DEVNULL)
     return process.stdout
 
 
