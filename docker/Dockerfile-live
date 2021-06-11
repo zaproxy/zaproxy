@@ -28,7 +28,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	x11vnc && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*  && \
-	pip3 install --upgrade pip zapcli python-owasp-zap-v2.4 && \
+	pip3 install --upgrade pip zapcli python-owasp-zap-v2.4 pyyaml && \
 	useradd -d /home/zap -m -s /bin/bash zap && \
 	echo zap:zap | chpasswd && \
 	mkdir /zap  && \
