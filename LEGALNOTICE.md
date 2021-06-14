@@ -63,7 +63,7 @@ and subject to their respective licenses.
 | log4j-1.2-api-2.14.1.jar            | Apache 2.0                |
 | log4j-api-2.14.1.jar                | Apache 2.0                |
 | log4j-core-2.14.1.jar               | Apache 2.0                |
-| rsyntaxtextarea-3.1.2.jar           | BSD-3 clause              |
+| rsyntaxtextarea-3.1.3.jar           | BSD-3 clause              |
 | sqlite-jdbc-3.34.0.jar              | BSD-2 clause              |
 | - NestedVM                          | Apache 2.0                |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
