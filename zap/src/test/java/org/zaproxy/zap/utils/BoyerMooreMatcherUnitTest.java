@@ -27,12 +27,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link BoyerMooreMatcher} */
-public class BoyerMooreMatcherUnitTest {
+class BoyerMooreMatcherUnitTest {
 
     private static final String CONTENT = "The quick brown fox jumps over the lazy dog.";
 
     @Test
-    public void shouldFailToCreateMatcherIfPatternIsNull() {
+    void shouldFailToCreateMatcherIfPatternIsNull() {
         // Given
         String pattern = null;
         // When / Then
@@ -40,7 +40,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldFailToFindInNullContent() {
+    void shouldFailToFindInNullContent() {
         // Given
         BoyerMooreMatcher matcher = new BoyerMooreMatcher("");
         // When / Then
@@ -48,7 +48,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnPatternPassedInConstructor() {
+    void shouldReturnPatternPassedInConstructor() {
         // Given
         String pattern = "pattern";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);
@@ -59,7 +59,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldFindPatternAtBeginOfContent() {
+    void shouldFindPatternAtBeginOfContent() {
         // Given
         String pattern = "The quick";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);
@@ -70,7 +70,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldFindPatternInMiddleOfContent() {
+    void shouldFindPatternInMiddleOfContent() {
         // Given
         String pattern = "jumps";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);
@@ -81,7 +81,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldFindPatternAtEndOfContent() {
+    void shouldFindPatternAtEndOfContent() {
         // Given
         String pattern = "lazy dog.";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);
@@ -92,7 +92,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldFindPatternEqualToContent() {
+    void shouldFindPatternEqualToContent() {
         // Given
         String pattern = CONTENT;
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);
@@ -103,7 +103,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldReturnIdxOfFirstOccurrenceIfPatternRepeated() {
+    void shouldReturnIdxOfFirstOccurrenceIfPatternRepeated() {
         // Given
         String pattern = "e";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);
@@ -114,7 +114,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldFindEmptyPatternAtIdxZero() {
+    void shouldFindEmptyPatternAtIdxZero() {
         // Given
         String pattern = "";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);
@@ -125,7 +125,7 @@ public class BoyerMooreMatcherUnitTest {
     }
 
     @Test
-    public void shouldNotFindAnNonexistentPattern() {
+    void shouldNotFindAnNonexistentPattern() {
         // Given
         String pattern = "not in content";
         BoyerMooreMatcher matcher = new BoyerMooreMatcher(pattern);

@@ -27,7 +27,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
-import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScript;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.extension.script.ExtensionScript;
@@ -40,9 +39,7 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
     private static final Logger logger = LogManager.getLogger(ScriptsPassiveScanner.class);
 
     private final ScriptsCache<PassiveScript> scripts;
-    private PassiveScanThread parent = null;
 
-    private int currentHRefId;
     private int currentHistoryType;
 
     public ScriptsPassiveScanner() {
@@ -79,7 +76,6 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
             return;
         }
 
-        currentHRefId = id;
         scripts.refreshAndExecute(
                 (sw, script) -> {
                     if (appliesToCurrentHistoryType(sw, script)) {
@@ -194,13 +190,9 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
                 .raise();
     }
 
-    public void addTag(String tag) {
-        this.parent.addTag(currentHRefId, tag);
-    }
-
     @Override
-    public void setParent(PassiveScanThread parent) {
-        this.parent = parent;
+    public void addTag(String tag) {
+        super.addTag(tag);
     }
 
     @Override

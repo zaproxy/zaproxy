@@ -51,7 +51,7 @@ public class KeyboardParam extends AbstractParam {
         try {
             List<HierarchicalConfiguration> fields =
                     ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_SHORTCUTS_KEY);
-            map = new HashMap<String, KeyStroke>(fields.size());
+            map = new HashMap<>(fields.size());
             for (HierarchicalConfiguration sub : fields) {
                 String name = sub.getString(MENU_ITEM_KEY, "");
                 if (name.length() > 0) {

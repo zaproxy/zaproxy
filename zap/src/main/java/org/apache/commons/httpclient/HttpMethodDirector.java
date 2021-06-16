@@ -710,7 +710,7 @@ public class HttpMethodDirector {
 
         if (this.params.isParameterFalse(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS)) {
             if (this.redirectLocations == null) {
-                this.redirectLocations = new HashSet<URI>();
+                this.redirectLocations = new HashSet<>();
             }
             this.redirectLocations.add(currentUri);
             try {

@@ -1,17 +1,21 @@
 name: Release Main Version
 
 on:
+  workflow_dispatch:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+    paths:
+      - 'zap/zap.gradle.kts'
 
 jobs:
   release:
     name: Build and Release
-    if: github.actor == 'kingthorin' || github.actor == 'psiinon' || github.actor == 'thc202'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
     - name: Setup Java
       uses: actions/setup-java@v1
       with:
@@ -20,4 +24,5 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         INSTALL4J_LICENSE: ${{ secrets.INSTALL4J_LICENSE }}
-      run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createMainReleaseFromGitHubRef
+        ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
+      run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createMainRelease

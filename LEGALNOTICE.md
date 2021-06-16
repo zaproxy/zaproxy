@@ -49,7 +49,7 @@ and subject to their respective licenses.
 | commons-text-1.9.jar                | Apache 2.0                |
 | commons-validator-1.7.jar           | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
-| flatlaf-1.1.2.jar                   | Apache 2.0                |
+| flatlaf-1.2.jar                     | Apache 2.0                |
 | harlib-1.1.3.jar                    | Apache 2.0                |
 | hsqldb-2.5.2.jar                    | BSD                       |
 | ice4j-3.0-24-g34c2ce5.jar           | Apache 2.0                |
@@ -63,7 +63,7 @@ and subject to their respective licenses.
 | log4j-1.2-api-2.14.1.jar            | Apache 2.0                |
 | log4j-api-2.14.1.jar                | Apache 2.0                |
 | log4j-core-2.14.1.jar               | Apache 2.0                |
-| rsyntaxtextarea-3.1.2.jar           | BSD-3 clause              |
+| rsyntaxtextarea-3.1.3.jar           | BSD-3 clause              |
 | sqlite-jdbc-3.34.0.jar              | BSD-2 clause              |
 | - NestedVM                          | Apache 2.0                |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |

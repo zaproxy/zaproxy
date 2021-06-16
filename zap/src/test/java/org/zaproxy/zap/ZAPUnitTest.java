@@ -43,7 +43,7 @@ import org.zaproxy.zap.ZAP.UncaughtExceptionLogger;
 import org.zaproxy.zap.testutils.Log4jTestAppender;
 
 /** Unit test for {@link ZAP}. */
-public class ZAPUnitTest {
+class ZAPUnitTest {
 
     /** Unit test for {@link ZAP.UncaughtExceptionLogger}. */
     static class UncaughtExceptionLoggerUnitTest {

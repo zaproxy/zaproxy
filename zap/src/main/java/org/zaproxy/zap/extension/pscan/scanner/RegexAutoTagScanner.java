@@ -25,7 +25,6 @@ import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.utils.Stats;
@@ -41,7 +40,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
         ALERT,
         TAG,
         TECH
-    };
+    }
 
     private String name = null;
     private String requestUrlRegex = null;
@@ -56,8 +55,6 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 
     private TYPE type = null;
     private String config = null;
-
-    private PassiveScanThread parent = null;
 
     public RegexAutoTagScanner() {
         // Null constructor to prevent error being logged;)
@@ -246,11 +243,6 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
     }
 
     @Override
-    public void setParent(PassiveScanThread parent) {
-        this.parent = parent;
-    }
-
-    @Override
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
@@ -333,7 +325,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
             if (matcher.groupCount() > 0) {
                 tag = matcher.pattern().matcher(matcher.group()).replaceFirst(tag);
             }
-            parent.addTag(id, tag);
+            addTag(tag);
         }
 
         try {

@@ -34,7 +34,7 @@ public class ResponseCountSnapshot {
         RC_300,
         RC_400,
         RC_500
-    };
+    }
 
     private Date date;
     private int period;

@@ -44,7 +44,7 @@ import org.zaproxy.zap.users.User;
  * @see PluginPassiveScanner
  * @since 2.9.0
  */
-public final class PassiveScanData {
+public class PassiveScanData {
 
     private static final Logger LOGGER = LogManager.getLogger(PassiveScanData.class);
 
@@ -167,7 +167,7 @@ public final class PassiveScanData {
             return false;
         }
         if (customPageMap == null) {
-            customPageMap = new HashMap<CustomPage.Type, Boolean>();
+            customPageMap = new HashMap<>();
         }
         return customPageMap.computeIfAbsent(
                 cpType, type -> context.isCustomPageWithFallback(msg, type));

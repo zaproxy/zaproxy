@@ -40,6 +40,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/04/08 Remove/fix boilerplate javadocs, and un-necessary fully qualified method return
 // types.
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros.view;
 
 import java.awt.event.ActionEvent;
@@ -136,7 +137,7 @@ public class MainMenuBar extends JMenuBar {
             menuZapMode = new JMenu(Constant.messages.getString("menu.edit.zapmode"));
             menuZapModeGroup = new ButtonGroup();
             JRadioButtonMenuItem newButton;
-            menuZapModeMap = new HashMap<Mode, JRadioButtonMenuItem>();
+            menuZapModeMap = new HashMap<>();
             for (Mode modeType : Mode.values()) {
                 newButton = addZAPModeMenuItem(modeType);
                 menuZapModeGroup.add(newButton);

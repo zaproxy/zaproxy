@@ -101,7 +101,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor
     private CustomScanDialog customScanDialog = null;
     private PolicyManagerDialog policyManagerDialog = null;
     private PolicyManager policyManager = null;
-    private List<CustomScanPanel> customScanPanels = new ArrayList<CustomScanPanel>();
+    private List<CustomScanPanel> customScanPanels = new ArrayList<>();
 
     private List<String> excludeList = Collections.emptyList();
 
@@ -601,7 +601,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor
             // Work out the tabs
             String[] tabs = CustomScanDialog.STD_TAB_LABELS;
             if (this.customScanPanels.size() > 0) {
-                List<String> tabList = new ArrayList<String>();
+                List<String> tabList = new ArrayList<>();
                 for (String str : CustomScanDialog.STD_TAB_LABELS) {
                     tabList.add(str);
                 }

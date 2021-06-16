@@ -26,17 +26,17 @@ import static org.hamcrest.Matchers.is;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-public class HttpPanelHexModelUnitTest {
+class HttpPanelHexModelUnitTest {
 
     private HttpPanelHexModel model;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         model = new HttpPanelHexModel();
     }
 
     @Test
-    public void testGetData() {
+    void testGetData() {
         // setting value 'a0' in Hex view resulted in 'c2 a0'
         model.setData(new byte[] {(byte) 0xa0});
 

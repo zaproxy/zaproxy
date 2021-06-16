@@ -64,7 +64,7 @@ public class ExtensionBreak extends ExtensionAdaptor
         ADD,
         EDIT,
         REMOVE
-    };
+    }
 
     public static final String NAME = "ExtensionBreak";
 
@@ -175,10 +175,8 @@ public class ExtensionBreak extends ExtensionAdaptor
             this.breakpointManagementInterface = new HttpBreakpointManagementDaemonImpl();
 
             breakpointMessageHandler = new BreakpointMessageHandler2(breakpointManagementInterface);
-            breakpointMessageHandler.setEnabledBreakpoints(
-                    new ArrayList<BreakpointMessageInterface>());
-            breakpointMessageHandler.setEnabledIgnoreRules(
-                    new ArrayList<BreakpointMessageInterface>());
+            breakpointMessageHandler.setEnabledBreakpoints(new ArrayList<>());
+            breakpointMessageHandler.setEnabledIgnoreRules(new ArrayList<>());
         }
     }
 

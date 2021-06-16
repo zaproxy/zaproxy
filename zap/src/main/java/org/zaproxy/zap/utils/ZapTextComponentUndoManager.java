@@ -95,7 +95,7 @@ public class ZapTextComponentUndoManager extends UndoManager implements Property
 
         /** The undoable edits are not saved. */
         ALWAYS_DISABLED
-    };
+    }
 
     private static final long serialVersionUID = -5728632360771625298L;
 

@@ -43,10 +43,10 @@ import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link PluginFactory}. */
 @ExtendWith(MockitoExtension.class)
-public class PluginFactoryUnitTest extends PluginTestUtils {
+class PluginFactoryUnitTest extends PluginTestUtils {
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         I18N i18n = mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), any())).willReturn("");
@@ -56,7 +56,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldNotHaveUndefinedPluginLoaded() {
+    void shouldNotHaveUndefinedPluginLoaded() {
         // Given
         AbstractPlugin undefinedPlugin = null;
         // When
@@ -66,7 +66,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldAddLoadedPlugin() {
+    void shouldAddLoadedPlugin() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         // When
@@ -76,7 +76,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldRemoveLoadedPlugin() {
+    void shouldRemoveLoadedPlugin() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         PluginFactory.loadedPlugin(plugin);
@@ -87,7 +87,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldHaveNoEffectRemovingANotYetLoadedPlugin() {
+    void shouldHaveNoEffectRemovingANotYetLoadedPlugin() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         // When
@@ -97,7 +97,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldHaveOnePluginByDefault() {
+    void shouldHaveOnePluginByDefault() {
         // Given
         PluginFactory pluginFactory = new PluginFactory();
         // When
@@ -107,7 +107,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldNotLoadNonVisiblePlugins() {
+    void shouldNotLoadNonVisiblePlugins() {
         // Given
         AbstractPlugin plugin = createNonVisibleAbstractPlugin();
         PluginFactory.loadedPlugin(plugin);
@@ -121,7 +121,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldNotLoadDeprecatedPlugins() {
+    void shouldNotLoadDeprecatedPlugins() {
         // Given
         AbstractPlugin plugin = createDeprecatedAbstractPlugin();
         PluginFactory.loadedPlugin(plugin);
@@ -135,7 +135,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldLoadVisibleNonDeprecatedPlugin() {
+    void shouldLoadVisibleNonDeprecatedPlugin() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         PluginFactory.loadedPlugin(plugin);
@@ -150,7 +150,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldHaveNoEffectLoadingAPluginMoreThanOnce() {
+    void shouldHaveNoEffectLoadingAPluginMoreThanOnce() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         PluginFactory pluginFactory = new PluginFactory();
@@ -166,7 +166,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldHaveDifferentPluginInstancesPerPluginFactory() {
+    void shouldHaveDifferentPluginInstancesPerPluginFactory() {
         // Given
         AbstractPlugin plugin = createAbstractPlugin();
         PluginFactory.loadedPlugin(plugin);
@@ -189,7 +189,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldOrderHighRiskAlertPluginsBeforeMedium() {
+    void shouldOrderHighRiskAlertPluginsBeforeMedium() {
         // Given
         AbstractPlugin pluginHighAlert = createAbstractPlugin(1, Alert.RISK_HIGH);
         AbstractPlugin pluginMediumAlert = createAbstractPlugin(2, Alert.RISK_MEDIUM);
@@ -206,7 +206,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldOrderMediumRiskAlertPluginsBeforeLow() {
+    void shouldOrderMediumRiskAlertPluginsBeforeLow() {
         // Given
         AbstractPlugin pluginMediumAlert = createAbstractPlugin(1, Alert.RISK_MEDIUM);
         AbstractPlugin pluginLowAlert = createAbstractPlugin(2, Alert.RISK_LOW);
@@ -223,7 +223,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldOrderLowRiskAlertPluginsBeforeInfo() {
+    void shouldOrderLowRiskAlertPluginsBeforeInfo() {
         // Given
         AbstractPlugin pluginLowAlert = createAbstractPlugin(1, Alert.RISK_LOW);
         AbstractPlugin pluginInfoAlert = createAbstractPlugin(2, Alert.RISK_INFO);
@@ -240,7 +240,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldOrderReleaseStatusPluginsBeforeBeta() {
+    void shouldOrderReleaseStatusPluginsBeforeBeta() {
         // Given
         AbstractPlugin pluginReleaseStatus =
                 createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.release);
@@ -259,7 +259,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldOrderBetaStatusPluginBeforeAlpha() {
+    void shouldOrderBetaStatusPluginBeforeAlpha() {
         // Given
         AbstractPlugin pluginBetaStatus =
                 createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.beta);
@@ -278,7 +278,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldOrderAlphaStatusPluginBeforeUnknown() {
+    void shouldOrderAlphaStatusPluginBeforeUnknown() {
         // Given
         AbstractPlugin pluginAlphaStatus =
                 createAbstractPlugin(1, Alert.RISK_LOW, AddOn.Status.alpha);
@@ -297,7 +297,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldOrderByLowerPluginIdIfSameAlertRiskAndStatus() {
+    void shouldOrderByLowerPluginIdIfSameAlertRiskAndStatus() {
         // Given
         AbstractPlugin pluginLowerId = createAbstractPlugin(52, Alert.RISK_LOW, AddOn.Status.beta);
         AbstractPlugin pluginHigherId =
@@ -315,7 +315,7 @@ public class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    public void shouldOrderDependenciesBeforeDependentPlugins() {
+    void shouldOrderDependenciesBeforeDependentPlugins() {
         // Given
         AbstractPlugin dependentPlugin =
                 createAbstractPlugin(

@@ -34,7 +34,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,13 +48,13 @@ import org.zaproxy.zap.extension.ascan.VariantFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StandardParameterParser;
 
-public class SessionUnitTest {
+class SessionUnitTest {
 
     private Session session;
     private VariantFactory factory;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         factory = new VariantFactory();
         Model model = mock(Model.class);
         given(model.getVariantFactory()).willReturn(factory);
@@ -117,48 +116,13 @@ public class SessionUnitTest {
         }
     }
 
-    public static final class LeadNameVariant implements Variant {
+    private static final class LeadNameVariant implements Variant {
 
-        public LeadNameVariant() {}
+        LeadNameVariant() {}
 
         @Override
         public String getLeafName(String nodeName, HttpMessage msg) {
             return "Test";
-        }
-
-        @Override
-        public void setMessage(HttpMessage msg) {}
-
-        @Override
-        public List<NameValuePair> getParamList() {
-            return null;
-        }
-
-        @Override
-        public String setParameter(
-                HttpMessage msg, NameValuePair originalPair, String param, String value) {
-            return null;
-        }
-
-        @Override
-        public String setEscapedParameter(
-                HttpMessage msg, NameValuePair originalPair, String param, String value) {
-            return null;
-        }
-    }
-
-    public static final class PathTreeVariant implements Variant {
-        private final List<String> expectedTreePath;
-
-        public PathTreeVariant() {
-            expectedTreePath = new ArrayList<>();
-            expectedTreePath.add("Path1");
-            expectedTreePath.add("Path2");
-        }
-
-        @Override
-        public List<String> getTreePath(HttpMessage msg) {
-            return expectedTreePath;
         }
 
         @Override

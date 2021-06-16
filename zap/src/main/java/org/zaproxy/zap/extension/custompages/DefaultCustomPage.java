@@ -165,6 +165,7 @@ public class DefaultCustomPage extends Enableable implements CustomPage {
      * @return {@code true} if the HTTP message is a Custom Page of the type in question, {@code
      *     false} otherwise
      */
+    @Override
     public boolean isCustomPage(HttpMessage msg, Type cpt) {
         if (isEnabled() && getType() == cpt) {
             String value = getPageMatcherByType(msg);
@@ -180,8 +181,8 @@ public class DefaultCustomPage extends Enableable implements CustomPage {
             return getHttpMessageAsString(msg);
         }
         LOGGER.error(
-                "Could not get page matcher for the given message, with: "
-                        + getPageMatcherLocation());
+                "Could not get page matcher for the given message, with: {}",
+                getPageMatcherLocation());
         return "";
     }
 
@@ -270,7 +271,9 @@ public class DefaultCustomPage extends Enableable implements CustomPage {
                             Boolean.parseBoolean(pieces[4])); // Enabled
         } catch (Exception ex) {
             LOGGER.error(
-                    "An error occured while decoding DefaultCustomPage from: " + encodedString, ex);
+                    "An error occured while decoding DefaultCustomPage from: {}",
+                    encodedString,
+                    ex);
             return null;
         }
         return defaultCustomPage;

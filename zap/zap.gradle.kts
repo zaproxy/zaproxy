@@ -49,7 +49,7 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.1.2")
+    api("com.fifesoft:rsyntaxtextarea:3.1.3")
     api("com.github.zafarkhaja:java-semver:0.9.0")
     api("commons-beanutils:commons-beanutils:1.9.4")
     api("commons-codec:commons-codec:1.15")
@@ -84,7 +84,7 @@ dependencies {
     implementation("org.jitsi:ice4j:3.0-24-g34c2ce5") {
         setTransitive(false)
     }
-    implementation("com.formdev:flatlaf:1.1.2")
+    implementation("com.formdev:flatlaf:1.2")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
@@ -92,7 +92,7 @@ dependencies {
         setTransitive(false)
     }
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.27.2") {
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.28.0") {
         // Not needed.
         exclude(group = "org.junit")
     }
@@ -153,7 +153,8 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     fieldExcludes = listOf()
 
-    classExcludes = listOf()
+    classExcludes = listOf(
+        "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel")
 
     methodExcludes = listOf()
 

@@ -32,10 +32,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /** Unit test for {@link HttpResponseHeader}. */
-public class HttpResponseHeaderUnitTest {
+class HttpResponseHeaderUnitTest {
 
     @Test
-    public void shouldBeEmptyIfNoContents() {
+    void shouldBeEmptyIfNoContents() {
         // Given
         HttpResponseHeader header = new HttpResponseHeader();
         // When
@@ -45,7 +45,7 @@ public class HttpResponseHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotBeEmptyIfItHasStatusLine() throws Exception {
+    void shouldNotBeEmptyIfItHasStatusLine() throws Exception {
         // Given
         HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
         // When
@@ -55,7 +55,7 @@ public class HttpResponseHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotBeEmptyIfItHasStatusAndHeaders() throws Exception {
+    void shouldNotBeEmptyIfItHasStatusAndHeaders() throws Exception {
         // Given
         HttpResponseHeader header =
                 new HttpResponseHeader("HTTP/1.1 200 OK\r\nX-Header: value\r\n\r\n");
@@ -66,7 +66,7 @@ public class HttpResponseHeaderUnitTest {
     }
 
     @Test
-    public void shouldSetValidStatusCode() throws Exception {
+    void shouldSetValidStatusCode() throws Exception {
         // Given
         HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
         // When
@@ -77,7 +77,7 @@ public class HttpResponseHeaderUnitTest {
     }
 
     @Test
-    public void shouldFailToSetNegative3DigitStatusCode() throws Exception {
+    void shouldFailToSetNegative3DigitStatusCode() throws Exception {
         // Given
         HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
         // When
@@ -88,7 +88,7 @@ public class HttpResponseHeaderUnitTest {
     }
 
     @Test
-    public void shouldFailToSet2DigitStatusCode() throws Exception {
+    void shouldFailToSet2DigitStatusCode() throws Exception {
         // Given
         HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
         // When
@@ -99,7 +99,7 @@ public class HttpResponseHeaderUnitTest {
     }
 
     @Test
-    public void shouldFailToSet4DigitStatusCode() throws Exception {
+    void shouldFailToSet4DigitStatusCode() throws Exception {
         // Given
         HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
         // When
@@ -110,7 +110,7 @@ public class HttpResponseHeaderUnitTest {
     }
 
     @Test
-    public void shouldSetReasonPhrase() throws Exception {
+    void shouldSetReasonPhrase() throws Exception {
         // Given
         HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
         // When
@@ -121,7 +121,7 @@ public class HttpResponseHeaderUnitTest {
     }
 
     @Test
-    public void shouldSetEmptyReasonPhraseIfNull() throws Exception {
+    void shouldSetEmptyReasonPhraseIfNull() throws Exception {
         // Given
         HttpResponseHeader header = new HttpResponseHeader("HTTP/1.1 200 OK\r\n\r\n");
         // When
@@ -141,7 +141,7 @@ public class HttpResponseHeaderUnitTest {
                 "text/html;charset=UTF-8", // Charset without space
                 "charset=UTF-8; text/html" // Charset first
             })
-    public void isCssShouldReturnFalseWhenContentTypeDoesNotIndicateCss(String contentType) {
+    void isCssShouldReturnFalseWhenContentTypeDoesNotIndicateCss(String contentType) {
         // Given
         HttpResponseHeader hrh = createResponseHeader(contentType);
         // When / Then
@@ -157,7 +157,7 @@ public class HttpResponseHeaderUnitTest {
                 "text/css;charset=UTF-8", // Charset without space
                 "charset=UTF-8; text/css" // Charset first
             })
-    public void isCssShouldReturnTrueWhenContentTypeIndicatesCss(String contentType) {
+    void isCssShouldReturnTrueWhenContentTypeIndicatesCss(String contentType) {
         // Given
         HttpResponseHeader hrh = createResponseHeader(contentType);
         // When / Then

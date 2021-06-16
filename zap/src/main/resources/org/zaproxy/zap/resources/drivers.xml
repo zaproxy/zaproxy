@@ -19,6 +19,12 @@
 		<slotListIndex>0</slotListIndex>
 	</driver>
 	<driver>
+		<name>AWP Identity Client - Linux</name>
+		<path>/usr/local/AWP/lib/libOcsPKCS11Wrapper.so</path>
+		<slot>0</slot>
+		<slotListIndex>0</slotListIndex>
+	</driver>
+	<driver>
 		<name>Axalto - Windows</name>
 		<path>C:\Program Files\Axalto\Access Client\v5\xltCk.dll</path>
 		<slot>0</slot>

@@ -25,7 +25,6 @@ import java.util.Date;
 import java.util.List;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.view.HrefTypeInfo;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 
@@ -142,9 +141,6 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         char[] rawHost = historyReference.getURI().getRawHost();
         if (rawHost != null) {
             return new String(rawHost);
-        }
-        if (HttpRequestHeader.CONNECT.equalsIgnoreCase(historyReference.getMethod())) {
-            return historyReference.getURI().toString();
         }
         return null;
     }

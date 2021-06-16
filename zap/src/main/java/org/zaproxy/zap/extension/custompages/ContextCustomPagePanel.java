@@ -69,8 +69,7 @@ class ContextCustomPagePanel extends AbstractContextPropertiesPanel {
                 LayoutHelper.getGBC(0, 0, 1, 1.0d, 0.0d));
 
         customPageTableModel = new CustomPageTableModel();
-        customPagesOptionsPanel =
-                new CustomPagesMultipleOptionsPanel(customPageTableModel, getContextId());
+        customPagesOptionsPanel = new CustomPagesMultipleOptionsPanel(customPageTableModel);
         this.add(customPagesOptionsPanel, LayoutHelper.getGBC(0, 1, 1, 1.0d, 1.0d));
     }
 
@@ -79,7 +78,7 @@ class ContextCustomPagePanel extends AbstractContextPropertiesPanel {
         return "ui.dialogs.contexts";
     }
 
-    public static class CustomPagesMultipleOptionsPanel
+    private static class CustomPagesMultipleOptionsPanel
             extends AbstractMultipleOptionsTablePanel<CustomPage> {
 
         private static final long serialVersionUID = -7216673905642941770L;
@@ -101,7 +100,7 @@ class ContextCustomPagePanel extends AbstractContextPropertiesPanel {
         private DialogModifyCustomPage modifyDialog = null;
         private Context uiSharedContext;
 
-        public CustomPagesMultipleOptionsPanel(CustomPageTableModel model, int contextId) {
+        public CustomPagesMultipleOptionsPanel(CustomPageTableModel model) {
             super(model);
 
             Component rendererComponent;

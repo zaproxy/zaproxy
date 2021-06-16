@@ -58,6 +58,8 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2020/12/09 Handle content encodings in request/response bodies.
 // ZAP: 2021/04/01 Detect WebSocket upgrade messages having multiple Connection directives
+// ZAP: 2021/05/11 Fixed conversion of Request Method to/from CONNECT
+// ZAP: 2021/05/14 Add missing override annotation.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -754,7 +756,7 @@ public class HttpMessage implements Message {
      * @since 2.10.0
      */
     public List<String> getParameterNames(HtmlParameter.Type type) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         Model.getSingleton()
                 .getSession()
                 .getParameters(this, type)
@@ -781,7 +783,7 @@ public class HttpMessage implements Message {
      * @since 2.10.0
      */
     public List<HtmlParameter> getParameters(HtmlParameter.Type type) {
-        List<HtmlParameter> list = new ArrayList<HtmlParameter>();
+        List<HtmlParameter> list = new ArrayList<>();
         Model.getSingleton()
                 .getSession()
                 .getParameters(this, type)
@@ -980,15 +982,11 @@ public class HttpMessage implements Message {
     }
 
     public void mutateHttpMethod(String method) {
-        // String header = reqPanel.getTxtHeader().getText();
-        String header = getRequestHeader().toString();
         try {
-            HttpRequestHeader hrh = new HttpRequestHeader(header);
-
-            URI uri = hrh.getURI();
-            // String body = reqPanel.getTxtBody().getText();
+            URI uri = getRequestHeader().getURI();
             String body = getRequestBody().toString();
-            String prevMethod = hrh.getMethod();
+            String prevMethod = getRequestHeader().getMethod();
+
             if (prevMethod.equalsIgnoreCase(method)) {
                 return;
             }
@@ -1016,7 +1014,6 @@ public class HttpMessage implements Message {
                     }
                     uri.setQuery(sb.toString());
                 }
-                hrh.setURI(uri);
                 // Clear the body
                 body = "";
 
@@ -1040,12 +1037,28 @@ public class HttpMessage implements Message {
                     }
                     body = sb.toString();
                     uri.setQuery(null);
-                    hrh.setURI(uri);
                 }
             }
-            hrh.setMethod(method);
-
-            getRequestHeader().setMessage(hrh.toString());
+            if (prevMethod.equalsIgnoreCase(HttpRequestHeader.CONNECT)) {
+                String scheme;
+                if (getRequestHeader().getHostPort() == 443) {
+                    scheme = "https://";
+                } else {
+                    scheme = "http://";
+                }
+                uri = new URI(scheme + uri, true);
+            } else if (method.equals(HttpRequestHeader.CONNECT)) {
+                uri = URI.fromAuthority(uri.getAuthority());
+            }
+            getRequestHeader()
+                    .setMessage(
+                            method
+                                    + " "
+                                    + uri
+                                    + " "
+                                    + getRequestHeader().getVersion()
+                                    + "\r\n"
+                                    + getRequestHeader().getHeadersAsString());
             getRequestBody().setBody(body);
         } catch (HttpMalformedHeaderException e) {
             // Ignore?
@@ -1206,7 +1219,7 @@ public class HttpMessage implements Message {
      */
     @Override
     public Map<String, String> toEventData() {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.put(EVENT_DATA_URI, getRequestHeader().getURI().toString());
         map.put(EVENT_DATA_REQUEST_HEADER, getRequestHeader().toString());
         map.put(EVENT_DATA_REQUEST_BODY, getRequestBody().toString());
@@ -1222,6 +1235,7 @@ public class HttpMessage implements Message {
      *
      * @since 2.8.0
      */
+    @Override
     public String getType() {
         return MESSAGE_TYPE;
     }

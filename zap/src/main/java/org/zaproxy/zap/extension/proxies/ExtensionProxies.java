@@ -47,7 +47,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
 
     private ProxiesParam proxiesParam = null;
     private OptionsProxiesPanel optionsProxiesPanel = null;
-    private Map<String, ProxyServer> proxyServers = new HashMap<String, ProxyServer>();
+    private Map<String, ProxyServer> proxyServers = new HashMap<>();
 
     private static Logger log = LogManager.getLogger(ExtensionProxies.class);
 
@@ -109,7 +109,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         List<ProxiesParamProxy> proxyParams = this.getParam().getProxies();
         Map<String, ProxiesParamProxy> newProxies = new HashMap<>();
         Map<String, ProxyServer> currentProxies = proxyServers;
-        proxyServers = new HashMap<String, ProxyServer>();
+        proxyServers = new HashMap<>();
         for (ProxiesParamProxy proxyParam : proxyParams) {
             if (proxyParam.isEnabled()) {
                 // Treat disabled proxies as if they dont really exist

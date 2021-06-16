@@ -45,7 +45,7 @@ import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.Pair;
 
 /** Unit test for {@link SpiderHtmlFormParser}. */
-public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
+class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
 
     private static final String FORM_METHOD_TOKEN = "%%METHOD%%";
     private static final String FORM_ACTION_TOKEN = "%%ACTION%%";
@@ -58,7 +58,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
             getResourcePath("htmlform", SpiderHtmlFormParserUnitTest.class);
 
     @Test
-    public void shouldFailToCreateParserWithUndefinedSpiderOptions() {
+    void shouldFailToCreateParserWithUndefinedSpiderOptions() {
         // Given
         SpiderParam undefinedSpiderOptions = null;
         // When / Then
@@ -70,7 +70,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFailToEvaluateAnUndefinedMessage() {
+    void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
@@ -81,7 +81,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseMessageIfAlreadyParsed() {
+    void shouldNotParseMessageIfAlreadyParsed() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         boolean parsed = true;
@@ -92,7 +92,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseNonHtmlResponse() {
+    void shouldNotParseNonHtmlResponse() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         boolean parsed = false;
@@ -103,7 +103,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseHtmlResponse() {
+    void shouldParseHtmlResponse() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         HttpMessage messageHtmlResponse = createMessageWith("NoForms.html");
@@ -115,7 +115,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseHtmlResponseEvenIfProvidedPathIsNull() {
+    void shouldParseHtmlResponseEvenIfProvidedPathIsNull() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         HttpMessage messageHtmlResponse = createMessageWith("NoForms.html");
@@ -127,7 +127,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseHtmlResponseIfAlreadyParsed() {
+    void shouldNotParseHtmlResponseIfAlreadyParsed() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         HttpMessage messageHtmlResponse = createMessageWith("NoForms.html");
@@ -139,7 +139,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFailToParseAnUndefinedMessage() {
+    void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
@@ -151,7 +151,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseMessageIfFormProcessingIsDisabled() {
+    void shouldNotParseMessageIfFormProcessingIsDisabled() {
         // Given
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(false);
@@ -170,7 +170,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseMessageEvenWithoutSource() {
+    void shouldParseMessageEvenWithoutSource() {
         // Given
         Source source = null;
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
@@ -180,7 +180,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNeverConsiderCompletelyParsed() {
+    void shouldNeverConsiderCompletelyParsed() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         HttpMessage messageHtmlResponse = createMessageWith("NoForms.html");
@@ -193,7 +193,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseSingleGetForm() {
+    void shouldParseSingleGetForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -212,7 +212,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseMultipleGetForms() {
+    void shouldParseMultipleGetForms() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -233,7 +233,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseGetFormWithMultipleSubmitFields() {
+    void shouldParseGetFormWithMultipleSubmitFields() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -257,7 +257,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseSinglePostForm() {
+    void shouldParseSinglePostForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -280,7 +280,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseMultiplePostForms() {
+    void shouldParseMultiplePostForms() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -304,7 +304,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParsePostFormWithMultipleSubmitFields() {
+    void shouldParsePostFormWithMultipleSubmitFields() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -347,7 +347,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParsePostAndGetForms() {
+    void shouldParsePostAndGetForms() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -383,7 +383,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParsePostFormIfPostFormProcessingIsDisabled() {
+    void shouldNotParsePostFormIfPostFormProcessingIsDisabled() {
         // Given
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
@@ -403,7 +403,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseNonPostFormIfPostFormProcessingIsDisabled() {
+    void shouldParseNonPostFormIfPostFormProcessingIsDisabled() {
         // Given
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
@@ -426,7 +426,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseFormAsGetIfNeitherGetNorPostForm() {
+    void shouldParseFormAsGetIfNeitherGetNorPostForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -445,7 +445,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseFormAsGetIfFormHasNoMethod() {
+    void shouldParseFormAsGetIfFormHasNoMethod() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -464,7 +464,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseFormAsGetIfFormHasNoMethodEvenIfPostFormProcessingIsDisabled() {
+    void shouldParseFormAsGetIfFormHasNoMethodEvenIfPostFormProcessingIsDisabled() {
         // Given
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
@@ -487,7 +487,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseFormAsGetIfFormHasEmptyMethod() {
+    void shouldParseFormAsGetIfFormHasEmptyMethod() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -506,7 +506,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldUseMessageUrlAsActionIfFormHasNoAction() {
+    void shouldUseMessageUrlAsActionIfFormHasNoAction() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -525,7 +525,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseGetFormWithoutSubmitField() {
+    void shouldParseGetFormWithoutSubmitField() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -544,7 +544,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParsePostFormWithoutSubmitField() {
+    void shouldParsePostFormWithoutSubmitField() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -564,7 +564,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldRemoveFragmentFromActionWhenParsingGetForm() {
+    void shouldRemoveFragmentFromActionWhenParsingGetForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -583,7 +583,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldRemoveFragmentFromActionWhenParsingPostForm() {
+    void shouldRemoveFragmentFromActionWhenParsingPostForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -607,7 +607,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldRemoveFragmentFromActionWhenParsingNeitherGetNorPostForm() {
+    void shouldRemoveFragmentFromActionWhenParsingNeitherGetNorPostForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -627,7 +627,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldAppendToEmptyQueryActionParametersWhenParsingGetForm() {
+    void shouldAppendToEmptyQueryActionParametersWhenParsingGetForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -646,7 +646,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldAppendToQueryActionParametersWhenParsingGetForm() {
+    void shouldAppendToQueryActionParametersWhenParsingGetForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -665,7 +665,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldAppendToQueryActionParametersTerminatedWithAmpersandWhenParsingGetForm() {
+    void shouldAppendToQueryActionParametersTerminatedWithAmpersandWhenParsingGetForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -684,7 +684,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldUseBaseHtmlUrlWhenParsingGetForm() {
+    void shouldUseBaseHtmlUrlWhenParsingGetForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -704,7 +704,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldUseAbsolutePathBaseHtmlUrlWhenParsingGetFormWithRelativeAction() {
+    void shouldUseAbsolutePathBaseHtmlUrlWhenParsingGetFormWithRelativeAction() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -729,7 +729,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreAbsolutePathBaseHtmlUrlWhenParsingGetFormWithAbsoluteAction() {
+    void shouldIgnoreAbsolutePathBaseHtmlUrlWhenParsingGetFormWithAbsoluteAction() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -753,7 +753,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldUseRelativePathBaseHtmlUrlWhenParsingGetFormWithRelativeAction() {
+    void shouldUseRelativePathBaseHtmlUrlWhenParsingGetFormWithRelativeAction() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -778,7 +778,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreRelativePathBaseHtmlUrlWhenParsingGetFormWithAbsoluteAction() {
+    void shouldIgnoreRelativePathBaseHtmlUrlWhenParsingGetFormWithAbsoluteAction() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -802,7 +802,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreBaseHtmlIfEmptyHrefWhenParsingGetForm() {
+    void shouldIgnoreBaseHtmlIfEmptyHrefWhenParsingGetForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -820,7 +820,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreBaseHtmlWithNoHrefWhenParsingGetForm() {
+    void shouldIgnoreBaseHtmlWithNoHrefWhenParsingGetForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -838,7 +838,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreBaseHtmlIfActionIsAbsoluteWhenParsingGetForm() {
+    void shouldIgnoreBaseHtmlIfActionIsAbsoluteWhenParsingGetForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -861,7 +861,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldUseBaseHtmlUrlWhenParsingPostForm() {
+    void shouldUseBaseHtmlUrlWhenParsingPostForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -886,7 +886,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldUseAbsolutePathBaseHtmlUrlWhenParsingPostFormWithRelativeAction() {
+    void shouldUseAbsolutePathBaseHtmlUrlWhenParsingPostFormWithRelativeAction() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -915,7 +915,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreAbsolutePathBaseHtmlUrlWhenParsingPostFormWithAbsoluteAction() {
+    void shouldIgnoreAbsolutePathBaseHtmlUrlWhenParsingPostFormWithAbsoluteAction() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -944,7 +944,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldUseRelativePathBaseHtmlUrlWhenParsingPostFormWithRelativeAction() {
+    void shouldUseRelativePathBaseHtmlUrlWhenParsingPostFormWithRelativeAction() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -973,7 +973,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreRelativePathBaseHtmlUrlWhenParsingPostFormWithAbsoluteAction() {
+    void shouldIgnoreRelativePathBaseHtmlUrlWhenParsingPostFormWithAbsoluteAction() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -1002,7 +1002,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreBaseHtmlIfEmptyHrefWhenParsingPostForm() {
+    void shouldIgnoreBaseHtmlIfEmptyHrefWhenParsingPostForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -1022,7 +1022,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreBaseHtmlWithNoHrefWhenParsingPostForm() {
+    void shouldIgnoreBaseHtmlWithNoHrefWhenParsingPostForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -1042,7 +1042,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldIgnoreBaseHtmlIfActionIsAbsoluteWhenParsingPostForm() {
+    void shouldIgnoreBaseHtmlIfActionIsAbsoluteWhenParsingPostForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -1067,7 +1067,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldSetValuesToFieldsWithNoValueWhenParsingGetForm() {
+    void shouldSetValuesToFieldsWithNoValueWhenParsingGetForm() {
         // Given
         DefaultValueGenerator valueGenerator = new DefaultValueGenerator();
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser(valueGenerator);
@@ -1108,7 +1108,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldSetValuesToFieldsWithNoValueWhenParsingPostForm() {
+    void shouldSetValuesToFieldsWithNoValueWhenParsingPostForm() {
         // Given
         DefaultValueGenerator valueGenerator = new DefaultValueGenerator();
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser(valueGenerator);
@@ -1177,7 +1177,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldProvidedCorrectFormDataToValueGenerator() {
+    void shouldProvidedCorrectFormDataToValueGenerator() {
         // Given
         TestValueGenerator valueGenerator = new TestValueGenerator();
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser(valueGenerator);
@@ -1376,7 +1376,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseGetFormAndIncludeRelatedInputsWithFormAttribute() {
+    void shouldParseGetFormAndIncludeRelatedInputsWithFormAttribute() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -1399,7 +1399,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParsePostFormAndIncludeRelatedInputsWithFormAttribute() {
+    void shouldParsePostFormAndIncludeRelatedInputsWithFormAttribute() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -1494,11 +1494,11 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
 
         private final List<FormField> fields;
 
-        public TestValueGenerator() {
+        TestValueGenerator() {
             fields = new ArrayList<>();
         }
 
-        public List<FormField> getFields() {
+        List<FormField> getFields() {
             return fields;
         }
 
@@ -1534,7 +1534,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         private final Map<String, String> fieldAttributes;
         private final Map<String, String> formAttributes;
 
-        public FormField(
+        FormField(
                 String uri,
                 String targetUri,
                 String fieldName,
@@ -1551,31 +1551,31 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
             this.formAttributes = new HashMap<>(formAttributes);
         }
 
-        public String getUri() {
+        String getUri() {
             return uri;
         }
 
-        public String getTargetUri() {
+        String getTargetUri() {
             return targetUri;
         }
 
-        public String getDefaultValue() {
+        String getDefaultValue() {
             return defaultValue;
         }
 
-        public String getFieldName() {
+        String getFieldName() {
             return fieldName;
         }
 
-        public List<String> getValues() {
+        List<String> getValues() {
             return values;
         }
 
-        public Map<String, String> getFieldAttributes() {
+        Map<String, String> getFieldAttributes() {
             return fieldAttributes;
         }
 
-        public Map<String, String> getFormAttributes() {
+        Map<String, String> getFormAttributes() {
             return formAttributes;
         }
 

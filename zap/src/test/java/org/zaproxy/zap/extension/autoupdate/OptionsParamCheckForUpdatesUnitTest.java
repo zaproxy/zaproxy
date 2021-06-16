@@ -32,10 +32,10 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link OptionsParamCheckForUpdates}. */
-public class OptionsParamCheckForUpdatesUnitTest {
+class OptionsParamCheckForUpdatesUnitTest {
 
     @Test
-    public void shouldNotHaveConfigByDefault() {
+    void shouldNotHaveConfigByDefault() {
         // Given / When
         OptionsParamCheckForUpdates param = new OptionsParamCheckForUpdates();
         // Then
@@ -43,7 +43,7 @@ public class OptionsParamCheckForUpdatesUnitTest {
     }
 
     @Test
-    public void shouldParseEmptyConfig() {
+    void shouldParseEmptyConfig() {
         // Given
         OptionsParamCheckForUpdates param = new OptionsParamCheckForUpdates();
         FileConfiguration config = new ZapXmlConfiguration();

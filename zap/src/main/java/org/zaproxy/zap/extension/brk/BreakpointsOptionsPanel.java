@@ -181,7 +181,7 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
 
     private JComboBox<String> getButtonMode() {
         if (buttonMode == null) {
-            buttonMode = new JComboBox<String>();
+            buttonMode = new JComboBox<>();
             buttonMode.addItem(
                     Constant.messages.getString("brk.optionspanel.option.breakmode.simple.label"));
             buttonMode.addItem(

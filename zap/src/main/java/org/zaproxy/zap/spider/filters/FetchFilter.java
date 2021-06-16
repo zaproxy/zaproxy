@@ -46,7 +46,7 @@ public abstract class FetchFilter {
         ILLEGAL_PROTOCOL,
         /** The The uri is skipped because of user rules. */
         USER_RULES
-    };
+    }
 
     /**
      * The Constant log.

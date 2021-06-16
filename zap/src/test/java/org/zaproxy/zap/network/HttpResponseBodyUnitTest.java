@@ -30,13 +30,13 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link HttpResponseBody}. */
-public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
+class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
 
     private static final byte[] BODY_1_BYTES_UTF_16 =
             BODY_1_STRING.getBytes(StandardCharsets.UTF_16);
 
     @Test
-    public void shouldCreateBodyWithNullByteArray() {
+    void shouldCreateBodyWithNullByteArray() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody((byte[]) null);
         // When / Then
@@ -48,7 +48,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithByteArray() {
+    void shouldCreateBodyWithByteArray() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(BODY_1_BYTES_DEFAULT_CHARSET);
         // When / Then
@@ -60,7 +60,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithNullString() {
+    void shouldCreateBodyWithNullString() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody((String) null);
         // When / Then
@@ -72,7 +72,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithStringUsingDefaultCharset() {
+    void shouldCreateBodyWithStringUsingDefaultCharset() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(BODY_1_BYTES_DEFAULT_CHARSET);
         // When / Then
@@ -84,7 +84,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithStringDeterminingItsCharset() {
+    void shouldCreateBodyWithStringDeterminingItsCharset() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(BODY_1_STRING);
         // When / Then
@@ -96,7 +96,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithInitialCapacity() {
+    void shouldCreateBodyWithInitialCapacity() {
         // Given
         int initialCapacity = 1024;
         HttpResponseBody httpBody = new HttpResponseBody(initialCapacity);
@@ -109,7 +109,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateBodyWithZeroLengthIfInitialCapacityIsNegative() {
+    void shouldCreateBodyWithZeroLengthIfInitialCapacityIsNegative() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(-1);
         // When / Then
@@ -121,7 +121,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldLimitInitialCapacityTo128kBytes() {
+    void shouldLimitInitialCapacityTo128kBytes() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(500000);
         // When / Then
@@ -133,7 +133,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldHaveEmptyStringRepresentationByDefault() {
+    void shouldHaveEmptyStringRepresentationByDefault() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody();
         // When
@@ -143,7 +143,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldProduceStringRepresentationWithCharsetSet() {
+    void shouldProduceStringRepresentationWithCharsetSet() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(BODY_1_BYTES_UTF_8);
         httpBody.setCharset(UTF_8_NAME);
@@ -154,7 +154,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldHaveIso8859CharsetByDefault() {
+    void shouldHaveIso8859CharsetByDefault() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody();
         // When
@@ -164,7 +164,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldDefaultToIso8859CharsetIfCharsetOfContentsIsNotSetNorDefined() {
+    void shouldDefaultToIso8859CharsetIfCharsetOfContentsIsNotSetNorDefined() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(BODY_1_BYTES_UTF_16);
         // When
@@ -175,7 +175,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldDefaultToUft8CharsetIfCharsetOfContentsIsNotSetNorDefinedButMatchUtf8() {
+    void shouldDefaultToUft8CharsetIfCharsetOfContentsIsNotSetNorDefinedButMatchUtf8() {
         // Given
         HttpResponseBody httpBody = new HttpResponseBody(BODY_1_BYTES_UTF_8);
         // When
@@ -186,7 +186,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldDefaultToIso8859CharsetIfCharsetOfTheContentsIsDefinedButUnsupported() {
+    void shouldDefaultToIso8859CharsetIfCharsetOfTheContentsIsDefinedButUnsupported() {
         // Given
         String contents = "<meta  charset='UnsupportedCharset-12345' />";
         HttpResponseBody httpBody = new HttpResponseBody(contents);
@@ -198,7 +198,7 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldUseCharsetOfTheContentsIfDefinedAndSupported() {
+    void shouldUseCharsetOfTheContentsIfDefinedAndSupported() {
         // Given
         String contents = "<meta  charset='UTF-8' />";
         HttpResponseBody httpBody = new HttpResponseBody(contents);

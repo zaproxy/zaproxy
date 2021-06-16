@@ -33,7 +33,7 @@ import java.io.InputStream;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ch.csnc.extension.httpclient.PKCS11Configuration} */
-public class PKCS11ConfigurationUnitTest {
+class PKCS11ConfigurationUnitTest {
 
     private static final String NAME = "Provider Name";
     private static final String LIBRARY = "path/to/library";
@@ -45,7 +45,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenBuildingAConfigurationWithoutNameAndLibrary() {
+    void shouldThrowExceptionWhenBuildingAConfigurationWithoutNameAndLibrary() {
         // Given
         PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
         // When
@@ -55,7 +55,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenBuildingAConfigurationWithoutName() {
+    void shouldThrowExceptionWhenBuildingAConfigurationWithoutName() {
         // Given
         PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder().setLibrary(LIBRARY);
         // When
@@ -65,7 +65,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenCreatingAConfigurationWithoutLibrary() {
+    void shouldThrowExceptionWhenCreatingAConfigurationWithoutLibrary() {
         // Given
         PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder().setName(NAME);
         // When
@@ -75,7 +75,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenSettingAnEmptyName() {
+    void shouldThrowExceptionWhenSettingAnEmptyName() {
         // Given
         PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
         String name = "";
@@ -87,7 +87,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenSettingANullName() {
+    void shouldThrowExceptionWhenSettingANullName() {
         // Given
         PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
         String name = null;
@@ -99,7 +99,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenSettingAnEmptyLibrary() {
+    void shouldThrowExceptionWhenSettingAnEmptyLibrary() {
         // Given
         PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
         String library = "";
@@ -111,7 +111,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenSettingANullLibrary() {
+    void shouldThrowExceptionWhenSettingANullLibrary() {
         // Given
         PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
         String library = null;
@@ -123,7 +123,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldCreateConfigurationWithNonEmptyNameAndNonEmptyLibrary() {
+    void shouldCreateConfigurationWithNonEmptyNameAndNonEmptyLibrary() {
         // Given
         PCKS11ConfigurationBuilder builder = PKCS11Configuration.builder();
         String nonEmptyName = "ProviderName";
@@ -133,7 +133,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveNameSet() {
+    void shouldRetrieveNameSet() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().build();
         // When
@@ -143,7 +143,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveLibrarySet() {
+    void shouldRetrieveLibrarySet() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().build();
         // When
@@ -153,7 +153,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveDefaultSlotListIndexFromNewlyCreatedConfiguration() {
+    void shouldRetrieveDefaultSlotListIndexFromNewlyCreatedConfiguration() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().build();
         // When
@@ -163,7 +163,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveUndefinedSlotIdFromNewlyCreatedConfiguration() {
+    void shouldRetrieveUndefinedSlotIdFromNewlyCreatedConfiguration() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().build();
         // When
@@ -173,7 +173,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveStringRepresentationFromNewlyCreatedConfiguration() {
+    void shouldRetrieveStringRepresentationFromNewlyCreatedConfiguration() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().build();
         // When
@@ -185,7 +185,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenSettingNegativeSlotListIndex() {
+    void shouldThrowExceptionWhenSettingNegativeSlotListIndex() {
         // Given
         PCKS11ConfigurationBuilder builder = getConfigurationBuilderWithNameAndLibrarySet();
         // When
@@ -196,7 +196,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveDescriptionSet() {
+    void shouldRetrieveDescriptionSet() {
         // Given
         String description = "Description of Provider X";
         configuration =
@@ -208,7 +208,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveNullDescriptionSet() {
+    void shouldRetrieveNullDescriptionSet() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().setDescription(null).build();
         // When
@@ -218,7 +218,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveEmptyDescriptionSet() {
+    void shouldRetrieveEmptyDescriptionSet() {
         // Given
         String description = "";
         configuration =
@@ -230,7 +230,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveUndefinedDescriptionFromNewlyCreatedConfiguration() {
+    void shouldRetrieveUndefinedDescriptionFromNewlyCreatedConfiguration() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().build();
         // When
@@ -240,7 +240,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveStringRepresentationWithDescriptionSet() {
+    void shouldRetrieveStringRepresentationWithDescriptionSet() {
         // Given
         String description = "Description of Provider X";
         configuration =
@@ -252,7 +252,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveStringRepresentationWithOutDescriptionWhenEmptyDescriptionSet() {
+    void shouldRetrieveStringRepresentationWithOutDescriptionWhenEmptyDescriptionSet() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().setDescription("").build();
         // When
@@ -262,7 +262,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveStringRepresentationWithOutDescriptionWhenNullDescriptionSet() {
+    void shouldRetrieveStringRepresentationWithOutDescriptionWhenNullDescriptionSet() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().setDescription(null).build();
         // When
@@ -272,7 +272,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveSlotListIndexSet() {
+    void shouldRetrieveSlotListIndexSet() {
         // Given
         int slotListIndexSet = 1;
         configuration =
@@ -286,7 +286,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhenSettingNegativeSlotId() {
+    void shouldThrowExceptionWhenSettingNegativeSlotId() {
         // Given
         PCKS11ConfigurationBuilder builder = getConfigurationBuilderWithNameAndLibrarySet();
         // When
@@ -297,7 +297,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveSlotIdSet() {
+    void shouldRetrieveSlotIdSet() {
         // Given
         int slotIdSet = 1;
         configuration = getConfigurationBuilderWithNameAndLibrarySet().setSlotId(slotIdSet).build();
@@ -308,7 +308,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveSlotIdAsUndefinedGivenASlotListIndexSet() {
+    void shouldRetrieveSlotIdAsUndefinedGivenASlotListIndexSet() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().setSlotListIndex(1).build();
         // When
@@ -318,7 +318,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveSlotListIndexAsUndefinedGivenASlotIdSet() {
+    void shouldRetrieveSlotListIndexAsUndefinedGivenASlotIdSet() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().setSlotId(1).build();
         // When
@@ -328,7 +328,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldRetrieveStringRepresentationWithAttributeSlotInsteadOfAttributeSlotListIndexGivenASlotIdSet() {
         // Given
         int slotId = 1;
@@ -341,8 +341,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void
-            shouldRetrieveStringRepresentationWithBackslashesPresentInNameEscapedWithBackslashes() {
+    void shouldRetrieveStringRepresentationWithBackslashesPresentInNameEscapedWithBackslashes() {
         // Given
         String nameWithBackslash = "\\";
         configuration =
@@ -357,8 +356,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void
-            shouldRetrieveStringRepresentationWithQuotationMarksPresentInNameEscapedWithBackslashes() {
+    void shouldRetrieveStringRepresentationWithQuotationMarksPresentInNameEscapedWithBackslashes() {
         // Given
         String nameWithQuotationMark = "\"";
         configuration =
@@ -373,7 +371,7 @@ public class PKCS11ConfigurationUnitTest {
     }
 
     @Test
-    public void shouldRetrieveInputStream() {
+    void shouldRetrieveInputStream() {
         // Given
         configuration = getConfigurationBuilderWithNameAndLibrarySet().build();
         // When

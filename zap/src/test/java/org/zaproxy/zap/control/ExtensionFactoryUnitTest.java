@@ -33,10 +33,10 @@ import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 
 /** Unit test for {@link ExtensionFactory}. */
-public class ExtensionFactoryUnitTest {
+class ExtensionFactoryUnitTest {
 
     @Test
-    public void shouldLoadExtensionWithoutDependencies() {
+    void shouldLoadExtensionWithoutDependencies() {
         // Given
         Extension extension = new Extension1();
         Map<Class<? extends Extension>, Extension> availableExtensions = Collections.emptyMap();
@@ -47,7 +47,7 @@ public class ExtensionFactoryUnitTest {
     }
 
     @Test
-    public void shouldLoadExtensionWithDependencies() {
+    void shouldLoadExtensionWithDependencies() {
         // Given
         Extension ext1 = new Extension1();
         Extension ext2 = new Extension2();
@@ -60,7 +60,7 @@ public class ExtensionFactoryUnitTest {
     }
 
     @Test
-    public void shouldLoadExtensionWithCommonDependencies() {
+    void shouldLoadExtensionWithCommonDependencies() {
         // Given
         Extension ext1 = new Extension1();
         Extension ext2 = new Extension2(ext1);
@@ -73,7 +73,7 @@ public class ExtensionFactoryUnitTest {
     }
 
     @Test
-    public void shouldNotLoadExtensionWithDirectCyclicDependencies() {
+    void shouldNotLoadExtensionWithDirectCyclicDependencies() {
         // Given
         ExtensionImpl ext1 = new Extension1();
         Extension ext2 = new Extension2(ext1);
@@ -86,7 +86,7 @@ public class ExtensionFactoryUnitTest {
     }
 
     @Test
-    public void shouldNotLoadExtensionWithIndirectCyclicDependencies() {
+    void shouldNotLoadExtensionWithIndirectCyclicDependencies() {
         // Given
         ExtensionImpl ext1 = new Extension1();
         Extension ext2 = new Extension2(ext1);
@@ -101,7 +101,7 @@ public class ExtensionFactoryUnitTest {
     }
 
     @Test
-    public void shouldNotLoadExtensionWithMissingDependencies() {
+    void shouldNotLoadExtensionWithMissingDependencies() {
         // Given
         Extension ext1 = new Extension1();
         Extension ext2 = new Extension2(ext1);
@@ -128,7 +128,7 @@ public class ExtensionFactoryUnitTest {
 
         private final List<Class<? extends Extension>> dependencies = new ArrayList<>();
 
-        public ExtensionImpl(Extension... dependencies) {
+        ExtensionImpl(Extension... dependencies) {
             if (dependencies != null && dependencies.length != 0) {
                 for (Extension ext : dependencies) {
                     this.dependencies.add(ext.getClass());
@@ -136,7 +136,7 @@ public class ExtensionFactoryUnitTest {
             }
         }
 
-        public void addDependency(Class<? extends Extension> dependency) {
+        void addDependency(Class<? extends Extension> dependency) {
             dependencies.add(dependency);
         }
 
@@ -153,21 +153,21 @@ public class ExtensionFactoryUnitTest {
 
     private static class Extension1 extends ExtensionImpl {
 
-        public Extension1(Extension... dependencies) {
+        Extension1(Extension... dependencies) {
             super(dependencies);
         }
     }
 
     private static class Extension2 extends ExtensionImpl {
 
-        public Extension2(Extension... dependencies) {
+        Extension2(Extension... dependencies) {
             super(dependencies);
         }
     }
 
     private static class Extension3 extends ExtensionImpl {
 
-        public Extension3(Extension... dependencies) {
+        Extension3(Extension... dependencies) {
             super(dependencies);
         }
     }

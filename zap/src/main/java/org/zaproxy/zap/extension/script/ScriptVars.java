@@ -57,14 +57,13 @@ public final class ScriptVars {
     static final int MAX_SCRIPT_VARS = 20;
     static final int MAX_GLOBAL_VARS = 50;
 
-    private static Map<String, String> globalVars =
-            Collections.synchronizedMap(new HashMap<String, String>());
+    private static Map<String, String> globalVars = Collections.synchronizedMap(new HashMap<>());
     private static Map<String, Object> globalCustomVars =
-            Collections.synchronizedMap(new HashMap<String, Object>());
+            Collections.synchronizedMap(new HashMap<>());
     private static Map<String, Map<String, String>> scriptVars =
-            Collections.synchronizedMap(new HashMap<String, Map<String, String>>());
+            Collections.synchronizedMap(new HashMap<>());
     private static Map<String, Map<String, Object>> scriptCustomVars =
-            Collections.synchronizedMap(new HashMap<String, Map<String, Object>>());
+            Collections.synchronizedMap(new HashMap<>());
 
     private ScriptVars() {}
 
@@ -291,8 +290,7 @@ public final class ScriptVars {
         validateKey(key);
 
         Map<String, T> scVars =
-                vars.computeIfAbsent(
-                        scriptName, k -> Collections.synchronizedMap(new HashMap<String, T>()));
+                vars.computeIfAbsent(scriptName, k -> Collections.synchronizedMap(new HashMap<>()));
 
         if (value == null) {
             scVars.remove(key);

@@ -40,10 +40,10 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.Version;
 
 /** Unit test for {@link ZapAddOnXmlFile}. */
-public class ZapAddOnXmlFileUnitTest {
+class ZapAddOnXmlFileUnitTest {
 
     @Test
-    public void shouldRequireInputStream() throws Exception {
+    void shouldRequireInputStream() throws Exception {
         // Given
         InputStream manifestData = null;
         // When / Then
@@ -51,7 +51,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldFailToLoadEmptyData() throws Exception {
+    void shouldFailToLoadEmptyData() throws Exception {
         // Given
         InputStream manifestData = manifestData("");
         // When / Then
@@ -59,7 +59,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadEmptyManifest() throws Exception {
+    void shouldLoadEmptyManifest() throws Exception {
         // Given
         InputStream manifestData = manifestData("<zapaddon>", "</zapaddon>");
         // When
@@ -90,7 +90,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithBasicData() throws Exception {
+    void shouldLoadManifestWithBasicData() throws Exception {
         // Given
         String name = "Name";
         String version = "7";
@@ -135,7 +135,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithRecognisedStatuses() throws Exception {
+    void shouldLoadManifestWithRecognisedStatuses() throws Exception {
         // Given
         List<String> statuses = Arrays.asList("alpha", "beta", "release");
         for (String status : statuses) {
@@ -149,7 +149,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldFailToLoadManifestWithUnrecognisedStatus() throws Exception {
+    void shouldFailToLoadManifestWithUnrecognisedStatus() throws Exception {
         // Given
         String status = "unrecognised-status";
         InputStream manifestData =
@@ -163,7 +163,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithBundleAndHelpSet() throws Exception {
+    void shouldLoadManifestWithBundleAndHelpSet() throws Exception {
         // Given
         String bundleBaseName = "org.example.Messages";
         String bundlePrefix = "example";
@@ -189,7 +189,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithLibs() throws Exception {
+    void shouldLoadManifestWithLibs() throws Exception {
         // Given
         String lib1 = "lib1.jar";
         String lib2 = "dir/lib2.jar";
@@ -208,7 +208,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithDependencies() throws Exception {
+    void shouldLoadManifestWithDependencies() throws Exception {
         // Given
         String javaVersion = "11";
         String addOn1Id = "id1";
@@ -272,7 +272,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithAddOnDepWithJustNotBeforeVersion() throws Exception {
+    void shouldLoadManifestWithAddOnDepWithJustNotBeforeVersion() throws Exception {
         // Given
         InputStream manifestData =
                 manifestData(
@@ -296,7 +296,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithAddOnDepWithJustNotFromVersion() throws Exception {
+    void shouldLoadManifestWithAddOnDepWithJustNotFromVersion() throws Exception {
         // Given
         InputStream manifestData =
                 manifestData(
@@ -320,7 +320,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldFailToLoadManifestWithAddOnDepWithMissingId() throws Exception {
+    void shouldFailToLoadManifestWithAddOnDepWithMissingId() throws Exception {
         // Given
         InputStream manifestData =
                 manifestData(
@@ -342,7 +342,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldFailToLoadManifestWithAddOnDepWithEmptyId() throws Exception {
+    void shouldFailToLoadManifestWithAddOnDepWithEmptyId() throws Exception {
         // Given
         InputStream manifestData =
                 manifestData(
@@ -364,7 +364,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldFailToLoadManifestWithAddOnDepWithMalformedVersion() throws Exception {
+    void shouldFailToLoadManifestWithAddOnDepWithMalformedVersion() throws Exception {
         // Given
         InputStream manifestData =
                 manifestData(
@@ -387,7 +387,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldFailToLoadManifestWithAddOnDepWithMalformedSemVer() throws Exception {
+    void shouldFailToLoadManifestWithAddOnDepWithMalformedSemVer() throws Exception {
         // Given
         InputStream manifestData =
                 manifestData(
@@ -410,8 +410,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldFailToLoadManifestWithAddOnDepWithMalformedNotBeforeVersion()
-            throws Exception {
+    void shouldFailToLoadManifestWithAddOnDepWithMalformedNotBeforeVersion() throws Exception {
         // Given
         InputStream manifestData =
                 manifestData(
@@ -434,7 +433,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldFailToLoadManifestWithAddOnDepWithMalformedNotFromVersion() throws Exception {
+    void shouldFailToLoadManifestWithAddOnDepWithMalformedNotFromVersion() throws Exception {
         // Given
         InputStream manifestData =
                 manifestData(
@@ -457,7 +456,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithClassnames() throws Exception {
+    void shouldLoadManifestWithClassnames() throws Exception {
         // Given
         String allowedClass1 = "org.example.ClassAllowed1";
         String allowedClass2 = "org.example.ClassAllowed2";
@@ -490,7 +489,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldIgnoreEmptyClassnamesElements() throws Exception {
+    void shouldIgnoreEmptyClassnamesElements() throws Exception {
         // Given
         InputStream manifestData =
                 manifestData(
@@ -507,7 +506,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithoutRestrictedClassnamesElements() throws Exception {
+    void shouldLoadManifestWithoutRestrictedClassnamesElements() throws Exception {
         // Given
         String allowedPackage = "org.example.allowed";
         InputStream manifestData =
@@ -526,7 +525,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithoutAllowedClassnamesElements() throws Exception {
+    void shouldLoadManifestWithoutAllowedClassnamesElements() throws Exception {
         // Given
         String restrictedPackage = "org.example.restricted";
         InputStream manifestData =
@@ -547,7 +546,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithScannersAndFiles() throws Exception {
+    void shouldLoadManifestWithScannersAndFiles() throws Exception {
         // Given
         String ascanrule1 = "org.example.ActiveScanner1";
         String ascanrule2 = "org.example.ActiveScanner2";
@@ -580,7 +579,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithExtensions() throws Exception {
+    void shouldLoadManifestWithExtensions() throws Exception {
         // Given
         String extension1 = "org.example.Extension1";
         String extension2 = "org.example.Extension2";
@@ -599,7 +598,7 @@ public class ZapAddOnXmlFileUnitTest {
     }
 
     @Test
-    public void shouldLoadManifestWithExtensionsV1() throws Exception {
+    void shouldLoadManifestWithExtensionsV1() throws Exception {
         // Given
         String extension1 = "org.example.Extension1";
         String extension2 = "org.example.Extension2";

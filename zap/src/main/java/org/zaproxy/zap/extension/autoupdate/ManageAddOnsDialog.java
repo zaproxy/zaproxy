@@ -547,7 +547,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                     .setSortable(false); // checkbox doesn't need to be sortable
 
             // Default sort by name (column 1)
-            List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
+            List<RowSorter.SortKey> sortKeys = new ArrayList<>(1);
             sortKeys.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
             installedAddOnsTable.getRowSorter().setSortKeys(sortKeys);
 
@@ -664,7 +664,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
             // Default sort by status (column 1) descending (Release, Beta, Alpha), and name (column
             // 2) ascending
-            List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(2);
+            List<RowSorter.SortKey> sortKeys = new ArrayList<>(2);
             sortKeys.add(new RowSorter.SortKey(1, SortOrder.DESCENDING));
             sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
             uninstalledAddOnsTable.getRowSorter().setSortKeys(sortKeys);
@@ -1046,7 +1046,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                             }
 
                             extension.uninstallAddOnsWithView(
-                                    ManageAddOnsDialog.this, addOns, false, new HashSet<AddOn>());
+                                    ManageAddOnsDialog.this, addOns, false, new HashSet<>());
                         }
                     });
         }

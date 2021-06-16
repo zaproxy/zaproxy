@@ -139,72 +139,60 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
                                 })
                         .collect(Collectors.joining(", ")));
 
-        if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
-            if (hasParams) {
-                out.write(", ");
-            }
-            // Always add the API key - we've no way of knowing if it will be required or not
-            out.write("$" + API.API_KEY_PARAM + "=''");
-            hasParams = true;
+        if (hasParams) {
+            out.write(", ");
         }
-
-        out.write(") {\n");
+        // Always add the API key - we've no way of knowing if it will be required or not
+        out.write("$" + API.API_KEY_PARAM + "='') {\n");
 
         StringBuilder reqParams = new StringBuilder();
-        if (hasParams) {
-            reqParams.append("array(");
-            String params =
-                    element.getParameters().stream()
-                            .filter(ApiParameter::isRequired)
-                            .map(
-                                    parameter -> {
-                                        String name = parameter.getName();
-                                        return "'"
-                                                + name
-                                                + "' => $"
-                                                + name.toLowerCase(Locale.ROOT);
-                                    })
-                            .collect(Collectors.joining(", "));
-            reqParams.append(params);
-            boolean first = params.isEmpty();
+        reqParams.append("array(");
+        String params =
+                element.getParameters().stream()
+                        .filter(ApiParameter::isRequired)
+                        .map(
+                                parameter -> {
+                                    String name = parameter.getName();
+                                    return "'" + name + "' => $" + name.toLowerCase(Locale.ROOT);
+                                })
+                        .collect(Collectors.joining(", "));
+        reqParams.append(params);
+        boolean first = params.isEmpty();
 
-            if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
-                // Always add the API key - we've no way of knowing if it will be required or not
-                if (!first) {
-                    reqParams.append(", ");
-                }
-                reqParams
-                        .append("'")
-                        .append(API.API_KEY_PARAM)
-                        .append("' => $")
-                        .append(API.API_KEY_PARAM);
-            }
-            reqParams.append(")");
+        // Always add the API key - we've no way of knowing if it will be required or not
+        if (!first) {
+            reqParams.append(", ");
+        }
+        reqParams
+                .append("'")
+                .append(API.API_KEY_PARAM)
+                .append("' => $")
+                .append(API.API_KEY_PARAM)
+                .append(")");
 
-            List<ApiParameter> optionalParameters =
-                    element.getParameters().stream()
-                            .filter(e -> !e.isRequired())
-                            .collect(Collectors.toList());
-            if (!optionalParameters.isEmpty()) {
-                out.write("\t\t$params = ");
-                out.write(reqParams.toString());
-                out.write(";\n");
-                reqParams.replace(0, reqParams.length(), "$params");
+        List<ApiParameter> optionalParameters =
+                element.getParameters().stream()
+                        .filter(e -> !e.isRequired())
+                        .collect(Collectors.toList());
+        if (!optionalParameters.isEmpty()) {
+            out.write("\t\t$params = ");
+            out.write(reqParams.toString());
+            out.write(";\n");
+            reqParams.replace(0, reqParams.length(), "$params");
 
-                for (ApiParameter parameter : optionalParameters) {
-                    String name = parameter.getName();
-                    String varName = name.toLowerCase(Locale.ROOT);
-                    out.write("\t\tif ($" + varName + " !== NULL) {\n");
-                    out.write("\t\t\t$params['" + name + "'] = $" + varName + ";\n");
-                    out.write("\t\t}\n");
-                }
+            for (ApiParameter parameter : optionalParameters) {
+                String name = parameter.getName();
+                String varName = name.toLowerCase(Locale.ROOT);
+                out.write("\t\tif ($" + varName + " !== NULL) {\n");
+                out.write("\t\t\t$params['" + name + "'] = $" + varName + ";\n");
+                out.write("\t\t}\n");
             }
         }
 
         String method = "request";
         String baseUrl = "base";
         if (type.equals(OTHER_ENDPOINT)) {
-            method += "other";
+            method += "Other";
             baseUrl += "_other";
         }
 
@@ -221,23 +209,17 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
                         + element.getName()
                         + "/'");
 
-        if (hasParams) {
-            out.write(", ");
-            out.write(reqParams.toString());
-            out.write(")");
-            if (type.equals(VIEW_ENDPOINT)) {
-                out.write("->{'" + element.getName() + "'};\n");
-            } else {
-                out.write(";\n");
-            }
-        } else if (!type.equals(OTHER_ENDPOINT)) {
+        out.write(", ");
+        out.write(reqParams.toString());
+        out.write(")");
+        if (type.equals(VIEW_ENDPOINT)) {
             if (element.getName().startsWith("option")) {
-                out.write(")->{'" + element.getName().substring(6) + "'};\n");
+                out.write("->{'" + element.getName().substring(6) + "'};\n");
             } else {
-                out.write(")->{'" + element.getName() + "'};\n");
+                out.write("->{'" + element.getName() + "'};\n");
             }
         } else {
-            out.write(");\n");
+            out.write(";\n");
         }
         out.write("\t}\n\n");
     }

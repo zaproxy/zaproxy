@@ -49,6 +49,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
+import org.zaproxy.zap.extension.pscan.PassiveScanData;
+import org.zaproxy.zap.extension.pscan.PassiveScanTestHelper;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScript;
 import org.zaproxy.zap.extension.script.ExtensionScript;
@@ -61,13 +63,12 @@ import org.zaproxy.zap.extension.script.ScriptsCache.ScriptWrapperAction;
 import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link ScriptsPassiveScanner}. */
-public class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
+class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
 
     private static final String SCRIPT_TYPE = ExtensionPassiveScan.SCRIPT_TYPE_PASSIVE;
     private static final Class<PassiveScript> TARGET_INTERFACE = PassiveScript.class;
 
     private ExtensionScript extensionScript;
-    private PassiveScanThread parent;
     private HttpMessage message;
     private int id;
     private Source source;
@@ -75,7 +76,6 @@ public class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
     @BeforeEach
     void setUp() {
         extensionScript = mock(ExtensionScript.class);
-        parent = mock(PassiveScanThread.class);
         message = mock(HttpMessage.class);
         id = 1;
         source = new Source("");
@@ -117,19 +117,17 @@ public class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    void shouldAddTagsWithParentSet() {
+    void shouldAddTagsWithParent() {
         // Given
         String tag = "Tag";
-        given(extensionScript.<PassiveScript>createScriptsCache(any()))
-                .willReturn(mock(ScriptsCache.class));
+        PassiveScanThread parent = mock(PassiveScanThread.class);
         ScriptsPassiveScanner scriptsPassiveScanner = new ScriptsPassiveScanner();
-        scriptsPassiveScanner.setParent(parent);
-        scriptsPassiveScanner.scanHttpResponseReceive(message, id, source);
+        PassiveScanTestHelper.init(
+                scriptsPassiveScanner, parent, message, mock(PassiveScanData.class));
         // When
         scriptsPassiveScanner.addTag(tag);
         // Then
-        verify(parent).addTag(id, tag);
+        verify(parent).addTag(tag);
     }
 
     @Test

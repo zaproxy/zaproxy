@@ -41,7 +41,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /** Unit test for {@link BreakpointMessageHandler2}. */
-public class BreakpointMessageHandler2UnitTest {
+class BreakpointMessageHandler2UnitTest {
 
     private BreakpointManagementInterface breakpointManagementInterface;
 

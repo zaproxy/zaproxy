@@ -1393,7 +1393,7 @@ public abstract class HttpMethodBase implements HttpMethod {
     	LOG.trace("enter putAllCookiesInASingleHeader(String host, CookieSpec matcher, Cookie[] cookies)" );
     	
         //use a map to make sure we only have one cookie per name
-        HashMap<String, Cookie> mergedCookies = new HashMap<String, Cookie>();
+        HashMap<String, Cookie> mergedCookies = new HashMap<>();
         Header[] cookieLineHeaders = getRequestHeaderGroup().getHeaders(HttpHeader.COOKIE);
         for (Header cookieLineHeader : cookieLineHeaders) {
             List<Cookie> cookiesHeader = parseCookieHeader(host, cookieLineHeader.getValue());
@@ -1432,7 +1432,7 @@ public abstract class HttpMethodBase implements HttpMethod {
             return Collections.emptyList();
         }
         String[] cookies = cookieHeaderValue.split(";");
-        List<Cookie> cookiesList = new ArrayList<Cookie>();
+        List<Cookie> cookiesList = new ArrayList<>();
         for (String cookie : cookies){
             String[] parts = cookie.split("=");
             //manage empty value

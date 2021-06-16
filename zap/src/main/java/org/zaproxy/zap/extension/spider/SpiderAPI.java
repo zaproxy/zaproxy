@@ -323,7 +323,7 @@ public class SpiderAPI extends ApiImplementor {
             case ACTION_CLEAR_EXCLUDED_FROM_SCAN:
                 try {
                     Session session = Model.getSingleton().getSession();
-                    session.setExcludeFromSpiderRegexs(new ArrayList<String>());
+                    session.setExcludeFromSpiderRegexs(new ArrayList<>());
                 } catch (DatabaseException e) {
                     throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                 }
@@ -654,12 +654,12 @@ public class SpiderAPI extends ApiImplementor {
                 map.put("id", Integer.toString(spiderScan.getScanId()));
                 map.put("progress", Integer.toString(spiderScan.getProgress()));
                 map.put("state", spiderScan.getState());
-                resultList.addItem(new ApiResponseSet<String>("scan", map));
+                resultList.addItem(new ApiResponseSet<>("scan", map));
             }
             result = resultList;
         } else if (VIEW_ALL_URLS.equals(name)) {
             ApiResponseList resultUrls = new ApiResponseList(name);
-            Set<String> urlSet = new HashSet<String>();
+            Set<String> urlSet = new HashSet<>();
 
             TableHistory tableHistory = extension.getModel().getDb().getTableHistory();
             List<Integer> ids = Collections.emptyList();
@@ -737,7 +737,7 @@ public class SpiderAPI extends ApiImplementor {
             domainData.put("value", domain.getValue());
             domainData.put("regex", domain.isRegex());
             domainData.put("enabled", domain.isEnabled());
-            apiResponse.addItem(new ApiResponseSet<Object>("domain", domainData));
+            apiResponse.addItem(new ApiResponseSet<>("domain", domainData));
         }
         return apiResponse;
     }

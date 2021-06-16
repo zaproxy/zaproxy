@@ -855,7 +855,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         StringBuilder xml = new StringBuilder();
         xml.append("<alerts>");
         List<Alert> alerts = site.getAlerts();
-        SortedSet<String> handledAlerts = new TreeSet<String>();
+        SortedSet<String> handledAlerts = new TreeSet<>();
 
         for (int i = 0; i < alerts.size(); i++) {
             Alert alert = alerts.get(i);

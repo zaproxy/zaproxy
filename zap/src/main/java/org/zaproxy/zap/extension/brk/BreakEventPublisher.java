@@ -72,7 +72,7 @@ public class BreakEventPublisher implements EventPublisher {
     }
 
     private void publishEvent(String event, Message msg, Map<String, String> parameters) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         map.putAll(parameters); // Could be an empty map
         map.put(MESSAGE_TYPE, msg.getType());
 

@@ -73,7 +73,7 @@ public abstract class PluginPassiveScanner extends Enableable
             };
 
     private static final Set<Integer> DEFAULT_HISTORY_TYPES_SET =
-            Collections.unmodifiableSet(new HashSet<Integer>(Arrays.asList(DEFAULT_HISTORY_TYPES)));
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_HISTORY_TYPES)));
 
     private AlertThreshold alertThreshold = AlertThreshold.DEFAULT;
     private AlertThreshold defaultAlertThreshold = AlertThreshold.MEDIUM;
@@ -94,6 +94,16 @@ public abstract class PluginPassiveScanner extends Enableable
         this.passiveScanData = psd;
 
         setParent(parent);
+    }
+
+    /**
+     * <strong>Note:</strong> This method should no longer need to be overridden, the functionality
+     * provided by the {@code parent} can be obtained directly with {@link #newAlert()} and {@link
+     * #addTag(String)}.
+     */
+    @Override
+    public void setParent(PassiveScanThread parent) {
+        // Nothing to do.
     }
 
     void clean() {
@@ -379,6 +389,16 @@ public abstract class PluginPassiveScanner extends Enableable
      */
     public PassiveScanData getHelper() {
         return passiveScanData;
+    }
+
+    /**
+     * Adds the given tag to the message being passive scanned.
+     *
+     * @param tag the name of the tag.
+     * @since 2.11.0
+     */
+    protected void addTag(String tag) {
+        parent.addTag(tag);
     }
 
     /**

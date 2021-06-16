@@ -73,7 +73,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache.InterfaceErrorMessageProvid
 import org.zaproxy.zap.extension.script.ScriptsCache.ScriptWrapperAction;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-public class VariantFactoryUnitTest extends WithConfigsTest {
+class VariantFactoryUnitTest extends WithConfigsTest {
 
     private static final String SCRIPT_TYPE = ExtensionActiveScan.SCRIPT_TYPE_VARIANT;
     private static final Class<VariantScript> TARGET_INTERFACE = VariantScript.class;
@@ -83,7 +83,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     VariantFactory factory;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         extensionScript = mock(ExtensionScript.class);
         given(extensionLoader.getExtension(ExtensionScript.class)).willReturn(extensionScript);
 
@@ -91,7 +91,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnDefaultVariants() {
+    void shouldReturnDefaultVariants() {
         // Given
         ScannerParam scanOptions = new ScannerParam();
         HttpMessage message = new HttpMessage();
@@ -113,7 +113,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnNoVariantsWhenUnset() {
+    void shouldReturnNoVariantsWhenUnset() {
         // Given
         ScannerParam scanOptions = Mockito.mock(ScannerParam.class, withSettings().lenient());
         Mockito.when(scanOptions.getConfig()).thenReturn(new ZapXmlConfiguration());
@@ -129,7 +129,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnAllVariantsWhenSet() throws Exception {
+    void shouldReturnAllVariantsWhenSet() throws Exception {
         // Given
         ScannerParam scanOptions = Mockito.mock(ScannerParam.class, withSettings().lenient());
         Mockito.when(scanOptions.getConfig()).thenReturn(new ZapXmlConfiguration());
@@ -158,7 +158,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnCustomVariants() {
+    void shouldReturnCustomVariants() {
         // Given
         factory.addVariant(TestVariant.class);
 
@@ -183,7 +183,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnNoSiteModifyingVariantsByDefault() {
+    void shouldReturnNoSiteModifyingVariantsByDefault() {
         // Given
 
         // When
@@ -194,7 +194,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnAddedSiteModifyingVariants() {
+    void shouldReturnAddedSiteModifyingVariants() {
         // Given
         factory.addVariant(TestVariant.class);
 
@@ -281,8 +281,8 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
         assertThat(variants, hasSize(0));
     }
 
-    public static class TestVariant implements Variant {
-        public TestVariant() {}
+    static class TestVariant implements Variant {
+        TestVariant() {}
 
         @Override
         public void setMessage(HttpMessage msg) {}

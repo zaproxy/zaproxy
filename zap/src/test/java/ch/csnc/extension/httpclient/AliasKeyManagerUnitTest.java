@@ -51,7 +51,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
  * @author bjoern.kimminich@gmx.de
  */
 @ExtendWith(MockitoExtension.class)
-public class AliasKeyManagerUnitTest {
+class AliasKeyManagerUnitTest {
 
     private static final String ALIAS = "alias";
     private static final String PASSWORD = "password";
@@ -63,13 +63,13 @@ public class AliasKeyManagerUnitTest {
     @Mock private KeyStoreSpi keyStoreSpi;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         keyStore = new KeyStore(keyStoreSpi, null, null) {};
         keyStore.load(null);
     }
 
     @Test
-    public void shouldAlwaysChooseInitiallyGivenAliasAsClientAlias() {
+    void shouldAlwaysChooseInitiallyGivenAliasAsClientAlias() {
         // Given
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When
@@ -81,7 +81,7 @@ public class AliasKeyManagerUnitTest {
     }
 
     @Test
-    public void shouldOnlyReturnInitiallyGivenAliasAsClientAlias() {
+    void shouldOnlyReturnInitiallyGivenAliasAsClientAlias() {
         // Given
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When
@@ -93,7 +93,7 @@ public class AliasKeyManagerUnitTest {
     }
 
     @Test
-    public void shouldAlwaysChooseInitiallyGivenAliasAsServerAlias() {
+    void shouldAlwaysChooseInitiallyGivenAliasAsServerAlias() {
         // Given
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When
@@ -105,7 +105,7 @@ public class AliasKeyManagerUnitTest {
     }
 
     @Test
-    public void shouldOnlyReturnInitiallyGivenAliasAsServerAlias() {
+    void shouldOnlyReturnInitiallyGivenAliasAsServerAlias() {
         // Given
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
         // When
@@ -117,7 +117,7 @@ public class AliasKeyManagerUnitTest {
     }
 
     @Test
-    public void shouldReturnNullWhenNoCertificatesAreFound() throws Exception {
+    void shouldReturnNullWhenNoCertificatesAreFound() throws Exception {
         // Given
         given(keyStoreSpi.engineGetCertificateChain(ALIAS)).willReturn(null);
         aliasKeyManager = new AliasKeyManager(keyStore, ALIAS, PASSWORD);
@@ -128,7 +128,7 @@ public class AliasKeyManagerUnitTest {
     }
 
     @Test
-    public void shouldReturnCertificatesFromKeyStoreAsX509Certificates() throws Exception {
+    void shouldReturnCertificatesFromKeyStoreAsX509Certificates() throws Exception {
         // Given
         Certificate[] originalCertificates =
                 new Certificate[] {mock(X509Certificate.class), mock(X509Certificate.class)};
@@ -142,8 +142,7 @@ public class AliasKeyManagerUnitTest {
     }
 
     @Test
-    public void shouldReturnNullAsCertificatesWhenExceptionOccursAccessingKeyStore()
-            throws Exception {
+    void shouldReturnNullAsCertificatesWhenExceptionOccursAccessingKeyStore() throws Exception {
         // Given
         given(keyStoreSpi.engineGetCertificateChain(ALIAS))
                 .willAnswer(this::throwKeyStoreException);
@@ -156,7 +155,7 @@ public class AliasKeyManagerUnitTest {
 
     @Test
     @SuppressWarnings("unchecked")
-    public void shouldReturnNullAsKeyWhenExceptionOccursAccessingKeyStore() throws Exception {
+    void shouldReturnNullAsKeyWhenExceptionOccursAccessingKeyStore() throws Exception {
         // Given
         given(keyStoreSpi.engineGetKey(ALIAS, PASSWORD.toCharArray()))
                 .willAnswer(this::throwKeyStoreException)
@@ -173,7 +172,7 @@ public class AliasKeyManagerUnitTest {
     }
 
     @Test
-    public void shouldReturnPrivateKeyFromKeyStore() throws Exception {
+    void shouldReturnPrivateKeyFromKeyStore() throws Exception {
         // Given
         Key originalKey = mock(PrivateKey.class);
         given(keyStoreSpi.engineGetKey(ALIAS, PASSWORD.toCharArray())).willReturn(originalKey);

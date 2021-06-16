@@ -57,7 +57,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
     // the HttpMessage.
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
 
-    private static Set<Integer> optedInHistoryTypes = new HashSet<Integer>();
+    private static Set<Integer> optedInHistoryTypes = new HashSet<>();
 
     @SuppressWarnings("unused")
     private OptionsPassiveScan options = null;
@@ -80,7 +80,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
     private String currentRuleName = "";
     private String currentUrl = "";
     private long currentRuleStartTime = 0;
-    private Map<Integer, Integer> alertCounts = new HashMap<Integer, Integer>();
+    private Map<Integer, Integer> alertCounts = new HashMap<>();
 
     /**
      * Constructs a {@code PassiveScanThread} with the given data.
@@ -388,7 +388,25 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
         }
     }
 
+    /**
+     * Adds the given tag to the message being passive scanned.
+     *
+     * @param id not used.
+     * @param tag the name of the tag.
+     * @deprecated (2.11.0) Use {@link #addTag(String)} instead, the id is not used.
+     */
+    @Deprecated
     public void addTag(int id, String tag) {
+        addTag(tag);
+    }
+
+    /**
+     * Adds the given tag to the message being passive scanned.
+     *
+     * @param tag the name of the tag.
+     * @since 2.11.0
+     */
+    public void addTag(String tag) {
         if (shutDown) {
             return;
         }
@@ -485,7 +503,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
      * @since 2.8.0
      */
     public static Set<Integer> getApplicableHistoryTypes() {
-        Set<Integer> allApplicableTypes = new HashSet<Integer>();
+        Set<Integer> allApplicableTypes = new HashSet<>();
         allApplicableTypes.addAll(PluginPassiveScanner.getDefaultHistoryTypes());
         if (!optedInHistoryTypes.isEmpty()) {
             allApplicableTypes.addAll(optedInHistoryTypes);

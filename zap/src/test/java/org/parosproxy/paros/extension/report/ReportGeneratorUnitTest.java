@@ -35,12 +35,12 @@ import org.junit.jupiter.api.io.TempDir;
 import org.zaproxy.zap.testutils.TestUtils;
 
 /** Unit test for {@link ReportGenerator}. */
-public class ReportGeneratorUnitTest extends TestUtils {
+class ReportGeneratorUnitTest extends TestUtils {
 
     private static final String NEWLINE = System.getProperty("line.separator");
 
     @Test
-    public void shouldNotEntityEncodeHigherUnicodeChars() {
+    void shouldNotEntityEncodeHigherUnicodeChars() {
         // Given
         String chars = "J/ψ → VP";
         // When
@@ -50,7 +50,7 @@ public class ReportGeneratorUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldWriteReportWithWellformedXml(@TempDir Path tempDir) throws Exception {
+    void shouldWriteReportWithWellformedXml(@TempDir Path tempDir) throws Exception {
         // Given
         String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>J/ψ → VP</data>" + NEWLINE;
         Path report = Files.createTempFile(tempDir, "", "");
@@ -61,7 +61,7 @@ public class ReportGeneratorUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldFailToWriteReportWithMalformedXml(@TempDir Path tempDir) throws Exception {
+    void shouldFailToWriteReportWithMalformedXml(@TempDir Path tempDir) throws Exception {
         // Given
         String data = "J/ψ → VP</data>";
         Path report = Files.createTempFile(tempDir, "", "");
@@ -72,8 +72,7 @@ public class ReportGeneratorUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldWriteReportWhenPathContainsHashSymbol(@TempDir Path tempDir)
-            throws Exception {
+    void shouldWriteReportWhenPathContainsHashSymbol(@TempDir Path tempDir) throws Exception {
         // Given
         String data = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><data>ZAP</data>" + NEWLINE;
         Path report = Files.createTempFile(tempDir, "#", "");
@@ -84,7 +83,7 @@ public class ReportGeneratorUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldUseEmptyArrayForSitesInJsonReportIfNoSitePresent() {
+    void shouldUseEmptyArrayForSitesInJsonReportIfNoSitePresent() {
         // Given
         String xmlReport =
                 "<?xml version=\"1.0\"?><OWASPZAPReport version=\"Dev Build\"></OWASPZAPReport>";
@@ -95,7 +94,7 @@ public class ReportGeneratorUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldUseArrayForSitesInJsonReportIfOneSitePresent() {
+    void shouldUseArrayForSitesInJsonReportIfOneSitePresent() {
         // Given
         String xmlReport =
                 "<?xml version=\"1.0\"?><OWASPZAPReport version=\"Dev Build\">\n"
@@ -108,7 +107,7 @@ public class ReportGeneratorUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldUseArrayForSitesInJsonReportIfSeveralSitesPresent() {
+    void shouldUseArrayForSitesInJsonReportIfSeveralSitesPresent() {
         // Given
         String xmlReport =
                 "<?xml version=\"1.0\"?><OWASPZAPReport version=\"Dev Build\">\n"

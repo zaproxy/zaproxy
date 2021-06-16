@@ -35,10 +35,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
 /** Unit test for {@link HttpRequestHeader}. */
-public class HttpRequestHeaderUnitTest {
+class HttpRequestHeaderUnitTest {
 
     @Test
-    public void shouldBeEmptyIfNoContents() {
+    void shouldBeEmptyIfNoContents() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         // When
@@ -48,7 +48,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotBeEmptyIfItHasRequestLine() throws Exception {
+    void shouldNotBeEmptyIfItHasRequestLine() throws Exception {
         // Given
         HttpRequestHeader header =
                 new HttpRequestHeader("GET http://example.com/ HTTP/1.1\r\n\r\n");
@@ -59,7 +59,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotBeEmptyIfItHasRequestLineAndHeaders() throws Exception {
+    void shouldNotBeEmptyIfItHasRequestLineAndHeaders() throws Exception {
         // Given
         HttpRequestHeader header =
                 new HttpRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
@@ -70,7 +70,23 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotBeImageIfItHasNoRequestUri() {
+    void shouldCreateConnectRequest() throws Exception {
+        // Given
+        String data = "CONNECT example.com:443 HTTP/1.1\\r\\nHost: example.com:443\\r\\n\\r\\n";
+        // When
+        HttpRequestHeader header = new HttpRequestHeader(data);
+        // Then
+        assertThat(header.getMethod(), is(equalTo("CONNECT")));
+        assertThat(header.getHostName(), is(equalTo("example.com")));
+        assertThat(header.getHostPort(), is(equalTo(443)));
+        assertThat(header.getURI().getAuthority(), is(equalTo("example.com:443")));
+        assertThat(header.getURI().getHost(), is(equalTo("example.com")));
+        assertThat(header.getURI().getPort(), is(equalTo(443)));
+        assertThat(header.getURI().toString(), is(equalTo("example.com:443")));
+    }
+
+    @Test
+    void shouldNotBeImageIfItHasNoRequestUri() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         // When
@@ -80,7 +96,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotBeImageIfRequestUriHasNoPath() throws Exception {
+    void shouldNotBeImageIfRequestUriHasNoPath() throws Exception {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         header.setURI(new URI("http://example.com", true));
@@ -91,7 +107,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldBeImageIfRequestUriHasPathWithImageExtension() throws Exception {
+    void shouldBeImageIfRequestUriHasPathWithImageExtension() throws Exception {
         // Given
         String[] extensions = {"bmp", "ico", "jpg", "jpeg", "gif", "tiff", "tif", "png"};
         HttpRequestHeader header = new HttpRequestHeader();
@@ -105,7 +121,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldSetCookieParam() {
+    void shouldSetCookieParam() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         TreeSet<HtmlParameter> cookies = parameters(cookieParam("c1", "v1"));
@@ -117,7 +133,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldSetCookieParams() {
+    void shouldSetCookieParams() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         TreeSet<HtmlParameter> cookies =
@@ -130,7 +146,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldSetCookieParamWithEmptyName() {
+    void shouldSetCookieParamWithEmptyName() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         TreeSet<HtmlParameter> cookies = parameters(cookieParam("", "v1"));
@@ -142,7 +158,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldRemoveCookieHeaderIfEmptyCookieParam() {
+    void shouldRemoveCookieHeaderIfEmptyCookieParam() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         TreeSet<HtmlParameter> cookies = parameters(cookieParam("", ""));
@@ -153,7 +169,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldRemoveCookieHeadersWhenSettingNoCookieParams() {
+    void shouldRemoveCookieHeadersWhenSettingNoCookieParams() {
         // Given
         HttpRequestHeader header = createRequestHeaderWithCookies();
         TreeSet<HtmlParameter> noCookies = new TreeSet<>();
@@ -164,7 +180,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldRemoveCookieHeadersWhenSettingNoCookieTypeParams() {
+    void shouldRemoveCookieHeadersWhenSettingNoCookieTypeParams() {
         // Given
         HttpRequestHeader header = createRequestHeaderWithCookies();
         TreeSet<HtmlParameter> paramsWithoutCookies =
@@ -176,7 +192,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldReplaceAnyCookieHeaderWhenSettingCookieParams() {
+    void shouldReplaceAnyCookieHeaderWhenSettingCookieParams() {
         // Given
         HttpRequestHeader header = createRequestHeaderWithCookies();
         TreeSet<HtmlParameter> cookies =
@@ -202,7 +218,7 @@ public class HttpRequestHeaderUnitTest {
                 // plausible filename
                 "https://example.org/dir/file?foo=bar&css=file.ext" // In parameter name
             })
-    public void isCssShouldReturnFalseWhenUrlDoesNotIndicateCss(String url) {
+    void isCssShouldReturnFalseWhenUrlDoesNotIndicateCss(String url) {
         // Given
         HttpRequestHeader reqHeader = createRequestHeader(url);
         // When / Then
@@ -217,7 +233,7 @@ public class HttpRequestHeaderUnitTest {
                 "http://example.org/css/styles.css?foo=bar", // In path, ignoring params
                 "http://example.org/css/styles.css?foo=bar&thing=.css", // In path, ignoring params
             })
-    public void isCssShouldReturnTrueWhenUrlIndicatesCss(String url) {
+    void isCssShouldReturnTrueWhenUrlIndicatesCss(String url) {
         // Given
         HttpRequestHeader reqHeader = createRequestHeader(url);
         // When / Then

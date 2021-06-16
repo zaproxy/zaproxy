@@ -631,7 +631,7 @@ public class HttpPanelComponentViewsManager implements ItemListener, MessageLoca
 
                         @Override
                         public void propertyChange(PropertyChangeEvent evt) {
-                            delegateRenderer = new JComboBox<ViewItem>().getRenderer();
+                            delegateRenderer = new JComboBox<>().getRenderer();
                         }
                     });
         }

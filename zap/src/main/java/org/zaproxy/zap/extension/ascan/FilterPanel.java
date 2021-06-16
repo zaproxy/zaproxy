@@ -465,7 +465,7 @@ class FilterPanel extends JPanel {
                 }
             }
         }
-        this.setAllTags(new ArrayList<String>(tags));
+        this.setAllTags(new ArrayList<>(tags));
     }
 
     public String validateFields() {

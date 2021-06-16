@@ -1,0 +1,22 @@
+name: Handle Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  handle-release:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup Java 8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 8
+    - name: Handle Release
+      run: ./gradlew handleReleaseFromGitHubRef
+      env:
+        ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}

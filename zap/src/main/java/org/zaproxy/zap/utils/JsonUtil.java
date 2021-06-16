@@ -69,7 +69,7 @@ public final class JsonUtil {
     }
 
     public static List<String> toStringList(JSONArray array) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         Iterator<?> iter = JSONArray.toCollection(array).iterator();
         while (iter.hasNext()) {
             list.add(iter.next().toString());

@@ -185,47 +185,55 @@ public class AddOnLoader extends URLClassLoader {
     }
 
     private void loadAllAddOns() {
-        runnableAddOns = new HashMap<>();
-        idsAddOnsWithRunningIssuesSinceLastRun = new ArrayList<>();
-        Map<AddOn, AddOnRunState> oldRunnableAddOns = loadAddOnsRunState(addOnsStateConfig, aoc);
-        List<AddOn> runAddons = new ArrayList<>();
-        Set<AddOn> updatedAddOns = new HashSet<>();
         for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext(); ) {
             AddOn addOn = iterator.next();
             if (canLoadAddOn(addOn)) {
                 AddOnInstaller.installMissingAddOnLibs(addOn);
-                AddOnRunRequirements reqs = calculateRunRequirements(addOn, aoc.getAddOns());
-                if (reqs.isRunnable()) {
-                    AddOnRunState runState = oldRunnableAddOns.get(addOn);
-                    List<String> runnableExtensions;
-                    if (addOn.hasExtensionsWithDeps()) {
-                        runnableExtensions = getRunnableExtensionsWithDeps(reqs);
-                        List<String> oldRunnableExtensions =
-                                runState != null
-                                        ? runState.getExtensions()
-                                        : Collections.emptyList();
-                        if (!oldRunnableExtensions.isEmpty()) {
-                            oldRunnableExtensions.removeAll(runnableExtensions);
-                            if (!oldRunnableExtensions.isEmpty()) {
-                                idsAddOnsWithRunningIssuesSinceLastRun.add(addOn.getId());
-                            }
-                        }
-                    } else {
-                        runnableExtensions = Collections.emptyList();
-                    }
-
-                    runnableAddOns.put(addOn, runnableExtensions);
-                    runAddons.add(addOn);
-                    if (runState != null && runState.hasNewerVersion()) {
-                        updatedAddOns.add(addOn);
-                    }
-                } else if (oldRunnableAddOns.get(addOn) != null) {
-                    idsAddOnsWithRunningIssuesSinceLastRun.add(addOn.getId());
-                }
             } else {
                 iterator.remove();
             }
         }
+
+        runnableAddOns = new HashMap<>();
+        Map<AddOn, AddOnRunState> oldRunnableAddOns = loadAddOnsRunState(addOnsStateConfig, aoc);
+        List<AddOn> runAddons = new ArrayList<>();
+        Set<AddOn> updatedAddOns = new HashSet<>();
+        Set<AddOn> nonRunnableAddOns = new HashSet<>();
+        for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext(); ) {
+            AddOn addOn = iterator.next();
+            AddOnRunRequirements reqs = calculateRunRequirements(addOn, aoc.getAddOns());
+            if (reqs.isRunnable()) {
+                AddOnRunState runState = oldRunnableAddOns.get(addOn);
+                List<String> runnableExtensions;
+                if (addOn.hasExtensionsWithDeps()) {
+                    runnableExtensions = getRunnableExtensionsWithDeps(reqs);
+                    List<String> oldRunnableExtensions =
+                            runState != null ? runState.getExtensions() : Collections.emptyList();
+                    if (!oldRunnableExtensions.isEmpty()) {
+                        oldRunnableExtensions.removeAll(runnableExtensions);
+                        if (!oldRunnableExtensions.isEmpty()) {
+                            idsAddOnsWithRunningIssuesSinceLastRun.add(addOn.getId());
+                        }
+                    }
+                } else {
+                    runnableExtensions = Collections.emptyList();
+                }
+
+                runnableAddOns.put(addOn, runnableExtensions);
+                runAddons.add(addOn);
+                if (runState != null && runState.hasNewerVersion()) {
+                    updatedAddOns.add(addOn);
+                }
+            } else {
+                nonRunnableAddOns.add(addOn);
+            }
+        }
+
+        idsAddOnsWithRunningIssuesSinceLastRun =
+                nonRunnableAddOns.stream()
+                        .filter(oldRunnableAddOns::containsKey)
+                        .map(AddOn::getId)
+                        .collect(Collectors.toList());
 
         saveAddOnsRunState(runnableAddOns);
 
@@ -808,7 +816,7 @@ public class AddOnLoader extends URLClassLoader {
      * @see #getExtensions(AddOn)
      */
     public List<Extension> getExtensions() {
-        List<Extension> list = new ArrayList<Extension>();
+        List<Extension> list = new ArrayList<>();
         for (AddOn addOn : getAddOnCollection().getAddOns()) {
             list.addAll(getExtensions(addOn));
         }

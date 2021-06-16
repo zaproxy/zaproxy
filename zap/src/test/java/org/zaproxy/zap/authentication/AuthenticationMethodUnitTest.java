@@ -31,10 +31,10 @@ import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.User;
 
 /** Unit test for {@link AuthenticationMethod}. */
-public class AuthenticationMethodUnitTest {
+class AuthenticationMethodUnitTest {
 
     @Test
-    public void shouldBeEqualToItself() {
+    void shouldBeEqualToItself() {
         // Given
         AuthenticationMethod authMethod = new AuthenticationMethodTest();
         // when
@@ -44,7 +44,7 @@ public class AuthenticationMethodUnitTest {
     }
 
     @Test
-    public void shouldBeEqualToDifferentAuthenticationMethodWithSameContents() {
+    void shouldBeEqualToDifferentAuthenticationMethodWithSameContents() {
         // Given
         String loggedInIndicator = "loggedInIndicator";
         String loggedOutIndicator = "loggedOutIndicator";
@@ -59,7 +59,7 @@ public class AuthenticationMethodUnitTest {
     }
 
     @Test
-    public void shouldBeEqualToDifferentAuthenticationMethodWithNullLoggedInIndicator() {
+    void shouldBeEqualToDifferentAuthenticationMethodWithNullLoggedInIndicator() {
         // Given
         String loggedInIndicator = null;
         String loggedOutIndicator = "loggedOutIndicator";
@@ -74,7 +74,7 @@ public class AuthenticationMethodUnitTest {
     }
 
     @Test
-    public void shouldBeEqualToDifferentAuthenticationMethodWithNullLoggedOutIndicator() {
+    void shouldBeEqualToDifferentAuthenticationMethodWithNullLoggedOutIndicator() {
         // Given
         String loggedInIndicator = "loggedInIndicator";
         String loggedOutIndicator = null;
@@ -89,7 +89,7 @@ public class AuthenticationMethodUnitTest {
     }
 
     @Test
-    public void shouldBeEqualToDifferentAuthenticationMethodWithNullIndicators() {
+    void shouldBeEqualToDifferentAuthenticationMethodWithNullIndicators() {
         // Given
         String loggedInIndicator = null;
         String loggedOutIndicator = null;
@@ -104,7 +104,7 @@ public class AuthenticationMethodUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToNull() {
+    void shouldNotBeEqualToNull() {
         // Given
         AuthenticationMethod authMethod = new AuthenticationMethodTest();
         // When
@@ -114,7 +114,7 @@ public class AuthenticationMethodUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToAuthenticationMethodWithJustDifferentLoggedInIndicator() {
+    void shouldNotBeEqualToAuthenticationMethodWithJustDifferentLoggedInIndicator() {
         // Given
         String loggedOutIndicator = "loggedOutIndicator";
         AuthenticationMethod authMethod =
@@ -128,7 +128,7 @@ public class AuthenticationMethodUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToAuthenticationMethodWithJustDifferentNullLoggedInIndicator() {
+    void shouldNotBeEqualToAuthenticationMethodWithJustDifferentNullLoggedInIndicator() {
         // Given
         String loggedOutIndicator = "loggedOutIndicator";
         AuthenticationMethod authMethod =
@@ -141,7 +141,7 @@ public class AuthenticationMethodUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToAuthenticationMethodWithJustDifferentLoggedOutIndicator() {
+    void shouldNotBeEqualToAuthenticationMethodWithJustDifferentLoggedOutIndicator() {
         // Given
         String loggedInIndicator = "loggedInIndicator";
         AuthenticationMethod authMethod =
@@ -155,7 +155,7 @@ public class AuthenticationMethodUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToAuthenticationMethodWithJustDifferentNullLoggedOutIndicator() {
+    void shouldNotBeEqualToAuthenticationMethodWithJustDifferentNullLoggedOutIndicator() {
         // Given
         String loggedInIndicator = "loggedInIndicator";
         AuthenticationMethod authMethod =
@@ -168,7 +168,7 @@ public class AuthenticationMethodUnitTest {
     }
 
     @Test
-    public void shouldNotBeEqualToExtendedAuthenticationMethod() {
+    void shouldNotBeEqualToExtendedAuthenticationMethod() {
         // Given
         AuthenticationMethod authMethod = new AuthenticationMethodTest();
         AuthenticationMethod otherAuthMethod = new AuthenticationMethodTest() {

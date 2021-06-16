@@ -91,7 +91,7 @@ public abstract class NanoServerHandler {
      * @param session the session that has the request
      * @return the body
      */
-    public String getBody(IHTTPSession session) {
+    protected String getBody(IHTTPSession session) {
         int contentLength = getBodySize(session);
         if (contentLength == 0) {
             return "";

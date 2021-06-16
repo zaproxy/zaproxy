@@ -72,6 +72,6 @@ public abstract class ApiDynamicActionImplementor extends ApiElement {
         Map<String, String> m = new HashMap<>();
         m.put("name", paramName);
         m.put("mandatory", mandatory ? "true" : "false");
-        return new ApiResponseSet<String>("param", m);
+        return new ApiResponseSet<>("param", m);
     }
 }

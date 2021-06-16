@@ -37,7 +37,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.StatsListener;
 
-public class RegexAutoTagScannerUnitTest {
+class RegexAutoTagScannerUnitTest {
 
     private static final String BODY =
             "<html><head>@@head@@</head><body>@@body_one@@ @@body_two@@</body><html>";
@@ -48,7 +48,7 @@ public class RegexAutoTagScannerUnitTest {
     private StatsListener listener;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         rule =
                 new RegexAutoTagScanner(
                         TEST_CONFIG,
@@ -64,12 +64,12 @@ public class RegexAutoTagScannerUnitTest {
     }
 
     @AfterEach
-    public void cleanup() {
+    void cleanup() {
         Stats.removeListener(listener);
     }
 
     @Test
-    public void shouldNotCountTagWhenBodyDoesNotMatch()
+    void shouldNotCountTagWhenBodyDoesNotMatch()
             throws URIException, HttpMalformedHeaderException, DatabaseException {
         // Given
         HttpMessage msg = new HttpMessage(new URI("http://example.com/", true));
@@ -82,7 +82,7 @@ public class RegexAutoTagScannerUnitTest {
     }
 
     @Test
-    public void shouldCountTagWhenBodyHasMatch()
+    void shouldCountTagWhenBodyHasMatch()
             throws URIException, HttpMalformedHeaderException, DatabaseException {
         // Given
         HttpMessage msg = new HttpMessage(new URI("http://example.com/", true));
@@ -98,7 +98,7 @@ public class RegexAutoTagScannerUnitTest {
     }
 
     @Test
-    public void shouldNotCountWhenDisabledThoughBodyContainsMatch()
+    void shouldNotCountWhenDisabledThoughBodyContainsMatch()
             throws URIException, HttpMalformedHeaderException, DatabaseException {
         // Given
         rule.setEnabled(false);
