@@ -3,6 +3,7 @@ import java.time.LocalDate
 import java.util.stream.Collectors
 import me.champeau.gradle.japicmp.JapicmpTask
 import org.zaproxy.zap.japicmp.AcceptMethodAbstractNowDefaultRule
+import org.zaproxy.zap.japicmp.AcceptMethodNewDefaultRule
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
 
 plugins {
@@ -163,6 +164,7 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         reportName = "japi.html"
         isAddDefaultRules = true
         addRule(JApiChangeStatus.MODIFIED, AcceptMethodAbstractNowDefaultRule::class.java)
+        addRule(JApiChangeStatus.MODIFIED, AcceptMethodNewDefaultRule::class.java)
     }
 }
 
