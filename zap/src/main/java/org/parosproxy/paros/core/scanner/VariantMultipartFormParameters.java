@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -222,27 +221,20 @@ public class VariantMultipartFormParameters implements Variant {
     }
 
     @Override
-    public String setParameters(
-            HttpMessage msg,
-            List<NameValuePair> originalPairs,
-            List<String> params,
-            List<String> values) {
-        return this.setParameter(msg, originalPairs, values);
+    public List<String> setParameters(HttpMessage msg, List<AppParameter> appParameters) {
+        return Arrays.asList(
+                this.setParameter(
+                        msg,
+                        appParameters.stream()
+                                .map(appParameter -> appParameter.getNameValuePair())
+                                .collect(Collectors.toList()),
+                        appParameters.stream()
+                                .map(appParameter -> appParameter.getValue())
+                                .collect(Collectors.toList())));
     };
-
-    @Override
-    public String setEscapedParameters(
-            HttpMessage msg,
-            List<NameValuePair> originalPairs,
-            List<String> params,
-            List<String> values) {
-        return this.setParameter(msg, originalPairs, values);
-    }
 
     private String setParameter(
             HttpMessage msg, List<NameValuePair> originalPairs, List<String> values) {
-        Objects.requireNonNull(originalPairs, "Params cannot be null");
-        Objects.requireNonNull(values, "Values cannot be null");
         StringBuilder newBodyBuilder = new StringBuilder(msg.getRequestBody().toString());
         List<MultipartFormParameter> multiPartParamsClone =
                 this.multiPartParams.stream()

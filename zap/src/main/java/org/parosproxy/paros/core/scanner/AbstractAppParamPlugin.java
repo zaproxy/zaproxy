@@ -40,6 +40,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/08/27 Moved variants into VariantFactory
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/06/16 Add support for updating multiple parameters in HttpMessage.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -47,28 +48,70 @@ import java.util.Collections;
 import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.ascan.VariantFactory;
 
-public abstract class AbstractAppParamPlugin extends AbstractAppVariantPlugin {
+public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
     private final Logger logger = LogManager.getLogger(this.getClass());
+    private List<Variant> listVariant;
     private NameValuePair originalPair = null;
+    private Variant variant = null;
+
+    @Override
+    public void scan() {
+        VariantFactory factory = Model.getSingleton().getVariantFactory();
+
+        listVariant = factory.createVariants(this.getParent().getScannerParam(), this.getBaseMsg());
+
+        if (listVariant.isEmpty()) {
+            getParent()
+                    .pluginSkipped(
+                            this,
+                            Constant.messages.getString(
+                                    "ascan.progress.label.skipped.reason.noinputvectors"));
+            return;
+        }
+
+        for (int i = 0; i < listVariant.size() && !isStop(); i++) {
+
+            HttpMessage msg = getNewMsg();
+            // ZAP: Removed unnecessary cast.
+            variant = listVariant.get(i);
+            try {
+                variant.setMessage(msg);
+                scanVariant();
+
+            } catch (Exception e) {
+                logger.error(
+                        "Error occurred while scanning with variant "
+                                + variant.getClass().getCanonicalName(),
+                        e);
+            }
+
+            // ZAP: Implement pause and resume
+            while (getParent().isPaused() && !isStop()) {
+                Util.sleep(500);
+            }
+        }
+    }
 
     /** Scan the current message using the current Variant */
-    @Override
-    public void scan(HttpMessage msg, List<NameValuePair> paramList) {
-        for (int i = 0; i < paramList.size() && !isStop(); i++) {
+    private void scanVariant() {
+        for (int i = 0; i < variant.getParamList().size() && !isStop(); i++) {
             // ZAP: Removed unnecessary cast.
-            originalPair = paramList.get(i);
+            originalPair = variant.getParamList().get(i);
 
             if (!isToExclude(originalPair)) {
 
                 // We need to use a fresh copy of the original message
                 // for further analysis inside all plugins
-                HttpMessage newMsg = getNewMsg();
+                HttpMessage msg = getNewMsg();
 
                 try {
-                    scan(newMsg, originalPair);
+                    scan(msg, originalPair);
 
                 } catch (Exception e) {
                     logger.error("Error occurred while scanning a message:", e);
@@ -158,7 +201,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppVariantPlugin {
      * @see #setEscapedParameter(HttpMessage, String, String)
      */
     protected String setParameter(HttpMessage message, String param, String value) {
-        return super.setParameter(message, originalPair, param, value);
+        return variant.setParameter(message, originalPair, param, value);
     }
 
     /**
@@ -174,6 +217,19 @@ public abstract class AbstractAppParamPlugin extends AbstractAppVariantPlugin {
      * @see #setParameter(HttpMessage, String, String)
      */
     protected String setEscapedParameter(HttpMessage message, String param, String value) {
-        return super.setEscapedParameter(message, originalPair, param, value);
+        return variant.setEscapedParameter(message, originalPair, param, value);
+    }
+
+    /**
+     * Sets the parameters into the given {@code message}.
+     *
+     * @param message the message that will be changed
+     * @param nameValuePairs of the message
+     * @param params list of name of the parameter
+     * @param values list of value of the parameter
+     * @return the parameter values which are added to the HttpMesage
+     */
+    protected List<String> setParameters(HttpMessage message, List<AppParameter> appParams) {
+        return variant.setParameters(message, appParams);
     }
 }

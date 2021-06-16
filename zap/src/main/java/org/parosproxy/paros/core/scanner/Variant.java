@@ -48,44 +48,15 @@ public interface Variant {
             HttpMessage msg, NameValuePair originalPair, String param, String value);
 
     /**
-     * Sets the parameters into the given {@code message}. If both parameter name and value are
-     * {@code null}, the parameter will be removed.
+     * Sets the parameters into the given {@code message}.
      *
      * @param message the message that will be changed
-     * @param nameValuePairs of the message
-     * @param params list of name of the parameter
-     * @param values list of value of the parameter
-     * @return the parameter set
-     * @see #setEscapedParameters(HttpMessage, List, List, List)
+     * @param appParams list of name of the parameter
+     * @return the parameter values set to HttpMessage
      */
-    default String setParameters(
-            HttpMessage message,
-            List<NameValuePair> nameValuePairs,
-            List<String> params,
-            List<String> values) {
+    default List<String> setParameters(HttpMessage message, List<AppParameter> appParams) {
         return null;
     };
-
-    /**
-     * Sets the parameter into the given {@code message}. If both parameter name and value are
-     * {@code null}, the parameter will be removed.
-     *
-     * <p>The value is expected to be properly encoded/escaped.
-     *
-     * @param message the message that will be changed
-     * @param nameValuePairs of the message
-     * @param params list of name of the parameter
-     * @param values list of value of the parameter
-     * @return the parameter set
-     * @see #setParameter(HttpMessage, NameValuePair, String, String)
-     */
-    default String setEscapedParameters(
-            HttpMessage message,
-            List<NameValuePair> nameValuePairs,
-            List<String> params,
-            List<String> values) {
-        return null;
-    }
 
     /**
      * Gets the name of the node to be used for the given {@code msg} in the Site Map. Returning
