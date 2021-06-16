@@ -30,6 +30,8 @@ import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.core.scanner.InputVector.PayloadFormat;
+import org.zaproxy.zap.core.scanner.InputVectorBuilder;
 
 /** Unit test for {@link VariantMultipartFormParameters}. */
 class VariantMultipartFormParametersUnitTest {
@@ -228,7 +230,7 @@ class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectSmallerParamValueModificationInFileNameParam() {
+    void shouldInjectSmallerParamValueModificationInFileNameParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -257,7 +259,7 @@ class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectLargerParamValueModificationInFileNameParam() {
+    void shouldInjectLargerParamValueModificationInFileNameParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -286,7 +288,7 @@ class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectEmptyParamValueModificationInFileNameParam() {
+    void shouldInjectEmptyParamValueModificationInFileNameParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -315,7 +317,7 @@ class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueMultipleTimesModificationInFileNameParam() {
+    void shouldInjectParamValueMultipleTimesModificationInFileNameParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -323,9 +325,9 @@ class VariantMultipartFormParametersUnitTest {
         String newValue = "somefile9";
         variant.setMessage(message);
         // When
-        AppParametersBuilder appParametersBuilder = new AppParametersBuilder();
+        InputVectorBuilder inputVectorBuilder = new InputVectorBuilder();
         for (int i = 0; i < 10; i++) {
-            appParametersBuilder.addAppParameter(
+            inputVectorBuilder.setNameAndValue(
                     new NameValuePair(
                             NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                             paramName + i,
@@ -333,9 +335,10 @@ class VariantMultipartFormParametersUnitTest {
                             3),
                     paramName,
                     newValue,
-                    AppParamValueType.ALREADY_ESCAPED);
+                    PayloadFormat.ALREADY_ESCAPED,
+                    PayloadFormat.ALREADY_ESCAPED);
         }
-        variant.setParameters(message, appParametersBuilder.build());
+        variant.setParameters(message, inputVectorBuilder.build());
         HttpMessage newMsg =
                 createMessage(
                         DEFAULT_PARAM_CONTENT,
@@ -348,7 +351,7 @@ class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueMultipleTimesModificationsWithEmptyValues() {
+    void shouldInjectParamValueMultipleTimesModificationsWithEmptyValues() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -358,8 +361,8 @@ class VariantMultipartFormParametersUnitTest {
         String origContent = "contents of the file";
         variant.setMessage(message);
         // When
-        AppParametersBuilder appParametersBuilder = new AppParametersBuilder();
-        appParametersBuilder.addAppParameter(
+        InputVectorBuilder inputVectorBuilder = new InputVectorBuilder();
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_PARAM,
                         "person",
@@ -367,16 +370,18 @@ class VariantMultipartFormParametersUnitTest {
                         1),
                 paramName,
                 newValue,
-                AppParamValueType.ALREADY_ESCAPED);
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
 
-        appParametersBuilder.addAppParameter(
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origContent, 2),
                 newContent,
                 newValue,
-                AppParamValueType.ALREADY_ESCAPED);
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
 
-        appParametersBuilder.addAppParameter(
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                         paramName,
@@ -384,9 +389,10 @@ class VariantMultipartFormParametersUnitTest {
                         3),
                 paramName,
                 newValue,
-                AppParamValueType.ALREADY_ESCAPED);
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
 
-        appParametersBuilder.addAppParameter(
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
                         paramName,
@@ -394,8 +400,9 @@ class VariantMultipartFormParametersUnitTest {
                         4),
                 paramName,
                 newValue,
-                AppParamValueType.ALREADY_ESCAPED);
-        variant.setParameters(message, appParametersBuilder.build());
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
+        variant.setParameters(message, inputVectorBuilder.build());
         HttpMessage newMsg = createMessage(newValue, newValue, newValue, newContent);
         // Then
         assertThat(
@@ -403,7 +410,7 @@ class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueMultipleTimesModificationsWithSmallValues() {
+    void shouldInjectParamValueMultipleTimesModificationsWithSmallValues() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -413,8 +420,8 @@ class VariantMultipartFormParametersUnitTest {
         String origContent = "contents of the file";
         variant.setMessage(message);
         // When
-        AppParametersBuilder appParametersBuilder = new AppParametersBuilder();
-        appParametersBuilder.addAppParameter(
+        InputVectorBuilder inputVectorBuilder = new InputVectorBuilder();
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_PARAM,
                         "person",
@@ -422,16 +429,18 @@ class VariantMultipartFormParametersUnitTest {
                         1),
                 paramName,
                 newValue,
-                AppParamValueType.ALREADY_ESCAPED);
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
 
-        appParametersBuilder.addAppParameter(
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origContent, 2),
                 paramName,
                 newContent,
-                AppParamValueType.ALREADY_ESCAPED);
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
 
-        appParametersBuilder.addAppParameter(
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                         paramName,
@@ -439,9 +448,10 @@ class VariantMultipartFormParametersUnitTest {
                         3),
                 paramName,
                 newValue,
-                AppParamValueType.ALREADY_ESCAPED);
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
 
-        appParametersBuilder.addAppParameter(
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
                         paramName,
@@ -449,8 +459,9 @@ class VariantMultipartFormParametersUnitTest {
                         4),
                 paramName,
                 newValue,
-                AppParamValueType.ALREADY_ESCAPED);
-        variant.setParameters(message, appParametersBuilder.build());
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
+        variant.setParameters(message, inputVectorBuilder.build());
         HttpMessage newMsg = createMessage(newValue, newValue, newValue, newContent);
         // Then
         assertThat(
@@ -458,7 +469,7 @@ class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueMultipleTimesModificationsWithLargeValues() {
+    void shouldInjectParamValueMultipleTimesModificationsWithLargeValues() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -469,8 +480,8 @@ class VariantMultipartFormParametersUnitTest {
         variant.setMessage(message);
         // When
 
-        AppParametersBuilder appParametersBuilder = new AppParametersBuilder();
-        appParametersBuilder.addAppParameter(
+        InputVectorBuilder inputVectorBuilder = new InputVectorBuilder();
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_PARAM,
                         "person",
@@ -478,16 +489,18 @@ class VariantMultipartFormParametersUnitTest {
                         1),
                 paramName,
                 newValue,
-                AppParamValueType.ALREADY_ESCAPED);
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
 
-        appParametersBuilder.addAppParameter(
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origContent, 2),
                 paramName,
                 newContent,
-                AppParamValueType.ALREADY_ESCAPED);
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
 
-        appParametersBuilder.addAppParameter(
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                         paramName,
@@ -495,9 +508,10 @@ class VariantMultipartFormParametersUnitTest {
                         3),
                 paramName,
                 newValue,
-                AppParamValueType.ALREADY_ESCAPED);
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
 
-        appParametersBuilder.addAppParameter(
+        inputVectorBuilder.setNameAndValue(
                 new NameValuePair(
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
                         paramName,
@@ -505,8 +519,9 @@ class VariantMultipartFormParametersUnitTest {
                         4),
                 paramName,
                 newValue,
-                AppParamValueType.ALREADY_ESCAPED);
-        variant.setParameters(message, appParametersBuilder.build());
+                PayloadFormat.ALREADY_ESCAPED,
+                PayloadFormat.ALREADY_ESCAPED);
+        variant.setParameters(message, inputVectorBuilder.build());
         HttpMessage newMsg = createMessage(newValue, newValue, newValue, newContent);
         // Then
         assertThat(
@@ -514,7 +529,7 @@ class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueModificationInFileContentTypeParam() {
+    void shouldInjectParamValueModificationInFileContentTypeParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();

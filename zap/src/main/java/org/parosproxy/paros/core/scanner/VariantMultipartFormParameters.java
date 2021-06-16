@@ -31,6 +31,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.core.scanner.InputVector;
 
 /**
  * Variant used for "multipart/form-data" POST request handling. Takes all parameters passed inside
@@ -211,39 +212,36 @@ public class VariantMultipartFormParameters implements Variant {
     @Override
     public String setParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
-        return setParameter(msg, Arrays.asList(originalPair), Arrays.asList(value));
+        return setParameter(msg, Arrays.asList(originalPair.getPosition()), Arrays.asList(value));
     }
 
     @Override
     public String setEscapedParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
-        return setParameter(msg, Arrays.asList(originalPair), Arrays.asList(value));
+        return setParameter(msg, Arrays.asList(originalPair.getPosition()), Arrays.asList(value));
     }
 
     @Override
-    public List<String> setParameters(HttpMessage msg, List<AppParameter> appParameters) {
-        return Arrays.asList(
-                this.setParameter(
-                        msg,
-                        appParameters.stream()
-                                .map(appParameter -> appParameter.getNameValuePair())
-                                .collect(Collectors.toList()),
-                        appParameters.stream()
-                                .map(appParameter -> appParameter.getValue())
-                                .collect(Collectors.toList())));
+    public void setParameters(HttpMessage msg, List<InputVector> inputVectors) {
+        this.setParameter(
+                msg,
+                inputVectors.stream()
+                        .map(inputVector -> inputVector.getPosition())
+                        .collect(Collectors.toList()),
+                inputVectors.stream()
+                        .map(inputVector -> inputVector.getValue())
+                        .collect(Collectors.toList()));
     };
 
     private String setParameter(
-            HttpMessage msg, List<NameValuePair> originalPairs, List<String> values) {
+            HttpMessage msg, List<Integer> nameValuePairPositions, List<String> values) {
         StringBuilder newBodyBuilder = new StringBuilder(msg.getRequestBody().toString());
         List<MultipartFormParameter> multiPartParamsClone =
-                this.multiPartParams.stream()
-                        .map(multiPartParam -> new MultipartFormParameter(multiPartParam))
-                        .collect(Collectors.toList());
-        for (int index = 0; index < originalPairs.size(); index++) {
-            NameValuePair originalPair = originalPairs.get(index);
+                new ArrayList<MultipartFormParameter>(this.multiPartParams);
+        for (int index = 0; index < nameValuePairPositions.size(); index++) {
+            int originalPosition = nameValuePairPositions.get(index);
             String value = values.get(index);
-            int idx = originalPair.getPosition() - 1;
+            int idx = originalPosition - 1;
 
             MultipartFormParameter mpPart = multiPartParamsClone.get(idx);
             if (LOGGER.isDebugEnabled()) {
@@ -251,7 +249,7 @@ public class VariantMultipartFormParameters implements Variant {
                         "i: "
                                 + idx
                                 + " pos: "
-                                + originalPair.getPosition()
+                                + originalPosition
                                 + " S: "
                                 + mpPart.getStart()
                                 + " E: "
@@ -260,14 +258,29 @@ public class VariantMultipartFormParameters implements Variant {
             newBodyBuilder.replace(mpPart.getStart(), mpPart.getEnd(), value);
             int originalStart = mpPart.getStart();
             int offset = value.length() - mpPart.getEnd() + mpPart.getStart();
-            mpPart.setEnd(mpPart.getEnd() + offset);
+            mpPart =
+                    new MultipartFormParameter(
+                            mpPart.getName(),
+                            mpPart.getValue(),
+                            originalStart,
+                            mpPart.getEnd() + offset,
+                            mpPart.getPosition(),
+                            mpPart.getType());
+            multiPartParamsClone.set(idx, mpPart);
             // As we have updated one value and this can impact other multipart params
             // Hence this logic is to update the other multipart params
             for (idx = 0; idx < multiPartParamsClone.size(); idx++) {
                 mpPart = multiPartParamsClone.get(idx);
                 if (mpPart.getStart() > originalStart) {
-                    mpPart.setStart(mpPart.getStart() + offset);
-                    mpPart.setEnd(mpPart.getEnd() + offset);
+                    mpPart =
+                            new MultipartFormParameter(
+                                    mpPart.getName(),
+                                    mpPart.getValue(),
+                                    mpPart.getStart() + offset,
+                                    mpPart.getEnd() + offset,
+                                    mpPart.getPosition(),
+                                    mpPart.getType());
+                    multiPartParamsClone.set(idx, mpPart);
                 }
             }
         }

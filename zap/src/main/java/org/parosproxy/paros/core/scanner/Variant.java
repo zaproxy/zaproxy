@@ -29,6 +29,7 @@ package org.parosproxy.paros.core.scanner;
 import java.util.List;
 import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.core.scanner.InputVector;
 
 public interface Variant {
 
@@ -52,11 +53,8 @@ public interface Variant {
      *
      * @param message the message that will be changed
      * @param appParams list of name of the parameter
-     * @return the parameter values set to HttpMessage
      */
-    default List<String> setParameters(HttpMessage message, List<AppParameter> appParams) {
-        return null;
-    };
+    default void setParameters(HttpMessage message, List<InputVector> appParams) {};
 
     /**
      * Gets the name of the node to be used for the given {@code msg} in the Site Map. Returning

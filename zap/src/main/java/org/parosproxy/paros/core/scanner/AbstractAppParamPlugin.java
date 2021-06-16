@@ -51,6 +51,8 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.core.scanner.InputVector;
+import org.zaproxy.zap.core.scanner.InputVectorBuilder;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
@@ -221,15 +223,22 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     }
 
     /**
-     * Sets the parameters into the given {@code message}.
+     * @return {@code InputVectorBuilder} which is used to build the {@code InputVector} which is
+     *     used by {@link #setParameters(HttpMessage, List)}
+     * @see #setParameters(HttpMessage, List)
+     */
+    protected InputVectorBuilder getBuilder() {
+        return new InputVectorBuilder();
+    }
+
+    /**
+     * Sets the parameters into the given {@code message}. Please refer {@link #getBuilder()} for
+     * building {@code InputVector}s.
      *
      * @param message the message that will be changed
-     * @param nameValuePairs of the message
-     * @param params list of name of the parameter
-     * @param values list of value of the parameter
-     * @return the parameter values which are added to the HttpMesage
+     * @param inputVectors list of the parameters
      */
-    protected List<String> setParameters(HttpMessage message, List<AppParameter> appParams) {
-        return variant.setParameters(message, appParams);
+    protected void setParameters(HttpMessage message, List<InputVector> inputVectors) {
+        variant.setParameters(message, inputVectors);
     }
 }
