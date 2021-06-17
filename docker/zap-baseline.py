@@ -127,7 +127,7 @@ def usage():
     
     If any of the next set of parameters are used then the existing code will be used instead:
     
-    -c config_file    plan to support soon, may just need more testing
+    -c config_file    partially supported so cannot be enabled just yet
     -u config_url     ditto
     -D secs           need new delay/sleep job
     -i                need to support config files
@@ -363,7 +363,7 @@ def main(argv):
                     jobs.append(get_af_spiderAjax(target, mins))
                 
                 jobs.append(get_af_pscan_wait(timeout))
-                jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file))
+                jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict))
                 
                 if report_html:
                     jobs.append(get_af_report('traditional-html', base_dir, report_html, 'ZAP Scanning Report', ''))
