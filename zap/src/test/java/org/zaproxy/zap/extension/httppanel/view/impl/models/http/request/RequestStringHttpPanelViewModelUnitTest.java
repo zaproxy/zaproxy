@@ -23,10 +23,12 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.StringHttpPanelViewModelTest;
 import org.zaproxy.zap.network.HttpRequestBody;
@@ -70,5 +72,15 @@ class RequestStringHttpPanelViewModelUnitTest
     protected void prepareMessage() {
         given(message.getRequestHeader()).willReturn(header);
         given(message.getRequestBody()).willReturn(body);
+    }
+
+    @Override
+    protected void verifyBodySet(HttpMessage message, String body) {
+        verify(message).setRequestBody(body);
+    }
+
+    @Override
+    protected void verifyBodyNotSet(HttpMessage message) {
+        verify(message, times(0)).setRequestBody(anyString());
     }
 }

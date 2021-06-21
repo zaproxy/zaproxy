@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -88,6 +87,10 @@ public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 ext
 
     protected abstract void prepareMessage();
 
+    protected abstract void verifyBodySet(HttpMessage message, String body);
+
+    protected abstract void verifyBodyNotSet(HttpMessage message);
+
     @Test
     void shouldGetEmptyDataFromNullMessage() {
         // Given
@@ -129,7 +132,7 @@ public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 ext
         // Then
         verifyHeader(otherHeaderContent);
         verify(header, times(0)).setContentLength(anyInt());
-        verify(body).setBody(otherBodyContent);
+        verifyBodySet(message, otherBodyContent);
     }
 
     @Test
@@ -144,7 +147,7 @@ public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 ext
         // When / Then
         assertThrows(InvalidMessageDataException.class, () -> model.setData(data));
         verify(header, times(0)).setContentLength(anyInt());
-        verify(body, times(0)).setBody(anyString());
+        verifyBodyNotSet(message);
     }
 
     @Test
@@ -158,6 +161,6 @@ public abstract class StringHttpPanelViewModelTest<T1 extends HttpHeader, T2 ext
         // Then
         verifyHeader(HEADER);
         verify(header, times(0)).setContentLength(anyInt());
-        verify(body).setBody("");
+        verifyBodySet(message, "");
     }
 }
