@@ -64,6 +64,6 @@ public class ResponseStringHttpPanelViewModel extends AbstractHttpStringHttpPane
         if (parts.length > 1) {
             body = data.substring(parts[0].length() + 2);
         }
-        httpMessage.getResponseBody().setBody(body);
+        httpMessage.setResponseBody(body);
     }
 }

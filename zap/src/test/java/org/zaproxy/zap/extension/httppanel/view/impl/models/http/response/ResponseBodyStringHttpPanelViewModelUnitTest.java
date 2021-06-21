@@ -20,7 +20,9 @@
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.BodyStringHttpPanelViewModelTest;
 import org.zaproxy.zap.network.HttpResponseBody;
@@ -48,5 +50,10 @@ class ResponseBodyStringHttpPanelViewModelUnitTest
     protected void prepareMessage() {
         given(message.getResponseHeader()).willReturn(header);
         given(message.getResponseBody()).willReturn(body);
+    }
+
+    @Override
+    protected void verifyBodySet(HttpMessage message, String body) {
+        verify(message).setResponseBody(body);
     }
 }
