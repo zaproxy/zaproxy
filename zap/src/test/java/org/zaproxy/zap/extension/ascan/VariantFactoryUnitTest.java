@@ -303,6 +303,11 @@ class VariantFactoryUnitTest extends WithConfigsTest {
                 HttpMessage msg, NameValuePair originalPair, String param, String value) {
             return null;
         }
+
+        @Override
+        public String getShorName() {
+            return "variantshorname";
+        }
     }
 
     private static <T> T getVariant(List<Variant> variants, Class<T> clazz) {

@@ -503,5 +503,10 @@ class SessionStructureUnitTest {
                 HttpMessage msg, NameValuePair originalPair, String param, String value) {
             return null;
         }
+
+        @Override
+        public String getShorName() {
+            return "pathtreevariant";
+        }
     }
 }

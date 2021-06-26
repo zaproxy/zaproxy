@@ -58,6 +58,7 @@
 // ZAP: 2019/10/21 Add Alert builder.
 // ZAP: 2020/11/03 Add alertRef field.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/04/30 Add injection location to Alert
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -206,6 +207,7 @@ public class Alert implements Comparable<Alert> {
     private String solution = "";
     private String reference = "";
     private String evidence = "";
+    private String injectionLocation = "";
     private int cweId = -1;
     private int wascId = -1;
     // Temporary ref - should be cleared asap after use
@@ -274,6 +276,7 @@ public class Alert implements Comparable<Alert> {
                 recordAlert.getCweId(),
                 recordAlert.getWascId(),
                 null);
+        setInjectionLocation(recordAlert.getInjectionLocation());
         setHistoryRef(ref);
         String alertRef = recordAlert.getAlertRef();
         if (alertRef != null) {
@@ -358,7 +361,8 @@ public class Alert implements Comparable<Alert> {
      * @param reference references about the issue
      * @param msg the HTTP message that triggers/triggered the issue
      * @deprecated (2.2.0) Replaced by {@link #setDetail(String, String, String, String, String,
-     *     String, String, String, int, int, HttpMessage)}. It will be removed in a future release.
+     *     String, String, String, int, int, HttpMessage, String)}. It will be removed in a future
+     *     release.
      * @see Builder
      */
     @Deprecated
@@ -531,6 +535,11 @@ public class Alert implements Comparable<Alert> {
             return result;
         }
 
+        result = compareStrings(injectionLocation, alert2.injectionLocation);
+        if (result != 0) {
+            return result;
+        }
+
         return compareStrings(attack, alert2.attack);
     }
 
@@ -597,6 +606,13 @@ public class Alert implements Comparable<Alert> {
         } else if (!evidence.equals(item.evidence)) {
             return false;
         }
+        if (injectionLocation == null) {
+            if (item.injectionLocation != null) {
+                return false;
+            }
+        } else if (!injectionLocation.equals(item.injectionLocation)) {
+            return false;
+        }
         if (attack == null) {
             if (item.attack != null) {
                 return false;
@@ -614,6 +630,7 @@ public class Alert implements Comparable<Alert> {
         result = prime * result + risk;
         result = prime * result + confidence;
         result = prime * result + ((evidence == null) ? 0 : evidence.hashCode());
+        result = prime * result + ((injectionLocation == null) ? 0 : injectionLocation.hashCode());
         result = prime * result + name.hashCode();
         result = prime * result + otherInfo.hashCode();
         result = prime * result + param.hashCode();
@@ -644,6 +661,7 @@ public class Alert implements Comparable<Alert> {
                 this.reference,
                 this.historyRef);
         item.setEvidence(this.evidence);
+        item.setInjectionLocation(injectionLocation);
         item.setCweId(this.cweId);
         item.setWascId(this.wascId);
         item.setSource(this.source);
@@ -901,6 +919,14 @@ public class Alert implements Comparable<Alert> {
         this.evidence = (evidence == null) ? "" : evidence;
     }
 
+    public String getInjectionLocation() {
+        return injectionLocation;
+    }
+
+    public void setInjectionLocation(String injectionLocation) {
+        this.injectionLocation = (injectionLocation == null) ? "" : injectionLocation;
+    }
+
     public int getCweId() {
         return cweId;
     }
@@ -1018,6 +1044,7 @@ public class Alert implements Comparable<Alert> {
         private String solution;
         private String reference;
         private String evidence;
+        private String injectionLocation;
         private int cweId = -1;
         private int wascId = -1;
         private HttpMessage message;
@@ -1093,6 +1120,11 @@ public class Alert implements Comparable<Alert> {
             return this;
         }
 
+        public Builder setInjectionLocation(String injectionLocation) {
+            this.injectionLocation = injectionLocation;
+            return this;
+        }
+
         public Builder setCweId(int cweId) {
             this.cweId = cweId;
             return this;
@@ -1159,6 +1191,7 @@ public class Alert implements Comparable<Alert> {
             alert.setSolution(solution);
             alert.setReference(reference);
             alert.setEvidence(evidence);
+            alert.setInjectionLocation(injectionLocation);
             alert.setCweId(cweId);
             alert.setWascId(wascId);
             alert.setMessage(message);

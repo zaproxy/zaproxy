@@ -37,6 +37,7 @@
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2021/04/30 Add injection location to Alert
 package org.parosproxy.paros.db.paros;
 
 import java.sql.CallableStatement;
@@ -73,6 +74,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
     private static final String SOLUTION = "SOLUTION";
     private static final String REFERENCE = "REFERENCE";
     private static final String EVIDENCE = "EVIDENCE";
+    private static final String INJECTION_LOCATION = "INJECTION_LOCATION";
     private static final String CWEID = "CWEID";
     private static final String WASCID = "WASCID";
     private static final String HISTORYID = "HISTORYID";
@@ -147,7 +149,9 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
                                     + SOURCEID
                                     + ","
                                     + ALERTREF
-                                    + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                                    + ","
+                                    + INJECTION_LOCATION
+                                    + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
             psDeleteAlert =
                     conn.prepareStatement(
@@ -188,6 +192,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
                                     + WASCID
                                     + " = ?, "
                                     + SOURCEHISTORYID
+                                    + " = ?, "
+                                    + INJECTION_LOCATION
                                     + " = ? "
                                     + "WHERE "
                                     + ALERTID
@@ -334,7 +340,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             int historyId,
             int sourceHistoryId,
             int sourceId,
-            String alertRef)
+            String alertRef,
+            String injectionLocation)
             throws DatabaseException {
 
         try {
@@ -357,6 +364,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             psInsert.setInt(17, sourceHistoryId);
             psInsert.setInt(18, sourceId);
             psInsert.setString(19, alertRef);
+            psInsert.setString(20, injectionLocation);
             psInsert.executeUpdate();
 
             int id;
@@ -395,7 +403,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
                                 rs.getInt(HISTORYID),
                                 rs.getInt(SOURCEHISTORYID),
                                 rs.getInt(SOURCEID),
-                                rs.getString(ALERTREF));
+                                rs.getString(ALERTREF),
+                                rs.getString(INJECTION_LOCATION));
             }
             return alert;
         } catch (SQLException e) {
@@ -499,7 +508,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             String evidence,
             int cweId,
             int wascId,
-            int sourceHistoryId)
+            int sourceHistoryId,
+            String injectionLocation)
             throws DatabaseException {
 
         try {
@@ -517,7 +527,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
             psUpdate.setInt(12, cweId);
             psUpdate.setInt(13, wascId);
             psUpdate.setInt(14, sourceHistoryId);
-            psUpdate.setInt(15, alertId);
+            psUpdate.setString(15, injectionLocation);
+            psUpdate.setInt(16, alertId);
             psUpdate.executeUpdate();
         } catch (SQLException e) {
             throw new DatabaseException(e);

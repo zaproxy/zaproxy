@@ -417,6 +417,11 @@ class VariantAbstractQueryUnitTest {
         }
 
         @Override
+        public String getShorName() {
+            return "variantabstractauery";
+        }
+
+        @Override
         protected void buildMessage(HttpMessage msg, String query) {
             // Nothing to do.
         }

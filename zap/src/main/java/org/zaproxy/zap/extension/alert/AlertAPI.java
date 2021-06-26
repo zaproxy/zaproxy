@@ -490,6 +490,7 @@ public class AlertAPI extends ApiImplementor {
         map.put("param", alert.getParam());
         map.put("attack", alert.getAttack());
         map.put("evidence", alert.getEvidence());
+        map.put("injectionLocation", alert.getInjectionLocation());
         map.put("reference", alert.getReference());
         map.put("cweid", String.valueOf(alert.getCweId()));
         map.put("wascid", String.valueOf(alert.getWascId()));

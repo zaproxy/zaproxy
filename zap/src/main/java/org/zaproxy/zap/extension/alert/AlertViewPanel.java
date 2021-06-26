@@ -87,6 +87,7 @@ public class AlertViewPanel extends AbstractPanel {
     private ZapLabel alertParam = null;
     private ZapLabel alertAttack = null;
     private ZapLabel alertEvidence = null;
+    private ZapLabel alertInjectionLocation = null;
     private ZapTextArea alertDescription = null;
     private ZapTextArea alertOtherInfo = null;
     private ZapTextArea alertSolution = null;
@@ -109,6 +110,7 @@ public class AlertViewPanel extends AbstractPanel {
     private JLabel attackLabel;
     private JLabel cweidLabel;
     private JLabel evidenceLabel;
+    private JLabel injectionLocationLabel;
     private JLabel otherLabel;
     private JLabel confidenceLabel;
     private JLabel riskLabel;
@@ -266,6 +268,8 @@ public class AlertViewPanel extends AbstractPanel {
             alertAttack.setLineWrap(true);
             alertEvidence = new ZapLabel();
             alertEvidence.setLineWrap(true);
+            alertInjectionLocation = new ZapLabel();
+            alertInjectionLocation.setLineWrap(true);
             alertCweId = new ZapLabel();
             alertWascId = new ZapLabel();
             alertSource = new ZapLabel();
@@ -388,6 +392,13 @@ public class AlertViewPanel extends AbstractPanel {
                         getSourceLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
                 alertDisplay.add(alertSource, LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
                 gbcRow++;
+                alertDisplay.add(
+                        getInjectionLocationLabel(),
+                        LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+                alertDisplay.add(
+                        alertInjectionLocation,
+                        LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+                gbcRow++;
             }
 
             alertDisplay.add(
@@ -443,6 +454,7 @@ public class AlertViewPanel extends AbstractPanel {
             alertParam.setText(alert.getParam());
             alertAttack.setText(alert.getAttack());
             alertEvidence.setText(alert.getEvidence());
+            alertInjectionLocation.setText(getInjectionLocationText(alert));
             alertCweId.setText(normalisedId(alert.getCweId()));
             alertWascId.setText(normalisedId(alert.getWascId()));
             alertSource.setText(getSourceData(alert));
@@ -489,6 +501,19 @@ public class AlertViewPanel extends AbstractPanel {
         return strBuilder.toString();
     }
 
+    /**
+     * @param alert
+     * @return a pretty string representing injection location or empty string if alert is injection
+     *     location is null/empty
+     */
+    private String getInjectionLocationText(Alert alert) {
+        if (alert.getInjectionLocation() == null || alert.getInjectionLocation().length() == 0) {
+            return "";
+        }
+        return Constant.messages.getString(
+                "variant.alert.location." + alert.getInjectionLocation());
+    }
+
     public void clearAlert() {
         cardLayout.show(this, getDefaultPane().getName());
 
@@ -506,6 +531,7 @@ public class AlertViewPanel extends AbstractPanel {
         alertSolution.setText("");
         alertReference.setText("");
         alertSource.setText("");
+        alertInjectionLocation.setText("");
 
         if (editable) {
             alertEditAttack.setText("");
@@ -587,6 +613,7 @@ public class AlertViewPanel extends AbstractPanel {
             alert.setSolution(alertSolution.getText());
             alert.setReference(alertReference.getText());
             alert.setEvidence(alertEvidence.getText());
+            alert.setInjectionLocation(originalAlert.getInjectionLocation());
             alert.setCweId(alertEditCweId.getValue());
             alert.setWascId(alertEditWascId.getValue());
             alert.setHistoryRef(historyRef);
@@ -604,6 +631,7 @@ public class AlertViewPanel extends AbstractPanel {
         if (originalAlert != null) {
             alert.setAlertId(originalAlert.getAlertId());
             alert.setSource(originalAlert.getSource());
+            alert.setInjectionLocation(originalAlert.getInjectionLocation());
         }
 
         String uri = null;
@@ -742,6 +770,14 @@ public class AlertViewPanel extends AbstractPanel {
             evidenceLabel = new JLabel(Constant.messages.getString("alert.label.evidence"));
         }
         return evidenceLabel;
+    }
+
+    private JLabel getInjectionLocationLabel() {
+        if (injectionLocationLabel == null) {
+            injectionLocationLabel =
+                    new JLabel(Constant.messages.getString("alert.label.injectionlocation"));
+        }
+        return injectionLocationLabel;
     }
 
     private JLabel getParameterLabel() {

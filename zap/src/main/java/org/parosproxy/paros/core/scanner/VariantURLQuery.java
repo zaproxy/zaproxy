@@ -28,6 +28,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2020/05/06 Add method to get a short name of the variant
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.httpclient.URIException;
@@ -40,6 +41,13 @@ import org.parosproxy.paros.network.HttpMessage;
 public class VariantURLQuery extends VariantAbstractQuery {
 
     private static final Logger LOG = LogManager.getLogger(VariantURLQuery.class);
+
+    private static final String SHORT_NAME = "querystring";
+
+    @Override
+    public String getShorName() {
+        return SHORT_NAME;
+    }
 
     public VariantURLQuery() {
         super();

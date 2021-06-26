@@ -43,6 +43,13 @@ public class VariantDdnPath implements Variant {
     private static final Logger LOGGER = LogManager.getLogger(VariantDdnPath.class);
     private final List<NameValuePair> stringParam = new ArrayList<>();
 
+    private static final String SHORT_NAME = "datadrivennode";
+
+    @Override
+    public String getShorName() {
+        return SHORT_NAME;
+    }
+
     @Override
     public void setMessage(HttpMessage msg) {
         try {

@@ -40,6 +40,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/08/27 Moved variants into VariantFactory
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2020/05/06 Add injection location and param to all alerts
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -217,5 +218,12 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      */
     protected String setEscapedParameter(HttpMessage message, String param, String value) {
         return variant.setEscapedParameter(message, originalPair, param, value);
+    }
+
+    protected AlertBuilder newAlert() {
+        AlertBuilder builder = super.newAlert();
+        builder.setInjectionLocation(variant.getShorName());
+        builder.setParam(originalPair.getName());
+        return builder;
     }
 }
