@@ -100,7 +100,7 @@ def usage():
     print('    -U user           username to use for authenticated scans - must be defined in the given context file')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
-    print('    --auto            use the automation framework if supported for the given parameters (this will become the default soon)')
+    print('    --auto            use the automation framework if supported for the given parameters (this is now the default)')
     print('    --autooff         do not use the automation framework even if supported for the given parameters')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/baseline-scan/')
@@ -170,7 +170,7 @@ def main(argv):
     ignore_warn = False
     hook_file = None
     user = ''
-    use_af = False
+    use_af = True
     af_supported = True
 
     pass_count = 0
