@@ -62,6 +62,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/07/07 Add TYPE_OAST.
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
@@ -270,6 +271,13 @@ public class HistoryReference {
      * @since 2.8.0
      */
     public static final int TYPE_CALLBACK = 21;
+
+    /**
+     * An HTTP message received by an OAST server that is relayed to ZAP.
+     *
+     * @since 2.11.0
+     */
+    public static final int TYPE_OAST = 22;
 
     private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
     private static TableHistory staticTableHistory = null;
