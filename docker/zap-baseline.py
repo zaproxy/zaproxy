@@ -51,6 +51,7 @@ import sys
 import time
 import yaml
 from datetime import datetime
+from pathlib import Path
 from shutil import copyfile
 from zapv2 import ZAPv2
 from zap_common import *
@@ -334,8 +335,9 @@ def main(argv):
             print('Using the Automation Framework')
 
             # Generate the yaml file
-            yaml_file = '/zap/zap.yaml'
-            summary_file = '/zap/zap_out.json'
+            home_dir = str(Path.home())
+            yaml_file = home_dir + '/zap.yaml'
+            summary_file = home_dir + '/zap_out.json'
             
             with open(yaml_file, 'w') as yf:
 
