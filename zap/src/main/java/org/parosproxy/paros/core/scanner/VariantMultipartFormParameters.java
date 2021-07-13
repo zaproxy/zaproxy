@@ -221,6 +221,13 @@ public class VariantMultipartFormParameters implements Variant {
         return setParameter(msg, Arrays.asList(originalPair.getPosition()), Arrays.asList(value));
     }
 
+    /**
+     * Sets the parameters into the given {@code message}.
+     *
+     * @param msg the message that will be changed
+     * @param inputVectors list of name of the parameter
+     * @since 2.11.0
+     */
     @Override
     public void setParameters(HttpMessage msg, List<InputVector> inputVectors) {
         this.setParameter(

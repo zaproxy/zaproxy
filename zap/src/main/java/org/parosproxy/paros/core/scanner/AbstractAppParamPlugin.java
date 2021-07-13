@@ -225,7 +225,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     /**
      * @return {@code InputVectorBuilder} which is used to build the {@code InputVector} which is
      *     used by {@link #setParameters(HttpMessage, List)}
-     * @see #setParameters(HttpMessage, List)
+     * @since 2.11.0
      */
     protected InputVectorBuilder getBuilder() {
         return new InputVectorBuilder();
@@ -237,6 +237,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      *
      * @param message the message that will be changed
      * @param inputVectors list of the parameters
+     * @since 2.11.0
      */
     protected void setParameters(HttpMessage message, List<InputVector> inputVectors) {
         variant.setParameters(message, inputVectors);

@@ -24,6 +24,7 @@ package org.zaproxy.zap.core.scanner;
  * It is specifically used for updating multiple parameters of {@code HttpMessage}
  *
  * @author preetkaran20@gmail.com KSASAN
+ * @since 2.11.0
  */
 public class InputVector {
 
@@ -39,8 +40,8 @@ public class InputVector {
 
     private final int position;
     private final String name;
-    private final String value;
     private final PayloadFormat namePayloadFormat;
+    private final String value;
     private final PayloadFormat valuePayloadFormat;
 
     InputVector(

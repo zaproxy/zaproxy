@@ -31,6 +31,7 @@ import org.zaproxy.zap.core.scanner.InputVector.PayloadFormat;
  * provided inputs.
  *
  * @author preetkaran20@gmail.com KSASAN
+ * @since 2.11.0
  */
 public class InputVectorBuilder {
 
@@ -65,40 +66,40 @@ public class InputVectorBuilder {
     }
 
     /**
-     * Note: calling this method with same NameValuePair will overwrite the earlier value with the
-     * newer one.
+     * Note: calling this method with same NameValuePair will overwrite the earlier name and value
+     * with the newer one.
      *
      * @param nameValuePair
      * @param value
-     * @param valuePayloadFormat
+     * @param payloadFormat
      * @return {@code InputVectorBuilder}
      */
     public InputVectorBuilder setValue(
-            NameValuePair nameValuePair, String value, PayloadFormat valuePayloadFormat) {
+            NameValuePair nameValuePair, String value, PayloadFormat payloadFormat) {
         return this.setNameAndValue(
                 nameValuePair,
                 nameValuePair.getName(),
                 value,
                 PayloadFormat.ALREADY_ESCAPED,
-                valuePayloadFormat);
+                payloadFormat);
     }
 
     /**
-     * Note: calling this method with same NameValuePair will overwrite the earlier name with the
-     * newer one.
+     * Note: calling this method with same NameValuePair will overwrite the earlier name and value
+     * with the newer one.
      *
      * @param nameValuePair
      * @param param
-     * @param namePayloadFormat
+     * @param payloadFormat
      * @return {@code InputVectorBuilder}
      */
     public InputVectorBuilder setName(
-            NameValuePair nameValuePair, String param, PayloadFormat namePayloadFormat) {
+            NameValuePair nameValuePair, String param, PayloadFormat payloadFormat) {
         return this.setNameAndValue(
                 nameValuePair,
                 param,
                 nameValuePair.getValue(),
-                namePayloadFormat,
+                payloadFormat,
                 PayloadFormat.ALREADY_ESCAPED);
     }
 

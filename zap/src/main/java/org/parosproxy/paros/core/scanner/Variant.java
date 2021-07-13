@@ -52,9 +52,10 @@ public interface Variant {
      * Sets the parameters into the given {@code message}.
      *
      * @param message the message that will be changed
-     * @param appParams list of name of the parameter
+     * @param inputVectors list of name of the parameter
+     * @since 2.11.0
      */
-    default void setParameters(HttpMessage message, List<InputVector> appParams) {};
+    default void setParameters(HttpMessage message, List<InputVector> inputVectors) {};
 
     /**
      * Gets the name of the node to be used for the given {@code msg} in the Site Map. Returning

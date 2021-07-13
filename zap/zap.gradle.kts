@@ -3,7 +3,6 @@ import java.time.LocalDate
 import java.util.stream.Collectors
 import me.champeau.gradle.japicmp.JapicmpTask
 import org.zaproxy.zap.japicmp.AcceptMethodAbstractNowDefaultRule
-import org.zaproxy.zap.japicmp.AcceptMethodNewDefaultRule
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
 
 plugins {
@@ -156,7 +155,8 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     classExcludes = listOf(
         "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel",
-        "org.parosproxy.paros.core.scanner.Variant#setParameters(HttpMessage, List)")
+        "org.parosproxy.paros.core.scanner.Variant#setParameters(org.parosproxy.paros.network.HttpMessage,java.util.List)"
+        )
 
     methodExcludes = listOf()
 
@@ -165,7 +165,6 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         reportName = "japi.html"
         isAddDefaultRules = true
         addRule(JApiChangeStatus.MODIFIED, AcceptMethodAbstractNowDefaultRule::class.java)
-        addRule(JApiChangeStatus.MODIFIED, AcceptMethodNewDefaultRule::class.java)
     }
 }
 
