@@ -25,6 +25,7 @@ import net.htmlparser.jericho.Source;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
@@ -79,14 +80,31 @@ public abstract class SpiderParser {
     /**
      * Notify the listeners that a resource was found.
      *
+     * @param resourceFound the http message containing the response.
+     * @since 2.11.0
+     */
+    protected void notifyListenersResourceFound(SpiderResourceFound resourceFound) {
+        for (SpiderParserListener l : listeners) {
+            l.resourceFound(resourceFound);
+        }
+    }
+
+    /**
+     * Notify the listeners that a resource was found.
+     *
      * @param message the http message containing the response.
      * @param depth the depth of this resource in the crawling tree
      * @param uri the uri
+     * @deprecated (2.11.0) Use {@link #notifyListenersResourceFound(SpiderResourceFound)} instead.
      */
+    @Deprecated
     protected void notifyListenersResourceFound(HttpMessage message, int depth, String uri) {
-        for (SpiderParserListener l : listeners) {
-            l.resourceURIFound(message, depth, uri);
-        }
+        notifyListenersResourceFound(
+                SpiderResourceFound.builder()
+                        .setMessage(message)
+                        .setDepth(depth)
+                        .setUri(uri)
+                        .build());
     }
 
     /**
@@ -97,12 +115,19 @@ public abstract class SpiderParser {
      * @param depth the depth of this resource in the crawling tree
      * @param uri the uri
      * @param requestBody the request body
+     * @deprecated (2.11.0) Use {@link #notifyListenersResourceFound(SpiderResourceFound)} instead.
      */
+    @Deprecated
     protected void notifyListenersPostResourceFound(
             HttpMessage message, int depth, String uri, String requestBody) {
-        for (SpiderParserListener l : listeners) {
-            l.resourcePostURIFound(message, depth, uri, requestBody);
-        }
+        notifyListenersResourceFound(
+                SpiderResourceFound.builder()
+                        .setMessage(message)
+                        .setDepth(depth)
+                        .setUri(uri)
+                        .setMethod(HttpRequestHeader.POST)
+                        .setBody(requestBody)
+                        .build());
     }
 
     /**
@@ -120,8 +145,13 @@ public abstract class SpiderParser {
             return;
         }
 
-        log.debug("Canonical URL constructed using '" + localURL + "': " + fullURL);
-        notifyListenersResourceFound(message, depth + 1, fullURL);
+        getLogger().debug("Canonical URL constructed using '{}': {}", localURL, fullURL);
+        notifyListenersResourceFound(
+                SpiderResourceFound.builder()
+                        .setMessage(message)
+                        .setDepth(depth + 1)
+                        .setUri(fullURL)
+                        .build());
     }
 
     /**

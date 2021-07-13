@@ -156,7 +156,19 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     classExcludes = listOf(
         "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel")
 
-    methodExcludes = listOf()
+    methodExcludes = listOf(
+        // Not intended to be used directly by add-ons.
+        "org.zaproxy.zap.spider.parser.SpiderParserListener#resourcePostURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,java.lang.String)",
+        "org.zaproxy.zap.spider.parser.SpiderParserListener#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String)",
+        "org.zaproxy.zap.spider.parser.SpiderParserListener#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,boolean)",
+        "org.zaproxy.zap.spider.SpiderController#resourcePostURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderController#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,boolean)",
+        "org.zaproxy.zap.spider.SpiderController#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,int,java.lang.String,java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,int,java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,org.apache.commons.httpclient.URI,int,java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,org.apache.commons.httpclient.URI,int,java.lang.String,java.lang.String)"
+    )
 
     richReport {
         destinationDir = file("$buildDir/reports/japicmp/")

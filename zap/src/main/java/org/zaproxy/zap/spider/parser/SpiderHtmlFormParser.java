@@ -407,7 +407,14 @@ public class SpiderHtmlFormParser extends SpiderParser {
                 .debug(
                         "Submitting form with POST method and message body with form parameters (normal encoding): "
                                 + requestBody);
-        notifyListenersPostResourceFound(message, depth + 1, url, requestBody);
+        notifyListenersResourceFound(
+                SpiderResourceFound.builder()
+                        .setMessage(message)
+                        .setDepth(depth + 1)
+                        .setUri(url)
+                        .setMethod(METHOD_POST)
+                        .setBody(requestBody)
+                        .build());
     }
 
     @Override
