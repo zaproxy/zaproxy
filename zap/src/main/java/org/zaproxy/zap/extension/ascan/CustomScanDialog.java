@@ -960,6 +960,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
             default:
         }
 
+        String fail = variantPanel.validateFields();
+        if (fail != null) {
+            return fail;
+        }
+
         return null;
     }
 

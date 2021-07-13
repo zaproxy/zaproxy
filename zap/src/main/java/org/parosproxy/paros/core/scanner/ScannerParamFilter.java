@@ -35,7 +35,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * @author yhawke (2014)
  * @see NameValuePair
  */
-public class ScannerParamFilter implements Cloneable {
+public class ScannerParamFilter implements Cloneable, ScannerParamFilterRule {
     private String wildcardedUrl;
     private String paramNameRegex;
     private int paramType;
@@ -226,5 +226,10 @@ public class ScannerParamFilter implements Cloneable {
      */
     public static Map<Integer, String> getTypes() {
         return Collections.unmodifiableMap(typeMap);
+    }
+
+    @Override
+    public boolean filter(HttpMessage msg, NameValuePair param) {
+        return this.isToExclude(msg, param);
     }
 }
