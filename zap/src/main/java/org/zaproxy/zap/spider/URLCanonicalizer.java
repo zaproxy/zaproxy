@@ -22,6 +22,7 @@ package org.zaproxy.zap.spider;
 
 import java.net.URI;
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
@@ -32,6 +33,8 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.control.Control;
+import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
 /**
@@ -54,17 +57,6 @@ public final class URLCanonicalizer {
 
     private static final String HTTPS_SCHEME = "https";
     private static final int HTTPS_DEFAULT_PORT = 443;
-
-    /**
-     * The Constant IRRELEVANT_PARAMETERS defining the parameter names which are ignored in the URL.
-     */
-    private static final Set<String> IRRELEVANT_PARAMETERS = new HashSet<>(3);
-
-    static {
-        IRRELEVANT_PARAMETERS.add("jsessionid");
-        IRRELEVANT_PARAMETERS.add("phpsessid");
-        IRRELEVANT_PARAMETERS.add("aspsessionid");
-    }
 
     /**
      * OData support Extract the ID of a resource including the surrounding quote First group is the
@@ -91,7 +83,7 @@ public final class URLCanonicalizer {
      * @return the canonical url
      */
     public static String getCanonicalURL(String url) {
-        return getCanonicalURL(url, null);
+        return getCanonicalURL(url, null, Collections.emptySet());
     }
 
     /**
@@ -100,9 +92,11 @@ public final class URLCanonicalizer {
      *
      * @param url the url string defining the reference
      * @param baseURL the context in which this url was found
+     * @param irrelevantParameters parameters that are skipped when canonicalizing
      * @return the canonical url
      */
-    public static String getCanonicalURL(String url, String baseURL) {
+    public static String getCanonicalURL(
+            String url, String baseURL, Set<String> irrelevantParameters) {
 
         try {
             /* Build the absolute URL, from the url and the baseURL */
@@ -170,7 +164,7 @@ public final class URLCanonicalizer {
             final SortedSet<QueryParameter> params =
                     createSortedParameters(canonicalURI.getRawQuery());
             final String queryString;
-            String canonicalParams = canonicalize(params);
+            String canonicalParams = canonicalize(params, irrelevantParameters);
             queryString = (canonicalParams.isEmpty() ? "" : "?" + canonicalParams);
 
             /* Add starting slash if needed */
@@ -232,13 +226,15 @@ public final class URLCanonicalizer {
      * @param uri the uri
      * @param handleParameters the handle parameters option
      * @param handleODataParametersVisited Should we handle specific OData parameters
+     * @param irrelevantParameters url parameters that are skipped when ignoring values
      * @return the string representation of the URI
      * @throws URIException the URI exception
      */
     public static String buildCleanedParametersURIRepresentation(
             org.apache.commons.httpclient.URI uri,
             SpiderParam.HandleParametersOption handleParameters,
-            boolean handleODataParametersVisited)
+            boolean handleODataParametersVisited,
+            Set<String> irrelevantParameters)
             throws URIException {
         // If the option is set to use all the information, just use the default string
         // representation
@@ -261,7 +257,7 @@ public final class URLCanonicalizer {
                             createBaseUriWithCleanedPath(
                                     uri, handleParameters, handleODataParametersVisited));
 
-            String cleanedQuery = getCleanedQuery(uri.getEscapedQuery());
+            String cleanedQuery = getCleanedQuery(uri.getEscapedQuery(), irrelevantParameters);
 
             // Add the parameters' names to the uri representation.
             if (cleanedQuery.length() > 0) {
@@ -316,7 +312,7 @@ public final class URLCanonicalizer {
         return cleanedPath;
     }
 
-    private static String getCleanedQuery(String escapedQuery) {
+    private static String getCleanedQuery(String escapedQuery, Set<String> irrelevantParameters) {
         // Get the parameters' names
         SortedSet<QueryParameter> params = createSortedParameters(escapedQuery);
         Set<String> parameterNames = new HashSet<>();
@@ -329,7 +325,9 @@ public final class URLCanonicalizer {
                 }
                 parameterNames.add(name);
                 // Ignore irrelevant parameters
-                if (IRRELEVANT_PARAMETERS.contains(name) || name.startsWith("utm_")) {
+                if (irrelevantParameters.contains(name)
+                        || name.startsWith("utm_")
+                        || isSessionToken(name)) {
                     continue;
                 }
                 if (cleanedQueryBuilder.length() > 0) {
@@ -463,9 +461,11 @@ public final class URLCanonicalizer {
      * Canonicalize the query string.
      *
      * @param sortedParameters Parameter name-value pairs in lexicographical order.
+     * @param irrelevantParameters url parameters that are skipped
      * @return Canonical form of query string.
      */
-    private static String canonicalize(final SortedSet<QueryParameter> sortedParameters) {
+    private static String canonicalize(
+            final SortedSet<QueryParameter> sortedParameters, Set<String> irrelevantParameters) {
         if (sortedParameters == null || sortedParameters.isEmpty()) {
             return "";
         }
@@ -474,7 +474,9 @@ public final class URLCanonicalizer {
         for (QueryParameter parameter : sortedParameters) {
             final String name = parameter.getName().toLowerCase();
             // Ignore irrelevant parameters
-            if (IRRELEVANT_PARAMETERS.contains(name) || name.startsWith("utm_")) {
+            if (irrelevantParameters.contains(name)
+                    || name.startsWith("utm_")
+                    || isSessionToken(name)) {
                 continue;
             }
             if (sb.length() > 0) {
@@ -497,6 +499,13 @@ public final class URLCanonicalizer {
      */
     private static String normalizePath(final String path) {
         return path.replace("%7E", "~").replace(" ", "%20");
+    }
+
+    private static boolean isSessionToken(String paramName) {
+        return Control.getSingleton()
+                .getExtensionLoader()
+                .getExtension(ExtensionHttpSessions.class)
+                .isDefaultSessionToken(paramName);
     }
 
     /**

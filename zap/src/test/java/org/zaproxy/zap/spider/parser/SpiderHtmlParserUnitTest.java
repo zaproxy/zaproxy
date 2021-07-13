@@ -26,12 +26,17 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import java.nio.file.Path;
 import net.htmlparser.jericho.Source;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link SpiderHtmlParser}. */
 class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
@@ -41,6 +46,14 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
 
     private static final Path BASE_DIR_HTML_FILES =
             getResourcePath("html", SpiderHtmlParserUnitTest.class);
+
+    @BeforeEach
+    public void setUp() {
+        Control.initSingletonForTesting();
+        ExtensionHttpSessions extensionHttpSessions = new ExtensionHttpSessions();
+        extensionHttpSessions.getParam().load(mock(ZapXmlConfiguration.class));
+        Control.getSingleton().getExtensionLoader().addExtension(extensionHttpSessions);
+    }
 
     @Test
     void shouldFailToCreateParserWithUndefinedSpiderOptions() {

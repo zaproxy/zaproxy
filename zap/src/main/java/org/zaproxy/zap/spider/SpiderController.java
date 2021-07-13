@@ -135,7 +135,7 @@ public class SpiderController implements SpiderParserListener {
         }
 
         // Redirect requests parser
-        parser = new SpiderRedirectParser();
+        parser = new SpiderRedirectParser(spider.getSpiderParam());
         parsers.add(parser);
 
         // Simple HTML parser
@@ -150,11 +150,11 @@ public class SpiderController implements SpiderParserListener {
         Config.CurrentCompatibilityMode.setFormFieldNameCaseInsensitive(false);
 
         // Prepare the parsers for OData ATOM files
-        parser = new SpiderODataAtomParser();
+        parser = new SpiderODataAtomParser(spider.getSpiderParam());
         this.parsers.add(parser);
 
         // Prepare the parsers for simple non-HTML files
-        parser = new SpiderTextParser();
+        parser = new SpiderTextParser(spider.getSpiderParam());
         this.parsers.add(parser);
 
         this.parsersUnmodifiableView = Collections.unmodifiableList(parsers);
@@ -174,7 +174,8 @@ public class SpiderController implements SpiderParserListener {
                     URLCanonicalizer.buildCleanedParametersURIRepresentation(
                             uri,
                             spider.getSpiderParam().getHandleParameters(),
-                            spider.getSpiderParam().isHandleODataParametersVisited());
+                            spider.getSpiderParam().isHandleODataParametersVisited(),
+                            spider.getSpiderParam().getIrrelevantUrlParameters());
         } catch (URIException e) {
             return;
         }
@@ -281,7 +282,8 @@ public class SpiderController implements SpiderParserListener {
                     URLCanonicalizer.buildCleanedParametersURIRepresentation(
                             uriV,
                             spider.getSpiderParam().getHandleParameters(),
-                            spider.getSpiderParam().isHandleODataParametersVisited());
+                            spider.getSpiderParam().isHandleODataParametersVisited(),
+                            spider.getSpiderParam().getIrrelevantUrlParameters());
         } catch (URIException e) {
             return;
         }

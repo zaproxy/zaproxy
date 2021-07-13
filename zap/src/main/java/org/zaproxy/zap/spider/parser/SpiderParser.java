@@ -21,6 +21,7 @@ package org.zaproxy.zap.spider.parser;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 import net.htmlparser.jericho.Source;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -112,10 +113,17 @@ public abstract class SpiderParser {
      * @param depth the depth
      * @param localURL the local url
      * @param baseURL the base url
+     * @param irrelevantUrlParameters url parameters that are skipped when canonicalizing
      */
-    protected void processURL(HttpMessage message, int depth, String localURL, String baseURL) {
+    protected void processURL(
+            HttpMessage message,
+            int depth,
+            String localURL,
+            String baseURL,
+            Set<String> irrelevantUrlParameters) {
         // Build the absolute canonical URL
-        String fullURL = URLCanonicalizer.getCanonicalURL(localURL, baseURL);
+        String fullURL =
+                URLCanonicalizer.getCanonicalURL(localURL, baseURL, irrelevantUrlParameters);
         if (fullURL == null) {
             return;
         }
@@ -129,9 +137,9 @@ public abstract class SpiderParser {
      * if possible, a Jericho source with the Response Body is provided.
      *
      * <p>When a link is encountered, implementations can use {@link #processURL(HttpMessage, int,
-     * String, String)}, {@link #notifyListenersPostResourceFound(HttpMessage, int, String, String)}
-     * and {@link #notifyListenersResourceFound(HttpMessage, int, String)} to announce the found
-     * URIs.
+     * String, String, Set)}, {@link #notifyListenersPostResourceFound(HttpMessage, int, String,
+     * String)} and {@link #notifyListenersResourceFound(HttpMessage, int, String)} to announce the
+     * found URIs.
      *
      * <p>The return value specifies whether the resource should be considered 'completely
      * processed'/consumed and should be treated accordingly by subsequent parsers. For example, any

@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * The Class SpiderTextParser is used for parsing of simple text (non-HTML) files, gathering
@@ -36,6 +37,13 @@ public class SpiderTextParser extends SpiderParser {
             Pattern.compile(
                     "\\W(http(s?)://[^\\x00-\\x1f\"'\\s<>#()\\[\\]{}]+)", Pattern.CASE_INSENSITIVE);
 
+    private final SpiderParam params;
+
+    public SpiderTextParser(SpiderParam params) {
+        super();
+        this.params = params;
+    }
+
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
         getLogger().debug("Parsing a non-HTML text resource.");
@@ -46,7 +54,7 @@ public class SpiderTextParser extends SpiderParser {
         Matcher matcher = patternURL.matcher(message.getResponseBody().toString());
         while (matcher.find()) {
             String s = matcher.group(1);
-            processURL(message, depth, s, baseURL);
+            processURL(message, depth, s, baseURL, params.getIrrelevantUrlParameters());
         }
 
         return false;

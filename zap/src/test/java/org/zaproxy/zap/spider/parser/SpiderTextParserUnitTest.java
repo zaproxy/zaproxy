@@ -25,10 +25,15 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import net.htmlparser.jericho.Source;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
+import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link SpiderTextParser}. */
 class SpiderTextParserUnitTest extends SpiderParserTestUtils {
@@ -41,7 +46,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam undefinedSpiderOptions = null;
+        SpiderTextParser spiderParser = new SpiderTextParser(undefinedSpiderOptions);
         // When / Then
         assertThrows(
                 NullPointerException.class,
@@ -51,7 +57,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseMessageIfAlreadyParsed() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam undefinedSpiderOptions = null;
+        SpiderTextParser spiderParser = new SpiderTextParser(undefinedSpiderOptions);
         boolean parsed = true;
         // When
         boolean canParse = spiderParser.canParseResource(new HttpMessage(), ROOT_PATH, parsed);
@@ -63,7 +70,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     void shouldNotParseNonTextResponse() {
         // Given
         HttpMessage message = createMessageWith("application/xyz", EMPTY_BODY);
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam undefinedSpiderOptions = null;
+        SpiderTextParser spiderParser = new SpiderTextParser(undefinedSpiderOptions);
         boolean parsed = false;
         // When
         boolean canParse = spiderParser.canParseResource(message, ROOT_PATH, parsed);
@@ -75,7 +83,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     void shouldNotParseTextHtmlResponse() {
         // Given
         HttpMessage message = createMessageWith("text/html", EMPTY_BODY);
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam undefinedSpiderOptions = null;
+        SpiderTextParser spiderParser = new SpiderTextParser(undefinedSpiderOptions);
         boolean parsed = false;
         // When
         boolean canParse = spiderParser.canParseResource(message, ROOT_PATH, parsed);
@@ -86,7 +95,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParseTextResponse() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam undefinedSpiderOptions = null;
+        SpiderTextParser spiderParser = new SpiderTextParser(undefinedSpiderOptions);
         HttpMessage messageHtmlResponse = createMessageWith(EMPTY_BODY);
         boolean parsed = false;
         // When
@@ -98,7 +108,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParseTextResponseEvenIfProvidedPathIsNull() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam undefinedSpiderOptions = null;
+        SpiderTextParser spiderParser = new SpiderTextParser(undefinedSpiderOptions);
         HttpMessage messageHtmlResponse = createMessageWith(EMPTY_BODY);
         boolean parsed = false;
         // When
@@ -110,7 +121,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseTextResponseIfAlreadyParsed() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam undefinedSpiderOptions = null;
+        SpiderTextParser spiderParser = new SpiderTextParser(undefinedSpiderOptions);
         HttpMessage messageHtmlResponse = createMessageWith(EMPTY_BODY);
         boolean parsed = true;
         // When
@@ -123,7 +135,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam undefinedSpiderOptions = null;
+        SpiderTextParser spiderParser = new SpiderTextParser(undefinedSpiderOptions);
         Source source = createSource(createMessageWith(EMPTY_BODY));
         // When / Then
         assertThrows(
@@ -134,7 +147,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNeverConsiderCompletelyParsed() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam undefinedSpiderOptions = null;
+        SpiderTextParser spiderParser = new SpiderTextParser(undefinedSpiderOptions);
         HttpMessage message = createMessageWith("Non Empty Body...");
         Source source = createSource(message);
         // When
@@ -146,7 +160,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotFindUrlsIfThereIsNone() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam undefinedSpiderOptions = null;
+        SpiderTextParser spiderParser = new SpiderTextParser(undefinedSpiderOptions);
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage message =
@@ -168,7 +183,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInCommentsWithoutElements() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        SpiderParam mockedSpiderOptions = mock(SpiderParam.class);
+        SpiderTextParser spiderParser = new SpiderTextParser(mockedSpiderOptions);
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =
@@ -185,6 +201,10 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
                                 "- {https://plaincomment.example.com/surrounded/with/curly/brackets} curly brackets should not be included",
                                 "- mixed case URLs HtTpS://ExAmPlE.CoM/path/ should also be found"));
         Source source = createSource(messageHtmlResponse);
+        Control.initSingletonForTesting();
+        ExtensionHttpSessions extensionHttpSessions = new ExtensionHttpSessions();
+        extensionHttpSessions.getParam().load(mock(ZapXmlConfiguration.class));
+        Control.getSingleton().getExtensionLoader().addExtension(extensionHttpSessions);
         // When
         boolean completelyParsed =
                 spiderParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);

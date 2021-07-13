@@ -349,7 +349,12 @@ public class SpiderGitParser extends SpiderParser {
                                     "Found file/symbolic link/gitlink "
                                             + indexEntryName
                                             + " in the Git entries file");
-                    processURL(message, depth, "../" + indexEntryName, baseURL);
+                    processURL(
+                            message,
+                            depth,
+                            "../" + indexEntryName,
+                            baseURL,
+                            params.getIrrelevantUrlParameters());
                 }
             }
             // all good, we're outta here.

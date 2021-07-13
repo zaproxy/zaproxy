@@ -36,7 +36,12 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 package org.parosproxy.paros.common;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.FileConfiguration;
@@ -228,5 +233,32 @@ public abstract class AbstractParam implements Cloneable {
             logConversionException(key, e);
         }
         return defaultValue;
+    }
+
+    /**
+     * Gets the {@code List<Object>} with the given configuration key.
+     *
+     * <p>The default list is returned if the key doesn't exist or it's not a {@code List}.
+     *
+     * @param key the configuration key.
+     * @param defaultList the default list, if the key doesn't exist or it's not an {@code List}.
+     * @return the value of the configuration, or default value.
+     */
+    protected List<Object> getList(String key, List<Object> defaultList) {
+        try {
+            return getConfig().getList(key, defaultList);
+        } catch (ConversionException e) {
+            logConversionException(key, e);
+        }
+        return defaultList;
+    }
+
+    protected Set<String> getStringSet(String key, Set<String> defaultSet) {
+        List<Object> parsedList = getList(key, Collections.emptyList());
+        return parsedList.isEmpty()
+                ? defaultSet
+                : parsedList.stream()
+                        .map(Object::toString)
+                        .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 }

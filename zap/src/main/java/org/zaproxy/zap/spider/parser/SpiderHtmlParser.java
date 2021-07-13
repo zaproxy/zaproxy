@@ -85,7 +85,9 @@ public class SpiderHtmlParser extends SpiderParser {
             }
             String href = base.getAttributeValue("href");
             if (href != null && !href.isEmpty()) {
-                baseURL = URLCanonicalizer.getCanonicalURL(href, baseURL);
+                baseURL =
+                        URLCanonicalizer.getCanonicalURL(
+                                href, baseURL, params.getIrrelevantUrlParameters());
             }
         }
 
@@ -100,7 +102,12 @@ public class SpiderHtmlParser extends SpiderParser {
                 if (!parseSource(message, s, depth, baseURL)) {
                     Matcher matcher = PLAIN_COMMENTS_URL_PATTERN.matcher(s.toString());
                     while (matcher.find()) {
-                        processURL(message, depth, matcher.group(), baseURL);
+                        processURL(
+                                message,
+                                depth,
+                                matcher.group(),
+                                baseURL,
+                                params.getIrrelevantUrlParameters());
                     }
                 }
             }
@@ -180,7 +187,8 @@ public class SpiderHtmlParser extends SpiderParser {
                     Matcher matcher = urlPattern.matcher(content);
                     if (matcher.find()) {
                         String url = matcher.group(1);
-                        processURL(message, depth, url, baseURL);
+                        processURL(
+                                message, depth, url, baseURL, params.getIrrelevantUrlParameters());
                         resourcesfound = true;
                     }
                 }
@@ -210,11 +218,12 @@ public class SpiderHtmlParser extends SpiderParser {
         }
 
         if (!attributeName.equalsIgnoreCase("ping")) {
-            processURL(message, depth, localURL, baseURL);
+            processURL(message, depth, localURL, baseURL, params.getIrrelevantUrlParameters());
         } else {
             for (String pingURL : localURL.split("\\s")) {
                 if (!pingURL.isEmpty()) {
-                    processURL(message, depth, pingURL, baseURL);
+                    processURL(
+                            message, depth, pingURL, baseURL, params.getIrrelevantUrlParameters());
                 }
             }
         }

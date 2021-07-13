@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import net.htmlparser.jericho.Source;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * Used to parse OData content in Atom format.
@@ -39,6 +40,13 @@ public class SpiderODataAtomParser extends SpiderParser {
     /** the Constant patternBase defines the pattern for a base url */
     private static final Pattern patternBase =
             Pattern.compile("base=\"(http(s?)://[^\\x00-\\x1f\"'\\s<>#]+)\"");
+
+    private SpiderParam params;
+
+    public SpiderODataAtomParser(SpiderParam param) {
+        super();
+        this.params = param;
+    }
 
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
@@ -66,7 +74,7 @@ public class SpiderODataAtomParser extends SpiderParser {
             String s = matcher.group(1);
             s = StringEscapeUtils.unescapeXml(s);
 
-            processURL(message, depth, s, baseURL);
+            processURL(message, depth, s, baseURL, params.getIrrelevantUrlParameters());
             foundAtLeastOneResult = true;
         }
 

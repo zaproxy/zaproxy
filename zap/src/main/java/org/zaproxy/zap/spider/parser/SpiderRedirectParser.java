@@ -23,9 +23,17 @@ import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.zaproxy.zap.spider.SpiderParam;
 
 /** The Class SpiderRedirectParser is used for parsing of HTTP Redirection messages. */
 public class SpiderRedirectParser extends SpiderParser {
+
+    private SpiderParam params;
+
+    public SpiderRedirectParser(SpiderParam param) {
+        super();
+        this.params = param;
+    }
 
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
@@ -36,7 +44,7 @@ public class SpiderRedirectParser extends SpiderParser {
             // Include the base url as well as some applications send relative URLs instead of
             // absolute ones
             String baseURL = message.getRequestHeader().getURI().toString();
-            processURL(message, depth, location, baseURL);
+            processURL(message, depth, location, baseURL, params.getIrrelevantUrlParameters());
         }
         // We consider the message fully parsed
         return true;

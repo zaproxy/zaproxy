@@ -20,9 +20,13 @@
 package org.zaproxy.zap.spider;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.httpclient.URI;
@@ -118,6 +122,9 @@ public class SpiderParam extends AbstractParam {
      * @see #maxParseSizeBytes
      */
     private static final int DEFAULT_MAX_PARSE_SIZE_BYTES = 2621440; // 2.5 MiB
+
+    /** Configuration key to write/read the {@link #irrelevantUrlParameters} property. */
+    private static final String SPIDER_IRRELEVANT_URL_PARAMETERS = "spider.irrelevantUrlParameters";
 
     /**
      * This option is used to define how the parameters are used when checking if an URI was already
@@ -233,6 +240,13 @@ public class SpiderParam extends AbstractParam {
      */
     private int maxParseSizeBytes = DEFAULT_MAX_PARSE_SIZE_BYTES;
 
+    /**
+     * Parameter names which are ignored in the {@link URLCanonicalizer}.
+     *
+     * @see #SPIDER_IRRELEVANT_URL_PARAMETERS
+     */
+    private Set<String> irrelevantUrlParameters = Collections.emptySet();
+
     /** Instantiates a new spider param. */
     public SpiderParam() {}
 
@@ -298,6 +312,9 @@ public class SpiderParam extends AbstractParam {
         this.acceptCookies = getBoolean(SPIDER_ACCEPT_COOKIES, true);
 
         this.maxParseSizeBytes = getInt(SPIDER_MAX_PARSE_SIZE_BYTES, DEFAULT_MAX_PARSE_SIZE_BYTES);
+
+        this.irrelevantUrlParameters =
+                getStringSet(SPIDER_IRRELEVANT_URL_PARAMETERS, this.irrelevantUrlParameters);
     }
 
     private void updateOptions() {
@@ -1025,5 +1042,27 @@ public class SpiderParam extends AbstractParam {
      */
     public int getMaxParseSizeBytes() {
         return maxParseSizeBytes;
+    }
+
+    public Set<String> getIrrelevantUrlParameters() {
+        return irrelevantUrlParameters;
+    }
+
+    public void setIrrelevantUrlParameters(Set<String> irrelevantUrlParameters) {
+        this.irrelevantUrlParameters = irrelevantUrlParameters;
+        getConfig().setProperty(SPIDER_IRRELEVANT_URL_PARAMETERS, irrelevantUrlParameters);
+    }
+
+    public String getIrrelevantUrlParametersAsString() {
+        return this.getIrrelevantUrlParameters().stream().collect(Collectors.joining(", "));
+    }
+
+    public void setIrrelevantUrlParameters(String irrelevantUrlParameters) {
+        this.setIrrelevantUrlParameters(
+                (Set<String>)
+                        Arrays.stream(irrelevantUrlParameters.split(","))
+                                .map(String::trim)
+                                .filter(str -> !str.isEmpty())
+                                .collect(Collectors.toCollection(LinkedHashSet::new)));
     }
 }

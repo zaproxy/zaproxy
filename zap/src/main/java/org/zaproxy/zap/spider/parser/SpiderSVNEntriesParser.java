@@ -232,7 +232,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                             message,
                                             depth,
                                             "../" + filename + (kind.equals("dir") ? "/" : ""),
-                                            baseURL);
+                                            baseURL,
+                                            params.getIrrelevantUrlParameters());
 
                                     // re-seed the spider for this directory.
                                     // this is not to do with the SVN version, but in case the SVN
@@ -243,7 +244,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                                 message,
                                                 depth,
                                                 "../" + filename + "/.svn/wc.db",
-                                                baseURL);
+                                                baseURL,
+                                                params.getIrrelevantUrlParameters());
                                     }
                                     // if we have an internal SVN filename for the file, process it.
                                     // this will probably result in source code disclosure at some
@@ -251,7 +253,12 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                     if (kind.equals("file")
                                             && svn_filename != null
                                             && svn_filename.length() > 0) {
-                                        processURL(message, depth, svn_filename, baseURL);
+                                        processURL(
+                                                message,
+                                                depth,
+                                                svn_filename,
+                                                baseURL,
+                                                params.getIrrelevantUrlParameters());
                                     }
                                 }
                             }
@@ -275,7 +282,12 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                         getLogger()
                                                 .debug(
                                                         "Found an SVN repository location in the (SQLite based) SVN wc.db file");
-                                        processURL(message, depth, repos_path + "/", baseURL);
+                                        processURL(
+                                                message,
+                                                depth,
+                                                repos_path + "/",
+                                                baseURL,
+                                                params.getIrrelevantUrlParameters());
                                     }
                                 }
                             }
@@ -362,15 +374,25 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                             message,
                             depth,
                             "../" + svnEntryName + (svnEntryKind.equals("dir") ? "/" : ""),
-                            baseURL);
+                            baseURL,
+                            params.getIrrelevantUrlParameters());
                     // get the internal SVN file, probably leading to source code disclosure
                     if (svnEntryKind.equals("file")) {
                         processURL(
-                                message, depth, "text-base/" + svnEntryName + ".svn-base", baseURL);
+                                message,
+                                depth,
+                                "text-base/" + svnEntryName + ".svn-base",
+                                baseURL,
+                                params.getIrrelevantUrlParameters());
                     }
                     // re-seed the spider for this directory.
                     if (svnEntryKind.equals("dir")) {
-                        processURL(message, depth, "../" + svnEntryName + "/.svn/entries", baseURL);
+                        processURL(
+                                message,
+                                depth,
+                                "../" + svnEntryName + "/.svn/entries",
+                                baseURL,
+                                params.getIrrelevantUrlParameters());
                     }
                 }
 
@@ -385,7 +407,12 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                         getLogger()
                                 .debug(
                                         "Found an SVN repository location in the (XML based) SVN < 1.4 entries file");
-                        processURL(message, depth, svnEntryUrl + "/", baseURL);
+                        processURL(
+                                message,
+                                depth,
+                                svnEntryUrl + "/",
+                                baseURL,
+                                params.getIrrelevantUrlParameters());
                     }
                 }
                 // this attribute seems to be set on various entries. Correspond to files, rather
@@ -393,7 +420,12 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                 Matcher urlMatcher = svnRepoLocationPattern.matcher(svnEntryCopyFromUrl);
                 if (urlMatcher.find()) {
                     getLogger().debug("Found an SVN URL in the (XML based) SVN < 1.4 entries file");
-                    processURL(message, depth, svnEntryCopyFromUrl, baseURL);
+                    processURL(
+                            message,
+                            depth,
+                            svnEntryCopyFromUrl,
+                            baseURL,
+                            params.getIrrelevantUrlParameters());
                 }
             }
         } else {
@@ -423,14 +455,16 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                     message,
                                     depth,
                                     "../" + previousline + (filetype.equals("dir") ? "/" : ""),
-                                    baseURL);
+                                    baseURL,
+                                    params.getIrrelevantUrlParameters());
                             // get the internal SVN file, probably leading to source code disclosure
                             if (filetype.equals("file")) {
                                 processURL(
                                         message,
                                         depth,
                                         "text-base/" + previousline + ".svn-base",
-                                        baseURL);
+                                        baseURL,
+                                        params.getIrrelevantUrlParameters());
                             }
 
                             // re-seed the spider for this directory.
@@ -439,7 +473,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                         message,
                                         depth,
                                         "../" + previousline + "/.svn/entries",
-                                        baseURL);
+                                        baseURL,
+                                        params.getIrrelevantUrlParameters());
                             }
                         }
                     } else {
@@ -451,7 +486,12 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                     .debug(
                                             "Found an SVN repository location in the (text based) 1.4/1.5/1.6 SVN entries file");
 
-                            processURL(message, depth, line + "/", baseURL);
+                            processURL(
+                                    message,
+                                    depth,
+                                    line + "/",
+                                    baseURL,
+                                    params.getIrrelevantUrlParameters());
                         }
                     }
                 }

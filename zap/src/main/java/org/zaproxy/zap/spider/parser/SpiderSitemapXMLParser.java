@@ -116,7 +116,12 @@ public class SpiderSitemapXMLParser extends SpiderParser {
                 NodeList locationNodes =
                         (NodeList) xpathLocationExpression.evaluate(xmldoc, XPathConstants.NODESET);
                 for (int i = 0; i < locationNodes.getLength(); i++) {
-                    processURL(message, depth, locationNodes.item(i).getNodeValue(), baseURL);
+                    processURL(
+                            message,
+                            depth,
+                            locationNodes.item(i).getNodeValue(),
+                            baseURL,
+                            params.getIrrelevantUrlParameters());
                 }
             } catch (Exception e) {
                 getLogger().error("An error occurred trying to parse sitemap.xml", e);

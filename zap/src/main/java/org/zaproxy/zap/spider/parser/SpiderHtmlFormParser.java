@@ -29,6 +29,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import net.htmlparser.jericho.Attribute;
@@ -118,7 +119,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
             }
             String href = base.getAttributeValue("href");
             if (href != null && !href.isEmpty()) {
-                baseURL = URLCanonicalizer.getCanonicalURL(href, baseURL);
+                baseURL =
+                        URLCanonicalizer.getCanonicalURL(
+                                href, baseURL, param.getIrrelevantUrlParameters());
             }
         }
 
@@ -156,13 +159,17 @@ public class SpiderHtmlFormParser extends SpiderParser {
                 action = action.substring(0, fs);
             }
 
-            url = URLCanonicalizer.getCanonicalURL(action, baseURL);
+            url =
+                    URLCanonicalizer.getCanonicalURL(
+                            action, baseURL, param.getIrrelevantUrlParameters());
             FormData formData = prepareFormDataSet(source, form);
 
             // Process the case of a POST method
             if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
                 // Build the absolute canonical URL
-                String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
+                String fullURL =
+                        URLCanonicalizer.getCanonicalURL(
+                                action, baseURL, param.getIrrelevantUrlParameters());
                 if (fullURL == null) {
                     return false;
                 }
@@ -209,7 +216,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
      * @param action the action
      * @param baseURL the base URL
      * @param formData the GET form data
-     * @see #processURL(HttpMessage, int, String, String)
+     * @see #processURL(HttpMessage, int, String, String, Set)
      */
     private void processGetForm(
             HttpMessage message, int depth, String action, String baseURL, FormData formData) {
@@ -218,7 +225,12 @@ public class SpiderHtmlFormParser extends SpiderParser {
                     .debug(
                             "Submitting form with GET method and query with form parameters: "
                                     + submitData);
-            processURL(message, depth, action + submitData, baseURL);
+            processURL(
+                    message,
+                    depth,
+                    action + submitData,
+                    baseURL,
+                    param.getIrrelevantUrlParameters());
         }
     }
 
