@@ -69,7 +69,7 @@ Scanners:
 10050   Retrieved from Cache
 10051   Relative Path Confusion
 10052   X-ChromeLogger-Data Header Information Leak
-10053   Apache Range Header DoS (CVE-2011-3192)
+10053   Apache Range Header DoS (CVE-2011-3192) [Deprecated]
 10054   Cookie set without SameSite attribute
 10055   Content Security Policy Scanner
 10056   X-Debug-Token Scanner
