@@ -35,6 +35,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/08/27 Added support for plugable variants
+// ZAP: 2020/10/05 Added support for plugable SessionManagementMethodTypes
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
+import org.zaproxy.zap.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.SiteMapListener;
 
 public class ExtensionHook {
@@ -161,6 +163,8 @@ public class ExtensionHook {
      * @see #getVariants()
      */
     private List<Class<? extends Variant>> variants;
+
+    private List<SessionManagementMethodType> sessionManagementMethodTypes;
 
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
@@ -553,5 +557,46 @@ public class ExtensionHook {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(variants);
+    }
+
+    /**
+     * Adds the given {@code sessionManagementMethodType} to the extension hook, to be later added
+     * to the {@link org.zaproxy.zap.extension.sessions.ExtensionSessionManagement
+     * ExtensionSessionManagement}.
+     *
+     * <p>By default, the {@code SessionManagementMethodType}s added to this extension hook are
+     * removed from the {@code ExtensionSessionManagement} when the extension is unloaded.
+     *
+     * @param sessionManagementMethodType the SessionManagementMethodType that will be added to the
+     *     {@code ExtensionSessionManagement}
+     * @throws IllegalArgumentException if the given {@code SessionManagementMethodType} is {@code
+     *     null}.
+     * @since TODO add version
+     */
+    public void addSessionManagementMethodType(
+            SessionManagementMethodType sessionManagementMethodType) {
+        if (sessionManagementMethodType == null) {
+            throw new IllegalArgumentException(
+                    "Parameter sessionManagementMethodType must not be null.");
+        }
+
+        if (sessionManagementMethodTypes == null) {
+            sessionManagementMethodTypes = new ArrayList<>();
+        }
+        sessionManagementMethodTypes.add(sessionManagementMethodType);
+    }
+
+    /**
+     * Gets the {@link SessionManagementMethodType}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code
+     *     SessionManagementMethodType}s, never {@code null}.
+     * @since TODO add version
+     */
+    public List<SessionManagementMethodType> getSessionManagementMethodTypes() {
+        if (sessionManagementMethodTypes == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(sessionManagementMethodTypes);
     }
 }

@@ -88,6 +88,7 @@
 // ZAP: 2019/09/30 Use instance variable for view checks.
 // ZAP: 2020/05/14 Hook HttpSenderListener when starting single extension.
 // ZAP: 2020/08/27 Added support for plugable variants
+// ZAP: 2020/10/05 Added support for plugable SessionManagementMethodTypes
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/04/13 Issue 6536: Stop and destroy extensions being removed.
 package org.parosproxy.paros.extension;
@@ -140,8 +141,10 @@ import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.httppanel.DisplayedMessageChangedListener;
+import org.zaproxy.zap.extension.sessions.ExtensionSessionManagement;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
+import org.zaproxy.zap.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.MainToolbarPanel;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -825,6 +828,7 @@ public class ExtensionLoader {
             hookApiImplementors(ext, extHook);
             hookHttpSenderListeners(ext, extHook);
             hookVariant(ext, extHook);
+            hookSessionManagementMethod(ext, extHook);
 
             if (hasView()) {
                 // no need to hook view if no GUI
@@ -904,6 +908,7 @@ public class ExtensionLoader {
                 hookApiImplementors(ext, extHook);
                 hookHttpSenderListeners(ext, extHook);
                 hookVariant(ext, extHook);
+                hookSessionManagementMethod(ext, extHook);
 
                 if (hasView()) {
                     EventQueue.invokeAndWait(
@@ -1015,6 +1020,26 @@ public class ExtensionLoader {
                         "Error while adding a Variant from "
                                 + extension.getClass().getCanonicalName(),
                         e);
+            }
+        }
+    }
+
+    private void hookSessionManagementMethod(Extension extension, ExtensionHook extHook) {
+        ExtensionSessionManagement extSessMgmt =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionSessionManagement.class);
+        if (extSessMgmt != null) {
+            for (SessionManagementMethodType smmt : extHook.getSessionManagementMethodTypes()) {
+                try {
+                    extSessMgmt.addSessionManagementMethodType(smmt);
+                    smmt.hook(extHook);
+                } catch (Exception e) {
+                    logger.error(
+                            "Error while adding a SessionManagementMethodType from "
+                                    + extension.getClass().getCanonicalName(),
+                            e);
+                }
             }
         }
     }
@@ -1553,6 +1578,23 @@ public class ExtensionLoader {
                         "Error while removing a Variant from "
                                 + extension.getClass().getCanonicalName(),
                         e);
+            }
+        }
+
+        ExtensionSessionManagement extSessMgmt =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionSessionManagement.class);
+        if (extSessMgmt != null) {
+            for (SessionManagementMethodType smmt : hook.getSessionManagementMethodTypes()) {
+                try {
+                    extSessMgmt.removeSessionManagementMethodType(smmt);
+                } catch (Exception e) {
+                    logger.error(
+                            "Error while adding a SessionManagementMethodType from "
+                                    + extension.getClass().getCanonicalName(),
+                            e);
+                }
             }
         }
 
