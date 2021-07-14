@@ -58,21 +58,23 @@
 // ZAP: 2019/10/21 Add Alert builder.
 // ZAP: 2020/11/03 Add alertRef field.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/06/22 Moved the ReportGenerator.entityEncode method to this class.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
 import javax.swing.ImageIcon;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
-import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class Alert implements Comparable<Alert> {
 
@@ -696,9 +698,22 @@ public class Alert implements Comparable<Alert> {
     public String replaceEntity(String text) {
         String result = null;
         if (text != null) {
-            result = ReportGenerator.entityEncode(text);
+            result = entityEncode(text);
         }
         return result;
+    }
+
+    /** Encode entity for HTML or XML output. */
+    private static String entityEncode(String text) {
+        String result = text;
+
+        if (result == null) {
+            return result;
+        }
+
+        // The escapeXml function doesn't cope with some 'special' chrs
+
+        return StringEscapeUtils.escapeXml10(XMLStringUtil.escapeControlChrs(result));
     }
 
     public String paragraph(String text) {

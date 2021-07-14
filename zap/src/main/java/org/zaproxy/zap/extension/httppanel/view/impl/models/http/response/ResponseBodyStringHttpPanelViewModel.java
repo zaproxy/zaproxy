@@ -38,6 +38,6 @@ public class ResponseBodyStringHttpPanelViewModel extends AbstractHttpStringHttp
             return;
         }
 
-        httpMessage.getResponseBody().setBody(data);
+        httpMessage.setResponseBody(data);
     }
 }

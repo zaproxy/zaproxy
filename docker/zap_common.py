@@ -143,7 +143,7 @@ def trigger_hook(name, *args, **kwargs):
 @hook()
 def load_config(config, config_dict, config_msg, out_of_scope_dict):
     """ Loads the config file specified into:
-    config_dict - a dictionary which maps plugin_ids to levels (IGNORE, WARN, FAIL)
+    config_dict - a dictionary which maps plugin_ids to levels (IGNORE, INFO, WARN, FAIL)
     config_msg - a dictionary which maps plugin_ids to optional user specified descriptions
     out_of_scope_dict - a dictionary which maps plugin_ids to out of scope regexes
     """
@@ -207,7 +207,6 @@ def print_rules(zap, alert_dict, level, config_dict, config_msg, min_level, inc_
     count = 0
     inprog_count = 0
     for key, alert_list in sorted(alert_dict.items()):
-        #if (config_dict.has_key(key) and config_dict[key] == level):
         if inc_rule(config_dict, key, inc_extra):
             user_msg = ''
             if key in config_msg:
@@ -652,10 +651,15 @@ def get_af_report(template, dir, file, title, description):
             'reportDescription': description}
         }
 
-def get_af_output_summary(format, summaryFile):
-    return {
+def get_af_output_summary(format, summaryFile, config_dict):
+    obj = {
         'type': 'outputSummary',
         'parameters': {
             'format': format,
             'summaryFile': summaryFile}
         }
+    rules = []
+    for id, action in config_dict.items():
+        rules.append({'id': int(id), 'action': action})
+    obj['rules'] = rules
+    return obj

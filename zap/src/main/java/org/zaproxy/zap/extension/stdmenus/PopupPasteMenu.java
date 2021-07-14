@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
-import java.awt.*;
+import java.awt.Component;
 import javax.swing.text.JTextComponent;
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.parosproxy.paros.Constant;

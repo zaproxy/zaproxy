@@ -27,16 +27,21 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -459,6 +464,44 @@ class HttpMessageUnitTest {
         boolean webSocketUpgrade = message.isWebSocketUpgrade();
         // Then
         assertThat(webSocketUpgrade, is(equalTo(false)));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "setBodyData")
+    void shouldUseContentTypeCharsetWhenSettingRequestBody(
+            String charset, String body, String expectedBody) throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setRequestHeader(
+                new HttpRequestHeader(
+                        "GET / HTTP/1.1\r\nContent-Type: text/plain; charset=" + charset));
+        // When
+        message.setRequestBody(body);
+        // Then
+        assertThat(message.getRequestBody().getCharset(), is(equalTo(charset)));
+        assertThat(message.getRequestBody().toString(), is(equalTo(expectedBody)));
+    }
+
+    static Stream<Arguments> setBodyData() {
+        return Stream.of(
+                arguments(StandardCharsets.ISO_8859_1.name(), "J/ψ → VP", "J/????VP"),
+                arguments(StandardCharsets.UTF_8.name(), "J/ψ → VP", "J/ψ → VP"));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "setBodyData")
+    void shouldUseContentTypeCharsetWhenSettingResponseBody(
+            String charset, String body, String expectedBody) throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setResponseHeader(
+                new HttpResponseHeader(
+                        "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=" + charset));
+        // When
+        message.setResponseBody(body);
+        // Then
+        assertThat(message.getResponseBody().getCharset(), is(equalTo(charset)));
+        assertThat(message.getResponseBody().toString(), is(equalTo(expectedBody)));
     }
 
     private static HttpMessage newHttpMessage() throws Exception {

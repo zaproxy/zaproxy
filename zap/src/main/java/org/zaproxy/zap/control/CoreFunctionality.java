@@ -24,7 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.extension.Extension;
+import org.parosproxy.paros.extension.history.ProxyListenerLogEventPublisher;
+import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
+import org.parosproxy.paros.model.SiteMapEventPublisher;
+import org.zaproxy.zap.extension.alert.AlertEventPublisher;
+import org.zaproxy.zap.extension.ascan.ActiveScanEventPublisher;
+import org.zaproxy.zap.extension.brk.BreakEventPublisher;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
+import org.zaproxy.zap.extension.spider.SpiderEventPublisher;
 
 /**
  * Class that contains/provides all built-in (core) components (i.e. extensions and active/passive
@@ -47,7 +54,16 @@ public final class CoreFunctionality {
     private static List<AbstractPlugin> builtInActiveScanRules;
     private static List<PluginPassiveScanner> builtInPassiveScanRules;
 
-    private CoreFunctionality() {}
+    private CoreFunctionality() {
+        // Register core event bus publishers asap
+        ActiveScanEventPublisher.getPublisher();
+        AlertEventPublisher.getPublisher();
+        BreakEventPublisher.getPublisher();
+        HistoryReferenceEventPublisher.getPublisher();
+        ProxyListenerLogEventPublisher.getPublisher();
+        SiteMapEventPublisher.getPublisher();
+        SpiderEventPublisher.getPublisher();
+    }
 
     /**
      * Returns an unmodifiable list containing all built-in (core) {@code Extension}s.
@@ -71,7 +87,6 @@ public final class CoreFunctionality {
                     new org.parosproxy.paros.extension.manualrequest
                             .ExtensionManualRequestEditor());
             extensions.add(new org.parosproxy.paros.extension.option.ExtensionOption());
-            extensions.add(new org.parosproxy.paros.extension.report.ExtensionReport());
             extensions.add(new org.parosproxy.paros.extension.state.ExtensionState());
             extensions.add(new org.zaproxy.zap.extension.alert.ExtensionAlert());
             extensions.add(new org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF());

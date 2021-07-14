@@ -71,6 +71,8 @@ import org.xml.sax.SAXException;
 import org.zaproxy.zap.utils.XMLStringUtil;
 import org.zaproxy.zap.utils.XmlUtils;
 
+/** @deprecated Replaced by the reports add-on in zap-extensions */
+@Deprecated
 public class ReportGenerator {
 
     private static final Logger logger = LogManager.getLogger(ReportGenerator.class);

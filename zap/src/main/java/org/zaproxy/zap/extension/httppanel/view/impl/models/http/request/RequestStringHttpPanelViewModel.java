@@ -64,6 +64,6 @@ public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanel
         if (parts.length > 1) {
             body = data.substring(parts[0].length() + 2);
         }
-        httpMessage.getRequestBody().setBody(body);
+        httpMessage.setRequestBody(body);
     }
 }

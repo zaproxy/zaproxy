@@ -20,11 +20,18 @@
 package org.zaproxy.zap.extension.compare;
 
 import java.awt.EventQueue;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +41,13 @@ import javax.swing.JFileChooser;
 import javax.swing.JMenuItem;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.apache.commons.httpclient.URI;
 import org.apache.logging.log4j.LogManager;
@@ -48,19 +62,25 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.option.DatabaseParam;
-import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 import org.zaproxy.zap.utils.DesktopUtils;
+import org.zaproxy.zap.utils.XmlUtils;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class ExtensionCompare extends ExtensionAdaptor
         implements SessionChangedListener, SessionListener {
 
     private static final String NAME = "ExtensionCompare";
+
+    private static final SimpleDateFormat staticDateFormat =
+            new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss");
 
     private static final String CRLF = "\r\n";
     private JMenuItem menuCompare = null;
@@ -295,7 +315,7 @@ public class ExtensionCompare extends ExtensionAdaptor
                         String fileName = "reportCompare.xsl";
                         Path xslFile = Paths.get(Constant.getZapInstall(), "xml", fileName);
                         if (Files.exists(xslFile)) {
-                            ReportGenerator.stringToHtml(
+                            stringToHtml(
                                     sb.toString(),
                                     xslFile.toString(),
                                     outputFile.getAbsolutePath());
@@ -307,7 +327,7 @@ public class ExtensionCompare extends ExtensionAdaptor
                                     log.error("Bundled file not found: " + path);
                                     return;
                                 }
-                                ReportGenerator.stringToHtml(
+                                stringToHtml(
                                         sb.toString(),
                                         new StreamSource(is),
                                         outputFile.getAbsolutePath());
@@ -335,11 +355,126 @@ public class ExtensionCompare extends ExtensionAdaptor
                     }
                 }
 
-                // waitMessageDialog.setVisible(true);
-
             } catch (Exception e) {
                 log.warn(e.getMessage(), e);
             }
+        }
+    }
+
+    private static File stringToHtml(String inxml, String infilexsl, String outfilename) {
+        return stringToHtml(
+                inxml,
+                infilexsl != null ? new StreamSource(new File(infilexsl)) : null,
+                outfilename);
+    }
+
+    private static File stringToHtml(String inxml, StreamSource stylesource, String outfilename) {
+        if (stylesource != null) {
+            Document doc = null;
+            File outfile = null;
+            StringReader inReader = new StringReader(inxml);
+            String tempOutfilename = outfilename + ".temp";
+
+            try {
+                outfile = new File(tempOutfilename);
+
+                DocumentBuilder builder =
+                        XmlUtils.newXxeDisabledDocumentBuilderFactory().newDocumentBuilder();
+                doc = builder.parse(new InputSource(inReader));
+
+                // Use a Transformer for output
+                TransformerFactory tFactory = TransformerFactory.newInstance();
+                Transformer transformer = tFactory.newTransformer(stylesource);
+                transformer.setParameter("datetime", getCurrentDateTimeString());
+
+                DOMSource source = new DOMSource(doc);
+                StreamResult result = new StreamResult(outfile.getPath());
+                transformer.transform(source, result);
+
+            } catch (TransformerException
+                    | SAXException
+                    | ParserConfigurationException
+                    | IOException e) {
+                log.error(e.getMessage(), e);
+                // Save the xml for diagnosing the problem
+                BufferedWriter bw = null;
+                try {
+                    bw =
+                            Files.newBufferedWriter(
+                                    new File(outfilename + "-orig.xml").toPath(),
+                                    StandardCharsets.UTF_8);
+                    bw.write(inxml);
+                } catch (IOException e2) {
+                    log.error("Failed to write debug XML file", e);
+                    return new File(outfilename);
+                } finally {
+                    try {
+                        if (bw != null) {
+                            bw.close();
+                        }
+                    } catch (IOException ex) {
+                    }
+                }
+                return new File(outfilename);
+            } finally {
+
+            }
+            // Replace the escaped tags used to make the report look slightly better.
+            // This is a temp fix to ensure reports always get generated
+            // we should really adopt something other than XSLT ;)
+            String line;
+
+            try (BufferedReader br =
+                            Files.newBufferedReader(
+                                    new File(tempOutfilename).toPath(), StandardCharsets.UTF_8);
+                    BufferedWriter bw =
+                            Files.newBufferedWriter(
+                                    new File(outfilename).toPath(), StandardCharsets.UTF_8)) {
+
+                while ((line = br.readLine()) != null) {
+                    bw.write(line.replace("&lt;p&gt;", "<p>").replace("&lt;/p&gt;", "</p>"));
+                    bw.newLine();
+                }
+
+            } catch (IOException e) {
+                log.error(e.getMessage(), e);
+            }
+            // Remove the temporary file
+            outfile.delete();
+        } else {
+            // No XSLT file specified, just output the XML straight to the file
+            BufferedWriter bw = null;
+
+            try {
+                bw =
+                        Files.newBufferedWriter(
+                                new File(outfilename).toPath(), StandardCharsets.UTF_8);
+                bw.write(inxml);
+            } catch (IOException e2) {
+                log.error(e2.getMessage(), e2);
+            } finally {
+                try {
+                    if (bw != null) {
+                        bw.close();
+                    }
+                } catch (IOException ex) {
+                }
+            }
+        }
+
+        return new File(outfilename);
+    }
+
+    /** Get today's date string. */
+    private static String getCurrentDateTimeString() {
+        Date dateTime = new Date(System.currentTimeMillis());
+        return getDateTimeString(dateTime);
+    }
+
+    private static String getDateTimeString(Date dateTime) {
+        // ZAP: fix unsafe call to DateFormats
+        synchronized (staticDateFormat) {
+            return staticDateFormat.format(dateTime);
         }
     }
 

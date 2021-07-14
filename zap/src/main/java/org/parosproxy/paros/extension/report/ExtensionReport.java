@@ -46,6 +46,8 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.view.ZapMenuItem;
 
+/** @deprecated Replaced by the reports add-on in zap-extensions */
+@Deprecated
 public class ExtensionReport extends ExtensionAdaptor implements CommandLineListener {
 
     private static final String NAME = "ExtensionReport";

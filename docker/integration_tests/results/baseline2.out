@@ -1,0 +1,73 @@
+Using the Automation Framework
+Total of 4 URLs
+PASS: Vulnerable JS Library [10003]
+PASS: Cookie No HttpOnly Flag [10010]
+PASS: Cookie Without Secure Flag [10011]
+PASS: Cross-Domain JavaScript Source File Inclusion [10017]
+PASS: Content-Type Header Missing [10019]
+PASS: Information Disclosure - Debug Error Messages [10023]
+PASS: Information Disclosure - Sensitive Information in URL [10024]
+PASS: Information Disclosure - Sensitive Information in HTTP Referrer Header [10025]
+PASS: HTTP Parameter Override [10026]
+PASS: Information Disclosure - Suspicious Comments [10027]
+PASS: Open Redirect [10028]
+PASS: Cookie Poisoning [10029]
+PASS: User Controllable Charset [10030]
+PASS: User Controllable HTML Element Attribute (Potential XSS) [10031]
+PASS: Viewstate [10032]
+PASS: Directory Browsing [10033]
+PASS: Heartbleed OpenSSL Vulnerability (Indicative) [10034]
+PASS: Server Leaks Information via "X-Powered-By" HTTP Response Header Field(s) [10037]
+PASS: X-Backend-Server Header Information Leak [10039]
+PASS: Secure Pages Include Mixed Content [10040]
+PASS: HTTP to HTTPS Insecure Transition in Form Post [10041]
+PASS: HTTPS to HTTP Insecure Transition in Form Post [10042]
+PASS: User Controllable JavaScript Event (XSS) [10043]
+PASS: Big Redirect Detected (Potential Sensitive Information Leak) [10044]
+PASS: X-ChromeLogger-Data (XCOLD) Header Information Leak [10052]
+PASS: Cookie without SameSite Attribute [10054]
+PASS: CSP [10055]
+PASS: X-Debug-Token Information Leak [10056]
+PASS: Username Hash Found [10057]
+PASS: X-AspNet-Version Response Header [10061]
+PASS: PII Disclosure [10062]
+PASS: Timestamp Disclosure [10096]
+PASS: Hash Disclosure [10097]
+PASS: Cross-Domain Misconfiguration [10098]
+PASS: Weak Authentication Method [10105]
+PASS: Reverse Tabnabbing [10108]
+PASS: Modern Web Application [10109]
+PASS: Absence of Anti-CSRF Tokens [10202]
+PASS: Private IP Disclosure [2]
+PASS: Session ID in URL Rewrite [3]
+PASS: Script Passive Scan Rules [50001]
+PASS: Stats Passive Scan Rule [50003]
+PASS: Insecure JSF ViewState [90001]
+PASS: Charset Mismatch [90011]
+PASS: Application Error Disclosure [90022]
+PASS: WSDL File Detection [90030]
+PASS: Loosely Scoped Cookie [90033]
+IGNORE: Retrieved from Cache [10050] x 3 
+	https://www.example.com/ (200 OK)
+	https://www.example.com/robots.txt (404 Not Found)
+	https://www.example.com/sitemap.xml (404 Not Found)
+INFO: Incomplete or No Cache-control Header Set [10015] x 1 
+	https://www.example.com/ (200 OK)
+WARN-NEW: X-Content-Type-Options Header Missing [10021] x 1 
+	https://www.example.com/ (200 OK)
+WARN-NEW: Strict-Transport-Security Header Not Set [10035] x 3 
+	https://www.example.com/ (200 OK)
+	https://www.example.com/robots.txt (404 Not Found)
+	https://www.example.com/sitemap.xml (404 Not Found)
+WARN-NEW: Server Leaks Version Information via "Server" HTTP Response Header Field [10036] x 4 
+	https://www.example.com/ (200 OK)
+	https://www.example.com/ (200 OK)
+	https://www.example.com/robots.txt (404 Not Found)
+	https://www.example.com/sitemap.xml (404 Not Found)
+WARN-NEW: Content Security Policy (CSP) Header Not Set [10038] x 3 
+	https://www.example.com/ (200 OK)
+	https://www.example.com/robots.txt (404 Not Found)
+	https://www.example.com/sitemap.xml (404 Not Found)
+FAIL-NEW: X-Frame-Options Header Not Set [10020] x 1 
+	https://www.example.com/ (200 OK)
+FAIL-NEW: 1	FAIL-INPROG: 0	WARN-NEW: 4	WARN-INPROG: 0	INFO: 1	IGNORE: 1	PASS: 47

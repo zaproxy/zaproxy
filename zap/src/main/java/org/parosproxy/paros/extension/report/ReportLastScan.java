@@ -66,6 +66,8 @@ import org.zaproxy.zap.utils.XMLStringUtil;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
+/** @deprecated Replaced by the reports add-on in zap-extensions */
+@Deprecated
 public class ReportLastScan {
 
     private static final Logger logger = LogManager.getLogger(ReportLastScan.class);

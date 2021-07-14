@@ -51,6 +51,7 @@ import sys
 import time
 import yaml
 from datetime import datetime
+from pathlib import Path
 from shutil import copyfile
 from zapv2 import ZAPv2
 from zap_common import *
@@ -100,7 +101,7 @@ def usage():
     print('    -U user           username to use for authenticated scans - must be defined in the given context file')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
-    print('    --auto            use the automation framework if supported for the given parameters (this will become the default soon)')
+    print('    --auto            use the automation framework if supported for the given parameters (this is now the default)')
     print('    --autooff         do not use the automation framework even if supported for the given parameters')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/baseline-scan/')
@@ -127,7 +128,7 @@ def usage():
     
     If any of the next set of parameters are used then the existing code will be used instead:
     
-    -c config_file    plan to support soon, may just need more testing
+    -c config_file    partially supported so cannot be enabled just yet
     -u config_url     ditto
     -D secs           need new delay/sleep job
     -i                need to support config files
@@ -170,7 +171,7 @@ def main(argv):
     ignore_warn = False
     hook_file = None
     user = ''
-    use_af = False
+    use_af = True
     af_supported = True
 
     pass_count = 0
@@ -334,8 +335,9 @@ def main(argv):
             print('Using the Automation Framework')
 
             # Generate the yaml file
-            yaml_file = '/zap/zap.yaml'
-            summary_file = '/zap/zap_out.json'
+            home_dir = str(Path.home())
+            yaml_file = home_dir + '/zap.yaml'
+            summary_file = home_dir + '/zap_out.json'
             
             with open(yaml_file, 'w') as yf:
 
@@ -363,7 +365,7 @@ def main(argv):
                     jobs.append(get_af_spiderAjax(target, mins))
                 
                 jobs.append(get_af_pscan_wait(timeout))
-                jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file))
+                jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict))
                 
                 if report_html:
                     jobs.append(get_af_report('traditional-html', base_dir, report_html, 'ZAP Scanning Report', ''))

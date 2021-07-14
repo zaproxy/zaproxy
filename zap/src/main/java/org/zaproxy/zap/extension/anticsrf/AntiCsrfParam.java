@@ -60,7 +60,8 @@ public class AntiCsrfParam extends AbstractParam {
         "_csrfSecret",
         "__csrf_magic",
         "CSRF",
-        "_token"
+        "_token",
+        "_csrf_token"
     };
 
     private List<AntiCsrfParamToken> tokens = null;

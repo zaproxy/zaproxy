@@ -25,6 +25,7 @@ import static java.util.Collections.emptySet;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -246,6 +247,20 @@ public class SimpleEventBus implements EventBus {
                         });
     }
 
+    @Override
+    public Set<String> getPublisherNames() {
+        return Collections.unmodifiableSet(this.nameToPublisher.keySet());
+    }
+
+    @Override
+    public Set<String> getEventTypesForPublisher(String publisherName) {
+        RegisteredPublisher publisher = nameToPublisher.get(publisherName);
+        if (publisher != null) {
+            return Collections.unmodifiableSet(publisher.getEventTypes());
+        }
+        return Collections.emptySet();
+    }
+
     private static class RegisteredConsumer {
         private EventConsumer consumer;
         private Set<String> eventTypes = new HashSet<>();
@@ -307,6 +322,10 @@ public class SimpleEventBus implements EventBus {
         void removeConsumer(EventConsumer consumer) {
             consumers.removeIf(
                     registeredConsumer -> registeredConsumer.getConsumer().equals(consumer));
+        }
+
+        public Set<String> getEventTypes() {
+            return eventTypes;
         }
     }
 }

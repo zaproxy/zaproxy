@@ -21,11 +21,13 @@ package org.zaproxy.zap.eventBus;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -211,6 +213,49 @@ class SimpleEventBusUnitTest {
         // Then
         assertThat(consumer1.getEvents(), contains(event1));
         assertThat(consumer2.getEvents(), contains(event1, event2));
+    }
+
+    @Test
+    void shouldReportEventPublishersAndEvents() {
+        // Given
+        TestEventPublisher publisher1 = new TestEventPublisher("publisher-1");
+        seb.registerPublisher(publisher1, new String[] {"event-p1-1", "event-p1-2", "event-p1-3"});
+        TestEventPublisher publisher2 = new TestEventPublisher("publisher-2");
+        seb.registerPublisher(publisher2, new String[] {"event-p2-1", "event-p2-2"});
+
+        // When
+        Set<String> pubNames = seb.getPublisherNames();
+        Set<String> p1Events = seb.getEventTypesForPublisher("publisher-1");
+        Set<String> p2Events = seb.getEventTypesForPublisher("publisher-2");
+        Set<String> p3Events = seb.getEventTypesForPublisher("publisher-3");
+
+        // Then
+        assertThat(pubNames, contains("publisher-2", "publisher-1"));
+        assertThat(p1Events, contains("event-p1-1", "event-p1-2", "event-p1-3"));
+        assertThat(p2Events, contains("event-p2-1", "event-p2-2"));
+        assertThat(p3Events, hasSize(0));
+    }
+
+    @Test
+    void shouldReportCurrentEventPublishersAndEvents() {
+        // Given
+        TestEventPublisher publisher1 = new TestEventPublisher("publisher-1");
+        seb.registerPublisher(publisher1, new String[] {"event-p1-1", "event-p1-2", "event-p1-3"});
+        TestEventPublisher publisher2 = new TestEventPublisher("publisher-2");
+        seb.registerPublisher(publisher2, new String[] {"event-p2-1", "event-p2-2"});
+        seb.unregisterPublisher(publisher1);
+
+        // When
+        Set<String> pubNames = seb.getPublisherNames();
+        Set<String> p1Events = seb.getEventTypesForPublisher("publisher-1");
+        Set<String> p2Events = seb.getEventTypesForPublisher("publisher-2");
+        Set<String> p3Events = seb.getEventTypesForPublisher("publisher-3");
+
+        // Then
+        assertThat(pubNames, contains("publisher-2"));
+        assertThat(p2Events, contains("event-p2-1", "event-p2-2"));
+        assertThat(p1Events, hasSize(0));
+        assertThat(p3Events, hasSize(0));
     }
 
     private class TestEventConsumer implements EventConsumer {

@@ -52,7 +52,7 @@ public class ZAP {
     /**
      * ZAP can be run in 4 different ways: cmdline: an inline process that exits when it completes
      * the tasks specified by the parameters daemon: a single process with no Swing UI, typically
-     * run as a background process desktop: a Swing based desktop tool (which is how is originated,
+     * run as a background process desktop: a Swing based desktop tool (which is how it originated,
      * as a fork of Paros Proxy) zaas: a highly scalable distributed system with a web based UI, aka
      * 'ZAP as a Service' (this is 'work in progress')
      */

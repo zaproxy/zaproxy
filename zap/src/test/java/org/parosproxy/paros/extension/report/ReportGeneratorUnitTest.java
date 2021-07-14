@@ -34,7 +34,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.zaproxy.zap.testutils.TestUtils;
 
-/** Unit test for {@link ReportGenerator}. */
+/**
+ * Unit test for {@link ReportGenerator}.
+ *
+ * @deprecated
+ */
+@Deprecated
 class ReportGeneratorUnitTest extends TestUtils {
 
     private static final String NEWLINE = System.getProperty("line.separator");

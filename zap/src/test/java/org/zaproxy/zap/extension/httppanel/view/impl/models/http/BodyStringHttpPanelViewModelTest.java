@@ -67,6 +67,8 @@ public abstract class BodyStringHttpPanelViewModelTest<T1 extends HttpHeader, T2
 
     protected abstract void prepareMessage();
 
+    protected abstract void verifyBodySet(HttpMessage message, String body);
+
     @Test
     void shouldGetEmptyDataFromNullMessage() {
         // Given
@@ -104,7 +106,7 @@ public abstract class BodyStringHttpPanelViewModelTest<T1 extends HttpHeader, T2
         // When
         model.setData(otherBodyContent);
         // Then
-        verify(body).setBody(otherBodyContent);
+        verifyBodySet(message, otherBodyContent);
         verify(header, times(0)).setContentLength(anyInt());
     }
 }

@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.eventBus;
 
+import java.util.Set;
+
 /**
  * Interface for the event bus used to publish events in ZAP
  *
@@ -83,4 +85,18 @@ public interface EventBus {
      * @param event the event
      */
     void publishSyncEvent(EventPublisher publisher, Event event);
+
+    /**
+     * Returns a list of the currently registered publisher names
+     *
+     * @since 2.11.0
+     */
+    Set<String> getPublisherNames();
+
+    /**
+     * Returns a list of the registered event types for the given publisher
+     *
+     * @since 2.11.0
+     */
+    Set<String> getEventTypesForPublisher(String publisherName);
 }
