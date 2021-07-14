@@ -107,6 +107,7 @@ public class VariantMultipartFormParameters implements Variant {
                                         + ")?$",
                                 ""); // Strip final boundary
                 if (isFileParam) {
+                    position += 2;
                     extractedParameters.add(
                             new NameValuePair(
                                     NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM,
@@ -143,16 +144,18 @@ public class VariantMultipartFormParameters implements Variant {
                     LOGGER.debug("Name: " + name + " value: " + valueMatcher.group("value"));
                 }
                 if (isFileParam) {
+                    position -= 2;
                     // Extract the filename
                     Matcher fnValueMatcher = FILENAME_PART_PATTERN.matcher(part);
                     fnValueMatcher.find();
                     String fnValue = fnValueMatcher.group("filename");
                     extractedParameters.add(
+                            extractedParameters.size() - 1,
                             new NameValuePair(
                                     NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                                     name,
                                     fnValue,
-                                    ++position));
+                                    position));
                     int fnStart = offset + part.indexOf(fnValue);
                     int fnEnd = fnStart + fnValue.length();
                     if (LOGGER.isDebugEnabled()) {
@@ -161,6 +164,7 @@ public class VariantMultipartFormParameters implements Variant {
                                         + fnEnd + " Pos: " + position);
                     }
                     multiPartParams.add(
+                            multiPartParams.size() - 1,
                             new MultipartFormParameter(
                                     name,
                                     fnValue,
@@ -173,6 +177,7 @@ public class VariantMultipartFormParameters implements Variant {
                     ctValueMatcher.find();
                     String ctValue = ctValueMatcher.group("contenttype");
                     extractedParameters.add(
+                            extractedParameters.size() - 1,
                             new NameValuePair(
                                     NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
                                     name,
@@ -186,6 +191,7 @@ public class VariantMultipartFormParameters implements Variant {
                                         + ctEnd + " Pos: " + position);
                     }
                     multiPartParams.add(
+                            multiPartParams.size() - 1,
                             new MultipartFormParameter(
                                     name,
                                     ctValue,
