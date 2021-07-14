@@ -20,7 +20,6 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -218,45 +217,39 @@ public class VariantMultipartFormParameters implements Variant {
     @Override
     public String setParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
-        return setParameter(msg, Arrays.asList(originalPair.getPosition()), Arrays.asList(value));
+        return setParameter(
+                msg,
+                Collections.singletonList(originalPair.getPosition()),
+                Collections.singletonList(value));
     }
 
     @Override
     public String setEscapedParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
-        return setParameter(msg, Arrays.asList(originalPair.getPosition()), Arrays.asList(value));
+        return setParameter(
+                msg,
+                Collections.singletonList(originalPair.getPosition()),
+                Collections.singletonList(value));
     }
 
-    /**
-     * Sets the parameters into the given {@code message}.
-     *
-     * @param msg the message that will be changed
-     * @param inputVectors list of name of the parameter
-     * @since 2.11.0
-     */
     @Override
     public void setParameters(HttpMessage msg, List<InputVector> inputVectors) {
         this.setParameter(
                 msg,
-                inputVectors.stream()
-                        .map(inputVector -> inputVector.getPosition())
-                        .collect(Collectors.toList()),
-                inputVectors.stream()
-                        .map(inputVector -> inputVector.getValue())
-                        .collect(Collectors.toList()));
-    };
+                inputVectors.stream().map(InputVector::getPosition).collect(Collectors.toList()),
+                inputVectors.stream().map(InputVector::getValue).collect(Collectors.toList()));
+    }
 
     private String setParameter(
             HttpMessage msg, List<Integer> nameValuePairPositions, List<String> values) {
         StringBuilder newBodyBuilder = new StringBuilder(msg.getRequestBody().toString());
-        List<MultipartFormParameter> multiPartParamsClone =
-                new ArrayList<MultipartFormParameter>(this.multiPartParams);
+        int offset = 0;
         for (int index = 0; index < nameValuePairPositions.size(); index++) {
             int originalPosition = nameValuePairPositions.get(index);
             String value = values.get(index);
             int idx = originalPosition - 1;
 
-            MultipartFormParameter mpPart = multiPartParamsClone.get(idx);
+            MultipartFormParameter mpPart = this.multiPartParams.get(idx);
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         "i: "
@@ -266,36 +259,12 @@ public class VariantMultipartFormParameters implements Variant {
                                 + " S: "
                                 + mpPart.getStart()
                                 + " E: "
-                                + mpPart.getEnd());
+                                + mpPart.getEnd()
+                                + " O: "
+                                + offset);
             }
-            newBodyBuilder.replace(mpPart.getStart(), mpPart.getEnd(), value);
-            int originalStart = mpPart.getStart();
-            int offset = value.length() - mpPart.getEnd() + mpPart.getStart();
-            mpPart =
-                    new MultipartFormParameter(
-                            mpPart.getName(),
-                            mpPart.getValue(),
-                            originalStart,
-                            mpPart.getEnd() + offset,
-                            mpPart.getPosition(),
-                            mpPart.getType());
-            multiPartParamsClone.set(idx, mpPart);
-            // As we have updated one value and this can impact other multipart params
-            // Hence this logic is to update the other multipart params
-            for (idx = 0; idx < multiPartParamsClone.size(); idx++) {
-                mpPart = multiPartParamsClone.get(idx);
-                if (mpPart.getStart() > originalStart) {
-                    mpPart =
-                            new MultipartFormParameter(
-                                    mpPart.getName(),
-                                    mpPart.getValue(),
-                                    mpPart.getStart() + offset,
-                                    mpPart.getEnd() + offset,
-                                    mpPart.getPosition(),
-                                    mpPart.getType());
-                    multiPartParamsClone.set(idx, mpPart);
-                }
-            }
+            newBodyBuilder.replace(mpPart.getStart() + offset, mpPart.getEnd() + offset, value);
+            offset = offset + value.length() - mpPart.getEnd() + mpPart.getStart();
         }
         String newBody = newBodyBuilder.toString();
         msg.getRequestBody().setBody(newBody);

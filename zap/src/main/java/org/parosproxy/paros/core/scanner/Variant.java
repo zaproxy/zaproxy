@@ -55,7 +55,7 @@ public interface Variant {
      * @param inputVectors list of name of the parameter
      * @since 2.11.0
      */
-    default void setParameters(HttpMessage message, List<InputVector> inputVectors) {};
+    default void setParameters(HttpMessage message, List<InputVector> inputVectors) {}
 
     /**
      * Gets the name of the node to be used for the given {@code msg} in the Site Map. Returning

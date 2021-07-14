@@ -19,10 +19,11 @@
  */
 package org.zaproxy.zap.core.scanner;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.zaproxy.zap.core.scanner.InputVector.PayloadFormat;
 
@@ -43,24 +44,24 @@ public class InputVectorBuilder {
      *
      * @param nameValuePair
      * @param param
-     * @param value
      * @param namePayloadFormat
+     * @param value
      * @param valuePayloadFormat
      * @return {@code InputVectorBuilder}
      */
     public InputVectorBuilder setNameAndValue(
             NameValuePair nameValuePair,
             String param,
-            String value,
             PayloadFormat namePayloadFormat,
+            String value,
             PayloadFormat valuePayloadFormat) {
         inputVectorsMap.put(
                 nameValuePair.getPosition(),
                 new InputVector(
                         nameValuePair.getPosition(),
                         param,
-                        value,
                         namePayloadFormat,
+                        value,
                         valuePayloadFormat));
         return this;
     }
@@ -79,8 +80,8 @@ public class InputVectorBuilder {
         return this.setNameAndValue(
                 nameValuePair,
                 nameValuePair.getName(),
-                value,
                 PayloadFormat.ALREADY_ESCAPED,
+                value,
                 payloadFormat);
     }
 
@@ -98,12 +99,14 @@ public class InputVectorBuilder {
         return this.setNameAndValue(
                 nameValuePair,
                 param,
-                nameValuePair.getValue(),
                 payloadFormat,
+                nameValuePair.getValue(),
                 PayloadFormat.ALREADY_ESCAPED);
     }
 
     public List<InputVector> build() {
-        return new ArrayList<>(inputVectorsMap.values());
+        return inputVectorsMap.values().stream()
+                .sorted(Comparator.comparingInt(InputVector::getPosition))
+                .collect(Collectors.toList());
     }
 }

@@ -47,8 +47,8 @@ public class InputVector {
     InputVector(
             int position,
             String name,
-            String value,
             PayloadFormat namePayloadFormat,
+            String value,
             PayloadFormat valuePayloadFormat) {
         this.position = position;
         this.name = name;
@@ -65,12 +65,12 @@ public class InputVector {
         return name;
     }
 
-    public String getValue() {
-        return value;
-    }
-
     public PayloadFormat getNamePayloadFormat() {
         return namePayloadFormat;
+    }
+
+    public String getValue() {
+        return value;
     }
 
     public PayloadFormat getValuePayloadFormat() {
