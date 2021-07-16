@@ -60,6 +60,7 @@
 // isSpecificType(Pattern).
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/10 Use authority for CONNECT requests.
+// ZAP: 2021/07/16 Issue 6691: Do not add zero Content-Length by default in GET requests
 // ZAP: 2021/07/19 Include SVG in isImage().
 package org.parosproxy.paros.network;
 
@@ -244,11 +245,6 @@ public class HttpRequestHeader extends HttpHeader {
         }
 
         setHeader(ACCEPT_ENCODING, null);
-
-        // ZAP: changed from method to version
-        if (version.equalsIgnoreCase(HTTP11)) {
-            setContentLength(0);
-        }
     }
 
     /**

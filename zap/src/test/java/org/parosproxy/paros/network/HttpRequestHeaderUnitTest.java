@@ -209,6 +209,16 @@ class HttpRequestHeaderUnitTest {
         assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
     }
 
+    @Test
+    void shouldNotHaveContentLengthHeaderByDefault() throws Exception {
+        // Given / When
+        URI uri = new URI("http://example.com", true);
+        HttpRequestHeader header =
+                new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11);
+        // Then
+        assertThat(header.getHeaderValues(HttpHeader.CONTENT_LENGTH), is(empty()));
+    }
+
     private static Stream<Arguments> falseTestCssUrls() {
         return falseTestUrls("css");
     }
