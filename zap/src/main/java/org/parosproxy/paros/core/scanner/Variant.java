@@ -29,6 +29,7 @@ package org.parosproxy.paros.core.scanner;
 import java.util.List;
 import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.core.scanner.InputVector;
 
 public interface Variant {
 
@@ -46,6 +47,15 @@ public interface Variant {
 
     public String setEscapedParameter(
             HttpMessage msg, NameValuePair originalPair, String param, String value);
+
+    /**
+     * Sets the parameters into the given {@code message}.
+     *
+     * @param message the message that will be changed
+     * @param inputVectors list of name of the parameter
+     * @since 2.11.0
+     */
+    default void setParameters(HttpMessage message, List<InputVector> inputVectors) {}
 
     /**
      * Gets the name of the node to be used for the given {@code msg} in the Site Map. Returning

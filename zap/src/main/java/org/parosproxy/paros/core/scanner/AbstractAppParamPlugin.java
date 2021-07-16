@@ -40,6 +40,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/08/27 Moved variants into VariantFactory
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/06/16 Add support for updating multiple parameters in HttpMessage.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -50,6 +51,8 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.core.scanner.InputVector;
+import org.zaproxy.zap.core.scanner.InputVectorBuilder;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
@@ -217,5 +220,26 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      */
     protected String setEscapedParameter(HttpMessage message, String param, String value) {
         return variant.setEscapedParameter(message, originalPair, param, value);
+    }
+
+    /**
+     * @return {@code InputVectorBuilder} which is used to build the {@code InputVector} which is
+     *     used by {@link #setParameters(HttpMessage, List)}
+     * @since 2.11.0
+     */
+    protected InputVectorBuilder getBuilder() {
+        return new InputVectorBuilder();
+    }
+
+    /**
+     * Sets the parameters into the given {@code message}. Please refer {@link #getBuilder()} for
+     * building {@code InputVector}s.
+     *
+     * @param message the message that will be changed
+     * @param inputVectors list of the parameters
+     * @since 2.11.0
+     */
+    protected void setParameters(HttpMessage message, List<InputVector> inputVectors) {
+        variant.setParameters(message, inputVectors);
     }
 }
