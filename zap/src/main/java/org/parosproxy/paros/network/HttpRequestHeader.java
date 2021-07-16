@@ -60,6 +60,7 @@
 // isSpecificType(Pattern).
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/10 Use authority for CONNECT requests.
+// ZAP: 2021/07/16 Issue #6691: Prevent Spider and other addons setting Request Header Content-length:0 in GET requests
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -243,8 +244,12 @@ public class HttpRequestHeader extends HttpHeader {
 
         setHeader(ACCEPT_ENCODING, null);
 
-        // ZAP: changed from method to version
-        if (version.equalsIgnoreCase(HTTP11)) {
+    // Content-Length is valid only  for POST,PUT, PATCH, DELETE methods
+    // https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods
+    // Per RFC we should not add this header for other methods
+    // https://datatracker.ietf.org/doc/html/rfc7230#section-3.3.2
+    if (method.equalsIgnoreCase(POST) || method.equalsIgnoreCase(PUT) || 
+        method.equalsIgnoreCase(PATCH) || method.equalsIgnoreCase(DELETE)) {
             setContentLength(0);
         }
     }
