@@ -60,6 +60,7 @@
 // isSpecificType(Pattern).
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/10 Use authority for CONNECT requests.
+// ZAP: 2021/07/16 Issue #6691: Avoid setting Request Header Content-length:0 in GET requests
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -242,11 +243,6 @@ public class HttpRequestHeader extends HttpHeader {
         }
 
         setHeader(ACCEPT_ENCODING, null);
-
-        // ZAP: changed from method to version
-        if (version.equalsIgnoreCase(HTTP11)) {
-            setContentLength(0);
-        }
     }
 
     /**

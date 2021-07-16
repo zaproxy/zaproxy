@@ -204,6 +204,17 @@ class HttpRequestHeaderUnitTest {
         assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
     }
 
+    @Test
+    void shouldNotHaveContentLengthHeaderIfGetRequest() throws Exception {
+        // Given
+        HttpRequestHeader header =
+                new HttpRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
+        //When
+        boolean empty = header.getHeaderValues(HttpHeader.CONTENT_LENGTH).isEmpty();
+        // Then
+        assertThat(empty, is(equalTo(true)));
+    }
+
     @ParameterizedTest
     @ValueSource(
             strings = {
