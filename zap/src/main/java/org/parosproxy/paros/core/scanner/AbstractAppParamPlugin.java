@@ -40,6 +40,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/08/27 Moved variants into VariantFactory
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/06/16 Add support for updating multiple parameters in HttpMessage.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -50,6 +51,8 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.core.scanner.InputVector;
+import org.zaproxy.zap.core.scanner.InputVectorBuilder;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
@@ -81,8 +84,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             variant = listVariant.get(i);
             try {
                 variant.setMessage(msg);
-                scanVariant();
-
+                this.scan(this.variant.getParamList());
             } catch (Exception e) {
                 logger.error(
                         "Error occurred while scanning with variant "
@@ -97,11 +99,22 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
         }
     }
 
-    /** Scan the current message using the current Variant */
-    private void scanVariant() {
-        for (int i = 0; i < variant.getParamList().size() && !isStop(); i++) {
+    /**
+     * Scans the current message using the list of {@code NameValuePair}s handled by the current
+     * variant. This method should be overridden for the use-cases of manipulating multiple
+     * parameters in a {@code HttpMessage}.
+     *
+     * <p>By default this method calls {@link #scan(HttpMessage, NameValuePair)} for each {@code
+     * NameValuePair}.
+     *
+     * @param nameValuePairs list of parameters handled by the current variant
+     * @since 2.11.0
+     * @see #setParameters(HttpMessage, List)
+     */
+    protected void scan(List<NameValuePair> nameValuePairs) {
+        for (int i = 0; i < nameValuePairs.size() && !isStop(); i++) {
             // ZAP: Removed unnecessary cast.
-            originalPair = variant.getParamList().get(i);
+            originalPair = nameValuePairs.get(i);
 
             if (!isToExclude(originalPair)) {
 
@@ -111,7 +124,6 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
                 try {
                     scan(msg, originalPair);
-
                 } catch (Exception e) {
                     logger.error("Error occurred while scanning a message:", e);
                 }
@@ -174,7 +186,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      * @param param the name of the parameter under testing
      * @param value the clean value (no escaping is needed)
      */
-    public abstract void scan(HttpMessage msg, String param, String value);
+    public void scan(HttpMessage msg, String param, String value) {}
 
     /**
      * General method for a specific Parameter scanning, which allows developers to access all the
@@ -217,5 +229,26 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      */
     protected String setEscapedParameter(HttpMessage message, String param, String value) {
         return variant.setEscapedParameter(message, originalPair, param, value);
+    }
+
+    /**
+     * @return {@code InputVectorBuilder} which is used to build the {@code InputVector} which is
+     *     used by {@link #setParameters(HttpMessage, List)}
+     * @since 2.11.0
+     */
+    protected InputVectorBuilder getBuilder() {
+        return new InputVectorBuilder();
+    }
+
+    /**
+     * Sets the parameters into the given {@code message}. Please refer {@link #getBuilder()} for
+     * building {@code InputVector}s.
+     *
+     * @param message the message that will be changed
+     * @param inputVectors list of the parameters
+     * @since 2.11.0
+     */
+    protected void setParameters(HttpMessage message, List<InputVector> inputVectors) {
+        variant.setParameters(message, inputVectors);
     }
 }

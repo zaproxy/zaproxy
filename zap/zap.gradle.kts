@@ -154,7 +154,9 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     fieldExcludes = listOf()
 
     classExcludes = listOf(
-        "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel")
+        "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel",
+        "org.parosproxy.paros.core.scanner.Variant#setParameters(org.parosproxy.paros.network.HttpMessage,java.util.List)"
+        )
 
     methodExcludes = listOf()
 
