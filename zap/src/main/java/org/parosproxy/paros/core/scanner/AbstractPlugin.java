@@ -69,6 +69,7 @@
 // ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j2 getLogger() and deprecate Log4j1.x.
+// ZAP: 2021/07/20 Correct message updated with the scan rule ID header (Issue 6689).
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -287,8 +288,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         }
 
         if (this.parent.getScannerParam().isInjectPluginIdInHeader()) {
-            this.msg
-                    .getRequestHeader()
+            message.getRequestHeader()
                     .setHeader(HttpHeader.X_ZAP_SCAN_ID, Integer.toString(getId()));
         }
 
