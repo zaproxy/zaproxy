@@ -60,6 +60,7 @@
 // isSpecificType(Pattern).
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/10 Use authority for CONNECT requests.
+// ZAP: 2021/07/19 Include SVG in isImage().
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -119,7 +120,8 @@ public class HttpRequestHeader extends HttpHeader {
     // private static final Pattern patternHostHeader
     //	= Pattern.compile("([^:]+)\\s*?:?\\s*?(\\d*?)");
     private static final Pattern patternImage =
-            Pattern.compile("\\.(bmp|ico|jpg|jpeg|gif|tiff|tif|png)\\z", Pattern.CASE_INSENSITIVE);
+            Pattern.compile(
+                    "\\.(bmp|ico|jpg|jpeg|gif|tiff|tif|png|svg)\\z", Pattern.CASE_INSENSITIVE);
     private static final Pattern patternPartialRequestLine =
             Pattern.compile(
                     "\\A *(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT)\\b",
