@@ -205,14 +205,13 @@ class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    void shouldNotHaveContentLengthHeaderIfGetRequest() throws Exception {
-        // Given
+    void shouldNotHaveContentLengthHeaderByDefault() throws Exception {
+        URI uri = new URI("http://example.com", true);
+        // When
         HttpRequestHeader header =
-                new HttpRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
-        //When
-        boolean empty = header.getHeaderValues(HttpHeader.CONTENT_LENGTH).isEmpty();
+                new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11);
         // Then
-        assertThat(empty, is(equalTo(true)));
+        assertThat(header.getHeaderValues(HttpHeader.CONTENT_LENGTH), is(empty()));
     }
 
     @ParameterizedTest
