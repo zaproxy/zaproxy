@@ -26,13 +26,18 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /** Unit test for {@link HttpRequestHeader}. */
 class HttpRequestHeaderUnitTest {
@@ -213,21 +218,12 @@ class HttpRequestHeaderUnitTest {
         // Then
         assertThat(header.getHeaderValues(HttpHeader.CONTENT_LENGTH), is(empty()));
     }
+    private static Stream<Arguments> falseTestCssUrls() {
+        return falseTestUrls("css");
+    }
 
     @ParameterizedTest
-    @ValueSource(
-            strings = {
-                "http://example.org/css/file.ext", // In directory path
-                "http://ericsson.com/", // In domain name
-                "https://example.css", // In domain extension (TLD)
-                "https://example.css/dir/file.ext", // In domain extension (TLD)
-                "https://example.org/dir/file?foo=bar&thing=css", // In parameter value
-                "http://example.org/css/file.ext?foo=bar&type=.css", // In parameter value including
-                // period
-                "http://example.org/css/file.ext?foo=bar&thing=styles.css", // In parameter value,
-                // plausible filename
-                "https://example.org/dir/file?foo=bar&css=file.ext" // In parameter name
-            })
+    @MethodSource("falseTestCssUrls")
     void isCssShouldReturnFalseWhenUrlDoesNotIndicateCss(String url) {
         // Given
         HttpRequestHeader reqHeader = createRequestHeader(url);
@@ -235,19 +231,92 @@ class HttpRequestHeaderUnitTest {
         assertFalse(reqHeader.isCss());
     }
 
+    private static Stream<Arguments> trueTestCssUrls() {
+        return trueTestUrls("css");
+    }
+
     @ParameterizedTest
-    @ValueSource(
-            strings = {
-                "http://example.org/styles.css", // In path
-                "http://example.org/assets/css/styles.css", // In deeper path
-                "http://example.org/css/styles.css?foo=bar", // In path, ignoring params
-                "http://example.org/css/styles.css?foo=bar&thing=.css", // In path, ignoring params
-            })
+    @MethodSource("trueTestCssUrls")
     void isCssShouldReturnTrueWhenUrlIndicatesCss(String url) {
         // Given
         HttpRequestHeader reqHeader = createRequestHeader(url);
         // When / Then
         assertTrue(reqHeader.isCss());
+    }
+
+    private static Stream<Arguments> falseTestImageUrls() {
+        return falseTestUrls("gif");
+    }
+
+    @ParameterizedTest
+    @MethodSource("falseTestImageUrls")
+    void isImageShouldReturnFalseWhenUrlDoesNotIndicateImage(String url) {
+        // Given
+        HttpRequestHeader reqHeader = createRequestHeader(url);
+        // When / Then
+        assertFalse(reqHeader.isImage());
+    }
+
+    private static Stream<Arguments> trueTestImageUrls() {
+        // Per HttpRequestHeader.patternImage
+        return trueTestUrls("bmp", "ico", "jpg", "jpeg", "gif", "tiff", "tif", "png", "svg");
+    }
+
+    @ParameterizedTest
+    @MethodSource("trueTestImageUrls")
+    void isImageShouldReturnTrueWhenUrlIndicatesImage(String url) {
+        // Given
+        HttpRequestHeader reqHeader = createRequestHeader(url);
+        // When / Then
+        assertTrue(reqHeader.isImage());
+    }
+
+    private static Stream<Arguments> falseTestUrls(String extension) {
+        List<Arguments> urls = new ArrayList<>();
+        // In directory path
+        urls.add(arguments("http://example.org/" + extension + "/file.ext"));
+        // In domain name
+        urls.add(arguments("http://domain" + extension + ".com/"));
+        // In domain extension (TLD)
+        urls.add(arguments("https://example." + extension));
+        // In domain extension (TLD)
+        urls.add(arguments("https://example." + extension + "/dir/file.ext"));
+        // In parameter value
+        urls.add(arguments("https://example.org/dir/file?foo=bar&thing=" + extension));
+        // In parameter value including period
+        urls.add(
+                arguments(
+                        "http://example.org/"
+                                + extension
+                                + "/file.ext?foo=bar&type=."
+                                + extension));
+        // In parameter name
+        urls.add(arguments("https://example.org/dir/file?foo=bar&" + extension + "=file.ext"));
+        // In parameter name and value
+        urls.add(
+                arguments(
+                        "https://example.org/dir/file?foo=bar&"
+                                + extension
+                                + "=file."
+                                + extension));
+        return urls.stream();
+    }
+
+    private static Stream<Arguments> trueTestUrls(String... exts) {
+        List<Arguments> urls = new ArrayList<>();
+        for (String ext : exts) {
+            // In path
+            urls.add(arguments("http://example.org/example." + ext));
+            // In deeper path
+            urls.add(arguments("http://example.org/assets/images/example." + ext));
+            // In path, ignoring params
+            urls.add(arguments("http://example.org/images/example." + ext + "?foo=bar"));
+            // In path, ignoring params
+            urls.add(
+                    arguments(
+                            "http://example.org/images/example." + ext + "?foo=bar&thing=." + ext));
+        }
+        return urls.stream();
     }
 
     private static HttpRequestHeader createRequestHeader(String url) {

@@ -56,7 +56,7 @@ dependencies {
     api("commons-collections:commons-collections:3.2.2")
     api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
-    api("commons-io:commons-io:2.8.0")
+    api("commons-io:commons-io:2.11.0")
     api("commons-lang:commons-lang:2.6")
     api("org.apache.commons:commons-lang3:3.12.0")
     api("org.apache.commons:commons-text:1.9")
@@ -77,14 +77,14 @@ dependencies {
     api("org.jfree:jfreechart:1.5.3")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
-    api("org.xerial:sqlite-jdbc:3.34.0")
+    api("org.xerial:sqlite-jdbc:3.36.0.1")
 
     implementation("commons-validator:commons-validator:1.7")
     // Don't need its dependencies, for now.
     implementation("org.jitsi:ice4j:3.0-24-g34c2ce5") {
         setTransitive(false)
     }
-    implementation("com.formdev:flatlaf:1.2")
+    implementation("com.formdev:flatlaf:1.4")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
@@ -154,7 +154,9 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     fieldExcludes = listOf()
 
     classExcludes = listOf(
-        "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel")
+        "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel",
+        "org.parosproxy.paros.core.scanner.Variant#setParameters(org.parosproxy.paros.network.HttpMessage,java.util.List)"
+        )
 
     methodExcludes = listOf()
 

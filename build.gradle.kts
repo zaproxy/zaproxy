@@ -3,8 +3,8 @@ import net.ltgt.gradle.errorprone.errorprone
 plugins {
     id("com.diffplug.spotless")
     id("org.sonarqube") version "3.1.1"
-    id("com.github.ben-manes.versions") version "0.38.0"
-    id("net.ltgt.errorprone") version "2.0.1"
+    id("com.github.ben-manes.versions") version "0.39.0"
+    id("net.ltgt.errorprone") version "2.0.2"
 }
 
 apply(from = "$rootDir/gradle/ci.gradle.kts")
