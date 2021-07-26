@@ -15,6 +15,15 @@ Once published the [Handle Release](https://github.com/zaproxy/zaproxy/actions/w
 will trigger the update of the marketplace with the new release, it will also create a pull request preparing the next
 development iteration.
 
+### Localized Resources
+
+The resources that require localization (e.g. `Messages.properties`, `vulnerabilities.xml`) are uploaded to the OWASP ZAP projects in
+[Crowdin](https://crowdin.com/) when the main release is released, if required (for pre-translation) the resources can be uploaded manually
+at anytime by running the workflow [Crowdin Upload Files](https://github.com/zaproxy/zaproxy/actions/workflows/crowdin-upload-files.yml).
+
+The resulting localized resources are added/updated in the repository periodically (through a workflow in the
+[zap-admin repository](https://github.com/zaproxy/zap-admin/)).
+
 ## Weekly Release
 
 The following steps should be followed to release the weekly:
