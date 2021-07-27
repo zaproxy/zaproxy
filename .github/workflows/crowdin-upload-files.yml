@@ -1,0 +1,19 @@
+name: Crowdin Upload Files
+
+on:
+  workflow_dispatch:
+
+jobs:
+  upload:
+    name: Upload Files
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup Java
+      uses: actions/setup-java@v1
+      with:
+        java-version: 11
+    - name: Upload Files
+      env:
+        CROWDIN_AUTH_TOKEN: ${{ secrets.ZAPBOT_CROWDIN_TOKEN }}
+      run: ./gradlew :zap:crowdinUploadSourceFiles

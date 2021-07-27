@@ -181,6 +181,7 @@ System.getenv("GITHUB_REF")?.let { ref ->
         } else if (targetTag.startsWith("v")) {
             dependsOn(handleMainRelease)
             dependsOn(createPullRequestNextDevIter)
+            dependsOn("crowdinUploadSourceFiles")
         }
     }
 }
