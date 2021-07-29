@@ -241,6 +241,8 @@ Scanners:
 110007  Username Disclosure [Script]
 110008  Suspicious XML Comments Disclosure [Script]
 
+1204616 Unauthenticated Gitlab SSRF (CVE-2021-22214) [Script]
+
 322420463 Retire.js (3rd Party)
 
 ```
