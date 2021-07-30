@@ -230,6 +230,7 @@ Scanners:
 100021  Telerik Cryptographic Weakness [Script]
 100022  Upload Form Discovery [Script]
 100023  Information Leak - X-Powered-By Header [Script]
+100024  Unauthenticated Gitlab SSRF (CVE-2021-22214) [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]
@@ -240,8 +241,6 @@ Scanners:
 110006  Private IP Disclosure [Script]
 110007  Username Disclosure [Script]
 110008  Suspicious XML Comments Disclosure [Script]
-
-1204616 Unauthenticated Gitlab SSRF (CVE-2021-22214) [Script]
 
 322420463 Retire.js (3rd Party)
 
