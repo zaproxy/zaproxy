@@ -157,18 +157,21 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
         @Override
         protected String replaceParameterValue(
                 String originalString, NameValuePair parameter, String replaceString) {
+            String name = PARAM_ENCODER.apply(parameter.getName());
+            String value = PARAM_ENCODER.apply(parameter.getValue());
+
             String keyValueSeparator =
                     getContext().getPostParamParser().getDefaultKeyValueSeparator();
-            String nameAndSeparator = parameter.getName() + keyValueSeparator;
+            String nameAndSeparator = name + keyValueSeparator;
             // Make sure we handle the case when there's only the parameter name in the POST data
             // instead of
             // parameter name + separator + value (e.g. just 'param1&...' instead of
             // 'param1=...&...')
             if (originalString.contains(nameAndSeparator)) {
                 return originalString.replace(
-                        nameAndSeparator + parameter.getValue(), nameAndSeparator + replaceString);
+                        nameAndSeparator + value, nameAndSeparator + replaceString);
             }
-            return originalString.replace(parameter.getName(), nameAndSeparator + replaceString);
+            return originalString.replace(name, nameAndSeparator + replaceString);
         }
     }
 
