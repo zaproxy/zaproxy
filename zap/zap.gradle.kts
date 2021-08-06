@@ -160,7 +160,10 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     packageExcludes = listOf(
         // Deprecated in 2.10, removal part of 2.11 milestone
         "org.parosproxy.paros.extension.encoder",
-        "org.zaproxy.zap.extension.encoder2")
+        "org.zaproxy.zap.extension.encoder2",
+        // Paros reports removed in 2.11 milestone
+        "org.parosproxy.paros.extension.report"
+        )
 
     fieldExcludes = listOf()
 
