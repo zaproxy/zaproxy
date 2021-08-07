@@ -126,7 +126,7 @@ fi
 # Start ZAP; it's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
 if [ "$OS" = "Darwin" ]; then
   # It's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
-  exec java ${JMEM} ${JAVAGC} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/zap-2.10.0.jar" "${ARGS[@]}"
+  exec java ${JMEM} ${JAVAGC} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
 elif  compgen -G "$HOME/.ZAP/plugin/browserView*.zap" > /dev/null; then  
     exec java --module-path /usr/share/openjfx/lib/ --add-modules javafx.swing,javafx.web  ${JMEM} ${JAVAGC} ${JAVADEBUG} -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
 else
