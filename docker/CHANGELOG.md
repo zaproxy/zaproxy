@@ -3,6 +3,7 @@ All notable changes to the docker containers will be documented in this file.
 
 ### 2021-08-11
  - Changed to enable integration tests, inc enabling the AF for the baseline `-c` option if the `--auto` flag is used before it.
+ - Added Automation Framework support for * OUTOFSCOPE baseline config file option.
 
 ### 2021-07-08
  - Changed to use user's home directory for the Automation Framework files so it will work for any user

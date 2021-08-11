@@ -129,7 +129,7 @@ def usage():
     The following parameters are partially supported. 
     If you specify the '--auto' flag _before_ using them then the Automation Framework will be used:
 
-    -c config_file    Supports IGNORE, WARN and FAIL. Does not yet support OUTOFSCOPE or custom rule messages.
+    -c config_file    Supports IGNORE, WARN and FAIL and * OUTOFSCOPE. Does not yet support plugin specific OUTOFSCOPE or custom rule messages.
     
     If any of the next set of parameters are used then the existing code will be used instead:
     
@@ -357,7 +357,7 @@ def main(argv):
                         target = t2
                         top_levels.append(target)
                
-                yaml.dump(get_af_env(top_levels, debug), yf)
+                yaml.dump(get_af_env(top_levels, out_of_scope_dict, debug), yf)
                 
                 addons = ['pscanrulesBeta']
                 if zap_alpha:
