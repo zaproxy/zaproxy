@@ -6,7 +6,7 @@ RES=0
 mkdir /zap/wrk/output
 
 echo "TEST: Baseline test 1 (vs example.com)"
-/zap/zap-baseline.py -t https://www.example.com/ --auto > /zap/wrk/output/baseline1.out
+/zap/zap-baseline.py -t https://www.example.com/ > /zap/wrk/output/baseline1.out
 RET=$?
 DIFF=$(diff /zap/wrk/output/baseline1.out /zap/wrk/results/baseline1.out) 
 if [ "$DIFF" != "" ] 
@@ -26,7 +26,7 @@ fi
 
 echo
 echo "Baseline test 2 (vs example.com with INFO/WARN/FAIL set)"
-/zap/zap-baseline.py -t https://www.example.com/ -c configs/baseline2.conf --auto > /zap/wrk/output/baseline2.out
+/zap/zap-baseline.py -t https://www.example.com/ --auto -c configs/baseline2.conf > /zap/wrk/output/baseline2.out
 RET=$?
 DIFF=$(diff /zap/wrk/output/baseline2.out /zap/wrk/results/baseline2.out) 
 if [ "$DIFF" != "" ] 

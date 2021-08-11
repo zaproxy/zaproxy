@@ -125,10 +125,14 @@ def usage():
     -s
     -T
     -z zap_options
+
+    The following parameters are partially supported. 
+    If you specify the '--auto' flag _before_ using them then the Automation Framework will be used:
+
+    -c config_file    Supports IGNORE, WARN and FAIL. Does not yet support OUTOFSCOPE or custom rule messages.
     
     If any of the next set of parameters are used then the existing code will be used instead:
     
-    -c config_file    partially supported so cannot be enabled just yet
     -u config_url     ditto
     -D secs           need new delay/sleep job
     -i                need to support config files
@@ -173,6 +177,7 @@ def main(argv):
     user = ''
     use_af = True
     af_supported = True
+    af_override = False
 
     pass_count = 0
     warn_count = 0
@@ -200,7 +205,8 @@ def main(argv):
             logging.debug('Target: ' + target)
         elif opt == '-c':
             config_file = arg
-            af_supported = False
+            if not af_override:
+              af_supported = False
         elif opt == '-u':
             config_url = arg
             af_supported = False
@@ -262,6 +268,7 @@ def main(argv):
             af_supported = False
         elif opt == '--auto':
             use_af = True
+            af_override = True
         elif opt == '--autooff':
             use_af = False
 
