@@ -45,7 +45,27 @@ else
 fi
 
 echo
-echo "TEST Baseline 3 (new vs old) - we expect _some_ differences and this will not fail the whole script"
+echo "Baseline test 3 (vs example.com with INFO/WARN/FAIL and OUTOFSCOPE set)"
+/zap/zap-baseline.py -t https://www.example.com/ --auto -c configs/baseline3.conf > /zap/wrk/output/baseline3.out
+RET=$?
+DIFF=$(diff /zap/wrk/output/baseline3.out /zap/wrk/results/baseline3.out) 
+if [ "$DIFF" != "" ] 
+then
+    echo "FAIL: differences:"
+    echo "$DIFF"
+	RES=1
+else
+	if [ "$RET" -ne 1 ] 
+	then
+    	echo "FAIL: exited with $RET instead of 1"
+		RES=1
+	else
+    	echo "PASS"
+    fi
+fi
+
+echo
+echo "TEST Baseline 4 (new vs old) - we expect _some_ differences and this will not fail the whole script"
 /zap/zap-baseline.py -t https://www.example.com/ --autooff > /zap/wrk/output/baseline1-orig.out
 DIFF=$(diff /zap/wrk/output/baseline1.out /zap/wrk/output/baseline1-orig.out) 
 echo "Differences:"

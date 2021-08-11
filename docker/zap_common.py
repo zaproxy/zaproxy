@@ -589,12 +589,19 @@ def zap_set_scan_user(zap, username):
             return
     raise UserInputException('ZAP failed to find user: {0}'.format(username))
 
-def get_af_env(targets, debug):
+def get_af_env(targets, out_of_scope_dict, debug):
+    exclude = []
+    # '*' rules apply to all scan rules so can just be added to the context exclusions
+    if '*' in out_of_scope_dict:
+        for rule in out_of_scope_dict['*']:
+            exclude.append(rule.pattern)
+    
     return {
             'env': {
                 'contexts': [{
                     'name': 'baseline',
-                    'urls': targets
+                    'urls': targets,
+                    'excludePaths': exclude
                     }],
                 'parameters': {
                     'failOnError': True,
