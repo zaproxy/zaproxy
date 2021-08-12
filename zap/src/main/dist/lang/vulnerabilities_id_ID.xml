@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <vulnerabilities xmlns="http://tempuri.org/XMLSchemaOptions.xsd">
 
 <vuln_items>wasc_1</vuln_items>
@@ -10,7 +10,7 @@ Untuk menyiasati pengaturan otentikasi, beberapa sumber daya yang dilindungi ole
 	<solution>Tahap: Arsitektur dan desain menggunakan kerangka kerja otentikasi atau perpustakaan seperti fitur OWASP ESAPI otentikasi.</solution>
 	<reference>http://projects.webappsec.org/insufficient-transport-layer-protection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/98.html</reference>
-	<reference>http://cwe.mitre.org/data/definitions/134.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 </vuln_item_wasc_1>
 
 <vuln_items>wasc_2</vuln_items>
@@ -121,7 +121,7 @@ Hal ini membuat lebih mudah untuk menemukan tempat-tempat di dalam kode di mana 
 
 Hampir semua kerangka aplikasi web mendukung file inklusi. File inklusi terutama digunakan untuk kemasan kode umum ke dalam file terpisah yang kemudian direferensikan oleh aplikasi utama modul. Ketika aplikasi web referensi file termasuk, kode dalam file ini bisa dijalankan secara implisit ataupun eksplisit dengan memanggil prosedur khusus. Jika pilihan modul untuk memuat didasarkan pada unsur-unsur dari permintaan HTTP, aplikasi web mungkin rentan terhadap RFI.
 Penyerang dapat menggunakan RFI untuk: * menjalankan kode berbahaya di server: setiap kode dalam file berbahaya termasuk akan dijalankan oleh server. Jika file include tidak dijalankan menggunakan beberapa wrapper, kode di include file dijalankan dalam konteks pengguna server. Hal ini dapat menyebabkan kompromi sistem yang komplit.
-    * Menjalankan kode berbahaya pada klien: kode berbahaya penyerang dapat memanipulasi konten tanggapan yang dikirim ke klien. Penyerang dapat menanamkan kode berbahaya dalam respon yang akan dijalankan oleh klien (misalnya, Javascript untuk mencuri cookie sesi klien).
+    * Menjalankan kode berbahaya pada klien: kode berbahaya penyerang dapat memanipulasi konten tanggapan yang dikirim ke klien. The attacker can embed malicious code in the response that will be run by the client (for example, JavaScript to steal the client session cookies).
 
 PHP sangat rentan terhadap serangan RFI karena penggunaan ekstensif "termasuk file" dalam pemrograman PHP dan karena konfigurasi server default yang meningkatkan kerentanan terhadap serangan RFI.</desc>
 	<solution>Tahap: Arsitektur dan Desain
@@ -136,8 +136,9 @@ Hati-hati untuk menghindari CWE-243 dan kelemahan lain yang terkait dengan penja
 Bagi PHP, penerjemah menawarkan batasan seperti open basedir atau safe mode yang bisa menyulitkan penyerang untuk melepaskan diri dari aplikasi. Juga pertimbangkan Suhosin, ekstensi PHP yang mengeras, yang mencakup berbagai pilihan yang menonaktifkan beberapa fitur PHP yang lebih berbahaya.
 
 Tahap: Implementasi
-Asumsikan semua masukan itu berbahaya. Gunakan strategi validasi masukan "accept known good", i.e., menggunakan daftar putih masukan yang dapat diterima yang sesuai dengan spesifikasi. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Jangan mengandalkan secara eksklusif untuk mencari masukan jahat atau cacat (i.e., jangan mengandalkan daftar hitam). Namun, daftar hitam dapat berguna untuk mendeteksi potensi serangan atau menentukan masukan yang jadi salah bahwa mereka harus ditolak mentah-mentah.
-Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. Sebagai contoh logika aturan bisnis, "kapal" mungkin sintaksis karena hanya berisi karakter alfanumerik, namun tidak berlaku jika Anda mengharapkan warna seperti "merah" atau "biru". Pastikan Anda melakukan validasi masukan pada antarmuka yang didefinisikan dengan baik di dalam aplikasi. Jika memungkinkan, biarkan saja satu "." karakter dalam nama file untuk menghindari kelemahan seperti CWE-23, dan mengecualikan pemisah direktori seperti "/" untuk menghindari CWE-36. Menggunakan daftar putih dari ekstensi file yang diijinkan, yang akan membantu untuk menghindari CWE-434.
+Asumsikan semua masukan itu berbahaya. Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
+Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+For filenames, use stringent allow lists that limit the character set to be used. Jika memungkinkan, biarkan saja satu "." karakter dalam nama file untuk menghindari kelemahan seperti CWE-23, dan mengecualikan pemisah direktori seperti "/" untuk menghindari CWE-36. Use an allow list of allowable file extensions, which will help to avoid CWE-434.
 
 Tahapan: Arsitektur dan Desain; Operasi
 Menyimpan perpustakaan, menyertakan, dan file utilitas di luar akar dokumen web, jika memungkinkan. Jika tidak, menyimpannya dalam direktori terpisah dan menggunakan server web kemampuan akses kontrol untuk mencegah meminta mereka secara langsung menyerang. Salah satu praktek umum adalah untuk menentukan konstanta tetap dalam panggilan masing-masing program, kemudian memeriksa keberadaan konstan di perpustakaan/termasuk file, jika terus-menerus tidak ada, maka file langsung yang diminta, dan itu dapat keluar dengan segera.
@@ -245,11 +246,11 @@ Untuk setiap halaman web yang dihasilkan, menggunakan dan menentukan karakter pe
 
 Untuk membantu mengurangi serangan XSS terhadap pengguna sesi cookie, mengatur sesi cookie untuk menjadi HttpOnly. Di browser yang mendukung fitur HttpOnly (seperti versi yang lebih baru dari Internet Explorer dan Firefox), atribut ini dapat mencegah pengguna sesi cookie yang dapat diakses ke komputer dari sisi-klien script yang menggunakan dokumen.cookie. Ini bukan solusi lengkap, karena HttpOnly tidak didukung oleh semua browser. Yang lebih penting, Permintaan XMLHTTP dan teknologi kuat lainnya browser menyediakan akses baca untuk header HTTP, termasuk header set-cookie di mana HttpOnly diatur bendera.
 
-Asumsikan semua masukan itu berbahaya Gunakan strategi validasi masukan "accept known good", i.e., menggunakan daftar putih masukan yang dapat diterima yang sesuai dengan spesifikasi. Menolak apapun masukan yang tidak ketat sesuai dengan spesifikasi, atau mengubahnya menjadi sesuatu yang tidak. Jangan mengandalkan secara eksklusif untuk mencari masukan jahat atau cacat (i.e., jangan mengandalkan daftar hitam). Namun, daftar hitam dapat berguna untuk mendeteksi potensi serangan atau menentukan masukan yang jadi salah bahwa mereka harus ditolak mentah-mentah.
+Asumsikan semua masukan itu berbahaya Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. Sebagai contoh bisnis aturan logika, "perahu" mungkin sintaksis yang sah karena hanya berisi karakter alfanumerik, tapi hal ini tidak berlaku jika kamu mengharapkan warna seperti "merah" atau "biru."
+Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Memastikan bahwa kamu melakukan validasi masukan pada antarmuka yang terdefinisi dengan baik dalam aplikasi. Ini akan membantu melindungi aplikasi bahkan jika komponen ini digunakan kembali atau dipindahkan ke tempat lain.
+Ensure that you perform input validation at well-defined interfaces within the application. Ini akan membantu melindungi aplikasi bahkan jika komponen ini digunakan kembali atau dipindahkan ke tempat lain.
 	</solution>
 	<reference>http://projects.webappsec.org/Cross-Site-Scripting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/79.html</reference>
@@ -376,7 +377,7 @@ Untuk mengisi informasi yang hilang, si hacker bisa menebak informasi yang hilan
 Harga Teks Konten Spoofing
 Pendekatan umum untuk secara dinamis membangun halaman melibatkan melewati tubuh atau bagian-bagiannya ke halaman melalui nilai string kueri. Pendekatan ini lebih umum pada kesalahan halaman, atau situs yang menyediakan cerita atau berita entri. Kandungan yang ditentukan dalam parameter ini kemudian tercermin dalam halaman untuk menyediakan konten untuk halaman.
  
-Spoofing Spektrofotometri Markup Beberapa halaman web disajikan menggunakan sumber konten HTML yang dibuat secara dinamis. Misalnya, lokasi sumber dari bingkai <frame src="http://foo.example/file.html"/>) dapat ditentukan oleh nilai parameter URL. (http://foo.example/page? frame_src=http://foo.example/file.html). Seorang penyerang dapat mengganti "frame_src" nilai parameter dengan "frame_src=http://attacker.example/spoof.html". Tidak seperti pengalih, ketika halaman web yang dihasilkan disajikan browser bar lokasi terlihat masih di bawah yang diharapkan oleh pengguna domain (foo.contoh), tetapi data asing (penyerang.contoh) diselimuti oleh konten yang sah.
+Spoofing Spektrofotometri Markup Beberapa halaman web disajikan menggunakan sumber konten HTML yang dibuat secara dinamis. For example, the source location of a frame <frame src="http://foo.example/file.html"/>) could be specified by a URL parameter value. (http://foo.example/page? frame_src=http://foo.example/file.html). Seorang penyerang dapat mengganti "frame_src" nilai parameter dengan "frame_src=http://attacker.example/spoof.html". Tidak seperti pengalih, ketika halaman web yang dihasilkan disajikan browser bar lokasi terlihat masih di bawah yang diharapkan oleh pengguna domain (foo.contoh), tetapi data asing (penyerang.contoh) diselimuti oleh konten yang sah.
 
 Link khusus dibuat dapat dikirim ke pengguna melalui e-mail, pesan instan, yang tersisa di papan posting buletin, atau dipaksakan oleh serangan pengguna Cross-site Scripting. Jika seorang penyerang mendapatkan pengguna untuk mengunjungi halaman web yang ditunjuk oleh URL mereka yang berbahaya, pengguna akan percaya dia melihat isi otentik dari satu lokasi jika tidak. Pengguna akan secara implisit mempercayai konten palsu karena lokasi browser bar menampilkan http://foo.example padahal, yang mendasari HTML bingkai referensi http://attacker.example.
 
@@ -397,7 +398,7 @@ Kegagalan untuk menggosok HTML/Script komentar sebelum mendorong ke lingkungan p
 Nomor versi perangkat lunak dan pesan kesalahan verbose (seperti nomor versi ASP.NET) adalah contoh konfigurasi server yang tidak semestinya. Informasi ini berguna untuk seorang penyerang dengan memberikan wawasan rinci untuk kerangka kerja, bahasa, atau pre-built fungsi yang digunakan oleh aplikasi web. Konfigurasi server paling default yang menyediakan perangkat lunak dan nomor versi verbose kesalahan pesan untuk debugging dan tujuan pemecahan masalah. Perubahan konfigurasi dapat dibuat untuk menonaktifkan fitur ini, mencegah tampilan dari informasi ini.
 
 Laman yang memberikan tanggapan berbeda berdasarkan validitas data juga dapat menyebabkan Kebocoran Informasi; khususnya ketika data dianggap rahasia sedang diungkapkan sebagai hasil dari desain aplikasi web. Contoh data sensitif termasuk (namun tidak terbatas pada): nomor rekening, pengenal pengguna (nomor lisensi Driver, nomor Paspor, Nomor Jaminan Sosial, dll.) Dan informasi khusus pengguna (kata sandi, sesi, alamat). Informasi Kebocoran dalam konteks ini berkaitan dengan pemaparan data pengguna kunci yang dianggap rahasia, atau rahasia, yang seharusnya tidak terpapar secara polos, bahkan untuk pengguna. Nomor kartu kredit dan informasi lain yang sangat diatur adalah contoh utama data pengguna yang perlu dilindungi lebih jauh dari paparan atau kebocoran bahkan dengan enkripsi dan kontrol akses yang benar.</desc>
-	<solution>Kompartemen sistem Anda untuk memiliki area "aman" dimana batas kepercayaan dapat ditarik dengan jelas. Jangan biarkan data sensitif untuk pergi di luar batas kepercayaan dan selalu berhati-hati ketika berinteraksi dengan kompartemen luar daerah yang aman.</solution>
+	<solution>Kompartemen sistem Anda untuk memiliki area "aman" dimana batas kepercayaan dapat ditarik dengan jelas. Jangan biarkan data sensitif keluar dari batas kepercayaan dan selalu berhati-hati saat berinteraksi dengan kompartemen di luar area aman.</solution>
 	<reference>http://projects.webappsec.org/Information-Leakage</reference>
 	<reference>http://cwe.mitre.org/data/definitions/200.html</reference>
 </vuln_item_wasc_13>
@@ -412,7 +413,7 @@ Server mungkin termasuk akun default dan kata sandi yang terkenal. Kegagalan unt
 Kesalahan informasi pesan verbose yang dapat mengakibatkan kebocoran data, dan informasi yang diungkapkan dapat digunakan untuk merumuskan tingkat berikutnya dari serangan. Salah di konfigurasi server perangkat lunak dapat mengizinkan direktori pengindeksan dan serangan jalur traversal.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Server-Misconfiguration</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_14>
 
 <vuln_items>wasc_15</vuln_items>
@@ -423,7 +424,7 @@ Kesalahan informasi pesan verbose yang dapat mengakibatkan kebocoran data, dan i
 Demikian juga, instalasi default mungkin termasuk nama pengguna dan kata sandi, kode-keras akun backdoor, terkenal akses khusus mekanisme, dan salah mengatur hak akses untuk file-file yang dapat diakses melalui server web. Sampel standar dapat diakses di lingkungan produksi. Aplikasi berbasis file-file konfigurasi yang tidak benar dikurung dapat mengungkapkan teks yang jelas koneksi string ke database, dan pengaturan default di file konfigurasi mungkin telah tidak ditetapkan dalam pikiran dengan keamanan. Semua ini kesalahan konfigurasi dapat menyebabkan akses tidak sah ke informasi sensitif.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Application-Misconfiguration</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_15>
 
 <vuln_items>wasc_16</vuln_items>
@@ -440,7 +441,7 @@ Demikian juga, instalasi default mungkin termasuk nama pengguna dan kata sandi, 
 <vuln_item_wasc_17>
 	<alert>Izin Filesystem yang Tidak Tepat</alert>
 	<desc>Izin filesystem yang tidak benar merupakan ancaman terhadap kerahasiaan, integritas dan ketersediaan aplikasi web. Masalah muncul ketika sistem file salah izin yang ditetapkan pada file, folder, dan simbolik link. Saat yang tidak tepat menetapkan perizinan, seorang penyerang dapat mengakses dibatasi file atau direktori dan memodifikasi atau menghapus isinya. Misalnya, jika seorang pengguna akun anonim yang memiliki izin menulis ke sebuah file, maka penyerang dapat memodifikasi isi dari file yang mempengaruhi aplikasi web dengan cara yang tidak diinginkan. Penyerang juga dapat mengeksploitasi symlink yang tidak tepat untuk meningkatkan hak-hak mereka dan/atau mengakses file yang tidak sah; misalnya, sebuah symlink yang menunjuk ke luar dari direktori akar web.</desc>
-	<solution>Sangat hati-hati mengelola pengaturan, pengelolaan, dan penanganan izin. Secara eksplisit mengelola zona kepercayaan dalam perangkat lunak.</solution>
+	<solution>Very carefully manage the setting, management and handling of permissions. Secara eksplisit mengelola zona kepercayaan dalam perangkat lunak.</solution>
 	<reference>http://projects.webappsec.org/Improper-Filesystem-Permissions</reference>
 	<reference>http://cwe.mitre.org/data/definitions/280.html</reference>
 </vuln_item_wasc_17>
@@ -453,7 +454,7 @@ Demikian juga, instalasi default mungkin termasuk nama pengguna dan kata sandi, 
 Banyak situs web yang dirancang untuk mengotentikasi dan melacak pengguna ketika komunikasi ini pertama kali didirikan. Untuk melakukan hal ini, pengguna harus membuktikan identitas mereka ke situs web, biasanya dengan menyediakan nama pengguna/katasandi (kredensial) kombinasi. Dari pada melewati ini rahasia kredensial bolak-balik dengan masing-masing transaksi, situs web yang akan menghasilkan sebuah "sesi ID" untuk mengidentifikasi sesi pengguna saat dikonfirmasi. Selanjutnya komunikasi antara pengguna dan situs web yang ditandai dengan sesi ID sebagai "bukti" dikonfirmasi sesi. Jika seorang penyerang dapat memprediksi atau menebak sesi ID dari pengguna lain, aktivitas penipuan adalah mungkin.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Credential-and-Session-Prediction</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_18>
 
 <vuln_items>wasc_19</vuln_items>
@@ -475,21 +476,21 @@ Menjalankan kode terendah menggunakan hak-hak istimewa yang diperlukan untuk men
 Secara khusus, mengikuti prinsip paling tidak istimewa saat membuat akun pengguna untuk database SQL. Database pengguna hanya harus memiliki hak yang diperlukan untuk menggunakan akun mereka. Jika persyaratan dari sistem yang menunjukkan bahwa pengguna dapat membaca dan memodifikasi data mereka sendiri, kemudian membatasi hak-hak mereka sehingga mereka tidak dapat membaca/menulis data yang lain'. Gunakan hak akses yang paling ketat pada semua objek database, seperti execute-only untuk stored procedure.
 
 Tahap: Implementasi
-Jika Anda perlu menggunakan string kueri atau perintah kueri yang dihasilkan secara dinamis terlepas dari risikonya, berikan argumen dengan benar dan lepaskan karakter khusus apa pun dalam argumen tersebut. Pendekatan yang paling konservatif adalah melarikan diri atau menyaring semua karakter yang tidak melewati daftar putih yang sangat ketat (seperti segala sesuatu yang bukan spasial atau spasi putih). Jika beberapa karakter khusus masih dibutuhkan, seperti white space, bungkus setiap argumen dalam tanda kutip setelah langkah escape/filtering. Hati-hati dengan injeksi argumen (CWE-88).
+Jika Anda perlu menggunakan string kueri atau perintah kueri yang dihasilkan secara dinamis terlepas dari risikonya, berikan argumen dengan benar dan lepaskan karakter khusus apa pun dalam argumen tersebut. The most conservative approach is to escape or filter all characters that do not pass an extremely strict allow list (such as everything that is not alphanumeric or white space). Jika beberapa karakter khusus masih dibutuhkan, seperti white space, bungkus setiap argumen dalam tanda kutip setelah langkah escape/filtering. Hati-hati dengan injeksi argumen (CWE-88).
 
 Alih-alih membangun penerapan Anda sendiri, fitur semacam itu mungkin tersedia dalam database atau bahasa pemrograman. Misalnya, paket Oracle DBMS ASSERT dapat memeriksa atau menerapkan parameter tersebut memiliki sifat tertentu yang membuat mereka kurang rentan terhadap injeksi SQL. Untuk MySQL, mysql string escape nyata() fungsi API tersedia di kedua C dan PHP.
 
-Asumsikan semua masukan itu berbahaya Gunakan strategi validasi masukan "accept known good", i.e., menggunakan daftar putih masukan yang dapat diterima yang sesuai dengan spesifikasi. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Jangan mengandalkan secara eksklusif untuk mencari masukan jahat atau cacat (i.e., jangan mengandalkan daftar hitam). Namun, daftar hitam dapat berguna untuk mendeteksi potensi serangan atau menentukan masukan yang jadi salah bahwa mereka harus ditolak mentah-mentah.
+Asumsikan semua masukan itu berbahaya Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. Sebagai contoh logika aturan bisnis, "kapal" mungkin sintaksis karena hanya berisi karakter alfanumerik, namun tidak berlaku jika Anda mengharapkan warna seperti "merah" atau "biru".
+Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Saat membuat string perintah SQL, gunakan whitelist ketat yang membatasi set karakter berdasarkan nilai parameter yang diharapkan dalam permintaan. Ini secara tidak langsung akan membatasi lingkup serangan, namun teknik ini kurang penting daripada pengkodean output yang tepat dan melarikan diri.
+When constructing SQL query strings, use stringent allow lists that limit the character set based on the expected value of the parameter in the request. Ini secara tidak langsung akan membatasi lingkup serangan, namun teknik ini kurang penting daripada pengkodean output yang tepat dan melarikan diri.
 
 Perhatikan bahwa pengkodean output yang tepat, melarikan diri, dan mengutip adalah solusi paling efektif untuk mencegah injeksi SQL, walaupun validasi masukan mungkin memberikan beberapa pertahanan yang mendalam. Hal ini karena secara efektif membatasi apa yang akan muncul dalam output. Validasi masukan tidak akan selalu mencegah injeksi SQL, terutama jika Anda diminta untuk mendukung bidang teks formulir bebas yang dapat mengandung karakter sewenang-wenang. Misalnya, nama "O'Reilly" kemungkinan akan melewati tahap validasi, karena ini adalah nama belakang yang umum dalam bahasa Inggris. Namun, tidak bisa langsung dimasukkan ke dalam database karena mengandung karakter apostrof "'" yang harus diloloskan atau ditangani. Dalam kasus ini, pengupasan apostrof bisa mengurangi risiko injeksi SQL, namun akan menghasilkan perilaku yang salah karena nama yang salah akan dicatat.
 
 Bila memungkinkan, mungkin paling aman untuk melarang meta-karakter sama sekali, alih-alih melarikan diri dari mereka. Ini akan memberikan beberapa pertahanan secara mendalam. Setelah data dimasukkan ke dalam database, proses selanjutnya dapat diabaikan untuk menghindari karakter meta sebelum digunakan, dan Anda mungkin tidak memiliki kontrol atas proses tersebut.</solution>
 	<reference>http://projects.webappsec.org/SQL-Injection</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_19>
 
 <vuln_items>wasc_20</vuln_items>
@@ -510,21 +511,21 @@ Untuk pemeriksaan keamanan yang dilakukan di sisi klien, pastikan pemeriksaan in
 
 Meskipun pengecekan sisi-klien memberikan minimal manfaat dengan menghargai keamanan sisi-server, meraka tetap berguna. Pertama, mereka bisa mendukung deteksi intrusi. Jika server menerima masukan yang sudah ditolak oleh klien, maka mungkin itu adalah indikasi dari sebuah serangan. Kedua, sisi-klien kesalahan-pengecekan dapat membantu memberikan umpan balik kepada pengguna tentang harapan untuk menginput yang valid. Ketiga, mungkin ada sebuah pengurangan pada waktu memproses sisi-server untuk kesalahan masukan yang tidak sengaja, walau ini biasanya adalah tabungan kecil.
 
-Jangan bergantung secara khusus pada validasi daftar hitam untuk mendeteksi masukan berbahaya atau untuk mengkodekan hasil. Ada terlalu banyak hal untuk mengkodekan karakter yang sama, jadi kamu cenderung melewatkan beberapa varian.
+Do not rely exclusively on deny list validation to detect malicious input or to encode output. Ada terlalu banyak hal untuk mengkodekan karakter yang sama, jadi kamu cenderung melewatkan beberapa varian.
 
 Pada saat aplikasi anda mengkombinasikan data dari berbagai sumber, lakukan validasi setelah sumbernya dikombinasikan. Elemen data individual mungkin melewati tahap validasi tapi melanggar pembatasan yang dimaksudkan setelah dikombinasikan.
 
-Asumsikan semua masukan itu berbahaya Gunakan strategi validasi masukan "accept known good", i.e., menggunakan daftar putih masukan yang dapat diterima yang sesuai dengan spesifikasi. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Jangan mengandalkan secara eksklusif untuk mencari masukan jahat atau cacat (i.e., jangan mengandalkan daftar hitam). Namun, daftar hitam dapat berguna untuk mendeteksi potensi serangan atau menentukan masukan yang jadi salah bahwa mereka harus ditolak mentah-mentah.
+Asumsikan semua masukan itu berbahaya Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. Sebagai contoh bisnis aturan logika, "perahu" mungkin sintaksis sah karena hanya berisi karakter alfanumerik, tapi hal ini tidak berlaku jika kamu mengharapkan warna seperti "merah" atau "biru."
+Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Tahap: Pelaksanaan
+Phase: Implementation
 
-Berhati-hatilah untuk kamu memvalidasi masukan ketika kamu meminta kode yang melintasi batas-batas bahasa, seperti dari bahasa ditafsirkan kode asli. Hal ini bisa menciptakan interaksi tak terduga antara batas bahasa. Memastikan bahwa kamu tidak melanggar salah satu harapan dari bahasa yang kamu berinteraksi. Sebagai contoh, meskipun Java mungkin tidak menjadi rentan terhadap penyangga melimpah, memberikan sebuah argumen besar dalam sebuah panggilan ke kode asli dapat memicu luapan.
+Be especially careful to validate your input when you invoke code that crosses language boundaries, such as from an interpreted language to native code. Hal ini bisa menciptakan interaksi tak terduga antara batas bahasa. Memastikan bahwa kamu tidak melanggar salah satu harapan dari bahasa yang kamu berinteraksi. Sebagai contoh, meskipun Java mungkin tidak menjadi rentan terhadap penyangga melimpah, memberikan sebuah argumen besar dalam sebuah panggilan ke kode asli dapat memicu luapan.
 
 Langsung mengkonversi masukan jenis ke jenis data yang diharapkan, seperti menggunakan fungsi konversi yang menerjemahkan sebuah string menjadi sebuah nomor. Setelah konversi ke jenis data yang diharapkan, memastikan bahwa masukan nilai jatuh dalam kisaran yang diharapkan dari nilai-nilai yang diijinkan dan yang multi-bidang konsistensi yang tetap terjaga.
 
-Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan bahwa aplikasi kamu tidak sengaja memecahkan kode masukan yang sama dua kali. Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa. Menggunakan perpustakaan seperti OWASP ESAPI kanonikalisasi kontrol.
+Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan bahwa aplikasi kamu tidak sengaja memecahkan kode masukan yang sama dua kali. Such errors could be used to bypass allow list schemes by introducing dangerous inputs after they have been checked. Menggunakan perpustakaan seperti OWASP ESAPI kanonikalisasi kontrol.
 
 Pertimbangkan untuk melakukan kanonikalisasi sampai masukan kamu diulang tidak berubah lagi. Ini akan menghindari decoding-ganda dan skenario yang sama, tapi mungkin secara tidak sengaja memodifikasi masukan yang diperbolehkan untuk mengandung mengandung konten dengan benar-dikodekan.
 
@@ -560,7 +561,7 @@ Fungsi aplikasi web yang sering menjadi target otomatis untuk serangan yang mung
 	<alert>Penanganan Output yang Tidak Tepat</alert>
 	<desc>Penanganan mengacu pada keluaran bagaimana sebuah aplikasi menghasilkan data keluar.  Jika sebuah aplikasi memiliki penanganan keluaran yang tidak tepat, keluaran data dapat dikonsumsi yang menyebabkan kerentanan dan tindakan-tindakan yang tidak pernah dimaksudkan oleh pengembang aplikasi.  Dalam banyak kasus, interpretasi yang tidak disengaja ini diklasifikasikan sebagai satu atau lebih bentuk kerentanan aplikasi kritis.
 
-Setiap lokasi di mana data meninggalkan batas aplikasi dapat menjadi keluaran subjek penanganan yang tidak tepat.  Aplikasi ada batas di mana data menyisakan satu konteks dan memasuki yang lain.  Ini termasuk aplikasi data lewat ke aplikasi lain melalui layanan web, soket, baris perintah, variabel lingkungan, dll...  Ini juga mencakup data yang lewat antara tingkatan dalam arsitektur aplikasi, seperti database, server direktori, juru bahasa HTML / JavaScript (browser), atau sistem operasi.  Detail lebih lanjut tentang penanganan penanganan yang tidak tepat dapat terjadi dapat ditemukan pada bagian di bawah berjudul "Lokasi Output Data Umum".
+Setiap lokasi di mana data meninggalkan batas aplikasi dapat menjadi keluaran subjek penanganan yang tidak tepat.  Aplikasi ada batas di mana data menyisakan satu konteks dan memasuki yang lain.  This includes applications passing data to other applications via web services, sockets, command line, environmental variables, etc...  It also includes passing data between tiers within an application architecture, such as a database, directory server, HTML/JavaScript interpreter (browser), or operating system.  Detail lebih lanjut tentang penanganan penanganan yang tidak tepat dapat terjadi dapat ditemukan pada bagian di bawah berjudul "Lokasi Output Data Umum".
 
 Penanganan keluaran yang tidak tepat dapat mengambil berbagai bentuk dalam aplikasi.  Bentuk-bentuk ini dapat dikategorikan menjadi: kesalahan protokol, kesalahan aplikasi dan data kesalahan terkait konsumen.  Kesalahan protokol mencakup pengkodean keluaran yang hilang atau tidak semestinya atau keluar dan keluar dari data yang tidak valid.  Kesalahan aplikasi termasuk kesalahan logika seperti keluaran data yang tidak benar atau menyampaikan konten berbahaya tanpa filter.  Jika aplikasi tidak benar membedakan konten yang sah dari yang tidak sah, atau tidak mengatasi kerentanan diketahui dalam data konsumen, hal ini dapat mengakibatkan penyalahgunaan data-konsumen yang disebabkan penanganan dari keluaran yang tidak tepat.
 
@@ -581,13 +582,13 @@ Sebagai contoh, prosedur yang tersimpan dapat menerapkan struktur query database
 
 Pahami konteks dimana data Anda akan digunakan dan pengkodean yang akan diharapkan. Hal ini terutama penting ketika transmisi data antara komponen yang berbeda, atau ketika menghasilkan keluaran yang dapat berisi beberapa pengkodean pada saat yang sama, seperti halaman web atau multi-bagian surat. Mempelajari semua protokol komunikasi dan diharapkam representasi data untuk diperlukan menentukan strategi pengkodean.
 
-Dalam beberapa kasus, validasi masukan mungkin merupakan strategi penting saat pengkodean keluaran bukan merupakan solusi yang lengkap. Misalnya, kamu dapat memberikan keluaran yang sama yang akan diproses oleh beberapa konsumen yang menggunakan pernyataan atau pengkodean yang berbeda. Dalam kasus lain, mungkin kamu akan diminta untuk memungkinkan pengguna disediakan masukan berisi kontrol informasi, seperti tag HTML yang terbatas yang mendukung format di wiki atau papan buletin. Bila persyaratan jenis ini harus dipenuhi, gunakan daftar putih yang sangat ketat untuk membatasi rangkaian kontrol yang dapat digunakan. Verifikasi bahwa struktur sintaksis yang dihasilkan adalah apa yang Anda harapkan. Gunakan metode pengkodean normal Anda untuk sisa masukan.
+Dalam beberapa kasus, validasi masukan mungkin merupakan strategi penting saat pengkodean keluaran bukan merupakan solusi yang lengkap. Misalnya, kamu dapat memberikan keluaran yang sama yang akan diproses oleh beberapa konsumen yang menggunakan pernyataan atau pengkodean yang berbeda. Dalam kasus lain, mungkin kamu akan diminta untuk memungkinkan pengguna disediakan masukan berisi kontrol informasi, seperti tag HTML yang terbatas yang mendukung format di wiki atau papan buletin. When this type of requirement must be met, use an extremely strict allow list to limit which control sequences can be used. Verifikasi bahwa struktur sintaksis yang dihasilkan adalah apa yang Anda harapkan. Gunakan metode pengkodean normal Anda untuk sisa masukan.
 
 Gunakan validasi masukan sebagai ukuran pertahanan-dalam-mendalam untuk mengurangi kemungkinan kesalahan penyandian keluaran (lihat CWE-20).
 
 Ketika bertukar data antara komponen-komponen, memastikan bahwa kedua komponen yang menggunakan pengkodean karakter yang sama. Pastikan pengkodean yang tepat diterapkan pada setiap antarmuka. Secara eksplisit mengatur pengkodean yang kamu gunakan kapan pun protokol ini memungkinkan kamu untuk melakukannya.</solution>
 	<reference>http://projects.webappsec.org/Improper-Output-Handling</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_22>
 
 <vuln_items>wasc_23</vuln_items>
@@ -596,16 +597,16 @@ Ketika bertukar data antara komponen-komponen, memastikan bahwa kedua komponen y
 	<desc>XML Injection adalah teknik serangan yang digunakan untuk memanipulasi atau mengkompromikan logika aplikasi atau layanan XML. Penyuntikan konten dan / atau struktur XML yang tidak diinginkan ke dalam pesan XML dapat mengubah logika niat aplikasi. Lebih lanjut, XML injeksi dapat menyebabkan penyisipan konten berbahaya ke pesan/dokumen yang dihasilkan.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/XML-Injection</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_23>
 
 <vuln_items>wasc_24</vuln_items>
 <vuln_item_wasc_24>
 	<alert>Permintaan HTTP Memisahkan</alert>
 	<desc>Permintaan membelah HTTP adalah serangan yang memungkinkan memaksa browser untuk mengirim permintaan HTTP sewenang-wenang, menimbulkan XSS dan meracuni cache browser. Inti dari serangan ini adalah kemampuan dari penyerang, setelah korban (browser) dipaksa untuk memuat penyerang halaman HTML berbahaya, memanipulasi salah satu browser ini berfungsi untuk mengirim 2 permintaan HTTP, bukan satu permintaan HTTP. Dua mekanisme seperti itu telah dieksploitasi sampai saat ini: objek XmlHttpRequest (XHR untuk jangka pendek) dan mekanisme otentikasi penggabungan HTTP. Untuk serangan ini bekerja, browser harus menggunakan meneruskan proxy HTTP (tidak semua dari mereka "mendukung" serangan ini), atau serangan harus dilakukan terhadap sejumlah terletak pada IP yang sama (dari browser perspektif) dengan mesin penyerang.</desc>
-	<solution>Hindari penggunaan CRLF sebagai urutan khusus.
+	<solution>Avoid using CRLF as a special sequence.
 
-Saring dengan tepat atau kutipan urutan CRLF pada input yang dikendalikan pengguna.</solution>
+Appropriately filter or quote CRLF sequences in user-controlled input.</solution>
 	<reference>http://projects.webappsec.org/HTTP-Request-Splitting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/93.html</reference>
 </vuln_item_wasc_24>
@@ -652,7 +653,7 @@ Penyelundupan respon HTTP menggunakan teknik penyandian permintaan HTTP - sepert
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/HTTP-Response-Smuggling</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_27>
 
 <vuln_items>wasc_28</vuln_items>
@@ -671,9 +672,9 @@ Asumsikan semua masukan itu berbahaya Gunakan mekanisme validasi masukan standar
 
 Gunakan dan tentukan pengkodean keluaran yang kuat (seperti ISO 8859-1 atau UTF 8).
 
-Jangan bergantung secara khusus pada validasi daftar hitam untuk mendeteksi masukan berbahaya atau untuk mengkodekan hasil. Ada terlalu banyak varian untuk mengkodekan karakter; Anda cenderung melewatkan beberapa varian.
+Do not rely exclusively on deny list validation to detect malicious input or to encode output. Ada terlalu banyak varian untuk mengkodekan karakter; Anda cenderung melewatkan beberapa varian.
 
-Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan aplikasi Anda tidak memecahkan kode input yang sama dua kali. Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa.</solution>
+Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan aplikasi Anda tidak memecahkan kode input yang sama dua kali. Such errors could be used to bypass allow list schemes by introducing dangerous inputs after they have been checked.</solution>
 	<reference>http://projects.webappsec.org/Null-Byte-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/158.html</reference>
 </vuln_item_wasc_28>
@@ -687,7 +688,7 @@ Lightweight Directory Access Protocol (LDAP) adalah protokol standar terbuka unt
   Aplikasi web dapat menggunakan masukan yang diberikan oleh pengguna untuk membuat pemakluman LDAP khusus untuk permintaan halaman web dinamis.
 
 Ketika aplikasi web gagal untuk membersihkan masukan yang diberikan oleh pengguna secara tepat, penyerang bisa saja mengubah konstruksi pemakluman LDAP. Ketika penyerang mampu memodifikasi pemakluman LDAP, proses akan berjalan dengan hak akses yang sama dengan komponen yang menjalankan perintah. (misalnya peladen berbasis data, peladen aplikasi Web, peladen Web, dll.). Hal ini dapat menyebabkan masalah keamanan serius dimana hak akses memberikan hak untuk mengecek, melakukan modifikasi atau menghapus apapun di dalam pohon LDAP. Teknik eksploitasi lanjutan yang sama yang tersedia pada SQL Injection juga dapat diterapkan dengan cara yang sama pada LDAP Injection.</desc>
-	<solution>Asumsikan semua masukan itu berbahaya Gunakan kombinasi daftar hitam dan daftar putih yang sesuai untuk menetralkan sintaks LDAP dari input yang dikendalikan pengguna.</solution>
+	<solution>Asumsikan semua masukan itu berbahaya Use an appropriate combination of black lists and white lists to neutralize LDAP syntax from user-controlled input.</solution>
 	<reference>http://projects.webappsec.org/LDAP-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/90.html</reference>
 </vuln_item_wasc_29>
@@ -699,13 +700,13 @@ Ketika aplikasi web gagal untuk membersihkan masukan yang diberikan oleh penggun
  . Di sisi lain, teknik ini bisa digunakan untuk menghindari batasan-batasan yang mungkin ada pada tingkat aplikasi (CAPTCHA, jumlah permintaan maksimum, dll.).</desc>
 	<solution>Pahami semua area potensial di mana input yang tidak bisa dipercaya bisa masuk ke perangkat lunak Anda: parameter atau argumen, kuki, apapun yang bisa dibaca dari jaringan, variabel lingkungan, header permintaan serta konten, komponen URL, surel, fail, basis data, dan sistem eksternal lainnya. yang menyediakan data ke aplikasi. Lakukan validasi masukan pada antarmuka yang terdefinisi dengan baik.
 
-Asumsikan semua masukan itu berbahaya Gunakan strategi validasi masukan "menerima dikenal baik" (yaitu menggunakan daftar putih). Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Gunakan daftar hitam untuk menolak masukan tak terduga dan mendeteksi potensi serangan.
+Asumsikan semua masukan itu berbahaya Use an "accept known good" input validation strategy (i.e., use an allow list). Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Use a deny list to reject any unexpected inputs and detect potential attacks.
 
-Jangan bergantung secara khusus pada validasi daftar hitam untuk mendeteksi masukan berbahaya atau untuk mengkodekan hasil. Ada terlalu banyak hal untuk mengkodekan karakter yang sama, jadi kamu cenderung melewatkan beberapa varian.
+Do not rely exclusively on deny list validation to detect malicious input or to encode output. Ada terlalu banyak hal untuk mengkodekan karakter yang sama, jadi kamu cenderung melewatkan beberapa varian.
 
 Langsung mengkonversi masukan jenis ke jenis data yang diharapkan, seperti menggunakan fungsi konversi yang menerjemahkan sebuah string menjadi sebuah nomor. Setelah konversi ke jenis data yang diharapkan, memastikan bahwa masukan nilai jatuh dalam kisaran yang diharapkan dari nilai-nilai yang diijinkan dan yang multi-bidang konsistensi yang tetap terjaga.
 
-Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan aplikasi Anda tidak sengaja memecahkan kode input yang sama dua kali . Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa. Menggunakan perpustakaan seperti OWASP ESAPI kanonikalisasi kontrol.
+Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan aplikasi Anda tidak sengaja memecahkan kode input yang sama dua kali . Such errors could be used to bypass allow list schemes by introducing dangerous inputs after they have been checked. Menggunakan perpustakaan seperti OWASP ESAPI kanonikalisasi kontrol.
 
 Pertimbangkan untuk melakukan kanonikalisasi sampai masukan kamu diulang tidak berubah lagi. Ini akan menghindari decoding-ganda dan skenario yang sama, tapi mungkin secara tidak sengaja memodifikasi masukan yang diperbolehkan untuk mengandung mengandung konten dengan benar-dikodekan.
 
@@ -735,7 +736,7 @@ Gunakan perpustakaan atau kerangka kerja yang disahkan yang tidak memungkinkan k
 
 Misalnya, pertimbangkan untuk menggunakan kontrol Encode ESAPI atau alat, perpustakaan, atau kerangka kerja serupa. Ini akan membantu programmer menyandikan output dengan cara yang kurang rentan terhadap kesalahan.
 
-Jika Anda perlu menggunakan string kueri atau perintah kueri yang dihasilkan secara dinamis terlepas dari risikonya, cukup kutip argumen dan lepaskan karakter khusus apa pun dalam argumen tersebut. Pendekatan yang paling konservatif adalah melarikan diri atau menyaring semua karakter yang tidak melewati daftar putih yang sangat ketat (seperti segala sesuatu yang bukan spasial atau spasi putih). Jika beberapa karakter khusus masih dibutuhkan, seperti white space, bungkus setiap argumen dalam tanda kutip setelah langkah escape/filtering. Hati-hati dengan injeksi argumen.
+Jika Anda perlu menggunakan string kueri atau perintah kueri yang dihasilkan secara dinamis terlepas dari risikonya, cukup kutip argumen dan lepaskan karakter khusus apa pun dalam argumen tersebut. The most conservative approach is to escape or filter all characters that do not pass an extremely strict allow list (such as everything that is not alphanumeric or white space). Jika beberapa karakter khusus masih dibutuhkan, seperti white space, bungkus setiap argumen dalam tanda kutip setelah langkah escape/filtering. Hati-hati dengan injeksi argumen.
 
 Jika program yang akan dijalankan memungkinkan argumen yang akan ditentukan dalam file masukan atau dari input standar, pertimbangkan untuk menggunakan mode tersebut untuk meneruskan argumen alih-alih baris perintah.
 
@@ -743,11 +744,11 @@ Jika tersedia, gunakan terstruktur mekanisme yang secara otomatis memberlakukan 
 
 Beberapa bahasa menawarkan beberapa fungsi yang dapat digunakan untuk memanggil perintah. Bila memungkinkan, identifikasikan fungsi apa pun yang memanggil shell perintah dengan menggunakan string tunggal, dan gantilah dengan fungsi yang memerlukan argumen individual. Fungsi ini biasanya melakukan pemanggilan dan penyaringan argumen yang sesuai. Sebagai contoh, di C, fungsi sistem() menerima sebuah string yang berisi seluruh perintah yang akan dieksekusi, sedangkan execl(), execve(), dan yang lainnya memerlukan sebuah array string, satu untuk setiap argumen. Pada Windows, CreateProcess() hanya menerima satu perintah pada satu waktu. Di Perl, jika sistem() dilengkapi dengan serangkaian argumen, maka akan mengutip masing-masing argumen.
 
-Asumsikan semua masukan itu berbahaya Gunakan strategi validasi masukan "accept known good", i.e., menggunakan daftar putih masukan yang dapat diterima yang sesuai dengan spesifikasi. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Jangan mengandalkan secara eksklusif untuk mencari masukan jahat atau cacat (i.e., jangan mengandalkan daftar hitam). Namun, daftar hitam dapat berguna untuk mendeteksi potensi serangan atau menentukan masukan yang jadi salah bahwa mereka harus ditolak mentah-mentah.
+Asumsikan semua masukan itu berbahaya Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. Sebagai contoh logika aturan bisnis, "kapal" mungkin sintaksis karena hanya berisi karakter alfanumerik, namun tidak berlaku jika Anda mengharapkan warna seperti "merah" atau "biru".
+Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Saat membuat string perintah OS, gunakan whitelist ketat yang membatasi set karakter berdasarkan nilai parameter yang diharapkan dalam permintaan. Ini secara tidak langsung akan membatasi lingkup serangan, namun teknik ini kurang penting daripada pengkodean output yang tepat dan melarikan diri.
+When constructing OS command strings, use stringent allow lists that limit the character set based on the expected value of the parameter in the request. Ini secara tidak langsung akan membatasi lingkup serangan, namun teknik ini kurang penting daripada pengkodean output yang tepat dan melarikan diri.
 
 Perhatikan bahwa pengkodean output yang tepat, escape, dan quoting adalah solusi yang paling efektif untuk mencegah injeksi perintah OS, walaupun validasi masukan mungkin memberikan beberapa pertahanan yang mendalam. Hal ini karena secara efektif membatasi apa yang akan muncul dalam output. Validasi masukan tidak akan selalu mencegah injeksi perintah OS, terutama jika Anda diminta untuk mendukung bidang teks dengan bentuk bebas yang bisa mengandung karakter yang sewenang-wenang. Misalnya, saat meminta program surat, Anda mungkin perlu membiarkan bidang subjek berisi masukan berbahaya lainnya seperti ";" dan ">" karakter, yang perlu diloloskan atau ditangani. Dalam kasus ini, pengupasan karakter bisa mengurangi risiko injeksi perintah OS, namun akan menghasilkan perilaku yang salah karena bidang subjek tidak akan dicatat sesuai keinginan pengguna. Kelihatannya itu adalah ketidaknyamanan kecil, tapi bisa jadi lebih penting bila program bergantung pada garis subjek yang terstruktur dengan baik agar bisa menyampaikan pesan ke komponen lain.
 
@@ -782,16 +783,16 @@ Sebagian besar situs web membatasi akses pengguna ke bagian tertentu dari sistem
 
 Serangan Traversal Path yang paling dasar menggunakan "../" urutan karakter spesial untuk mengubah lokasi sumber daya yang diminta di URL. Meskipun server web yang paling populer akan mencegah teknik ini untuk melepaskan akar dokumen web, penyandian alternatif dari urutan "../" dapat membantu melewati filter keamanan. Variasi metode ini termasuk pengkodean Unicode yang valid dan tidak valid ("..%u2216" atau "..%c0%af") dari karakter garis miring ke depan, karakter garis miring terbalik (".. \") pada server berbasis Windows, URL yang dikodekan karakter "%2e%2e%2f"), dan pengkodean URL ganda ("..%255c") dari karakter garis miring terbalik.
 
-Bahkan jika server web benar-benar membatasi jalan yang ditempuh Traversal di jalur URL, aplikasi web itu sendiri mungkin masih rentan karena penanganan input pengguna yang tidak tepat. Ini adalah masalah umum aplikasi web yang menggunakan mekanisme template atau memuat teks statis dari file. Dalam variasi serangan, nilai parameter URL asli diganti dengan nama file dari salah satu skrip dinamis aplikasi web. Ternyata bisa mengungkap sumber kode karena file tersebut ditafsirkan sebagai teks dan bukan script yang bisa dieksekusi. Teknik ini sering menggunakan karakter khusus tambahan seperti titik (".") Untuk mengungkapkan daftar direktori kerja saat ini, atau "%00" karakter NULL untuk melewati pemeriksaan ekstensi file yang belum sempurna.</desc>
-	<solution>Asumsikan semua masukan itu berbahaya Gunakan strategi validasi masukan "accept known good", i.e., menggunakan daftar putih masukan yang dapat diterima yang sesuai dengan spesifikasi. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Jangan mengandalkan secara eksklusif untuk mencari masukan jahat atau cacat (i.e., jangan mengandalkan daftar hitam). Namun, daftar hitam dapat berguna untuk mendeteksi potensi serangan atau menentukan masukan yang jadi salah bahwa mereka harus ditolak mentah-mentah.
+Bahkan jika server web benar-benar membatasi jalan yang ditempuh Traversal di jalur URL, aplikasi web itu sendiri mungkin masih rentan karena penanganan input pengguna yang tidak tepat. Ini adalah masalah umum aplikasi web yang menggunakan mekanisme template atau memuat teks statis dari file. Dalam variasi serangan, nilai parameter URL asli diganti dengan nama file dari salah satu skrip dinamis aplikasi web. Ternyata bisa mengungkap sumber kode karena file tersebut ditafsirkan sebagai teks dan bukan script yang bisa dieksekusi. These techniques often employ additional special characters such as the dot (".") to reveal the listing of the current working directory, or "%00" NULL characters in order to bypass rudimentary file extension checks.</desc>
+	<solution>Asumsikan semua masukan itu berbahaya Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. Sebagai contoh logika aturan bisnis, "kapal" mungkin sintaksis karena hanya berisi karakter alfanumerik, namun tidak berlaku jika Anda mengharapkan warna seperti "merah" atau "biru."
+Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Untuk nama file, gunakan whitelist ketat yang membatasi karakter yang akan digunakan. Jika memungkinkan, biarkan saja satu "." karakter dalam nama file untuk menghindari kelemahan, dan mengecualikan pemisah direktori seperti "/". Gunakan daftar putih ekstensi file yang diijinkan.
+For filenames, use stringent allow lists that limit the character set to be used. Jika memungkinkan, biarkan saja satu "." karakter dalam nama file untuk menghindari kelemahan, dan mengecualikan pemisah direktori seperti "/". Use an allow list of allowable file extensions.
 
 Peringatan: Jika Anda mencoba untuk membersihkan data Anda, maka lakukanlah agar hasil akhirnya tidak dalam bentuk yang bisa berbahaya. Mekanisme sanitasi dapat menghapus karakter seperti '.' dan ';' yang mungkin diperlukan untuk beberapa eksploitasi. Penyerang bisa mencoba mengelabui mekanisme sanitasi menjadi "membersihkan" data menjadi bentuk yang berbahaya. Misalkan penyerang menyuntikkan '.' di dalam nama file (misalnya "sensi.tiveFile") dan mekanisme sanitasi menghapus karakter yang menghasilkan nama file yang valid, "sensitiveFile". Jika data masukan sekarang diasumsikan aman, maka file tersebut dapat dikompromikan. 
 
-Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan aplikasi Anda tidak memecahkan kode input yang sama dua kali. Kesalahan tersebut dapat digunakan untuk memotong skema daftar putih dengan memasukkan masukan berbahaya setelah diperiksa.
+Masukan harus diterjemahkan dan dikanonikal untuk aplikasi saat ini representasi internal sebelum divalidasi. Pastikan aplikasi Anda tidak memecahkan kode input yang sama dua kali. Such errors could be used to bypass allow list schemes by introducing dangerous inputs after they have been checked.
 
 Gunakan fungsi kanonisasi jalur intern (seperti realpath() di C) yang menghasilkan versi kanonik dari nama jalan, yang secara efektif menghilangkan urutan ".." dan tautan simbolis.
 
@@ -815,9 +816,9 @@ Ini mungkin bukan solusi yang layak, dan ini hanya membatasi dampaknya terhadap 
 	<desc>Lokasi Sumber Daya yang Dapat Diprediksi adalah teknik serangan yang digunakan untuk menemukan konten dan fungsi situs web tersembunyi. Dengan membuat tebakan terdidik melalui penyerang yang kasar bisa menebak nama file dan direktori yang tidak ditujukan untuk tampilan publik. Kasar memaksa nama file itu mudah karena file/path sering memiliki konvensi penamaan yang umum dan berada di lokasi standar. Ini dapat mencakup file sementara, file cadangan, log, bagian situs administratif, file konfigurasi, aplikasi demo, dan file sampel. File-file ini dapat mengungkapkan informasi sensitif tentang situs jaringan, aplikasi jaringan internal, informasi basis data, kata sandi, nama mesin, jalur file ke area sensitif lainnya, dll...
 
 Ini tidak hanya membantu mengidentifikasi permukaan situs yang dapat menyebabkan kerentanan situs tambahan, namun juga dapat mengungkapkan informasi berharga kepada penyerang tentang lingkungan atau penggunanya. Lokasi Sumber Daya yang Dapat Diprediksi juga dikenal sebagai Penjelajahan Paksa, Penjelajahan Paksa, Pencacahan Berkas, dan Pencacahan Direktori.</desc>
-	<solution>Terapkan otorisasi kontrol akses yang sesuai untuk setiap akses ke semua URL, skrip atau mengajukan yang dibatasi.
+	<solution>Apply appropriate access control authorizations for each access to all restricted URLs, scripts or files.
 
-Pertimbangkan untuk menggunakan kerangka berbasis MVC seperti Topangan.</solution>
+Consider using MVC based frameworks such as Struts.</solution>
 	<reference>http://projects.webappsec.org/Predictable-Resource-Location</reference>
 	<reference>http://cwe.mitre.org/data/definitions/425.html</reference>
 </vuln_item_wasc_34>
@@ -846,7 +847,7 @@ Jika penyerang mengajukan pernyataan Sertakan Server-sisi, dia mungkin memiliki 
 - Entitas HTML menyandikan data yang dipasok pengguna sebelum mengirimkannya ke laman dengan izin eksekusi SSI.
 - Gunakan SUExec agar halaman dijalankan sebagai pemilik file, bukan pengguna server web.</solution>
 	<reference>http://projects.webappsec.org/SSI-Injection</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_36>
 
 <vuln_items>wasc_37</vuln_items>
@@ -870,11 +871,11 @@ Untuk platform seperti ASP yang tidak menghasilkan nilai-nilai baru untuk sesi c
 <vuln_item_wasc_38>
 	<alert>Penyalahgunaan URL redirector</alert>
 	<desc>Pengalihan URL mewakili fungsi umum yang digunakan oleh situs web untuk meneruskan permintaan masuk ke sumber alternatif. Hal ini dapat dilakukan untuk berbagai alasan dan sering dilakukan untuk memungkinkan sumber daya dipindahkan dalam struktur direktori dan untuk menghindari pemutusan fungsi bagi pengguna yang meminta sumber daya di lokasi sebelumnya. Redirectors URL juga dapat digunakan untuk menerapkan penyeimbangan beban, memanfaatkan URL yang disingkat atau merekam tautan keluar. Ini adalah implementasi terakhir yang sering digunakan dalam serangan peretas seperti yang dijelaskan pada contoh di bawah ini. Redirectors URL tidak selalu mewakili kerentanan keamanan langsung namun dapat disalahgunakan oleh penyerang yang mencoba korban rekayasa sosial untuk percaya bahwa mereka menavigasi ke situs selain tujuan sebenarnya.</desc>
-	<solution>Asumsikan semua masukan itu berbahaya Gunakan strategi validasi masukan "accept known good", i.e., menggunakan daftar putih masukan yang dapat diterima yang sesuai dengan spesifikasi. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Jangan mengandalkan secara eksklusif untuk mencari masukan jahat atau cacat (i.e., jangan mengandalkan daftar hitam). Namun, daftar hitam dapat berguna untuk mendeteksi potensi serangan atau menentukan masukan yang jadi salah bahwa mereka harus ditolak mentah-mentah.
+	<solution>Asumsikan semua masukan itu berbahaya Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Tolak masukan apa pun yang tidak sesuai dengan spesifikasi, atau ubah menjadi sesuatu yang tidak. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. Sebagai contoh logika aturan bisnis, "kapal" mungkin sintaksis karena hanya berisi karakter alfanumerik, namun tidak berlaku jika Anda mengharapkan warna seperti "merah" atau "biru".
+Ketika melakukan validasi masukan, mempertimbangkan semua properti yang berpotensi relevan, termasuk panjang, jenis masukan, berbagai nilai yang dapat diterima, yang hilang atau tambahan masukan, sintaks, konsistensi di bidang terkait, dan kesesuaian dengan aturan bisnis. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Gunakan daftar putih URL atau domain yang disetujui yang akan digunakan untuk pengalihan.
+Use an allow list of approved URLs or domains to be used for redirection.
 
 Gunakan halaman penafian perantara yang memberi pengguna peringatan yang jelas bahwa mereka meninggalkan situs Anda. Terapkan batas waktu yang lama sebelum pengalihan terjadi, atau paksa pengguna untuk mengklik link tersebut. Hati-hati untuk menghindari masalah XSS saat membuat halaman penolakan.
 
@@ -914,13 +915,13 @@ Ada dua jenis proses utama yang memerlukan validasi: flow control dan logika bis
 "Logika bisnis" mengacu pada konteks di mana proses akan dijalankan sesuai dengan kebutuhan bisnis. Memanfaatkan kelemahan logika bisnis membutuhkan pengetahuan bisnis; Jika tidak ada pengetahuan yang dibutuhkan untuk memanfaatkannya, kemungkinan besar itu bukan kesalahan logika bisnis. Karena ini, tindakan pengamanan khas seperti pemindaian dan pengkajian kode tidak akan menemukan kelas kelemahan ini. Salah satu pendekatan pengujian ditawarkan oleh OWASP dalam Panduan Pengujian mereka.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Process-Validation</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_40>
 
 <vuln_items>wasc_41</vuln_items>
 <vuln_item_wasc_41>
 	<alert>XML Attribute Blowup</alert>
-	<desc>XML Attribute Blowup is a denial of service attack against XML parsers. Penyerang menyediakan dokumen XML yang berbahaya, yang merupakan proses parser XML yang rentan dengan cara yang sangat tidak efisien, yang menyebabkan beban CPU berlebihan. Inti dari serangan tersebut adalah memasukkan banyak atribut dalam simpul XML yang sama. Parser XML yang Rentan mengelola atribut dengan cara yang tidak efisien (misalnya dalam wadah data dimana penyisipan atribut baru memiliki O (n) runtime), menghasilkan non-linear (dalam contoh ini, kuadrat, yaitu O (n2)) runtime secara keseluruhan, yang menyebabkan terjadinya penyangkalan terhadap kondisi layanan melalui kelelahan CPU.</desc>
+	<desc>XML Attribute Blowup is a denial of service attack against XML parsers. Penyerang menyediakan dokumen XML yang berbahaya, yang merupakan proses parser XML yang rentan dengan cara yang sangat tidak efisien, yang menyebabkan beban CPU berlebihan. Inti dari serangan tersebut adalah memasukkan banyak atribut dalam simpul XML yang sama. Vulnerable XML parsers manage the attributes in an inefficient manner (e.g. in a data container for which insertion of a new attribute has O(n) runtime), resulting in a non-linear (in this example, quadratic, i.e. O(n2)) overall runtime, leading to a denial of service condition via CPU exhaustion.</desc>
 	<solution>Merancang mekanisme throttling ke dalam arsitektur sistem. Perlindungan terbaik adalah untuk membatasi jumlah sumber daya yang menyebabkan pengguna yang tidak sah dapat dikeluarkan. Otentikasi yang kuat dan model kontrol akses akan membantu mencegah terjadi serangan tersebut di tempat pertama. Masuk aplikasi harus dilindungi terhadap serangan DoS sebanyak mungkin. Membatasi akses database, mungkin dengan hasil set menyembunyikan, dapat membantu meminimalkan sumber daya yang dikeluarkan. Untuk lebih membatasi potensi untuk serangan DoS, mempertimbangkan pelacakan tingkat permintaan yang diterima dari pengguna dan memblokir permintaan yang melebihi didefinisikan tingkat ambang batas.
 
 Mitigasi serangan kelelahan sumber daya mengharuskan sistem target:
@@ -954,7 +955,7 @@ Pastikan semua kegagalan dalam alokasi sumber daya menempatkan sistem ke dalam p
 	Penyerang mungkin juga menggunakan entitas eksternal agar mendownload server layanan web kode berbahaya atau konten ke server untuk digunakan dalam sekunder atau ikut pada serangan.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/XML-External-Entities</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_43>
 
 <vuln_items>wasc_44</vuln_items>
@@ -978,16 +979,16 @@ Sebelum mengurai file XML dengan DTDs terkait, pindai deklarasi entitas rekursif
 Sidik jari multi-tier mirip dengan pendahulunya, TCP / IP Sidik jari (dengan pemindai seperti Nmap) kecuali difokuskan pada Lapisan Aplikasi dari model OSI dan bukan Transport Layer. Teori dibalik sidik jari ini adalah untuk membuat profil platform target yang akurat pada, teknologi perangkat lunak aplikasi web, versi database backend, konfigurasi dan bahkan mungkin arsitektur/topologi jaringan mereka.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Fingerprinting</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_45>
 
 <vuln_items>wasc_46</vuln_items>
 <vuln_item_wasc_46>
 	<alert>Injeksi XQuery</alert>
 	<desc>XQuery Injection adalah varian dari serangan injeksi SQL klasik terhadap bahasa XML XQuery. Injeksi XQuery menggunakan data yang divalidasi dengan tidak benar yang dilewatkan ke perintah XQuery. Inturn ini akan mengeksekusi perintah atas nama penyerang yang miliki rutinitas XQuery. Injeksi XQuery dapat digunakan untuk menghitung elemen di lingkungan korban, memasukkan perintah ke host lokal, atau mengeksekusi query ke file jarak jauh dan sumber data. Seperti serangan injeksi SQL, terowongan penyerang melalui jalur masuk aplikasi untuk menargetkan lapisan akses sumber daya.</desc>
-	<solution>Gunakan kueri parameter. Ini akan membantu memastikan pemisahan antara data pesawat dan kontrol pesawat.
+	<solution>Gunakan kueri parameter. Ini akan membantu memastikan pemisahan antara bidang data plane dan control plane.
 
-Benar memvalidasi masukan pengguna. Menolak data yang sesuai, menyaring yang sesuai dan melepaskan ditempat yang sesuai. Pastikan masukan yang akan digunakan dalam query XQL aman dalam konteks itu.</solution>
+Validasi dengan benar masukan pengguna. Tolak data yang sesuai, saring bila sesuai dan lepaskan bila sesuai. Pastikan masukan yang akan digunakan dalam query XQL aman dalam konteks itu.</solution>
 	<reference>http://projects.webappsec.org/XQuery-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/652.html</reference>
 </vuln_item_wasc_46>
@@ -1013,7 +1014,7 @@ Aplikasi Web harus membatalkan sesi setelah waktu siaga yang telah ditentukan te
 	<desc>Pengindeksan tidak aman merupakan ancaman terhadap kerahasiaan data situs web. Pengindeksan konten situs web melalui proses yang memiliki akses ke file yang seharusnya tidak dapat diakses publik berpotensi membocorkan informasi tentang keberadaan file tersebut, dan tentang isinya. Dalam proses pengindeksan, informasi tersebut dikumpulkan dan disimpan oleh proses pengindeksan, yang kemudian dapat diambil (walaupun tidak sepele) oleh penyerang yang ditentukan, biasanya melalui serangkaian pertanyaan ke mesin pencari. Penyerang tidak menggagalkan model keamanan mesin pencari. Dengan demikian, serangan ini halus dan sangat sulit untuk dideteksi dan digagalkan - tidak mudah untuk membedakan permintaan penyerang dari kueri pengguna yang sah.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insecure-Indexing</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_48>
 
 <vuln_items>wasc_49</vuln_items>
@@ -1021,7 +1022,7 @@ Aplikasi Web harus membatalkan sesi setelah waktu siaga yang telah ditentukan te
 	<alert>Pemulihan Sandi tidak cukup</alert>
 	<desc>Pemulihan Password yang tidak memadai adalah ketika sebuah situs web mengizinkan penyerang untuk secara tidak sah mendapatkan, mengubah atau memulihkan kata sandi pengguna lain. Metode otentikasi situs web konvensional mengharuskan pengguna untuk memilih dan mengingat kata sandi atau frasa sandi. Pengguna harus menjadi satu-satunya orang yang mengetahui password dan harus diingat secara tepat. Seiring berjalannya waktu, kemampuan pengguna mengingat kata kunci memudar. Masalahnya semakin rumit ketika pengguna rata-rata mengunjungi 20 situs yang mengharuskan mereka memberikan kata sandi.  (Surve RSA: http://news.bbc.co.uk/1/hi/technology/3639679.stm) Dengan demikian, pemulihan password merupakan bagian penting dalam melayani pengguna online.
 
-Contoh proses pemulihan kata sandi otomatis termasuk mengharuskan pengguna menjawab "pertanyaan rahasia" yang didefinisikan sebagai bagian dari proses pendaftaran pengguna. Pertanyaan ini dapat dipilih dari daftar pertanyaan kaleng atau yang disediakan oleh pengguna. Mekanisme lain yang digunakan adalah meminta pengguna memberikan "petunjuk" saat pendaftaran yang akan membantu pengguna mengingat kata sandinya. Mekanisme lain mengharuskan pengguna untuk menyediakan beberapa lembar data pribadi seperti nomor jaminan sosial, alamat rumah, kode pos, dll. untuk memvalidasi identitas mereka. Setelah pengguna membuktikan siapa mereka, sistem pemulihan akan menampilkan atau mengirimi mereka sandi baru.
+Contoh proses pemulihan kata sandi otomatis termasuk mengharuskan pengguna menjawab "pertanyaan rahasia" yang didefinisikan sebagai bagian dari proses pendaftaran pengguna. Pertanyaan ini dapat dipilih dari daftar pertanyaan kaleng atau yang disediakan oleh pengguna. Mekanisme lain yang digunakan adalah meminta pengguna memberikan "petunjuk" saat pendaftaran yang akan membantu pengguna mengingat kata sandinya. Other mechanisms require the user to provide several pieces of personal data such as their social security number, home address, zip code etc. to validate their identity. Setelah pengguna membuktikan siapa mereka, sistem pemulihan akan menampilkan atau mengirimi mereka sandi baru.
 
 Situs web dianggap memiliki Pemulihan Sandi yang tidak memadai saat penyerang dapat menggagalkan mekanisme pemulihan yang digunakan. Hal ini terjadi ketika informasi yang diperlukan untuk memvalidasi identitas pengguna untuk pemulihan mudah ditebak atau dapat dielakkan. Sistem pemulihan password dapat dikompromikan melalui penggunaan serangan brute force, kelemahan sistem yang melekat, atau pertanyaan rahasia yang mudah ditebak.</desc>
 	<solution>Pastikan semua masukan yang diberikan oleh pengguna ke mekanisme pemulihan kata sandi disaring dan divalidasi secara menyeluruh
