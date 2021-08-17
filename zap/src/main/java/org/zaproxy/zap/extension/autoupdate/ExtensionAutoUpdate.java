@@ -42,6 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.Vector;
+import java.util.function.Function;
 import javax.net.ssl.SSLHandshakeException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -1627,30 +1628,43 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
      */
     private static String getExtensionsUnsavedResources(
             Collection<AddOn> addOns, Set<Extension> extensions) {
-        List<String> unsavedResources = new ArrayList<>();
+        return getExtensionsMessages(addOns, extensions, Extension::getUnsavedResources);
+    }
+
+    private static String getExtensionsMessages(
+            Collection<AddOn> addOns,
+            Set<Extension> extensions,
+            Function<Extension, List<String>> function) {
+        List<String> messages = new ArrayList<>();
         for (AddOn addOn : addOns) {
-            for (Extension extension : addOn.getLoadedExtensions()) {
-                if (!extension.isEnabled()) {
-                    continue;
-                }
-
-                List<String> resources = extension.getUnsavedResources();
-                if (resources != null) {
-                    unsavedResources.addAll(resources);
-                }
-            }
+            addMessages(addOn.getLoadedExtensions(), function, messages);
         }
-        for (Extension extension : extensions) {
-            if (!extension.isEnabled()) {
-                continue;
-            }
+        addMessages(extensions, function, messages);
+        return wrapEntriesInLiTags(messages);
+    }
 
-            List<String> resources = extension.getUnsavedResources();
-            if (resources != null) {
-                unsavedResources.addAll(resources);
-            }
-        }
-        return wrapEntriesInLiTags(unsavedResources);
+    private static void addMessages(
+            Collection<Extension> extensions,
+            Function<Extension, List<String>> function,
+            List<String> sink) {
+        extensions.stream()
+                .filter(Extension::isEnabled)
+                .map(
+                        e -> {
+                            try {
+                                List<String> messages = function.apply(e);
+                                if (messages != null) {
+                                    return messages;
+                                }
+                            } catch (Throwable ex) {
+                                logger.error(
+                                        "Error while getting messages from {}",
+                                        e.getClass().getCanonicalName(),
+                                        ex);
+                            }
+                            return Collections.<String>emptyList();
+                        })
+                .forEach(sink::addAll);
     }
 
     private static String wrapEntriesInLiTags(List<String> entries) {
@@ -1679,30 +1693,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
      */
     private static String getExtensionsActiveActions(
             Collection<AddOn> addOns, Set<Extension> extensions) {
-        List<String> activeActions = new ArrayList<>();
-        for (AddOn addOn : addOns) {
-            for (Extension extension : addOn.getLoadedExtensions()) {
-                if (!extension.isEnabled()) {
-                    continue;
-                }
-
-                List<String> actions = extension.getActiveActions();
-                if (actions != null) {
-                    activeActions.addAll(actions);
-                }
-            }
-        }
-        for (Extension extension : extensions) {
-            if (!extension.isEnabled()) {
-                continue;
-            }
-
-            List<String> resources = extension.getActiveActions();
-            if (resources != null) {
-                activeActions.addAll(resources);
-            }
-        }
-        return wrapEntriesInLiTags(activeActions);
+        return getExtensionsMessages(addOns, extensions, Extension::getActiveActions);
     }
 
     private void downloadAddOn(AddOn addOn) {

@@ -90,18 +90,22 @@
 // ZAP: 2020/08/27 Added support for plugable variants
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/04/13 Issue 6536: Stop and destroy extensions being removed.
+// ZAP: 2021/08/17 Issue 6755: Extension's errors during shutdown prevent ZAP to exit.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
 import java.awt.EventQueue;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -1587,17 +1591,28 @@ public class ExtensionLoader {
      * @see Extension#getActiveActions()
      */
     public List<String> getUnsavedResources() {
-        List<String> list = new ArrayList<>();
-        List<String> l;
+        return collectMessages(Extension::getUnsavedResources);
+    }
 
-        for (int i = 0; i < getExtensionCount(); i++) {
-            l = getExtension(i).getUnsavedResources();
-            if (l != null) {
-                list.addAll(l);
-            }
-        }
-
-        return list;
+    private List<String> collectMessages(Function<Extension, List<String>> function) {
+        return extensionList.stream()
+                .map(
+                        e -> {
+                            try {
+                                List<String> messages = function.apply(e);
+                                if (messages != null) {
+                                    return messages;
+                                }
+                            } catch (Throwable ex) {
+                                logger.error(
+                                        "Error while getting messages from {}",
+                                        e.getClass().getCanonicalName(),
+                                        ex);
+                            }
+                            return Collections.<String>emptyList();
+                        })
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -1608,16 +1623,6 @@ public class ExtensionLoader {
      * @see Extension#getActiveActions()
      */
     public List<String> getActiveActions() {
-        List<String> list = new ArrayList<>();
-        List<String> l;
-
-        for (int i = 0; i < getExtensionCount(); i++) {
-            l = getExtension(i).getActiveActions();
-            if (l != null) {
-                list.addAll(l);
-            }
-        }
-
-        return list;
+        return collectMessages(Extension::getActiveActions);
     }
 }

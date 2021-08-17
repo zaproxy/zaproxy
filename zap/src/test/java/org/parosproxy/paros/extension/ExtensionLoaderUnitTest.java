@@ -19,10 +19,15 @@
  */
 package org.parosproxy.paros.extension;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.contains;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
+import java.util.Arrays;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
@@ -73,5 +78,81 @@ class ExtensionLoaderUnitTest {
         // Then
         inOrder.verify(extension).stop();
         inOrder.verify(extension).destroy();
+    }
+
+    @Test
+    void shouldGetUnsavedResourcesFromExtensions() {
+        // Given
+        Extension extensionA = mock(Extension.class);
+        given(extensionA.getUnsavedResources()).willReturn(Arrays.asList("Resource A"));
+        extensionLoader.addExtension(extensionA);
+        Extension extensionB = mock(Extension.class);
+        given(extensionB.getUnsavedResources()).willReturn(null);
+        extensionLoader.addExtension(extensionB);
+        Extension extensionC = mock(Extension.class);
+        given(extensionC.getUnsavedResources()).willReturn(Arrays.asList("Resource C"));
+        extensionLoader.addExtension(extensionC);
+        // When
+        List<String> resources = extensionLoader.getUnsavedResources();
+        // Then
+        assertThat(resources, contains("Resource A", "Resource C"));
+    }
+
+    @Test
+    void shouldGetUnsavedResourcesFromExtensionsWhileHandlingErrors() {
+        // Given
+        Extension extensionA = mock(Extension.class);
+        given(extensionA.getUnsavedResources()).willAnswer(this::throwThrowable);
+        extensionLoader.addExtension(extensionA);
+        Extension extensionB = mock(Extension.class);
+        given(extensionB.getUnsavedResources()).willReturn(null);
+        extensionLoader.addExtension(extensionB);
+        Extension extensionC = mock(Extension.class);
+        given(extensionC.getUnsavedResources()).willReturn(Arrays.asList("Resource C"));
+        extensionLoader.addExtension(extensionC);
+        // When
+        List<String> resources = extensionLoader.getUnsavedResources();
+        // Then
+        assertThat(resources, contains("Resource C"));
+    }
+
+    @Test
+    void shouldGetActiveActionsFromExtensions() {
+        // Given
+        Extension extensionA = mock(Extension.class);
+        given(extensionA.getActiveActions()).willReturn(Arrays.asList("Action A"));
+        extensionLoader.addExtension(extensionA);
+        Extension extensionB = mock(Extension.class);
+        given(extensionB.getActiveActions()).willReturn(null);
+        extensionLoader.addExtension(extensionB);
+        Extension extensionC = mock(Extension.class);
+        given(extensionC.getActiveActions()).willReturn(Arrays.asList("Action C"));
+        extensionLoader.addExtension(extensionC);
+        // When
+        List<String> resources = extensionLoader.getActiveActions();
+        // Then
+        assertThat(resources, contains("Action A", "Action C"));
+    }
+
+    @Test
+    void shouldGetActiveActionsFromExtensionsWhileHandlingErrors() {
+        // Given
+        Extension extensionA = mock(Extension.class);
+        given(extensionA.getActiveActions()).willAnswer(this::throwThrowable);
+        extensionLoader.addExtension(extensionA);
+        Extension extensionB = mock(Extension.class);
+        given(extensionB.getActiveActions()).willReturn(null);
+        extensionLoader.addExtension(extensionB);
+        Extension extensionC = mock(Extension.class);
+        given(extensionC.getActiveActions()).willReturn(Arrays.asList("Action C"));
+        extensionLoader.addExtension(extensionC);
+        // When
+        List<String> actions = extensionLoader.getActiveActions();
+        // Then
+        assertThat(actions, contains("Action C"));
+    }
+
+    private <T> T throwThrowable(T arg) throws Throwable {
+        throw new Throwable();
     }
 }
