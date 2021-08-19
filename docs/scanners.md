@@ -232,6 +232,12 @@ Scanners:
 100022  Upload Form Discovery [Script]
 100023  Information Leak - X-Powered-By Header [Script]
 100024  Unauthenticated Gitlab SSRF (CVE-2021-22214) [Script]
+100025  Cross Site WebSocket Hijacking [Script]
+100026  JWT None Exploit [Script]
+100027  Test Insecure HTTP Verbs [Script]
+100028  User defined attacks [Script]
+100029  File Content Disclosure (CVE-2019-5418) [Script]
+100030  Good Old Files Lite [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]
