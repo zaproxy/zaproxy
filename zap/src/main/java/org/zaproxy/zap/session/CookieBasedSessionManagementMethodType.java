@@ -122,7 +122,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
         @Override
         public void processMessageToMatchSession(HttpMessage message, WebSession session)
                 throws UnsupportedWebSessionException {
-            if (session.getHttpState() == null) return;
+            if (session == null || session.getHttpState() == null) return;
 
             session.getHttpState().purgeExpiredCookies();
 
