@@ -28,6 +28,11 @@ jobs:
             owasp/zap2docker-tests:latest
           build-args: |
             WEBSWING_TOKEN=${{ secrets.WEBSWING_TOKEN }}
-      - run: docker push owasp/zap2docker-tests:latest
-      - name: Run tests
+      - 
+        run: docker push owasp/zap2docker-tests:latest
+      - 
+        name: Run install tests
+        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/install_tests.sh
+      - 
+        name: Run baseline tests
         run: docker run --rm -t owasp/zap2docker-tests:latest wrk/baseline_tests.sh
