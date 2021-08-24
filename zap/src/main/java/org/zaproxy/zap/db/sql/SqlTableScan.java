@@ -37,9 +37,6 @@ public class SqlTableScan extends SqlAbstractTable implements TableScan {
     @Override
     protected void reconnect(Connection conn) throws DatabaseException {}
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableScan#getLatestScan()
-     */
     @Override
     public synchronized RecordScan getLatestScan() throws DatabaseException {
         SqlPreparedStatementWrapper psGetLatestScan = null;
@@ -55,9 +52,6 @@ public class SqlTableScan extends SqlAbstractTable implements TableScan {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableScan#read(int)
-     */
     @Override
     public synchronized RecordScan read(int scanId) throws DatabaseException {
         SqlPreparedStatementWrapper psRead = null;
@@ -75,9 +69,6 @@ public class SqlTableScan extends SqlAbstractTable implements TableScan {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableScan#insert(long, java.lang.String)
-     */
     @Override
     public synchronized RecordScan insert(long sessionId, String scanName)
             throws DatabaseException {

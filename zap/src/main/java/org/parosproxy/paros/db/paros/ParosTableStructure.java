@@ -96,9 +96,6 @@ public class ParosTableStructure extends ParosAbstractTable implements TableStru
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableParam#read(long)
-     */
     @Override
     public synchronized RecordStructure read(long sessionId, long urlId) throws DatabaseException {
         try {

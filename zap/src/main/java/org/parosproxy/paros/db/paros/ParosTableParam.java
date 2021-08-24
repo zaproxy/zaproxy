@@ -100,9 +100,6 @@ public class ParosTableParam extends ParosAbstractTable implements TableParam {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableParam#read(long)
-     */
     @Override
     public synchronized RecordParam read(long urlId) throws DatabaseException {
         try {
@@ -117,9 +114,6 @@ public class ParosTableParam extends ParosAbstractTable implements TableParam {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableParam#getAll()
-     */
     @Override
     public List<RecordParam> getAll() throws DatabaseException {
         try {
@@ -144,9 +138,6 @@ public class ParosTableParam extends ParosAbstractTable implements TableParam {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableParam#insert(java.lang.String, java.lang.String, java.lang.String, int, java.lang.String, java.lang.String)
-     */
     @Override
     public synchronized RecordParam insert(
             String site, String type, String name, int used, String flags, String values)
@@ -171,9 +162,6 @@ public class ParosTableParam extends ParosAbstractTable implements TableParam {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableParam#update(long, int, java.lang.String, java.lang.String)
-     */
     @Override
     public synchronized void update(long paramId, int used, String flags, String values)
             throws DatabaseException {
