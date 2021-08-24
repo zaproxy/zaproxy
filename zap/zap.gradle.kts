@@ -49,10 +49,6 @@ crowdin {
     }
 }
 
-jacoco {
-    toolVersion = "0.8.6"
-}
-
 tasks.named<JacocoReport>("jacocoTestReport") {
     reports {
         xml.isEnabled = true
