@@ -108,9 +108,6 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableContext#read(long)
-     */
     @Override
     public synchronized RecordContext read(long dataId) throws DatabaseException {
         try {
@@ -125,9 +122,6 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableContext#insert(int, int, java.lang.String)
-     */
     @Override
     public synchronized RecordContext insert(int contextId, int type, String url)
             throws DatabaseException {
@@ -148,9 +142,6 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableContext#delete(int, int, java.lang.String)
-     */
     @Override
     public synchronized void delete(int contextId, int type, String data) throws DatabaseException {
         try {
@@ -163,9 +154,6 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableContext#deleteAllDataForContextAndType(int, int)
-     */
     @Override
     public synchronized void deleteAllDataForContextAndType(int contextId, int type)
             throws DatabaseException {
@@ -178,9 +166,6 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableContext#deleteAllDataForContext(int)
-     */
     @Override
     public synchronized void deleteAllDataForContext(int contextId) throws DatabaseException {
         try {
@@ -191,9 +176,6 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableContext#getAllData()
-     */
     @Override
     public List<RecordContext> getAllData() throws DatabaseException {
         try {
@@ -215,9 +197,6 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableContext#getDataForContext(int)
-     */
     @Override
     public synchronized List<RecordContext> getDataForContext(int contextId)
             throws DatabaseException {
@@ -241,9 +220,6 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableContext#getDataForContextAndType(int, int)
-     */
     @Override
     public synchronized List<RecordContext> getDataForContextAndType(int contextId, int type)
             throws DatabaseException {
@@ -285,9 +261,6 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableContext#setData(int, int, java.util.List)
-     */
     @Override
     public void setData(int contextId, int type, List<String> dataList) throws DatabaseException {
         this.deleteAllDataForContextAndType(contextId, type);

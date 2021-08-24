@@ -37,6 +37,7 @@
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2021/08/24 Remove the "(non-Javadoc)" comments.
 package org.parosproxy.paros.db.paros;
 
 import java.sql.CallableStatement;
@@ -295,9 +296,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableAlert#read(int)
-     */
     @Override
     public synchronized RecordAlert read(int alertId) throws DatabaseException {
         try {
@@ -311,9 +309,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableAlert#write(int, int, java.lang.String, int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, int, int, int)
-     */
     @Override
     public synchronized RecordAlert write(
             int scanId,
@@ -455,9 +450,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableAlert#deleteAlert(int)
-     */
     @Override
     public synchronized void deleteAlert(int alertId) throws DatabaseException {
         try {
@@ -468,9 +460,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableAlert#deleteAllAlerts()
-     */
     @Override
     public int deleteAllAlerts() throws DatabaseException {
         try {
@@ -480,9 +469,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableAlert#update(int, java.lang.String, int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, int, int, int)
-     */
     @Override
     public synchronized void update(
             int alertId,
@@ -524,9 +510,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableAlert#updateHistoryIds(int, int, int)
-     */
     @Override
     public synchronized void updateHistoryIds(int alertId, int historyId, int sourceHistoryId)
             throws DatabaseException {
@@ -541,9 +524,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableAlert#getAlertsBySourceHistoryId(int)
-     */
     @Override
     public synchronized List<RecordAlert> getAlertsBySourceHistoryId(int historyId)
             throws DatabaseException {
@@ -564,9 +544,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableAlert#getAlertList()
-     */
     @Override
     public Vector<Integer> getAlertList() throws DatabaseException {
         try {

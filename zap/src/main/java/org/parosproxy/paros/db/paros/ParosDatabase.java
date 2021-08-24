@@ -41,6 +41,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use getLogger().
+// ZAP: 2021/08/24 Remove the "(non-Javadoc)" comments.
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
@@ -125,25 +126,16 @@ public class ParosDatabase extends AbstractDatabase {
         this.databaseServer = databaseServer;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#getTableHistory()
-     */
     @Override
     public TableHistory getTableHistory() {
         return tableHistory;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#getTableSession()
-     */
     @Override
     public TableSession getTableSession() {
         return tableSession;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#open(java.lang.String)
-     */
     @Override
     public void open(String path) throws ClassNotFoundException, Exception {
         // ZAP: Added log statement.
@@ -154,9 +146,6 @@ public class ParosDatabase extends AbstractDatabase {
         notifyListenersDatabaseOpen(getDatabaseServer());
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#deleteSession(java.lang.String)
-     */
     @Override
     public void deleteSession(String sessionName) {
         getLogger().debug("deleteSession " + sessionName);
@@ -188,9 +177,6 @@ public class ParosDatabase extends AbstractDatabase {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#close(boolean, boolean)
-     */
     // ZAP: Added method. Note: any change made to this method must have the
     // ZAP comment as the content was moved from the paros method close(boolean).
     @Override
@@ -217,81 +203,54 @@ public class ParosDatabase extends AbstractDatabase {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#getTableAlert()
-     */
     @Override
     public TableAlert getTableAlert() {
         return tableAlert;
     }
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#setTableAlert(org.parosproxy.paros.db.TableAlert)
-     */
+
     @Override
     public void setTableAlert(TableAlert tableAlert) {
         this.tableAlert = tableAlert;
     }
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#getTableScan()
-     */
+
     @Override
     public TableScan getTableScan() {
         return tableScan;
     }
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#setTableScan(org.parosproxy.paros.db.TableScan)
-     */
+
     @Override
     public void setTableScan(TableScan tableScan) {
         this.tableScan = tableScan;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#getTableTag()
-     */
     @Override
     public TableTag getTableTag() {
         return tableTag;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#setTableTag(org.parosproxy.paros.db.TableTag)
-     */
     @Override
     public void setTableTag(TableTag tableTag) {
         this.tableTag = tableTag;
     }
 
     // ZAP: Added method.
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#getTableSessionUrl()
-     */
     @Override
     public TableSessionUrl getTableSessionUrl() {
         return tableSessionUrl;
     }
 
     // ZAP: Added method.
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#setTableSessionUrl(org.parosproxy.paros.db.TableSessionUrl)
-     */
     @Override
     public void setTableSessionUrl(TableSessionUrl tableSessionUrl) {
         this.tableSessionUrl = tableSessionUrl;
     }
 
     // ZAP: Added method.
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#getTableParam()
-     */
     @Override
     public TableParam getTableParam() {
         return tableParam;
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#getTableContext()
-     */
     @Override
     public TableContext getTableContext() {
         return tableContext;

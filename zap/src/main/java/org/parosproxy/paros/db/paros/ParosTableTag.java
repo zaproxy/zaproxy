@@ -79,9 +79,6 @@ public class ParosTableTag extends ParosAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#read(long)
-     */
     @Override
     public synchronized RecordTag read(long tagId) throws DatabaseException {
         try {
@@ -96,9 +93,6 @@ public class ParosTableTag extends ParosAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#insert(long, java.lang.String)
-     */
     @Override
     public synchronized RecordTag insert(long historyId, String tag) throws DatabaseException {
         try {
@@ -116,9 +110,6 @@ public class ParosTableTag extends ParosAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#delete(long, java.lang.String)
-     */
     @Override
     public synchronized void delete(long historyId, String tag) throws DatabaseException {
         try {
@@ -130,9 +121,6 @@ public class ParosTableTag extends ParosAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#getTagsForHistoryID(long)
-     */
     @Override
     public synchronized List<RecordTag> getTagsForHistoryID(long historyId)
             throws DatabaseException {
@@ -152,9 +140,6 @@ public class ParosTableTag extends ParosAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#getAllTags()
-     */
     @Override
     public List<String> getAllTags() throws DatabaseException {
         try {
@@ -171,9 +156,6 @@ public class ParosTableTag extends ParosAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#deleteTagsForHistoryID(long)
-     */
     @Override
     public synchronized void deleteTagsForHistoryID(long historyId) throws DatabaseException {
         try {

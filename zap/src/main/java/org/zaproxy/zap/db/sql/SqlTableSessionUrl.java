@@ -51,9 +51,6 @@ public class SqlTableSessionUrl extends SqlAbstractTable implements TableSession
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#read(long)
-     */
     @Override
     public synchronized RecordSessionUrl read(long urlId) throws DatabaseException {
         SqlPreparedStatementWrapper psRead = null;
@@ -71,9 +68,6 @@ public class SqlTableSessionUrl extends SqlAbstractTable implements TableSession
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#insert(int, java.lang.String)
-     */
     @Override
     public synchronized RecordSessionUrl insert(int type, String url) throws DatabaseException {
         SqlPreparedStatementWrapper psInsert = null;
@@ -96,9 +90,6 @@ public class SqlTableSessionUrl extends SqlAbstractTable implements TableSession
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#delete(int, java.lang.String)
-     */
     @Override
     public synchronized void delete(int type, String url) throws DatabaseException {
         SqlPreparedStatementWrapper psDeleteUrls = null;
@@ -114,9 +105,6 @@ public class SqlTableSessionUrl extends SqlAbstractTable implements TableSession
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#deleteAllUrlsForType(int)
-     */
     @Override
     public synchronized void deleteAllUrlsForType(int type) throws DatabaseException {
         SqlPreparedStatementWrapper psDeleteAllUrlsForType = null;
@@ -132,9 +120,6 @@ public class SqlTableSessionUrl extends SqlAbstractTable implements TableSession
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#getUrlsForType(int)
-     */
     @Override
     public List<RecordSessionUrl> getUrlsForType(int type) throws DatabaseException {
         SqlPreparedStatementWrapper psGetAlluRLSForType = null;
@@ -170,9 +155,6 @@ public class SqlTableSessionUrl extends SqlAbstractTable implements TableSession
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#setUrls(int, java.util.List)
-     */
     @Override
     public void setUrls(int type, List<String> urls) throws DatabaseException {
         this.deleteAllUrlsForType(type);

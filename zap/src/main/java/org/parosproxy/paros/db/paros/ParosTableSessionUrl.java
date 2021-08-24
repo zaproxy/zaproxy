@@ -77,9 +77,6 @@ public class ParosTableSessionUrl extends ParosAbstractTable implements TableSes
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#read(long)
-     */
     @Override
     public synchronized RecordSessionUrl read(long urlId) throws DatabaseException {
         try {
@@ -93,9 +90,6 @@ public class ParosTableSessionUrl extends ParosAbstractTable implements TableSes
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#insert(int, java.lang.String)
-     */
     @Override
     public synchronized RecordSessionUrl insert(int type, String url) throws DatabaseException {
         try {
@@ -114,9 +108,6 @@ public class ParosTableSessionUrl extends ParosAbstractTable implements TableSes
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#delete(int, java.lang.String)
-     */
     @Override
     public synchronized void delete(int type, String url) throws DatabaseException {
         try {
@@ -128,9 +119,6 @@ public class ParosTableSessionUrl extends ParosAbstractTable implements TableSes
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#deleteAllUrlsForType(int)
-     */
     @Override
     public synchronized void deleteAllUrlsForType(int type) throws DatabaseException {
         try {
@@ -141,9 +129,6 @@ public class ParosTableSessionUrl extends ParosAbstractTable implements TableSes
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#getUrlsForType(int)
-     */
     @Override
     public synchronized List<RecordSessionUrl> getUrlsForType(int type) throws DatabaseException {
         try {
@@ -174,9 +159,6 @@ public class ParosTableSessionUrl extends ParosAbstractTable implements TableSes
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSessionUrl#setUrls(int, java.util.List)
-     */
     @Override
     public void setUrls(int type, List<String> urls) throws DatabaseException {
         this.deleteAllUrlsForType(type);
