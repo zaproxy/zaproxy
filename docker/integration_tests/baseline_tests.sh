@@ -23,6 +23,8 @@ else
     	echo "PASS"
     fi
 fi
+# Dont carry over any configs
+rm ~/.ZAP_D/config.xml
 
 echo
 echo "Baseline test 2 (vs example.com with INFO/WARN/FAIL set)"
@@ -43,6 +45,8 @@ else
     	echo "PASS"
     fi
 fi
+# Dont carry over any configs
+rm ~/.ZAP_D/config.xml
 
 echo
 echo "Baseline test 3 (vs example.com with INFO/WARN/FAIL and OUTOFSCOPE set)"
@@ -63,6 +67,8 @@ else
     	echo "PASS"
     fi
 fi
+# Dont carry over any configs
+rm ~/.ZAP_D/config.xml
 
 echo
 echo "TEST Baseline 4 (new vs old) - we expect _some_ differences and this will not fail the whole script"
@@ -70,6 +76,8 @@ echo "TEST Baseline 4 (new vs old) - we expect _some_ differences and this will 
 DIFF=$(diff /zap/wrk/output/baseline1.out /zap/wrk/output/baseline1-orig.out) 
 echo "Differences:"
 echo "$DIFF"
+# Dont carry over any configs
+rm ~/.ZAP_D/config.xml
 
 echo "End result: $RES"
 exit $RES
