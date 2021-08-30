@@ -168,6 +168,7 @@ Scanners:
 40039   Web Cache Deception
 40040	CORS active scan rule
 40041   FileUpload Scanner
+40042   Spring Actuator Test
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
