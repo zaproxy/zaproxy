@@ -19,14 +19,18 @@
  */
 package org.zaproxy.zap.utils;
 
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.text.AttributedCharacterIterator;
 import java.text.FieldPosition;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.ParsePosition;
+import javax.swing.JFormattedTextField;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 
@@ -51,10 +55,16 @@ public class ZapNumberSpinner extends JSpinner {
             this.defaultValue = defaultValue;
         }
         setModel(new SpinnerNumberModel(this.defaultValue, minValue, maxValue, 1));
-        ((NumberEditor) getEditor())
-                .getTextField()
-                .setFormatterFactory(
-                        new DefaultFormatterFactory(new ZapNumberFormatter(minValue, maxValue)));
+        JFormattedTextField textField = ((NumberEditor) getEditor()).getTextField();
+        textField.setFormatterFactory(
+                new DefaultFormatterFactory(new ZapNumberFormatter(minValue, maxValue)));
+        textField.addFocusListener(
+                new FocusAdapter() {
+                    @Override
+                    public void focusGained(FocusEvent e) {
+                        SwingUtilities.invokeLater(textField::selectAll);
+                    }
+                });
     }
 
     private boolean isValidValue(int value) {
