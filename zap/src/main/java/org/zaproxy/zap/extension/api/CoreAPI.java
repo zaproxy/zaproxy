@@ -468,7 +468,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                             } catch (Throwable e) {
                                 logger.error("An error occurred while shutting down:", e);
                             } finally {
-                                System.exit(0);
+                                System.exit(Control.getSingleton().getExitStatus());
                             }
                         }
                     };
