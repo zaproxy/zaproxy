@@ -51,6 +51,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/04/13 Issue 6469: Add option to scan null JSON values.
+// ZAP: 2021/09/14 Enable Anti CSRF handling by default.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -154,7 +155,7 @@ public class ScannerParam extends AbstractParam {
     private int maxResultsToList = 1000;
     private int maxScansInUI = 5;
     private boolean injectPluginIdInHeader = false;
-    private boolean handleAntiCSRFTokens = false;
+    private boolean handleAntiCSRFTokens = true;
     private boolean promptInAttackMode = true;
     private boolean rescanInAttackMode = true;
     private boolean promptToClearFinishedScans = true;
@@ -234,7 +235,7 @@ public class ScannerParam extends AbstractParam {
 
         this.injectPluginIdInHeader = getBoolean(INJECT_PLUGIN_ID_IN_HEADER, false);
 
-        this.handleAntiCSRFTokens = getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
+        this.handleAntiCSRFTokens = getBoolean(HANDLE_ANTI_CSRF_TOKENS, true);
 
         this.promptInAttackMode = getBoolean(PROMPT_IN_ATTACK_MODE, true);
 
