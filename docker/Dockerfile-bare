@@ -17,6 +17,8 @@ WORKDIR /zap
 COPY --from=builder /zap .
 COPY policies /home/zap/.ZAP/policies/
 
+RUN echo "zap2docker-bare" > /zap/container
+
 RUN echo "http://dl-3.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories &&\
     apk add --update --no-cache bash netcat-openbsd && \
     adduser -h /home/zap -s /bin/bash zap -D zap && \

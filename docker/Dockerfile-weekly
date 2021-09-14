@@ -76,6 +76,8 @@ COPY policies /root/.ZAP_D/policies/
 COPY scripts /home/zap/.ZAP_D/scripts/
 COPY .xinitrc /home/zap/
 
+RUN echo "zap2docker-weekly" > /zap/container
+
 #Copy doesn't respect USER directives so we need to chown and to do that we need to be root
 USER root
 
