@@ -97,6 +97,7 @@
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/23 Expose getScannerParam() for tests.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/09/14 No longer force single threading if Anti CSRF handling turned on.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -272,17 +273,7 @@ public class HostProcess implements Runnable {
         httpSender.setUser(this.user);
         httpSender.setRemoveUserDefinedAuthHeaders(true);
 
-        int maxNumberOfThreads;
-        if (scannerParam.getHandleAntiCSRFTokens()) {
-            // Single thread if handling anti CSRF tokens, otherwise token requests might get out of
-            // step
-            maxNumberOfThreads = 1;
-
-        } else {
-            maxNumberOfThreads = scannerParam.getThreadPerHost();
-        }
-
-        threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
+        threadPool = new ThreadPool(scannerParam.getThreadPerHost(), "ZAP-ActiveScanner-");
         this.techSet = TechSet.getAllTech();
     }
 
