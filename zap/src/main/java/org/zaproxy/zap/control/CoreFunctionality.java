@@ -54,7 +54,7 @@ public final class CoreFunctionality {
     private static List<AbstractPlugin> builtInActiveScanRules;
     private static List<PluginPassiveScanner> builtInPassiveScanRules;
 
-    private CoreFunctionality() {
+    static {
         // Register core event bus publishers asap
         ActiveScanEventPublisher.getPublisher();
         AlertEventPublisher.getPublisher();
