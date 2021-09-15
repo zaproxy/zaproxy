@@ -11,6 +11,11 @@ RET=$?
 DIFF=$(diff /zap/wrk/output/baseline1.out /zap/wrk/results/baseline1.out) 
 if [ "$DIFF" != "" ] 
 then
+	# For some reason this test can give slightly different results
+	DIFF=$(diff /zap/wrk/output/baseline1.out /zap/wrk/results/baseline1b.out) 
+fi
+if [ "$DIFF" != "" ] 
+then
     echo "FAIL: differences:"
     echo "$DIFF"
 	RES=1
@@ -33,6 +38,11 @@ RET=$?
 DIFF=$(diff /zap/wrk/output/baseline2.out /zap/wrk/results/baseline2.out) 
 if [ "$DIFF" != "" ] 
 then
+	# For some reason this test can give slightly different results
+	DIFF=$(diff /zap/wrk/output/baseline2.out /zap/wrk/results/baseline2b.out) 
+fi
+if [ "$DIFF" != "" ] 
+then
     echo "FAIL: differences:"
     echo "$DIFF"
 	RES=1
@@ -53,6 +63,11 @@ echo "Baseline test 3 (vs example.com with INFO/WARN/FAIL and OUTOFSCOPE set)"
 /zap/zap-baseline.py -t https://www.example.com/ --auto -c configs/baseline3.conf > /zap/wrk/output/baseline3.out
 RET=$?
 DIFF=$(diff /zap/wrk/output/baseline3.out /zap/wrk/results/baseline3.out) 
+if [ "$DIFF" != "" ] 
+then
+	# For some reason this test can give slightly different results
+	DIFF=$(diff /zap/wrk/output/baseline3.out /zap/wrk/results/baseline3b.out) 
+fi
 if [ "$DIFF" != "" ] 
 then
     echo "FAIL: differences:"
