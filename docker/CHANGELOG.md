@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-09-15
+ - Added /zap/container file to make it easier to detect if we are running in a container like docker.
+
 ### 2021-08-11
  - Changed to enable integration tests, inc enabling the AF for the baseline `-c` option if the `--auto` flag is used before it.
  - Added Automation Framework support for * OUTOFSCOPE baseline config file option.

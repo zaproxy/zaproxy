@@ -110,6 +110,7 @@
 // ZAP: 2020/10/07 Changes for Log4j 2 migration.
 // ZAP: 2020/11/02 Do not backup old Log4j config if already present.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/09/15 Added support for detecting containers
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -118,6 +119,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -286,6 +288,10 @@ public final class Constant {
     private static final String USER_CONTEXTS_DIR = "contexts";
     private static final String USER_POLICIES_DIR = "policies";
 
+    private static final String ZAP_CONTAINER_FILE = "/zap/container";
+    private static final String FLATPAK_FILE = "/.flatpak-info";
+    public static final String FLATPAK_NAME = "flatpak";
+
     //
     // Home dir for ZAP, i.e. where the config file is. Can be set on cmdline, otherwise will be set
     // to default loc
@@ -298,6 +304,8 @@ public final class Constant {
     private static String zapInstall = null;
 
     private static Boolean onKali = null;
+    private static Boolean inContainer = null;
+    private static String containerName;
     private static Boolean lowMemoryOption = null;
 
     // ZAP: Added i18n
@@ -1542,5 +1550,48 @@ public final class Constant {
             }
         }
         return onKali;
+    }
+
+    /**
+     * Returns true if ZAP is running in a container like Docker or Flatpak
+     *
+     * @see #getContainerName
+     * @since 2.11.0
+     */
+    public static boolean isInContainer() {
+        if (inContainer == null) {
+            // This is created by the Docker files from 2.11
+            File containerFile = new File(ZAP_CONTAINER_FILE);
+            File flatpakFile = new File(FLATPAK_FILE);
+            if (isLinux() && containerFile.exists()) {
+                inContainer = true;
+                try {
+                    containerName =
+                            new String(
+                                            Files.readAllBytes(containerFile.toPath()),
+                                            StandardCharsets.UTF_8)
+                                    .trim();
+                } catch (IOException e) {
+                    // Ignore
+                }
+            } else if (flatpakFile.exists()) {
+                inContainer = true;
+                containerName = FLATPAK_NAME;
+            } else {
+                inContainer = false;
+            }
+        }
+        return inContainer;
+    }
+
+    /**
+     * Returns the name of the container ZAP is running in (if any) e.g. zap2docker-stable, flatpak
+     * or null if not running in a recognised container
+     *
+     * @since 2.11.0
+     */
+    public static String getContainerName() {
+        isInContainer();
+        return containerName;
     }
 }
