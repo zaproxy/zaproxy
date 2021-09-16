@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-09-16
+ - Updated to use Webswing 21.1.5
+
 ### 2021-09-15
  - Added /zap/container file to make it easier to detect if we are running in a container like docker.
 
