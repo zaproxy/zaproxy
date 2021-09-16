@@ -38,6 +38,7 @@
 // ZAP: 2020/03/25 Remove hardcoded colour in titled border (Issue 5542).
 // ZAP: 2020/12/03 Add constants for indexes of possible break buttons locations
 // ZAP: 2021/05/14 Remove redundant type arguments and empty statement.
+// ZAP: 2021/09/16 Add support for enabling app integration in containers
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -124,6 +125,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
     private JCheckBox chkShowSplashScreen = null;
     private JCheckBox scaleImages = null;
     private JCheckBox showLocalConnectRequestsCheckbox;
+    private JCheckBox allowAppsInContainers = null;
 
     private JComboBox<String> brkPanelViewSelect = null;
     private JComboBox<String> displaySelect = null;
@@ -352,6 +354,19 @@ public class OptionsViewPanel extends AbstractParamPanel {
                     LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
             panelMisc.add(
                     getShowSplashScreen(),
+                    LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
+
+            row++;
+            JLabel allowAppIntegrationInContainersLabel =
+                    new JLabel(
+                            Constant.messages.getString(
+                                    "view.options.label.allowAppsInContainers"));
+            allowAppIntegrationInContainersLabel.setLabelFor(getAllowAppsInContainers());
+            panelMisc.add(
+                    allowAppIntegrationInContainersLabel,
+                    LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
+            panelMisc.add(
+                    getAllowAppsInContainers(),
                     LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
 
             row++;
@@ -723,6 +738,13 @@ public class OptionsViewPanel extends AbstractParamPanel {
         return scaleImages;
     }
 
+    private JCheckBox getAllowAppsInContainers() {
+        if (allowAppsInContainers == null) {
+            allowAppsInContainers = new JCheckBox();
+        }
+        return allowAppsInContainers;
+    }
+
     private JComboBox<LookAndFeelInfoUi> getLookAndFeelSelect() {
         if (lookAndFeel == null) {
             lookAndFeel = new JComboBox<>();
@@ -770,6 +792,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
         selectItem(
                 getLookAndFeelSelect(),
                 item -> item.getLookAndFeelInfo().getName().equals(nameLaf));
+        getAllowAppsInContainers()
+                .setSelected(options.getViewParam().isAllowAppIntegrationInContainers());
     }
 
     private static <T> void selectItem(JComboBox<T> comboBox, Predicate<T> predicate) {
@@ -823,6 +847,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
                 .setLookAndFeelInfo(
                         ((LookAndFeelInfoUi) getLookAndFeelSelect().getSelectedItem())
                                 .getLookAndFeelInfo());
+        options.getViewParam()
+                .setAllowAppIntegrationInContainers(getAllowAppsInContainers().isSelected());
     }
 
     @Override
