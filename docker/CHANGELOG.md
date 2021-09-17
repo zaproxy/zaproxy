@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-09-21
+ - Updated the Baseline scan to use the Automation Framework for the "-c config_file" option.
+
 ### 2021-09-16
  - Updated to use Webswing 21.1.5
 

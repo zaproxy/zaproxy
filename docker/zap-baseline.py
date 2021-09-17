@@ -112,6 +112,7 @@ def usage():
     
     The following parameters are currently supported:
     
+    -c config_file
     -m mins
     -r report_html
     -w report_md
@@ -129,11 +130,10 @@ def usage():
     The following parameters are partially supported. 
     If you specify the '--auto' flag _before_ using them then the Automation Framework will be used:
 
-    -c config_file    Supports IGNORE, WARN and FAIL and * OUTOFSCOPE. Does not yet support plugin specific OUTOFSCOPE or custom rule messages.
+    -u config_url
     
     If any of the next set of parameters are used then the existing code will be used instead:
     
-    -u config_url     ditto
     -D secs           need new delay/sleep job
     -i                need to support config files
     -l level          ditto
@@ -205,11 +205,10 @@ def main(argv):
             logging.debug('Target: ' + target)
         elif opt == '-c':
             config_file = arg
-            if not af_override:
-              af_supported = False
         elif opt == '-u':
             config_url = arg
-            af_supported = False
+            if not af_override:
+              af_supported = False
         elif opt == '-g':
             generate = arg
             af_supported = False
@@ -359,20 +358,32 @@ def main(argv):
                
                 yaml.dump(get_af_env(top_levels, out_of_scope_dict, debug), yf)
                 
+                alertFilters = []
+                
+                # Handle id specific alertFilters - rules that apply to all IDs are excluded from the env
+                for id in out_of_scope_dict:
+                    if id != '*':
+                        for regex in out_of_scope_dict[id]:
+                            alertFilters.append({'ruleId': id, 'newRisk': 'False Positive', 'url': regex.pattern, 'urlRegex': True})
+                
                 addons = ['pscanrulesBeta']
                 if zap_alpha:
                     addons.append('pscanrulesAlpha')
                     
                 jobs = [
                         get_af_addons(addons, []),
-                        get_af_pscan_config(),
-                        get_af_spider(target, mins)                        ]
+                        get_af_pscan_config()]
+
+                if len(alertFilters) > 0:
+                    jobs.append(get_af_alertFilter(alertFilters))
                 
+                jobs.append(get_af_spider(target, mins))
+
                 if ajax:
                     jobs.append(get_af_spiderAjax(target, mins))
                 
                 jobs.append(get_af_pscan_wait(timeout))
-                jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict))
+                jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict, config_msg))
                 
                 if report_html:
                     jobs.append(get_af_report('traditional-html', base_dir, report_html, 'ZAP Scanning Report', ''))

@@ -52,18 +52,16 @@ IGNORE: Retrieved from Cache [10050] x 2
 	https://www.example.com/sitemap.xml (404 Not Found)
 INFO: Incomplete or No Cache-control Header Set [10015] x 1 
 	https://www.example.com/ (200 OK)
-WARN-NEW: X-Content-Type-Options Header Missing [10021] x 1 
+WARN-NEW: X-Content-Type-Options Header Missing [10021] x 1 Custom X-Content-Type-Options message
 	https://www.example.com/ (200 OK)
 WARN-NEW: Strict-Transport-Security Header Not Set [10035] x 2 
 	https://www.example.com/ (200 OK)
 	https://www.example.com/sitemap.xml (404 Not Found)
-WARN-NEW: Server Leaks Version Information via "Server" HTTP Response Header Field [10036] x 3 
-	https://www.example.com/ (200 OK)
-	https://www.example.com/ (200 OK)
+WARN-NEW: Server Leaks Version Information via "Server" HTTP Response Header Field [10036] x 1 
 	https://www.example.com/sitemap.xml (404 Not Found)
 WARN-NEW: Content Security Policy (CSP) Header Not Set [10038] x 2 
 	https://www.example.com/ (200 OK)
 	https://www.example.com/sitemap.xml (404 Not Found)
-FAIL-NEW: X-Frame-Options Header Not Set [10020] x 1 
+FAIL-NEW: X-Frame-Options Header Not Set [10020] x 1 Custom X-Frame-Options option message
 	https://www.example.com/ (200 OK)
 FAIL-NEW: 1	FAIL-INPROG: 0	WARN-NEW: 4	WARN-INPROG: 0	INFO: 1	IGNORE: 1	PASS: 47
