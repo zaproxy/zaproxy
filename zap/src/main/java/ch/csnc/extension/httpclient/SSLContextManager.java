@@ -266,7 +266,7 @@ public class SSLContextManager {
             return null;
         }
 
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
         X509Certificate x509 = (X509Certificate) cert;
 
         try {

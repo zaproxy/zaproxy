@@ -82,7 +82,7 @@ public class DefaultTextHttpMessageLocation implements TextHttpMessageLocation {
 
     @Override
     public String getDescription() {
-        StringBuffer description = new StringBuffer(25);
+        StringBuilder description = new StringBuilder(25);
         switch (location) {
             case REQUEST_HEADER:
             case RESPONSE_HEADER:
