@@ -240,6 +240,7 @@ Scanners:
 100029  File Content Disclosure (CVE-2019-5418) [Script]
 100030  Good Old Files Lite [Script]
 100031  DNS Email Spoofing [Script]
+100032  WordPress Username Enumeration [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]
