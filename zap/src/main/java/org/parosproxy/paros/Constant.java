@@ -111,6 +111,7 @@
 // ZAP: 2020/11/02 Do not backup old Log4j config if already present.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/09/15 Added support for detecting containers
+// ZAP: 2021/09/21 Added support for detecting snapcraft
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -291,6 +292,8 @@ public final class Constant {
     private static final String ZAP_CONTAINER_FILE = "/zap/container";
     private static final String FLATPAK_FILE = "/.flatpak-info";
     public static final String FLATPAK_NAME = "flatpak";
+    private static final String SNAP_FILE = "meta/snap.yaml";
+    public static final String SNAP_NAME = "snapcraft";
 
     //
     // Home dir for ZAP, i.e. where the config file is. Can be set on cmdline, otherwise will be set
@@ -1563,6 +1566,7 @@ public final class Constant {
             // This is created by the Docker files from 2.11
             File containerFile = new File(ZAP_CONTAINER_FILE);
             File flatpakFile = new File(FLATPAK_FILE);
+            File snapFile = new File(SNAP_FILE);
             if (isLinux() && containerFile.exists()) {
                 inContainer = true;
                 try {
@@ -1577,6 +1581,9 @@ public final class Constant {
             } else if (flatpakFile.exists()) {
                 inContainer = true;
                 containerName = FLATPAK_NAME;
+            } else if (snapFile.exists()) {
+                inContainer = true;
+                containerName = SNAP_NAME;
             } else {
                 inContainer = false;
             }
