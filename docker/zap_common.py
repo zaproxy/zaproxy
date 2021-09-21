@@ -658,7 +658,7 @@ def get_af_report(template, dir, file, title, description):
             'reportDescription': description}
         }
 
-def get_af_output_summary(format, summaryFile, config_dict):
+def get_af_output_summary(format, summaryFile, config_dict, config_msg):
     obj = {
         'type': 'outputSummary',
         'parameters': {
@@ -667,6 +667,15 @@ def get_af_output_summary(format, summaryFile, config_dict):
         }
     rules = []
     for id, action in config_dict.items():
-        rules.append({'id': int(id), 'action': action})
+        if id in config_msg:
+            rules.append({'id': int(id), 'action': action, 'customMessage': config_msg[id]})
+        else:
+            rules.append({'id': int(id), 'action': action})
     obj['rules'] = rules
     return obj
+
+def get_af_alertFilter(alertFilters):
+    return {
+        'type': 'alertFilter',
+        'alertFilters': alertFilters
+    }
