@@ -113,6 +113,7 @@ def usage():
     The following parameters are currently supported:
     
     -c config_file
+    -u config_url
     -m mins
     -r report_html
     -w report_md
@@ -130,7 +131,7 @@ def usage():
     The following parameters are partially supported. 
     If you specify the '--auto' flag _before_ using them then the Automation Framework will be used:
 
-    -u config_url
+    Currently none.
     
     If any of the next set of parameters are used then the existing code will be used instead:
     
@@ -207,8 +208,6 @@ def main(argv):
             config_file = arg
         elif opt == '-u':
             config_url = arg
-            if not af_override:
-              af_supported = False
         elif opt == '-g':
             generate = arg
             af_supported = False
