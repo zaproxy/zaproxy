@@ -32,11 +32,14 @@ parts:
     stage: [ $pkg-contents ]
   java:
     plugin: nil
+    build-packages:
+      - ca-certificates-java
     stage-packages:
       - openjdk-11-jre
+      - ca-certificates-java
     override-build: |
-      rm $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-11-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/cacerts
-      cp /etc/default/cacerts $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-11-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/cacerts
+      cp /etc/ssl/certs/java/cacerts $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-11-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/cacerts
+      cp /etc/ssl/certs/java/cacerts $SNAPCRAFT_PART_INSTALL/etc/ssl/certs/java/cacerts
   desktop-glib-only:
     build-packages:
       - libglib2.0-dev
