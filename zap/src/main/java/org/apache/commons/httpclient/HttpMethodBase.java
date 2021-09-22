@@ -69,6 +69,7 @@ import org.parosproxy.paros.network.HttpHeader;
  *  - Change the way cookie headers are handled when using forced user mode, put all the headers in a single line see ISSUE 1874
  *  - Do not add a User-Agent header by default.
  *  - Update Host header in place.
+ *  - Replace usages of StringBuffer with StringBuilder.
  * 
  */
 /**
@@ -272,7 +273,7 @@ public abstract class HttpMethodBase implements HttpMethod {
      */
     @Override
     public URI getURI() throws URIException {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         if (this.httphost != null) {
             buffer.append(this.httphost.getProtocol().getScheme());
             buffer.append("://");
@@ -1659,7 +1660,7 @@ public abstract class HttpMethodBase implements HttpMethod {
         LOG.trace("enter HttpMethodBase.generateRequestLine(HttpConnection, "
             + "String, String, String, String)");
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // Append method name
         buf.append(name);
         buf.append(" ");
