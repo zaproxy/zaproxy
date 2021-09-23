@@ -26,7 +26,9 @@ import org.parosproxy.paros.network.HttpMessage;
  * @since 2.6.0
  * @author psiinon
  * @see ExtensionCallback#registerCallbackImplementor(CallbackImplementor)
+ * @deprecated (2.11.0) Superseded by the OAST add-on.
  */
+@Deprecated
 public interface CallbackImplementor {
 
     public void handleCallBack(HttpMessage msg);
