@@ -22,6 +22,8 @@ package org.zaproxy.zap.extension.callback.ui;
 import java.util.ArrayList;
 import org.parosproxy.paros.Constant;
 
+/** @deprecated (2.11.0) Superseded by the OAST add-on. */
+@Deprecated
 public class CallbackTableModel
         extends DefaultCustomColumnHistoryReferencesTableModel<CallbackRequest> {
 

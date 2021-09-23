@@ -165,7 +165,9 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     classExcludes = listOf(
         "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel",
-        "org.parosproxy.paros.core.scanner.Variant#setParameters(org.parosproxy.paros.network.HttpMessage,java.util.List)"
+        "org.parosproxy.paros.core.scanner.Variant#setParameters(org.parosproxy.paros.network.HttpMessage,java.util.List)",
+        "org.zaproxy.zap.extension.ascan.ChallengeCallbackAPI",
+        "org.zaproxy.zap.extension.ascan.ChallengeCallbackPlugin"
         )
 
     methodExcludes = listOf(

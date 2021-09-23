@@ -96,7 +96,6 @@ public final class CoreFunctionality {
             extensions.add(new org.zaproxy.zap.extension.authorization.ExtensionAuthorization());
             extensions.add(new org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate());
             extensions.add(new org.zaproxy.zap.extension.brk.ExtensionBreak());
-            extensions.add(new org.zaproxy.zap.extension.callback.ExtensionCallback());
             extensions.add(new org.zaproxy.zap.extension.compare.ExtensionCompare());
             extensions.add(new org.zaproxy.zap.extension.dynssl.ExtensionDynSSL());
             extensions.add(new org.zaproxy.zap.extension.ext.ExtensionExtension());
