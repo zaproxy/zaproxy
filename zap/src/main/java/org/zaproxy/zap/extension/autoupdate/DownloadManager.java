@@ -24,7 +24,9 @@ import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -33,8 +35,8 @@ import org.parosproxy.paros.view.View;
 
 public class DownloadManager extends Thread {
     private static final Logger logger = LogManager.getLogger(DownloadManager.class);
-    private List<Downloader> currentDownloads = new ArrayList<>();
-    private List<Downloader> completedDownloads = new ArrayList<>();
+    private Collection<Downloader> currentDownloads = new ConcurrentLinkedQueue<>();
+    private Collection<Downloader> completedDownloads = new ConcurrentLinkedQueue<>();
     private boolean shutdown = false;
     private boolean cancelDownloads = false;
     private ConnectionParam connectionParam;
