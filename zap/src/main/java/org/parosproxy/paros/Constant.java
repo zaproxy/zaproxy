@@ -187,6 +187,7 @@ public final class Constant {
     static final long VERSION_TAG = 2010000;
 
     // Old version numbers - for upgrade
+    private static final long V_2_10_0_TAG = 20010000;
     private static final long V_2_9_0_TAG = 2009000;
     private static final long V_2_8_0_TAG = 2008000;
     private static final long V_2_7_0_TAG = 2007000;
@@ -707,6 +708,9 @@ public final class Constant {
                     }
                     if (ver <= V_2_9_0_TAG) {
                         upgradeFrom2_9_0(config);
+                    }
+                    if (ver <= V_2_10_0_TAG) {
+                        // Nothing to do
                     }
 
                     // Execute always to pick installer choices.
