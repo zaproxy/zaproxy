@@ -81,6 +81,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor
 
     private ActiveScanController ascanController = null;
 
+    private boolean panelSwitch = true;
+
     static {
         List<Class<? extends Extension>> dep = new ArrayList<>(1);
         dep.add(ExtensionAlert.class);
@@ -289,9 +291,31 @@ public class ExtensionActiveScan extends ExtensionAdaptor
             scanner.addScannerListener(getActiveScanPanel()); // So the UI get updated
             this.getActiveScanPanel().scannerStarted(scanner);
             this.getActiveScanPanel().switchView(scanner);
-            this.getActiveScanPanel().setTabFocus();
+            if (isPanelSwitch()) {
+                this.getActiveScanPanel().setTabFocus();
+            }
         }
         return id;
+    }
+
+    /**
+     * Returns true if the GUI will switch to the Active Scan panel when a scan is started.
+     *
+     * @since 2.11.0
+     */
+    public boolean isPanelSwitch() {
+        return panelSwitch;
+    }
+
+    /**
+     * Sets if the GUI will switch to the Active Scan panel when a scan is started. Code should only
+     * set this to false just before starting a scan and reset it to true as soon as the scan has
+     * started.
+     *
+     * @since 2.11.0
+     */
+    public void setPanelSwitch(boolean panelSwitch) {
+        this.panelSwitch = panelSwitch;
     }
 
     private JButton getPolicyButton() {
@@ -757,7 +781,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor
             scanner.addScannerListener(getActiveScanPanel()); // So the UI get updated
             this.getActiveScanPanel().scannerStarted(scanner);
             this.getActiveScanPanel().switchView(scanner);
-            this.getActiveScanPanel().setTabFocus();
+            if (isPanelSwitch()) {
+                this.getActiveScanPanel().setTabFocus();
+            }
         }
 
         return id;

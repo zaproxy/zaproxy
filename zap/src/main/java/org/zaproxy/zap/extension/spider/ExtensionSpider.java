@@ -96,6 +96,8 @@ public class ExtensionSpider extends ExtensionAdaptor
 
     private Icon icon;
 
+    private boolean panelSwitch = true;
+
     /**
      * The list of excluded patterns of sites. Patterns are added here with the ExcludeFromSpider
      * Popup Menu.
@@ -645,7 +647,29 @@ public class ExtensionSpider extends ExtensionAdaptor
         this.getSpiderPanel().scannerStarted(scan);
         scan.setListener(getSpiderPanel()); // So the UI gets updated
         this.getSpiderPanel().switchView(scan);
-        this.getSpiderPanel().setTabFocus();
+        if (isPanelSwitch()) {
+            this.getSpiderPanel().setTabFocus();
+        }
+    }
+
+    /**
+     * Returns true if the GUI will switch to the Spider panel when a scan is started.
+     *
+     * @since 2.11.0
+     */
+    public boolean isPanelSwitch() {
+        return panelSwitch;
+    }
+
+    /**
+     * Sets if the GUI will switch to the Spider panel when a scan is started. Code should only set
+     * this to false just before starting a scan and reset it to true as soon as the scan has
+     * started.
+     *
+     * @since 2.11.0
+     */
+    public void setPanelSwitch(boolean panelSwitch) {
+        this.panelSwitch = panelSwitch;
     }
 
     /**
