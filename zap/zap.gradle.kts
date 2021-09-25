@@ -172,6 +172,7 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     methodExcludes = listOf(
         // Not intended to be used directly by add-ons.
+        "org.parosproxy.paros.core.scanner.Plugin#getAlertTags()",
         "org.zaproxy.zap.spider.parser.SpiderParserListener#resourcePostURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,java.lang.String)",
         "org.zaproxy.zap.spider.parser.SpiderParserListener#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String)",
         "org.zaproxy.zap.spider.parser.SpiderParserListener#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,boolean)",

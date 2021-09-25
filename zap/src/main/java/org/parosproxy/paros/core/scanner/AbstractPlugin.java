@@ -78,6 +78,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1265,6 +1266,18 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return 0;
     }
 
+    /**
+     * Gets the tags attached to the alerts raised by this plugin. Can be overridden by scan rules
+     * to return the associated alert tags.
+     *
+     * @return the Alert Tags
+     * @since 2.11.0
+     */
+    @Override
+    public Map<String, String> getAlertTags() {
+        return null;
+    }
+
     @Override
     public AddOn.Status getStatus() {
         return status;
@@ -1289,6 +1302,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *   <li>CWE ID - using {@link #getCweId()}
      *   <li>WASC ID - using {@link #getWascId()}
      *   <li>URI - from the alert message
+     *   <li>Alert Tags - using {@link #getAlertTags()}
      * </ul>
      *
      * @return the alert builder.
@@ -1319,6 +1333,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             setReference(plugin.getReference());
             setCweId(plugin.getCweId());
             setWascId(plugin.getWascId());
+            setTags(plugin.getAlertTags());
         }
 
         @Override
@@ -1439,6 +1454,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         @Override
         public AlertBuilder setAlertRef(String alertRef) {
             super.setAlertRef(alertRef);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setTags(Map<String, String> tags) {
+            super.setTags(tags);
             return this;
         }
 

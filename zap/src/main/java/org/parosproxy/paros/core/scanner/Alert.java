@@ -62,6 +62,8 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.Map;
 import javax.swing.ImageIcon;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.text.StringEscapeUtils;
@@ -223,6 +225,7 @@ public class Alert implements Comparable<Alert> {
     private URI msgUri = null;
     private Source source = Source.UNKNOWN;
     private String alertRef = "";
+    private Map<String, String> tags = Collections.emptyMap();
 
     public Alert(int pluginId) {
         this.pluginId = pluginId;
@@ -649,6 +652,7 @@ public class Alert implements Comparable<Alert> {
         item.setCweId(this.cweId);
         item.setWascId(this.wascId);
         item.setSource(this.source);
+        item.setTags(this.tags);
         return item;
     }
 
@@ -932,6 +936,18 @@ public class Alert implements Comparable<Alert> {
         this.wascId = wascId;
     }
 
+    /** @since 2.11.0 */
+    public Map<String, String> getTags() {
+        return tags;
+    }
+
+    /** @since 2.11.0 */
+    public void setTags(Map<String, String> tags) {
+        if (tags != null) {
+            this.tags = tags;
+        }
+    }
+
     /**
      * Gets the source of the alert.
      *
@@ -1040,6 +1056,7 @@ public class Alert implements Comparable<Alert> {
         private HistoryReference historyRef;
         private Source source = Source.UNKNOWN;
         private String alertRef;
+        private Map<String, String> tags;
 
         protected Builder() {}
 
@@ -1143,6 +1160,12 @@ public class Alert implements Comparable<Alert> {
             return this;
         }
 
+        /** @since 2.11.0 */
+        public Builder setTags(Map<String, String> tags) {
+            this.tags = tags;
+            return this;
+        }
+
         /**
          * Builds the alert from the specified data.
          *
@@ -1183,6 +1206,7 @@ public class Alert implements Comparable<Alert> {
             if (alertRef != null) {
                 alert.setAlertRef(alertRef);
             }
+            alert.setTags(tags);
 
             return alert;
         }
