@@ -19,7 +19,9 @@
  */
 package org.zaproxy.zap.extension.alert;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -29,17 +31,24 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToolBar;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.TitledBorder;
 import org.apache.logging.log4j.LogManager;
@@ -58,12 +67,14 @@ import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
+import org.zaproxy.zap.view.ZapTable;
 
 public class AlertViewPanel extends AbstractPanel {
 
@@ -91,6 +102,8 @@ public class AlertViewPanel extends AbstractPanel {
     private ZapTextArea alertOtherInfo = null;
     private ZapTextArea alertSolution = null;
     private ZapTextArea alertReference = null;
+    private ZapTable alertTagsTable = null;
+    private AlertTagsTableModel alertTagsTableModel = null;
     private ZapLabel alertCweId = null;
     private ZapLabel alertWascId = null;
     private ZapLabel alertSource;
@@ -115,6 +128,9 @@ public class AlertViewPanel extends AbstractPanel {
     private JLabel sourceLabel;
     private JLabel urlLabel;
     private JLabel wascidLabel;
+
+    private DialogAddAlertTag dialogAddAlertTag;
+    private DialogModifyAlertTag dialogModifyAlertTag;
 
     private boolean editable = false;
     private Alert originalAlert = null;
@@ -412,8 +428,122 @@ public class AlertViewPanel extends AbstractPanel {
                     referenceSp,
                     LayoutHelper.getGBC(
                             0, gbcRow, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, DEFAULT_INSETS));
+            gbcRow++;
+
+            alertDisplay.add(
+                    createAlertTagsPanel(),
+                    LayoutHelper.getGBC(
+                            0, gbcRow, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, DEFAULT_INSETS));
         }
         return alertDisplay;
+    }
+
+    private JPanel createAlertTagsPanel() {
+        JPanel alertTagsPanel = new JXPanel(new BorderLayout());
+        alertTagsPanel.setName("Alert Tags Panel");
+        alertTagsPanel.setBorder(
+                BorderFactory.createTitledBorder(
+                        null,
+                        Constant.messages.getString("alert.label.tags"),
+                        TitledBorder.DEFAULT_JUSTIFICATION,
+                        javax.swing.border.TitledBorder.DEFAULT_POSITION,
+                        FontUtils.getFont(FontUtils.Size.standard)));
+
+        alertTagsTableModel = new AlertTagsTableModel();
+        alertTagsTable = new ZapTable(alertTagsTableModel);
+        alertTagsTable.setPreferredScrollableViewportSize(
+                new Dimension(
+                        alertTagsTable.getPreferredSize().width,
+                        alertTagsTable.getRowHeight() * 5));
+        if (!editable) {
+            alertTagsTable.setCellSelectionEnabled(true);
+        }
+        JScrollPane alertTagsSp = new JScrollPane();
+        alertTagsSp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        alertTagsSp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        alertTagsSp.setViewportView(alertTagsTable);
+        alertTagsSp.addKeyListener(
+                new KeyAdapter() {
+                    // Change tab key to transfer focus to the next element
+                    @Override
+                    public void keyPressed(java.awt.event.KeyEvent evt) {
+                        if (evt.getKeyCode() == KeyEvent.VK_TAB) {
+                            alertTagsTable.transferFocus();
+                        }
+                    }
+                });
+        if (editable) {
+            JToolBar alertTagsToolBar = new JToolBar();
+            alertTagsToolBar.setEnabled(true);
+            alertTagsToolBar.setFloatable(false);
+            alertTagsToolBar.setRollover(true);
+            alertTagsToolBar.setName("Alert Tags Editing Toolbar");
+
+            JButton addTagButton = new JButton();
+            addTagButton.setToolTipText(Constant.messages.getString("alert.tags.button.add"));
+            addTagButton.setIcon(
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    AlertViewPanel.class.getResource(
+                                            "/resource/icon/16/103.png"))));
+            addTagButton.addActionListener(e -> showAddAlertTagDialogue());
+            alertTagsToolBar.add(addTagButton);
+
+            JButton deleteTagButton = new JButton();
+            deleteTagButton.setToolTipText(Constant.messages.getString("alert.tags.button.delete"));
+            deleteTagButton.setIcon(
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    AlertViewPanel.class.getResource(
+                                            "/resource/icon/16/104.png"))));
+            deleteTagButton.addActionListener(
+                    e -> alertTagsTableModel.deleteTags(alertTagsTable.getSelectedRows()));
+            deleteTagButton.setEnabled(false);
+            alertTagsToolBar.add(deleteTagButton);
+
+            JButton editTagButton = new JButton();
+            editTagButton.setToolTipText(Constant.messages.getString("alert.tags.button.modify"));
+            editTagButton.setIcon(
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    AlertViewPanel.class.getResource(
+                                            "/resource/icon/16/018.png"))));
+            editTagButton.addActionListener(e -> showModifyAlertTagDialogue());
+            editTagButton.setEnabled(false);
+            alertTagsToolBar.add(editTagButton);
+
+            alertTagsTable
+                    .getSelectionModel()
+                    .addListSelectionListener(
+                            e -> {
+                                if (alertTagsTable.getSelectedRow() == -1) {
+                                    deleteTagButton.setEnabled(false);
+                                    editTagButton.setEnabled(false);
+                                    return;
+                                }
+                                if (!deleteTagButton.isEnabled()) {
+                                    deleteTagButton.setEnabled(true);
+                                }
+                                if (!editTagButton.isEnabled()) {
+                                    editTagButton.setEnabled(true);
+                                }
+                            });
+
+            alertTagsTable.addMouseListener(
+                    new MouseAdapter() {
+                        @Override
+                        public void mouseClicked(MouseEvent e) {
+                            JTable table = (JTable) e.getSource();
+                            if (e.getClickCount() == 2 && table.getSelectedRow() != -1) {
+                                showModifyAlertTagDialogue();
+                            }
+                        }
+                    });
+
+            alertTagsPanel.add(alertTagsToolBar, BorderLayout.PAGE_START);
+        }
+        alertTagsPanel.add(alertTagsSp, BorderLayout.CENTER);
+        return alertTagsPanel;
     }
 
     public void displayAlert(Alert alert) {
@@ -452,6 +582,7 @@ public class AlertViewPanel extends AbstractPanel {
         setAlertOtherInfo(alert.getOtherInfo());
         setAlertSolution(alert.getSolution());
         setAlertReference(alert.getReference());
+        setAlertTags(alert.getTags());
 
         cardLayout.show(this, getAlertPane().getName());
     }
@@ -506,6 +637,7 @@ public class AlertViewPanel extends AbstractPanel {
         alertSolution.setText("");
         alertReference.setText("");
         alertSource.setText("");
+        setAlertTags(Collections.emptyMap());
 
         if (editable) {
             alertEditAttack.setText("");
@@ -590,6 +722,7 @@ public class AlertViewPanel extends AbstractPanel {
             alert.setCweId(alertEditCweId.getValue());
             alert.setWascId(alertEditWascId.getValue());
             alert.setHistoryRef(historyRef);
+            alert.setTags(getAlertTags());
 
             return alert;
         }
@@ -634,6 +767,7 @@ public class AlertViewPanel extends AbstractPanel {
                 alertEditCweId.getValue(),
                 alertEditWascId.getValue(),
                 msg);
+        alert.setTags(getAlertTags());
         return alert;
     }
 
@@ -723,6 +857,14 @@ public class AlertViewPanel extends AbstractPanel {
         textArea.setCaretPosition(0);
     }
 
+    private void setAlertTags(Map<String, String> tags) {
+        alertTagsTableModel.setTags(tags);
+    }
+
+    private Map<String, String> getAlertTags() {
+        return alertTagsTableModel.getTags();
+    }
+
     private JLabel getAttackLabel() {
         if (attackLabel == null) {
             attackLabel = new JLabel(Constant.messages.getString("alert.label.attack"));
@@ -784,5 +926,38 @@ public class AlertViewPanel extends AbstractPanel {
             wascidLabel = new JLabel(Constant.messages.getString("alert.label.wascid"));
         }
         return wascidLabel;
+    }
+
+    private void showAddAlertTagDialogue() {
+        if (dialogAddAlertTag == null) {
+            dialogAddAlertTag =
+                    new DialogAddAlertTag(
+                            Control.getSingleton()
+                                    .getExtensionLoader()
+                                    .getExtension(ExtensionAlert.class)
+                                    .getDialogAlertAdd(),
+                            alertTagsTableModel);
+            dialogAddAlertTag.pack();
+        }
+        dialogAddAlertTag.clearFields();
+        dialogAddAlertTag.setVisible(true);
+    }
+
+    private void showModifyAlertTagDialogue() {
+        if (dialogModifyAlertTag == null) {
+            dialogModifyAlertTag =
+                    new DialogModifyAlertTag(
+                            Control.getSingleton()
+                                    .getExtensionLoader()
+                                    .getExtension(ExtensionAlert.class)
+                                    .getDialogAlertAdd(),
+                            alertTagsTableModel);
+            dialogModifyAlertTag.pack();
+        }
+        int selectedRow = alertTagsTable.getSelectedRow();
+        if (selectedRow != -1) {
+            dialogModifyAlertTag.setTagRowInAlertTagsTable(selectedRow);
+            dialogModifyAlertTag.setVisible(true);
+        }
     }
 }

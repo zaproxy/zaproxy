@@ -42,6 +42,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use getLogger().
 // ZAP: 2021/08/24 Remove the "(non-Javadoc)" comments.
+// ZAP: 2021/09/27 Added support for Alert Tags.
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
@@ -63,6 +64,8 @@ import org.parosproxy.paros.db.TableSessionUrl;
 import org.parosproxy.paros.db.TableStructure;
 import org.parosproxy.paros.db.TableTag;
 import org.parosproxy.paros.extension.option.DatabaseParam;
+import org.zaproxy.zap.db.TableAlertTag;
+import org.zaproxy.zap.db.paros.ParosTableAlertTag;
 
 public class ParosDatabase extends AbstractDatabase {
 
@@ -70,6 +73,7 @@ public class ParosDatabase extends AbstractDatabase {
     private TableHistory tableHistory = null;
     private TableSession tableSession = null;
     private TableAlert tableAlert = null;
+    private TableAlertTag tableAlertTag = null;
     private TableScan tableScan = null;
     // ZAP: Added TableTag
     private TableTag tableTag = null;
@@ -94,6 +98,7 @@ public class ParosDatabase extends AbstractDatabase {
         tableHistory = new ParosTableHistory();
         tableSession = new ParosTableSession();
         tableAlert = new ParosTableAlert();
+        tableAlertTag = new ParosTableAlertTag();
         tableScan = new ParosTableScan();
         // ZAP: Added statement.
         tableTag = new ParosTableTag();
@@ -107,6 +112,7 @@ public class ParosDatabase extends AbstractDatabase {
         internalDatabaseListeners.add(tableHistory);
         internalDatabaseListeners.add(tableSession);
         internalDatabaseListeners.add(tableAlert);
+        internalDatabaseListeners.add(tableAlertTag);
         internalDatabaseListeners.add(tableScan);
         internalDatabaseListeners.add(tableTag);
         internalDatabaseListeners.add(tableSessionUrl);
@@ -211,6 +217,16 @@ public class ParosDatabase extends AbstractDatabase {
     @Override
     public void setTableAlert(TableAlert tableAlert) {
         this.tableAlert = tableAlert;
+    }
+
+    @Override
+    public TableAlertTag getTableAlertTag() {
+        return tableAlertTag;
+    }
+
+    @Override
+    public void setTableAlertTag(TableAlertTag tableAlertTag) {
+        this.tableAlertTag = tableAlertTag;
     }
 
     @Override

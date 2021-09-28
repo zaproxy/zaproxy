@@ -34,6 +34,7 @@ import org.parosproxy.paros.db.TableSession;
 import org.parosproxy.paros.db.TableSessionUrl;
 import org.parosproxy.paros.db.TableStructure;
 import org.parosproxy.paros.db.TableTag;
+import org.zaproxy.zap.db.TableAlertTag;
 
 public class SqlDatabase extends AbstractDatabase {
 
@@ -41,6 +42,7 @@ public class SqlDatabase extends AbstractDatabase {
     private TableHistory tableHistory = null;
     private TableSession tableSession = null;
     private TableAlert tableAlert = null;
+    private TableAlertTag tableAlertTag = null;
     private TableScan tableScan = null;
     private TableTag tableTag = null;
     private TableSessionUrl tableSessionUrl = null;
@@ -58,6 +60,7 @@ public class SqlDatabase extends AbstractDatabase {
     public SqlDatabase() {
 
         tableAlert = new SqlTableAlert();
+        tableAlertTag = new SqlTableAlertTag();
         tableContext = new SqlTableContext();
         tableHistory = new SqlTableHistory();
         tableParam = new SqlTableParam();
@@ -71,6 +74,7 @@ public class SqlDatabase extends AbstractDatabase {
         internalDatabaseListeners.add(tableHistory);
         internalDatabaseListeners.add(tableSession);
         internalDatabaseListeners.add(tableAlert);
+        internalDatabaseListeners.add(tableAlertTag);
         internalDatabaseListeners.add(tableScan);
         internalDatabaseListeners.add(tableTag);
         internalDatabaseListeners.add(tableSessionUrl);
@@ -168,6 +172,16 @@ public class SqlDatabase extends AbstractDatabase {
     @Override
     public void setTableAlert(TableAlert tableAlert) {
         this.tableAlert = tableAlert;
+    }
+
+    @Override
+    public TableAlertTag getTableAlertTag() {
+        return tableAlertTag;
+    }
+
+    @Override
+    public void setTableAlertTag(TableAlertTag tableAlertTag) {
+        this.tableAlertTag = tableAlertTag;
     }
 
     @Override
