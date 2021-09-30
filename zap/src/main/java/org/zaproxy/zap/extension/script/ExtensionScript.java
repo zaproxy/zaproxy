@@ -68,6 +68,7 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
+import org.zaproxy.zap.utils.Stats;
 
 public class ExtensionScript extends ExtensionAdaptor implements CommandLineListener {
 
@@ -1495,6 +1496,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         // Set the script name as a context attribute - this is used for script level variables
         se.getContext().setAttribute(SCRIPT_NAME_ATT, script.getName(), ScriptContext.ENGINE_SCOPE);
         reloadIfChangedOnDisk(script);
+        recordScriptCalledStats(script);
 
         try {
             se.eval(script.getContents());
@@ -1566,6 +1568,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @see ScriptException
      */
     private void handleScriptException(ScriptWrapper script, Writer writer, Exception exception) {
+        recordScriptFailedStats(script);
         Exception cause = exception;
         if (cause instanceof ScriptException && cause.getCause() instanceof Exception) {
             // Dereference one level
@@ -1594,6 +1597,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @see #handleScriptException(ScriptWrapper, Exception)
      */
     public void handleScriptError(ScriptWrapper script, String error) {
+        recordScriptFailedStats(script);
         try {
             getWriters(script).append(error);
         } catch (IOException ignore) {
@@ -1624,6 +1628,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             TargetedScript s = this.getInterface(script, TargetedScript.class);
 
             if (s != null) {
+                recordScriptCalledStats(script);
                 s.invokeWith(msg);
 
             } else {
@@ -1692,6 +1697,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      */
     private void handleUnspecifiedScriptError(
             ScriptWrapper script, Writer writer, String errorMessage) {
+        recordScriptFailedStats(script);
         try {
             writer.append(errorMessage);
         } catch (IOException e) {
@@ -1727,6 +1733,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             ProxyScript s = this.getInterface(script, ProxyScript.class);
 
             if (s != null) {
+                recordScriptCalledStats(script);
                 if (request) {
                     return s.proxyRequest(msg);
                 } else {
@@ -1776,6 +1783,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             HttpSenderScript senderScript = this.getInterface(script, HttpSenderScript.class);
 
             if (senderScript != null) {
+                recordScriptCalledStats(script);
                 if (request) {
                     senderScript.sendingRequest(msg, initiator, new HttpSenderScriptHelper(sender));
                 } else {
@@ -2211,6 +2219,18 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         @Override
         public void close() throws IOException {
             delegatee.close();
+        }
+    }
+
+    public static void recordScriptCalledStats(ScriptWrapper sw) {
+        if (sw != null) {
+            Stats.incCounter("stats.script.call." + sw.getEngineName() + "." + sw.getTypeName());
+        }
+    }
+
+    public static void recordScriptFailedStats(ScriptWrapper sw) {
+        if (sw != null) {
+            Stats.incCounter("stats.script.error." + sw.getEngineName() + "." + sw.getTypeName());
         }
     }
 }
