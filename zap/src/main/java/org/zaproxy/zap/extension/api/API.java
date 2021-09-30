@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -56,6 +57,7 @@ import org.parosproxy.paros.view.View;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zaproxy.zap.utils.JsonUtil;
+import org.zaproxy.zap.utils.Stats;
 
 public class API {
     public enum Format {
@@ -104,6 +106,8 @@ public class API {
     private static final String STATUS_OK = "200 OK";
     private static final String STATUS_BAD_REQUEST = "400 Bad Request";
     private static final String STATUS_INTERNAL_SERVER_ERROR = "500 Internal Server Error";
+
+    private static final String STATS_PREFIX = "stats.api.";
 
     private Map<String, ApiImplementor> implementors = new HashMap<>();
     private static API api = null;
@@ -490,6 +494,8 @@ public class API {
                         throw new ApiException(
                                 ApiException.Type.NO_IMPLEMENTOR, "Implementor was not provided.");
                     }
+                    incStatistic("call", format, component, reqType, name);
+
                     switch (reqType) {
                         case action:
                             if (!getOptionsParamApi().isDisableKey()) {
@@ -571,6 +577,9 @@ public class API {
 
         } catch (Exception e) {
             if (!getOptionsParamApi().isReportPermErrors()) {
+                if (component != null && format != null && reqType != null && name != null) {
+                    incStatistic("error", format, component, reqType, name);
+                }
                 if (e instanceof ApiException) {
                     ApiException exception = (ApiException) e;
                     if (exception.getType().equals(ApiException.Type.DISABLED)
@@ -606,6 +615,21 @@ public class API {
         }
 
         return msg;
+    }
+
+    private void incStatistic(
+            String type, Format format, String component, RequestType reqType, String name) {
+        Stats.incCounter(
+                STATS_PREFIX
+                        + type
+                        + "."
+                        + format.name().toLowerCase(Locale.ROOT)
+                        + "."
+                        + component
+                        + "."
+                        + reqType.name()
+                        + "."
+                        + name);
     }
 
     /**
