@@ -246,6 +246,14 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                                     if (scanned) {
                                         long timeTaken =
                                                 System.currentTimeMillis() - currentRuleStartTime;
+                                        if (scanner instanceof PluginPassiveScanner) {
+                                            PluginPassiveScanner pps =
+                                                    (PluginPassiveScanner) scanner;
+                                            Stats.incCounter(
+                                                    "stats.pscan." + pps.getPluginId() + ".time",
+                                                    timeTaken);
+                                        }
+                                        // TODO remove at some point
                                         Stats.incCounter(
                                                 "stats.pscan." + currentRuleName, timeTaken);
                                         if (timeTaken > 5000) {
@@ -312,12 +320,14 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                 }
                 logger.error("Failed on record " + currentId + " from History table", e);
             }
+            int recordsToScan = getRecordsToScan();
+            Stats.setHighwaterMark("stats.pscan.recordsToScan", recordsToScan);
             if (View.isInitialised()) {
                 Control.getSingleton()
                         .getExtensionLoader()
                         .getExtension(ExtensionPassiveScan.class)
                         .getScanStatus()
-                        .setScanCount(getRecordsToScan());
+                        .setScanCount(recordsToScan);
             }
         }
     }
