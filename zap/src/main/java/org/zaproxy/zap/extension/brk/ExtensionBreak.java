@@ -70,6 +70,10 @@ public class ExtensionBreak extends ExtensionAdaptor
 
     private static final Logger logger = LogManager.getLogger(ExtensionBreak.class);
 
+    public static final String BREAK_POINT_HIT_STATS = "stats.break.hit";
+    public static final String BREAK_POINT_STEP_STATS = "stats.break.step";
+    public static final String BREAK_POINT_DROP_STATS = "stats.break.drop";
+
     private BreakPanel breakPanel = null;
     private ProxyListenerBreak proxyListener = null;
 

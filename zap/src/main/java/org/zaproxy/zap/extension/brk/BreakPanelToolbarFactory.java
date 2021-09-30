@@ -35,6 +35,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage;
+import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.view.TabbedPanel2;
 import org.zaproxy.zap.view.ZapToggleButton;
 
@@ -510,6 +511,7 @@ public class BreakPanelToolbarFactory {
 
     protected void step() {
         step = true;
+        Stats.incCounter(ExtensionBreak.BREAK_POINT_STEP_STATS);
     }
 
     protected void drop() {
@@ -518,6 +520,7 @@ public class BreakPanelToolbarFactory {
             return;
         }
         drop = true;
+        Stats.incCounter(ExtensionBreak.BREAK_POINT_DROP_STATS);
     }
 
     public boolean isToBeDropped() {
