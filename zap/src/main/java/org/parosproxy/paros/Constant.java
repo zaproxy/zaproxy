@@ -112,6 +112,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/09/15 Added support for detecting containers
 // ZAP: 2021/09/21 Added support for detecting snapcraft
+// ZAP: 2021/10/01 Added support for detecting WebSwing
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -295,6 +296,8 @@ public final class Constant {
     public static final String FLATPAK_NAME = "flatpak";
     private static final String SNAP_FILE = "meta/snap.yaml";
     public static final String SNAP_NAME = "snapcraft";
+    private static final String WEBSWING_ENVVAR = "WEBSWING_VERSION";
+    public static final String WEBSWING_NAME = "webswing";
 
     //
     // Home dir for ZAP, i.e. where the config file is. Can be set on cmdline, otherwise will be set
@@ -1573,12 +1576,17 @@ public final class Constant {
             File snapFile = new File(SNAP_FILE);
             if (isLinux() && containerFile.exists()) {
                 inContainer = true;
+                boolean inWebSwing = System.getenv(WEBSWING_ENVVAR) != null;
                 try {
                     containerName =
                             new String(
                                             Files.readAllBytes(containerFile.toPath()),
                                             StandardCharsets.UTF_8)
                                     .trim();
+                    if (inWebSwing) {
+                        // Append the webswing name so we don't loose the docker image name
+                        containerName += "." + WEBSWING_NAME;
+                    }
                 } catch (IOException e) {
                     // Ignore
                 }
