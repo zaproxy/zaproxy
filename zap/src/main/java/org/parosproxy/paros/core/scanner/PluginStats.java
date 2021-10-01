@@ -19,6 +19,8 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import org.zaproxy.zap.utils.Stats;
+
 /**
  * The stats of a {@link Plugin}, when the {@code Plugin} was started, how many messages were sent,
  * number of alerts raised, and its scan progress.
@@ -28,7 +30,9 @@ package org.parosproxy.paros.core.scanner;
 public class PluginStats {
 
     private final String pluginName;
+    private final int pluginId;
     private long startTime;
+    private long totalTime;
     private int messageCount;
     private int alertCount;
     private int progress;
@@ -38,11 +42,11 @@ public class PluginStats {
     /**
      * Constructs a {@code PluginStats}.
      *
-     * @param pluginName the name of the plugin.
      * @see #start()
      */
-    PluginStats(String pluginName) {
-        this.pluginName = pluginName == null ? "" : pluginName;
+    PluginStats(Plugin plugin) {
+        this.pluginName = plugin.getName() == null ? "" : plugin.getName();
+        this.pluginId = plugin.getId();
     }
 
     /**
@@ -72,6 +76,7 @@ public class PluginStats {
      */
     void skip() {
         this.skipped = true;
+        Stats.incCounter(Scanner.ASCAN_RULE_PREFIX + this.pluginId + Scanner.SKIPPED_POSTFIX);
     }
 
     /**
@@ -99,6 +104,13 @@ public class PluginStats {
     /** Starts the plugin stats. */
     void start() {
         startTime = System.currentTimeMillis();
+        Stats.incCounter(Scanner.ASCAN_RULE_PREFIX + this.pluginId + Scanner.STARTED_POSTFIX);
+    }
+
+    void stopped() {
+        totalTime = System.currentTimeMillis() - startTime;
+        Stats.incCounter(
+                Scanner.ASCAN_RULE_PREFIX + this.pluginId + Scanner.TIME_POSTFIX, totalTime);
     }
 
     /**
@@ -109,6 +121,13 @@ public class PluginStats {
      */
     public long getStartTime() {
         return startTime;
+    }
+
+    public long getTotalTime() {
+        if (totalTime == 0 && startTime > 0) {
+            return System.currentTimeMillis() - startTime;
+        }
+        return totalTime;
     }
 
     /**
@@ -127,6 +146,8 @@ public class PluginStats {
      */
     void incMessageCount() {
         messageCount++;
+        Stats.incCounter(Scanner.ASCAN_URLS_STATS);
+        Stats.incCounter(Scanner.ASCAN_RULE_PREFIX + this.pluginId + Scanner.URLS_POSTFIX);
     }
 
     /**
@@ -145,6 +166,7 @@ public class PluginStats {
      */
     void incAlertCount() {
         alertCount++;
+        Stats.incCounter(Scanner.ASCAN_RULE_PREFIX + this.pluginId + Scanner.ALERTS_POSTFIX);
     }
 
     /**
