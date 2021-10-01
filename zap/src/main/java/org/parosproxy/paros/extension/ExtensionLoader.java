@@ -91,6 +91,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/04/13 Issue 6536: Stop and destroy extensions being removed.
 // ZAP: 2021/08/17 Issue 6755: Extension's errors during shutdown prevent ZAP to exit.
+// ZAP: 2021/10/01 Do not initialise view if there's none when starting a single extension.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -818,7 +819,10 @@ public class ExtensionLoader {
         ext.databaseOpen(model.getDb());
         ext.initModel(model);
         ext.initXML(model.getSession(), model.getOptionsParam());
-        ext.initView(view);
+
+        if (hasView()) {
+            ext.initView(view);
+        }
 
         ExtensionHook extHook = new ExtensionHook(model, view);
         extensionHooks.put(ext, extHook);
