@@ -185,6 +185,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
             SessionScript sessionScript = getScriptInterface(script);
             if (sessionScript != null) {
                 try {
+                    ExtensionScript.recordScriptCalledStats(script);
                     sessionScript.processMessageToMatchSession(getSessionWrapper(message));
                 } catch (Exception e) {
                     getScriptsExtension().handleScriptException(script, e);

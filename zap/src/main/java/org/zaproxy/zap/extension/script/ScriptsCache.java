@@ -154,10 +154,12 @@ public class ScriptsCache<T> {
     public void execute(ScriptWrapperAction<T> action) {
         cachedScripts.forEach(
                 e -> {
+                    ScriptWrapper sw = e.getScriptWrapper();
                     try {
-                        action.apply(e.getScriptWrapper(), e.getScript());
+                        ExtensionScript.recordScriptCalledStats(sw);
+                        action.apply(sw, e.getScript());
                     } catch (Exception ex) {
-                        extensionScript.handleScriptException(e.getScriptWrapper(), ex);
+                        extensionScript.handleScriptException(sw, ex);
                     }
                 });
     }

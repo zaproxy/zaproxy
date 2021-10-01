@@ -275,6 +275,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             if (script == null) {
                 return null;
             }
+            ExtensionScript.recordScriptCalledStats(this.script);
 
             HttpMessage msg = null;
             try {
