@@ -121,7 +121,29 @@ class AddOnTestUtils extends WithConfigsTest {
             Consumer<StringBuilder> manifestConsumer,
             Consumer<ZipOutputStream> addOnConsumer) {
         try {
-            Path file = newTempDir().resolve(fileName);
+            return createAddOnFile(
+                    newTempDir(),
+                    fileName,
+                    status,
+                    version,
+                    javaVersion,
+                    manifestConsumer,
+                    addOnConsumer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected Path createAddOnFile(
+            Path dir,
+            String fileName,
+            String status,
+            String version,
+            String javaVersion,
+            Consumer<StringBuilder> manifestConsumer,
+            Consumer<ZipOutputStream> addOnConsumer) {
+        try {
+            Path file = dir.resolve(fileName);
             try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(file))) {
                 ZipEntry manifest = new ZipEntry(AddOn.MANIFEST_FILE_NAME);
                 zos.putNextEntry(manifest);

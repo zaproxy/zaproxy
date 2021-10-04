@@ -195,6 +195,7 @@ public class AddOnLoader extends URLClassLoader {
         }
 
         runnableAddOns = new HashMap<>();
+        idsAddOnsWithRunningIssuesSinceLastRun = new ArrayList<>();
         Map<AddOn, AddOnRunState> oldRunnableAddOns = loadAddOnsRunState(addOnsStateConfig, aoc);
         List<AddOn> runAddons = new ArrayList<>();
         Set<AddOn> updatedAddOns = new HashSet<>();
@@ -229,11 +230,10 @@ public class AddOnLoader extends URLClassLoader {
             }
         }
 
-        idsAddOnsWithRunningIssuesSinceLastRun =
-                nonRunnableAddOns.stream()
-                        .filter(oldRunnableAddOns::containsKey)
-                        .map(AddOn::getId)
-                        .collect(Collectors.toList());
+        nonRunnableAddOns.stream()
+                .filter(oldRunnableAddOns::containsKey)
+                .map(AddOn::getId)
+                .forEach(idsAddOnsWithRunningIssuesSinceLastRun::add);
 
         saveAddOnsRunState(runnableAddOns);
 
