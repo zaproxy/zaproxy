@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.com/zaproxy/zaproxy.svg?branch=main)](https://travis-ci.com/zaproxy/zaproxy)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/24/badge)](https://bestpractices.coreinfrastructure.org/projects/24)
 [![Github Releases](https://img.shields.io/github/downloads/zaproxy/zaproxy/latest/total.svg?maxAge=2592000)](https://zapbot.github.io/zap-mgmt-scripts/downloads.html)
-[![Javadocs](https://javadoc.io/badge/org.zaproxy/zap/2.10.0.svg)](https://javadoc.io/doc/org.zaproxy/zap/2.10.0)
+[![javadoc](https://javadoc.io/badge2/org.zaproxy/zap/javadoc.svg)](https://javadoc.io/doc/org.zaproxy/zap)
 [![OWASP Flagship](https://img.shields.io/badge/owasp-flagship-brightgreen.svg)](https://owasp.org/projects#div-flagships)
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/zaproxy/zaproxy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/zaproxy/zaproxy/context:java)
 [![Twitter Follow](https://img.shields.io/twitter/follow/zaproxy.svg?style=social&label=Follow&maxAge=2592000)](https://twitter.com/zaproxy)
