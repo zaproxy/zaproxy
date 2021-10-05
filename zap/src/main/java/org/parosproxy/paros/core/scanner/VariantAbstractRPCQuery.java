@@ -101,55 +101,27 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         listParam.add(param);
     }
 
-    /**
-     * @param beginOffset
-     * @param endOffset
-     * @return
-     */
     public String getToken(int beginOffset, int endOffset) {
         return requestContent.substring(beginOffset, endOffset);
     }
 
-    /** @return */
     @Override
     public List<NameValuePair> getParamList() {
         return params;
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @return
-     */
     @Override
     public String setParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
         return this.setParameter(msg, originalPair, name, value, false);
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @return
-     */
     @Override
     public String setEscapedParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
         return this.setParameter(msg, originalPair, name, value, true);
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @param escaped
-     * @return
-     */
     private String setParameter(
             HttpMessage msg,
             NameValuePair originalPair,
@@ -167,7 +139,6 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         return query;
     }
 
-    /** @param requestContent */
     protected void setRequestContent(String requestContent) {
         this.requestContent = requestContent;
         parseContent(requestContent);
@@ -184,8 +155,13 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         }
     }
 
-    /** @return */
+    /** @deprecated (2.11.0) Use {@link #getReadableParameterizedQuery()} */
+    @Deprecated
     public String getReadableParametrizedQuery() {
+        return getReadableParameterizedQuery();
+    }
+
+    public String getReadableParameterizedQuery() {
         StringBuilder result = new StringBuilder();
         int begin = 0;
         int end;
@@ -202,26 +178,12 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         return result.toString();
     }
 
-    /**
-     * @param contentType
-     * @return
-     */
     public abstract boolean isValidContentType(String contentType);
 
-    /** @param content */
     public abstract void parseContent(String content);
 
-    /**
-     * @param value
-     * @param toQuote
-     * @return
-     */
     public abstract String getEscapedValue(String value, boolean toQuote);
 
-    /**
-     * @param value
-     * @return
-     */
     public abstract String getUnescapedValue(String value);
 
     /** Inner support class */

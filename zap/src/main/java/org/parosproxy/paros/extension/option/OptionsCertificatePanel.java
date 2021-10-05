@@ -966,7 +966,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                         "The required PKCS#11 provider is not available ("
                                 + SSLContextManager.SUN_PKCS11_CANONICAL_CLASS_NAME
                                 + " or "
-                                + SSLContextManager.IBM_PKCS11_CONONICAL_CLASS_NAME
+                                + SSLContextManager.IBM_PKCS11_CANONICAL_CLASS_NAME
                                 + ").");
                 showErrorMessageSunPkcs11ProviderNotAvailable();
                 return;
@@ -1351,7 +1351,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                 Model.getSingleton()
                         .getOptionsParam()
                         .getExperimentalFeaturesParam()
-                        .isExerimentalSliSupportEnabled());
+                        .isExperimentalSliSupportEnabled());
 
         // actual certificate fields
         certificateTextField.setEnabled(useClientCertificateCheckBox.isSelected());

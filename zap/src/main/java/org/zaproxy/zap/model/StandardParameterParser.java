@@ -56,7 +56,7 @@ public class StandardParameterParser implements ParameterParser {
     private Pattern keyValueSeparatorPattern;
     private String keyValuePairSeparators;
     private String keyValueSeparators;
-    private List<String> structuralParameters = new ArrayList<String>();
+    private List<String> structuralParameters = new ArrayList<>();
 
     private static Logger log = LogManager.getLogger(StandardParameterParser.class);
 
@@ -115,8 +115,8 @@ public class StandardParameterParser implements ParameterParser {
     }
 
     /**
-     * @deprecated TODO add version use #getParameters(String) This method will lose duplicated
-     *     parameter names
+     * @deprecated 2.10.0 use #getParameters(String) This method will lose duplicated parameter
+     *     names
      */
     @Deprecated
     @Override
@@ -238,13 +238,13 @@ public class StandardParameterParser implements ParameterParser {
     }
 
     /**
-     * @deprecated TODO add version use #parseParameters(String) This method will lose duplicated
-     *     parameter names
+     * @deprecated 2.10.0 use #parseParameters(String) This method will lose duplicated parameter
+     *     names
      */
     @Deprecated
     @Override
     public Map<String, String> parse(String paramStr) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
         if (paramStr != null) {
             String[] keyValue = this.getKeyValuePairSeparatorPattern().split(paramStr);
@@ -324,7 +324,7 @@ public class StandardParameterParser implements ParameterParser {
 
     private List<String> getTreePath(URI uri, boolean incStructParams) throws URIException {
         String path = uri.getPath();
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         if (path != null) {
             Context context = this.getContext();
             if (context != null) {
@@ -378,7 +378,7 @@ public class StandardParameterParser implements ParameterParser {
             // Add any structural params (url param) in key order
             Map<String, String> urlParams =
                     convertParametersList(parseParameters(uri.getEscapedQuery()));
-            List<String> keys = new ArrayList<String>(urlParams.keySet());
+            List<String> keys = new ArrayList<>(urlParams.keySet());
             Collections.sort(keys);
             for (String key : keys) {
                 if (this.structuralParameters.contains(key)) {

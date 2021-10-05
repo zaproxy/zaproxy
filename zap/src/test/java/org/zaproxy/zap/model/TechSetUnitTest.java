@@ -26,7 +26,7 @@ import static org.hamcrest.Matchers.empty;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link TechSet}. */
-public class TechSetUnitTest {
+class TechSetUnitTest {
 
     @Test
     void getAllTechShouldHaveTech() {

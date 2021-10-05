@@ -32,7 +32,7 @@ public abstract class ParseFilter {
     /**
      * The Constant log.
      *
-     * @deprecated (TODO add version) Use {@link #getLogger()} instead.
+     * @deprecated (2.10.0) Use {@link #getLogger()} instead.
      */
     @Deprecated
     protected static final org.apache.log4j.Logger log =
@@ -44,7 +44,7 @@ public abstract class ParseFilter {
      * Gets the logger.
      *
      * @return the logger, never {@code null}.
-     * @since TODO add version
+     * @since 2.10.0
      */
     protected Logger getLogger() {
         return logger;

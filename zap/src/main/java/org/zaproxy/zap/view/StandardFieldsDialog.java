@@ -128,7 +128,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 
     private List<Component> fieldList = new ArrayList<>();
     private Map<String, Component> fieldMap = new HashMap<>();
-    private Map<String, JPanel> tabNameMap = new HashMap<String, JPanel>();
+    private Map<String, JPanel> tabNameMap = new HashMap<>();
 
     /**
      * Flag that indicates whether or not the dialogue is automatically hidden when {@link #save()

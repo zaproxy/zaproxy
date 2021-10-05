@@ -24,7 +24,7 @@ import java.io.IOException;
 /**
  * A HTTP encoding, for a given content coding.
  *
- * @since TODO add version
+ * @since 2.10.0
  */
 public interface HttpEncoding {
 

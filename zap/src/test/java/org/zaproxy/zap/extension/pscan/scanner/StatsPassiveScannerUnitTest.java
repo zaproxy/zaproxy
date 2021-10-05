@@ -36,24 +36,24 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.StatsListener;
 
-public class StatsPassiveScannerUnitTest {
+class StatsPassiveScannerUnitTest {
     private StatsListener listener;
     private PluginPassiveScanner scanner;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         scanner = new StatsPassiveScanner();
         listener = spy(StatsListener.class);
         Stats.addListener(listener);
     }
 
     @AfterEach
-    public void cleanup() {
+    void cleanup() {
         Stats.removeListener(listener);
     }
 
     @Test
-    public void shouldCountOnlyCodeAndTimingGivenNoContentType()
+    void shouldCountOnlyCodeAndTimingGivenNoContentType()
             throws URIException, HttpMalformedHeaderException {
         // Given
         HttpMessage msg = new HttpMessage(new URI("http://example.com/", true));
@@ -69,8 +69,7 @@ public class StatsPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldCountMessageWithContentTypeOnce()
-            throws URIException, HttpMalformedHeaderException {
+    void shouldCountMessageWithContentTypeOnce() throws URIException, HttpMalformedHeaderException {
         // Given
         HttpMessage msg = new HttpMessage(new URI("http://example.com/", true));
         msg.getResponseHeader().addHeader(HttpHeader.CONTENT_TYPE, "text/html");
@@ -89,7 +88,7 @@ public class StatsPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldProperlyParseAndCountSegmentedContentType()
+    void shouldProperlyParseAndCountSegmentedContentType()
             throws URIException, HttpMalformedHeaderException {
         // Given
         String contentType = "multipart/byteranges; boundary=00000000000000000018";
@@ -105,7 +104,7 @@ public class StatsPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldProperlyParseAndCountSegmentedContentTypeIncludingCharset()
+    void shouldProperlyParseAndCountSegmentedContentTypeIncludingCharset()
             throws URIException, HttpMalformedHeaderException {
         // Given
         String contentType = "multipart/byteranges; charset=UTF-8; boundary=00000000000000000018";
@@ -122,7 +121,7 @@ public class StatsPassiveScannerUnitTest {
     }
 
     @Test
-    public void shouldProperlyParseAndCountSegmentedContentTypeIncludingCharsetAsLastSegment()
+    void shouldProperlyParseAndCountSegmentedContentTypeIncludingCharsetAsLastSegment()
             throws URIException, HttpMalformedHeaderException {
         // Given
         String contentType = "multipart/byteranges; boundary=00000000000000000018; charset=UTF-8";
@@ -139,7 +138,7 @@ public class StatsPassiveScannerUnitTest {
     }
 
     @Test
-    public void
+    void
             shouldProperlyParseAndCountSegmentedContentTypeIncludingCharsetAndSpuriousTrailingSeperator()
                     throws URIException, HttpMalformedHeaderException {
         // Given

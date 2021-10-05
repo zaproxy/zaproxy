@@ -46,6 +46,7 @@
 // ZAP: 2020/09/29 Add support for dynamic Look and Feel switching (Issue 6201)
 // ZAP: 2020/10/26 Update pop up menus when changing look and feel.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/09/16 Add support for enabling app integration in containers
 package org.parosproxy.paros.extension.option;
 
 import java.awt.Window;
@@ -118,14 +119,18 @@ public class OptionsParamView extends AbstractParam {
     public static final String SHOW_DEV_WARNING = "view.showDevWarning";
     public static final String LOOK_AND_FEEL = "view.lookAndFeel";
     public static final String LOOK_AND_FEEL_CLASS = "view.lookAndFeelClass";
+    public static final String ALLOW_APP_INTEGRATION_IN_CONTAINERS = "view.allowAppsInContainers";
 
     /**
      * The default look and feel: Flat Light.
      *
-     * @since TODO add version
+     * @since 2.10.0
      */
+    public static final String DEFAULT_LOOK_AND_FEEL_NAME = "Flat Light";
+
+    public static final String DEFAULT_LOOK_AND_FEEL_CLASS = "com.formdev.flatlaf.FlatLightLaf";
     public static final LookAndFeelInfo DEFAULT_LOOK_AND_FEEL =
-            new LookAndFeelInfo("Flat Light", "com.formdev.flatlaf.FlatLightLaf");
+            new LookAndFeelInfo(DEFAULT_LOOK_AND_FEEL_NAME, DEFAULT_LOOK_AND_FEEL_CLASS);
 
     private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY =
             "view.confirmRemoveProxyExcludeRegex";
@@ -172,6 +177,7 @@ public class OptionsParamView extends AbstractParam {
     private boolean scaleImages = true;
     private boolean showDevWarning = true;
     private LookAndFeelInfo lookAndFeelInfo = DEFAULT_LOOK_AND_FEEL;
+    private boolean allowAppIntegrationInContainers;
 
     private boolean confirmRemoveProxyExcludeRegex;
     private boolean confirmRemoveScannerExcludeRegex;
@@ -237,6 +243,8 @@ public class OptionsParamView extends AbstractParam {
                 new LookAndFeelInfo(
                         getString(LOOK_AND_FEEL, DEFAULT_LOOK_AND_FEEL.getName()),
                         getString(LOOK_AND_FEEL_CLASS, DEFAULT_LOOK_AND_FEEL.getClassName()));
+
+        allowAppIntegrationInContainers = getBoolean(ALLOW_APP_INTEGRATION_IN_CONTAINERS, false);
 
         // Special cases - set via static methods
         LargeRequestUtil.setMinContentLength(largeRequestSize);
@@ -513,6 +521,18 @@ public class OptionsParamView extends AbstractParam {
         getConfig().setProperty(LARGE_RESPONSE_SIZE, largeResponseSize);
     }
 
+    /** @since 2.11.0 */
+    public boolean isAllowAppIntegrationInContainers() {
+        return allowAppIntegrationInContainers;
+    }
+
+    /** @since 2.11.0 */
+    public void setAllowAppIntegrationInContainers(boolean allowAppIntegrationInContainers) {
+        this.allowAppIntegrationInContainers = allowAppIntegrationInContainers;
+        getConfig()
+                .setProperty(ALLOW_APP_INTEGRATION_IN_CONTAINERS, allowAppIntegrationInContainers);
+    }
+
     /**
      * @deprecated (2.8.0) Replaced by {@link
      *     #getFontSize(org.zaproxy.zap.utils.FontUtils.FontType)}.
@@ -583,8 +603,8 @@ public class OptionsParamView extends AbstractParam {
      *
      * @param lookAndFeel the name.
      * @since 2.8.0
-     * @deprecated (TODO add version) Use {@link #setLookAndFeelInfo(LookAndFeelInfo)} instead,
-     *     which preserves the class of the look and feel.
+     * @deprecated (2.10.0) Use {@link #setLookAndFeelInfo(LookAndFeelInfo)} instead, which
+     *     preserves the class of the look and feel.
      */
     @Deprecated
     public void setLookAndFeel(String lookAndFeel) {
@@ -595,7 +615,7 @@ public class OptionsParamView extends AbstractParam {
      * Gets the info of the selected look and feel.
      *
      * @return the info of the look and feel.
-     * @since TODO add version
+     * @since 2.10.0
      * @see #getLookAndFeel()
      */
     public LookAndFeelInfo getLookAndFeelInfo() {
@@ -607,7 +627,7 @@ public class OptionsParamView extends AbstractParam {
      *
      * @param lookAndFeelInfo the info of the look and feel.
      * @throws NullPointerException if the given parameter is null.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public void setLookAndFeelInfo(LookAndFeelInfo lookAndFeelInfo) {
         LookAndFeelInfo oldLookAndFeel = this.lookAndFeelInfo;

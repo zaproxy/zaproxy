@@ -48,7 +48,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
         Response,
         Header,
         Custom
-    };
+    }
 
     private SearchParam searchParam;
     private OptionsSearchPanel optionsPanel;

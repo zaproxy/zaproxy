@@ -25,12 +25,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ZapReleaseComparitor}. */
-public class ZapReleaseComparitorUnitTest {
+class ZapReleaseComparitorUnitTest {
 
     private static final String DEV_BUILD = "Dev Build";
 
     @Test
-    public void testComparitor() {
+    void testComparitor() {
         ZapReleaseComparitor zrc = new ZapReleaseComparitor();
 
         // Test equals

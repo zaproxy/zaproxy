@@ -19,6 +19,8 @@
  */
 package org.parosproxy.paros.network;
 
+import java.util.Objects;
+
 public class HttpHeaderField {
 
     private final String name;
@@ -37,5 +39,39 @@ public class HttpHeaderField {
 
     public String getValue() {
         return value;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, value);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof HttpHeaderField)) {
+            return false;
+        }
+        HttpHeaderField other = (HttpHeaderField) obj;
+        return Objects.equals(name, other.name) && Objects.equals(value, other.value);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder strBuilder = new StringBuilder(75);
+        strBuilder.append('[');
+        if (name != null) {
+            strBuilder.append("Name=").append(name);
+        }
+        if (value != null) {
+            if (name != null) {
+                strBuilder.append(", ");
+            }
+            strBuilder.append("Value=").append(value);
+        }
+        strBuilder.append(']');
+        return strBuilder.toString();
     }
 }

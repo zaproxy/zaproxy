@@ -36,7 +36,7 @@ public class AliasTableModel extends AbstractTableModel {
     private static final long serialVersionUID = -4387633069248206563L;
 
     private int _ks = -1;
-    private List<AliasCertificate> _aliases = new ArrayList<AliasCertificate>();
+    private List<AliasCertificate> _aliases = new ArrayList<>();
     private SSLContextManager _sslcm;
 
     public AliasTableModel(SSLContextManager contextManager) {
@@ -62,14 +62,17 @@ public class AliasTableModel extends AbstractTableModel {
         return _aliases.get(row).getAlias();
     }
 
+    @Override
     public int getColumnCount() {
         return 1;
     }
 
+    @Override
     public int getRowCount() {
         return _aliases.size();
     }
 
+    @Override
     public Object getValueAt(int row, int col) {
         return _aliases.get(row).getName();
     }

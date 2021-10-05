@@ -26,7 +26,7 @@ import java.awt.GridBagConstraints;
 import java.awt.Insets;
 import org.junit.jupiter.api.Test;
 
-public class LayoutHelperUnitTest {
+class LayoutHelperUnitTest {
 
     private static final int X = 1;
     private static final int Y = 2;
@@ -39,7 +39,7 @@ public class LayoutHelperUnitTest {
     private static final Insets INSETS = new Insets(10, 11, 12, 13);
 
     @Test
-    public void shouldResizeHorizontallyAndVerticallyByDefault() {
+    void shouldResizeHorizontallyAndVerticallyByDefault() {
         // given
         // when
         GridBagConstraints constraints = LayoutHelper.getGBC(X, Y, WIDTH, WEIGHT_X);
@@ -48,7 +48,7 @@ public class LayoutHelperUnitTest {
     }
 
     @Test
-    public void shouldUseNorthWestAnchorByDefault() {
+    void shouldUseNorthWestAnchorByDefault() {
         // given
         // when
         GridBagConstraints constraints = LayoutHelper.getGBC(X, Y, WIDTH, WEIGHT_X);
@@ -57,7 +57,7 @@ public class LayoutHelperUnitTest {
     }
 
     @Test
-    public void shouldKeepDefaultInsetsOnGivenNullParameter() {
+    void shouldKeepDefaultInsetsOnGivenNullParameter() {
         // given
         // when
         GridBagConstraints constraints = LayoutHelper.getGBC(X, Y, WIDTH, WEIGHT_X, null);
@@ -66,7 +66,7 @@ public class LayoutHelperUnitTest {
     }
 
     @Test
-    public void shouldSetAllGivenParameters() {
+    void shouldSetAllGivenParameters() {
         // given
         // when
         GridBagConstraints constraints =

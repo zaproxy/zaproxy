@@ -345,7 +345,7 @@ public class ContextAPI extends ApiImplementor {
     }
 
     private void addExcludeToContext(Context context, String regex) {
-        List<String> incRegexes = new ArrayList<String>(context.getIncludeInContextRegexs());
+        List<String> incRegexes = new ArrayList<>(context.getIncludeInContextRegexs());
         if (incRegexes.remove(regex)) {
             // Its already explicitly included, removing it from the include list is safer and more
             // useful
@@ -502,7 +502,7 @@ public class ContextAPI extends ApiImplementor {
                 "postParameterParserClass", c.getPostParamParser().getClass().getCanonicalName());
         fields.put("postParameterParserConfig", c.getPostParamParser().getConfig());
 
-        return new ApiResponseSet<String>("context", fields);
+        return new ApiResponseSet<>("context", fields);
     }
 
     private String jsonEncodeList(List<String> list) {

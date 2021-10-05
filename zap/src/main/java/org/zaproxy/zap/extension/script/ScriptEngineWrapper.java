@@ -90,11 +90,6 @@ public abstract class ScriptEngineWrapper {
      * @since 2.8.0
      */
     public boolean isVisible() {
-        // TODO remove the if statement once NullScriptEngineWrapper implements this method.
-        // NullScriptEngineWrapper is not a functional engine.
-        if ("Null".equals(getEngineName())) {
-            return false;
-        }
         return true;
     }
 

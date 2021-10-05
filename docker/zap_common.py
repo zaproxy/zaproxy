@@ -143,7 +143,7 @@ def trigger_hook(name, *args, **kwargs):
 @hook()
 def load_config(config, config_dict, config_msg, out_of_scope_dict):
     """ Loads the config file specified into:
-    config_dict - a dictionary which maps plugin_ids to levels (IGNORE, WARN, FAIL)
+    config_dict - a dictionary which maps plugin_ids to levels (IGNORE, INFO, WARN, FAIL)
     config_msg - a dictionary which maps plugin_ids to optional user specified descriptions
     out_of_scope_dict - a dictionary which maps plugin_ids to out of scope regexes
     """
@@ -207,7 +207,6 @@ def print_rules(zap, alert_dict, level, config_dict, config_msg, min_level, inc_
     count = 0
     inprog_count = 0
     for key, alert_list in sorted(alert_dict.items()):
-        #if (config_dict.has_key(key) and config_dict[key] == level):
         if inc_rule(config_dict, key, inc_extra):
             user_msg = ''
             if key in config_msg:
@@ -269,25 +268,34 @@ def add_zap_options(params, zap_options):
             params.append(zap_opt)
 
 
-@hook()
-def start_zap(port, extra_zap_params):
-    logging.debug('Starting ZAP')
-    # All of the default common params
+def create_start_options(mode, port, extra_params):
     params = [
-        'zap-x.sh', '-daemon',
+        'zap-x.sh', mode,
         '-port', str(port),
         '-host', '0.0.0.0',
         '-config', 'database.recoverylog=false',
         '-config', 'api.disablekey=true',
         '-config', 'api.addrs.addr.name=.*',
         '-config', 'api.addrs.addr.regex=true']
-
-    params.extend(extra_zap_params)
-
+    params.extend(extra_params)
     logging.debug('Params: ' + str(params))
+    return params
 
+@hook()
+def start_zap(port, extra_zap_params):
+    logging.debug('Starting ZAP')
     with open('zap.out', "w") as outfile:
-        subprocess.Popen(params, stdout=outfile)
+        subprocess.Popen(
+            create_start_options('-daemon', port, extra_zap_params), 
+            stdout=outfile, stderr=subprocess.DEVNULL)
+
+
+def run_zap_inline(port, extra_zap_params):
+    logging.debug('Starting ZAP')
+    process = subprocess.run(
+        create_start_options('-cmd', port, extra_zap_params),
+        universal_newlines = True, stdout = subprocess.PIPE, stderr=subprocess.DEVNULL)
+    return process.stdout
 
 
 def wait_for_zap_start(zap, timeout_in_secs = 600):
@@ -580,3 +588,94 @@ def zap_set_scan_user(zap, username):
             scan_user = usr
             return
     raise UserInputException('ZAP failed to find user: {0}'.format(username))
+
+def get_af_env(targets, out_of_scope_dict, debug):
+    exclude = []
+    # '*' rules apply to all scan rules so can just be added to the context exclusions
+    if '*' in out_of_scope_dict:
+        for rule in out_of_scope_dict['*']:
+            exclude.append(rule.pattern)
+    
+    return {
+            'env': {
+                'contexts': [{
+                    'name': 'baseline',
+                    'urls': targets,
+                    'excludePaths': exclude
+                    }],
+                'parameters': {
+                    'failOnError': True,
+                    'progressToStdout': debug}
+                }
+        }
+
+def get_af_addons(addons_install, addons_uninstall):
+    return {
+        'type': 'addOns',
+        'install': addons_install,
+        'uninstall': addons_uninstall
+        }
+
+def get_af_pscan_config(max_alerts=10):
+    return {
+        'type': 'passiveScan-config',
+        'parameters': {
+            'enableTags': False,
+            'maxAlertsPerRule': max_alerts}
+        }
+
+def get_af_pscan_wait(mins):
+    return {
+        'type': 'passiveScan-wait',
+        'parameters': {
+            'maxDuration': mins}
+        }
+
+def get_af_spider(target, mins):
+    return {
+        'type': 'spider',
+        'parameters': {
+            'url': target,
+            'maxDuration': mins}
+        }
+
+def get_af_spiderAjax(target, mins):
+    return {
+        'type': 'spiderAjax',
+        'parameters': {
+            'url': target,
+            'maxDuration': mins}
+        }
+
+def get_af_report(template, dir, file, title, description):
+    return {
+        'type': 'report',
+        'parameters': {
+            'template': template,
+            'reportDir': dir,
+            'reportFile': file,
+            'reportTitle': title,
+            'reportDescription': description}
+        }
+
+def get_af_output_summary(format, summaryFile, config_dict, config_msg):
+    obj = {
+        'type': 'outputSummary',
+        'parameters': {
+            'format': format,
+            'summaryFile': summaryFile}
+        }
+    rules = []
+    for id, action in config_dict.items():
+        if id in config_msg:
+            rules.append({'id': int(id), 'action': action, 'customMessage': config_msg[id]})
+        else:
+            rules.append({'id': int(id), 'action': action})
+    obj['rules'] = rules
+    return obj
+
+def get_af_alertFilter(alertFilters):
+    return {
+        'type': 'alertFilter',
+        'alertFilters': alertFilters
+    }

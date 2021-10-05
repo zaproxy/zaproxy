@@ -101,7 +101,7 @@ public class AutoUpdateAPI extends ApiImplementor {
             if (ao == null) {
                 throw new ApiException(Type.DOES_NOT_EXIST);
             } else {
-                List<String> l = new ArrayList<String>();
+                List<String> l = new ArrayList<>();
                 l.add(id);
                 String errorMessages = extension.installAddOns(l);
                 if (errorMessages.length() == 0) {
@@ -120,7 +120,7 @@ public class AutoUpdateAPI extends ApiImplementor {
             if (ao == null) {
                 throw new ApiException(Type.DOES_NOT_EXIST);
             } else {
-                List<String> l = new ArrayList<String>();
+                List<String> l = new ArrayList<>();
                 l.add(id);
                 String errorMessages = extension.uninstallAddOns(l);
                 if (errorMessages.length() == 0) {
@@ -196,7 +196,7 @@ public class AutoUpdateAPI extends ApiImplementor {
         if (localAddOn) {
             map.put("file", ao.getFile().toString());
         }
-        return new ApiResponseSet<String>("addon", map);
+        return new ApiResponseSet<>("addon", map);
     }
 
     public String getLatestVersionNumber() {

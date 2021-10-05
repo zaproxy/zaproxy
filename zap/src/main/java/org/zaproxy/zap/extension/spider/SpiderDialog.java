@@ -218,7 +218,7 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     @Override
     public void targetSelected(String field, Target node) {
-        List<String> ctxNames = new ArrayList<String>();
+        List<String> ctxNames = new ArrayList<>();
         if (node != null) {
             // The user has selected a new node
             this.target = node;
@@ -263,7 +263,7 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     private void setUsers() {
         Context context = this.getSelectedContext();
-        List<String> userNames = new ArrayList<String>();
+        List<String> userNames = new ArrayList<>();
         if (context != null) {
             List<User> users =
                     this.extUserMgmt.getContextUserAuthManager(context.getId()).getUsers();

@@ -21,26 +21,28 @@ package org.zaproxy.zap.eventBus;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link SimpleEventBus}. */
-public class SimpleEventBusUnitTest {
+class SimpleEventBusUnitTest {
 
     SimpleEventBus seb;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         seb = new SimpleEventBus();
     }
 
     @Test
-    public void consumerOfAllEventsShouldReceiveThem() {
+    void consumerOfAllEventsShouldReceiveThem() {
         // Given
         TestEventPublisher pub = new TestEventPublisher("Pub1");
         TestEventConsumer cons = new TestEventConsumer();
@@ -60,7 +62,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumerOfSomeEventsShouldReceiveJustThem() {
+    void consumerOfSomeEventsShouldReceiveJustThem() {
         // Given
         TestEventPublisher pub = new TestEventPublisher("Pub1");
         TestEventConsumer cons = new TestEventConsumer();
@@ -80,7 +82,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumerShouldNotReceiveEventsForOtherPublishers() {
+    void consumerShouldNotReceiveEventsForOtherPublishers() {
         // Given
         TestEventPublisher pub1 = new TestEventPublisher("Pub1");
         TestEventPublisher pub2 = new TestEventPublisher("Pub2");
@@ -111,7 +113,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumerShouldNotReceiveEventsAfterDisconnectingFromPublisher() {
+    void consumerShouldNotReceiveEventsAfterDisconnectingFromPublisher() {
         // Given
         TestEventPublisher pub = new TestEventPublisher("Pub1");
         TestEventConsumer cons = new TestEventConsumer();
@@ -132,7 +134,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumerShouldNotReceiveEventsAfterDisconnectingFromAllPublishers() {
+    void consumerShouldNotReceiveEventsAfterDisconnectingFromAllPublishers() {
         // Given
         TestEventPublisher pub1 = new TestEventPublisher("Pub1");
         TestEventPublisher pub2 = new TestEventPublisher("Pub2");
@@ -170,7 +172,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumersShouldReceiveEventsEvenIfRegisteredBeforePublisher() {
+    void consumersShouldReceiveEventsEvenIfRegisteredBeforePublisher() {
         // Given
         TestEventConsumer consumer1 = new TestEventConsumer();
         TestEventConsumer consumer2 = new TestEventConsumer();
@@ -187,7 +189,7 @@ public class SimpleEventBusUnitTest {
     }
 
     @Test
-    public void consumerShouldBeAbleToRemoveItselfDuringEventConsumption() {
+    void consumerShouldBeAbleToRemoveItselfDuringEventConsumption() {
         // Given
         TestEventPublisher publisher = new TestEventPublisher("publisher");
         TestEventConsumer consumer1 =
@@ -213,6 +215,49 @@ public class SimpleEventBusUnitTest {
         assertThat(consumer2.getEvents(), contains(event1, event2));
     }
 
+    @Test
+    void shouldReportEventPublishersAndEvents() {
+        // Given
+        TestEventPublisher publisher1 = new TestEventPublisher("publisher-1");
+        seb.registerPublisher(publisher1, new String[] {"event-p1-1", "event-p1-2", "event-p1-3"});
+        TestEventPublisher publisher2 = new TestEventPublisher("publisher-2");
+        seb.registerPublisher(publisher2, new String[] {"event-p2-1", "event-p2-2"});
+
+        // When
+        Set<String> pubNames = seb.getPublisherNames();
+        Set<String> p1Events = seb.getEventTypesForPublisher("publisher-1");
+        Set<String> p2Events = seb.getEventTypesForPublisher("publisher-2");
+        Set<String> p3Events = seb.getEventTypesForPublisher("publisher-3");
+
+        // Then
+        assertThat(pubNames, contains("publisher-2", "publisher-1"));
+        assertThat(p1Events, contains("event-p1-1", "event-p1-2", "event-p1-3"));
+        assertThat(p2Events, contains("event-p2-1", "event-p2-2"));
+        assertThat(p3Events, hasSize(0));
+    }
+
+    @Test
+    void shouldReportCurrentEventPublishersAndEvents() {
+        // Given
+        TestEventPublisher publisher1 = new TestEventPublisher("publisher-1");
+        seb.registerPublisher(publisher1, new String[] {"event-p1-1", "event-p1-2", "event-p1-3"});
+        TestEventPublisher publisher2 = new TestEventPublisher("publisher-2");
+        seb.registerPublisher(publisher2, new String[] {"event-p2-1", "event-p2-2"});
+        seb.unregisterPublisher(publisher1);
+
+        // When
+        Set<String> pubNames = seb.getPublisherNames();
+        Set<String> p1Events = seb.getEventTypesForPublisher("publisher-1");
+        Set<String> p2Events = seb.getEventTypesForPublisher("publisher-2");
+        Set<String> p3Events = seb.getEventTypesForPublisher("publisher-3");
+
+        // Then
+        assertThat(pubNames, contains("publisher-2"));
+        assertThat(p2Events, contains("event-p2-1", "event-p2-2"));
+        assertThat(p1Events, hasSize(0));
+        assertThat(p3Events, hasSize(0));
+    }
+
     private class TestEventConsumer implements EventConsumer {
 
         private List<Event> events = new ArrayList<>();
@@ -222,7 +267,7 @@ public class SimpleEventBusUnitTest {
             this.events.add(event);
         }
 
-        public List<Event> getEvents() {
+        List<Event> getEvents() {
             return events;
         }
     }
@@ -231,7 +276,7 @@ public class SimpleEventBusUnitTest {
 
         private String name;
 
-        public TestEventPublisher(String name) {
+        TestEventPublisher(String name) {
             this.name = name;
         }
 

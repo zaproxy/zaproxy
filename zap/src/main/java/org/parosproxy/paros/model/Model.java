@@ -613,7 +613,7 @@ public class Model {
      * Returns the VariantFactory
      *
      * @return the VariantFactory
-     * @since TODO add version
+     * @since 2.10.0
      */
     public VariantFactory getVariantFactory() {
         return this.variantFactory;

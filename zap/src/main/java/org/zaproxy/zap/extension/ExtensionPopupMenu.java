@@ -200,7 +200,7 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
                                 return -1;
                             }
                             return 0;
-                        };
+                        }
                     });
 
             for (int i = 0; i < components.size(); i++) {

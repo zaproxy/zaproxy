@@ -57,7 +57,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         fuzz,
         bruteforce,
         hreftable
-    };
+    }
 
     private static final long serialVersionUID = 1L;
     private JTree treeInvoker = null;

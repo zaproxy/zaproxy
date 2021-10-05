@@ -64,11 +64,15 @@ public class ExtensionBreak extends ExtensionAdaptor
         ADD,
         EDIT,
         REMOVE
-    };
+    }
 
     public static final String NAME = "ExtensionBreak";
 
     private static final Logger logger = LogManager.getLogger(ExtensionBreak.class);
+
+    public static final String BREAK_POINT_HIT_STATS = "stats.break.hit";
+    public static final String BREAK_POINT_STEP_STATS = "stats.break.step";
+    public static final String BREAK_POINT_DROP_STATS = "stats.break.drop";
 
     private BreakPanel breakPanel = null;
     private ProxyListenerBreak proxyListener = null;
@@ -175,10 +179,8 @@ public class ExtensionBreak extends ExtensionAdaptor
             this.breakpointManagementInterface = new HttpBreakpointManagementDaemonImpl();
 
             breakpointMessageHandler = new BreakpointMessageHandler2(breakpointManagementInterface);
-            breakpointMessageHandler.setEnabledBreakpoints(
-                    new ArrayList<BreakpointMessageInterface>());
-            breakpointMessageHandler.setEnabledIgnoreRules(
-                    new ArrayList<BreakpointMessageInterface>());
+            breakpointMessageHandler.setEnabledBreakpoints(new ArrayList<>());
+            breakpointMessageHandler.setEnabledIgnoreRules(new ArrayList<>());
         }
     }
 

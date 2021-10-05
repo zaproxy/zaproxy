@@ -33,10 +33,13 @@
 // ZAP: 2017/07/12 and 2017/09/21 JavaDoc tweaks.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2021/05/14 Remove empty statement.
 package org.parosproxy.paros.core.scanner;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
@@ -64,7 +67,7 @@ public interface Plugin extends Runnable, ExampleAlertProvider {
         LOW,
         MEDIUM,
         HIGH
-    };
+    }
 
     public enum AttackStrength {
         /**
@@ -76,7 +79,7 @@ public interface Plugin extends Runnable, ExampleAlertProvider {
         MEDIUM,
         HIGH,
         INSANE
-    };
+    }
 
     /**
      * Unique Paros ID of this plugin.
@@ -178,6 +181,16 @@ public interface Plugin extends Runnable, ExampleAlertProvider {
      * @return the references
      */
     String getReference();
+
+    /**
+     * Gets the tags attached to the alerts raised by this plugin.
+     *
+     * @return the alert tags
+     * @since 2.11.0
+     */
+    default Map<String, String> getAlertTags() {
+        return Collections.emptyMap();
+    }
 
     /**
      * Plugin must implement this to notify when completed.

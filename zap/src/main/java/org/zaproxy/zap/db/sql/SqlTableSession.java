@@ -39,9 +39,6 @@ public class SqlTableSession extends SqlAbstractTable implements TableSession {
     @Override
     protected void reconnect(Connection conn) throws DatabaseException {}
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSession#insert(long, java.lang.String)
-     */
     @Override
     public synchronized void insert(long sessionId, String sessionName) throws DatabaseException {
         SqlPreparedStatementWrapper psInsert = null;
@@ -57,9 +54,6 @@ public class SqlTableSession extends SqlAbstractTable implements TableSession {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSession#update(long, java.lang.String)
-     */
     @Override
     public synchronized void update(long sessionId, String sessionName) throws DatabaseException {
         SqlPreparedStatementWrapper psUpdate = null;
@@ -80,7 +74,7 @@ public class SqlTableSession extends SqlAbstractTable implements TableSession {
         SqlPreparedStatementWrapper psList = null;
         try {
             psList = DbSQL.getSingleton().getPreparedStatement("session.ps.list");
-            List<RecordSession> result = new ArrayList<RecordSession>();
+            List<RecordSession> result = new ArrayList<>();
             try (ResultSet rs = psList.getPs().executeQuery()) {
                 RecordSession ra = build(rs);
                 while (ra != null) {

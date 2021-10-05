@@ -39,7 +39,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public class VariantURLQuery extends VariantAbstractQuery {
 
-    private static final Logger log = LogManager.getLogger(VariantURLQuery.class);
+    private static final Logger LOG = LogManager.getLogger(VariantURLQuery.class);
 
     public VariantURLQuery() {
         super();
@@ -82,7 +82,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
             msg.getRequestHeader().getURI().setEscapedQuery(query);
 
         } catch (URIException e) {
-            log.error(e.getMessage() + query, e);
+            LOG.error(e.getMessage() + query, e);
         }
     }
 }

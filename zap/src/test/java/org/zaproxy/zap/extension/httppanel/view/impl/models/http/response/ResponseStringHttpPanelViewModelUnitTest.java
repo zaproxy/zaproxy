@@ -24,16 +24,18 @@ import static org.hamcrest.Matchers.isEmptyString;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.StringHttpPanelViewModelTest;
 import org.zaproxy.zap.network.HttpResponseBody;
 
 /** Unit test for {@link ResponseStringHttpPanelViewModel}. */
-public class ResponseStringHttpPanelViewModelUnitTest
+class ResponseStringHttpPanelViewModelUnitTest
         extends StringHttpPanelViewModelTest<HttpResponseHeader, HttpResponseBody> {
 
     @Override
@@ -82,5 +84,15 @@ public class ResponseStringHttpPanelViewModelUnitTest
         String data = model.getData();
         // Then
         assertThat(data, isEmptyString());
+    }
+
+    @Override
+    protected void verifyBodySet(HttpMessage message, String body) {
+        verify(message).setResponseBody(body);
+    }
+
+    @Override
+    protected void verifyBodyNotSet(HttpMessage message) {
+        verify(message, times(0)).setResponseBody(anyString());
     }
 }

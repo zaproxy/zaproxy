@@ -168,7 +168,7 @@ public class AddOn {
             INVALID_MANIFEST,
             /** The add-on declared a missing/invalid library. */
             INVALID_LIB,
-        };
+        }
 
         private final Validity validity;
         private final Exception exception;
@@ -1758,7 +1758,7 @@ public class AddOn {
      * marketplace.
      *
      * @return the release date, or {@code null} if not available.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public String getReleaseDate() {
         return releaseDate;

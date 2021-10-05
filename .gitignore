@@ -1,9 +1,17 @@
+# Misc
+#-----
+.DS_Store
+
 # Gradle
 #-------
 .gradle
 /build
 /buildSrc/build
 /zap/build
+
+# JVM
+#----
+hs_err_pid*
 
 # IDEA
 # ----

@@ -29,14 +29,14 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.network.HttpBodyTestUtils;
 
 /** Unit test for {@link HtmlParameter}. */
-public class HtmlParameterUnitTest extends HttpBodyTestUtils {
+class HtmlParameterUnitTest extends HttpBodyTestUtils {
 
     private static final HtmlParameter.Type NON_NULL_TYPE = HtmlParameter.Type.url;
     private static final String NON_NULL_NAME = "name";
     private static final String NON_NULL_VALUE = "value";
 
     @Test
-    public void shouldFailToCreateHtmlParameterWithNullCookieLine() {
+    void shouldFailToCreateHtmlParameterWithNullCookieLine() {
         // Given
         String cookieLine = null;
         // When / Then
@@ -44,7 +44,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldFailToCreateHtmlParameterWithNullType() {
+    void shouldFailToCreateHtmlParameterWithNullType() {
         // Given
         HtmlParameter.Type type = null;
         // When / Then
@@ -54,7 +54,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldFailToCreateHtmlParameterWithNullName() {
+    void shouldFailToCreateHtmlParameterWithNullName() {
         // Given
         String name = null;
         // When / Then
@@ -64,7 +64,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldFailToSetNullType() {
+    void shouldFailToSetNullType() {
         // Given
         HtmlParameter parameter = new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, NON_NULL_VALUE);
         // When / Then
@@ -72,7 +72,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldFailToSetNullName() {
+    void shouldFailToSetNullName() {
         // Given
         HtmlParameter parameter = new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, NON_NULL_VALUE);
         // When / Then
@@ -80,7 +80,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldSetNullValue() {
+    void shouldSetNullValue() {
         // Given
         HtmlParameter parameter = new HtmlParameter(NON_NULL_TYPE, NON_NULL_NAME, NON_NULL_VALUE);
         // When
@@ -91,7 +91,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateHtmlParameterWithNullValue() {
+    void shouldCreateHtmlParameterWithNullValue() {
         // Given
         String value = null;
         // When
@@ -102,7 +102,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateEmptyCookieWithEmptyCookieLine() {
+    void shouldCreateEmptyCookieWithEmptyCookieLine() {
         // Given
         String cookieLine = "";
         // When
@@ -114,7 +114,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateCookieWithEmptyNameIfCookieLineHasJustValue() {
+    void shouldCreateCookieWithEmptyNameIfCookieLineHasJustValue() {
         // Given
         String cookieLine = "value";
         // When
@@ -126,7 +126,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateCookieWithEmptyValueIfCookieLineHasJustName() {
+    void shouldCreateCookieWithEmptyValueIfCookieLineHasJustName() {
         // Given
         String cookieLine = "name=";
         // When
@@ -138,7 +138,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateEmptyCookieIfIfCookieLineHasEmptyNameAndValue() {
+    void shouldCreateEmptyCookieIfIfCookieLineHasEmptyNameAndValue() {
         // Given
         String cookieLine = "=";
         // When
@@ -150,7 +150,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateCookieWithNameAndValueFromCookieLine() {
+    void shouldCreateCookieWithNameAndValueFromCookieLine() {
         // Given
         String cookieLine = "name=value";
         // When
@@ -162,7 +162,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldCreateCookieWithFlagsFromAttributesInCookieLine() {
+    void shouldCreateCookieWithFlagsFromAttributesInCookieLine() {
         // Given
         String cookieLine = "name=value; attribute1; attribute2=value2";
         // When
@@ -175,7 +175,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldOrderByTypeFirst() {
+    void shouldOrderByTypeFirst() {
         // Given
         HtmlParameter p1 =
                 new HtmlParameter(HtmlParameter.Type.cookie, NON_NULL_NAME, NON_NULL_VALUE);
@@ -186,7 +186,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldOrderByTypeThenName() {
+    void shouldOrderByTypeThenName() {
         // Given
         HtmlParameter pA = new HtmlParameter(HtmlParameter.Type.url, "A", NON_NULL_VALUE);
         HtmlParameter pB = new HtmlParameter(HtmlParameter.Type.url, "B", NON_NULL_VALUE);
@@ -196,7 +196,7 @@ public class HtmlParameterUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldOrderByTypeThenNameThenValue() {
+    void shouldOrderByTypeThenNameThenValue() {
         // Given
         HtmlParameter pA = new HtmlParameter(HtmlParameter.Type.url, NON_NULL_NAME, "A");
         HtmlParameter pB = new HtmlParameter(HtmlParameter.Type.url, NON_NULL_NAME, "B");

@@ -2,7 +2,6 @@ package org.zaproxy.zap
 
 plugins {
     `java-library`
-    eclipse
 }
 
 tasks.withType<Test>().configureEach {
@@ -32,14 +31,6 @@ fun setupTest(name: String, addToCheck: Boolean = true): TaskProvider<Test> {
     configurations {
         "${nameTest}Implementation" { extendsFrom(configurations["testImplementation"]) }
         "${nameTest}RuntimeOnly" { extendsFrom(configurations["testRuntimeOnly"]) }
-    }
-
-    // Workaround for https://github.com/eclipse/buildship/issues/476
-    eclipse {
-        classpath {
-            plusConfigurations.plusAssign(configurations["${nameTest}CompileClasspath"])
-            plusConfigurations.plusAssign(configurations["${nameTest}RuntimeClasspath"])
-        }
     }
 
     val nameLowerCase = name.toLowerCase()

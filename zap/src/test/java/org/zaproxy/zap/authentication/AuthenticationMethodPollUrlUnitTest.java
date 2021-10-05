@@ -44,7 +44,7 @@ import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 
-public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
+class AuthenticationMethodPollUrlUnitTest extends TestUtils {
 
     private static final String LOGGED_IN_INDICATOR = "logged in";
     private static final String LOGGED_IN_BODY =
@@ -57,7 +57,7 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
     private AuthenticationMethod method;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         loginMessage = new HttpMessage();
         HttpRequestHeader header = new HttpRequestHeader();
         header.setURI(new URI("http://www.example.com", true));
@@ -69,12 +69,12 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
     }
 
     @AfterEach
-    public void shutDownServer() throws Exception {
+    void shutDownServer() throws Exception {
         stopServer();
     }
 
     @Test
-    public void shouldPollOnFirstRequest() throws NullPointerException, IOException {
+    void shouldPollOnFirstRequest() throws NullPointerException, IOException {
         // Given
         String test = "/shouldPollOnFirstRequest/test";
         String pollUrl = "/shouldPollOnFirstRequest/pollUrl";
@@ -107,7 +107,7 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldPollOnSpecifiedNumberOfRequests() throws NullPointerException, IOException {
+    void shouldPollOnSpecifiedNumberOfRequests() throws NullPointerException, IOException {
         // Given
         String test = "/shouldPollOnFirstRequest/test";
         String pollUrl = "/shouldPollOnFirstRequest/pollUrl";
@@ -149,7 +149,7 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldPollEveryFailingRequest() throws NullPointerException, IOException {
+    void shouldPollEveryFailingRequest() throws NullPointerException, IOException {
         // Given
         String test = "/shouldPollEveryFailingRequest/test";
         String pollUrl = "/shouldPollEveryFailingRequest/pollUrl";
@@ -187,7 +187,7 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldPollWhenForced() throws NullPointerException, IOException {
+    void shouldPollWhenForced() throws NullPointerException, IOException {
         // Given
         String test = "/shouldPollWhenForced/test";
         String pollUrl = "/shouldPollWhenForced/pollUrl";
@@ -231,8 +231,7 @@ public class AuthenticationMethodPollUrlUnitTest extends TestUtils {
     }
 
     @Test
-    public void shouldPollOnSpecifiedNumberOfRequestsPerUser()
-            throws NullPointerException, IOException {
+    void shouldPollOnSpecifiedNumberOfRequestsPerUser() throws NullPointerException, IOException {
         // Given
         String test = "/shouldPollOnFirstRequest/test";
         String pollUrl = "/shouldPollOnFirstRequest/pollUrl";

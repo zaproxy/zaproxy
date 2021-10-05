@@ -528,7 +528,7 @@ public class ExtensionHook {
      *
      * @param variant the Variant that will be added to the {@code Model}
      * @throws IllegalArgumentException if the given {@code variant} is {@code null}.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public void addVariant(Class<? extends Variant> variant) {
         if (variant == null) {
@@ -546,7 +546,7 @@ public class ExtensionHook {
      *
      * @return an unmodifiable {@code List} containing the added {@code Variant}s, never {@code
      *     null}.
-     * @since TODO add version
+     * @since 2.10.0
      */
     List<Class<? extends Variant>> getVariants() {
         if (variants == null) {

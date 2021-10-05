@@ -41,7 +41,7 @@ import java.util.Base64;
  *
  * @author embeddednode
  * @version 1.2 June 10, 2009
- * @deprecated in ZAP (TODO add version)
+ * @deprecated in ZAP (2.10.0)
  */
 @Deprecated
 public class ViewState {
@@ -54,14 +54,9 @@ public class ViewState {
      */
     public static String encode(Serializable o) {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            ObjectOutputStream oos = new ObjectOutputStream(bos);
-            try {
-                oos.writeObject(o);
-                oos.flush();
-            } finally {
-                oos.close();
-            }
+        try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
+            oos.writeObject(o);
+            oos.flush();
             return Base64.getEncoder().encodeToString(bos.toByteArray());
         } catch (IOException e) {
             throw new RuntimeException(e);

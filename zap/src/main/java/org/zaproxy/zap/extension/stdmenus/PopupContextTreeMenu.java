@@ -49,7 +49,7 @@ public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
      */
     public PopupContextTreeMenu(boolean isEnabledForMultipleContexts) {
         super();
-        contextIds = new ArrayList<Integer>();
+        contextIds = new ArrayList<>();
 
         this.enabledForMultipleContexts = isEnabledForMultipleContexts;
     }

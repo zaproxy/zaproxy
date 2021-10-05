@@ -24,11 +24,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.core.scanner.InputVector;
 
 /**
  * Variant used for "multipart/form-data" POST request handling. Takes all parameters passed inside
@@ -55,7 +57,7 @@ public class VariantMultipartFormParameters implements Variant {
     // insensitive & DOTALL, and hit "test")
 
     private List<NameValuePair> params = Collections.emptyList();
-    private List<MultipartFormParameter> multiPartParams = new ArrayList<MultipartFormParameter>();
+    private List<MultipartFormParameter> multiPartParams = new ArrayList<>();
 
     @Override
     public void setMessage(HttpMessage msg) {
@@ -107,6 +109,7 @@ public class VariantMultipartFormParameters implements Variant {
                                         + ")?$",
                                 ""); // Strip final boundary
                 if (isFileParam) {
+                    position += 2;
                     extractedParameters.add(
                             new NameValuePair(
                                     NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM,
@@ -143,16 +146,18 @@ public class VariantMultipartFormParameters implements Variant {
                     LOGGER.debug("Name: " + name + " value: " + valueMatcher.group("value"));
                 }
                 if (isFileParam) {
+                    position -= 2;
                     // Extract the filename
                     Matcher fnValueMatcher = FILENAME_PART_PATTERN.matcher(part);
                     fnValueMatcher.find();
                     String fnValue = fnValueMatcher.group("filename");
                     extractedParameters.add(
+                            extractedParameters.size() - 1,
                             new NameValuePair(
                                     NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                                     name,
                                     fnValue,
-                                    ++position));
+                                    position));
                     int fnStart = offset + part.indexOf(fnValue);
                     int fnEnd = fnStart + fnValue.length();
                     if (LOGGER.isDebugEnabled()) {
@@ -161,6 +166,7 @@ public class VariantMultipartFormParameters implements Variant {
                                         + fnEnd + " Pos: " + position);
                     }
                     multiPartParams.add(
+                            multiPartParams.size() - 1,
                             new MultipartFormParameter(
                                     name,
                                     fnValue,
@@ -173,6 +179,7 @@ public class VariantMultipartFormParameters implements Variant {
                     ctValueMatcher.find();
                     String ctValue = ctValueMatcher.group("contenttype");
                     extractedParameters.add(
+                            extractedParameters.size() - 1,
                             new NameValuePair(
                                     NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
                                     name,
@@ -186,6 +193,7 @@ public class VariantMultipartFormParameters implements Variant {
                                         + ctEnd + " Pos: " + position);
                     }
                     multiPartParams.add(
+                            multiPartParams.size() - 1,
                             new MultipartFormParameter(
                                     name,
                                     ctValue,
@@ -209,33 +217,55 @@ public class VariantMultipartFormParameters implements Variant {
     @Override
     public String setParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
-        return setParameter(msg, originalPair, value);
+        return setParameter(
+                msg,
+                Collections.singletonList(originalPair.getPosition()),
+                Collections.singletonList(value));
     }
 
     @Override
     public String setEscapedParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
-        return setParameter(msg, originalPair, value);
+        return setParameter(
+                msg,
+                Collections.singletonList(originalPair.getPosition()),
+                Collections.singletonList(value));
     }
 
-    private String setParameter(HttpMessage msg, NameValuePair originalPair, String value) {
+    @Override
+    public void setParameters(HttpMessage msg, List<InputVector> inputVectors) {
+        this.setParameter(
+                msg,
+                inputVectors.stream().map(InputVector::getPosition).collect(Collectors.toList()),
+                inputVectors.stream().map(InputVector::getValue).collect(Collectors.toList()));
+    }
 
+    private String setParameter(
+            HttpMessage msg, List<Integer> nameValuePairPositions, List<String> values) {
         StringBuilder newBodyBuilder = new StringBuilder(msg.getRequestBody().toString());
-        int idx = originalPair.getPosition() - 1;
-        MultipartFormParameter mpPart = multiPartParams.get(idx);
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(
-                    "i: "
-                            + idx
-                            + " pos: "
-                            + originalPair.getPosition()
-                            + " S: "
-                            + mpPart.getStart()
-                            + " E: "
-                            + mpPart.getEnd());
-        }
-        newBodyBuilder.replace(mpPart.getStart(), mpPart.getEnd(), value);
+        int offset = 0;
+        for (int index = 0; index < nameValuePairPositions.size(); index++) {
+            int originalPosition = nameValuePairPositions.get(index);
+            String value = values.get(index);
+            int idx = originalPosition - 1;
 
+            MultipartFormParameter mpPart = this.multiPartParams.get(idx);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "i: "
+                                + idx
+                                + " pos: "
+                                + originalPosition
+                                + " S: "
+                                + mpPart.getStart()
+                                + " E: "
+                                + mpPart.getEnd()
+                                + " O: "
+                                + offset);
+            }
+            newBodyBuilder.replace(mpPart.getStart() + offset, mpPart.getEnd() + offset, value);
+            offset = offset + value.length() - mpPart.getEnd() + mpPart.getStart();
+        }
         String newBody = newBodyBuilder.toString();
         msg.getRequestBody().setBody(newBody);
         return newBody;

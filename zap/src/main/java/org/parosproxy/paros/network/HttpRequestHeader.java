@@ -59,6 +59,9 @@
 // ZAP: 2020/11/10 Add convenience method isCss(), refactor isImage() to use new private method
 // isSpecificType(Pattern).
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/10 Use authority for CONNECT requests.
+// ZAP: 2021/07/16 Issue 6691: Do not add zero Content-Length by default in GET requests
+// ZAP: 2021/07/19 Include SVG in isImage().
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -118,7 +121,8 @@ public class HttpRequestHeader extends HttpHeader {
     // private static final Pattern patternHostHeader
     //	= Pattern.compile("([^:]+)\\s*?:?\\s*?(\\d*?)");
     private static final Pattern patternImage =
-            Pattern.compile("\\.(bmp|ico|jpg|jpeg|gif|tiff|tif|png)\\z", Pattern.CASE_INSENSITIVE);
+            Pattern.compile(
+                    "\\.(bmp|ico|jpg|jpeg|gif|tiff|tif|png|svg)\\z", Pattern.CASE_INSENSITIVE);
     private static final Pattern patternPartialRequestLine =
             Pattern.compile(
                     "\\A *(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT)\\b",
@@ -241,11 +245,6 @@ public class HttpRequestHeader extends HttpHeader {
         }
 
         setHeader(ACCEPT_ENCODING, null);
-
-        // ZAP: changed from method to version
-        if (version.equalsIgnoreCase(HTTP11)) {
-            setContentLength(0);
-        }
     }
 
     /**
@@ -465,7 +464,7 @@ public class HttpRequestHeader extends HttpHeader {
 
         if (mMethod.equalsIgnoreCase(CONNECT)) {
             parseHostName(sUri);
-            mUri = parseURI(mHostName);
+            mUri = URI.fromAuthority(sUri);
 
         } else {
             mUri = parseURI(sUri);

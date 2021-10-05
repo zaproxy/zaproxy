@@ -204,7 +204,7 @@ public class ScriptWrapper {
      * <p>The value is different each time the contents of the script change.
      *
      * @return the mod count.
-     * @since TODO add version
+     * @since 2.10.0
      */
     public int getModCount() {
         return modCount;
@@ -296,7 +296,13 @@ public class ScriptWrapper {
         return null;
     }
 
+    /** @deprecated (2.11.0) Use {@link #isRunnableStandalone} */
+    @Deprecated
     public boolean isRunableStandalone() {
+        return isRunnableStandalone();
+    }
+
+    public boolean isRunnableStandalone() {
         return this.getType() != null
                 && ExtensionScript.TYPE_STANDALONE.equals(this.getType().getName());
     }

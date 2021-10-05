@@ -63,7 +63,6 @@ import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
@@ -389,8 +388,7 @@ public class ActiveScanAPI extends ApiImplementor {
                     getActiveScan(params).stopScan();
                     break;
                 case ACTION_REMOVE_SCAN:
-                    GenericScanner2 activeScan =
-                            controller.removeScan(params.getInt(PARAM_SCAN_ID));
+                    ActiveScan activeScan = controller.removeScan(params.getInt(PARAM_SCAN_ID));
                     if (activeScan == null) {
                         throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
                     }
@@ -410,7 +408,7 @@ public class ActiveScanAPI extends ApiImplementor {
                 case ACTION_CLEAR_EXCLUDED_FROM_SCAN:
                     try {
                         Session session = Model.getSingleton().getSession();
-                        session.setExcludeFromScanRegexs(new ArrayList<String>());
+                        session.setExcludeFromScanRegexs(new ArrayList<>());
                     } catch (DatabaseException e) {
                         log.error(e.getMessage(), e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -757,7 +755,7 @@ public class ActiveScanAPI extends ApiImplementor {
     private ActiveScan getActiveScan(JSONObject params) throws ApiException {
         int id = getParam(params, PARAM_SCAN_ID, -1);
 
-        GenericScanner2 activeScan = null;
+        ActiveScan activeScan = null;
 
         if (id == -1) {
             activeScan = controller.getLastScan();
@@ -769,7 +767,7 @@ public class ActiveScanAPI extends ApiImplementor {
             throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
         }
 
-        return (ActiveScan) activeScan;
+        return activeScan;
     }
 
     private void setScannersEnabled(ScanPolicy policy, String[] ids, boolean enabled)
@@ -962,12 +960,10 @@ public class ActiveScanAPI extends ApiImplementor {
             case VIEW_STATUS:
                 activeScan = getActiveScan(params);
                 int progress = 0;
-                if (activeScan != null) {
-                    if (activeScan.isStopped()) {
-                        progress = 100;
-                    } else {
-                        progress = activeScan.getProgress();
-                    }
+                if (activeScan.isStopped()) {
+                    progress = 100;
+                } else {
+                    progress = activeScan.getProgress();
                 }
                 result = new ApiResponseElement(name, String.valueOf(progress));
                 break;
@@ -981,68 +977,63 @@ public class ActiveScanAPI extends ApiImplementor {
                     map.put("reqCount", Integer.toString(scan.getTotalRequests()));
                     map.put("alertCount", Integer.toString(scan.getAlertsIds().size()));
                     map.put("newAlertCount", Integer.toString(scan.getTotalNewAlerts()));
-                    resultList.addItem(new ApiResponseSet<String>("scan", map));
+                    resultList.addItem(new ApiResponseSet<>("scan", map));
                 }
                 result = resultList;
                 break;
             case VIEW_SCAN_PROGRESS:
                 resultList = new ApiResponseList(name);
                 activeScan = getActiveScan(params);
-                if (activeScan != null) {
-                    for (HostProcess hp : activeScan.getHostProcesses()) {
-                        ApiResponseList hpList = new ApiResponseList("HostProcess");
-                        resultList.addItem(new ApiResponseElement("id", hp.getHostAndPort()));
+                for (HostProcess hp : activeScan.getHostProcesses()) {
+                    ApiResponseList hpList = new ApiResponseList("HostProcess");
+                    resultList.addItem(new ApiResponseElement("id", hp.getHostAndPort()));
 
-                        for (Plugin plugin : hp.getCompleted()) {
-                            long timeTaken =
-                                    plugin.getTimeFinished().getTime()
-                                            - plugin.getTimeStarted().getTime();
-                            int reqs = hp.getPluginRequestCount(plugin.getId());
-                            int alertCount = hp.getPluginStats(plugin.getId()).getAlertCount();
-                            hpList.addItem(
-                                    createPluginProgressEntry(
-                                            plugin,
-                                            getStatus(hp, plugin, "Complete"),
-                                            timeTaken,
-                                            reqs,
-                                            alertCount));
-                        }
-
-                        for (Plugin plugin : hp.getRunning()) {
-                            int pc = hp.getTestCurrentCount(plugin) * 100 / hp.getTestTotalCount();
-                            // Make sure not return 100 (or more) if still running...
-                            // That might happen if more nodes are being scanned that the ones
-                            // enumerated at the beginning.
-                            if (pc >= 100) {
-                                pc = 99;
-                            }
-                            long timeTaken =
-                                    new Date().getTime() - plugin.getTimeStarted().getTime();
-                            int reqs = hp.getPluginRequestCount(plugin.getId());
-                            int alertCount = hp.getPluginStats(plugin.getId()).getAlertCount();
-                            hpList.addItem(
-                                    createPluginProgressEntry(
-                                            plugin, pc + "%", timeTaken, reqs, alertCount));
-                        }
-
-                        for (Plugin plugin : hp.getPending()) {
-                            hpList.addItem(
-                                    createPluginProgressEntry(
-                                            plugin, getStatus(hp, plugin, "Pending"), 0, 0, 0));
-                        }
-                        resultList.addItem(hpList);
+                    for (Plugin plugin : hp.getCompleted()) {
+                        long timeTaken =
+                                plugin.getTimeFinished().getTime()
+                                        - plugin.getTimeStarted().getTime();
+                        int reqs = hp.getPluginRequestCount(plugin.getId());
+                        int alertCount = hp.getPluginStats(plugin.getId()).getAlertCount();
+                        hpList.addItem(
+                                createPluginProgressEntry(
+                                        plugin,
+                                        getStatus(hp, plugin, "Complete"),
+                                        timeTaken,
+                                        reqs,
+                                        alertCount));
                     }
+
+                    for (Plugin plugin : hp.getRunning()) {
+                        int pc = hp.getTestCurrentCount(plugin) * 100 / hp.getTestTotalCount();
+                        // Make sure not return 100 (or more) if still running...
+                        // That might happen if more nodes are being scanned that the ones
+                        // enumerated at the beginning.
+                        if (pc >= 100) {
+                            pc = 99;
+                        }
+                        long timeTaken = new Date().getTime() - plugin.getTimeStarted().getTime();
+                        int reqs = hp.getPluginRequestCount(plugin.getId());
+                        int alertCount = hp.getPluginStats(plugin.getId()).getAlertCount();
+                        hpList.addItem(
+                                createPluginProgressEntry(
+                                        plugin, pc + "%", timeTaken, reqs, alertCount));
+                    }
+
+                    for (Plugin plugin : hp.getPending()) {
+                        hpList.addItem(
+                                createPluginProgressEntry(
+                                        plugin, getStatus(hp, plugin, "Pending"), 0, 0, 0));
+                    }
+                    resultList.addItem(hpList);
                 }
                 result = resultList;
                 break;
             case VIEW_MESSAGES_IDS:
                 resultList = new ApiResponseList(name);
                 activeScan = getActiveScan(params);
-                if (activeScan != null) {
-                    synchronized (activeScan.getMessagesIds()) {
-                        for (Integer id : activeScan.getMessagesIds()) {
-                            resultList.addItem(new ApiResponseElement("id", id.toString()));
-                        }
+                synchronized (activeScan.getMessagesIds()) {
+                    for (Integer id : activeScan.getMessagesIds()) {
+                        resultList.addItem(new ApiResponseElement("id", id.toString()));
                     }
                 }
                 result = resultList;
@@ -1050,11 +1041,9 @@ public class ActiveScanAPI extends ApiImplementor {
             case VIEW_ALERTS_IDS:
                 resultList = new ApiResponseList(name);
                 activeScan = getActiveScan(params);
-                if (activeScan != null) {
-                    synchronized (activeScan.getAlertsIds()) {
-                        for (Integer id : activeScan.getAlertsIds()) {
-                            resultList.addItem(new ApiResponseElement("id", id.toString()));
-                        }
+                synchronized (activeScan.getAlertsIds()) {
+                    for (Integer id : activeScan.getAlertsIds()) {
+                        resultList.addItem(new ApiResponseElement("id", id.toString()));
                     }
                 }
                 result = resultList;
@@ -1105,7 +1094,7 @@ public class ActiveScanAPI extends ApiImplementor {
                             "alertThreshold",
                             alertThreshold == null ? "" : String.valueOf(alertThreshold));
                     map.put("enabled", String.valueOf(isPolicyEnabled(policy, categoryId)));
-                    resultList.addItem(new ApiResponseSet<String>("policy", map));
+                    resultList.addItem(new ApiResponseSet<>("policy", map));
                 }
 
                 result = resultList;
@@ -1138,7 +1127,7 @@ public class ActiveScanAPI extends ApiImplementor {
                     Map<String, String> typeData = new HashMap<>();
                     typeData.put("id", Integer.toString(type.getKey()));
                     typeData.put("name", type.getValue());
-                    resultList.addItem(new ApiResponseSet<String>("type", typeData));
+                    resultList.addItem(new ApiResponseSet<>("type", typeData));
                 }
                 result = resultList;
                 break;
@@ -1229,7 +1218,7 @@ public class ActiveScanAPI extends ApiImplementor {
             typeData = new HashMap<>();
             typeData.put("id", Integer.toString(param.getType()));
             typeData.put("name", param.getTypeString());
-            type = new ApiResponseSet<String>("type", typeData);
+            type = new ApiResponseSet<>("type", typeData);
         }
 
         @Override

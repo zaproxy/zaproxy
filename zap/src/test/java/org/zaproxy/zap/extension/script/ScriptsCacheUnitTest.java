@@ -384,7 +384,7 @@ class ScriptsCacheUnitTest {
 
         @ParameterizedTest
         @NullAndEmptySource
-        public void shouldThrowExceptionWhenBuildingWithoutScriptType(String scriptType) {
+        void shouldThrowExceptionWhenBuildingWithoutScriptType(String scriptType) {
             // Given
             Configuration.Builder<Script> builder =
                     Configuration.<Script>builder().setScriptType(scriptType);
@@ -395,7 +395,7 @@ class ScriptsCacheUnitTest {
         }
 
         @Test
-        public void shouldThrowExceptionWhenBuildingWithoutTargetInterface() {
+        void shouldThrowExceptionWhenBuildingWithoutTargetInterface() {
             // Given
             Configuration.Builder<Script> builder =
                     Configuration.<Script>builder().setScriptType(SCRIPT_TYPE);
@@ -408,8 +408,7 @@ class ScriptsCacheUnitTest {
 
         @Test
         @SuppressWarnings("unchecked")
-        public void
-                shouldThrowExceptionWhenBuildingWithTargetInterfaceProviderAndErrorMessageProvider() {
+        void shouldThrowExceptionWhenBuildingWithTargetInterfaceProviderAndErrorMessageProvider() {
             // Given
             Configuration.Builder<Script> builder =
                     Configuration.<Script>builder()
@@ -429,7 +428,7 @@ class ScriptsCacheUnitTest {
 
         @Test
         @SuppressWarnings("unchecked")
-        public void shouldBuildWithInterfaceProvider() {
+        void shouldBuildWithInterfaceProvider() {
             // Given
             InterfaceProvider<Script> interfaceProvider = mock(InterfaceProvider.class);
             Configuration.Builder<Script> builder =
@@ -447,7 +446,7 @@ class ScriptsCacheUnitTest {
         }
 
         @Test
-        public void shouldBuildWithInterfaceErrorMessageProvider() {
+        void shouldBuildWithInterfaceErrorMessageProvider() {
             // Given
             InterfaceErrorMessageProvider interfaceErrorMessageProvider =
                     mock(InterfaceErrorMessageProvider.class);

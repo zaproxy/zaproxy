@@ -69,7 +69,7 @@ Scanners:
 10050   Retrieved from Cache
 10051   Relative Path Confusion
 10052   X-ChromeLogger-Data Header Information Leak
-10053   Apache Range Header DoS (CVE-2011-3192)
+10053   Apache Range Header DoS (CVE-2011-3192) [Deprecated]
 10054   Cookie set without SameSite attribute
 10055   Content Security Policy Scanner
 10056   X-Debug-Token Scanner
@@ -165,6 +165,10 @@ Scanners:
 40036   JWT Scanner
 40037   CustomActiveScanForZAP (3rd Party)
 40038   Bypassing 403
+40039   Web Cache Deception
+40040	CORS active scan rule
+40041   FileUpload Scanner
+40042   Spring Actuator Test
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
@@ -228,6 +232,15 @@ Scanners:
 100021  Telerik Cryptographic Weakness [Script]
 100022  Upload Form Discovery [Script]
 100023  Information Leak - X-Powered-By Header [Script]
+100024  Unauthenticated Gitlab SSRF (CVE-2021-22214) [Script]
+100025  Cross Site WebSocket Hijacking [Script]
+100026  JWT None Exploit [Script]
+100027  Test Insecure HTTP Verbs [Script]
+100028  User defined attacks [Script]
+100029  File Content Disclosure (CVE-2019-5418) [Script]
+100030  Good Old Files Lite [Script]
+100031  DNS Email Spoofing [Script]
+100032  WordPress Username Enumeration [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]

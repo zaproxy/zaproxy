@@ -98,7 +98,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
     }
 
     protected SortedSet<String> getOutputSet(SiteNode startingPoint) {
-        SortedSet<String> outputSet = new TreeSet<String>();
+        SortedSet<String> outputSet = new TreeSet<>();
         Enumeration<?> en = (startingPoint.preorderEnumeration());
         while (en.hasMoreElements()) {
             SiteNode node = (SiteNode) en.nextElement();

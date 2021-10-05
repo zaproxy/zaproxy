@@ -33,7 +33,7 @@ import org.parosproxy.paros.view.View;
  * The representation of an {@code HistoryReference}'s type, has the type's name (to be displayed)
  * and value (used for comparison).
  *
- * @since TODO add version
+ * @since 2.10.0
  * @see #getFromType(int)
  * @see HistoryReference
  * @see HistoryReference#TYPE_PROXIED

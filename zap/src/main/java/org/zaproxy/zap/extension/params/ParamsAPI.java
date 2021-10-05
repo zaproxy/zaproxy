@@ -90,7 +90,7 @@ public class ParamsAPI extends ApiImplementor {
             map.put("name", param.getName());
             map.put("type", param.getType().name());
             map.put("timesUsed", String.valueOf(param.getTimesUsed()));
-            stats.addItem(new ApiResponseSet<String>("Stats", map));
+            stats.addItem(new ApiResponseSet<>("Stats", map));
 
             ApiResponseList flags = new ApiResponseList("Flags");
             for (String flag : param.getFlags()) {

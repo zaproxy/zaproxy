@@ -244,8 +244,8 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
     private void saveToContext(Context context, boolean updateSiteStructure) {
         ParameterParser urlParamParser = context.getUrlParamParser();
         ParameterParser formParamParser = context.getPostParamParser();
-        List<String> structParams = new ArrayList<String>();
-        List<StructuralNodeModifier> ddns = new ArrayList<StructuralNodeModifier>();
+        List<String> structParams = new ArrayList<>();
+        List<StructuralNodeModifier> ddns = new ArrayList<>();
 
         for (StructuralNodeModifier snm : this.ddnTableModel.getElements()) {
             if (snm.getType().equals(StructuralNodeModifier.Type.StructuralParameter)) {

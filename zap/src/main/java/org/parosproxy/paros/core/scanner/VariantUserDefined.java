@@ -30,14 +30,14 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public class VariantUserDefined implements Variant {
 
-    private static Map<String, int[][]> injectionPointMap = new HashMap<String, int[][]>();
+    private static Map<String, int[][]> injectionPointMap = new HashMap<>();
 
     private int headerLength;
     private int bodyLength;
 
     private int[][] injectionPoints = null;
 
-    private static final Logger logger = LogManager.getLogger(VariantUserDefined.class);
+    private static final Logger LOGGER = LogManager.getLogger(VariantUserDefined.class);
 
     public VariantUserDefined() {
         super();
@@ -63,13 +63,13 @@ public class VariantUserDefined implements Variant {
 
     @Override
     public List<NameValuePair> getParamList() {
-        List<NameValuePair> list = new ArrayList<NameValuePair>();
+        List<NameValuePair> list = new ArrayList<>();
         if (this.injectionPoints != null) {
             for (int i = 0; i < this.injectionPoints.length; i++) {
                 if (isInHeader(this.injectionPoints[i]) || isInBody(this.injectionPoints[i])) {
                     list.add(new NameValuePair(NameValuePair.TYPE_UNDEFINED, "", "", i));
                 } else {
-                    logger.warn(
+                    LOGGER.warn(
                             "Invalid injection point: "
                                     + java.util.Arrays.toString(this.injectionPoints[i]));
                 }
@@ -91,7 +91,7 @@ public class VariantUserDefined implements Variant {
             try {
                 msg.getRequestHeader().setMessage(sb.toString());
             } catch (HttpMalformedHeaderException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         } else {
             String body = msg.getRequestBody().toString();

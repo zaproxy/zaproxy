@@ -38,10 +38,10 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantURLPath implements Variant {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    private final Logger LOGGER = LogManager.getLogger(this.getClass());
+
     private final List<NameValuePair> stringParam = new ArrayList<>();
 
-    /** @param msg */
     @Override
     public void setMessage(HttpMessage msg) {
         /*
@@ -70,32 +70,17 @@ public class VariantURLPath implements Variant {
         }
     }
 
-    /** @return */
     @Override
     public List<NameValuePair> getParamList() {
         return stringParam;
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @return
-     */
     @Override
     public String setParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
         return setParameter(msg, originalPair, name, value, false);
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @return
-     */
     @Override
     public String setEscapedParameter(
             HttpMessage msg, NameValuePair originalPair, String name, String value) {
@@ -120,14 +105,6 @@ public class VariantURLPath implements Variant {
         return "";
     }
 
-    /**
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @param escaped
-     * @return
-     */
     private String setParameter(
             HttpMessage msg,
             NameValuePair originalPair,
@@ -155,7 +132,7 @@ public class VariantURLPath implements Variant {
             }
 
         } catch (URIException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return value;

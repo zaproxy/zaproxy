@@ -34,19 +34,19 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 
-public class FileCopierUnitTest {
+class FileCopierUnitTest {
 
     private FileCopier fileCopier;
 
     @TempDir Path tempFolder;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         fileCopier = new FileCopier();
     }
 
     @Test
-    public void shouldCopyFileViaPreJava7IO() throws Exception {
+    void shouldCopyFileViaPreJava7IO() throws Exception {
         // Given
         File source = Files.createTempFile(tempFolder, "", "").toFile();
         FileUtils.writeStringToFile(source, "Test", StandardCharsets.UTF_8);
@@ -58,7 +58,7 @@ public class FileCopierUnitTest {
     }
 
     @Test
-    public void shouldCopyFileViaNIO() throws Exception {
+    void shouldCopyFileViaNIO() throws Exception {
         // Given
         File source = newFile();
         FileUtils.writeStringToFile(source, "Test", StandardCharsets.UTF_8);
@@ -70,7 +70,7 @@ public class FileCopierUnitTest {
     }
 
     @Test
-    public void shouldFallbackToPreJava7IOIfNIOFails() throws Exception {
+    void shouldFallbackToPreJava7IOIfNIOFails() throws Exception {
         // Given
         FileCopier fileCopierStub = Mockito.spy(fileCopier);
         doThrow(IOException.class).when(fileCopierStub).copyNIO(any(File.class), any(File.class));

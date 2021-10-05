@@ -33,7 +33,7 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class AbstractDatabase implements Database {
 
-    /** @deprecated (TODO add version) Use {@link #getLogger()} instead. */
+    /** @deprecated (2.10.0) Use {@link #getLogger()} instead. */
     @Deprecated
     protected final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(getClass());
 
@@ -49,7 +49,7 @@ public abstract class AbstractDatabase implements Database {
      * Gets the logger.
      *
      * @return the logger, never {@code null}.
-     * @since TODO add version
+     * @since 2.10.0
      */
     protected Logger getLogger() {
         return logger2;

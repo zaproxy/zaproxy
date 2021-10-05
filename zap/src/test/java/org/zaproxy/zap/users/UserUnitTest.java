@@ -52,7 +52,7 @@ import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 
 @ExtendWith(MockitoExtension.class)
-public class UserUnitTest {
+class UserUnitTest {
 
     private static final String USER_NAME = "username";
     private static int CONTEXT_ID = 23;
@@ -64,7 +64,7 @@ public class UserUnitTest {
     private static SessionManagementMethod mockedSessionManagementMethod;
 
     @BeforeAll
-    public static void classSetUp() {
+    static void classSetUp() {
         // Make sure something is returned for the encoder
         mockedCredentials = Mockito.mock(AuthenticationCredentials.class);
         when(mockedCredentials.encode(anyString())).thenReturn("[credentials]");
@@ -101,7 +101,7 @@ public class UserUnitTest {
     }
 
     @Test
-    public void shouldEncodeAndDecodeProperly() {
+    void shouldEncodeAndDecodeProperly() {
         // Given
         User user = spy(new User(CONTEXT_ID, USER_NAME));
         user.setAuthenticationCredentials(mockedCredentials);
@@ -117,7 +117,7 @@ public class UserUnitTest {
     }
 
     @Test
-    public void shouldGenerateUniqueIds() {
+    void shouldGenerateUniqueIds() {
         // Given
         User u1 = new User(CONTEXT_ID, USER_NAME);
         User u2 = new User(CONTEXT_ID, USER_NAME);
@@ -133,7 +133,7 @@ public class UserUnitTest {
     }
 
     @Test
-    public void shouldRequireAuthenticationAfterInitialization() {
+    void shouldRequireAuthenticationAfterInitialization() {
         // Given
         User u = new User(CONTEXT_ID, USER_NAME);
         // When/Then
@@ -141,7 +141,7 @@ public class UserUnitTest {
     }
 
     @Test
-    public void shouldRequireAuthenticationAfterAuthentication() {
+    void shouldRequireAuthenticationAfterAuthentication() {
         // Given
         User u = new User(CONTEXT_ID, USER_NAME);
         // When
@@ -151,7 +151,7 @@ public class UserUnitTest {
     }
 
     @Test
-    public void shouldRequireAuthenticationAfterResetWithNewerMessage() {
+    void shouldRequireAuthenticationAfterResetWithNewerMessage() {
         // Given
         User u = spy(new User(CONTEXT_ID, USER_NAME));
         u.setAuthenticatedSession(Mockito.mock(WebSession.class));
@@ -167,7 +167,7 @@ public class UserUnitTest {
     }
 
     @Test
-    public void shouldRequireAuthenticationAfterResetWithOlderMessage() {
+    void shouldRequireAuthenticationAfterResetWithOlderMessage() {
         // Given
         User u = spy(new User(CONTEXT_ID, USER_NAME));
         u.setAuthenticatedSession(Mockito.mock(WebSession.class));
@@ -184,7 +184,7 @@ public class UserUnitTest {
     }
 
     @Test
-    public void shouldAuthenticateWhenRequired() {
+    void shouldAuthenticateWhenRequired() {
         // Given
         User user = spy(new User(CONTEXT_ID, USER_NAME));
         // When
@@ -196,7 +196,7 @@ public class UserUnitTest {
     }
 
     @Test
-    public void shouldNotAuthenticateIfNotRequired() {
+    void shouldNotAuthenticateIfNotRequired() {
         // Given
         User user = spy(new User(CONTEXT_ID, USER_NAME));
         doReturn(mockedContext).when(user).getContext();
@@ -208,7 +208,7 @@ public class UserUnitTest {
     }
 
     @Test
-    public void shouldNotRequireAuthenticationAfterAuthentication() {
+    void shouldNotRequireAuthenticationAfterAuthentication() {
         // Given
         User user = spy(new User(CONTEXT_ID, USER_NAME));
         doReturn(mockedContext).when(user).getContext();

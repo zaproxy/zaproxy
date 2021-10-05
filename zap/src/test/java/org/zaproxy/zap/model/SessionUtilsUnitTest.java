@@ -32,12 +32,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.parosproxy.paros.Constant;
 
-public class SessionUtilsUnitTest {
+class SessionUtilsUnitTest {
 
     @TempDir Path tempFolder;
 
     @Test
-    public void shouldRetrieveExistingSessionFileFromAbsolutePath() throws Exception {
+    void shouldRetrieveExistingSessionFileFromAbsolutePath() throws Exception {
         // Given
         Path path = newFile("test.session");
         String session = path.toString();
@@ -48,8 +48,7 @@ public class SessionUtilsUnitTest {
     }
 
     @Test
-    public void shouldAppendSessionFiletypeAndRetrieveSessionFileFromAbsolutePath()
-            throws Exception {
+    void shouldAppendSessionFiletypeAndRetrieveSessionFileFromAbsolutePath() throws Exception {
         // Given
         Path path = newFile("test.session");
         String session = path.toString().replace(".session$", "");
@@ -60,7 +59,7 @@ public class SessionUtilsUnitTest {
     }
 
     @Test
-    public void shouldRetrieveExistingSessionFileFromRelativePath() throws Exception {
+    void shouldRetrieveExistingSessionFileFromRelativePath() throws Exception {
         // Given
         String zapHome = createZapHome();
         String session = "test.session";
@@ -73,8 +72,7 @@ public class SessionUtilsUnitTest {
     }
 
     @Test
-    public void shouldAppendSessionFiletypeAndRetrieveSessionFileFromRelativePath()
-            throws Exception {
+    void shouldAppendSessionFiletypeAndRetrieveSessionFileFromRelativePath() throws Exception {
         // Given
         String zapHome = createZapHome();
         String session = "test";
@@ -87,7 +85,7 @@ public class SessionUtilsUnitTest {
     }
 
     @Test
-    public void shouldFailOnNullForSessionInput() throws Exception {
+    void shouldFailOnNullForSessionInput() throws Exception {
         assertThrows(NullPointerException.class, () -> SessionUtils.getSessionPath(null));
     }
 

@@ -75,6 +75,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox chkRPCMultipart = null;
     private JCheckBox chkRPCXML = null;
     private JCheckBox chkRPCJSON = null;
+    private JCheckBox chkScanNullJsonValues;
     private JCheckBox chkRPCGWT = null;
     private JCheckBox chkRPCoData = null;
     private JCheckBox chkRPCDWR = null;
@@ -231,11 +232,12 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             JPanel panelRPC = new JPanel();
             panelRPC.setLayout(new GridBagLayout());
 
+            row = 1;
             panelRPC.add(
                     this.getChkRPCMultipart(),
                     LayoutHelper.getGBC(
                             0,
-                            1,
+                            row,
                             1,
                             1.0D,
                             0,
@@ -245,7 +247,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     this.getChkRPCXML(),
                     LayoutHelper.getGBC(
                             0,
-                            2,
+                            ++row,
                             1,
                             1.0D,
                             0,
@@ -255,17 +257,28 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     this.getChkRPCJSON(),
                     LayoutHelper.getGBC(
                             0,
-                            3,
+                            ++row,
                             1,
                             1.0D,
                             0,
                             GridBagConstraints.HORIZONTAL,
                             new Insets(2, 8, 2, 2)));
             panelRPC.add(
+                    this.getChkScanNullJsonValues(),
+                    LayoutHelper.getGBC(
+                            0,
+                            ++row,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 32, 2, 2)));
+
+            panelRPC.add(
                     this.getChkRPCGWT(),
                     LayoutHelper.getGBC(
                             0,
-                            4,
+                            ++row,
                             1,
                             1.0D,
                             0,
@@ -275,7 +288,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     this.getChkRPCoData(),
                     LayoutHelper.getGBC(
                             0,
-                            5,
+                            ++row,
                             1,
                             1.0D,
                             0,
@@ -285,18 +298,19 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     this.getChkRPCDWR(),
                     LayoutHelper.getGBC(
                             0,
-                            6,
+                            ++row,
                             1,
                             1.0D,
                             0,
                             GridBagConstraints.HORIZONTAL,
                             new Insets(2, 8, 2, 2)));
 
+            row = 0;
             panelVariant.add(
                     new JLabel(Constant.messages.getString("variant.options.rpc.label")),
                     LayoutHelper.getGBC(
                             1,
-                            0,
+                            row,
                             1,
                             1.0D,
                             0,
@@ -307,7 +321,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     panelRPC,
                     LayoutHelper.getGBC(
                             1,
-                            1,
+                            ++row,
                             1,
                             1.0D,
                             0,
@@ -319,7 +333,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     this.getChkRPCCustom(),
                     LayoutHelper.getGBC(
                             0,
-                            2,
+                            ++row,
                             2,
                             1.0D,
                             0,
@@ -329,7 +343,13 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             panelVariant.add(
                     labelReasonVariantsDisabled,
                     LayoutHelper.getGBC(
-                            0, 3, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));
+                            0,
+                            ++row,
+                            2,
+                            1.0D,
+                            1.0D,
+                            GridBagConstraints.BOTH,
+                            new Insets(2, 2, 2, 2)));
 
             // Excluded Parameters
             panelVariant.add(
@@ -338,7 +358,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                                     "variant.options.excludedparam.label.tokens")),
                     LayoutHelper.getGBC(
                             0,
-                            4,
+                            ++row,
                             2,
                             1.0D,
                             0,
@@ -350,7 +370,13 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             panelVariant.add(
                     excludedParamPanel,
                     LayoutHelper.getGBC(
-                            0, 5, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));
+                            0,
+                            ++row,
+                            2,
+                            1.0D,
+                            1.0D,
+                            GridBagConstraints.BOTH,
+                            new Insets(2, 2, 2, 2)));
         }
 
         return panelVariant;
@@ -393,6 +419,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkRPCMultipart().setSelected((rpcEnabled & ScannerParam.RPC_MULTIPART) != 0);
         this.getChkRPCXML().setSelected((rpcEnabled & ScannerParam.RPC_XML) != 0);
         this.getChkRPCJSON().setSelected((rpcEnabled & ScannerParam.RPC_JSON) != 0);
+        this.getChkScanNullJsonValues().setSelected(param.isScanNullJsonValues());
         this.getChkRPCGWT().setSelected((rpcEnabled & ScannerParam.RPC_GWT) != 0);
         this.getChkRPCoData().setSelected((rpcEnabled & ScannerParam.RPC_ODATA) != 0);
         this.getChkRPCDWR().setSelected((rpcEnabled & ScannerParam.RPC_DWR) != 0);
@@ -456,6 +483,8 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             enabledRpc |= ScannerParam.RPC_JSON;
         }
 
+        param.setScanNullJsonValues(getChkScanNullJsonValues().isSelected());
+
         if (this.getChkRPCGWT().isSelected()) {
             enabledRpc |= ScannerParam.RPC_GWT;
         }
@@ -498,6 +527,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkRPCMultipart().setEnabled(enabled);
         this.getChkRPCXML().setEnabled(enabled);
         this.getChkRPCJSON().setEnabled(enabled);
+        this.getChkScanNullJsonValues().setEnabled(enabled && getChkRPCJSON().isSelected());
         this.getChkRPCGWT().setEnabled(enabled);
         this.getChkRPCoData().setEnabled(enabled);
         this.getChkRPCDWR().setEnabled(enabled);
@@ -646,8 +676,21 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         if (chkRPCJSON == null) {
             chkRPCJSON = new JCheckBox();
             chkRPCJSON.setText(Constant.messages.getString("variant.options.rpc.json.label"));
+            chkRPCJSON.addItemListener(
+                    e ->
+                            getChkScanNullJsonValues()
+                                    .setEnabled(e.getStateChange() == ItemEvent.SELECTED));
         }
         return chkRPCJSON;
+    }
+
+    private JCheckBox getChkScanNullJsonValues() {
+        if (chkScanNullJsonValues == null) {
+            chkScanNullJsonValues = new JCheckBox();
+            chkScanNullJsonValues.setText(
+                    Constant.messages.getString("variant.options.rpc.json.nulls.label"));
+        }
+        return chkScanNullJsonValues;
     }
 
     private JCheckBox getChkRPCGWT() {

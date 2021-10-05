@@ -1191,7 +1191,7 @@ public class Session {
      * @param defaultValue the default value to use if the type is not present
      * @return the context data string
      * @throws DatabaseException
-     * @since TODO add version
+     * @since 2.10.0
      */
     public String getContextDataString(int contextId, int type, String defaultValue)
             throws DatabaseException {
@@ -1212,7 +1212,7 @@ public class Session {
      * @param defaultValue the default value to use if the type is not present
      * @return the context data integer
      * @throws DatabaseException
-     * @since TODO add version
+     * @since 2.10.0
      */
     public int getContextDataInteger(int contextId, int type, int defaultValue)
             throws DatabaseException {
@@ -1644,8 +1644,8 @@ public class Session {
      * @param msg
      * @param type
      * @return
-     * @deprecated TODO add version use #getParameters(String) This method will lose duplicated
-     *     parameter names
+     * @deprecated 2.10.0 use #getParameters(String) This method will lose duplicated parameter
+     *     names
      */
     @Deprecated
     public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
@@ -1703,7 +1703,7 @@ public class Session {
      * @param uri
      * @return
      * @throws URIException
-     * @deprecated TODO add version use #getUrlParameters(String)
+     * @deprecated 2.10.0 use #getUrlParameters(String)
      */
     @Deprecated
     public Map<String, String> getUrlParams(URI uri) throws URIException {
@@ -1726,7 +1726,7 @@ public class Session {
      * @param uri
      * @return the URL parameters for the given URL
      * @throws URIException
-     * @since TODO add version
+     * @since 2.10.0
      */
     public List<NameValuePair> getUrlParameters(URI uri) throws URIException {
         return getUrlParamParser(uri.toString()).parseParameters(uri.getEscapedQuery());
@@ -1740,7 +1740,7 @@ public class Session {
      * @param formData
      * @return the FORM parameters for the given URL
      * @throws URIException
-     * @deprecated TODO add version use #getFormParameters(String)
+     * @deprecated 2.10.0 use #getFormParameters(String)
      */
     @Deprecated
     public Map<String, String> getFormParams(URI uri, String formData) throws URIException {
@@ -1755,7 +1755,7 @@ public class Session {
      * @param formData
      * @return the FORM parameters for the given URL
      * @throws URIException
-     * @since TODO add version
+     * @since 2.10.0
      */
     public List<NameValuePair> getFormParameters(URI uri, String formData) throws URIException {
         return this.getFormParamParser(uri.toString()).parseParameters(formData);

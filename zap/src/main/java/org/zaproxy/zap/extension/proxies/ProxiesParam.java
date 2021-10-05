@@ -102,7 +102,7 @@ public class ProxiesParam extends AbstractParam {
     }
 
     public List<ProxiesParamProxy> getProxies() {
-        List<ProxiesParamProxy> list = new ArrayList<ProxiesParamProxy>(proxies.size() + 1);
+        List<ProxiesParamProxy> list = new ArrayList<>(proxies.size() + 1);
         for (ProxiesParamProxy proxy : this.proxies) {
             list.add(new ProxiesParamProxy(proxy));
         }

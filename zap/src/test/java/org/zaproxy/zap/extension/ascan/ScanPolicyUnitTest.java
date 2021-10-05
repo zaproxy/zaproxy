@@ -23,25 +23,19 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link ScanPolicy}. */
-public class ScanPolicyUnitTest extends WithConfigsTest {
+class ScanPolicyUnitTest extends WithConfigsTest {
 
     private static final String DEFAULT_SCANNER_LEVEL_KEY = "scanner.level";
     private static final String DEFAULT_SCANNER_STRENGTH_KEY = "scanner.strength";
 
-    @BeforeEach
-    public void setup() throws Exception {
-        setUpZap();
-    }
-
     @Test
-    public void shouldUseValidDefaultScannerLevelFromConfig() throws Exception {
+    void shouldUseValidDefaultScannerLevelFromConfig() throws Exception {
         // Given
         ZapXmlConfiguration conf = new ZapXmlConfiguration();
         conf.setProperty(DEFAULT_SCANNER_LEVEL_KEY, Plugin.AlertThreshold.HIGH.name());
@@ -52,7 +46,7 @@ public class ScanPolicyUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldUseMediumIfInvalidDefaultScannerLevelFromConfig() throws Exception {
+    void shouldUseMediumIfInvalidDefaultScannerLevelFromConfig() throws Exception {
         // Given
         ZapXmlConfiguration conf = new ZapXmlConfiguration();
         conf.setProperty(DEFAULT_SCANNER_LEVEL_KEY, "NotValid");
@@ -63,7 +57,7 @@ public class ScanPolicyUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldUseValidDefaultScannerStrengthFromConfig() throws Exception {
+    void shouldUseValidDefaultScannerStrengthFromConfig() throws Exception {
         // Given
         ZapXmlConfiguration conf = new ZapXmlConfiguration();
         conf.setProperty(DEFAULT_SCANNER_STRENGTH_KEY, Plugin.AttackStrength.LOW.name());
@@ -74,7 +68,7 @@ public class ScanPolicyUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldUseMediumIfInvalidDefaultScannerStrengthFromConfig() throws Exception {
+    void shouldUseMediumIfInvalidDefaultScannerStrengthFromConfig() throws Exception {
         // Given
         ZapXmlConfiguration conf = new ZapXmlConfiguration();
         conf.setProperty(DEFAULT_SCANNER_STRENGTH_KEY, "NotValid");

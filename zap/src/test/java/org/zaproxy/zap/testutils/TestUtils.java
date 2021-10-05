@@ -36,7 +36,7 @@ import org.parosproxy.paros.network.HttpMessage;
 /** Class with utility/helper methods for general tests. */
 public class TestUtils {
 
-    public static final String DEFAULT_CONTENT_TYPE = "text/html;charset=ISO-8859-1";
+    static final String DEFAULT_CONTENT_TYPE = "text/html;charset=ISO-8859-1";
 
     /**
      * A HTTP test server.
@@ -229,7 +229,7 @@ public class TestUtils {
      * @return the contents of the file.
      * @see #getResourcePath(String)
      */
-    public String getContent(String resourcePath) {
+    protected String getContent(String resourcePath) {
         return this.getContent(resourcePath, (Map<String, String>) null);
     }
 
@@ -241,7 +241,7 @@ public class TestUtils {
      * @return the contents of the file.
      * @see #getResourcePath(String)
      */
-    public String getContent(String resourcePath, String[][] params) {
+    protected String getContent(String resourcePath, String[][] params) {
         Map<String, String> map = new HashMap<>();
         for (int i = 0; i < params.length; i++) {
             map.put(params[i][0], params[i][1]);
@@ -257,7 +257,7 @@ public class TestUtils {
      * @return the contents of the file.
      * @see #getResourcePath(String)
      */
-    public String getContent(String resourcePath, Map<String, String> params) {
+    protected String getContent(String resourcePath, Map<String, String> params) {
         Path file = getResourcePath(resourcePath);
         try {
             String html = new String(Files.readAllBytes(file), StandardCharsets.UTF_8);

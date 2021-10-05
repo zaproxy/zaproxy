@@ -30,7 +30,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link Tech}. */
-public class TechUnitTest {
+class TechUnitTest {
 
     private static final String TOP_LEVEL = "TopLevel";
 

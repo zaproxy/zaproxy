@@ -2,14 +2,17 @@
 // By default it will raise 'Info' level alerts for Client Errors (4xx) (apart from 404s) and 'Low' Level alerts for Server Errors (5xx)
 // But it can be easily changed.
 
-pluginid = 100000	// https://github.com/zaproxy/zaproxy/blob/develop/docs/scanners.md
+var Pattern = Java.type("java.util.regex.Pattern")
+var model = Java.type("org.parosproxy.paros.model.Model").getSingleton()
+
+pluginid = 100000	// https://github.com/zaproxy/zaproxy/blob/main/docs/scanners.md
 
 function sendingRequest(msg, initiator, helper) {
 	// Nothing to do
 }
 
 function responseReceived(msg, initiator, helper) {
-	if (initiator == 7) { // CHECK_FOR_UPDATES_INITIATOR
+	if (isGloballyExcluded(msg) || initiator == 7) { // CHECK_FOR_UPDATES_INITIATOR
 		// Not of interest.
 		return
 	}
@@ -84,4 +87,15 @@ function responseReceived(msg, initiator, helper) {
 			extensionAlert.alertFound(alert , ref)
 		}
 	}
+}
+
+function isGloballyExcluded(msg) {
+	var url = msg.getRequestHeader().getURI().toString()
+	var regexes = model.getSession().getGlobalExcludeURLRegexs()
+	for (var i in regexes) {
+		if (Pattern.compile(regexes[i], Pattern.CASE_INSENSITIVE).matcher(url).matches()) {
+			return true
+		}
+	}
+	return false
 }

@@ -36,13 +36,13 @@ import org.zaproxy.zap.utils.I18N;
 class CustomPageMatcherLocationUnitTest {
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         Constant.messages = mock(I18N.class);
     }
 
     @ParameterizedTest
     @ValueSource(ints = {1, 2})
-    public void shouldFindLocationByValidId(int id) {
+    void shouldFindLocationByValidId(int id) {
         // Given/When
         CustomPageMatcherLocation location =
                 CustomPageMatcherLocation.getCustomPagePageMatcherLocationWithId(id);
@@ -52,7 +52,7 @@ class CustomPageMatcherLocationUnitTest {
 
     @ParameterizedTest
     @ValueSource(ints = {-1, 15, Integer.MAX_VALUE})
-    public void shouldReturnDefaultLocationForInvalidId(int id) {
+    void shouldReturnDefaultLocationForInvalidId(int id) {
         // Given/When
         CustomPageMatcherLocation location =
                 CustomPageMatcherLocation.getCustomPagePageMatcherLocationWithId(id);
@@ -62,7 +62,7 @@ class CustomPageMatcherLocationUnitTest {
 
     @ParameterizedTest
     @ValueSource(ints = {-1, 1, 2})
-    public void shouldNotReturnNullOrEmptyStringRepresentation(int id) {
+    void shouldNotReturnNullOrEmptyStringRepresentation(int id) {
         // Given/When
         CustomPageMatcherLocation location =
                 CustomPageMatcherLocation.getCustomPagePageMatcherLocationWithId(id);
@@ -72,7 +72,7 @@ class CustomPageMatcherLocationUnitTest {
     }
 
     @Test
-    public void shouldHaveExpectedI18nLocationNames() {
+    void shouldHaveExpectedI18nLocationNames() {
         // Given
         I18N i18n = new I18N(Locale.ENGLISH);
         // When/Then

@@ -420,8 +420,7 @@ public class SessionStructure {
 
     private static List<org.parosproxy.paros.core.scanner.NameValuePair> convertNVP(
             List<NameValuePair> nvpList, int type) {
-        List<org.parosproxy.paros.core.scanner.NameValuePair> params =
-                new ArrayList<org.parosproxy.paros.core.scanner.NameValuePair>();
+        List<org.parosproxy.paros.core.scanner.NameValuePair> params = new ArrayList<>();
         for (NameValuePair nvp : nvpList) {
             params.add(
                     new org.parosproxy.paros.core.scanner.NameValuePair(
@@ -432,7 +431,7 @@ public class SessionStructure {
 
     private static List<NameValuePair> convertParosNVP(
             List<org.parosproxy.paros.core.scanner.NameValuePair> nvpList, int type) {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        List<NameValuePair> params = new ArrayList<>();
         for (org.parosproxy.paros.core.scanner.NameValuePair nvp : nvpList) {
             if (nvp.getType() == type) {
                 params.add(new DefaultNameValuePair(nvp.getName(), nvp.getValue()));
@@ -507,11 +506,9 @@ public class SessionStructure {
                 name = name.substring(0, queryIndex);
             }
         }
-        if (name.endsWith("/")) {
-            name = name.substring(0, name.length() - 1);
-        }
+
         try {
-            if (sn.getURI().getPath() == null || sn.getURI().getPath().length() == 1) {
+            if (sn.getURI().getPath() == null || sn.getURI().getPath().length() == 0) {
                 // Its a top level node, return as is
                 return name;
             }
@@ -549,15 +546,17 @@ public class SessionStructure {
 
         StringBuilder sb = new StringBuilder();
         boolean incParams = sn.isLeaf() || !incChildren;
+        boolean lastLeafReturned = false;
 
         // Work back up the tree..
         while (!sn.isRoot()) {
-            if (sb.length() > 0) {
+            if (lastLeafReturned) {
                 sb.insert(0, "/");
             }
             sb.insert(0, getRegexName(sn, incParams));
             sn = sn.getParent();
             incParams = false; // Only do this for the top node
+            lastLeafReturned = true;
         }
         if (incChildren) {
             sb.append(".*");

@@ -37,15 +37,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ScriptVars}. */
-public class ScriptVarsUnitTest {
+class ScriptVarsUnitTest {
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         ScriptVars.clear();
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedGlobalVariables() {
+    void shouldNotAllowToModifyReturnedGlobalVariables() {
         // Given
         Map<String, String> vars = ScriptVars.getGlobalVars();
         // When / Then
@@ -54,7 +54,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldSetGlobalVariable() {
+    void shouldSetGlobalVariable() {
         // Given
         String key = createKey();
         String value = createValue();
@@ -66,7 +66,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldClearGlobalVariableWithNullValue() {
+    void shouldClearGlobalVariableWithNullValue() {
         // Given
         String key = createKey();
         String value = createValue();
@@ -79,7 +79,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetGlobalVariableWithNullKey() {
+    void shouldNotSetGlobalVariableWithNullKey() {
         // Given
         String key = null;
         // When / Then
@@ -88,7 +88,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetGlobalVariableIfMoreThanAllowed() {
+    void shouldNotSetGlobalVariableIfMoreThanAllowed() {
         // Given
         for (int i = 0; i <= ScriptVars.MAX_GLOBAL_VARS; i++) {
             ScriptVars.setGlobalVar(createKey(), createValue());
@@ -100,7 +100,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldHaveNoScriptVariablesByDefault() {
+    void shouldHaveNoScriptVariablesByDefault() {
         // Given
         String scriptName = "ScriptName";
         // When
@@ -111,7 +111,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldReturnNullForNoScriptVariableSet() {
+    void shouldReturnNullForNoScriptVariableSet() {
         // Given
         String scriptName = "ScriptName";
         String key = createKey();
@@ -122,7 +122,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedScriptVariables() {
+    void shouldNotAllowToModifyReturnedScriptVariables() {
         // Given
         String scriptName = "ScriptName";
         Map<String, String> vars = ScriptVars.getScriptVars(scriptName);
@@ -132,7 +132,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldSetScriptVariableUsingScriptContext() {
+    void shouldSetScriptVariableUsingScriptContext() {
         // Given
         String key = createKey();
         String value = createValue();
@@ -146,7 +146,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldClearScriptVariableWithNullValueUsingScriptContext() {
+    void shouldClearScriptVariableWithNullValueUsingScriptContext() {
         // Given
         String key = createKey();
         String value = createValue();
@@ -161,7 +161,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableUsingNullScriptContext() {
+    void shouldNotSetScriptVariableUsingNullScriptContext() {
         // Given
         ScriptContext scriptContext = null;
         // When / Then
@@ -171,7 +171,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableUsingNullScriptNameInScriptContext() {
+    void shouldNotSetScriptVariableUsingNullScriptNameInScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName(null);
         // When / Then
@@ -181,7 +181,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableUsingNonStringScriptNameInScriptContext() {
+    void shouldNotSetScriptVariableUsingNonStringScriptNameInScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName(10);
         // When / Then
@@ -191,7 +191,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableWithNullKeyUsingScriptContext() {
+    void shouldNotSetScriptVariableWithNullKeyUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
         // When / Then
@@ -201,7 +201,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableWithInvalidKeyLengthUsingScriptContext() {
+    void shouldNotSetScriptVariableWithInvalidKeyLengthUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
         // When / Then
@@ -213,7 +213,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableWithInvalidValueLengthUsingScriptContext() {
+    void shouldNotSetScriptVariableWithInvalidValueLengthUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
         // When / Then
@@ -225,7 +225,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableIfMoreThanAllowedUsingScriptContext() {
+    void shouldNotSetScriptVariableIfMoreThanAllowedUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
         for (int i = 0; i <= ScriptVars.MAX_SCRIPT_VARS; i++) {
@@ -238,7 +238,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotReturnScriptVariablesFromOtherScriptsUsingScriptContext() {
+    void shouldNotReturnScriptVariablesFromOtherScriptsUsingScriptContext() {
         // Given
         ScriptContext scriptContext1 = createScriptContextWithName("ScriptName1");
         ScriptContext scriptContext2 = createScriptContextWithName("ScriptName2");
@@ -250,7 +250,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldSetScriptVariableUsingScriptName() {
+    void shouldSetScriptVariableUsingScriptName() {
         // Given
         String key = createKey();
         String value = createValue();
@@ -263,7 +263,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldClearScriptVariableWithNullValueUsingScriptName() {
+    void shouldClearScriptVariableWithNullValueUsingScriptName() {
         // Given
         String key = createKey();
         String value = createValue();
@@ -277,7 +277,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableUsingNullScriptName() {
+    void shouldNotSetScriptVariableUsingNullScriptName() {
         // Given
         String scriptName = null;
         // When / Then
@@ -287,7 +287,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedScriptVariablesSet() {
+    void shouldNotAllowToModifyReturnedScriptVariablesSet() {
         // Given
         String scriptName = "ScriptName";
         ScriptVars.setScriptVar(scriptName, createKey(), createValue());
@@ -298,7 +298,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableWithNullKeyUsingScriptName() {
+    void shouldNotSetScriptVariableWithNullKeyUsingScriptName() {
         // Given
         String key = null;
         // When / Then
@@ -308,7 +308,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableWithInvalidKeyLengthUsingScriptName() {
+    void shouldNotSetScriptVariableWithInvalidKeyLengthUsingScriptName() {
         // Given
         String key = createKeyWithInvalidLength();
         // When / Then
@@ -318,7 +318,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableWithInvalidValueLengthUsingScriptName() {
+    void shouldNotSetScriptVariableWithInvalidValueLengthUsingScriptName() {
         // Given
         String value = createValueWithInvalidLength();
         // When / Then
@@ -328,7 +328,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptVariableIfMoreThanAllowedUsingScriptName() {
+    void shouldNotSetScriptVariableIfMoreThanAllowedUsingScriptName() {
         // Given
         String scriptName = "ScriptName";
         for (int i = 0; i <= ScriptVars.MAX_SCRIPT_VARS; i++) {
@@ -341,7 +341,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotReturnScriptVariablesFromOtherScriptsUsingScriptName() {
+    void shouldNotReturnScriptVariablesFromOtherScriptsUsingScriptName() {
         // Given
         String scriptName1 = "ScriptName1";
         String scriptName2 = "ScriptName2";
@@ -353,7 +353,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldClearGlobalAndScriptVariables() {
+    void shouldClearGlobalAndScriptVariables() {
         // Given
         String scriptName = "ScriptName";
         ScriptVars.setScriptVar(scriptName, createKey(), createValue());
@@ -370,7 +370,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldClearGlobalVariables() {
+    void shouldClearGlobalVariables() {
         // Given
         String scriptName = "ScriptName";
         ScriptVars.setScriptVar(scriptName, createKey(), createValue());
@@ -386,7 +386,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldClearScriptVariables() {
+    void shouldClearScriptVariables() {
         // Given
         String scriptName1 = "ScriptName1";
         String scriptName2 = "ScriptName2";
@@ -408,7 +408,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedGlobalCustomVariables() {
+    void shouldNotAllowToModifyReturnedGlobalCustomVariables() {
         // Given
         Map<String, Object> vars = ScriptVars.getGlobalCustomVars();
         // When / Then
@@ -418,7 +418,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldSetGlobalCustomVariable() {
+    void shouldSetGlobalCustomVariable() {
         // Given
         String key = createKey();
         Object value = createCustomValue();
@@ -430,7 +430,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldClearGlobalCustomVariableWithNullValue() {
+    void shouldClearGlobalCustomVariableWithNullValue() {
         // Given
         String key = createKey();
         Object value = createCustomValue();
@@ -443,7 +443,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetGlobalCustomVariableWithNullKey() {
+    void shouldNotSetGlobalCustomVariableWithNullKey() {
         // Given
         String key = null;
         // When / Then
@@ -453,7 +453,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetGlobalCustomVariableIfMoreThanAllowed() {
+    void shouldNotSetGlobalCustomVariableIfMoreThanAllowed() {
         // Given
         for (int i = 0; i <= ScriptVars.MAX_GLOBAL_VARS; i++) {
             ScriptVars.setGlobalCustomVar(createKey(), createCustomValue());
@@ -465,7 +465,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldHaveNoScriptCustomVariablesByDefault() {
+    void shouldHaveNoScriptCustomVariablesByDefault() {
         // Given
         String scriptName = "ScriptName";
         // When
@@ -476,7 +476,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldReturnNullForNoScriptCustomVariableSet() {
+    void shouldReturnNullForNoScriptCustomVariableSet() {
         // Given
         String scriptName = "ScriptName";
         String key = createKey();
@@ -487,7 +487,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedScriptCustomVariables() {
+    void shouldNotAllowToModifyReturnedScriptCustomVariables() {
         // Given
         String scriptName = "ScriptName";
         Map<String, Object> vars = ScriptVars.getScriptCustomVars(scriptName);
@@ -498,7 +498,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldSetScriptCustomVariableUsingScriptContext() {
+    void shouldSetScriptCustomVariableUsingScriptContext() {
         // Given
         String key = createKey();
         Object value = createCustomValue();
@@ -512,7 +512,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldClearScriptCustomVariableWithNullValueUsingScriptContext() {
+    void shouldClearScriptCustomVariableWithNullValueUsingScriptContext() {
         // Given
         String key = createKey();
         Object value = createCustomValue();
@@ -527,7 +527,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptCustomVariableUsingNullScriptContext() {
+    void shouldNotSetScriptCustomVariableUsingNullScriptContext() {
         // Given
         ScriptContext scriptContext = null;
         // When / Then
@@ -539,7 +539,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptCustomVariableUsingNullScriptNameInScriptContext() {
+    void shouldNotSetScriptCustomVariableUsingNullScriptNameInScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName(null);
         // When / Then
@@ -551,7 +551,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptCustomVariableUsingNonStringScriptNameInScriptContext() {
+    void shouldNotSetScriptCustomVariableUsingNonStringScriptNameInScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName(10);
         // When / Then
@@ -563,7 +563,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptCustomVariableWithNullKeyUsingScriptContext() {
+    void shouldNotSetScriptCustomVariableWithNullKeyUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
         // When / Then
@@ -573,7 +573,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptCustomVariableWithInvalidKeyLengthUsingScriptContext() {
+    void shouldNotSetScriptCustomVariableWithInvalidKeyLengthUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
         // When / Then
@@ -585,7 +585,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptCustomVariableIfMoreThanAllowedUsingScriptContext() {
+    void shouldNotSetScriptCustomVariableIfMoreThanAllowedUsingScriptContext() {
         // Given
         ScriptContext scriptContext = createScriptContextWithName("ScriptName");
         for (int i = 0; i <= ScriptVars.MAX_SCRIPT_VARS; i++) {
@@ -600,7 +600,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotReturnScriptCustomVariablesFromOtherScriptsUsingScriptContext() {
+    void shouldNotReturnScriptCustomVariablesFromOtherScriptsUsingScriptContext() {
         // Given
         ScriptContext scriptContext1 = createScriptContextWithName("ScriptName1");
         ScriptContext scriptContext2 = createScriptContextWithName("ScriptName2");
@@ -612,7 +612,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldSetScriptCustomVariableUsingScriptName() {
+    void shouldSetScriptCustomVariableUsingScriptName() {
         // Given
         String key = createKey();
         Object value = createCustomValue();
@@ -625,7 +625,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldClearScriptCustomVariableWithNullValueUsingScriptName() {
+    void shouldClearScriptCustomVariableWithNullValueUsingScriptName() {
         // Given
         String key = createKey();
         Object value = createCustomValue();
@@ -639,7 +639,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptCustomVariableUsingNullScriptName() {
+    void shouldNotSetScriptCustomVariableUsingNullScriptName() {
         // Given
         String scriptName = null;
         // When / Then
@@ -649,7 +649,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedScriptCustomVariablesSet() {
+    void shouldNotAllowToModifyReturnedScriptCustomVariablesSet() {
         // Given
         String scriptName = "ScriptName";
         ScriptVars.setScriptCustomVar(scriptName, createKey(), createCustomValue());
@@ -661,7 +661,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptCustomVariableWithNullKeyUsingScriptName() {
+    void shouldNotSetScriptCustomVariableWithNullKeyUsingScriptName() {
         // Given
         String key = null;
         // When / Then
@@ -671,7 +671,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptCustomVariableWithInvalidKeyLengthUsingScriptName() {
+    void shouldNotSetScriptCustomVariableWithInvalidKeyLengthUsingScriptName() {
         // Given
         String key = createKeyWithInvalidLength();
         // When / Then
@@ -681,7 +681,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotSetScriptCustomVariableIfMoreThanAllowedUsingScriptName() {
+    void shouldNotSetScriptCustomVariableIfMoreThanAllowedUsingScriptName() {
         // Given
         String scriptName = "ScriptName";
         for (int i = 0; i <= ScriptVars.MAX_SCRIPT_VARS; i++) {
@@ -694,7 +694,7 @@ public class ScriptVarsUnitTest {
     }
 
     @Test
-    public void shouldNotReturnScriptCustomVariablesFromOtherScriptsUsingScriptName() {
+    void shouldNotReturnScriptCustomVariablesFromOtherScriptsUsingScriptName() {
         // Given
         String scriptName1 = "ScriptName1";
         String scriptName2 = "ScriptName2";

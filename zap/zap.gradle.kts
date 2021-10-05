@@ -9,6 +9,7 @@ plugins {
     `java-library`
     jacoco
     id("me.champeau.gradle.japicmp")
+    id("org.zaproxy.crowdin") version "0.1.0"
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
@@ -19,20 +20,33 @@ plugins {
 }
 
 group = "org.zaproxy"
-version = "2.10.0-SNAPSHOT"
-val versionBC = "2.9.0"
+version = "2.11.0-SNAPSHOT"
+val versionBC = "2.10.0"
 
 val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
 val distDir = file("src/main/dist/")
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    // Compile ZAP with Java 8 when building releases.
+    if (System.getenv("GITHUB_REF")?.contains("refs/tags/") ?: false) {
+        toolchain {
+            languageVersion.set(JavaLanguageVersion.of(8))
+        }
+    } else {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
 }
 
-jacoco {
-    toolVersion = "0.8.5"
+crowdin {
+    credentials {
+        token.set(System.getenv("CROWDIN_AUTH_TOKEN"))
+    }
+
+    configuration {
+        file.set(file("gradle/crowdin.yml"))
+    }
 }
 
 tasks.named<JacocoReport>("jacocoTestReport") {
@@ -42,50 +56,50 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.1.1")
+    api("com.fifesoft:rsyntaxtextarea:3.1.3")
     api("com.github.zafarkhaja:java-semver:0.9.0")
     api("commons-beanutils:commons-beanutils:1.9.4")
     api("commons-codec:commons-codec:1.15")
     api("commons-collections:commons-collections:3.2.2")
     api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
-    api("commons-io:commons-io:2.8.0")
+    api("commons-io:commons-io:2.11.0")
     api("commons-lang:commons-lang:2.6")
-    api("org.apache.commons:commons-lang3:3.11")
+    api("org.apache.commons:commons-lang3:3.12.0")
     api("org.apache.commons:commons-text:1.9")
-    api("edu.umass.cs.benchlab:harlib:1.1.2")
+    api("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
-    val log4jVersion = "2.14.0"
+    val log4jVersion = "2.14.1"
     api("org.apache.logging.log4j:log4j-api:$log4jVersion")
     api("org.apache.logging.log4j:log4j-1.2-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.8")
-    val bcVersion = "1.67"
+    val bcVersion = "1.68"
     api("org.bouncycastle:bcmail-jdk15on:$bcVersion")
     api("org.bouncycastle:bcprov-jdk15on:$bcVersion")
     api("org.bouncycastle:bcpkix-jdk15on:$bcVersion")
-    api("org.hsqldb:hsqldb:2.5.1")
-    api("org.jfree:jfreechart:1.5.1")
+    api("org.hsqldb:hsqldb:2.5.2")
+    api("org.jfree:jfreechart:1.5.3")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
-    api("org.xerial:sqlite-jdbc:3.32.3.2")
+    api("org.xerial:sqlite-jdbc:3.36.0.1")
 
     implementation("commons-validator:commons-validator:1.7")
     // Don't need its dependencies, for now.
-    implementation("org.jitsi:ice4j:1.0") {
+    implementation("org.jitsi:ice4j:3.0-24-g34c2ce5") {
         setTransitive(false)
     }
-    implementation("com.formdev:flatlaf:0.45")
+    implementation("com.formdev:flatlaf:1.6")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
-    runtimeOnly("com.io7m.xom:xom:1.2.10") {
+    runtimeOnly("xom:xom:1.3.7") {
         setTransitive(false)
     }
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.27.2") {
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.28.0") {
         // Not needed.
         exclude(group = "org.junit")
     }
@@ -140,34 +154,35 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     setIgnoreMissingClasses(true)
 
     packageExcludes = listOf(
-        // Not intended to be used (directly) by add-ons.
-        "org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.lexers"
-    )
+        // Deprecated in 2.10, removal part of 2.11 milestone
+        "org.parosproxy.paros.extension.encoder",
+        "org.zaproxy.zap.extension.encoder2",
+        // Paros reports removed in 2.11 milestone
+        "org.parosproxy.paros.extension.report"
+        )
 
-    fieldExcludes = listOf(
-        // Not part of the public API:
-        "org.zaproxy.zap.extension.autoupdate.AddOnsTableModel#logger",
-        "org.zaproxy.zap.extension.users.DialogAddUser#log",
-        "org.zaproxy.zap.ZAP#JERICHO_LOGGER_PROVIDER"
-    )
+    fieldExcludes = listOf()
 
     classExcludes = listOf(
-        "org.parosproxy.paros.db.paros.ParosTableAlert",
-        "org.parosproxy.paros.db.RecordAlert",
-        "org.zaproxy.zap.db.sql.SqlTableAlert",
-        "org.zaproxy.zap.extension.log4j.ZapOutputWriter",
-        "org.zaproxy.zap.extension.script.PacScript"
-    )
+        "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel",
+        "org.parosproxy.paros.core.scanner.Variant#setParameters(org.parosproxy.paros.network.HttpMessage,java.util.List)",
+        "org.zaproxy.zap.extension.ascan.ChallengeCallbackAPI",
+        "org.zaproxy.zap.extension.ascan.ChallengeCallbackPlugin"
+        )
 
     methodExcludes = listOf(
-        "org.parosproxy.paros.network.HttpMessage#getParamNameSet(org.parosproxy.paros.network.HtmlParameter\$Type,java.lang.String)",
-        "org.parosproxy.paros.core.scanner.Variant#getLeafName(java.lang.String,org.parosproxy.paros.network.HttpMessage)",
-        "org.parosproxy.paros.core.scanner.Variant#getTreePath(org.parosproxy.paros.network.HttpMessage)",
-        "org.parosproxy.paros.core.scanner.VariantScript#getLeafName(org.parosproxy.paros.core.scanner.VariantCustom,java.lang.String,org.parosproxy.paros.network.HttpMessage)",
-        "org.parosproxy.paros.core.scanner.VariantScript#getTreePath(org.parosproxy.paros.core.scanner.VariantCustom,org.parosproxy.paros.network.HttpMessage)",
-        "org.parosproxy.paros.db.TableAlert#write(int,int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int)",
-        "org.zaproxy.zap.CommandLineBootstrap#getLogger()",
-        "org.zaproxy.zap.model.ParameterParser#parseRawParameters(java.lang.String)"
+        // Not intended to be used directly by add-ons.
+        "org.parosproxy.paros.core.scanner.Plugin#getAlertTags()",
+        "org.zaproxy.zap.spider.parser.SpiderParserListener#resourcePostURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,java.lang.String)",
+        "org.zaproxy.zap.spider.parser.SpiderParserListener#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String)",
+        "org.zaproxy.zap.spider.parser.SpiderParserListener#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,boolean)",
+        "org.zaproxy.zap.spider.SpiderController#resourcePostURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderController#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,boolean)",
+        "org.zaproxy.zap.spider.SpiderController#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,int,java.lang.String,java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,int,java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,org.apache.commons.httpclient.URI,int,java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,org.apache.commons.httpclient.URI,int,java.lang.String,java.lang.String)"
     )
 
     richReport {

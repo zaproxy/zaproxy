@@ -31,12 +31,12 @@ import org.fife.ui.rsyntaxtextarea.TokenTypes;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link WwwFormTokenMaker}. */
-public class WwwFormTokenMakerUnitTest {
+class WwwFormTokenMakerUnitTest {
 
     private WwwFormTokenMaker tokenMaker = new WwwFormTokenMaker();
 
     @Test
-    public void shouldReturnNullTokenWithEmptyText() {
+    void shouldReturnNullTokenWithEmptyText() {
         // Given
         Segment text = new Segment();
         // When
@@ -46,7 +46,7 @@ public class WwwFormTokenMakerUnitTest {
     }
 
     @Test
-    public void shouldReturnTokensFromNameValuePairs() {
+    void shouldReturnTokensFromNameValuePairs() {
         // Given
         Segment text = segment("name=value&2x+4=1+2y");
         // When
@@ -67,7 +67,7 @@ public class WwwFormTokenMakerUnitTest {
     }
 
     @Test
-    public void shouldReturnTokensFromNameValuePairsWithEncodings() {
+    void shouldReturnTokensFromNameValuePairsWithEncodings() {
         // Given
         Segment text = segment("x=%C3%A3&%C3%A3=y");
         // When
@@ -86,7 +86,7 @@ public class WwwFormTokenMakerUnitTest {
     }
 
     @Test
-    public void shouldReturnTokensEvenIfMalformedContent() {
+    void shouldReturnTokensEvenIfMalformedContent() {
         // Given
         Segment text = segment("+%a%=%b%++%&%");
         // When
@@ -138,19 +138,19 @@ public class WwwFormTokenMakerUnitTest {
     }
 
     private static class TokenData {
-        public final int type;
-        public final String text;
+        final int type;
+        final String text;
 
         TokenData(int type, String text) {
             this.type = type;
             this.text = text;
         }
 
-        public int getType() {
+        int getType() {
             return type;
         }
 
-        public String getText() {
+        String getText() {
             return text;
         }
     }

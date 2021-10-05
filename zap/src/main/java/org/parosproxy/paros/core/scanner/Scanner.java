@@ -51,6 +51,7 @@
 // ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -87,8 +88,20 @@ import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.utils.Stats;
 
 public class Scanner implements Runnable {
+
+    public static final String ASCAN_SCAN_STARTED_STATS = "stats.ascan.started";
+    public static final String ASCAN_SCAN_STOPPED_STATS = "stats.ascan.stopped";
+    public static final String ASCAN_SCAN_TIME_STATS = "stats.ascan.time";
+    public static final String ASCAN_URLS_STATS = "stats.ascan.urls";
+    public static final String ASCAN_RULE_PREFIX = "stats.ascan.";
+    public static final String ALERTS_POSTFIX = ".alerts";
+    public static final String SKIPPED_POSTFIX = ".skipped";
+    public static final String STARTED_POSTFIX = ".started";
+    public static final String TIME_POSTFIX = ".time";
+    public static final String URLS_POSTFIX = ".urls";
 
     private static Logger log = LogManager.getLogger(Scanner.class);
     private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
@@ -110,7 +123,7 @@ public class Scanner implements Runnable {
     private boolean scanChildren = true;
     private User user = null;
     private TechSet techSet;
-    private Set<ScriptCollection> scriptCollections = new HashSet<ScriptCollection>();
+    private Set<ScriptCollection> scriptCollections = new HashSet<>();
     private List<ScanFilter> scanFilters = new ArrayList<>();
     private int id;
 
@@ -173,6 +186,7 @@ public class Scanner implements Runnable {
         thread.start();
         ActiveScanEventPublisher.publishScanEvent(
                 ScanEventPublisher.SCAN_STARTED_EVENT, this.getId(), target, this.user);
+        Stats.incCounter(ASCAN_SCAN_STARTED_STATS);
     }
 
     public void stop() {
@@ -183,6 +197,7 @@ public class Scanner implements Runnable {
 
             ActiveScanEventPublisher.publishScanEvent(
                     ScanEventPublisher.SCAN_STOPPED_EVENT, this.getId());
+            Stats.incCounter(ASCAN_SCAN_STOPPED_STATS);
         }
     }
 
@@ -249,7 +264,7 @@ public class Scanner implements Runnable {
                     }
                 }
             } else {
-                Map<String, HostProcess> processMap = new HashMap<String, HostProcess>();
+                Map<String, HostProcess> processMap = new HashMap<>();
                 for (StructuralNode node : nodes) {
                     // Loop through the nodes creating new HostProcesss's as required
                     String hostAndPort = getHostAndPort(node);
@@ -378,6 +393,7 @@ public class Scanner implements Runnable {
 
         ActiveScanEventPublisher.publishScanEvent(
                 ScanEventPublisher.SCAN_COMPLETED_EVENT, this.getId());
+        Stats.incCounter(ASCAN_SCAN_TIME_STATS, diffTimeMillis);
 
         for (int i = 0; i < listenerList.size(); i++) {
             // ZAP: Removed unnecessary cast.

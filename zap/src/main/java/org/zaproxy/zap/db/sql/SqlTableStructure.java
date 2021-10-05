@@ -56,9 +56,6 @@ public class SqlTableStructure extends SqlAbstractTable implements TableStructur
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableParam#read(long)
-     */
     @Override
     public synchronized RecordStructure read(long sessionId, long urlId) throws DatabaseException {
         SqlPreparedStatementWrapper psRead = null;

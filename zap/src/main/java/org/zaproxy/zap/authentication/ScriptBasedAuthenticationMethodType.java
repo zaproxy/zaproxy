@@ -216,8 +216,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         protected AuthenticationMethod duplicate() {
             ScriptBasedAuthenticationMethod method = new ScriptBasedAuthenticationMethod();
             method.script = script;
-            method.paramValues =
-                    this.paramValues != null ? new HashMap<String, String>(this.paramValues) : null;
+            method.paramValues = this.paramValues != null ? new HashMap<>(this.paramValues) : null;
             method.credentialsParamNames = this.credentialsParamNames;
             return method;
         }
@@ -276,6 +275,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             if (script == null) {
                 return null;
             }
+            ExtensionScript.recordScriptCalledStats(this.script);
 
             HttpMessage msg = null;
             try {
@@ -733,7 +733,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             paramValues = EncodingUtils.stringToMap(paramValuesS.get(0));
             method.paramValues = paramValues;
         } else {
-            method.paramValues = new HashMap<String, String>();
+            method.paramValues = new HashMap<>();
             log.error(
                     "Unable to load script parameter values loading Script Based Authentication Method for name: "
                             + scriptName);
@@ -825,7 +825,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
     }
 
     private static Map<String, String> wrapKeys(Map<String, String> kvPairs) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
         for (Entry<String, String> kv : kvPairs.entrySet()) {
             map.put(
                     AuthenticationMethod.TOKEN_PREFIX
@@ -938,7 +938,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                                         + Arrays.toString(optionalParams));
                     }
 
-                    Map<String, String> paramValues = new HashMap<String, String>();
+                    Map<String, String> paramValues = new HashMap<>();
                     for (String rp : requiredParams) {
                         // If one of the required parameters is not present, it will throw
                         // an exception
@@ -1002,7 +1002,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
     }
 
     private List<String> objListToStrList(List<Object> oList) {
-        List<String> sList = new ArrayList<String>(oList.size());
+        List<String> sList = new ArrayList<>(oList.size());
         for (Object o : oList) {
             sList.add(o.toString());
         }

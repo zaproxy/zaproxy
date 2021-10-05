@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -34,6 +35,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.alert.ExampleAlertProvider;
 import org.zaproxy.zap.utils.Enableable;
+import org.zaproxy.zap.utils.Stats;
 
 public abstract class PluginPassiveScanner extends Enableable
         implements PassiveScanner, ExampleAlertProvider {
@@ -73,7 +75,7 @@ public abstract class PluginPassiveScanner extends Enableable
             };
 
     private static final Set<Integer> DEFAULT_HISTORY_TYPES_SET =
-            Collections.unmodifiableSet(new HashSet<Integer>(Arrays.asList(DEFAULT_HISTORY_TYPES)));
+            Collections.unmodifiableSet(new HashSet<>(Arrays.asList(DEFAULT_HISTORY_TYPES)));
 
     private AlertThreshold alertThreshold = AlertThreshold.DEFAULT;
     private AlertThreshold defaultAlertThreshold = AlertThreshold.MEDIUM;
@@ -94,6 +96,16 @@ public abstract class PluginPassiveScanner extends Enableable
         this.passiveScanData = psd;
 
         setParent(parent);
+    }
+
+    /**
+     * <strong>Note:</strong> This method should no longer need to be overridden, the functionality
+     * provided by the {@code parent} can be obtained directly with {@link #newAlert()} and {@link
+     * #addTag(String)}.
+     */
+    @Override
+    public void setParent(PassiveScanThread parent) {
+        // Nothing to do.
     }
 
     void clean() {
@@ -382,6 +394,27 @@ public abstract class PluginPassiveScanner extends Enableable
     }
 
     /**
+     * Adds the given tag to the message being passive scanned.
+     *
+     * @param tag the name of the tag.
+     * @since 2.11.0
+     */
+    protected void addTag(String tag) {
+        parent.addTag(tag);
+    }
+
+    /**
+     * Gets the tags attached to the alerts raised by this plugin. Can be overridden by scan rules
+     * to return the associated alert tags.
+     *
+     * @return the alert tags
+     * @since 2.11.0
+     */
+    public Map<String, String> getAlertTags() {
+        return null;
+    }
+
+    /**
      * Returns a new alert builder.
      *
      * <p>By default the alert builder sets the following fields of the alert:
@@ -391,6 +424,7 @@ public abstract class PluginPassiveScanner extends Enableable
      *   <li>Name - using {@link #getName()}
      *   <li>Message - the message being scanned
      *   <li>URI - from the alert message
+     *   <li>Alert Tags - using {@link #getAlertTags()}
      * </ul>
      *
      * @return the alert builder.
@@ -417,6 +451,7 @@ public abstract class PluginPassiveScanner extends Enableable
             setPluginId(plugin.getPluginId());
             setName(plugin.getName());
             setMessage(message);
+            setTags(plugin.getAlertTags());
         }
 
         @Override
@@ -541,9 +576,16 @@ public abstract class PluginPassiveScanner extends Enableable
             return this;
         }
 
+        @Override
+        public AlertBuilder setTags(Map<String, String> tags) {
+            super.setTags(tags);
+            return this;
+        }
+
         /** Raises the alert with specified data. */
         public void raise() {
             plugin.parent.raiseAlert(message.getHistoryRef().getHistoryId(), build());
+            Stats.incCounter("stats.pscan." + plugin.getPluginId() + ".alerts");
         }
     }
 }

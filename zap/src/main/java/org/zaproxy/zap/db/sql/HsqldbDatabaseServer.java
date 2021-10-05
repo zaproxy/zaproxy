@@ -29,9 +29,8 @@ import java.sql.SQLException;
 import java.util.Properties;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.db.DatabaseServer;
 
-public class HsqldbDatabaseServer extends SqlDatabaseServer implements DatabaseServer {
+public class HsqldbDatabaseServer extends SqlDatabaseServer {
 
     public static final int DEFAULT_SERVER_PORT = 9001;
 
@@ -85,20 +84,21 @@ public class HsqldbDatabaseServer extends SqlDatabaseServer implements DatabaseS
     @Override
     void shutdown(boolean compact) throws SQLException {
         super.shutdown(compact);
-        Connection conn = getNewConnection();
-        CallableStatement psCompact = null;
+        try (Connection conn = getNewConnection()) {
+            String statement;
 
-        if (compact) {
-            // db is not new and useful for future.  Compact it.
-            psCompact = conn.prepareCall("SHUTDOWN COMPACT");
+            if (compact) {
+                // db is not new and useful for future.  Compact it.
+                statement = "SHUTDOWN COMPACT";
 
-        } else {
-            // new need to compact database.  just shutdown.
-            psCompact = conn.prepareCall("SHUTDOWN");
+            } else {
+                // new need to compact database.  just shutdown.
+                statement = "SHUTDOWN";
+            }
+
+            try (CallableStatement psCompact = conn.prepareCall(statement)) {
+                psCompact.execute();
+            }
         }
-
-        psCompact.execute();
-        psCompact.close();
-        conn.close();
     }
 }

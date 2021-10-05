@@ -41,6 +41,10 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
+import org.zaproxy.zap.db.TableAlertTag;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
@@ -50,6 +54,7 @@ import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.utils.ApiUtils;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class AlertAPI extends ApiImplementor {
 
@@ -189,9 +194,12 @@ public class AlertAPI extends ApiImplementor {
         ApiResponse result = null;
         if (VIEW_ALERT.equals(name)) {
             TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
+            TableAlertTag tableAlertTag = Model.getSingleton().getDb().getTableAlertTag();
             RecordAlert recordAlert;
+            Map<String, String> alertTags;
             try {
                 recordAlert = tableAlert.read(this.getParam(params, PARAM_ID, -1));
+                alertTags = tableAlertTag.getTagsByAlertId(this.getParam(params, PARAM_ID, -1));
             } catch (DatabaseException e) {
                 logger.error("Failed to read the alert from the session:", e);
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR);
@@ -199,7 +207,9 @@ public class AlertAPI extends ApiImplementor {
             if (recordAlert == null) {
                 throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
             }
-            result = new ApiResponseElement(alertToSet(new Alert(recordAlert)));
+            Alert alert = new Alert(recordAlert);
+            alert.setTags(alertTags);
+            result = new ApiResponseElement(alertToSet(alert));
         } else if (VIEW_ALERTS.equals(name)) {
             final ApiResponseList resultList = new ApiResponseList(name);
 
@@ -301,12 +311,12 @@ public class AlertAPI extends ApiImplementor {
                     counts[alert.getRisk()] += 1;
                 }
             }
-            Map<String, Integer> map = new HashMap<String, Integer>();
+            Map<String, Integer> map = new HashMap<>();
             map.put(Alert.MSG_RISK[Alert.RISK_HIGH], counts[Alert.RISK_HIGH]);
             map.put(Alert.MSG_RISK[Alert.RISK_MEDIUM], counts[Alert.RISK_MEDIUM]);
             map.put(Alert.MSG_RISK[Alert.RISK_LOW], counts[Alert.RISK_LOW]);
             map.put(Alert.MSG_RISK[Alert.RISK_INFO], counts[Alert.RISK_INFO]);
-            result = new ApiResponseSet<Integer>(name, map);
+            result = new ApiResponseSet<>(name, map);
         } else {
             throw new ApiException(ApiException.Type.BAD_VIEW);
         }
@@ -432,6 +442,7 @@ public class AlertAPI extends ApiImplementor {
         List<Alert> alerts = new ArrayList<>();
         try {
             TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
+            TableAlertTag tableAlertTag = Model.getSingleton().getDb().getTableAlertTag();
             // TODO this doesn't work, but should be used when its fixed :/
             // Vector<Integer> v =
             // tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
@@ -458,6 +469,7 @@ public class AlertAPI extends ApiImplementor {
                     if (!pcc.hasPageStarted()) {
                         continue;
                     }
+                    alert.setTags(tableAlertTag.getTagsByAlertId(alertId));
                     processor.process(alert);
 
                     if (pcc.hasPageEnded()) {
@@ -471,8 +483,8 @@ public class AlertAPI extends ApiImplementor {
         }
     }
 
-    private ApiResponseSet<String> alertToSet(Alert alert) {
-        Map<String, String> map = new HashMap<>();
+    private ApiResponseSet<Object> alertToSet(Alert alert) {
+        Map<String, Object> map = new HashMap<>();
         map.put("id", String.valueOf(alert.getAlertId()));
         map.put("pluginId", String.valueOf(alert.getPluginId()));
         map.put("alertRef", alert.getAlertRef());
@@ -500,8 +512,8 @@ public class AlertAPI extends ApiImplementor {
                 (alert.getHistoryRef() != null)
                         ? String.valueOf(alert.getHistoryRef().getHistoryId())
                         : "");
-
-        return new ApiResponseSet<String>("alert", map);
+        map.put("tags", alert.getTags());
+        return new CustomApiResponseSet<>("alert", map);
     }
 
     private ApiResponseSet<String> alertSummaryToSet(Alert alert) {
@@ -513,7 +525,7 @@ public class AlertAPI extends ApiImplementor {
         map.put("url", alert.getUri());
         map.put("param", alert.getParam());
 
-        return new ApiResponseSet<String>("alertsummary", map);
+        return new ApiResponseSet<>("alertsummary", map);
     }
 
     private static void throwInvalidRiskId() throws ApiException {
@@ -586,7 +598,7 @@ public class AlertAPI extends ApiImplementor {
     }
 
     private List<Integer> getAlertIds(String alertIds) throws ApiException {
-        List<Integer> idsList = new ArrayList<Integer>();
+        List<Integer> idsList = new ArrayList<>();
         StringTokenizer tokenizer = new StringTokenizer(alertIds, ",");
         while (tokenizer.hasMoreTokens()) {
             String alertIdStr = tokenizer.nextToken().trim();
@@ -719,6 +731,47 @@ public class AlertAPI extends ApiImplementor {
 
         public boolean hasPageEnded() {
             return pageEnded;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static class CustomApiResponseSet<T> extends ApiResponseSet<T> {
+        public CustomApiResponseSet(String name, Map<String, T> values) {
+            super(name, values);
+        }
+
+        @Override
+        public void toXML(Document doc, Element parent) {
+            parent.setAttribute("type", "set");
+            for (Map.Entry<String, T> val : getValues().entrySet()) {
+                Element el = doc.createElement(val.getKey());
+                if ("tags".equals(val.getKey())) {
+                    el.setAttribute("type", "list");
+                    Map<String, String> tags = (Map<String, String>) val.getValue();
+                    for (Map.Entry<String, String> tag : tags.entrySet()) {
+                        Element elTag = doc.createElement("tag");
+                        elTag.setAttribute("type", "set");
+
+                        Element elKey = doc.createElement("key");
+                        elKey.appendChild(
+                                doc.createTextNode(XMLStringUtil.escapeControlChrs(tag.getKey())));
+                        elTag.appendChild(elKey);
+
+                        Element elValue = doc.createElement("value");
+                        elValue.appendChild(
+                                doc.createTextNode(
+                                        XMLStringUtil.escapeControlChrs(tag.getValue())));
+                        elTag.appendChild(elValue);
+
+                        el.appendChild(elTag);
+                    }
+                } else {
+                    String textValue = val.getValue() == null ? "" : val.getValue().toString();
+                    Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(textValue));
+                    el.appendChild(text);
+                }
+                parent.appendChild(el);
+            }
         }
     }
 }

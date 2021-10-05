@@ -23,6 +23,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
@@ -40,7 +41,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.zaproxy.zap.extension.httppanel.Message;
 
 /** Unit test for {@link BreakpointMessageHandler2}. */
-public class BreakpointMessageHandler2UnitTest {
+class BreakpointMessageHandler2UnitTest {
 
     private BreakpointManagementInterface breakpointManagementInterface;
 
@@ -124,6 +125,24 @@ public class BreakpointMessageHandler2UnitTest {
         boolean breakpoint = breakpointMessageHandler.isBreakpoint(message, request, false);
         // Then
         assertThat(breakpoint, is(equalTo(true)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"true", "false"})
+    void shouldNotFailWithoutIgnoreRules(boolean request) {
+        // Given
+        Message message = mock(Message.class);
+        given(message.isInScope()).willReturn(false);
+        boolean onlyIfInScope = true;
+        breakpointMessageHandler.setEnabledIgnoreRules(null);
+        // When
+        boolean breakpoint =
+                assertDoesNotThrow(
+                        () ->
+                                breakpointMessageHandler.isBreakpoint(
+                                        message, request, onlyIfInScope));
+        // Then
+        assertThat(breakpoint, is(equalTo(false)));
     }
 
     @ParameterizedTest

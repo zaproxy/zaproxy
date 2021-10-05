@@ -72,8 +72,12 @@ public class SSLContextManager {
     public static final String SUN_PKCS11_CANONICAL_CLASS_NAME = "sun.security.pkcs11.SunPKCS11";
 
     /** The canonical class name of IBMPKCS11Impl Provider. */
-    public static final String IBM_PKCS11_CONONICAL_CLASS_NAME =
+    public static final String IBM_PKCS11_CANONICAL_CLASS_NAME =
             "com.ibm.crypto.pkcs11impl.provider.IBMPKCS11Impl";
+
+    /** @deprecated (2.11.0) Use {@link #IBM_PKCS11_CANONICAL_CLASS_NAME} */
+    @Deprecated
+    public static final String IBM_PKCS11_CONONICAL_CLASS_NAME = IBM_PKCS11_CANONICAL_CLASS_NAME;
 
     /** The name of Sun PKCS#11 Provider. */
     private static final String SUN_PKCS11_PROVIDER_NAME = "SunPKCS11";
@@ -106,25 +110,28 @@ public class SSLContextManager {
      */
     private static Boolean java9SunPKCS11;
 
-    private Map<String, SSLContext> _contextMaps = new TreeMap<String, SSLContext>();
+    private Map<String, SSLContext> _contextMaps = new TreeMap<>();
     private SSLContext _noClientCertContext;
     private String _defaultKey = null;
-    private Map<String, Map<?, ?>> _aliasPasswords = new HashMap<String, Map<?, ?>>();
-    private List<KeyStore> _keyStores = new ArrayList<KeyStore>();
-    private Map<KeyStore, String> _keyStoreDescriptions = new HashMap<KeyStore, String>();
-    private Map<KeyStore, String> _keyStorePasswords = new HashMap<KeyStore, String>();
+    private Map<String, Map<?, ?>> _aliasPasswords = new HashMap<>();
+    private List<KeyStore> _keyStores = new ArrayList<>();
+    private Map<KeyStore, String> _keyStoreDescriptions = new HashMap<>();
+    private Map<KeyStore, String> _keyStorePasswords = new HashMap<>();
 
     private static Logger log = LogManager.getLogger(SSLContextManager.class);
 
     private static TrustManager[] _trustAllCerts =
             new TrustManager[] {
                 new X509TrustManager() {
+                    @Override
                     public X509Certificate[] getAcceptedIssuers() {
                         return null;
                     }
 
+                    @Override
                     public void checkClientTrusted(X509Certificate[] certs, String authType) {}
 
+                    @Override
                     public void checkServerTrusted(X509Certificate[] certs, String authType) {}
                 }
             };
@@ -156,7 +163,7 @@ public class SSLContextManager {
                     Class.forName(SUN_PKCS11_CANONICAL_CLASS_NAME);
                     return true;
                 } catch (Throwable ignore) {
-                    Class.forName(IBM_PKCS11_CONONICAL_CLASS_NAME);
+                    Class.forName(IBM_PKCS11_CANONICAL_CLASS_NAME);
                     return true;
                 }
             } else if (type.equals("msks")) {
@@ -215,7 +222,7 @@ public class SSLContextManager {
     }
 
     private List<AliasCertificate> getAliases(KeyStore ks) {
-        List<AliasCertificate> aliases = new ArrayList<AliasCertificate>();
+        List<AliasCertificate> aliases = new ArrayList<>();
         try {
             Enumeration<String> en = ks.aliases();
 
@@ -259,7 +266,7 @@ public class SSLContextManager {
             return null;
         }
 
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
         X509Certificate x509 = (X509Certificate) cert;
 
         try {
@@ -272,7 +279,7 @@ public class SSLContextManager {
             throw new KeyStoreException(e.getMessage());
         }
 
-        String dn = x509.getSubjectDN().getName();
+        String dn = x509.getSubjectX500Principal().getName();
 
         log.info("Fingerprint is " + buff.toString().toUpperCase());
 
@@ -391,7 +398,7 @@ public class SSLContextManager {
         } else if (isIbmPKCS11Provider()) {
             pkcs11 =
                     createInstance(
-                            IBM_PKCS11_CONONICAL_CLASS_NAME,
+                            IBM_PKCS11_CANONICAL_CLASS_NAME,
                             BufferedReader.class,
                             new BufferedReader(
                                     new InputStreamReader(configuration.toInpuStream())));
@@ -436,7 +443,7 @@ public class SSLContextManager {
 
     private static boolean isIbmPKCS11Provider() {
         try {
-            Class.forName(IBM_PKCS11_CONONICAL_CLASS_NAME);
+            Class.forName(IBM_PKCS11_CANONICAL_CLASS_NAME);
             return true;
         } catch (Throwable ignore) {
         }

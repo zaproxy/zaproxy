@@ -38,6 +38,9 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/06/07 JavaDoc corrections.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/04/08 Remove/fix boilerplate javadocs, and un-necessary fully qualified method return
+// types.
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros.view;
 
 import java.awt.event.ActionEvent;
@@ -96,12 +99,11 @@ public class MainMenuBar extends JMenuBar {
     private JMenu menuReport = null;
     private JMenu menuOnline = null;
 
-    /** This method initializes */
     public MainMenuBar() {
         super();
         initialize();
     }
-    /** This method initializes this */
+
     private void initialize() {
         this.add(getMenuFile());
         this.add(getMenuEdit());
@@ -113,10 +115,11 @@ public class MainMenuBar extends JMenuBar {
         this.add(getMenuOnline());
         this.add(getMenuHelp());
     }
+
     /**
-     * This method initializes menuEdit
+     * Gets the Edit menu
      *
-     * @return javax.swing.JMenu
+     * @return the Edit menu
      */
     public javax.swing.JMenu getMenuEdit() {
         if (menuEdit == null) {
@@ -134,7 +137,7 @@ public class MainMenuBar extends JMenuBar {
             menuZapMode = new JMenu(Constant.messages.getString("menu.edit.zapmode"));
             menuZapModeGroup = new ButtonGroup();
             JRadioButtonMenuItem newButton;
-            menuZapModeMap = new HashMap<Mode, JRadioButtonMenuItem>();
+            menuZapModeMap = new HashMap<>();
             for (Mode modeType : Mode.values()) {
                 newButton = addZAPModeMenuItem(modeType);
                 menuZapModeGroup.add(newButton);
@@ -175,11 +178,11 @@ public class MainMenuBar extends JMenuBar {
     }
 
     /**
-     * This method initializes menuTools
+     * Gets the Tools menu
      *
-     * @return javax.swing.JMenu
+     * @return the Tools menu
      */
-    public javax.swing.JMenu getMenuTools() {
+    public JMenu getMenuTools() {
         if (menuTools == null) {
             menuTools = new javax.swing.JMenu();
             menuTools.setText(Constant.messages.getString("menu.tools")); // ZAP: i18n
@@ -191,11 +194,11 @@ public class MainMenuBar extends JMenuBar {
     }
 
     /**
-     * This method initializes menuView
+     * Gets the View menu
      *
-     * @return javax.swing.JMenu
+     * @return the View menu
      */
-    public javax.swing.JMenu getMenuView() {
+    public JMenu getMenuView() {
         if (menuView == null) {
             menuView = new javax.swing.JMenu();
             menuView.setText(Constant.messages.getString("menu.view")); // ZAP: i18n
@@ -205,12 +208,12 @@ public class MainMenuBar extends JMenuBar {
     }
 
     /**
-     * This method initializes menuImport
+     * Gets the Import menu
      *
-     * @return javax.swing.JMenu
+     * @return the Import menu
      * @since 2.8.0
      */
-    public javax.swing.JMenu getMenuImport() {
+    public JMenu getMenuImport() {
         if (menuImport == null) {
             menuImport = new javax.swing.JMenu();
             menuImport.setText(Constant.messages.getString("menu.import"));
@@ -219,11 +222,6 @@ public class MainMenuBar extends JMenuBar {
         return menuImport;
     }
 
-    /**
-     * This method initializes menuToolsOptions
-     *
-     * @return the 'Options' menu item.
-     */
     private ZapMenuItem getMenuToolsOptions() {
         if (menuToolsOptions == null) {
             menuToolsOptions =
@@ -245,11 +243,11 @@ public class MainMenuBar extends JMenuBar {
     }
 
     /**
-     * This method initializes menuFile
+     * Gets the File menu
      *
-     * @return javax.swing.JMenu
+     * @return the File menu
      */
-    public javax.swing.JMenu getMenuFile() {
+    public JMenu getMenuFile() {
         if (menuFile == null) {
             menuFile = new javax.swing.JMenu();
             menuFile.setText(Constant.messages.getString("menu.file")); // ZAP: i18n
@@ -273,12 +271,7 @@ public class MainMenuBar extends JMenuBar {
         return menuFile;
     }
 
-    /**
-     * This method initializes menuFileNewSession
-     *
-     * @return javax.swing.JMenuItem
-     */
-    private javax.swing.JMenuItem getMenuFileNewSession() {
+    private JMenuItem getMenuFileNewSession() {
         if (menuFileNewSession == null) {
             menuFileNewSession =
                     new ZapMenuItem(
@@ -303,12 +296,7 @@ public class MainMenuBar extends JMenuBar {
         return menuFileNewSession;
     }
 
-    /**
-     * This method initializes menuFileOpen
-     *
-     * @return javax.swing.JMenuItem
-     */
-    private javax.swing.JMenuItem getMenuFileOpen() {
+    private JMenuItem getMenuFileOpen() {
         if (menuFileOpen == null) {
             menuFileOpen =
                     new ZapMenuItem(
@@ -325,12 +313,7 @@ public class MainMenuBar extends JMenuBar {
         return menuFileOpen;
     }
 
-    /**
-     * This method initializes menuFileSaveAs
-     *
-     * @return javax.swing.JMenuItem
-     */
-    private javax.swing.JMenuItem getMenuFileSaveAs() {
+    private JMenuItem getMenuFileSaveAs() {
         if (menuFileSaveAs == null) {
             menuFileSaveAs = new ZapMenuItem("menu.file.persistSession");
             menuFileSaveAs.addActionListener(
@@ -351,7 +334,7 @@ public class MainMenuBar extends JMenuBar {
         return menuFileSaveAs;
     }
 
-    private javax.swing.JMenuItem getMenuFileSnapshot() {
+    private JMenuItem getMenuFileSnapshot() {
         if (menuFileSnapshot == null) {
             menuFileSnapshot = new ZapMenuItem("menu.file.snapshotSession");
             menuFileSnapshot.addActionListener(
@@ -372,12 +355,7 @@ public class MainMenuBar extends JMenuBar {
         return menuFileSnapshot;
     }
 
-    /**
-     * This method initializes menuFileExit
-     *
-     * @return javax.swing.JMenuItem
-     */
-    private javax.swing.JMenuItem getMenuFileExit() {
+    private JMenuItem getMenuFileExit() {
         if (menuFileExit == null) {
             menuFileExit = new ZapMenuItem("menu.file.exit");
             menuFileExit.addActionListener(
@@ -415,27 +393,18 @@ public class MainMenuBar extends JMenuBar {
     }
 
     /**
-     * This method initializes menuFileControl
+     * Gets the File Menu Control
      *
-     * @return org.parosproxy.paros.view.MenuFileControl
+     * @return the File Menu Control
      */
     public MenuFileControl getMenuFileControl() {
         return Control.getSingleton().getMenuFileControl();
     }
 
-    /**
-     * This method initializes menuToolsControl
-     *
-     * @return org.parosproxy.paros.view.MenuToolsControl
-     */
     private MenuToolsControl getMenuToolsControl() {
         return Control.getSingleton().getMenuToolsControl();
     }
-    /**
-     * This method initializes menuFileProperties
-     *
-     * @return the Session Properties menu item.
-     */
+
     private ZapMenuItem getMenuFileProperties() {
         if (menuFileProperties == null) {
             menuFileProperties =
@@ -486,9 +455,9 @@ public class MainMenuBar extends JMenuBar {
     }
 
     /**
-     * This method initializes menuHelp
+     * Gets the Help menu
      *
-     * @return javax.swing.JMenu
+     * @return the Help menu
      */
     public JMenu getMenuHelp() {
         if (menuHelp == null) {
@@ -519,8 +488,9 @@ public class MainMenuBar extends JMenuBar {
         }
         return menuReport;
     }
+
     /**
-     * This method initializes menuHelpAbout
+     * Gets the About menu
      *
      * @return the 'About' menu item.
      */
@@ -557,9 +527,9 @@ public class MainMenuBar extends JMenuBar {
     }
 
     /**
-     * This method initializes jMenu1
+     * Gets the Analyze menu
      *
-     * @return javax.swing.JMenu
+     * @return the Analyse menu
      */
     public JMenu getMenuAnalyse() {
         if (menuAnalyse == null) {

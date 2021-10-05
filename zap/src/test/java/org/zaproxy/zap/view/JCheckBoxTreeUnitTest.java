@@ -40,10 +40,10 @@ import javax.swing.tree.TreePath;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link JCheckBoxTree}. */
-public class JCheckBoxTreeUnitTest {
+class JCheckBoxTreeUnitTest {
 
     @Test
-    public void shouldNotFailToSetAnUndefinedTreeModel() {
+    void shouldNotFailToSetAnUndefinedTreeModel() {
         // Given
         TreeModel undefinedTreeModel = null;
         JCheckBoxTree checkBoxTree = new JCheckBoxTree();
@@ -52,7 +52,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldFailToSetATreeModelWithRootNonDefaultMutableTreeNode() {
+    void shouldFailToSetATreeModelWithRootNonDefaultMutableTreeNode() {
         // Given
         TreeModel treeModel = new DefaultTreeModel(new TreeNodeImpl());
         JCheckBoxTree checkBoxTree = new JCheckBoxTree();
@@ -61,7 +61,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldFailToSetATreeModelWithChildNonDefaultMutableTreeNodes() {
+    void shouldFailToSetATreeModelWithChildNonDefaultMutableTreeNodes() {
         // Given
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode();
         rootNode.add(new MutableTreeNodeImpl());
@@ -72,7 +72,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldSetATreeModelWithUndefinedRoot() {
+    void shouldSetATreeModelWithUndefinedRoot() {
         // Given
         TreeModel treeModel = new DefaultTreeModel(null);
         JCheckBoxTree checkBoxTree = new JCheckBoxTree();
@@ -83,7 +83,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldSetATreeModelWithRootDefaultMutableTreeNode() {
+    void shouldSetATreeModelWithRootDefaultMutableTreeNode() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A");
         DefaultMutableTreeNode rootNode = treeModel.getNode("A");
@@ -96,7 +96,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldSetATreeModelWithChildDefaultMutableTreeNodes() {
+    void shouldSetATreeModelWithChildDefaultMutableTreeNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B");
         DefaultMutableTreeNode rootNode = treeModel.getNode("A");
@@ -113,7 +113,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldHaveAllNodesUncheckedByDefault() {
+    void shouldHaveAllNodesUncheckedByDefault() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B", "A/B/C", "A/B/D", "A/E");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -144,7 +144,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldCheckRootNodeWithoutChildNodes() {
+    void shouldCheckRootNodeWithoutChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -160,7 +160,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldCheckRootNodeWithChildNodes() {
+    void shouldCheckRootNodeWithChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B1");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -180,7 +180,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldCheckChildNodeWithoutChildNodes() {
+    void shouldCheckChildNodeWithoutChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -200,7 +200,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldCheckChildNodeWithChildNodes() {
+    void shouldCheckChildNodeWithChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B", "A/B/C", "A/B/D");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -228,7 +228,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldCheckRootNodeSubTreeWithoutChildNodes() {
+    void shouldCheckRootNodeSubTreeWithoutChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -244,7 +244,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldCheckRootNodeSubTreeWithChildNodes() {
+    void shouldCheckRootNodeSubTreeWithChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B", "A/B/C", "A/B/D");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -276,7 +276,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldCheckSubTreeChildNodeWithoutChildNodes() {
+    void shouldCheckSubTreeChildNodeWithoutChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -296,7 +296,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldCheckSubTreeChildNodeWithChildNodes() {
+    void shouldCheckSubTreeChildNodeWithChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B", "A/B/C", "A/B/D");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -326,7 +326,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldUncheckRootNodeWithoutChildNodes() {
+    void shouldUncheckRootNodeWithoutChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -343,7 +343,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldUncheckRootNodeWithChildNodes() {
+    void shouldUncheckRootNodeWithChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B1");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -364,7 +364,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldUncheckChildNodeWithoutChildNodes() {
+    void shouldUncheckChildNodeWithoutChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -385,7 +385,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldUncheckChildNodeWithChildNodes() {
+    void shouldUncheckChildNodeWithChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B", "A/B/C", "A/B/D");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -416,7 +416,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldUncheckRootNodeSubTreeWithoutChildNodes() {
+    void shouldUncheckRootNodeSubTreeWithoutChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -433,7 +433,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldUncheckRootNodeSubTreeWithChildNodes() {
+    void shouldUncheckRootNodeSubTreeWithChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B", "A/B/C", "A/B/D");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -462,7 +462,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldUncheckSubTreeChildNodeWithoutChildNodes() {
+    void shouldUncheckSubTreeChildNodeWithoutChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -483,7 +483,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldUncheckSubTreeChildNodeWithChildNodes() {
+    void shouldUncheckSubTreeChildNodeWithChildNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B", "A/B/C", "A/B/D");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -512,7 +512,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldHaveOnlyRootNodeExpandedByDefault() {
+    void shouldHaveOnlyRootNodeExpandedByDefault() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B", "A/B/C", "A/B/D", "A/E");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -537,7 +537,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldExpandAllNodes() {
+    void shouldExpandAllNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B", "A/B/C", "A/B/D", "A/E");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -563,7 +563,7 @@ public class JCheckBoxTreeUnitTest {
     }
 
     @Test
-    public void shouldCollapseAllNodes() {
+    void shouldCollapseAllNodes() {
         // Given
         TreeModelTest treeModel = TreeModelTest.create("A", "A/B", "A/B/C", "A/B/D", "A/E");
         TreePath rootNodePath = treeModel.createPath("A");
@@ -691,11 +691,11 @@ public class JCheckBoxTreeUnitTest {
             super(root);
         }
 
-        public DefaultMutableTreeNode getNode(String path) {
+        DefaultMutableTreeNode getNode(String path) {
             return (DefaultMutableTreeNode) createPath(path).getLastPathComponent();
         }
 
-        public TreePath createPath(String path) {
+        TreePath createPath(String path) {
             if (path == null || path.isEmpty()) {
                 throw new IllegalArgumentException("TreeModelTest: malformed node path, empty.");
             }
@@ -737,7 +737,7 @@ public class JCheckBoxTreeUnitTest {
                     "TreeModelTest: malformed node path, nodes mismatch.");
         }
 
-        public static TreeModelTest create(String... paths) {
+        static TreeModelTest create(String... paths) {
             if (paths == null || paths.length == 0) {
                 return new TreeModelTest(new DefaultMutableTreeNode());
             }

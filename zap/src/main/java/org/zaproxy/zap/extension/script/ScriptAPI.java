@@ -174,7 +174,7 @@ public class ScriptAPI extends ApiImplementor {
                     if (type.isEnableable()) {
                         map.put("enabled", Boolean.toString(script.isEnabled()));
                     }
-                    result.addItem(new ApiResponseSet<String>("Script", map));
+                    result.addItem(new ApiResponseSet<>("Script", map));
                 }
             }
             return result;

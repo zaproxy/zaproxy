@@ -42,6 +42,7 @@
 // ZAP: 2020/03/24 Remove hardcoded white background on some fields (part of Issue 5542).
 // ZAP: 2020/03/25 Remove hardcoded colour in titled borders (Issue 5542).
 // ZAP: 2020/04/20 Add SocksProxyPanel (Issue 29).
+// ZAP: 2021/05/14 Remove redundant type arguments.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -488,7 +489,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
     private JComboBox<String> getCommonUserAgents() {
         if (commonUserAgents == null) {
-            commonUserAgents = new JComboBox<String>(CommonUserAgents.getNames());
+            commonUserAgents = new JComboBox<>(CommonUserAgents.getNames());
             if (commonUserAgents.getItemCount() == 0) {
                 commonUserAgents.setEnabled(false);
             } else {

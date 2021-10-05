@@ -36,7 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.extension.api.ApiResponse;
 
 /** @author Vahid Rafiei (@vahid_r) */
-public class UsernamePasswordAuthenticationCredentialsUnitTest {
+class UsernamePasswordAuthenticationCredentialsUnitTest {
 
     private UsernamePasswordAuthenticationCredentials usernamePasswordAuthenticationCredentials;
     private UsernamePasswordAuthenticationCredentials notConfiguredInstance;
@@ -44,14 +44,14 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     private String password = "myPass";
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         this.usernamePasswordAuthenticationCredentials =
                 new UsernamePasswordAuthenticationCredentials(username, password);
         this.notConfiguredInstance = new UsernamePasswordAuthenticationCredentials();
     }
 
     @Test
-    public void shouldBeConfiguredIfUsernameAndPasswordAreNotNull() {
+    void shouldBeConfiguredIfUsernameAndPasswordAreNotNull() {
         // Given/When
         boolean isConfigured = usernamePasswordAuthenticationCredentials.isConfigured();
 
@@ -60,7 +60,7 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     }
 
     @Test
-    public void shouldNotBeConfiguredIfUsernameAndPasswordAreNull() {
+    void shouldNotBeConfiguredIfUsernameAndPasswordAreNull() {
         // Given/When
         boolean isConfigured = notConfiguredInstance.isConfigured();
 
@@ -69,7 +69,7 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     }
 
     @Test
-    public void shouldNotBeConfiguredIfPasswordIsNull() {
+    void shouldNotBeConfiguredIfPasswordIsNull() {
         // Given
         UsernamePasswordAuthenticationCredentials credentials =
                 new UsernamePasswordAuthenticationCredentials(username, null);
@@ -80,7 +80,7 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionWhileEncodeWithFieldSeparator() {
+    void shouldThrowExceptionWhileEncodeWithFieldSeparator() {
         // Given
         String fieldSeparator = "~";
         usernamePasswordAuthenticationCredentials =
@@ -97,7 +97,7 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     }
 
     @Test
-    public void shouldEncodeMethodReturnNullPatternIfUsernameIsNull() {
+    void shouldEncodeMethodReturnNullPatternIfUsernameIsNull() {
         // Given
         String nullPattern = "AA==";
         username = null;
@@ -114,7 +114,7 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     }
 
     @Test
-    public void shouldEncodeUsernameAndPasswordWithTheCorrectFieldSeparator() {
+    void shouldEncodeUsernameAndPasswordWithTheCorrectFieldSeparator() {
         // Given
         List<String> someCorrectSeparators = Arrays.asList("-", "|", "/", "\\", "+");
 
@@ -135,7 +135,7 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     }
 
     @Test
-    public void shouldDecodeEmptyUsernameAndPassword() {
+    void shouldDecodeEmptyUsernameAndPassword() {
         // Given
         String encodedCredentials = "~~";
         UsernamePasswordAuthenticationCredentials authCredentials =
@@ -148,7 +148,7 @@ public class UsernamePasswordAuthenticationCredentialsUnitTest {
     }
 
     @Test
-    public void shouldApiResponseRepresentationReturnApiResponseWithValidNameAndJsonFormat() {
+    void shouldApiResponseRepresentationReturnApiResponseWithValidNameAndJsonFormat() {
         // Given/When
         ApiResponse apiResponse =
                 usernamePasswordAuthenticationCredentials.getApiResponseRepresentation();

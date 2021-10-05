@@ -372,7 +372,7 @@ public abstract class AbstractMessageLocationsPanel<
                                 tableEntry.getLocation(), tableEntry.getHighlight());
                 tableEntry.setHighlightReference(highlightReference);
             }
-        };
+        }
     }
 
     protected class MessageLocationsFocusListener implements MessageLocationProducerFocusListener {

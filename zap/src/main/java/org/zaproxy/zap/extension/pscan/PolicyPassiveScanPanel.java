@@ -50,8 +50,8 @@ import org.zaproxy.zap.view.panels.TableFilterPanel;
 public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
-    private JXTable tableTest = null;
-    private JScrollPane jScrollPane = null;
+    private JXTable passiveScanRulesTable = null;
+    private JScrollPane tableScrollPane = null;
     private PolicyPassiveScanTableModel passiveScanTableModel = null;
     private JComboBox<String> applyToThreshold = null;
     private JComboBox<String> applyToThresholdTarget = null;
@@ -61,14 +61,13 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
         initialize();
     }
 
-    /** This method initializes this */
     private void initialize() {
         this.setLayout(new GridBagLayout());
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
             this.setSize(375, 204);
         }
         this.setName(Constant.messages.getString("pscan.options.policy.title"));
-        JPanel passiveScannersFilterPanel = new TableFilterPanel<JXTable>(getTableTest());
+        JPanel passiveScannersFilterPanel = new TableFilterPanel<>(getPassiveScanRulesTable());
 
         // 'Apply to' controls
         JPanel applyToPanel = new JPanel();
@@ -117,7 +116,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
                         new Insets(0, 0, 0, 0)));
 
         this.add(
-                getJScrollPane(),
+                getTableScrollPane(),
                 LayoutHelper.getGBC(
                         0,
                         2,
@@ -179,21 +178,21 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
     private static final int[] width = {300, 60, 100};
 
-    private JXTable getTableTest() {
-        if (tableTest == null) {
-            tableTest = new JXTable();
-            tableTest.setModel(getPassiveScanTableModel());
-            tableTest.setRowHeight(DisplayUtils.getScaledSize(18));
-            tableTest.setIntercellSpacing(new java.awt.Dimension(1, 1));
-            tableTest.setAutoCreateRowSorter(true);
+    private JXTable getPassiveScanRulesTable() {
+        if (passiveScanRulesTable == null) {
+            passiveScanRulesTable = new JXTable();
+            passiveScanRulesTable.setModel(getPassiveScanTableModel());
+            passiveScanRulesTable.setRowHeight(DisplayUtils.getScaledSize(18));
+            passiveScanRulesTable.setIntercellSpacing(new java.awt.Dimension(1, 1));
+            passiveScanRulesTable.setAutoCreateRowSorter(true);
 
             // Default sort by name (column 0)
-            List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
+            List<RowSorter.SortKey> sortKeys = new ArrayList<>(1);
             sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
-            tableTest.getRowSorter().setSortKeys(sortKeys);
+            passiveScanRulesTable.getRowSorter().setSortKeys(sortKeys);
 
-            for (int i = 0; i < tableTest.getColumnCount() - 1; i++) {
-                TableColumn column = tableTest.getColumnModel().getColumn(i);
+            for (int i = 0; i < passiveScanRulesTable.getColumnCount() - 1; i++) {
+                TableColumn column = passiveScanRulesTable.getColumnModel().getColumn(i);
                 column.setPreferredWidth(width[i]);
             }
 
@@ -204,10 +203,13 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
                                 "ascan.policy.level." + level.name().toLowerCase(Locale.ROOT)));
             }
 
-            tableTest.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(jcb1));
+            passiveScanRulesTable
+                    .getColumnModel()
+                    .getColumn(1)
+                    .setCellEditor(new DefaultCellEditor(jcb1));
         }
 
-        return tableTest;
+        return passiveScanRulesTable;
     }
 
     @Override
@@ -226,28 +228,18 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
         this.getPassiveScanTableModel().persistChanges();
     }
 
-    /**
-     * This method initializes jScrollPane
-     *
-     * @return javax.swing.JScrollPane
-     */
-    private JScrollPane getJScrollPane() {
-        if (jScrollPane == null) {
-            jScrollPane = new JScrollPane();
-            jScrollPane.setViewportView(getTableTest());
-            jScrollPane.setBorder(
+    private JScrollPane getTableScrollPane() {
+        if (tableScrollPane == null) {
+            tableScrollPane = new JScrollPane();
+            tableScrollPane.setViewportView(getPassiveScanRulesTable());
+            tableScrollPane.setBorder(
                     javax.swing.BorderFactory.createEtchedBorder(
                             javax.swing.border.EtchedBorder.RAISED));
         }
 
-        return jScrollPane;
+        return tableScrollPane;
     }
 
-    /**
-     * This method initializes categoryTableModel
-     *
-     * @return org.parosproxy.paros.plugin.scanner.CategoryTableModel
-     */
     public PolicyPassiveScanTableModel getPassiveScanTableModel() {
         if (passiveScanTableModel == null) {
             passiveScanTableModel = new PolicyPassiveScanTableModel();

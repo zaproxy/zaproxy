@@ -83,6 +83,8 @@
 // 2016).
 // ZAP: 2020/11/23 Allow to initialise the singleton with an ExtensionLoader for tests.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/14 Remove empty statement.
+// ZAP: 2021/09/13 Added setExitStatus.
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -114,7 +116,7 @@ public class Control extends AbstractControl implements SessionListener {
         protect,
         standard,
         attack
-    };
+    }
 
     private static Logger log = LogManager.getLogger(Control.class);
 
@@ -124,6 +126,7 @@ public class Control extends AbstractControl implements SessionListener {
     private MenuToolsControl menuToolsControl = null;
     private SessionListener lastCallback = null;
     private Mode mode = null;
+    private int exitStatus = 0;
 
     private Control(Model model, View view) {
         super(model, view);
@@ -312,7 +315,7 @@ public class Control extends AbstractControl implements SessionListener {
                                 } catch (Throwable e) {
                                     log.error("An error occurred while shutting down:", e);
                                 } finally {
-                                    System.exit(0);
+                                    System.exit(exitStatus);
                                 }
                             }
                         },
@@ -327,6 +330,29 @@ public class Control extends AbstractControl implements SessionListener {
         } else {
             t.start();
         }
+    }
+
+    /**
+     * Sets the non zero value ZAP will exit cleanly with. ZAP may still exit with a non zero value
+     * if a serious error occurs. This will work however ZAP is run but it makes more sense if ZAP
+     * is run in cmdline mode. Any add-on can set an exit status so attempts to reset the status to
+     * zero will be rejected.
+     *
+     * @param exitStatus the non zero value ZAP will exit it with
+     * @param logMessage the message that will be logged at info level
+     * @since 2.11.0
+     */
+    public void setExitStatus(int exitStatus, String logMessage) {
+        if (exitStatus == 0) {
+            log.error("Not setting the exit status to zero - culprit: {}", logMessage);
+        } else {
+            this.exitStatus = exitStatus;
+            log.info(logMessage);
+        }
+    }
+
+    public int getExitStatus() {
+        return exitStatus;
     }
 
     private static String wrapEntriesInLiTags(List<String> entries) {
@@ -348,7 +374,7 @@ public class Control extends AbstractControl implements SessionListener {
         Model.getSingleton().getDb().deleteSession(sessionName);
 
         log.info(Constant.PROGRAM_TITLE + " terminated.");
-        System.exit(0);
+        System.exit(this.getExitStatus());
     }
 
     public static Control getSingleton() {

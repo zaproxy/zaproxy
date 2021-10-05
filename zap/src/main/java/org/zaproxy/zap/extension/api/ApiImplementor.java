@@ -446,7 +446,7 @@ public abstract class ApiImplementor {
      * <p>Defaults to {@code getPrefix()}.
      *
      * @return the prefix for i18n keys.
-     * @since TODO add version
+     * @since 2.10.0
      */
     protected String getI18nPrefix() {
         return getPrefix();

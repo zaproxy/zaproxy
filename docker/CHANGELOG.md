@@ -3,6 +3,51 @@ All notable changes to the docker containers will be documented in this file.
 
 ### 2021-10-05
  - The base directory path `/zap/wrk` can now be configured using the new environment variable `ZAP_BASE_DIR`.
+ - Fixed bug which caused the baseline scan to fail if a read-only mapped drive was used.
+
+### 2021-09-21
+ - Updated the Baseline scan to use the Automation Framework for the "-c config_file" and "-u config_url" options.
+
+### 2021-09-16
+ - Updated to use Webswing 21.1.5
+
+### 2021-09-15
+ - Added /zap/container file to make it easier to detect if we are running in a container like docker.
+
+### 2021-08-11
+ - Changed to enable integration tests, inc enabling the AF for the baseline `-c` option if the `--auto` flag is used before it.
+ - Added Automation Framework support for * OUTOFSCOPE baseline config file option.
+
+### 2021-07-08
+ - Changed to use user's home directory for the Automation Framework files so it will work for any user
+
+### 2021-07-05
+ - Updated the baseline to use the Automation Framework by default for common options
+
+### 2021-06-11
+ - Updated the baseline to optionally use the Automation Framework for common options
+
+### 2021-05-05
+ - Updated to use Webswing 21.1
+
+### 2021-04-30
+ - Alert_on_Unexpected_Content_Types.js > Added Content-Type text/yaml to the list of expected types.
+
+### 2021-02-10
+ - Check if messages being analyzed by API scan scripts are globally excluded or not.
+
+### 2021-02-01
+ - Allow more flexibility to specify ZAP command line options when using Webswing:
+  - The default options stay as `-host 0.0.0.0 -port 8090` unless
+  - You specify an env var `ZAP_WEBSWING_OPTS` in which case that replaces the defaults
+  - If not then if a `/zap/wrk/owasp_zap_root_ca.key` file exists then this is loaded as the ZAP root cert
+  - If not then if the `/zap/wrk` is writable then ZAP will output the public and private ZAP cert into that directory
+  
+### 2021-01-19
+ - Python 3.5 is no longer supported.
+
+### 2020-12-23
+ - Update Webswing to download prod version if valid key supplied.
 
 ### 2020-12-16
  - Update Webswing to latest version (20.2.1) to work with newer Java versions.

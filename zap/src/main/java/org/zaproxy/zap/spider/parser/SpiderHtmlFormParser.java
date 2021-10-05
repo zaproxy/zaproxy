@@ -56,7 +56,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
     private String url;
 
     /** The form attributes */
-    private Map<String, String> envAttributes = new HashMap<String, String>();
+    private Map<String, String> envAttributes = new HashMap<>();
 
     /** The spider parameters. */
     private final SpiderParam param;
@@ -306,8 +306,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
         String fieldId = field.getName();
 
         // Create new HashMap 'fieldAttributes' and new list 'definedValues'
-        Map<String, String> fieldAttributes = new HashMap<String, String>();
-        List<String> definedValues = new ArrayList<String>();
+        Map<String, String> fieldAttributes = new HashMap<>();
+        List<String> definedValues = new ArrayList<>();
 
         // Store all values in the FormFiled field into the Map 'fieldAttributes'
         fieldAttributes.putAll(field.getFormControl().getAttributesMap());
@@ -317,7 +317,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
         // Handles Submit Fields
         if (field.getFormControl().getFormControlType().isSubmit()) {
-            List<String> submitFields = new ArrayList<String>();
+            List<String> submitFields = new ArrayList<>();
             for (String value : field.getPredefinedValues()) {
                 String finalValue =
                         this.valueGenerator.getValue(
@@ -407,7 +407,14 @@ public class SpiderHtmlFormParser extends SpiderParser {
                 .debug(
                         "Submitting form with POST method and message body with form parameters (normal encoding): "
                                 + requestBody);
-        notifyListenersPostResourceFound(message, depth + 1, url, requestBody);
+        notifyListenersResourceFound(
+                SpiderResourceFound.builder()
+                        .setMessage(message)
+                        .setDepth(depth + 1)
+                        .setUri(url)
+                        .setMethod(METHOD_POST)
+                        .setBody(requestBody)
+                        .build());
     }
 
     @Override

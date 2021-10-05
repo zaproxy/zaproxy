@@ -23,7 +23,11 @@ import java.util.List;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.utils.NetworkUtils;
 
-/** @author psiinon */
+/**
+ * @author psiinon
+ * @deprecated (2.11.0) Superseded by the OAST add-on.
+ */
+@Deprecated
 public class CallbackParam extends AbstractParam {
 
     private static final String PROXY_BASE_KEY = "callback";

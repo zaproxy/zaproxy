@@ -26,10 +26,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
-public class AlertUnitTest {
+class AlertUnitTest {
 
     @Test
-    public void shouldDefaultAlertRefToPluginId() {
+    void shouldDefaultAlertRefToPluginId() {
         // Given
         Alert alert = new Alert(1);
         // When / Then
@@ -37,7 +37,7 @@ public class AlertUnitTest {
     }
 
     @Test
-    public void shouldSetValidAlertRef() {
+    void shouldSetValidAlertRef() {
         // Given
         Alert alert = new Alert(1);
         String alertRef = "1-1";
@@ -48,7 +48,7 @@ public class AlertUnitTest {
     }
 
     @Test
-    public void shouldHaveEmptyAlertRefForManualAlerts() {
+    void shouldHaveEmptyAlertRefForManualAlerts() {
         // Given
         Alert alert = new Alert(-1);
         // When / Then
@@ -56,7 +56,7 @@ public class AlertUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnInvalidAlertRef() {
+    void shouldThrowExceptionOnInvalidAlertRef() {
         // Given
         Alert alert = new Alert(1);
         // When / Then
@@ -64,7 +64,7 @@ public class AlertUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionOnTooLongAlertRef() {
+    void shouldThrowExceptionOnTooLongAlertRef() {
         // Given
         Alert alert = new Alert(1);
         // When / Then
@@ -74,7 +74,7 @@ public class AlertUnitTest {
     }
 
     @Test
-    public void shouldNotEqualIfAlertRefDifferent() {
+    void shouldNotEqualIfAlertRefDifferent() {
         // Given
         Alert alertA = new Alert(1);
         Alert alertB = new Alert(1);
@@ -87,7 +87,7 @@ public class AlertUnitTest {
     }
 
     @Test
-    public void shouldNotCompareIfAlertRefDifferent() {
+    void shouldNotCompareIfAlertRefDifferent() {
         // Given
         Alert alertA = new Alert(1);
         Alert alertB = new Alert(1);

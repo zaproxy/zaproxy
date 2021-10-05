@@ -119,6 +119,10 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
     private final String id;
 
+    private Date started;
+
+    private long timeTakenInMs;
+
     /**
      * Constructs a {@code SpiderThread} with the given data.
      *
@@ -182,8 +186,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
     private void runScan() {
         // Do the scan
         spiderDone = 0;
-        Date start = new Date();
-        log.info("Starting spidering scan on " + site + " at " + start);
+        started = new Date();
+        log.info("Starting spidering scan on {} at {}", site, started);
         startSpider();
         this.isAlive = true;
     }
@@ -418,10 +422,29 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
     @Override
     public void spiderComplete(boolean successful) {
-        log.info("Spider scanning complete: " + successful);
+        Date finished = new Date();
+        log.info("Spider scanning complete: {} on {} at {}", successful, site, finished);
+        this.timeTakenInMs = finished.getTime() - started.getTime();
         stopScan = true;
         this.isAlive = false;
         this.listenner.scanFinshed(site);
+    }
+
+    /**
+     * Returns the time taken in milliseconds. This will be total time taken if the scan has
+     * finished or the time taken so far if it is still running.
+     *
+     * @return the time taken in milliseconds
+     * @since 2.11.0
+     */
+    public long getTimeTakenInMs() {
+        if (this.timeTakenInMs > 0) {
+            return this.timeTakenInMs;
+        }
+        if (this.started != null) {
+            return System.currentTimeMillis() - started.getTime();
+        }
+        return 0;
     }
 
     @Override

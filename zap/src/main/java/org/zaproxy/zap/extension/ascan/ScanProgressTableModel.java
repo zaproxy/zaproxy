@@ -48,7 +48,7 @@ public class ScanProgressTableModel extends AbstractTableModel {
 
     public ScanProgressTableModel() {
         super();
-        values = new ArrayList<ScanProgressItem>();
+        values = new ArrayList<>();
         focusedAction = null;
     }
 
@@ -108,7 +108,7 @@ public class ScanProgressTableModel extends AbstractTableModel {
                     return item.getNameLabel();
 
                 case 1:
-                    return item.getAttackStrenghtLabel();
+                    return item.getAttackStrengthLabel();
 
                 case 2:
                     if (item.isCompleted() || item.isRunning() || item.isSkipped()) {

@@ -37,6 +37,7 @@ import java.security.cert.X509Certificate;
 import java.util.Base64;
 import java.util.Date;
 import java.util.List;
+import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,6 +45,7 @@ import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -350,7 +352,20 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
                         cert.getNotAfter().toString(),
                         new Date().toString());
         if (hasView()) {
-            getView().showWarningDialog(warnMsg);
+            if (getView().showConfirmDialog(warnMsg) == JOptionPane.OK_OPTION) {
+                try {
+                    createNewRootCa();
+                    Control.getSingleton()
+                            .getMenuToolsControl()
+                            .options(Constant.messages.getString("dynssl.options.name"));
+                } catch (Exception e) {
+                    logger.error("Failed to create new root CA certificate:", e);
+                    getView()
+                            .showWarningDialog(
+                                    Constant.messages.getString(
+                                            "dynssl.warn.cert.failed", e.getMessage()));
+                }
+            }
         }
         logger.warn(warnMsg);
     }

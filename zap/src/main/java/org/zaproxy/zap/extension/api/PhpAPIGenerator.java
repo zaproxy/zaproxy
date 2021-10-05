@@ -25,6 +25,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -35,6 +36,8 @@ import java.util.stream.Collectors;
 
 public class PhpAPIGenerator extends AbstractAPIGenerator {
 
+    private static final String DEFAULT_OUTPUT_DIR = "../zap-api-php/src/Zap/";
+
     private final String HEADER =
             "<?php\n"
                     + "/**\n"
@@ -42,7 +45,9 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
                     + " *\n"
                     + " * ZAP is an HTTP/HTTPS proxy for assessing web application security.\n"
                     + " *\n"
-                    + " * Copyright 2016 the ZAP development team\n"
+                    + " * Copyright "
+                    + Year.now()
+                    + " the ZAP development team\n"
                     + " *\n"
                     + " * Licensed under the Apache License, Version 2.0 (the \"License\");\n"
                     + " * you may not use this file except in compliance with the License.\n"
@@ -70,7 +75,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
     }
 
     public PhpAPIGenerator() {
-        super("php/api/zapv2/src/Zap");
+        super(DEFAULT_OUTPUT_DIR);
     }
 
     public PhpAPIGenerator(String path, boolean optional) {
@@ -134,72 +139,60 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
                                 })
                         .collect(Collectors.joining(", ")));
 
-        if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
-            if (hasParams) {
-                out.write(", ");
-            }
-            // Always add the API key - we've no way of knowing if it will be required or not
-            out.write("$" + API.API_KEY_PARAM + "=''");
-            hasParams = true;
+        if (hasParams) {
+            out.write(", ");
         }
-
-        out.write(") {\n");
+        // Always add the API key - we've no way of knowing if it will be required or not
+        out.write("$" + API.API_KEY_PARAM + "='') {\n");
 
         StringBuilder reqParams = new StringBuilder();
-        if (hasParams) {
-            reqParams.append("array(");
-            String params =
-                    element.getParameters().stream()
-                            .filter(ApiParameter::isRequired)
-                            .map(
-                                    parameter -> {
-                                        String name = parameter.getName();
-                                        return "'"
-                                                + name
-                                                + "' => $"
-                                                + name.toLowerCase(Locale.ROOT);
-                                    })
-                            .collect(Collectors.joining(", "));
-            reqParams.append(params);
-            boolean first = params.isEmpty();
+        reqParams.append("array(");
+        String params =
+                element.getParameters().stream()
+                        .filter(ApiParameter::isRequired)
+                        .map(
+                                parameter -> {
+                                    String name = parameter.getName();
+                                    return "'" + name + "' => $" + name.toLowerCase(Locale.ROOT);
+                                })
+                        .collect(Collectors.joining(", "));
+        reqParams.append(params);
+        boolean first = params.isEmpty();
 
-            if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
-                // Always add the API key - we've no way of knowing if it will be required or not
-                if (!first) {
-                    reqParams.append(", ");
-                }
-                reqParams
-                        .append("'")
-                        .append(API.API_KEY_PARAM)
-                        .append("' => $")
-                        .append(API.API_KEY_PARAM);
-            }
-            reqParams.append(")");
+        // Always add the API key - we've no way of knowing if it will be required or not
+        if (!first) {
+            reqParams.append(", ");
+        }
+        reqParams
+                .append("'")
+                .append(API.API_KEY_PARAM)
+                .append("' => $")
+                .append(API.API_KEY_PARAM)
+                .append(")");
 
-            List<ApiParameter> optionalParameters =
-                    element.getParameters().stream()
-                            .filter(e -> !e.isRequired())
-                            .collect(Collectors.toList());
-            if (!optionalParameters.isEmpty()) {
-                out.write("\t\t$params = ");
-                out.write(reqParams.toString());
-                out.write(";\n");
-                reqParams.replace(0, reqParams.length(), "$params");
+        List<ApiParameter> optionalParameters =
+                element.getParameters().stream()
+                        .filter(e -> !e.isRequired())
+                        .collect(Collectors.toList());
+        if (!optionalParameters.isEmpty()) {
+            out.write("\t\t$params = ");
+            out.write(reqParams.toString());
+            out.write(";\n");
+            reqParams.replace(0, reqParams.length(), "$params");
 
-                for (ApiParameter parameter : optionalParameters) {
-                    String name = parameter.getName();
-                    String varName = name.toLowerCase(Locale.ROOT);
-                    out.write("\t\tif ($" + varName + " !== NULL) {\n");
-                    out.write("\t\t\t$params['" + name + "'] = $" + varName + ";\n");
-                    out.write("\t\t}\n");
-                }
+            for (ApiParameter parameter : optionalParameters) {
+                String name = parameter.getName();
+                String varName = name.toLowerCase(Locale.ROOT);
+                out.write("\t\tif ($" + varName + " !== NULL) {\n");
+                out.write("\t\t\t$params['" + name + "'] = $" + varName + ";\n");
+                out.write("\t\t}\n");
             }
         }
 
         String method = "request";
         String baseUrl = "base";
         if (type.equals(OTHER_ENDPOINT)) {
-            method += "other";
+            method += "Other";
             baseUrl += "_other";
         }
 
@@ -216,23 +209,17 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
                         + element.getName()
                         + "/'");
 
-        if (hasParams) {
-            out.write(", ");
-            out.write(reqParams.toString());
-            out.write(")");
-            if (type.equals(VIEW_ENDPOINT)) {
-                out.write("->{'" + element.getName() + "'};\n");
-            } else {
-                out.write(";\n");
-            }
-        } else if (!type.equals(OTHER_ENDPOINT)) {
+        out.write(", ");
+        out.write(reqParams.toString());
+        out.write(")");
+        if (type.equals(VIEW_ENDPOINT)) {
             if (element.getName().startsWith("option")) {
-                out.write(")->{'" + element.getName().substring(6) + "'};\n");
+                out.write("->{'" + element.getName().substring(6) + "'};\n");
             } else {
-                out.write(")->{'" + element.getName() + "'};\n");
+                out.write("->{'" + element.getName() + "'};\n");
             }
         } else {
-            out.write(");\n");
+            out.write(";\n");
         }
         out.write("\t}\n\n");
     }
@@ -264,6 +251,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
             out.write("\n");
             out.write("/**\n");
             out.write(" * This file was automatically generated.\n");
+            out.write(" * @property Zap $zap\n");
             out.write(" */\n");
             out.write("class " + className + " {\n\n");
 

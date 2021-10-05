@@ -35,10 +35,8 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  */
 public class ContentMatcher {
 
-    private static final String TAG_PATTERNS = "Patterns";
     private static final String TAG_PATTERN = "Pattern";
     private static final String ATTRIBUTE_TYPE = "[@type]";
-    private static final String TAG_PATTERN_TYPE_STRING = "string";
     private static final String TAG_PATTERN_TYPE_REGEX = "regex";
 
     private List<BoyerMooreMatcher> strings;
@@ -98,8 +96,8 @@ public class ContentMatcher {
      */
     protected void loadXMLPatternDefinitions(InputStream xmlInputStream)
             throws ConfigurationException {
-        strings = new ArrayList<BoyerMooreMatcher>();
-        patterns = new ArrayList<Pattern>();
+        strings = new ArrayList<>();
+        patterns = new ArrayList<>();
 
         ZapXmlConfiguration configuration = new ZapXmlConfiguration(xmlInputStream);
         for (HierarchicalConfiguration entry : configuration.configurationsAt(TAG_PATTERN)) {
@@ -148,7 +146,7 @@ public class ContentMatcher {
      */
     public List<String> findAllInContent(String content) {
 
-        List<String> results = new LinkedList<String>();
+        List<String> results = new LinkedList<>();
 
         // First check for all simple exact occurrences
         for (BoyerMooreMatcher matcher : strings) {

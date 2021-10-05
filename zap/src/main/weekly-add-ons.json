@@ -1,12 +1,12 @@
 [
   {
     "cloneUrl": "https://github.com/zaproxy/zap-extensions.git",
-    "branch": "master",
     "projects": [
       ":addOns:accessControl",
       ":addOns:alertFilters",
       ":addOns:ascanrules",
       ":addOns:ascanrulesBeta",
+      ":addOns:automation",
       ":addOns:bruteforce",
       ":addOns:commonlib",
       ":addOns:coreLang",
@@ -21,6 +21,7 @@
       ":addOns:graphql",
       ":addOns:importurls",
       ":addOns:invoke",
+      ":addOns:oast",
       ":addOns:onlineMenu",
       ":addOns:openapi",
       ":addOns:portscan",
@@ -29,6 +30,8 @@
       ":addOns:pscanrulesBeta",
       ":addOns:quickstart",
       ":addOns:replacer",
+      ":addOns:reports",
+      ":addOns:retest",
       ":addOns:retire",
       ":addOns:reveal",
       ":addOns:saverawmessage",
@@ -48,13 +51,11 @@
   },
   {
     "cloneUrl": "https://github.com/zaproxy/zap-core-help.git",
-    "branch": "master",
     "projects": [
         ":addOns:help"
     ]
   },
   {
-    "cloneUrl": "https://github.com/zaproxy/zap-hud.git",
-    "branch": "develop"
+    "cloneUrl": "https://github.com/zaproxy/zap-hud.git"
   }
 ]

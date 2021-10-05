@@ -37,7 +37,7 @@ import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.ParseFilter.FilterResult;
 
 /** Unit test for {@link DefaultParseFilter}. */
-public class DefaultParseFilterUnitTest {
+class DefaultParseFilterUnitTest {
 
     private static final String FILTERED_REASON_EMPTY = "empty";
     private static final String FILTERED_REASON_MAX_SIZE = "maxSize";
@@ -46,7 +46,7 @@ public class DefaultParseFilterUnitTest {
     private ResourceBundle resourceBundle;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         resourceBundle =
                 new ResourceBundle() {
 
@@ -72,12 +72,12 @@ public class DefaultParseFilterUnitTest {
 
     @Test
     @SuppressWarnings("deprecation")
-    public void shouldCreateDefaultParseFilterWithDefaultConfigsAndResourceBundleIfNoneSet() {
+    void shouldCreateDefaultParseFilterWithDefaultConfigsAndResourceBundleIfNoneSet() {
         assertDoesNotThrow(() -> new DefaultParseFilter());
     }
 
     @Test
-    public void shouldCreateDefaultParseFilterWithConfigsAndResourceBundleSet() {
+    void shouldCreateDefaultParseFilterWithConfigsAndResourceBundleSet() {
         // Given
         SpiderParam configs = new SpiderParam();
         // When / Then
@@ -85,7 +85,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldFailToCreateDefaultParseFilterWithNullConfigs() {
+    void shouldFailToCreateDefaultParseFilterWithNullConfigs() {
         // Given
         SpiderParam configs = null;
         // When / Then
@@ -95,7 +95,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldFailToCreateDefaultParseFilterWithNullResourceBundle() {
+    void shouldFailToCreateDefaultParseFilterWithNullResourceBundle() {
         // Given
         ResourceBundle resourceBundle = null;
         SpiderParam configs = new SpiderParam();
@@ -106,7 +106,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterNullHttpMessage() {
+    void shouldFilterNullHttpMessage() {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = null;
@@ -118,7 +118,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterHttpMessageWithEmptyRequestHeader() {
+    void shouldFilterHttpMessageWithEmptyRequestHeader() {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = new HttpMessage();
@@ -130,7 +130,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterHttpMessageWithEmptyResponseHeader() {
+    void shouldFilterHttpMessageWithEmptyResponseHeader() {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createDefaultRequest();
@@ -142,7 +142,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldHandleHttpMessageWithNoPathInRequestUri() throws Exception {
+    void shouldHandleHttpMessageWithNoPathInRequestUri() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("http://example.com");
@@ -151,7 +151,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithSvnXmlRequest() throws Exception {
+    void shouldNotFilterHttpMessageWithSvnXmlRequest() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/.svn/wc.db");
@@ -162,7 +162,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithSvnDbRequest() throws Exception {
+    void shouldNotFilterHttpMessageWithSvnDbRequest() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/.svn/entries");
@@ -173,7 +173,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithGitRequest() throws Exception {
+    void shouldNotFilterHttpMessageWithGitRequest() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/.git/index");
@@ -184,8 +184,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithRobotsTxtRequestEvenWithoutContentType()
-            throws Exception {
+    void shouldNotFilterHttpMessageWithRobotsTxtRequestEvenWithoutContentType() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/robots.txt");
@@ -197,8 +196,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithRobotsTxtRequestEvenWithContentType()
-            throws Exception {
+    void shouldNotFilterHttpMessageWithRobotsTxtRequestEvenWithContentType() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/robots.txt");
@@ -210,8 +208,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithSitemapXmlRequestEvenWithoutContentType()
-            throws Exception {
+    void shouldNotFilterHttpMessageWithSitemapXmlRequestEvenWithoutContentType() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/sitemap.xml");
@@ -223,8 +220,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithSitemapXmlRequestEvenWithContentType()
-            throws Exception {
+    void shouldNotFilterHttpMessageWithSitemapXmlRequestEvenWithContentType() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/sitemap.xml");
@@ -236,7 +232,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterHttpMessageWithNonTextResponse() throws Exception {
+    void shouldFilterHttpMessageWithNonTextResponse() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createDefaultRequest();
@@ -249,7 +245,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithTextResponse() throws Exception {
+    void shouldNotFilterHttpMessageWithTextResponse() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createDefaultRequest();
@@ -261,7 +257,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithRedirectResponse() throws Exception {
+    void shouldNotFilterHttpMessageWithRedirectResponse() throws Exception {
         // Given
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createDefaultRequest();
@@ -273,7 +269,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldFilterHttpMessageWithResponseAboveMaxParseSize() throws Exception {
+    void shouldFilterHttpMessageWithResponseAboveMaxParseSize() throws Exception {
         // Given
         int maxParseSizeBytes = 2;
         DefaultParseFilter filter =
@@ -287,7 +283,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithResponseEqualToMaxParseSize() throws Exception {
+    void shouldNotFilterHttpMessageWithResponseEqualToMaxParseSize() throws Exception {
         // Given
         int maxParseSizeBytes = 2;
         DefaultParseFilter filter =
@@ -300,7 +296,7 @@ public class DefaultParseFilterUnitTest {
     }
 
     @Test
-    public void shouldNotFilterHttpMessageWithResponseUnderMaxParseSize() throws Exception {
+    void shouldNotFilterHttpMessageWithResponseUnderMaxParseSize() throws Exception {
         // Given
         int maxParseSizeBytes = 2;
         DefaultParseFilter filter =

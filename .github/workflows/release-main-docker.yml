@@ -14,21 +14,35 @@ jobs:
       - run: |
           sudo apt-get install xmlstarlet
           echo "REL_VERSION=$(curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //core/version)" >> $GITHUB_ENV
-      - name: Build and push stable Docker image
-        uses: docker/build-push-action@v1
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1 
         with:
           username: zapbot
           password: ${{ secrets.ZAPBOT_DOCKER_TOKEN }}
-          repository: owasp/zap2docker-stable
-          path: docker
-          dockerfile: docker/Dockerfile-stable
-          tags: ${{ env.REL_VERSION }},latest
-      - name: Build and push bare Docker image
-        uses: docker/build-push-action@v1
+      - 
+        name: Build stable Docker image
+        uses: docker/build-push-action@v2
         with:
-          username: zapbot
-          password: ${{ secrets.ZAPBOT_DOCKER_TOKEN }}
-          repository: owasp/zap2docker-bare
-          path: docker
-          dockerfile: docker/Dockerfile-bare
-          tags: ${{ env.REL_VERSION }},latest
+          load: true
+          context: docker
+          file: docker/Dockerfile-stable
+          tags: |
+            owasp/zap2docker-stable:${{ env.REL_VERSION }}
+            owasp/zap2docker-stable:latest
+          build-args: |
+            WEBSWING_TOKEN=${{ secrets.WEBSWING_TOKEN }}
+      - run: docker push owasp/zap2docker-stable:${{ env.REL_VERSION }}
+      - run: docker push owasp/zap2docker-stable:latest
+      -
+        name: Build bare Docker image
+        uses: docker/build-push-action@v2
+        with:
+          load: true
+          context: docker
+          file: docker/Dockerfile-bare
+          tags: |
+            owasp/zap2docker-bare:${{ env.REL_VERSION }}
+            owasp/zap2docker-bare:latest
+      - run: docker push owasp/zap2docker-bare:${{ env.REL_VERSION }}
+      - run: docker push owasp/zap2docker-bare:latest

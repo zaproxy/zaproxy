@@ -40,12 +40,15 @@ import java.util.List;
 import javax.script.Compilable;
 import javax.script.ScriptEngineManager;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledForJreRange;
+import org.junit.jupiter.api.condition.JRE;
 
 /** Verifies that the script templates are parsed without errors. */
-public class VerifyScriptTemplates {
+class VerifyScriptTemplates {
 
     @Test
-    public void shouldParseJsTemplates() throws Exception {
+    @EnabledForJreRange(max = JRE.JAVA_14)
+    void shouldParseJsTemplates() throws Exception {
         // Given
         List<Path> templates = getScriptTemplates(".js");
         Compilable se = (Compilable) new ScriptEngineManager().getEngineByName("ECMAScript");

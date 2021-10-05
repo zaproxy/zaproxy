@@ -47,7 +47,7 @@ import org.zaproxy.zap.testutils.TestUtils;
  *
  * @see TimeStampUtils
  */
-public class TimeStampLocaleUnitTest extends TestUtils {
+class TimeStampLocaleUnitTest extends TestUtils {
 
     private static final String KEY_DATE_TIME_PATTERN = "timestamp.format.datetime";
     private static final String KEY_TIME_ONLY_PATTERN = "timestamp.format.timeonly";
@@ -59,7 +59,7 @@ public class TimeStampLocaleUnitTest extends TestUtils {
     private static final String FILE_EXTENSION = ".properties";
 
     @Test
-    public void shouldHaveValidPatternsForAllMessagesFiles() throws Exception {
+    void shouldHaveValidPatternsForAllMessagesFiles() throws Exception {
         try (URLClassLoader classLoader =
                 new URLClassLoader(new URL[] {DIRECTORY.toUri().toURL()})) {
             List<String> errors = new ArrayList<>();

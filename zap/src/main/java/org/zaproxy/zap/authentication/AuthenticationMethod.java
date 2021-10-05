@@ -83,12 +83,12 @@ public abstract class AuthenticationMethod {
         EACH_REQ,
         EACH_REQ_RESP,
         POLL_URL
-    };
+    }
 
     public static enum AuthPollFrequencyUnits {
         REQUESTS,
         SECONDS
-    };
+    }
 
     private AuthCheckingStrategy authCheckingStrategy = AuthCheckingStrategy.EACH_RESP;
 
@@ -229,7 +229,7 @@ public abstract class AuthenticationMethod {
         return httpSender;
     }
 
-    /** Deprecated TODO add version. */
+    /** Deprecated 2.10.0. */
     @Deprecated
     public boolean isAuthenticated(HttpMessage msg) {
         return this.isAuthenticated(msg, null, false);

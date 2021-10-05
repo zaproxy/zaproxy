@@ -62,6 +62,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.MainFooterPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.db.TableAlertTag;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
@@ -281,6 +282,18 @@ public class ExtensionAlert extends ExtensionAdaptor
         if (changedReference != null) {
             alert.setReference(applyOverride(alert.getReference(), changedReference));
         }
+        Map<String, String> tags = new HashMap<>(alert.getTags());
+        for (Map.Entry<Object, Object> e : this.alertOverrides.entrySet()) {
+            String propertyKey = e.getKey().toString();
+            if (propertyKey.startsWith(alert.getPluginId() + ".tag.")) {
+                String tagKey = propertyKey.substring((alert.getPluginId() + ".tag.").length());
+                tags.put(
+                        tagKey,
+                        applyOverride(
+                                alert.getTags().getOrDefault(tagKey, ""), e.getValue().toString()));
+            }
+        }
+        alert.setTags(tags);
     }
 
     /*
@@ -440,7 +453,13 @@ public class ExtensionAlert extends ExtensionAdaptor
                         alert.getSource().getId(),
                         alert.getAlertRef());
 
-        alert.setAlertId(recordAlert.getAlertId());
+        int alertId = recordAlert.getAlertId();
+        alert.setAlertId(alertId);
+
+        TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();
+        for (Map.Entry<String, String> e : alert.getTags().entrySet()) {
+            tableAlertTag.insertOrUpdate(alertId, e.getKey(), e.getValue());
+        }
     }
 
     public void updateAlert(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
@@ -474,6 +493,19 @@ public class ExtensionAlert extends ExtensionAdaptor
                 alert.getCweId(),
                 alert.getWascId(),
                 alert.getSourceHistoryId());
+
+        int alertId = alert.getAlertId();
+        TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();
+        Map<String, String> existingTags = tableAlertTag.getTagsByAlertId(alertId);
+        Map<String, String> newTags = alert.getTags();
+        for (Map.Entry<String, String> e : existingTags.entrySet()) {
+            if (!newTags.containsKey(e.getKey())) {
+                tableAlertTag.delete(alertId, e.getKey());
+            }
+        }
+        for (Map.Entry<String, String> e : newTags.entrySet()) {
+            tableAlertTag.insertOrUpdate(alertId, e.getKey(), e.getValue());
+        }
     }
 
     public void displayAlert(Alert alert) {
@@ -565,6 +597,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
+        TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();
         // TODO this doesn't work, but should be used when its fixed :/
         // Vector<Integer> v =
         // tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
@@ -592,6 +625,7 @@ public class ExtensionAlert extends ExtensionAdaptor
             } else {
                 alert = new Alert(recAlert);
             }
+            alert.setTags(tableAlertTag.getTagsByAlertId(alertId));
             historyReference = alert.getHistoryRef();
             if (historyReference != null) {
                 // The ref can be null if hrefs are purged
@@ -654,6 +688,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
         try {
             getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
+            getModel().getDb().getTableAlertTag().deleteAllTagsForAlert(alert.getAlertId());
         } catch (DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
@@ -665,6 +700,7 @@ public class ExtensionAlert extends ExtensionAdaptor
     public void deleteAllAlerts() {
         try {
             getModel().getDb().getTableAlert().deleteAllAlerts();
+            getModel().getDb().getTableAlertTag().deleteAllTags();
         } catch (DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
@@ -752,6 +788,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
                 try {
                     getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
+                    getModel().getDb().getTableAlertTag().deleteAllTagsForAlert(alert.getAlertId());
                 } catch (DatabaseException e) {
                     logger.error("Failed to delete alert with ID: " + alert.getAlertId(), e);
                 }
@@ -826,6 +863,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         List<Alert> allAlerts = new ArrayList<>();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
+        TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();
         Vector<Integer> v;
         try {
             // TODO this doesn't work, but should be used when its fixed :/
@@ -840,6 +878,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                 if (alert.getHistoryRef() != null) {
                     // Only use the alert if it has a history reference.
                     if (!allAlerts.contains(alert)) {
+                        alert.setTags(tableAlertTag.getTagsByAlertId(alertId));
                         allAlerts.add(alert);
                     }
                 }
@@ -855,7 +894,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         StringBuilder xml = new StringBuilder();
         xml.append("<alerts>");
         List<Alert> alerts = site.getAlerts();
-        SortedSet<String> handledAlerts = new TreeSet<String>();
+        SortedSet<String> handledAlerts = new TreeSet<>();
 
         for (int i = 0; i < alerts.size(); i++) {
             Alert alert = alerts.get(i);
@@ -1074,6 +1113,10 @@ public class ExtensionAlert extends ExtensionAdaptor
             dialogAlertAdd.setVisible(true);
             dialogAlertAdd.setAlert(alert);
         }
+    }
+
+    AlertAddDialog getDialogAlertAdd() {
+        return dialogAlertAdd;
     }
 
     /** Part of the core set of features that should be supported by all db types */

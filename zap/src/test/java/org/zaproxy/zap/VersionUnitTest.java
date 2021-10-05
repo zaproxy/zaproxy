@@ -33,10 +33,10 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link org.zaproxy.zap.Version}. */
-public class VersionUnitTest {
+class VersionUnitTest {
 
     @Test
-    public void shouldThrowExceptionIfVersionIsNull() {
+    void shouldThrowExceptionIfVersionIsNull() {
         // Given
         String version = null;
         // When
@@ -47,7 +47,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldThrowExceptionIfVersionIsEmpty() {
+    void shouldThrowExceptionIfVersionIsEmpty() {
         // Given
         String version = "";
         // When
@@ -58,7 +58,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldNotAcceptVersionWithOnlyMajorVersion() {
+    void shouldNotAcceptVersionWithOnlyMajorVersion() {
         // Given
         String versionWithOnlyMajorNumber = "1";
         // When
@@ -71,7 +71,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldNotAcceptVersionWithOnlyMajorAndMinorVersion() {
+    void shouldNotAcceptVersionWithOnlyMajorAndMinorVersion() {
         // Given
         String versionWithOnlyMajorAndMinorNumbers = "1.0";
         // When
@@ -84,7 +84,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldAcceptVersionWithMajorMinorAndPatchNumbers() {
+    void shouldAcceptVersionWithMajorMinorAndPatchNumbers() {
         // Given
         String versionWithOnlyMajorMinorAndPatchNumbers = "1.0.0";
         // When / Then
@@ -92,7 +92,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldAcceptVersionWithPreReleaseIdentifier() {
+    void shouldAcceptVersionWithPreReleaseIdentifier() {
         // Given
         String versionWithPreReleaseIdentifiers = "1.2.3-SNAPSHOT";
         // When
@@ -100,7 +100,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnTrueWhenEqualingToTheSameVersionNumber() {
+    void shouldReturnTrueWhenEqualingToTheSameVersionNumber() {
         // Given
         Version version = new Version("1.0.0");
         Version differentVersion = new Version("1.0.0");
@@ -111,7 +111,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnFalseWhenEqualingToDifferentVersionNumbers() {
+    void shouldReturnFalseWhenEqualingToDifferentVersionNumbers() {
         // Given
         Version version = new Version("1.0.0");
         Version differentVersion = new Version("2.0.0");
@@ -122,7 +122,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnPositiveNumberWhenComparingToOlderPatchVersion() {
+    void shouldReturnPositiveNumberWhenComparingToOlderPatchVersion() {
         // Given
         Version version = new Version("2.0.1");
         Version olderVersion = new Version("2.0.0");
@@ -133,7 +133,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnPositiveNumberWhenComparingToOlderMinorVersion() {
+    void shouldReturnPositiveNumberWhenComparingToOlderMinorVersion() {
         // Given
         Version version = new Version("2.1.0");
         Version olderVersion = new Version("2.0.0");
@@ -144,7 +144,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnPositiveNumberWhenComparingToOlderMajorVersion() {
+    void shouldReturnPositiveNumberWhenComparingToOlderMajorVersion() {
         // Given
         Version version = new Version("3.0.0");
         Version olderVersion = new Version("2.0.0");
@@ -155,7 +155,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnZeroWhenComparingToEqualVersion() {
+    void shouldReturnZeroWhenComparingToEqualVersion() {
         // Given
         Version version = new Version("1.0.0");
         Version sameVersion = new Version("1.0.0");
@@ -166,7 +166,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnNegativeNumberWhenComparingToNewerPatchVersion() {
+    void shouldReturnNegativeNumberWhenComparingToNewerPatchVersion() {
         // Given
         Version version = new Version("1.0.0");
         Version newerVersion = new Version("1.0.1");
@@ -177,7 +177,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnNegativeNumberWhenComparingToNewerMinorVersion() {
+    void shouldReturnNegativeNumberWhenComparingToNewerMinorVersion() {
         // Given
         Version version = new Version("1.0.0");
         Version newerVersion = new Version("1.1.0");
@@ -188,7 +188,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnNegativeNumberWhenComparingToNewerMajorVersion() {
+    void shouldReturnNegativeNumberWhenComparingToNewerMajorVersion() {
         // Given
         Version version = new Version("1.0.0");
         Version newerVersion = new Version("2.0.0");
@@ -199,7 +199,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldMatchExactVersion() {
+    void shouldMatchExactVersion() {
         // Given
         Version version = new Version("1.2.3");
         String rangeVersion = "1.2.3";
@@ -210,7 +210,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldMatchAllVersionsWithWildcardRange() {
+    void shouldMatchAllVersionsWithWildcardRange() {
         // Given
         List<Version> versions =
                 Arrays.asList(new Version("0.0.1"), new Version("0.2.0"), new Version("3.0.0"));
@@ -224,7 +224,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldMatchMinorWildcardedVersionWithEqualMajorVersion() {
+    void shouldMatchMinorWildcardedVersionWithEqualMajorVersion() {
         // Given
         Version version = new Version("1.0.0");
         String rangeVersion = "1.*";
@@ -235,7 +235,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldMatchMinorWildcardedVersionWithEqualMajorVersionAndDifferentMinorVersion() {
+    void shouldMatchMinorWildcardedVersionWithEqualMajorVersionAndDifferentMinorVersion() {
         // Given
         Version version = new Version("1.5.0");
         String rangeVersion = "1.*";
@@ -246,7 +246,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldMatchMinorWildcardedVersionWithEqualMajorVersionAndDifferentPatchVersion() {
+    void shouldMatchMinorWildcardedVersionWithEqualMajorVersionAndDifferentPatchVersion() {
         // Given
         Version version = new Version("1.0.4");
         String rangeVersion = "1.*";
@@ -257,8 +257,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void
-            shouldMatchMinorWildcardedVersionWithEqualMajorVersionAndDifferentMinorAndPatchVersion() {
+    void shouldMatchMinorWildcardedVersionWithEqualMajorVersionAndDifferentMinorAndPatchVersion() {
         // Given
         Version version = new Version("1.9.3");
         String rangeVersion = "1.*";
@@ -269,7 +268,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldNotMatchMinorWildcardedVersionWithGreaterMajorVersion() {
+    void shouldNotMatchMinorWildcardedVersionWithGreaterMajorVersion() {
         // Given
         Version version = new Version("2.0.0");
         String rangeVersion = "1.*";
@@ -280,7 +279,7 @@ public class VersionUnitTest {
     }
 
     @Test
-    public void shouldReturnVersionAsString() {
+    void shouldReturnVersionAsString() {
         // Given
         Version version = new Version("1.2.3");
         // When

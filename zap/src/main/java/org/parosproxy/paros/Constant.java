@@ -110,6 +110,9 @@
 // ZAP: 2020/10/07 Changes for Log4j 2 migration.
 // ZAP: 2020/11/02 Do not backup old Log4j config if already present.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/09/15 Added support for detecting containers
+// ZAP: 2021/09/21 Added support for detecting snapcraft
+// ZAP: 2021/10/01 Added support for detecting WebSwing
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -118,6 +121,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -181,9 +185,10 @@ public final class Constant {
     private static final String VERSION_ELEMENT = "version";
 
     // Accessible for tests
-    static final long VERSION_TAG = 2009000;
+    static final long VERSION_TAG = 2010000;
 
     // Old version numbers - for upgrade
+    private static final long V_2_10_0_TAG = 20010000;
     private static final long V_2_9_0_TAG = 2009000;
     private static final long V_2_8_0_TAG = 2008000;
     private static final long V_2_7_0_TAG = 2007000;
@@ -286,6 +291,14 @@ public final class Constant {
     private static final String USER_CONTEXTS_DIR = "contexts";
     private static final String USER_POLICIES_DIR = "policies";
 
+    private static final String ZAP_CONTAINER_FILE = "/zap/container";
+    private static final String FLATPAK_FILE = "/.flatpak-info";
+    public static final String FLATPAK_NAME = "flatpak";
+    private static final String SNAP_FILE = "meta/snap.yaml";
+    public static final String SNAP_NAME = "snapcraft";
+    private static final String WEBSWING_ENVVAR = "WEBSWING_VERSION";
+    public static final String WEBSWING_NAME = "webswing";
+
     //
     // Home dir for ZAP, i.e. where the config file is. Can be set on cmdline, otherwise will be set
     // to default loc
@@ -298,6 +311,8 @@ public final class Constant {
     private static String zapInstall = null;
 
     private static Boolean onKali = null;
+    private static Boolean inContainer = null;
+    private static String containerName;
     private static Boolean lowMemoryOption = null;
 
     // ZAP: Added i18n
@@ -696,6 +711,9 @@ public final class Constant {
                     }
                     if (ver <= V_2_9_0_TAG) {
                         upgradeFrom2_9_0(config);
+                    }
+                    if (ver <= V_2_10_0_TAG) {
+                        // Nothing to do
                     }
 
                     // Execute always to pick installer choices.
@@ -1125,6 +1143,11 @@ public final class Constant {
         // Update to a newer default user agent
         config.setProperty(
                 ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
+        // Use new Look and Feel
+        config.setProperty(
+                OptionsParamView.LOOK_AND_FEEL, OptionsParamView.DEFAULT_LOOK_AND_FEEL_NAME);
+        config.setProperty(
+                OptionsParamView.LOOK_AND_FEEL_CLASS, OptionsParamView.DEFAULT_LOOK_AND_FEEL_CLASS);
     }
 
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
@@ -1537,5 +1560,57 @@ public final class Constant {
             }
         }
         return onKali;
+    }
+
+    /**
+     * Returns true if ZAP is running in a container like Docker or Flatpak
+     *
+     * @see #getContainerName
+     * @since 2.11.0
+     */
+    public static boolean isInContainer() {
+        if (inContainer == null) {
+            // This is created by the Docker files from 2.11
+            File containerFile = new File(ZAP_CONTAINER_FILE);
+            File flatpakFile = new File(FLATPAK_FILE);
+            File snapFile = new File(SNAP_FILE);
+            if (isLinux() && containerFile.exists()) {
+                inContainer = true;
+                boolean inWebSwing = System.getenv(WEBSWING_ENVVAR) != null;
+                try {
+                    containerName =
+                            new String(
+                                            Files.readAllBytes(containerFile.toPath()),
+                                            StandardCharsets.UTF_8)
+                                    .trim();
+                    if (inWebSwing) {
+                        // Append the webswing name so we don't loose the docker image name
+                        containerName += "." + WEBSWING_NAME;
+                    }
+                } catch (IOException e) {
+                    // Ignore
+                }
+            } else if (flatpakFile.exists()) {
+                inContainer = true;
+                containerName = FLATPAK_NAME;
+            } else if (snapFile.exists()) {
+                inContainer = true;
+                containerName = SNAP_NAME;
+            } else {
+                inContainer = false;
+            }
+        }
+        return inContainer;
+    }
+
+    /**
+     * Returns the name of the container ZAP is running in (if any) e.g. zap2docker-stable, flatpak
+     * or null if not running in a recognised container
+     *
+     * @since 2.11.0
+     */
+    public static String getContainerName() {
+        isInContainer();
+        return containerName;
     }
 }

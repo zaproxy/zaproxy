@@ -24,6 +24,8 @@ import java.util.Iterator;
 import java.util.List;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import net.sf.json.regexp.RegexpMatcher;
+import net.sf.json.regexp.RegexpUtils;
 import net.sf.json.util.JSONUtils;
 
 /**
@@ -35,6 +37,21 @@ public final class JsonUtil {
 
     private JsonUtil() {}
 
+    private static final String FUNCTION_PATTERN = "^function[ ]?\\(.*\\)[ ]?\\{.*\\}$";
+    private static final RegexpMatcher FUNCTION_MACTHER = RegexpUtils.getMatcher(FUNCTION_PATTERN);
+
+    /**
+     * net.sf.json.util.JSONUtils tries to be clever and detects things which look like JS
+     * functions. This breaks our API :( Regex taken from
+     * http://json-lib.sourceforge.net/apidocs/jdk15/net/sf/json/util/JSONUtils.html
+     *
+     * @param value
+     * @return
+     */
+    private static boolean isFunction(String value) {
+        return FUNCTION_MACTHER.matches(value);
+    }
+
     /**
      * Gets the given value in a form that can be safely put in a {@code JSONObject}.
      *
@@ -45,14 +62,14 @@ public final class JsonUtil {
      * @return the value that can be safely put in a {@code JSONObject}.
      */
     public static String getJsonFriendlyString(String value) {
-        if (!"null".equals(value) && JSONUtils.mayBeJSON(value)) {
+        if (!"null".equals(value) && (JSONUtils.mayBeJSON(value) || isFunction(value))) {
             return "'" + value + "'";
         }
         return value;
     }
 
     public static List<String> toStringList(JSONArray array) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         Iterator<?> iter = JSONArray.toCollection(array).iterator();
         while (iter.hasNext()) {
             list.add(iter.next().toString());

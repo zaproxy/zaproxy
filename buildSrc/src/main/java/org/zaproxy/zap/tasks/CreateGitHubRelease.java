@@ -49,12 +49,12 @@ import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
+import org.zaproxy.zap.GitHubUser;
 
 /** A task that creates a GitHub release. */
-public class CreateGitHubRelease extends DefaultTask {
+public abstract class CreateGitHubRelease extends DefaultTask {
 
     private final Property<String> repo;
-    private final Property<String> authToken;
     private final Property<String> tag;
     private final Property<String> title;
     private final Property<String> body;
@@ -68,7 +68,6 @@ public class CreateGitHubRelease extends DefaultTask {
     public CreateGitHubRelease() {
         ObjectFactory objects = getProject().getObjects();
         this.repo = objects.property(String.class);
-        this.authToken = objects.property(String.class);
         this.tag = objects.property(String.class);
         this.title = objects.property(String.class);
         this.body = objects.property(String.class);
@@ -89,9 +88,7 @@ public class CreateGitHubRelease extends DefaultTask {
     }
 
     @Input
-    public Property<String> getAuthToken() {
-        return authToken;
-    }
+    public abstract Property<GitHubUser> getUser();
 
     @Input
     public Property<String> getTag() {
@@ -159,7 +156,9 @@ public class CreateGitHubRelease extends DefaultTask {
             throw new IllegalArgumentException("The checksum algorithm must not be empty.");
         }
 
-        GHRepository ghRepo = GitHub.connect("", authToken.get()).getRepository(repo.get());
+        GitHubUser ghUser = getUser().get();
+        GHRepository ghRepo =
+                GitHub.connect(ghUser.getName(), ghUser.getAuthToken()).getRepository(repo.get());
 
         validateTagExists(ghRepo, tag.get());
         validateReleaseDoesNotExist(ghRepo, tag.get());

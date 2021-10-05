@@ -36,9 +36,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -66,6 +68,8 @@ import org.parosproxy.paros.network.HttpHeader;
  *  String, String, String) to preserve the intended request URI.
  *  - Change the way cookie headers are handled when using forced user mode, put all the headers in a single line see ISSUE 1874
  *  - Do not add a User-Agent header by default.
+ *  - Update Host header in place.
+ *  - Replace usages of StringBuffer with StringBuilder.
  * 
  */
 /**
@@ -116,6 +120,8 @@ import org.parosproxy.paros.network.HttpHeader;
  * @version $Revision: 775455 $ $Date: 2009-05-16 13:28:40 +0100 (Sat, 16 May 2009) $
  */
 public abstract class HttpMethodBase implements HttpMethod {
+
+    private static final String HOST_HEADER = "Host";
 
     // -------------------------------------------------------------- Constants
 
@@ -267,7 +273,7 @@ public abstract class HttpMethodBase implements HttpMethod {
      */
     @Override
     public URI getURI() throws URIException {
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         if (this.httphost != null) {
             buffer.append(this.httphost.getProtocol().getScheme());
             buffer.append("://");
@@ -1393,7 +1399,7 @@ public abstract class HttpMethodBase implements HttpMethod {
     	LOG.trace("enter putAllCookiesInASingleHeader(String host, CookieSpec matcher, Cookie[] cookies)" );
     	
         //use a map to make sure we only have one cookie per name
-        HashMap<String, Cookie> mergedCookies = new HashMap<String, Cookie>();
+        HashMap<String, Cookie> mergedCookies = new HashMap<>();
         Header[] cookieLineHeaders = getRequestHeaderGroup().getHeaders(HttpHeader.COOKIE);
         for (Header cookieLineHeader : cookieLineHeaders) {
             List<Cookie> cookiesHeader = parseCookieHeader(host, cookieLineHeader.getValue());
@@ -1432,7 +1438,7 @@ public abstract class HttpMethodBase implements HttpMethod {
             return Collections.emptyList();
         }
         String[] cookies = cookieHeaderValue.split(";");
-        List<Cookie> cookiesList = new ArrayList<Cookie>();
+        List<Cookie> cookiesList = new ArrayList<>();
         for (String cookie : cookies){
             String[] parts = cookie.split("=");
             //manage empty value
@@ -1492,7 +1498,31 @@ public abstract class HttpMethodBase implements HttpMethod {
             host += (":" + port);
         }
 
-        setRequestHeader("Host", host);
+        if (!getRequestHeaderGroup().containsHeader(HOST_HEADER)) {
+            addRequestHeader(HOST_HEADER, host);
+            return;
+        }
+
+        Header[] hostHeaders = getRequestHeaderGroup().getHeaders(HOST_HEADER);
+        if (hostHeaders.length == 1) {
+            hostHeaders[0].setValue(host);
+            return;
+        }
+
+        List<Header> headers = new ArrayList<>(Arrays.asList(getRequestHeaderGroup().getAllHeaders()));
+        boolean remove = false;
+        for (Iterator<Header> it = headers.iterator(); it.hasNext();) {
+            Header header = it.next();
+            if (HOST_HEADER.equalsIgnoreCase(header.getName())) {
+                if (remove) {
+                    it.remove();
+                } else {
+                    header.setValue(host);
+                    remove = true;
+                }
+            }
+        }
+        getRequestHeaderGroup().setHeaders(headers.toArray(new Header[0]));
     }
 
     /**
@@ -1630,7 +1660,7 @@ public abstract class HttpMethodBase implements HttpMethod {
         LOG.trace("enter HttpMethodBase.generateRequestLine(HttpConnection, "
             + "String, String, String, String)");
 
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // Append method name
         buf.append(name);
         buf.append(" ");

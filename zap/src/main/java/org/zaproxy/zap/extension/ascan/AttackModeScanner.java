@@ -63,7 +63,7 @@ public class AttackModeScanner implements EventConsumer {
 
     private Logger log = LogManager.getLogger(AttackModeScanner.class);
 
-    private List<SiteNode> nodeStack = new ArrayList<SiteNode>();
+    private List<SiteNode> nodeStack = new ArrayList<>();
 
     public AttackModeScanner(ExtensionActiveScan extension) {
         this.extension = extension;
@@ -257,7 +257,7 @@ public class AttackModeScanner implements EventConsumer {
     private class AttackModeThread implements Runnable, ScannerListener, AttackModeScannerThread {
 
         private int scannerCount = 4;
-        private List<Scanner> scanners = new ArrayList<Scanner>();
+        private List<Scanner> scanners = new ArrayList<>();
         private AttackScan ascanWrapper;
         private boolean running = false;
 
@@ -336,7 +336,7 @@ public class AttackModeScanner implements EventConsumer {
         @Override
         public void scannerComplete(int id) {
             // Clear so we can attack the next node
-            List<Scanner> stoppedScanners = new ArrayList<Scanner>();
+            List<Scanner> stoppedScanners = new ArrayList<>();
             synchronized (this.scanners) {
                 for (Scanner scanner : this.scanners) {
                     if (scanner.isStop()) {

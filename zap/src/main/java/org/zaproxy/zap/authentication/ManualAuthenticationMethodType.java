@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JOptionPane;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import net.sf.json.JSONObject;
 import org.apache.commons.codec.binary.Base64;
@@ -217,7 +216,6 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
         public void decode(String encodedCredentials) {
             // TODO: Currently, cannot be decoded as HttpSessions are not
             // persisted.
-            throw new IllegalStateException("Manual Authentication Credentials cannot be decoded.");
         }
 
         @Override
@@ -225,7 +223,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
             Map<String, String> values = new HashMap<>();
             values.put("type", API_NAME);
             values.put("sessionName", selectedSession != null ? selectedSession.getName() : "");
-            return new ApiResponseSet<String>("credentials", values);
+            return new ApiResponseSet<>("credentials", values);
         }
     }
 
@@ -305,17 +303,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
         @Override
         public boolean validateFields() {
-            if (sessionsComboBox.getSelectedIndex() < 0) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        Constant.messages.getString(
-                                "authentication.method.manual.dialog.error.nosession.text"),
-                        Constant.messages.getString(
-                                "authentication.method.manual.dialog.error.title"),
-                        JOptionPane.WARNING_MESSAGE);
-                sessionsComboBox.requestFocusInWindow();
-                return false;
-            }
+            // No validation needed
             return true;
         }
 

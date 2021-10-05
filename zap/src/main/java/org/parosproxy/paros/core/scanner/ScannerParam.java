@@ -50,6 +50,8 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/04/13 Issue 6469: Add option to scan null JSON values.
+// ZAP: 2021/09/14 Enable Anti CSRF handling by default.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -117,6 +119,13 @@ public class ScannerParam extends AbstractParam {
      */
     private static final String SCAN_ADD_QUERY_PARAM = ACTIVE_SCAN_BASE_KEY + ".addQueryParam";
 
+    /**
+     * Configuration key to write/read the {@link #scanNullJsonValues} flag.
+     *
+     * @since 2.11.0
+     */
+    static final String SCAN_NULL_JSON_VALUES = ACTIVE_SCAN_BASE_KEY + ".scanNullJsonValues";
+
     // ZAP: Configuration constants
     public static final int TARGET_QUERYSTRING = 1;
     public static final int TARGET_POSTDATA = 1 << 1;
@@ -146,7 +155,7 @@ public class ScannerParam extends AbstractParam {
     private int maxResultsToList = 1000;
     private int maxScansInUI = 5;
     private boolean injectPluginIdInHeader = false;
-    private boolean handleAntiCSRFTokens = false;
+    private boolean handleAntiCSRFTokens = true;
     private boolean promptInAttackMode = true;
     private boolean rescanInAttackMode = true;
     private boolean promptToClearFinishedScans = true;
@@ -186,6 +195,17 @@ public class ScannerParam extends AbstractParam {
      */
     private boolean addQueryParam;
 
+    /**
+     * Flag that indicates if the active scanner should scan null JSON values.
+     *
+     * <p>Default value is {@code false}.
+     *
+     * @since 2.11.0
+     * @see #isScanNullJsonValues()
+     * @see #setScanNullJsonValues(boolean)
+     */
+    private boolean scanNullJsonValues;
+
     // ZAP: Excluded Parameters
     private final List<ScannerParamFilter> excludedParams = new ArrayList<>();
     private final Map<Integer, List<ScannerParamFilter>> excludedParamsMap = new HashMap<>();
@@ -215,7 +235,7 @@ public class ScannerParam extends AbstractParam {
 
         this.injectPluginIdInHeader = getBoolean(INJECT_PLUGIN_ID_IN_HEADER, false);
 
-        this.handleAntiCSRFTokens = getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
+        this.handleAntiCSRFTokens = getBoolean(HANDLE_ANTI_CSRF_TOKENS, true);
 
         this.promptInAttackMode = getBoolean(PROMPT_IN_ATTACK_MODE, true);
 
@@ -240,6 +260,8 @@ public class ScannerParam extends AbstractParam {
         this.scanHeadersAllRequests = getBoolean(SCAN_HEADERS_ALL_REQUESTS, false);
 
         this.addQueryParam = getBoolean(SCAN_ADD_QUERY_PARAM, false);
+
+        this.scanNullJsonValues = getBoolean(SCAN_NULL_JSON_VALUES, false);
 
         // Parse the parameters that need to be excluded
         // ------------------------------------------------
@@ -586,5 +608,29 @@ public class ScannerParam extends AbstractParam {
     public void setAddQueryParam(boolean addQueryParam) {
         this.addQueryParam = addQueryParam;
         getConfig().setProperty(SCAN_ADD_QUERY_PARAM, this.addQueryParam);
+    }
+
+    /**
+     * Tells whether or not the active scanner should scan null JSON values.
+     *
+     * @return {@code true} if null values should be scanned, {@code false} otherwise.
+     * @since 2.11.0
+     * @see #setScanNullJsonValues(boolean)
+     */
+    public boolean isScanNullJsonValues() {
+        return scanNullJsonValues;
+    }
+
+    /**
+     * Sets whether or not the active scanner should scan null JSON values.
+     *
+     * @param scan {@code true} if null values should be scanned, {@code false} otherwise.
+     * @since 2.11.0
+     * @see #isScanNullJsonValues()
+     * @see VariantJSONQuery#setScanNullValues(boolean)
+     */
+    public void setScanNullJsonValues(boolean scan) {
+        this.scanNullJsonValues = scan;
+        getConfig().setProperty(SCAN_NULL_JSON_VALUES, this.scanNullJsonValues);
     }
 }

@@ -39,6 +39,7 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -46,6 +47,7 @@ import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.filters.ParseFilter.FilterResult;
 import org.zaproxy.zap.spider.parser.SpiderParser;
+import org.zaproxy.zap.spider.parser.SpiderResourceFound;
 
 /** The SpiderTask representing a spidering task performed during the Spidering process. */
 public class SpiderTask implements Runnable {
@@ -66,8 +68,8 @@ public class SpiderTask implements Runnable {
      */
     private HistoryReference reference;
 
-    /** The depth of crawling where the uri was found. */
-    private int depth;
+    /** The spider resource found. */
+    private SpiderResourceFound resourceFound;
 
     private ExtensionHistory extHistory = null;
 
@@ -76,73 +78,21 @@ public class SpiderTask implements Runnable {
 
     /**
      * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the
-     * given uri, using the provided method, find any other uris in the fetched resource and create
-     * other tasks.
-     *
-     * @param parent the spider controlling the crawling process
-     * @param uri the uri that this task should process
-     * @param depth the depth where this uri is located in the spidering process
-     * @param method the HTTP method that should be used to fetch the resource
-     */
-    public SpiderTask(Spider parent, URI uri, int depth, String method) {
-        this(parent, null, uri, depth, method, null);
-    }
-
-    /**
-     * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the
-     * given uri, using the provided method, find any other uris in the fetched resource and create
-     * other tasks.
-     *
-     * @param parent the spider controlling the crawling process
-     * @param sourceUri the URI where the given {@code uri} was found
-     * @param uri the uri that this task should process
-     * @param depth the depth where this uri is located in the spidering process
-     * @param method the HTTP method that should be used to fetch the resource
-     * @since 2.4.0
-     */
-    public SpiderTask(Spider parent, URI sourceUri, URI uri, int depth, String method) {
-        this(parent, sourceUri, uri, depth, method, null);
-    }
-
-    /**
-     * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the
-     * given uri, using the provided method, find any other uris in the fetched resource and create
-     * other tasks.
+     * given uri, using the provided method and supplied request headers, find any other uris in the
+     * fetched resource and create other tasks.
      *
      * <p>The body of the request message is also provided in the {@literal requestBody} parameter
      * and will be used when fetching the resource from the specified uri.
      *
      * @param parent the spider controlling the crawling process
+     * @param resourceFound the spider resource found
      * @param uri the uri that this task should process
-     * @param depth the depth where this uri is located in the spidering process
-     * @param method the HTTP method that should be used to fetch the resource
-     * @param requestBody the body of the request
+     * @since 2.11.0
      */
-    public SpiderTask(Spider parent, URI uri, int depth, String method, String requestBody) {
-        this(parent, null, uri, depth, method, requestBody);
-    }
-
-    /**
-     * Instantiates a new spider task using the target URI. The purpose of this task is to crawl the
-     * given uri, using the provided method, find any other uris in the fetched resource and create
-     * other tasks.
-     *
-     * <p>The body of the request message is also provided in the {@literal requestBody} parameter
-     * and will be used when fetching the resource from the specified uri.
-     *
-     * @param parent the spider controlling the crawling process
-     * @param sourceUri the URI where the given {@code uri} was found
-     * @param uri the uri that this task should process
-     * @param depth the depth where this uri is located in the spidering process
-     * @param method the HTTP method that should be used to fetch the resource
-     * @param requestBody the body of the request
-     * @since 2.4.0
-     */
-    public SpiderTask(
-            Spider parent, URI sourceUri, URI uri, int depth, String method, String requestBody) {
+    public SpiderTask(Spider parent, SpiderResourceFound resourceFound, URI uri) {
         super();
         this.parent = parent;
-        this.depth = depth;
+        this.resourceFound = resourceFound;
 
         // Log the new task
         if (log.isDebugEnabled()) {
@@ -153,14 +103,23 @@ public class SpiderTask implements Runnable {
         // using
         // HistoryReference
         try {
-            HttpRequestHeader requestHeader = new HttpRequestHeader(method, uri, HttpHeader.HTTP11);
-            if (sourceUri != null && parent.getSpiderParam().isSendRefererHeader()) {
-                requestHeader.setHeader(HttpRequestHeader.REFERER, sourceUri.toString());
+            HttpRequestHeader requestHeader =
+                    new HttpRequestHeader(resourceFound.getMethod(), uri, HttpHeader.HTTP11);
+            // Intentionally adding supplied request headers before the referer header
+            // to prioritize "send referer header" option
+            for (HttpHeaderField header : resourceFound.getHeaders()) {
+                requestHeader.addHeader(header.getName(), header.getValue());
+            }
+            if (resourceFound.getMessage() != null
+                    && parent.getSpiderParam().isSendRefererHeader()) {
+                requestHeader.setHeader(
+                        HttpRequestHeader.REFERER,
+                        resourceFound.getMessage().getRequestHeader().getURI().toString());
             }
             HttpMessage msg = new HttpMessage(requestHeader);
-            if (requestBody != null) {
-                msg.getRequestHeader().setContentLength(requestBody.length());
-                msg.setRequestBody(requestBody);
+            if (!resourceFound.getBody().isEmpty()) {
+                msg.getRequestHeader().setContentLength(resourceFound.getBody().length());
+                msg.setRequestBody(resourceFound.getBody());
             }
             this.reference =
                     new HistoryReference(
@@ -183,7 +142,7 @@ public class SpiderTask implements Runnable {
             if (log.isDebugEnabled()) {
                 log.debug(
                         "Spider Task Started. Processing uri at depth "
-                                + depth
+                                + resourceFound.getDepth()
                                 + " using already constructed message: "
                                 + reference.getURI());
             }
@@ -271,7 +230,7 @@ public class SpiderTask implements Runnable {
         parent.checkPauseAndWait();
 
         int maxDepth = parent.getSpiderParam().getMaxDepth();
-        if (maxDepth == SpiderParam.UNLIMITED_DEPTH || depth < maxDepth) {
+        if (maxDepth == SpiderParam.UNLIMITED_DEPTH || resourceFound.getDepth() < maxDepth) {
             parent.notifyListenersSpiderTaskResult(new SpiderTaskResult(msg));
             processResource(msg);
         } else {
@@ -421,7 +380,9 @@ public class SpiderTask implements Runnable {
             if (parser.canParseResource(message, path, alreadyConsumed)) {
                 if (log.isDebugEnabled())
                     log.debug("Parser " + parser + " can parse resource '" + path + "'");
-                if (parser.parseResource(message, source, depth)) alreadyConsumed = true;
+                if (parser.parseResource(message, source, resourceFound.getDepth())) {
+                    alreadyConsumed = true;
+                }
             } else {
                 if (log.isDebugEnabled())
                     log.debug("Parser " + parser + " cannot parse resource '" + path + "'");

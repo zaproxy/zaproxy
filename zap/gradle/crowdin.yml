@@ -1,0 +1,20 @@
+projects:
+  - id: 9301
+    sources:
+      - dir: "src/main/resources/org/zaproxy/zap/resources"
+        outputDir: "src/main/dist/lang"
+        crowdinPath:
+          dir: "/core"
+          filename: "%file_pathname%"
+        exportPattern:
+          dir: "/zaproxy/core"
+          filename: "%file_name%_%locale_with_underscore%%file_extension%"
+        includes:
+          - pattern: "Messages.properties"
+          - pattern: "vulnerabilities.xml"
+            translatableElements:
+              - "//alert"
+              - "//desc"
+              - "//reference"
+              - "//solution"
+

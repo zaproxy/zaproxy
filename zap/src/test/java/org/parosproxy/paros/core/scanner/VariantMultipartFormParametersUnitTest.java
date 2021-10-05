@@ -26,13 +26,20 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.core.scanner.InputVector.PayloadFormat;
+import org.zaproxy.zap.core.scanner.InputVectorBuilder;
 
 /** Unit test for {@link VariantMultipartFormParameters}. */
-public class VariantMultipartFormParametersUnitTest {
+class VariantMultipartFormParametersUnitTest {
 
     private static final String CRLF = "\r\n";
     private static final String DEFAULT_PARAM_CONTENT = "anonymous" + CRLF + "anonymous2";
@@ -41,7 +48,7 @@ public class VariantMultipartFormParametersUnitTest {
     private static final String DEFAULT_FILE_PARAM_CONTENT = "contents of the file";
 
     @Test
-    public void shouldHaveParametersListEmptyByDefault() {
+    void shouldHaveParametersListEmptyByDefault() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         // When
@@ -51,7 +58,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToModifyReturnedParametersList() {
+    void shouldNotAllowToModifyReturnedParametersList() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         NameValuePair param =
@@ -61,7 +68,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldFailToExtractParametersFromUndefinedMessage() {
+    void shouldFailToExtractParametersFromUndefinedMessage() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage undefinedMessage = null;
@@ -71,38 +78,42 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldExtractParametersFromAllParts() {
+    void shouldExtractParametersFromAllParts() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         // When
         variant.setMessage(createMessage());
         // Then
         assertThat(variant.getParamList().size(), is(equalTo(4)));
+        assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
         assertThat(variant.getParamList().get(0).getName(), is(equalTo("person")));
         assertThat(variant.getParamList().get(0).getValue(), is(equalTo(DEFAULT_PARAM_CONTENT)));
         assertThat(
                 variant.getParamList().get(0).getType(),
                 is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
+        assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
         assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile")));
-        assertThat(
-                variant.getParamList().get(1).getValue(), is(equalTo(DEFAULT_FILE_PARAM_CONTENT)));
+        assertThat(variant.getParamList().get(1).getValue(), is(equalTo(DEFAULT_FILE_NAME)));
         assertThat(
                 variant.getParamList().get(1).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
+        assertThat(variant.getParamList().get(2).getPosition(), is(equalTo(3)));
         assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile")));
-        assertThat(variant.getParamList().get(2).getValue(), is(equalTo(DEFAULT_FILE_NAME)));
+        assertThat(variant.getParamList().get(2).getValue(), is(equalTo(DEFAULT_CONTENT_TYPE)));
         assertThat(
                 variant.getParamList().get(2).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
+        assertThat(variant.getParamList().get(3).getPosition(), is(equalTo(4)));
         assertThat(variant.getParamList().get(3).getName(), is(equalTo("somefile")));
-        assertThat(variant.getParamList().get(3).getValue(), is(equalTo(DEFAULT_CONTENT_TYPE)));
+        assertThat(
+                variant.getParamList().get(3).getValue(), is(equalTo(DEFAULT_FILE_PARAM_CONTENT)));
         assertThat(
                 variant.getParamList().get(3).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
     }
 
     @Test
-    public void shouldExtractParametersFromAllPartsEventIfTheyContainRegexChars() {
+    void shouldExtractParametersFromAllPartsEventIfTheyContainRegexChars() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createBaseMessage();
@@ -123,30 +134,34 @@ public class VariantMultipartFormParametersUnitTest {
         variant.setMessage(message);
         // Then
         assertThat(variant.getParamList().size(), is(equalTo(4)));
+        assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
         assertThat(variant.getParamList().get(0).getName(), is(equalTo("param[]")));
         assertThat(variant.getParamList().get(0).getValue(), is(equalTo("paramContent[]")));
         assertThat(
                 variant.getParamList().get(0).getType(),
                 is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
+        assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
         assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile[]")));
-        assertThat(variant.getParamList().get(1).getValue(), is(equalTo("filecontent[]")));
+        assertThat(variant.getParamList().get(1).getValue(), is(equalTo("file[]")));
         assertThat(
                 variant.getParamList().get(1).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
+        assertThat(variant.getParamList().get(2).getPosition(), is(equalTo(3)));
         assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile[]")));
-        assertThat(variant.getParamList().get(2).getValue(), is(equalTo("file[]")));
+        assertThat(variant.getParamList().get(2).getValue(), is(equalTo("ContentType[]")));
         assertThat(
                 variant.getParamList().get(2).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
+        assertThat(variant.getParamList().get(3).getPosition(), is(equalTo(4)));
         assertThat(variant.getParamList().get(3).getName(), is(equalTo("somefile[]")));
-        assertThat(variant.getParamList().get(3).getValue(), is(equalTo("ContentType[]")));
+        assertThat(variant.getParamList().get(3).getValue(), is(equalTo("filecontent[]")));
         assertThat(
                 variant.getParamList().get(3).getType(),
-                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
     }
 
     @Test
-    public void shouldInjectParamValueModificationInGeneralParam() {
+    void shouldInjectParamValueModificationInGeneralParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -175,7 +190,7 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueModificationInFileParam() {
+    void shouldInjectParamValueModificationInFileParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -187,7 +202,7 @@ public class VariantMultipartFormParametersUnitTest {
         variant.setParameter(
                 message,
                 new NameValuePair(
-                        NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origValue, 2),
+                        NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origValue, 4),
                 paramName,
                 newValue);
         HttpMessage newMsg =
@@ -198,13 +213,13 @@ public class VariantMultipartFormParametersUnitTest {
                 message.getRequestBody().toString(), equalTo(newMsg.getRequestBody().toString()));
     }
 
-    @Test
-    public void shouldInjectParamValueModificationInFileNameParam() {
+    @ParameterizedTest
+    @ValueSource(strings = {"injected", "inj", "injectedFileName", ""})
+    void shouldInjectParamValueModificationInFileNameParam(String newValue) {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
         String paramName = "somefile";
-        String newValue = "injected";
         variant.setMessage(message);
         // When
         variant.setParameter(
@@ -213,7 +228,7 @@ public class VariantMultipartFormParametersUnitTest {
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
                         paramName,
                         DEFAULT_FILE_NAME,
-                        3),
+                        2),
                 paramName,
                 newValue);
         HttpMessage newMsg =
@@ -228,7 +243,109 @@ public class VariantMultipartFormParametersUnitTest {
     }
 
     @Test
-    public void shouldInjectParamValueModificationInFileContentTypeParam() {
+    void shouldInjectParamValueMultipleTimesModificationInFileNameParam() {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        HttpMessage message = createMessage();
+        String paramName = "somefile";
+        String newValue = "somefile9";
+        variant.setMessage(message);
+        // When
+        InputVectorBuilder inputVectorBuilder = new InputVectorBuilder();
+        for (int i = 0; i < 10; i++) {
+            inputVectorBuilder.setNameAndValue(
+                    new NameValuePair(
+                            NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
+                            paramName,
+                            DEFAULT_FILE_NAME,
+                            2),
+                    paramName,
+                    PayloadFormat.ALREADY_ESCAPED,
+                    newValue,
+                    PayloadFormat.ALREADY_ESCAPED);
+        }
+        variant.setParameters(message, inputVectorBuilder.build());
+        HttpMessage newMsg =
+                createMessage(
+                        DEFAULT_PARAM_CONTENT,
+                        newValue,
+                        DEFAULT_CONTENT_TYPE,
+                        DEFAULT_FILE_PARAM_CONTENT);
+        // Then
+        assertThat(
+                message.getRequestBody().toString(), equalTo(newMsg.getRequestBody().toString()));
+    }
+
+    private static Stream<Arguments> getArgumentsForMultipleModifications() {
+        return Stream.of(
+                Arguments.of("", "", "contents of the file"),
+                Arguments.of("injF", "new contents file", "contents of the file"),
+                Arguments.of("injection of new value", "new contents", "original contents"),
+                Arguments.of("injectedFile", "new contents of the file", "contents of the file"),
+                Arguments.of("file", "new content", ""));
+    }
+
+    @ParameterizedTest
+    @MethodSource("getArgumentsForMultipleModifications")
+    void shouldInjectParamValueMultipleTimesModifications(
+            String newValue, String newContent, String origContent) {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        HttpMessage message = createMessage();
+        String paramName = "somefile";
+        variant.setMessage(message);
+        // When
+        InputVectorBuilder inputVectorBuilder = new InputVectorBuilder();
+
+        inputVectorBuilder.setNameAndValue(
+                new NameValuePair(
+                        NameValuePair.TYPE_MULTIPART_DATA_PARAM,
+                        "person",
+                        DEFAULT_PARAM_CONTENT,
+                        1),
+                paramName,
+                PayloadFormat.ALREADY_ESCAPED,
+                newValue,
+                PayloadFormat.ALREADY_ESCAPED);
+
+        inputVectorBuilder.setNameAndValue(
+                new NameValuePair(
+                        NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM, paramName, origContent, 4),
+                paramName,
+                PayloadFormat.ALREADY_ESCAPED,
+                newContent,
+                PayloadFormat.ALREADY_ESCAPED);
+
+        inputVectorBuilder.setNameAndValue(
+                new NameValuePair(
+                        NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME,
+                        paramName,
+                        DEFAULT_FILE_NAME,
+                        2),
+                paramName,
+                PayloadFormat.ALREADY_ESCAPED,
+                newValue,
+                PayloadFormat.ALREADY_ESCAPED);
+
+        inputVectorBuilder.setNameAndValue(
+                new NameValuePair(
+                        NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
+                        paramName,
+                        DEFAULT_CONTENT_TYPE,
+                        3),
+                paramName,
+                PayloadFormat.ALREADY_ESCAPED,
+                newValue,
+                PayloadFormat.ALREADY_ESCAPED);
+        variant.setParameters(message, inputVectorBuilder.build());
+        HttpMessage newMsg = createMessage(newValue, newValue, newValue, newContent);
+        // Then
+        assertThat(
+                message.getRequestBody().toString(), equalTo(newMsg.getRequestBody().toString()));
+    }
+
+    @Test
+    void shouldInjectParamValueModificationInFileContentTypeParam() {
         // Given
         VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
         HttpMessage message = createMessage();
@@ -242,7 +359,7 @@ public class VariantMultipartFormParametersUnitTest {
                         NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE,
                         paramName,
                         DEFAULT_CONTENT_TYPE,
-                        4),
+                        3),
                 paramName,
                 newValue);
         HttpMessage newMsg =

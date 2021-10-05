@@ -50,7 +50,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantODataFilterQuery implements Variant {
 
-    private static final Logger log = LogManager.getLogger(VariantODataFilterQuery.class);
+    private static final Logger LOG = LogManager.getLogger(VariantODataFilterQuery.class);
 
     // Extract the content of the $filter parameter
     private static final Pattern patternFilterParameters =
@@ -129,7 +129,7 @@ public class VariantODataFilterQuery implements Variant {
             }
 
         } catch (URIException e) {
-            log.error(e.getMessage() + uri, e);
+            LOG.error(e.getMessage() + uri, e);
         }
     }
 
@@ -164,7 +164,7 @@ public class VariantODataFilterQuery implements Variant {
                 msg.getRequestHeader().getURI().setQuery(modifiedQuery);
 
             } catch (URIException | NullPointerException e) {
-                log.error("Exception with the modified query " + modifiedQuery, e);
+                LOG.error("Exception with the modified query " + modifiedQuery, e);
             }
 
             return newfilter;

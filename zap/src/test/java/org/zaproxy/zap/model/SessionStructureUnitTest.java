@@ -25,24 +25,28 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.httpclient.URI;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.parosproxy.paros.core.scanner.Variant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.model.SessionUnitTest.PathTreeVariant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 
-public class SessionStructureUnitTest {
+class SessionStructureUnitTest {
 
     private Model model;
     private Session session;
@@ -50,8 +54,8 @@ public class SessionStructureUnitTest {
     private VariantFactory factory;
 
     @BeforeEach
-    public void setUp() throws Exception {
-        WithConfigsTest.setUpConstant();
+    void setUp() throws Exception {
+        WithConfigsTest.setUpConstantMessages();
         factory = new VariantFactory();
         model = mock(Model.class);
         session = new Session(model);
@@ -61,13 +65,18 @@ public class SessionStructureUnitTest {
         msg = new HttpMessage();
     }
 
+    @AfterEach
+    void cleanUp() {
+        Constant.messages = null;
+    }
+
     static Stream<String> methodProvider() {
         return Stream.of(HttpRequestHeader.METHODS);
     }
 
     @ParameterizedTest
     @MethodSource("methodProvider")
-    public void shouldReturnCorrectNameForNoPathNoSlashNoParams(String method) throws Exception {
+    void shouldReturnCorrectNameForNoPathNoSlashNoParams(String method) throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
         String uri = "https://www.example.com";
@@ -80,7 +89,7 @@ public class SessionStructureUnitTest {
 
     @ParameterizedTest
     @MethodSource("methodProvider")
-    public void shouldReturnCorrectNameForNoPathWithSlashNoParams(String method) throws Exception {
+    void shouldReturnCorrectNameForNoPathWithSlashNoParams(String method) throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
         String uri = "https://www.example.com/";
@@ -93,7 +102,7 @@ public class SessionStructureUnitTest {
 
     @ParameterizedTest
     @MethodSource("methodProvider")
-    public void shouldReturnCorrectNameForNoPathNoSlashWithParams(String method) throws Exception {
+    void shouldReturnCorrectNameForNoPathNoSlashWithParams(String method) throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
         String uri = "https://www.example.com";
@@ -106,8 +115,7 @@ public class SessionStructureUnitTest {
 
     @ParameterizedTest
     @MethodSource("methodProvider")
-    public void shouldReturnCorrectNameForNoPathWithSlashWithParams(String method)
-            throws Exception {
+    void shouldReturnCorrectNameForNoPathWithSlashWithParams(String method) throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
         String uri = "https://www.example.com/";
@@ -120,7 +128,7 @@ public class SessionStructureUnitTest {
 
     @ParameterizedTest
     @MethodSource("methodProvider")
-    public void shouldReturnCorrectNameForWithPathNoSlashNoParams(String method) throws Exception {
+    void shouldReturnCorrectNameForWithPathNoSlashNoParams(String method) throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
         String uri = "https://www.example.com/path";
@@ -133,8 +141,7 @@ public class SessionStructureUnitTest {
 
     @ParameterizedTest
     @MethodSource("methodProvider")
-    public void shouldReturnCorrectNameForWithPathWithSlashNoParams(String method)
-            throws Exception {
+    void shouldReturnCorrectNameForWithPathWithSlashNoParams(String method) throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
         String uri = "https://www.example.com/path/";
@@ -147,8 +154,7 @@ public class SessionStructureUnitTest {
 
     @ParameterizedTest
     @MethodSource("methodProvider")
-    public void shouldReturnCorrectNameForWithPathNoSlashWithParams(String method)
-            throws Exception {
+    void shouldReturnCorrectNameForWithPathNoSlashWithParams(String method) throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
         String uri = "https://www.example.com/path";
@@ -161,8 +167,7 @@ public class SessionStructureUnitTest {
 
     @ParameterizedTest
     @MethodSource("methodProvider")
-    public void shouldReturnCorrectNameForWithPathWithSlashWithParams(String method)
-            throws Exception {
+    void shouldReturnCorrectNameForWithPathWithSlashWithParams(String method) throws Exception {
         // Given
         msg.getRequestHeader().setMethod(method);
         String uri = "https://www.example.com/path/";
@@ -174,7 +179,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectNameForPostNoPathNoSlashNoParams() throws Exception {
+    void shouldReturnCorrectNameForPostNoPathNoSlashNoParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com";
@@ -186,7 +191,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectNameForPostNoPathNoSlashNoUrlParams() throws Exception {
+    void shouldReturnCorrectNameForPostNoPathNoSlashNoUrlParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com";
@@ -199,7 +204,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectNameForPostNoPathWithSlashNoUrlParams() throws Exception {
+    void shouldReturnCorrectNameForPostNoPathWithSlashNoUrlParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/";
@@ -212,7 +217,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectNameForPostNoPathNoSlashWithParams() throws Exception {
+    void shouldReturnCorrectNameForPostNoPathNoSlashWithParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com";
@@ -225,7 +230,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectNameForPostNoPathWithSlashWithParams() throws Exception {
+    void shouldReturnCorrectNameForPostNoPathWithSlashWithParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/";
@@ -238,7 +243,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectNameForPostWithPathNoSlashNoUrlParams() throws Exception {
+    void shouldReturnCorrectNameForPostWithPathNoSlashNoUrlParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/path";
@@ -251,7 +256,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectNameForPostWithPathWithSlashNoUrlParams() throws Exception {
+    void shouldReturnCorrectNameForPostWithPathWithSlashNoUrlParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/path/";
@@ -264,7 +269,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectNameForPostWithPathNoSlashWithParams() throws Exception {
+    void shouldReturnCorrectNameForPostWithPathNoSlashWithParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/path";
@@ -277,7 +282,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectNameForPostWithPathWithSlashWithParams() throws Exception {
+    void shouldReturnCorrectNameForPostWithPathWithSlashWithParams() throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/path/";
@@ -290,7 +295,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnCorrectNameForPostWithPathWithSlashWithSameUrlAndPostParams()
+    void shouldReturnCorrectNameForPostWithPathWithSlashWithSameUrlAndPostParams()
             throws Exception {
         // Given
         msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
@@ -303,8 +308,121 @@ public class SessionStructureUnitTest {
         assertThat(nodeName, is(equalTo(uri + " (a,c)(a,c)")));
     }
 
+    @Nested
+    static class RegexGenerationTests {
+
+        private StructuralSiteNode sitesNode;
+        private StructuralSiteNode hostNode;
+
+        @BeforeEach
+        void setup() throws Exception {
+            sitesNode = mock(StructuralSiteNode.class);
+            given(sitesNode.isRoot()).willReturn(true);
+            hostNode = mock(StructuralSiteNode.class);
+            given(hostNode.getParent()).willReturn(sitesNode);
+            given(hostNode.isLeaf()).willReturn(true);
+            URI uri = new URI("https://www.example.com", true);
+            given(hostNode.getURI()).willReturn(uri);
+            given(hostNode.getName()).willReturn("https://www.example.com");
+        }
+
+        @Test
+        void shouldReturnCorrectRegexForNoPathNoSlashNoParams() throws Exception {
+            // Given / When
+            String nodeRegex = SessionStructure.getRegexPattern(hostNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com.*")));
+        }
+
+        @Test
+        void shouldReturnCorrectRegexForNoPathWithSlashNoParams() throws Exception {
+            // Given
+            StructuralNode leafNode = getLeafNode("https://www.example.com/");
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/.*")));
+        }
+
+        @Test
+        void shouldReturnCorrectRegexForNoPathNoSlashWithParams() throws Exception {
+            // Given
+            URI uri = new URI("https://www.example.com?a=b&c=d", true);
+            given(hostNode.getURI()).willReturn(uri);
+            given(hostNode.getName()).willReturn("https://www.example.com?a=b&c=d");
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(hostNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com\\?a\\=b&c\\=d.*")));
+        }
+
+        @Test
+        void shouldReturnCorrectRegexForNoPathWithSlashWithParams() throws Exception {
+            // Given
+            StructuralSiteNode leafNode = getLeafNode("https://www.example.com/?a=b&c=d");
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/\\?a\\=b&c\\=d.*")));
+        }
+
+        @Test
+        void shouldReturnCorrectRegexForWithPathNoSlashNoParams() throws Exception {
+            // Given
+            StructuralSiteNode leafNode = getLeafNode("https://www.example.com/path");
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/path.*")));
+        }
+
+        @Test
+        void shouldReturnCorrectRegexForWithPathWithSlashNoParams() throws Exception {
+            // Given
+            StructuralSiteNode leafNode = getLeafNode("https://www.example.com/path");
+            StructuralSiteNode leafLeafNode = getLeafNode("https://www.example.com/path/");
+            given(leafLeafNode.getParent()).willReturn(leafNode);
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafLeafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/path/.*")));
+        }
+
+        @Test
+        void shouldReturnCorrectRegexForWithPathWithSlashWithParams() throws Exception {
+            // Given
+            StructuralSiteNode leafNode = getLeafNode("https://www.example.com/path");
+            StructuralSiteNode leafLeafNode = getLeafNode("https://www.example.com/path/?a=b&c=d");
+            given(leafLeafNode.getParent()).willReturn(leafNode);
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafLeafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/path/\\?a\\=b&c\\=d.*")));
+        }
+
+        @Test
+        void shouldReturnCorrectRegexForWithPathNoSlashWithParams() throws Exception {
+            // Given
+            StructuralSiteNode leafNode = getLeafNode("https://www.example.com/path?a=b&c=d");
+            // When
+            String nodeRegex = SessionStructure.getRegexPattern(leafNode);
+            // Then
+            assertThat(nodeRegex, is(equalTo("https://www.example.com/path\\?a\\=b&c\\=d.*")));
+        }
+
+        private StructuralSiteNode getLeafNode(String url) throws Exception {
+            StructuralSiteNode leafNode = mock(StructuralSiteNode.class);
+            URI leafUri = new URI(url, true);
+            given(leafNode.getParent()).willReturn(hostNode);
+            given(leafNode.isLeaf()).willReturn(true);
+            given(leafNode.getURI()).willReturn(leafUri);
+            given(leafNode.getName()).willReturn(url);
+            return leafNode;
+        }
+    }
+
     @Test
-    public void shouldReturnShortPathTree() throws Exception {
+    void shouldReturnShortPathTree() throws Exception {
         // Given
         URI uri = new URI("https://www.example.com/path", true);
         HttpMessage msg = new HttpMessage(uri);
@@ -316,7 +434,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnLongPathTree() throws Exception {
+    void shouldReturnLongPathTree() throws Exception {
         // Given
         URI uri = new URI("https://www.example.com/path/a/b/c/d/e/f", true);
         HttpMessage msg = new HttpMessage(uri);
@@ -334,7 +452,7 @@ public class SessionStructureUnitTest {
     }
 
     @Test
-    public void shouldReturnOverridenPathTree() throws Exception {
+    void shouldReturnOverridenPathTree() throws Exception {
         // Given
         URI uri = new URI("https://www.example.com/path?a=b", true);
         HttpMessage msg = new HttpMessage(uri);
@@ -349,6 +467,41 @@ public class SessionStructureUnitTest {
         assertThat(actualTreePath.size(), is(equalTo(expectedTreePath.size())));
         for (int i = 0; i < actualTreePath.size(); i++) {
             assertThat(actualTreePath.get(i), is(equalTo(expectedTreePath.get(i))));
+        }
+    }
+
+    public static final class PathTreeVariant implements Variant {
+        private final List<String> expectedTreePath;
+
+        public PathTreeVariant() {
+            expectedTreePath = new ArrayList<>();
+            expectedTreePath.add("Path1");
+            expectedTreePath.add("Path2");
+        }
+
+        @Override
+        public List<String> getTreePath(HttpMessage msg) {
+            return expectedTreePath;
+        }
+
+        @Override
+        public void setMessage(HttpMessage msg) {}
+
+        @Override
+        public List<NameValuePair> getParamList() {
+            return null;
+        }
+
+        @Override
+        public String setParameter(
+                HttpMessage msg, NameValuePair originalPair, String param, String value) {
+            return null;
+        }
+
+        @Override
+        public String setEscapedParameter(
+                HttpMessage msg, NameValuePair originalPair, String param, String value) {
+            return null;
         }
     }
 }

@@ -3,6 +3,7 @@ FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG WEBSWING_URL=""
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -26,7 +27,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade pip zapcli python-owasp-zap-v2.4
+RUN pip3 install --upgrade pip zapcli python-owasp-zap-v2.4 pyyaml
 
 RUN useradd -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
@@ -39,18 +40,22 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
+ENV WEBSWING_VERSION 21.1.5
+
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i weekly | wget --content-disposition -i - && \
 	unzip *.zip && \
 	rm *.zip && \
 	cp -R ZAP*/* . &&  \
 	rm -R ZAP* && \
 	# Setup Webswing
-	curl -s -L https://storage.googleapis.com/builds.webswing.org/releases/webswing-20.2.1.zip > webswing.zip && \
+	if [ -z "$WEBSWING_URL" ] ; \
+	then curl -s -L  "https://storage.googleapis.com/builds.webswing.org/releases/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
 	mv webswing-* webswing && \
 	# Remove Webswing bundled examples
-	rm -R webswing/apps/
+	rm -Rf webswing/apps/
 
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
@@ -70,6 +75,8 @@ COPY policies /home/zap/.ZAP_D/policies/
 COPY policies /root/.ZAP_D/policies/
 COPY scripts /home/zap/.ZAP_D/scripts/
 COPY .xinitrc /home/zap/
+
+RUN echo "zap2docker-weekly" > /zap/container
 
 #Copy doesn't respect USER directives so we need to chown and to do that we need to be root
 USER root

@@ -26,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control.Mode;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.utils.Stats;
 
 public class BreakpointMessageHandler2 {
 
@@ -77,6 +78,7 @@ public class BreakpointMessageHandler2 {
         // queued breakpoints
         // but be reset when the next breakpoint is hit
         breakMgmt.breakpointHit();
+        Stats.incCounter(ExtensionBreak.BREAK_POINT_HIT_STATS);
         BreakEventPublisher.getPublisher().publishHitEvent(aMessage);
 
         synchronized (SEMAPHORE) {
@@ -107,6 +109,7 @@ public class BreakpointMessageHandler2 {
         // queued breakpoints
         // but be reset when the next breakpoint is hit
         breakMgmt.breakpointHit();
+        Stats.incCounter(ExtensionBreak.BREAK_POINT_HIT_STATS);
         BreakEventPublisher.getPublisher().publishHitEvent(aMessage);
 
         synchronized (SEMAPHORE) {
@@ -212,7 +215,7 @@ public class BreakpointMessageHandler2 {
 
     protected boolean isSkipOnIgnoreRules(
             Message aMessage, boolean isRequest, boolean onlyIfInScope) {
-        if (enabledIgnoreRules.isEmpty()) {
+        if (enabledIgnoreRules == null || enabledIgnoreRules.isEmpty()) {
             // No Ignoring rules
             return false;
         }

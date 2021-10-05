@@ -158,7 +158,7 @@ public class DriversView extends AbstractFrame {
         if (!Model.getSingleton()
                 .getOptionsParam()
                 .getExperimentalFeaturesParam()
-                .isExerimentalSliSupportEnabled()) {
+                .isExperimentalSliSupportEnabled()) {
             slotTextField.setEnabled(false);
         }
 

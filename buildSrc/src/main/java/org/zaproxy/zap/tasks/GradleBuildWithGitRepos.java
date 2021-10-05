@@ -155,8 +155,11 @@ public class GradleBuildWithGitRepos extends DefaultTask {
                                     if (quiet.get()) {
                                         execArgs.add("-q");
                                     }
-                                    execArgs.add("--branch");
-                                    execArgs.add(repoData.getBranch());
+                                    String branch = repoData.getBranch();
+                                    if (branch != null && !branch.isEmpty()) {
+                                        execArgs.add("--branch");
+                                        execArgs.add(branch);
+                                    }
                                     execArgs.add("--depth");
                                     execArgs.add("1");
                                     execArgs.add(cloneUrl);
@@ -203,6 +206,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
 
     private void runGradle(Path repoDir, List<String> args) {
         List<String> execArgs = new ArrayList<>();
+        execArgs.add("-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m");
         if (quiet.get()) {
             execArgs.add("-q");
         }
@@ -210,6 +214,7 @@ public class GradleBuildWithGitRepos extends DefaultTask {
         getProject()
                 .exec(
                         spec -> {
+                            spec.environment("ZAP_RELEASE", "1");
                             spec.setWorkingDir(repoDir);
                             spec.setExecutable(gradleWrapper());
                             spec.args(execArgs);

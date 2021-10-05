@@ -27,10 +27,10 @@ import net.sf.json.JSONObject;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link JsonUtil}. */
-public class JsonUtilUnitTest {
+class JsonUtilUnitTest {
 
     @Test
-    public void shouldQuoteValueThatLooksLikeAnArray() {
+    void shouldQuoteValueThatLooksLikeAnArray() {
         // Given
         String value = "[ 1, 2, 3, 4]";
         // When
@@ -41,7 +41,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldQuoteValueThatLooksLikeAnObject() {
+    void shouldQuoteValueThatLooksLikeAnObject() {
         // Given
         String value = "{ \"1\" : \"2\", \"3\" : \"4\" }";
         // When
@@ -52,7 +52,29 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteValueThatLooksLikeAnArrayButStartsWithSpace() {
+    void shouldQuoteValueThatLooksLikeAFunction() {
+        // Given
+        String value = "function() { }";
+        // When
+        String processedValue = JsonUtil.getJsonFriendlyString(value);
+        // Then
+        assertThat(processedValue, is(equalTo(quoted(value))));
+        assertDoubleQuotedValueAfterJsonObject(processedValue, value);
+    }
+
+    @Test
+    void shouldQuoteValueThatLooksLikeAFunctionWithWhitespaceEtc() {
+        // Given
+        String value = "function ( param ) { misc stuff in here with \\\"quotes\\\"}";
+        // When
+        String processedValue = JsonUtil.getJsonFriendlyString(value);
+        // Then
+        assertThat(processedValue, is(equalTo(quoted(value))));
+        assertDoubleQuotedValueAfterJsonObject(processedValue, value);
+    }
+
+    @Test
+    void shouldNotQuoteValueThatLooksLikeAnArrayButStartsWithSpace() {
         // Given
         String value = " [ 1, 2, 3, 4]";
         // When
@@ -63,7 +85,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteValueThatLooksLikeAnObjectButStartsWithSpace() {
+    void shouldNotQuoteValueThatLooksLikeAnObjectButStartsWithSpace() {
         // Given
         String value = " { \"1\" : \"2\", \"3\" : \"4\" }";
         // When
@@ -74,7 +96,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteSingleQuotedValue() {
+    void shouldNotQuoteSingleQuotedValue() {
         // Given
         String value = "'value'";
         // When
@@ -85,7 +107,7 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteDoubleQuotedValue() {
+    void shouldNotQuoteDoubleQuotedValue() {
         // Given
         String value = "\"value\"";
         // When
@@ -96,9 +118,20 @@ public class JsonUtilUnitTest {
     }
 
     @Test
-    public void shouldNotQuoteNullLiteralValue() {
+    void shouldNotQuoteNullLiteralValue() {
         // Given
         String value = "null";
+        // When
+        String processedValue = JsonUtil.getJsonFriendlyString(value);
+        // Then
+        assertThat(processedValue, is(equalTo(value)));
+        assertValueAfterJsonObject(processedValue, value);
+    }
+
+    @Test
+    void shouldNotQuoteFunctionHeader() {
+        // Given
+        String value = "function()";
         // When
         String processedValue = JsonUtil.getJsonFriendlyString(value);
         // Then
@@ -116,7 +149,22 @@ public class JsonUtilUnitTest {
         assertThat(jsonObject.getString(key), is(equalTo(value)));
     }
 
+    private static void assertDoubleQuotedValueAfterJsonObject(
+            String processedValue, String value) {
+        // Given processedValue
+        String key = "key";
+        JSONObject jsonObject = new JSONObject();
+        // When
+        jsonObject.put(key, processedValue);
+        // Then
+        assertThat(jsonObject.getString(key), is(equalTo(doubleQuoted(value))));
+    }
+
     private static String quoted(String value) {
         return "'" + value + "'";
+    }
+
+    private static String doubleQuoted(String value) {
+        return "\"" + value + "\"";
     }
 }

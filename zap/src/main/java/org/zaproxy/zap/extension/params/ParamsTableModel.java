@@ -48,7 +48,7 @@ public class ParamsTableModel extends AbstractTableModel {
         columnNames.add(Constant.messages.getString("params.table.header.flags"));
         columnNames.add(Constant.messages.getString("params.table.header.values"));
 
-        paramStats = Collections.synchronizedList(new ArrayList<HtmlParameterStats>());
+        paramStats = Collections.synchronizedList(new ArrayList<>());
 
         lastAddedRow = -1;
         lastEditedRow = -1;
@@ -70,7 +70,7 @@ public class ParamsTableModel extends AbstractTableModel {
     }
 
     public List<String> getColumnNames() {
-        return new ArrayList<String>(columnNames);
+        return new ArrayList<>(columnNames);
     }
 
     @Override

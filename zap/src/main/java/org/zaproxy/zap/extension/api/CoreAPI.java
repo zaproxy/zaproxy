@@ -25,7 +25,6 @@ import edu.umass.cs.benchlab.har.HarLog;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -48,8 +47,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import java.util.stream.Stream;
 import javax.swing.tree.TreeNode;
-import javax.xml.transform.stream.StreamSource;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
@@ -67,8 +66,6 @@ import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.option.OptionsParamCertificate;
-import org.parosproxy.paros.extension.report.ReportGenerator;
-import org.parosproxy.paros.extension.report.ReportLastScan;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -344,18 +341,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiView(new ApiView(VIEW_MODE));
         this.addApiView(new ApiView(VIEW_VERSION));
         this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
-        this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
         this.addApiView(new ApiView(VIEW_SESSION_LOCATION));
         this.addApiView(new ApiView(VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS));
-        ApiView apiView = new ApiView(VIEW_OPTION_PROXY_CHAIN_SKIP_NAME);
-        apiView.setDeprecated(true);
-        this.addApiView(apiView);
-        apiView = new ApiView(VIEW_OPTION_PROXY_EXCLUDED_DOMAINS);
-        apiView.setDeprecated(true);
-        this.addApiView(apiView);
-        apiView = new ApiView(VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED);
-        apiView.setDeprecated(true);
-        this.addApiView(apiView);
         this.addApiView(new ApiView(VIEW_ZAP_HOME_PATH));
 
         this.addApiView(new ApiView(VIEW_OPTION_MAXIMUM_ALERT_INSTANCES));
@@ -363,6 +350,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiView(new ApiView(VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH));
 
         // Deprecated views
+        Stream.of(
+                        VIEW_HOME_DIRECTORY,
+                        VIEW_OPTION_PROXY_CHAIN_SKIP_NAME,
+                        VIEW_OPTION_PROXY_EXCLUDED_DOMAINS,
+                        VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED)
+                .map(ApiView::new)
+                .peek(t -> t.setDeprecated(true))
+                .forEach(this::addApiView);
         this.addApiView(depreciatedAlertApi(new ApiView(VIEW_ALERT, new String[] {PARAM_ID})));
         this.addApiView(
                 depreciatedAlertApi(
@@ -385,10 +380,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
         this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
         this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
-        this.addApiOthers(new ApiOther(OTHER_XML_REPORT));
-        this.addApiOthers(new ApiOther(OTHER_HTML_REPORT));
-        this.addApiOthers(new ApiOther(OTHER_JSON_REPORT));
-        this.addApiOthers(new ApiOther(OTHER_MD_REPORT));
+        this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_XML_REPORT)));
+        this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_HTML_REPORT)));
+        this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_JSON_REPORT)));
+        this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_MD_REPORT)));
         this.addApiOthers(new ApiOther(OTHER_MESSAGE_HAR, new String[] {PARAM_ID}));
         this.addApiOthers(
                 new ApiOther(
@@ -411,8 +406,16 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     private <T extends ApiElement> T depreciatedAlertApi(T element) {
+        return depreciatedApi(element, Constant.messages.getString("core.api.depreciated.alert"));
+    }
+
+    private <T extends ApiElement> T depreciatedReportApi(T element) {
+        return depreciatedApi(element, Constant.messages.getString("core.api.depreciated.report"));
+    }
+
+    private <T extends ApiElement> T depreciatedApi(T element, String description) {
         element.setDeprecated(true);
-        element.setDeprecatedDescription(Constant.messages.getString("core.api.depreciated.alert"));
+        element.setDeprecatedDescription(description);
         return element;
     }
 
@@ -465,7 +468,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                             } catch (Throwable e) {
                                 logger.error("An error occurred while shutting down:", e);
                             } finally {
-                                System.exit(0);
+                                System.exit(Control.getSingleton().getExitStatus());
                             }
                         }
                     };
@@ -625,7 +628,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             }
         } else if (ACTION_CLEAR_EXCLUDED_FROM_PROXY.equals(name)) {
             try {
-                session.setExcludeFromProxyRegexs(new ArrayList<String>());
+                session.setExcludeFromProxyRegexs(new ArrayList<>());
             } catch (DatabaseException e) {
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             }
@@ -1091,7 +1094,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             addUrlsToList(
                     getParam(params, PARAM_BASE_URL, ""),
                     root,
-                    new HashSet<String>(),
+                    new HashSet<>(),
                     (ApiResponseList) result);
         } else if (VIEW_CHILD_NODES.equals(name)) {
             StructuralNode node;
@@ -1277,7 +1280,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         nodeData.put("uri", node.getURI().toString());
         nodeData.put("isLeaf", node.isLeaf());
         nodeData.put("hrefId", node.getHistoryReference().getHistoryId());
-        return new ApiResponseSet<Object>("node", nodeData);
+        return new ApiResponseSet<>("node", nodeData);
     }
 
     private ApiResponse proxyChainExcludedDomainsToApiResponseList(
@@ -1293,7 +1296,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             domainData.put("value", domain.getValue());
             domainData.put("regex", domain.isRegex());
             domainData.put("enabled", domain.isEnabled());
-            apiResponse.addItem(new ApiResponseSet<Object>("domain", domainData));
+            apiResponse.addItem(new ApiResponseSet<>("domain", domainData));
         }
         return apiResponse;
     }
@@ -1388,7 +1391,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                     String response = sw.toString();
                     msg.setResponseHeader(
                             API.getDefaultResponseHeader(
-                                    "application/pkix-cert;", response.length()));
+                                            "application/pkix-cert;", response.length())
+                                    + "Content-Disposition: attachment; filename=\"ZAPCACert.cer\"\r\n");
 
                     msg.setResponseBody(response);
                 } catch (Exception e) {
@@ -1402,41 +1406,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
             return msg;
         } else if (OTHER_XML_REPORT.equals(name)) {
-            try {
-                writeReportLastScanTo(msg, ScanReportType.XML);
-
-                return msg;
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-            }
+            generateReport(msg, ScanReportType.XML);
+            return msg;
         } else if (OTHER_HTML_REPORT.equals(name)) {
-            try {
-                writeReportLastScanTo(msg, ScanReportType.HTML);
-
-                return msg;
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-            }
+            generateReport(msg, ScanReportType.HTML);
+            return msg;
         } else if (OTHER_JSON_REPORT.equals(name)) {
-            try {
-                writeReportLastScanTo(msg, ScanReportType.JSON);
-
-                return msg;
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-            }
+            generateReport(msg, ScanReportType.JSON);
+            return msg;
         } else if (OTHER_MD_REPORT.equals(name)) {
-            try {
-                writeReportLastScanTo(msg, ScanReportType.MD);
-
-                return msg;
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-            }
+            generateReport(msg, ScanReportType.MD);
+            return msg;
         } else if (OTHER_MESSAGE_HAR.equals(name)) {
             byte[] responseBody;
             try {
@@ -1643,46 +1623,68 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         return Model.getSingleton().getOptionsParam().getApiParam().isIncErrorDetails();
     }
 
-    private static void writeReportLastScanTo(HttpMessage msg, ScanReportType reportType)
-            throws Exception {
-        ReportLastScan rls = new ReportLastScan();
-        StringBuilder report = new StringBuilder();
-        rls.generate(report);
-
-        String response;
-        if (ScanReportType.XML == reportType) {
-            // Copy as is
-            msg.setResponseHeader(API.getDefaultResponseHeader("text/xml; charset=UTF-8"));
-            response = report.toString();
-        } else if (ScanReportType.MD == reportType) {
-            msg.setResponseHeader(API.getDefaultResponseHeader("text/markdown; charset=UTF-8"));
-            response = generateReportWithXsl(report.toString(), "report.md.xsl");
-        } else if (ScanReportType.JSON == reportType) {
-            msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8"));
-            response = ReportGenerator.stringToJson(report.toString());
-        } else {
-            msg.setResponseHeader(API.getDefaultResponseHeader("text/html; charset=UTF-8"));
-            response = generateReportWithXsl(report.toString(), "report.html.xsl");
-        }
-
-        msg.setResponseBody(response);
-        msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
-    }
-
-    private static String generateReportWithXsl(String report, String xslFileName)
-            throws IOException {
-        Path xslFile = Paths.get(Constant.getZapInstall(), "xml", xslFileName);
-        if (Files.exists(xslFile)) {
-            return ReportGenerator.stringToHtml(report, xslFile.toString());
-        }
-
-        String path = "/org/zaproxy/zap/resources/xml/" + xslFileName;
-        try (InputStream is = ReportLastScan.class.getResourceAsStream(path)) {
-            if (is == null) {
-                logger.error("Bundled file not found: " + path);
-                return "";
+    private static void generateReport(HttpMessage msg, ScanReportType reportType)
+            throws ApiException {
+        try {
+            ApiImplementor reportApi = API.getInstance().getImplementors().get("reports");
+            if (reportApi == null) {
+                throw new ApiException(
+                        ApiException.Type.NO_IMPLEMENTOR, "Reports add-on not installed");
             }
-            return ReportGenerator.stringToHtml(report, new StreamSource(is));
+
+            String ext;
+            String template;
+
+            switch (reportType) {
+                case HTML:
+                    msg.setResponseHeader(API.getDefaultResponseHeader("text/html; charset=UTF-8"));
+                    msg.getResponseHeader()
+                            .setHeader(
+                                    "Content-Security-Policy",
+                                    "default-src 'none'; script-src 'self'; connect-src 'self'; child-src 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'unsafe-inline'");
+                    template = "traditional-html";
+                    ext = ".html";
+                    break;
+                case JSON:
+                    msg.setResponseHeader(
+                            API.getDefaultResponseHeader("application/json; charset=UTF-8"));
+                    template = "traditional-json";
+                    ext = ".json";
+                    break;
+                case MD:
+                    msg.setResponseHeader(
+                            API.getDefaultResponseHeader("text/markdown; charset=UTF-8"));
+                    template = "traditional-md";
+                    ext = ".md";
+                    break;
+                case XML:
+                    msg.setResponseHeader(API.getDefaultResponseHeader("text/xml; charset=UTF-8"));
+                    template = "traditional-xml";
+                    ext = ".xml";
+                    break;
+                default:
+                    throw new ApiException(
+                            ApiException.Type.INTERNAL_ERROR, "Unsupported format: " + reportType);
+            }
+
+            File xmlFile = File.createTempFile("ZAP-report", ext);
+            JSONObject reportParams = new JSONObject();
+            reportParams.put("template", template);
+            reportParams.put("reportDir", xmlFile.getParentFile().getAbsolutePath());
+            reportParams.put("reportFileName", xmlFile.getName());
+            reportParams.put("title", "ZAP Scanning Report");
+            reportApi.handleApiAction("generate", reportParams);
+
+            msg.setResponseBody(
+                    new String(Files.readAllBytes(xmlFile.toPath()), StandardCharsets.UTF_8));
+            msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
+
+            if (!xmlFile.delete()) {
+                logger.debug("Failed to delete temporary report file " + xmlFile.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
         }
     }
 

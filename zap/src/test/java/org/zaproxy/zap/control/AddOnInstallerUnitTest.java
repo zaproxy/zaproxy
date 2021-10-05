@@ -30,20 +30,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
 
 /** Unit test for {@link AddOnInstaller}. */
-public class AddOnInstallerUnitTest extends AddOnTestUtils {
+class AddOnInstallerUnitTest extends AddOnTestUtils {
 
     @BeforeEach
-    public void createZapHome() throws Exception {
+    void createZapHome() throws Exception {
         Constant.setZapHome(newTempDir("home").toAbsolutePath().toString());
     }
 
     @Test
-    public void shouldReturnAddOnDataDir() throws Exception {
+    void shouldReturnAddOnDataDir() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnFile("addOnId.zap"));
         // When
@@ -55,7 +56,7 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldReturnAddOnLibsDir() throws Exception {
+    void shouldReturnAddOnLibsDir() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnFile("addOnId.zap"));
         // When
@@ -67,7 +68,7 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotInstallAddOnLibsIfNone() throws Exception {
+    void shouldNotInstallAddOnLibsIfNone() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnFile("addon.zap"));
         // When
@@ -78,7 +79,7 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldInstallAddOnLibs() throws Exception {
+    void shouldInstallAddOnLibs() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnWithLibs("lib1", "lib2"));
         // When
@@ -89,7 +90,7 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldInstallAddOnLibsOverwritingExisting() throws Exception {
+    void shouldInstallAddOnLibsOverwritingExisting() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnWithLibs("lib1", "lib2"));
         Path lib2 = installLib(addOn, "lib2", "FileContents");
@@ -101,7 +102,7 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldInstallMissingAddOnLibs() throws Exception {
+    void shouldInstallMissingAddOnLibs() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnWithLibs("lib1", "lib2"));
         installLib(addOn, "lib2");
@@ -113,7 +114,7 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldInstallMissingAddOnLibsNotOverwritingExisting() throws Exception {
+    void shouldInstallMissingAddOnLibsNotOverwritingExisting() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnWithLibs("lib1", "lib2"));
         Path lib2 = installLib(addOn, "lib2", "FileContents");
@@ -126,7 +127,7 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldUninstallAddOnLibsAndRemoveDataDirIfEmpty() throws Exception {
+    void shouldUninstallAddOnLibsAndRemoveDataDirIfEmpty() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnWithLibs("lib1", "lib2"));
         installLib(addOn, "lib1");
@@ -139,7 +140,7 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldUninstallAddOnLibsAndKeepDataDirIfNotEmpty() throws Exception {
+    void shouldUninstallAddOnLibsAndKeepDataDirIfNotEmpty() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnWithLibs("lib1", "lib2"));
         Path customFile = createFile(AddOnInstaller.getAddOnDataDir(addOn).resolve("customFile"));
@@ -152,7 +153,7 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldUninstallAllAddOnLibsEvenIfSomeNotDeclared() throws Exception {
+    void shouldUninstallAllAddOnLibsEvenIfSomeNotDeclared() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnWithLibs("lib1", "lib2"));
         installLib(addOn, "lib1");
@@ -166,7 +167,7 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    public void shouldNotUninstallAddOnLibsIfNoneDeclared() throws Exception {
+    void shouldNotUninstallAddOnLibsIfNoneDeclared() throws Exception {
         // Given
         AddOn addOn = new AddOn(createAddOnFile("addon.zap"));
         installLib(addOn, "lib1");
@@ -204,12 +205,12 @@ public class AddOnInstallerUnitTest extends AddOnTestUtils {
 
     private static void assertInstalledLibs(AddOn addOn, String... fileNames) throws IOException {
         Path addOnLibsDir = addOnDataLibsDir(addOn);
-        assertThat(
-                Files.list(addOnLibsDir)
-                        .map(Path::getFileName)
-                        .map(Path::toString)
-                        .collect(Collectors.toList()),
-                containsInAnyOrder(fileNames));
+
+        try (Stream<Path> files = Files.list(addOnLibsDir)) {
+            assertThat(
+                    files.map(Path::getFileName).map(Path::toString).collect(Collectors.toList()),
+                    containsInAnyOrder(fileNames));
+        }
     }
 
     private static String contents(Path file) throws IOException {

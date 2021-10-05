@@ -38,6 +38,8 @@ import java.util.List;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
@@ -71,7 +73,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache.InterfaceErrorMessageProvid
 import org.zaproxy.zap.extension.script.ScriptsCache.ScriptWrapperAction;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-public class VariantFactoryUnitTest extends WithConfigsTest {
+class VariantFactoryUnitTest extends WithConfigsTest {
 
     private static final String SCRIPT_TYPE = ExtensionActiveScan.SCRIPT_TYPE_VARIANT;
     private static final Class<VariantScript> TARGET_INTERFACE = VariantScript.class;
@@ -81,7 +83,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     VariantFactory factory;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         extensionScript = mock(ExtensionScript.class);
         given(extensionLoader.getExtension(ExtensionScript.class)).willReturn(extensionScript);
 
@@ -89,7 +91,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnDefaultVariants() {
+    void shouldReturnDefaultVariants() {
         // Given
         ScannerParam scanOptions = new ScannerParam();
         HttpMessage message = new HttpMessage();
@@ -111,7 +113,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnNoVariantsWhenUnset() {
+    void shouldReturnNoVariantsWhenUnset() {
         // Given
         ScannerParam scanOptions = Mockito.mock(ScannerParam.class, withSettings().lenient());
         Mockito.when(scanOptions.getConfig()).thenReturn(new ZapXmlConfiguration());
@@ -127,7 +129,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnAllVariantsWhenSet() throws Exception {
+    void shouldReturnAllVariantsWhenSet() throws Exception {
         // Given
         ScannerParam scanOptions = Mockito.mock(ScannerParam.class, withSettings().lenient());
         Mockito.when(scanOptions.getConfig()).thenReturn(new ZapXmlConfiguration());
@@ -156,7 +158,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnCustomVariants() {
+    void shouldReturnCustomVariants() {
         // Given
         factory.addVariant(TestVariant.class);
 
@@ -181,7 +183,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnNoSiteModifyingVariantsByDefault() {
+    void shouldReturnNoSiteModifyingVariantsByDefault() {
         // Given
 
         // When
@@ -192,7 +194,7 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldReturnAddedSiteModifyingVariants() {
+    void shouldReturnAddedSiteModifyingVariants() {
         // Given
         factory.addVariant(TestVariant.class);
 
@@ -202,6 +204,22 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
         // Then
         assertThat(variants.size(), is(equalTo(1)));
         assertThat(variants.get(0).getClass(), is(equalTo(TestVariant.class)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void shouldScanNullJsonValuesAsDefinedInOptions(boolean scanNulls) {
+        // Given
+        ScannerParam scanOptions = mock(ScannerParam.class);
+        given(scanOptions.getTargetParamsInjectable()).willReturn(ScannerParam.TARGET_POSTDATA);
+        given(scanOptions.getTargetParamsEnabledRPC()).willReturn(ScannerParam.RPC_JSON);
+        given(scanOptions.isScanNullJsonValues()).willReturn(scanNulls);
+        HttpMessage message = new HttpMessage();
+        // When
+        List<Variant> variants = factory.createVariants(scanOptions, message);
+        // Then
+        VariantJSONQuery jsonVariant = getVariant(variants, VariantJSONQuery.class);
+        assertThat(jsonVariant.isScanNullValues(), is(equalTo(scanNulls)));
     }
 
     @Test
@@ -263,8 +281,8 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
         assertThat(variants, hasSize(0));
     }
 
-    public static class TestVariant implements Variant {
-        public TestVariant() {}
+    static class TestVariant implements Variant {
+        TestVariant() {}
 
         @Override
         public void setMessage(HttpMessage msg) {}
@@ -285,6 +303,17 @@ public class VariantFactoryUnitTest extends WithConfigsTest {
                 HttpMessage msg, NameValuePair originalPair, String param, String value) {
             return null;
         }
+    }
+
+    private static <T> T getVariant(List<Variant> variants, Class<T> clazz) {
+        return clazz.cast(
+                variants.stream()
+                        .filter(v -> v.getClass() == clazz)
+                        .findFirst()
+                        .orElseThrow(
+                                () ->
+                                        new RuntimeException(
+                                                "Variant " + clazz + " not found in the list.")));
     }
 
     @SuppressWarnings("unchecked")

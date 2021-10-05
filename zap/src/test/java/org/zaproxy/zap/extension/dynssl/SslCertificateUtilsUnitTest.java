@@ -33,7 +33,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link SslCertificateUtils}. */
-public class SslCertificateUtilsUnitTest {
+class SslCertificateUtilsUnitTest {
 
     private static final String CERT_DATA = "Certificate data...";
     private static final String CERT_DATA_BASE64 =
@@ -80,7 +80,7 @@ public class SslCertificateUtilsUnitTest {
             "_u3-7QAAAAIAAAACAAAAAgAKY2VydC1hbGlhcwAAAWB_rTdKAAVYLjUwOQAAAvkwggL1MIICXqADAgECAgkA0vwTh6lE3OcwDQYJKoZIhvcNAQEFBQAwWzEYMBYGA1UEChMPU3VwZXJmaXNoLCBJbmMuMQswCQYDVQQHEwJTRjELMAkGA1UECBMCQ0ExCzAJBgNVBAYTAlVTMRgwFgYDVQQDEw9TdXBlcmZpc2gsIEluYy4wHhcNMTQwNTEyMTYyNTI2WhcNMzQwNTA3MTYyNTI2WjBbMRgwFgYDVQQKEw9TdXBlcmZpc2gsIEluYy4xCzAJBgNVBAcTAlNGMQswCQYDVQQIEwJDQTELMAkGA1UEBhMCVVMxGDAWBgNVBAMTD1N1cGVyZmlzaCwgSW5jLjCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA6PNKGHZfGT-xz1jpf0MHCZWANcUP_nExJ4GZEiYgpd-PavxCVTnuCTiJ2eA2xKwBglvVOeb5jweI3_7u9qEUzql0Rdj98BdXKoLhei4Sk1qsitcVY9G3m1WAD1i8HEntIGLdtkylOuscPaD_enGm0xB4M65Lwhz9kkqhw-dBpC0CAwEAAaOBwDCBvTAMBgNVHRMEBTADAQH_MB0GA1UdDgQWBBT7mLNTfxRELuju1QmaXg5Whqg1iDCBjQYDVR0jBIGFMIGCgBT7mLNTfxRELuju1QmaXg5Whqg1iKFfpF0wWzEYMBYGA1UEChMPU3VwZXJmaXNoLCBJbmMuMQswCQYDVQQHEwJTRjELMAkGA1UECBMCQ0ExCzAJBgNVBAYTAlVTMRgwFgYDVQQDEw9TdXBlcmZpc2gsIEluYy6CCQDS_BOHqUTc5zANBgkqhkiG9w0BAQUFAAOBgQCkfKDsCkrHcMRxaPM7IuLcnI3Qkv5zfnIrVUSbG7RC6x-vvrrjk6PUixjClPCzpr1lNEzNJPgZC8UVCtrzV4uphs9sw-6EL4ULGRQXmLQM1JaL6RzMlclO0KpLAaX230kSgWq-1b7Odn1OrIuI4zDtMYRQj7zxUCpbSqZefA9x-gAAAAEAEW93YXNwX3phcF9yb290X2NhAAABYH-tN0oAAAK8MIICuDAOBgorBgEEASoCEQEBBQAEggKkpEg-GU1c0LSAqPTCS8ZthP0BRqVvB14nWLF8jJohHp2xHy3mOckHPsO8ecYB2NBeMvmq2QP3NpQZAmQ1pDo2pi4Dk4lCbBmfp7E6_jKWhxeI2JhhTLlIkaCymQ6H8I2MY2gEXLikMU_Q6zTFqnL1Qw0M04Xkhy0PV9reb2qM2D9B2p3YwKFrDgUk4oAH_3vvqD56v-KdyO6b0CkzpR5e9sQsjq5odRvErgKmHTgUZ1kNMVacEojrFYVdqaBPR8jreGxQJMsCuFG6ZfMMS1R9Xt1iR5O_dtWvtlpt8RBoBgLVKQLTbjBuJe6pJ9wL9gkQYSolx0naqLAJpHirkGaEmQjnGq0DdwpnMvNlgBMl4sz7U_1eD0_j_D_h-BZud5fx2WkBwBVJvl6oirrg_YMQ6q5xxqhHp3BXwYMZktIuhWKK_ESiu4tqtc3_K8bzStuvORUzjOlZuT6XuR0d57wtt5nlf8NeQGXVJFCA0b1EZivtcPDCpAm8qW4IuTVtmV7aS7q5zPSmXFvNpJ_GrOWoErCmYSn0_7dtKjObCs3l3iglr2syvE7QPwdJHSBdurg6MBaMnmFQUuWax-318T-prQxvJ7uBEY1q6dHHlDUmUaRZ3-CHRVGrFtuXanOYSLCZwZAvz4yrR7qU2ct6HJVMfd7-obhHtptlzSJdlBT-ssvuKoNApvo06VTNUB3TAXwED6T5JZciUSD3iA0T4qkzgyRSAnru9zAsinfKyONZPJIvk2z-h0FljdtaqSJJT4wz0-ASKbPzMfMLNOhtU2p2DB4Tbc9X63COU2VwyC4iDasPTg1AralosvKUMje4sPcJBwoaBHsJmHd0xQowfQa0mIpZGPe-HnXesGSNH_PFNlykzKxD4aIcx4syqIFedT1il0FNiwAAAAEABVguNTA5AAAC-TCCAvUwggJeoAMCAQICCQDS_BOHqUTc5zANBgkqhkiG9w0BAQUFADBbMRgwFgYDVQQKEw9TdXBlcmZpc2gsIEluYy4xCzAJBgNVBAcTAlNGMQswCQYDVQQIEwJDQTELMAkGA1UEBhMCVVMxGDAWBgNVBAMTD1N1cGVyZmlzaCwgSW5jLjAeFw0xNDA1MTIxNjI1MjZaFw0zNDA1MDcxNjI1MjZaMFsxGDAWBgNVBAoTD1N1cGVyZmlzaCwgSW5jLjELMAkGA1UEBxMCU0YxCzAJBgNVBAgTAkNBMQswCQYDVQQGEwJVUzEYMBYGA1UEAxMPU3VwZXJmaXNoLCBJbmMuMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDo80oYdl8ZP7HPWOl_QwcJlYA1xQ_-cTEngZkSJiCl349q_EJVOe4JOInZ4DbErAGCW9U55vmPB4jf_u72oRTOqXRF2P3wF1cqguF6LhKTWqyK1xVj0bebVYAPWLwcSe0gYt22TKU66xw9oP96cabTEHgzrkvCHP2SSqHD50GkLQIDAQABo4HAMIG9MAwGA1UdEwQFMAMBAf8wHQYDVR0OBBYEFPuYs1N_FEQu6O7VCZpeDlaGqDWIMIGNBgNVHSMEgYUwgYKAFPuYs1N_FEQu6O7VCZpeDlaGqDWIoV-kXTBbMRgwFgYDVQQKEw9TdXBlcmZpc2gsIEluYy4xCzAJBgNVBAcTAlNGMQswCQYDVQQIEwJDQTELMAkGA1UEBhMCVVMxGDAWBgNVBAMTD1N1cGVyZmlzaCwgSW5jLoIJANL8E4epRNznMA0GCSqGSIb3DQEBBQUAA4GBAKR8oOwKSsdwxHFo8zsi4tycjdCS_nN-citVRJsbtELrH6--uuOTo9SLGMKU8LOmvWU0TM0k-BkLxRUK2vNXi6mGz2zD7oQvhQsZFBeYtAzUlovpHMyVyU7QqksBpfbfSRKBar7Vvs52fU6si4jjMO0xhFCPvPFQKltKpl58D3H6JOMFodMMw2IeCb55eEfrh6zCSzM=";
 
     @Test
-    public void shouldReturnEmptyByteArrayIfNotAbleToFindCertSectionInPemData() {
+    void shouldReturnEmptyByteArrayIfNotAbleToFindCertSectionInPemData() {
         // Given
         String pem = CERT_DATA_BASE64;
         // When
@@ -91,7 +91,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyByteArrayIfBeginCertTokenWasNotFoundInPemData() {
+    void shouldReturnEmptyByteArrayIfBeginCertTokenWasNotFoundInPemData() {
         // Given
         String pem = CERT_DATA_BASE64 + SslCertificateUtils.END_CERTIFICATE_TOKEN;
         // When
@@ -102,7 +102,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyByteArrayIfEndCertTokenWasNotFoundInPemData() {
+    void shouldReturnEmptyByteArrayIfEndCertTokenWasNotFoundInPemData() {
         // Given
         String pem = SslCertificateUtils.BEGIN_CERTIFICATE_TOKEN + CERT_DATA_BASE64;
         // When
@@ -113,7 +113,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyByteArrayIfEndCertTokenIsBeforeBeginCertTokenInPemData() {
+    void shouldReturnEmptyByteArrayIfEndCertTokenIsBeforeBeginCertTokenInPemData() {
         // Given
         String pem =
                 SslCertificateUtils.END_CERTIFICATE_TOKEN
@@ -127,7 +127,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnCertificateBetweenBeginAndEndCertTokensFromPemData() {
+    void shouldReturnCertificateBetweenBeginAndEndCertTokensFromPemData() {
         // Given
         String pem =
                 SslCertificateUtils.BEGIN_CERTIFICATE_TOKEN
@@ -142,7 +142,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyByteArrayIfNotAbleToFindPrivKeySectionInPemData() {
+    void shouldReturnEmptyByteArrayIfNotAbleToFindPrivKeySectionInPemData() {
         // Given
         String pem = PRIV_KEY_BASE64;
         // When
@@ -153,7 +153,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyByteArrayIfBeginPrivKeyTokenWasNotFoundInPemData() {
+    void shouldReturnEmptyByteArrayIfBeginPrivKeyTokenWasNotFoundInPemData() {
         // Given
         String pem = PRIV_KEY_BASE64 + SslCertificateUtils.END_PRIVATE_KEY_TOKEN;
         // When
@@ -164,7 +164,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyByteArrayIfEndPrivKeyTokenWasNotFoundInPemData() {
+    void shouldReturnEmptyByteArrayIfEndPrivKeyTokenWasNotFoundInPemData() {
         // Given
         String pem = SslCertificateUtils.BEGIN_PRIVATE_KEY_TOKEN + PRIV_KEY_BASE64;
         // When
@@ -175,7 +175,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnEmptyByteArrayIfEndPrivKeyTokenIsBeforeBeginPrivKeyTokenInPemData() {
+    void shouldReturnEmptyByteArrayIfEndPrivKeyTokenIsBeforeBeginPrivKeyTokenInPemData() {
         // Given
         String pem =
                 SslCertificateUtils.END_PRIVATE_KEY_TOKEN
@@ -189,7 +189,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldReturnPrivateKeyBetweenBeginAndEndPrivKeyTokensFromPemData() {
+    void shouldReturnPrivateKeyBetweenBeginAndEndPrivKeyTokensFromPemData() {
         // Given
         String pem =
                 SslCertificateUtils.BEGIN_PRIVATE_KEY_TOKEN
@@ -204,7 +204,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldConvertPem2Keystore() throws Exception {
+    void shouldConvertPem2Keystore() throws Exception {
         Provider provider = new BouncyCastleProvider();
         try {
             // Given
@@ -222,7 +222,7 @@ public class SslCertificateUtilsUnitTest {
     }
 
     @Test
-    public void shouldConvertStringCertToAndFromKeyStore() throws Exception {
+    void shouldConvertStringCertToAndFromKeyStore() throws Exception {
         // Given
         String certBase64 = FISH_CERT_BASE64_STR;
         // When

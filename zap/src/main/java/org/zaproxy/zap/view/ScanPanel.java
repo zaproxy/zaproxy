@@ -71,7 +71,7 @@ public abstract class ScanPanel extends AbstractPanel {
         beforeButtons,
         beforeProgressBar,
         afterProgressBar
-    };
+    }
 
     public String prefix;
 

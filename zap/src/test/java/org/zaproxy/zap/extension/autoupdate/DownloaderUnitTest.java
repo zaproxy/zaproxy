@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /** Unit test for {@link Downloader}. */
-public class DownloaderUnitTest {
+class DownloaderUnitTest {
 
     private static final String FILE_CONTENTS = "0123456789ABCDEF";
 
@@ -43,14 +43,14 @@ public class DownloaderUnitTest {
     private static URL downloadUrl;
 
     @BeforeAll
-    public static void setUp() throws IOException {
+    static void setUp() throws IOException {
         Path file = Files.createTempFile(tempDir, "file", "");
         Files.write(file, FILE_CONTENTS.getBytes(StandardCharsets.UTF_8));
         downloadUrl = file.toUri().toURL();
     }
 
     @Test
-    public void shouldValidateDownloadWithEqualSha1Hash() throws Exception {
+    void shouldValidateDownloadWithEqualSha1Hash() throws Exception {
         // Given
         String hash = "SHA1:ce27cb141098feb00714e758646be3e99c185b71";
         Downloader downloader = noProxyDownloader(downloadUrl, hash);
@@ -62,7 +62,7 @@ public class DownloaderUnitTest {
     }
 
     @Test
-    public void shouldNotValidateDownloadWithDifferentSha1Hash() throws Exception {
+    void shouldNotValidateDownloadWithDifferentSha1Hash() throws Exception {
         // Given
         String hash = "SHA1:ce27cb";
         Downloader downloader = noProxyDownloader(downloadUrl, hash);
@@ -74,7 +74,7 @@ public class DownloaderUnitTest {
     }
 
     @Test
-    public void shouldValidateDownloadWithEqualSha256Hash() throws Exception {
+    void shouldValidateDownloadWithEqualSha256Hash() throws Exception {
         // Given
         String hash = "SHA-256:2125b2c332b1113aae9bfc5e9f7e3b4c91d828cb942c2df1eeb02502eccae9e9";
         Downloader downloader = noProxyDownloader(downloadUrl, hash);
@@ -86,7 +86,7 @@ public class DownloaderUnitTest {
     }
 
     @Test
-    public void shouldNotValidateDownloadWithDifferentSha256Hash() throws Exception {
+    void shouldNotValidateDownloadWithDifferentSha256Hash() throws Exception {
         // Given
         String hash = "SHA-256:2125bc";
         Downloader downloader = noProxyDownloader(downloadUrl, hash);
@@ -98,7 +98,7 @@ public class DownloaderUnitTest {
     }
 
     @Test
-    public void shouldNotValidateDownloadWithUnsupportedAlgorithm() throws Exception {
+    void shouldNotValidateDownloadWithUnsupportedAlgorithm() throws Exception {
         // Given
         String hash = "~NotHashAlg~:ce27cb141098feb00714e758646be3e99c185b71";
         Downloader downloader = noProxyDownloader(downloadUrl, hash);

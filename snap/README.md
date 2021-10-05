@@ -22,7 +22,7 @@ Those people who have then can upload the snap using:
 
 ```
 snapcraft login
-snapcraft push zaproxy_<version>_amd64.snap
+snapcraft upload zaproxy_<version>_amd64.snap
 ```
 
 [snap]: https://snapcraft.io/

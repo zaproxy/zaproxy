@@ -334,6 +334,8 @@ public class GuiBootstrap extends ZapBootstrap {
 
         if (Constant.isMacOsX()) {
             OsXGui.setup();
+        } else if (Constant.isWindows()) {
+            UIManager.put("TitlePane.useWindowDecorations", false);
         }
 
         if (setLookAndFeel(System.getProperty("swing.defaultlaf"))) {

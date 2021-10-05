@@ -1,0 +1,24 @@
+# This dockerfile builds a ZAP docker image used for integration tests
+FROM owasp/zap2docker-live
+LABEL maintainer="psiinon@gmail.com"
+
+ARG DEBIAN_FRONTEND=noninteractive
+
+#Change to the zap user so things get done as the right person (apart from copy)
+USER zap
+
+COPY integration_tests /zap/wrk/
+
+# Pick up any local changes
+COPY zap* CHANGELOG.md /zap/
+
+#Copy doesn't respect USER directives so we need to chown and to do that we need to be root
+USER root
+
+RUN chown zap:zap -R /zap/ && \
+	chmod +x /zap/wrk/*.sh
+
+
+WORKDIR /zap
+
+USER zap

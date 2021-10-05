@@ -46,6 +46,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/12 Add defaults to getAuthor() and getURL().
 // ZAP: 2020/03/09 Default getURL() to null.
+// ZAP: 2021/04/13 Update JavaDoc of stop() and destroy().
 package org.parosproxy.paros.extension;
 
 import java.net.URL;
@@ -127,11 +128,27 @@ public interface Extension {
     /** Start the plugin e.g. if there is a running server. */
     void start();
 
-    /** stop the plugin e.g. if there is a running server. */
+    /**
+     * Stops the extension, e.g. running scans, processes, servers.
+     *
+     * <p>Called when the extension is removed (i.e. corresponding add-on is uninstalled) and when
+     * ZAP shuts down.
+     *
+     * <p>Should be called only by core functionality.
+     *
+     * @see #destroy()
+     */
     void stop();
 
     /**
-     * Plugin cleanup, finalize, etc. when program shutdown. Stop() will be called before shutdown.
+     * Performs final cleanups, free resources.
+     *
+     * <p>Called when the extension is removed (i.e. corresponding add-on is uninstalled) and when
+     * ZAP shuts down.
+     *
+     * <p>Called after {@link #stop() stopping} the extension.
+     *
+     * <p>Should be called only by core functionality.
      */
     void destroy();
 
@@ -204,7 +221,7 @@ public interface Extension {
     /**
      * Gets the URL to info about the extension.
      *
-     * <p>Since TODO add version defaults to {@code null}.
+     * <p>Since 2.10.0 defaults to {@code null}.
      *
      * @return the URL to info about the extension, might be {@code null}.
      * @since 1.4.0

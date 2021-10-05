@@ -58,7 +58,7 @@ import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link CommandLine}. */
 @ExtendWith(MockitoExtension.class)
-public class CommandLineUnitTest {
+class CommandLineUnitTest {
 
     private static final Vector<CommandLineArgument[]> NO_EXTENSIONS_CUSTOM_ARGUMENTS =
             new Vector<>();
@@ -82,14 +82,14 @@ public class CommandLineUnitTest {
     };
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), any())).willReturn("");
         Constant.messages = i18n;
     }
 
     @Test
-    public void shouldAcceptNullArguments() throws Exception {
+    void shouldAcceptNullArguments() throws Exception {
         // Given
         String[] args = null;
         // When / Then
@@ -97,7 +97,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldParseNullArguments() throws Exception {
+    void shouldParseNullArguments() throws Exception {
         // Given
         String[] args = {null, null};
         cmdLine = new CommandLine(args);
@@ -107,7 +107,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void emptyCommandLine() throws Exception {
+    void emptyCommandLine() throws Exception {
         cmdLine = new CommandLine(new String[] {});
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
         assertTrue(cmdLine.isGUI());
@@ -116,7 +116,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void daemonFlag() throws Exception {
+    void daemonFlag() throws Exception {
         cmdLine = new CommandLine(new String[] {CommandLine.DAEMON});
         cmdLine.parse(NO_EXTENSIONS_CUSTOM_ARGUMENTS, NO_SUPPORTED_FILE_EXTENSIONS);
         assertFalse(cmdLine.isGUI());
@@ -125,7 +125,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldReportNonDaemonNorGuiIfSetCommandLineArgument() throws Exception {
+    void shouldReportNonDaemonNorGuiIfSetCommandLineArgument() throws Exception {
         // Given / When
         cmdLine = new CommandLine(new String[] {CommandLine.CMD});
         // Then
@@ -134,7 +134,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldFailIfDaemonAndCommandLineArgumentsAreSet() throws Exception {
+    void shouldFailIfDaemonAndCommandLineArgumentsAreSet() throws Exception {
         // Given
         String[] args = {CommandLine.CMD, CommandLine.DAEMON};
         // When
@@ -145,7 +145,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldFailIfSessionArgumentDoesNotHaveValue() throws Exception {
+    void shouldFailIfSessionArgumentDoesNotHaveValue() throws Exception {
         // Given
         String[] args = {CommandLine.SESSION};
         // When / Then
@@ -153,7 +153,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldAcceptSessionArgument() throws Exception {
+    void shouldAcceptSessionArgument() throws Exception {
         // Given
         String argumentValue = "/Dummy/Session/Path";
         // When
@@ -163,7 +163,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldFailIfNewSessionArgumentDoesNotHaveValue() throws Exception {
+    void shouldFailIfNewSessionArgumentDoesNotHaveValue() throws Exception {
         // Given
         String[] args = {CommandLine.NEW_SESSION};
         // When / Then
@@ -171,7 +171,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldAcceptNewSessionArgument() throws Exception {
+    void shouldAcceptNewSessionArgument() throws Exception {
         // Given
         String argumentValue = "/Dummy/Session/Path";
         // When
@@ -181,7 +181,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldFailIfPortArgumentDoesNotHaveValue() throws Exception {
+    void shouldFailIfPortArgumentDoesNotHaveValue() throws Exception {
         // Given
         String[] args = {CommandLine.PORT};
         // When / Then
@@ -189,7 +189,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldFailToParseInvalidPortArgument() throws Exception {
+    void shouldFailToParseInvalidPortArgument() throws Exception {
         // Given
         String[] args = {CommandLine.PORT, "InvalidPort"};
         // When / Then
@@ -197,7 +197,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldParseValidPortArgument() throws Exception {
+    void shouldParseValidPortArgument() throws Exception {
         // Given
         int port = 8080;
         // When
@@ -208,7 +208,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldFailIfHostArgumentDoesNotHaveValue() throws Exception {
+    void shouldFailIfHostArgumentDoesNotHaveValue() throws Exception {
         // Given
         String[] args = {CommandLine.HOST};
         // When / Then
@@ -216,7 +216,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldParseHostArgument() throws Exception {
+    void shouldParseHostArgument() throws Exception {
         // Given
         String hostname = "127.0.0.1";
         // When
@@ -226,7 +226,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldHaveNoStdOutArgumentDisabledByDefault() throws Exception {
+    void shouldHaveNoStdOutArgumentDisabledByDefault() throws Exception {
         // Given / When
         cmdLine = new CommandLine(new String[] {});
         // Then
@@ -234,7 +234,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldParseNoStdOutArgument() throws Exception {
+    void shouldParseNoStdOutArgument() throws Exception {
         // Given / When
         cmdLine = new CommandLine(new String[] {CommandLine.NOSTDOUT});
         // Then
@@ -242,7 +242,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldGetNullFromNonGivenArgument() throws Exception {
+    void shouldGetNullFromNonGivenArgument() throws Exception {
         // Given
         cmdLine = new CommandLine(new String[] {});
         // When
@@ -252,7 +252,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldGetNullValueFromNonBuiltInArgument() throws Exception {
+    void shouldGetNullValueFromNonBuiltInArgument() throws Exception {
         // Given
         String argName = "-arg";
         Vector<CommandLineArgument[]> supportedArguments = new Vector<>();
@@ -265,7 +265,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldFailIfGivenUnsupportedArgument() throws Exception {
+    void shouldFailIfGivenUnsupportedArgument() throws Exception {
         // Given
         cmdLine = new CommandLine(new String[] {"-unsupported"});
         // When / Then
@@ -275,7 +275,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void claWithoutArgs() throws Exception {
+    void claWithoutArgs() throws Exception {
         cmdLine = new CommandLine(new String[] {"-a", "-b"});
         Vector<CommandLineArgument[]> customArguments = new Vector<>();
         customArguments.add(
@@ -292,7 +292,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void claWithArgs() throws Exception {
+    void claWithArgs() throws Exception {
         cmdLine = new CommandLine(new String[] {"-a", "aaa", "-b", "bbb", "BBB"});
         Vector<CommandLineArgument[]> customArguments = new Vector<>();
         customArguments.add(
@@ -318,7 +318,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void claWithMissingArgs() throws Exception {
+    void claWithMissingArgs() throws Exception {
         cmdLine = new CommandLine(new String[] {"-a", "aaa", "-b", "bbb"});
         Vector<CommandLineArgument[]> customArguments = new Vector<>();
         customArguments.add(
@@ -333,7 +333,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void claWithPattern() throws Exception {
+    void claWithPattern() throws Exception {
         cmdLine = new CommandLine(new String[] {"-script", "aaa", "bbb", "ccc"});
         Vector<CommandLineArgument[]> customArguments = new Vector<>();
         customArguments.add(
@@ -346,7 +346,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldFailTheParseIfArgumentIsNotSupportedArgumentNorFile() throws Exception {
+    void shouldFailTheParseIfArgumentIsNotSupportedArgumentNorFile() throws Exception {
         // Given
         String notAFile = "NotAFile" + new Random().nextInt();
         cmdLine = new CommandLine(new String[] {notAFile});
@@ -357,7 +357,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldFailTheParseIfArgumentIsNotSupportedArgumentNorSupportedFileWithExtension()
+    void shouldFailTheParseIfArgumentIsNotSupportedArgumentNorSupportedFileWithExtension()
             throws Exception {
         // Given
         cmdLine = new CommandLine(new String[] {"notsupported.test"});
@@ -368,7 +368,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldAcceptFileArgumentIfHasSupportedFileExtension(@TempDir Path folder)
+    void shouldAcceptFileArgumentIfHasSupportedFileExtension(@TempDir Path folder)
             throws Exception {
         // Given
         String fileExtension = "test";
@@ -382,7 +382,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldNotAcceptFileArgumentIfRejectedBySupportedFileExtension(@TempDir Path folder)
+    void shouldNotAcceptFileArgumentIfRejectedBySupportedFileExtension(@TempDir Path folder)
             throws Exception {
         // Given
         String fileExtension = "test";
@@ -429,7 +429,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldMaintainConfigOrder() throws Exception {
+    void shouldMaintainConfigOrder() throws Exception {
         List<String> list = new ArrayList<>();
         for (String[] kv : TEST_CONF_VALUES) {
             list.add("-config");
@@ -450,7 +450,7 @@ public class CommandLineUnitTest {
     }
 
     @Test
-    public void shouldMaintainConfigfileOrder(@TempDir Path folder) throws Exception {
+    void shouldMaintainConfigfileOrder(@TempDir Path folder) throws Exception {
         File testFile = Files.createFile(folder.resolve("text.conf")).toFile();
         PrintWriter pw = new PrintWriter(testFile);
         for (String[] kv : TEST_CONF_VALUES) {

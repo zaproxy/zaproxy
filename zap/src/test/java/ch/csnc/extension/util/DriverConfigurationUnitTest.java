@@ -36,10 +36,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /** Unit test for {@link DriverConfiguration}. */
-public class DriverConfigurationUnitTest {
+class DriverConfigurationUnitTest {
 
     @Test
-    public void shouldCreateConfigurationFromFile() throws Exception {
+    void shouldCreateConfigurationFromFile() throws Exception {
         // Given
         File file = getDriversXmlFile();
         // When
@@ -52,7 +52,7 @@ public class DriverConfigurationUnitTest {
     }
 
     @Test
-    public void shouldWriteConfigurationToFile(@TempDir Path tempDir) throws Exception {
+    void shouldWriteConfigurationToFile(@TempDir Path tempDir) throws Exception {
         // Given
         File file = Files.createTempFile(tempDir, "conf", "").toFile();
         DriverConfiguration configuration = new DriverConfiguration(file);

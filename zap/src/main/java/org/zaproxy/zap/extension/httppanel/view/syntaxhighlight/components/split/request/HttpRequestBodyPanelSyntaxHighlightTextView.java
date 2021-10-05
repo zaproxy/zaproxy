@@ -77,7 +77,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
                                                 HttpRequestBodyPanelSyntaxHighlightTextView.this,
                                                 x,
                                                 y);
-                            };
+                            }
                         });
     }
 

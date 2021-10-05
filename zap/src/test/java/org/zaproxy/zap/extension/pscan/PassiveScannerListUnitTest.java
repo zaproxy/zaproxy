@@ -37,22 +37,22 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 /** Unit test for {@link PassiveScannerList}. */
-public class PassiveScannerListUnitTest {
+class PassiveScannerListUnitTest {
 
     private PassiveScannerList psl;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         psl = new PassiveScannerList();
     }
 
     @Test
-    public void shouldHaveNoScannersByDefault() {
+    void shouldHaveNoScannersByDefault() {
         assertThat(psl.list(), is(empty()));
     }
 
     @Test
-    public void shouldAddPassiveScanner() {
+    void shouldAddPassiveScanner() {
         // Given
         PassiveScanner scanner = mock(PassiveScanner.class);
         // When
@@ -63,7 +63,7 @@ public class PassiveScannerListUnitTest {
     }
 
     @Test
-    public void shouldIgnorePassiveScannerWithSameName() {
+    void shouldIgnorePassiveScannerWithSameName() {
         // Given
         PassiveScanner scanner1 = mock(PassiveScanner.class);
         when(scanner1.getName()).thenReturn("PassiveScanner 1");
@@ -78,7 +78,7 @@ public class PassiveScannerListUnitTest {
     }
 
     @Test
-    public void shouldRemovePassiveScanner() {
+    void shouldRemovePassiveScanner() {
         // Given
         PassiveScanner scanner1 = mock(PassiveScanner.class);
         psl.add(scanner1);
@@ -93,7 +93,7 @@ public class PassiveScannerListUnitTest {
     }
 
     @Test
-    public void shouldNotRemovePassiveScannerNotAdded() {
+    void shouldNotRemovePassiveScannerNotAdded() {
         // Given
         PassiveScanner scanner = mock(PassiveScanner.class);
         // When
@@ -103,7 +103,7 @@ public class PassiveScannerListUnitTest {
     }
 
     @Test
-    public void shouldSetAutoTagScanners() {
+    void shouldSetAutoTagScanners() {
         // Given
         List<RegexAutoTagScanner> scanners = new ArrayList<>();
         RegexAutoTagScanner scanner1 = mock(RegexAutoTagScanner.class);
@@ -119,7 +119,7 @@ public class PassiveScannerListUnitTest {
     }
 
     @Test
-    public void shouldRemovePreviousAutoTagScannersButNotPassiveScanners() {
+    void shouldRemovePreviousAutoTagScannersButNotPassiveScanners() {
         // Given
         RegexAutoTagScanner scanner1 = mock(RegexAutoTagScanner.class);
         when(scanner1.getName()).thenReturn("RegexAutoTagScanner 1");
@@ -138,7 +138,7 @@ public class PassiveScannerListUnitTest {
     }
 
     @Test
-    public void shouldIgnoreAutoTagScannerWithSameName() {
+    void shouldIgnoreAutoTagScannerWithSameName() {
         // Given
         List<RegexAutoTagScanner> scanners = new ArrayList<>();
         RegexAutoTagScanner scanner1 = mock(RegexAutoTagScanner.class);
@@ -154,7 +154,7 @@ public class PassiveScannerListUnitTest {
     }
 
     @Test
-    public void shouldAllowToChangeListWhileIterating() {
+    void shouldAllowToChangeListWhileIterating() {
         // Given
         PassiveScanner scanner1 = mock(PassiveScanner.class);
         psl.add(scanner1);
@@ -174,7 +174,7 @@ public class PassiveScannerListUnitTest {
     }
 
     @Test
-    public void shouldAllowToChangeListWhileIteratingAfterSettingAutoTagScanners() {
+    void shouldAllowToChangeListWhileIteratingAfterSettingAutoTagScanners() {
         // Given
         PassiveScanner scanner1 = mock(PassiveScanner.class);
         psl.add(scanner1);

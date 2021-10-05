@@ -19,6 +19,8 @@
  */
 package org.parosproxy.paros.db;
 
+import org.zaproxy.zap.db.TableAlertTag;
+
 /**
  * This interface was extracted from the previous Paros class of the same name. The Paros class that
  * implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
@@ -87,6 +89,10 @@ public interface Database {
 
     /** @param tableAlert The tableAlert to set. */
     void setTableAlert(TableAlert tableAlert);
+
+    TableAlertTag getTableAlertTag();
+
+    void setTableAlertTag(TableAlertTag tableAlertTag);
 
     /** @return Returns the tableScan. */
     TableScan getTableScan();

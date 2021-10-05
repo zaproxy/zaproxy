@@ -79,7 +79,7 @@ public class UsersMultiSelectTable extends JTable {
      */
     public void reloadUsers(int contextId) {
         List<User> users =
-                new ArrayList<User>(usersExtension.getContextUserAuthManager(contextId).getUsers());
+                new ArrayList<>(usersExtension.getContextUserAuthManager(contextId).getUsers());
         tableModel = new UsersSelectTableModel(users);
         this.setModel(tableModel);
     }
@@ -123,11 +123,11 @@ public class UsersMultiSelectTable extends JTable {
         public UsersSelectTableModel(List<User> users) {
             super();
             this.users = users;
-            this.selectedUsersIds = new HashSet<Integer>(this.users.size());
+            this.selectedUsersIds = new HashSet<>(this.users.size());
         }
 
         public List<User> generateSelectedUsers() {
-            List<User> selectedUsers = new ArrayList<User>(selectedUsersIds.size());
+            List<User> selectedUsers = new ArrayList<>(selectedUsersIds.size());
             for (User u : users) if (selectedUsersIds.contains(u.getId())) selectedUsers.add(u);
             return selectedUsers;
         }

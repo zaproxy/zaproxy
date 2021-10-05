@@ -52,7 +52,6 @@ import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
@@ -217,7 +216,7 @@ public class SpiderAPI extends ApiImplementor {
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
         log.debug("Request for handleApiAction: " + name + " (params: " + params.toString() + ")");
-        GenericScanner2 scan;
+        SpiderScan scan;
         int maxChildren = -1;
         Context context = null;
 
@@ -324,7 +323,7 @@ public class SpiderAPI extends ApiImplementor {
             case ACTION_CLEAR_EXCLUDED_FROM_SCAN:
                 try {
                     Session session = Model.getSingleton().getSession();
-                    session.setExcludeFromSpiderRegexs(new ArrayList<String>());
+                    session.setExcludeFromSpiderRegexs(new ArrayList<>());
                 } catch (DatabaseException e) {
                     throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                 }
@@ -447,8 +446,8 @@ public class SpiderAPI extends ApiImplementor {
      * @throws ApiException if there's no scan with the given scan ID
      * @see #PARAM_SCAN_ID
      */
-    private GenericScanner2 getSpiderScan(JSONObject params) throws ApiException {
-        GenericScanner2 spiderScan;
+    private SpiderScan getSpiderScan(JSONObject params) throws ApiException {
+        SpiderScan spiderScan;
         int id = getParam(params, PARAM_SCAN_ID, -1);
         if (id == -1) {
             spiderScan = extension.getLastScan();
@@ -596,29 +595,25 @@ public class SpiderAPI extends ApiImplementor {
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
         ApiResponse result;
         if (VIEW_STATUS.equals(name)) {
-            SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
+            SpiderScan scan = this.getSpiderScan(params);
             int progress = 0;
-            if (scan != null) {
-                if (scan.isStopped()) {
-                    progress = 100;
-                } else {
-                    progress = scan.getProgress();
-                }
+            if (scan.isStopped()) {
+                progress = 100;
+            } else {
+                progress = scan.getProgress();
             }
             result = new ApiResponseElement(name, Integer.toString(progress));
         } else if (VIEW_RESULTS.equals(name)) {
             result = new ApiResponseList(name);
-            SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
-            if (scan != null) {
-                synchronized (scan.getResults()) {
-                    for (String s : scan.getResults()) {
-                        ((ApiResponseList) result).addItem(new ApiResponseElement("url", s));
-                    }
+            SpiderScan scan = this.getSpiderScan(params);
+            synchronized (scan.getResults()) {
+                for (String s : scan.getResults()) {
+                    ((ApiResponseList) result).addItem(new ApiResponseElement("url", s));
                 }
             }
         } else if (VIEW_FULL_RESULTS.equals(name)) {
             ApiResponseList resultUrls = new ApiResponseList(name);
-            SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
+            SpiderScan scan = this.getSpiderScan(params);
             ApiResponseList resultList = new ApiResponseList("urlsInScope");
             synchronized (scan.getResourcesFound()) {
                 for (SpiderResource sr : scan.getResourcesFound()) {
@@ -654,18 +649,17 @@ public class SpiderAPI extends ApiImplementor {
             }
         } else if (VIEW_SCANS.equals(name)) {
             ApiResponseList resultList = new ApiResponseList(name);
-            for (GenericScanner2 scan : extension.getAllScans()) {
-                SpiderScan spiderScan = (SpiderScan) scan;
+            for (SpiderScan spiderScan : extension.getAllScans()) {
                 Map<String, String> map = new HashMap<>();
                 map.put("id", Integer.toString(spiderScan.getScanId()));
                 map.put("progress", Integer.toString(spiderScan.getProgress()));
                 map.put("state", spiderScan.getState());
-                resultList.addItem(new ApiResponseSet<String>("scan", map));
+                resultList.addItem(new ApiResponseSet<>("scan", map));
             }
             result = resultList;
         } else if (VIEW_ALL_URLS.equals(name)) {
             ApiResponseList resultUrls = new ApiResponseList(name);
-            Set<String> urlSet = new HashSet<String>();
+            Set<String> urlSet = new HashSet<>();
 
             TableHistory tableHistory = extension.getModel().getDb().getTableHistory();
             List<Integer> ids = Collections.emptyList();
@@ -698,11 +692,9 @@ public class SpiderAPI extends ApiImplementor {
             result = resultUrls;
         } else if (VIEW_ADDED_NODES.equals(name)) {
             result = new ApiResponseList(name);
-            SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
-            if (scan != null) {
-                for (String s : scan.getAddedNodesTableModel().getAddedNodes()) {
-                    ((ApiResponseList) result).addItem(new ApiResponseElement("url", s));
-                }
+            SpiderScan scan = this.getSpiderScan(params);
+            for (String s : scan.getAddedNodesTableModel().getAddedNodes()) {
+                ((ApiResponseList) result).addItem(new ApiResponseElement("url", s));
             }
         } else if (VIEW_DOMAINS_ALWAYS_IN_SCOPE.equals(name)
                 || VIEW_OPTION_DOMAINS_ALWAYS_IN_SCOPE.equals(name)) {
@@ -745,7 +737,7 @@ public class SpiderAPI extends ApiImplementor {
             domainData.put("value", domain.getValue());
             domainData.put("regex", domain.isRegex());
             domainData.put("enabled", domain.isEnabled());
-            apiResponse.addItem(new ApiResponseSet<Object>("domain", domainData));
+            apiResponse.addItem(new ApiResponseSet<>("domain", domainData));
         }
         return apiResponse;
     }

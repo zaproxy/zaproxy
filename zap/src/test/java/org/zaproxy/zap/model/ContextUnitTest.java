@@ -33,24 +33,24 @@ import org.parosproxy.paros.model.Session;
 
 /** Unit test for {@link Context}. */
 @ExtendWith(MockitoExtension.class)
-public class ContextUnitTest {
+class ContextUnitTest {
 
     @Mock Session session;
 
     private Context context;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         context = new Context(session, 1);
     }
 
     @Test
-    public void shouldNullUrlNeverBeIncluded() {
+    void shouldNullUrlNeverBeIncluded() {
         assertThat(context.isIncluded((String) null), is(false));
     }
 
     @Test
-    public void shouldUseIndexAsDefaultName() {
+    void shouldUseIndexAsDefaultName() {
         // Given
         int index = 1010;
         // When
@@ -60,7 +60,7 @@ public class ContextUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToSetNullName() {
+    void shouldNotAllowToSetNullName() {
         // Given
         String name = null;
         // When / Then
@@ -68,7 +68,7 @@ public class ContextUnitTest {
     }
 
     @Test
-    public void shouldNotAllowToSetAnEmptyName() {
+    void shouldNotAllowToSetAnEmptyName() {
         // Given
         String name = "";
         // When / Then
@@ -76,7 +76,7 @@ public class ContextUnitTest {
     }
 
     @Test
-    public void shouldSetNonEmptyName() {
+    void shouldSetNonEmptyName() {
         // Given
         String name = "Default Context";
         // When

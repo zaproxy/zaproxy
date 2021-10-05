@@ -35,8 +35,7 @@ public class StructuralSiteNode implements StructuralNode {
      * Constructs a {@code StructuralSiteNode} with the given node.
      *
      * @param node the node to wrap.
-     * @throws NullPointerException (since TODO add version) if the given {@code node} is {@code
-     *     null}.
+     * @throws NullPointerException (since 2.10.0) if the given {@code node} is {@code null}.
      */
     public StructuralSiteNode(SiteNode node) {
         this.node = Objects.requireNonNull(node);

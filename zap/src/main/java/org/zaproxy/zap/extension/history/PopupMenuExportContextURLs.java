@@ -73,7 +73,7 @@ public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
         }
 
         List<Context> contexts = extension.getView().getSiteTreePanel().getSelectedContexts();
-        SortedSet<String> allUrls = new TreeSet<String>();
+        SortedSet<String> allUrls = new TreeSet<>();
 
         for (Context c : contexts) {
             this.getOutputSet(c, allUrls);

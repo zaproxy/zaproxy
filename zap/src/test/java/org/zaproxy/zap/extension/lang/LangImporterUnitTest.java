@@ -27,10 +27,10 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link LangImporter}. */
-public class LangImporterUnitTest {
+class LangImporterUnitTest {
 
     @Test
-    public void shouldIncludeMessagesAndVulnerabilitiesFiles() {
+    void shouldIncludeMessagesAndVulnerabilitiesFiles() {
         // Given
         String[] resourceFiles = {
             "Messages.properties",
@@ -55,7 +55,7 @@ public class LangImporterUnitTest {
     }
 
     @Test
-    public void shouldNotMatchOtherFilesThanMessagesAndVulnerabilitiesFiles() {
+    void shouldNotMatchOtherFilesThanMessagesAndVulnerabilitiesFiles() {
         // Given
         String[] resourceFiles = {
             "Vulnerabilities.xml",

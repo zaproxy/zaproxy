@@ -27,16 +27,21 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
@@ -50,10 +55,10 @@ import org.zaproxy.zap.network.HttpResponseBody;
 import org.zaproxy.zap.users.User;
 
 /** Unit test for {@link HttpMessage}. */
-public class HttpMessageUnitTest {
+class HttpMessageUnitTest {
 
     @Test
-    public void shouldBeEventStreamIfRequestWithoutResponseAcceptsEventStream() throws Exception {
+    void shouldBeEventStreamIfRequestWithoutResponseAcceptsEventStream() throws Exception {
         // Given
         HttpMessage message =
                 new HttpMessage(
@@ -65,7 +70,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldNotBeEventStreamIfRequestWithoutResponseDoesNotAcceptJustEventStream()
+    void shouldNotBeEventStreamIfRequestWithoutResponseDoesNotAcceptJustEventStream()
             throws Exception {
         // Given
         HttpMessage message =
@@ -77,7 +82,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldBeEventStreamIfResponseHasEventStreamContentType() throws Exception {
+    void shouldBeEventStreamIfResponseHasEventStreamContentType() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
         message.getResponseHeader()
@@ -89,8 +94,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldNotBeEventStreamIfResponseDoesNotHaveEventStreamContentType()
-            throws Exception {
+    void shouldNotBeEventStreamIfResponseDoesNotHaveEventStreamContentType() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
         message.getResponseHeader()
@@ -102,7 +106,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldCopyHttpMessage() throws Exception {
+    void shouldCopyHttpMessage() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
         // When
@@ -137,7 +141,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldCloneRequest() throws Exception {
+    void shouldCloneRequest() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
         // When
@@ -167,7 +171,7 @@ public class HttpMessageUnitTest {
     }
 
     @Test
-    public void shouldCloneAll() throws Exception {
+    void shouldCloneAll() throws Exception {
         // Given
         HttpMessage message = newHttpMessage();
         // When
@@ -198,6 +202,62 @@ public class HttpMessageUnitTest {
         assertThat(copy.getRequestingUser(), is(nullValue()));
         assertThat(copy.isForceIntercept(), is(equalTo(false)));
         assertThat(copy.isResponseFromTargetHost(), is(equalTo(false)));
+    }
+
+    @Test
+    void shouldCorrectlyMutateFromConnectHttpMethodWhenGenericPort() throws Exception {
+        // Given
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "CONNECT "
+                                        + "www.example.com:9000 HTTP/1.1\r\nHost: www.example.com:9000"));
+        // When
+        message.mutateHttpMethod(HttpRequestHeader.GET);
+        // Then
+        assertThat(message.getRequestHeader().getMethod(), is(HttpRequestHeader.GET));
+        assertThat(
+                message.getRequestHeader().getURI().toString(), is("http://www.example.com:9000"));
+        assertThat(
+                message.getRequestHeader().getHeader(HttpRequestHeader.HOST),
+                is("www.example.com:9000"));
+    }
+
+    @Test
+    void shouldCorrectlyMutateFromConnectHttpMethodWhenHttpsPort() throws Exception {
+        // Given
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "CONNECT "
+                                        + "www.example.com:443 HTTP/1.1\r\nHost: www.example.com:443"));
+        // When
+        message.mutateHttpMethod(HttpRequestHeader.GET);
+        // Then
+        assertThat(message.getRequestHeader().getMethod(), is(HttpRequestHeader.GET));
+        assertThat(
+                message.getRequestHeader().getURI().toString(), is("https://www.example.com:443"));
+        assertThat(
+                message.getRequestHeader().getHeader(HttpRequestHeader.HOST),
+                is("www.example.com:443"));
+    }
+
+    @Test
+    void shouldCorrectlyMutateToConnectHttpMethod() throws Exception {
+        // Given
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "GET "
+                                        + "http://www.example.com:9000/path HTTP/1.1\r\nHost: www.example.com:9000"));
+        // When
+        message.mutateHttpMethod(HttpRequestHeader.CONNECT);
+        // Then
+        assertThat(message.getRequestHeader().getMethod(), is(HttpRequestHeader.CONNECT));
+        assertThat(message.getRequestHeader().getURI().toString(), is("www.example.com:9000"));
+        assertThat(
+                message.getRequestHeader().getHeader(HttpRequestHeader.HOST),
+                is("www.example.com:9000"));
     }
 
     @Test
@@ -333,6 +393,115 @@ public class HttpMessageUnitTest {
         HttpMessage.setContentEncodings(header, body);
         // Then
         verify(body).setContentEncodings(Collections.emptyList());
+    }
+
+    @Test
+    void
+            shouldBeWebSocketUpgradeIfRequestConnectionHeaderContainsUpgradeAndUpgradeHeaderEqualsWebsocket()
+                    throws Exception {
+        // Given
+        HttpMessage message =
+                new HttpMessage(
+                        new HttpRequestHeader(
+                                "GET / HTTP/1.1\r\nConnection: keep-alive, Upgrade\r\nUpgrade: websocket"));
+        // When
+        boolean webSocketUpgrade = message.isWebSocketUpgrade();
+        // Then
+        assertThat(webSocketUpgrade, is(equalTo(true)));
+    }
+
+    @Test
+    void
+            shouldBeWebSocketUpgradeIfResponseConnectionHeaderEqualsUpgradeAndUpgradeHeaderEqualsWebsocket()
+                    throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setResponseHeader(
+                new HttpResponseHeader(
+                        "HTTP/1.1 101 Switching Protocols\r\nConnection: Upgrade\r\nUpgrade: websocket"));
+        // When
+        boolean webSocketUpgrade = message.isWebSocketUpgrade();
+        // Then
+        assertThat(webSocketUpgrade, is(equalTo(true)));
+    }
+
+    @Test
+    void
+            shouldBeWebSocketUpgradeIfResponseConnectionHeaderContainsUpgradeAndUpgradeHeaderEqualsWebsocket()
+                    throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setResponseHeader(
+                new HttpResponseHeader(
+                        "HTTP/1.1 101 Switching Protocols\r\nConnection: keep-alive, Upgrade\r\nUpgrade: websocket"));
+        // When
+        boolean webSocketUpgrade = message.isWebSocketUpgrade();
+        // Then
+        assertThat(webSocketUpgrade, is(equalTo(true)));
+    }
+
+    @Test
+    void shouldNotBeWebSocketUpgradeIfResponseConnectionHeaderMissUpgradeValue() throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setResponseHeader(
+                new HttpResponseHeader(
+                        "HTTP/1.1 101 Switching Protocols\r\nConnection: keep-alive\r\nUpgrade: websocket"));
+        // When
+        boolean webSocketUpgrade = message.isWebSocketUpgrade();
+        // Then
+        assertThat(webSocketUpgrade, is(equalTo(false)));
+    }
+
+    @Test
+    void shouldNotBeWebSocketUpgradeIfResponseMissUpgradeHeader() throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setResponseHeader(
+                new HttpResponseHeader(
+                        "HTTP/1.1 101 Switching Protocols\r\nConnection: keep-alive, Upgrade"));
+        // When
+        boolean webSocketUpgrade = message.isWebSocketUpgrade();
+        // Then
+        assertThat(webSocketUpgrade, is(equalTo(false)));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "setBodyData")
+    void shouldUseContentTypeCharsetWhenSettingRequestBody(
+            String charset, String body, String expectedBody) throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setRequestHeader(
+                new HttpRequestHeader(
+                        "GET / HTTP/1.1\r\nContent-Type: text/plain; charset=" + charset));
+        // When
+        message.setRequestBody(body);
+        // Then
+        assertThat(message.getRequestBody().getCharset(), is(equalTo(charset)));
+        assertThat(message.getRequestBody().toString(), is(equalTo(expectedBody)));
+    }
+
+    static Stream<Arguments> setBodyData() {
+        return Stream.of(
+                arguments(StandardCharsets.ISO_8859_1.name(), "J/ψ → VP", "J/????VP"),
+                arguments(StandardCharsets.UTF_8.name(), "J/ψ → VP", "J/ψ → VP"));
+    }
+
+    @ParameterizedTest
+    @MethodSource(value = "setBodyData")
+    void shouldUseContentTypeCharsetWhenSettingResponseBody(
+            String charset, String body, String expectedBody) throws Exception {
+        // Given
+        HttpMessage message = new HttpMessage();
+        message.setResponseHeader(
+                new HttpResponseHeader(
+                        "HTTP/1.1 200 OK\r\nContent-Type: text/plain; charset=" + charset));
+        // When
+        message.setResponseBody(body);
+        // Then
+        assertThat(message.getResponseBody().getCharset(), is(equalTo(charset)));
+        assertThat(message.getResponseBody().toString(), is(equalTo(expectedBody)));
     }
 
     private static HttpMessage newHttpMessage() throws Exception {

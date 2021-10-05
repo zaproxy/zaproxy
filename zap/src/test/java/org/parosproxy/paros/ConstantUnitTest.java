@@ -33,7 +33,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Stream;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.core.config.Configurator;
@@ -45,14 +45,14 @@ import org.junit.jupiter.api.io.TempDir;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link Constant}. */
-public class ConstantUnitTest {
+class ConstantUnitTest {
 
     @TempDir static Path tempDir;
     private Path zapInstallDir;
     private Path zapHomeDir;
 
     @BeforeEach
-    public void before() throws Exception {
+    void before() throws Exception {
         Path parentDir = Files.createTempDirectory(tempDir, "zap-");
         zapInstallDir = Files.createDirectories(parentDir.resolve("install"));
         zapHomeDir = Files.createDirectories(parentDir.resolve("home"));
@@ -65,7 +65,7 @@ public class ConstantUnitTest {
     }
 
     @Test
-    public void shouldInitialiseHomeDirFromInstallDir() throws IOException {
+    void shouldInitialiseHomeDirFromInstallDir() throws IOException {
         // Given
         String configContents =
                 String.format(
@@ -89,7 +89,7 @@ public class ConstantUnitTest {
     }
 
     @Test
-    public void shouldInitialiseHomeDirFromBundledFiles() throws IOException {
+    void shouldInitialiseHomeDirFromBundledFiles() throws IOException {
         // Given
         Constant.setZapInstall(zapInstallDir.toString());
         Constant.setZapHome(zapHomeDir.toString());
@@ -104,7 +104,7 @@ public class ConstantUnitTest {
     }
 
     @Test
-    public void shouldRestoreDefaultConfigFileIfOneInHomeIsMalformed() throws IOException {
+    void shouldRestoreDefaultConfigFileIfOneInHomeIsMalformed() throws IOException {
         // Given
         String malformedConfig = "not a valid config";
         homeFile("config.xml", malformedConfig);
@@ -118,7 +118,7 @@ public class ConstantUnitTest {
     }
 
     @Test
-    public void shouldUseExistingLog4jConfiguration() throws IOException {
+    void shouldUseExistingLog4jConfiguration() throws IOException {
         // Given
         String log4jContents = "# Nothing, should not create default log file...";
         homeFile("log4j2.properties", log4jContents);
@@ -132,7 +132,7 @@ public class ConstantUnitTest {
     }
 
     @Test
-    public void shouldBackupLegacyLog4jConfiguration() throws IOException {
+    void shouldBackupLegacyLog4jConfiguration() throws IOException {
         // Given
         Constant.setZapInstall(zapInstallDir.toString());
         Constant.setZapHome(zapHomeDir.toString());
@@ -146,7 +146,7 @@ public class ConstantUnitTest {
     }
 
     @Test
-    public void shouldNotBackupLegacyLog4jConfigurationIfBackupExists() throws IOException {
+    void shouldNotBackupLegacyLog4jConfigurationIfBackupExists() throws IOException {
         // Given
         Constant.setZapInstall(zapInstallDir.toString());
         Constant.setZapHome(zapHomeDir.toString());
@@ -223,23 +223,21 @@ public class ConstantUnitTest {
     }
 
     private String getNameBackupMalformedConfig() throws IOException {
-        Optional<Path> file =
-                Files.list(zapHomeDir)
-                        .filter(
-                                f -> {
-                                    String name = f.getFileName().toString();
-                                    return name.startsWith("config-") && name.endsWith(".xml.bak");
-                                })
-                        .findFirst();
-
-        if (file.isPresent()) {
-            return file.get().getFileName().toString();
+        try (Stream<Path> files = Files.list(zapHomeDir)) {
+            return files.filter(
+                            f -> {
+                                String name = f.getFileName().toString();
+                                return name.startsWith("config-") && name.endsWith(".xml.bak");
+                            })
+                    .findFirst()
+                    .map(Path::getFileName)
+                    .map(Path::toString)
+                    .orElse(null);
         }
-        return null;
     }
 
     @Test
-    public void shouldUpgradeFrom2_9_0() {
+    void shouldUpgradeFrom2_9_0() {
         // Given
         List<String> keyPrefixes = Arrays.asList("a.", "a.b.", "c.");
         ZapXmlConfiguration configuration = new ZapXmlConfiguration();

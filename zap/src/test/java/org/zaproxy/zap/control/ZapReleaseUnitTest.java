@@ -25,40 +25,40 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 /** Unit test for {@link ZapRelease}. */
-public class ZapReleaseUnitTest {
+class ZapReleaseUnitTest {
 
     private static final String DEV_BUILD = "Dev Build";
 
     @Test
-    public void testDevBuildLaterThan1_4_1() {
+    void testDevBuildLaterThan1_4_1() {
         ZapRelease rel = new ZapRelease();
         rel.setVersion(DEV_BUILD);
         assertTrue(rel.isNewerThan("1.4.1"));
     }
 
     @Test
-    public void test1_4_2LaterThan1_4_1() {
+    void test1_4_2LaterThan1_4_1() {
         ZapRelease rel = new ZapRelease();
         rel.setVersion("1.4.2");
         assertTrue(rel.isNewerThan("1.4.1"));
     }
 
     @Test
-    public void test1_5_1LaterThan1_4_2() {
+    void test1_5_1LaterThan1_4_2() {
         ZapRelease rel = new ZapRelease();
         rel.setVersion("1.5.1");
         assertTrue(rel.isNewerThan("1.4.2"));
     }
 
     @Test
-    public void test1_5_1LaterThan1_4_2_1() {
+    void test1_5_1LaterThan1_4_2_1() {
         ZapRelease rel = new ZapRelease();
         rel.setVersion("1.5.1");
         assertTrue(rel.isNewerThan("1.4.2.1"));
     }
 
     @Test
-    public void testLots() {
+    void testLots() {
         // Imported from old CheckForUpdates code
         assertFalse(new ZapRelease("1.3.4").isNewerThan("1.4"));
         assertFalse(new ZapRelease("1.3.4").isNewerThan("1.4"));

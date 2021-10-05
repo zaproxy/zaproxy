@@ -19,21 +19,18 @@
  */
 package org.zaproxy.zap.spider;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import net.htmlparser.jericho.Config;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpHeaderField;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
@@ -44,6 +41,7 @@ import org.zaproxy.zap.spider.parser.SpiderODataAtomParser;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.spider.parser.SpiderParserListener;
 import org.zaproxy.zap.spider.parser.SpiderRedirectParser;
+import org.zaproxy.zap.spider.parser.SpiderResourceFound;
 import org.zaproxy.zap.spider.parser.SpiderRobotstxtParser;
 import org.zaproxy.zap.spider.parser.SpiderSVNEntriesParser;
 import org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser;
@@ -74,11 +72,8 @@ public class SpiderController implements SpiderParserListener {
     /** The spider. */
     private Spider spider;
 
-    /** The resources visited using GET method. */
-    private Set<String> visitedGet;
-
-    /** The resources visited using POST method. */
-    private Map<String, ArrayList<String>> visitedPost;
+    /** The resources visited as a set. */
+    private Set<String> visitedResources;
 
     /** The Constant log. */
     private static final Logger log = LogManager.getLogger(SpiderController.class);
@@ -94,8 +89,7 @@ public class SpiderController implements SpiderParserListener {
         this.spider = spider;
         this.fetchFilters = new LinkedList<>();
         this.parseFilters = new LinkedList<>();
-        this.visitedGet = new HashSet<>();
-        this.visitedPost = new HashMap<String, ArrayList<String>>();
+        this.visitedResources = new HashSet<>();
 
         prepareDefaultParsers();
         for (SpiderParser parser : customParsers) {
@@ -167,27 +161,25 @@ public class SpiderController implements SpiderParserListener {
      * @param method the http method used for fetching the resource
      */
     protected void addSeed(URI uri, String method) {
+        SpiderResourceFound resourceFound =
+                SpiderResourceFound.builder().setUri(uri.toString()).setMethod(method).build();
         // Check if the uri was processed already
-        String visitedURI;
+        String resourceIdentifier = "";
         try {
-            visitedURI =
-                    URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                            uri,
-                            spider.getSpiderParam().getHandleParameters(),
-                            spider.getSpiderParam().isHandleODataParametersVisited());
+            resourceIdentifier = buildCanonicalResourceIdentifier(uri, resourceFound);
         } catch (URIException e) {
             return;
         }
-        synchronized (visitedGet) {
-            if (visitedGet.contains(visitedURI)) {
-                log.debug("URI already visited: " + visitedURI);
+        synchronized (visitedResources) {
+            if (visitedResources.contains(resourceIdentifier)) {
+                log.debug("URI already visited: " + uri);
                 return;
             } else {
-                visitedGet.add(visitedURI);
+                visitedResources.add(resourceIdentifier);
             }
         }
         // Create and submit the new task
-        SpiderTask task = new SpiderTask(spider, null, uri, 0, method);
+        SpiderTask task = new SpiderTask(spider, resourceFound, uri);
         spider.submitTask(task);
         // Add the uri to the found list
         spider.notifyListenersFoundURI(uri.toString(), method, FetchStatus.SEED);
@@ -241,8 +233,7 @@ public class SpiderController implements SpiderParserListener {
     }
 
     public void init() {
-        visitedGet.clear();
-        visitedPost.clear();
+        visitedResources.clear();
 
         for (SpiderParser parser : parsers) {
             parser.addSpiderParserListener(this);
@@ -251,46 +242,62 @@ public class SpiderController implements SpiderParserListener {
 
     /** Clears the previous process. */
     public void reset() {
-        visitedGet.clear();
-        visitedPost.clear();
+        visitedResources.clear();
 
         for (SpiderParser parser : parsers) {
             parser.removeSpiderParserListener(this);
         }
     }
 
-    @Override
-    public void resourceURIFound(
-            HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
-        log.debug("New resource found: " + uri);
+    /**
+     * Builds a canonical identifier for found resources considering the method, URI, headers, and
+     * body.
+     *
+     * @param uri uniform resource identifier for resource
+     * @param resourceFound resource found
+     * @return identifier as a string representation usable for equality checks
+     */
+    private String buildCanonicalResourceIdentifier(URI uri, SpiderResourceFound resourceFound)
+            throws URIException {
+        StringBuilder identifierBuilder = new StringBuilder(50);
+        String visitedURI =
+                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        spider.getSpiderParam().getHandleParameters(),
+                        spider.getSpiderParam().isHandleODataParametersVisited());
+        identifierBuilder.append(resourceFound.getMethod());
+        identifierBuilder.append(" ");
+        identifierBuilder.append(visitedURI);
+        identifierBuilder.append("\n");
+        identifierBuilder.append(getCanonicalHeadersString(resourceFound.getHeaders()));
+        identifierBuilder.append("\n");
+        identifierBuilder.append(resourceFound.getBody());
+        return identifierBuilder.toString();
+    }
 
-        if (uri == null) {
-            return;
-        }
+    @Override
+    public void resourceFound(SpiderResourceFound resourceFound) {
+        log.debug("New {} resource found: {}", resourceFound.getMethod(), resourceFound.getUri());
 
         // Create the uri
-        URI uriV = createURI(uri);
+        URI uriV = createURI(resourceFound.getUri());
         if (uriV == null) {
             return;
         }
 
-        // Check if the uri was processed already
-        String visitedURI;
+        // Check if the resource was processed already
+        String resourceIdentifier = "";
         try {
-            visitedURI =
-                    URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                            uriV,
-                            spider.getSpiderParam().getHandleParameters(),
-                            spider.getSpiderParam().isHandleODataParametersVisited());
+            resourceIdentifier = buildCanonicalResourceIdentifier(uriV, resourceFound);
         } catch (URIException e) {
             return;
         }
-        synchronized (visitedGet) {
-            if (visitedGet.contains(visitedURI)) {
-                // log.debug("URI already visited: " + visitedURI);
+        synchronized (visitedResources) {
+            if (visitedResources.contains(resourceIdentifier)) {
+                log.debug("Resource already visited: {}", resourceIdentifier.trim());
                 return;
             } else {
-                visitedGet.add(visitedURI);
+                visitedResources.add(resourceIdentifier);
             }
         }
 
@@ -299,107 +306,48 @@ public class SpiderController implements SpiderParserListener {
             FetchStatus s = f.checkFilter(uriV);
             if (s != FetchStatus.VALID) {
                 log.debug("URI: " + uriV + " was filtered by a filter with reason: " + s);
-                spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, s);
+                spider.notifyListenersFoundURI(
+                        resourceFound.getUri(), resourceFound.getMethod(), s);
                 return;
             }
         }
 
-        // Check if should be ignored and not fetched
-        if (shouldIgnore) {
+        // Check if resource should be ignored and not fetched
+        if (resourceFound.isShouldIgnore()) {
             log.debug(
                     "URI: "
                             + uriV
                             + " is valid, but will not be fetched, by parser recommendation.");
-            spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, FetchStatus.VALID);
+            spider.notifyListenersFoundURI(
+                    resourceFound.getUri(), resourceFound.getMethod(), FetchStatus.VALID);
             return;
         }
 
-        spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, FetchStatus.VALID);
+        spider.notifyListenersFoundURI(
+                resourceFound.getUri(), resourceFound.getMethod(), FetchStatus.VALID);
 
         // Submit the task
-        SpiderTask task =
-                new SpiderTask(
-                        spider,
-                        responseMessage.getRequestHeader().getURI(),
-                        uriV,
-                        depth,
-                        HttpRequestHeader.GET);
-        spider.submitTask(task);
-    }
-
-    @Override
-    public void resourceURIFound(HttpMessage responseMessage, int depth, String uri) {
-        resourceURIFound(responseMessage, depth, uri, false);
-    }
-
-    @Override
-    public void resourcePostURIFound(
-            HttpMessage responseMessage, int depth, String uri, String requestBody) {
-        log.debug("New POST resource found: " + uri);
-
-        // Check if the uri was processed already
-        synchronized (visitedPost) {
-            if (arrayKeyValueExists(uri, requestBody)) {
-                log.debug("URI already visited: " + uri);
-                return;
-            } else {
-                if (visitedPost.containsKey(uri)) {
-                    visitedPost.get(uri).add(requestBody);
-                } else {
-                    ArrayList<String> l = new ArrayList<String>();
-                    l.add(requestBody);
-                    visitedPost.put(uri, l);
-                }
-            }
-        }
-
-        // Create the uri
-        URI uriV = createURI(uri);
-        if (uriV == null) {
-            return;
-        }
-
-        // Check if any of the filters disallows this uri
-        for (FetchFilter f : fetchFilters) {
-            FetchStatus s = f.checkFilter(uriV);
-            if (s != FetchStatus.VALID) {
-                log.debug("URI: " + uriV + " was filtered by a filter with reason: " + s);
-                spider.notifyListenersFoundURI(uri, HttpRequestHeader.POST, s);
-                return;
-            }
-        }
-
-        spider.notifyListenersFoundURI(uri, HttpRequestHeader.POST, FetchStatus.VALID);
-
-        // Submit the task
-        SpiderTask task =
-                new SpiderTask(
-                        spider,
-                        responseMessage.getRequestHeader().getURI(),
-                        uriV,
-                        depth,
-                        HttpRequestHeader.POST,
-                        requestBody);
+        SpiderTask task = new SpiderTask(spider, resourceFound, uriV);
         spider.submitTask(task);
     }
 
     /**
-     * Checks whether the value exists in an ArrayList of certain key.
+     * Builds a canonical string representation for HTTP header fields by sorting the headers based
+     * on the name, trimming and lowercasing the name and value, and removing duplicates.
      *
-     * @param key the string of the uri
-     * @param value the request body of the uri
-     * @return true or false depending whether the uri and request body have already been processed
+     * @param headers list of HTTP headers
+     * @return canonical string representation of headers
      */
-    private boolean arrayKeyValueExists(String key, String value) {
-        if (visitedPost.containsKey(key)) {
-            for (String s : visitedPost.get(key)) {
-                if (s.equals(value)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
+    private String getCanonicalHeadersString(List<HttpHeaderField> headers) {
+        return headers.stream()
+                .sorted((h1, h2) -> h1.getName().compareTo(h2.getName()))
+                .map(
+                        h ->
+                                h.getName().trim().toLowerCase()
+                                        + "="
+                                        + h.getValue().trim().toLowerCase())
+                .distinct()
+                .collect(Collectors.joining("|"));
     }
 
     /**

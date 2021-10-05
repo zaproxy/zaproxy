@@ -47,6 +47,7 @@ public class UrlPatternScanFilter extends AbstractGenericScanFilter<Pattern, Str
         return this.isFiltered(hRef.getURI().toString());
     }
 
+    @Override
     public String getFilterType() {
         return Constant.messages.getString(FILTER_TYPE);
     }

@@ -27,7 +27,7 @@ import java.util.zip.InflaterInputStream;
 /**
  * The {@link HttpEncoding} for the {@code deflate} coding.
  *
- * @since TODO add version
+ * @since 2.10.0
  */
 public class HttpEncodingDeflate extends AbstractStreamHttpEncoding {
 

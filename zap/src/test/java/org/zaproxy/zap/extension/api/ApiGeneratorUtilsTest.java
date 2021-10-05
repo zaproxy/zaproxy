@@ -42,12 +42,12 @@ import org.zaproxy.zap.control.CoreFunctionality;
  * Checks that all the {@link ApiImplementor}s and its options have been added to {@link
  * ApiGeneratorUtils}.
  */
-public class ApiGeneratorUtilsTest extends WithConfigsTest {
+class ApiGeneratorUtilsTest extends WithConfigsTest {
 
     private Map<String, ApiImplementor> coreApis = new HashMap<>();
 
     @BeforeEach
-    public void loadCoreApis() throws Exception {
+    void loadCoreApis() throws Exception {
         Control.initSingletonForTesting(Model.getSingleton());
         ExtensionHook hook =
                 new ExtensionHook(Model.getSingleton(), null) {
@@ -68,7 +68,7 @@ public class ApiGeneratorUtilsTest extends WithConfigsTest {
     }
 
     @Test
-    public void shouldHaveAllCoreApisInApiGeneratorUtils() {
+    void shouldHaveAllCoreApisInApiGeneratorUtils() {
         // Given / When
         Map<String, ApiImplementor> generatorApis =
                 ApiGeneratorUtils.getAllImplementors().stream()

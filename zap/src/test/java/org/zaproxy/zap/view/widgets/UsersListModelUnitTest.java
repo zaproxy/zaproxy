@@ -48,10 +48,10 @@ import org.zaproxy.zap.view.ListModelTestUtils;
 
 /** Unit test for {@code UsersListModel}. */
 @ExtendWith(MockitoExtension.class)
-public class UsersListModelUnitTest extends ListModelTestUtils {
+class UsersListModelUnitTest extends ListModelTestUtils {
 
     @BeforeEach
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         I18N i18n = mock(I18N.class, withSettings().lenient());
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), any())).willReturn("");
@@ -59,7 +59,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldFailToCreateInstanceWithUndefinedUsersTableModel() {
+    void shouldFailToCreateInstanceWithUndefinedUsersTableModel() {
         // Given
         UsersTableModel undefinedTableModel = null;
         // When / Then
@@ -67,7 +67,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldAddListDataListeners() {
+    void shouldAddListDataListeners() {
         // Given
         ListDataListener listener = createTestListDataListener();
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
@@ -78,7 +78,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldRemoveListDataListeners() {
+    void shouldRemoveListDataListeners() {
         // Given
         TestListDataListener listener = createTestListDataListener();
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
@@ -90,7 +90,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldGetNullElementIfNoTableUsersNorCustomUsers() {
+    void shouldGetNullElementIfNoTableUsersNorCustomUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         // When
@@ -100,7 +100,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldFailToGetCustomUserIfIndexIsMoreThanAvailableCustomUsers() {
+    void shouldFailToGetCustomUserIfIndexIsMoreThanAvailableCustomUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
@@ -109,7 +109,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldGetTableUsers() {
+    void shouldGetTableUsers() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -120,7 +120,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldSetCustomUsersEvenWithoutExistingTableUsers() {
+    void shouldSetCustomUsersEvenWithoutExistingTableUsers() {
         // Given
         TestListDataListener listener = createTestListDataListener();
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
@@ -140,7 +140,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldSetCustomUsersEvenWithExistingTableUsers() {
+    void shouldSetCustomUsersEvenWithExistingTableUsers() {
         // Given
         TestListDataListener listener = createTestListDataListener();
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
@@ -161,7 +161,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReplaceCustomUsersEvenWithoutExistingTableUsers() {
+    void shouldReplaceCustomUsersEvenWithoutExistingTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         usersListModel.setCustomUsers(new User[] {createUser(), createUser(), createUser()});
@@ -182,7 +182,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReplaceCustomUsersEvenWithExistingTableUsers() {
+    void shouldReplaceCustomUsersEvenWithExistingTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
         usersListModel.setCustomUsers(new User[] {createUser(), createUser(), createUser()});
@@ -204,7 +204,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldHaveNoEffectToSetNoCustomUsersIfNoneExist() {
+    void shouldHaveNoEffectToSetNoCustomUsersIfNoneExist() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         TestListDataListener listener = createTestListDataListener();
@@ -216,7 +216,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldHaveNoEffectToSetNoCustomUsersIfNoneWerePreviouslySet() {
+    void shouldHaveNoEffectToSetNoCustomUsersIfNoneWerePreviouslySet() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         usersListModel.setCustomUsers(new User[] {});
@@ -229,7 +229,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldRemoveCustomUsersEvenWithoutExistingTableUsers() {
+    void shouldRemoveCustomUsersEvenWithoutExistingTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
@@ -245,7 +245,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldRemoveCustomUsersEvenWithExistingTableUsers() {
+    void shouldRemoveCustomUsersEvenWithExistingTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
         usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
@@ -262,7 +262,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldRemoveCustomUsersWithEmptyArrayEvenWithExistingTableUsers() {
+    void shouldRemoveCustomUsersWithEmptyArrayEvenWithExistingTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
         usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
@@ -279,7 +279,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldGetSizeAsNumberOfTableUsersIfNoCustomUsers() {
+    void shouldGetSizeAsNumberOfTableUsersIfNoCustomUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(3));
         // When
@@ -289,7 +289,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldGetSizeAsNumberOfTableUsersAndCustomUsersSet() {
+    void shouldGetSizeAsNumberOfTableUsersAndCustomUsersSet() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(3));
         usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
@@ -300,7 +300,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldGetSizeAsNumberOfCustomUsersIfNoTableUsers() {
+    void shouldGetSizeAsNumberOfCustomUsersIfNoTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         usersListModel.setCustomUsers(new User[] {createUser(), createUser()});
@@ -311,7 +311,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldGetInvalidIndexIfUserNotFound() {
+    void shouldGetInvalidIndexIfUserNotFound() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         // When
@@ -321,7 +321,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldGetIndexOfTableUsers() {
+    void shouldGetIndexOfTableUsers() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -332,7 +332,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldGetIndexOfCustomUsersWithoutTableUsers() {
+    void shouldGetIndexOfCustomUsersWithoutTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         User customUser = createUser();
@@ -344,7 +344,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldGetIndexOfCustomUsersWithTableUsers() {
+    void shouldGetIndexOfCustomUsersWithTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
         User customUser = createUser();
@@ -356,7 +356,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldNotHaveSelectedUserByDefault() {
+    void shouldNotHaveSelectedUserByDefault() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(1));
         // When
@@ -366,7 +366,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldNotSetSelectedItemIfNotFound() {
+    void shouldNotSetSelectedItemIfNotFound() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         TestListDataListener listener = createTestListDataListener();
@@ -380,7 +380,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldNotSetSelectedItemIfNotAUser() {
+    void shouldNotSetSelectedItemIfNotAUser() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         TestListDataListener listener = createTestListDataListener();
@@ -394,7 +394,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldSetSelectedItemUser() {
+    void shouldSetSelectedItemUser() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -411,7 +411,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldHaveNoEffectReselectSameUser() {
+    void shouldHaveNoEffectReselectSameUser() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -429,7 +429,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldSetSelectedItemUserEvenIfOneWasPreviouslySelected() {
+    void shouldSetSelectedItemUserEvenIfOneWasPreviouslySelected() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -447,7 +447,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldRemoveSelectionWithSelectedItem() {
+    void shouldRemoveSelectionWithSelectedItem() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -463,7 +463,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldHaveNoEffectRemoveSelectionIfNoSelectedUser() {
+    void shouldHaveNoEffectRemoveSelectionIfNoSelectedUser() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -478,7 +478,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldRemoveSelectionIfNoUsersAndSetSelectedInternalUserIsNotFound() {
+    void shouldRemoveSelectionIfNoUsersAndSetSelectedInternalUserIsNotFound() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         TestListDataListener listener = createTestListDataListener();
@@ -492,7 +492,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldFallbackToFirstExistingUserIfSetSelectedInternalUserIsNotFound() {
+    void shouldFallbackToFirstExistingUserIfSetSelectedInternalUserIsNotFound() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -509,7 +509,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldSetSelectedInternalTableUsers() {
+    void shouldSetSelectedInternalTableUsers() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -526,7 +526,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldSetSelectedInternalCustomUsersWithoutTableUsers() {
+    void shouldSetSelectedInternalCustomUsersWithoutTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(0));
         User customUser = createUser();
@@ -542,7 +542,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldSetSelectedInternalCustomUsersWithTableUsers() {
+    void shouldSetSelectedInternalCustomUsersWithTableUsers() {
         // Given
         UsersListModel usersListModel = new UsersListModel(createUsersTableModel(2));
         User customUser = createUser();
@@ -560,7 +560,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     // TODO test tableChanged
 
     @Test
-    public void shouldReflectAddedTableUserAndSelectFirstTableUserIfNoneSelected() {
+    void shouldReflectAddedTableUserAndSelectFirstTableUserIfNoneSelected() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -581,7 +581,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectAddedTableUserAndNotSelectFirstTableUserIfOneAlreadySelected() {
+    void shouldReflectAddedTableUserAndNotSelectFirstTableUserIfOneAlreadySelected() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -602,7 +602,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectChangesToTableUsersAndSelectFirstTableUserIfNoneSelected() {
+    void shouldReflectChangesToTableUsersAndSelectFirstTableUserIfNoneSelected() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -622,7 +622,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectChangesToTableUsersAndNotSelectFirstTableUserIfOneAlreadySelected() {
+    void shouldReflectChangesToTableUsersAndNotSelectFirstTableUserIfOneAlreadySelected() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(3);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -642,7 +642,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectChangesToSelectedTableUser() {
+    void shouldReflectChangesToSelectedTableUser() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -661,7 +661,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectClearedTableUsersAndRemoveSelectionOfClearedUser() {
+    void shouldReflectClearedTableUsersAndRemoveSelectionOfClearedUser() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -680,7 +680,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectClearedTableUsersAndSelectFirstCustomUser() {
+    void shouldReflectClearedTableUsersAndSelectFirstCustomUser() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -701,7 +701,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectClearedTableUsersAndNotChangeSelectionIfNoUserSelectedNorAvailable() {
+    void shouldReflectClearedTableUsersAndNotChangeSelectionIfNoUserSelectedNorAvailable() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -719,7 +719,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectRemovedTableUserAndRemoveSelectionOfClearedUserToAvailableUser() {
+    void shouldReflectRemovedTableUserAndRemoveSelectionOfClearedUserToAvailableUser() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -739,7 +739,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectRemovedTableUserAndSelectFirstCustomUser() {
+    void shouldReflectRemovedTableUserAndSelectFirstCustomUser() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(1);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -759,7 +759,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectRemovedTableUserAndNotChangeSelectionIfNotTheSelectedUser() {
+    void shouldReflectRemovedTableUserAndNotChangeSelectionIfNotTheSelectedUser() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(2);
         UsersListModel usersListModel = new UsersListModel(tableModel);
@@ -779,7 +779,7 @@ public class UsersListModelUnitTest extends ListModelTestUtils {
     }
 
     @Test
-    public void shouldReflectRemovedTableUserAndNotChangeSelectionIfNoUserSelectedNorAvailable() {
+    void shouldReflectRemovedTableUserAndNotChangeSelectionIfNoUserSelectedNorAvailable() {
         // Given
         UsersTableModel tableModel = createUsersTableModel(1);
         UsersListModel usersListModel = new UsersListModel(tableModel);

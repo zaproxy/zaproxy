@@ -37,6 +37,8 @@ import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 
+/** @deprecated (2.11.0) Superseded by the OAST add-on. */
+@Deprecated
 public class OptionsCallbackPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
@@ -134,14 +136,14 @@ public class OptionsCallbackPanel extends AbstractParamPanel {
 
     private JComboBox<String> getLocalAddress() {
         if (localAddress == null) {
-            localAddress = new JComboBox<String>();
+            localAddress = new JComboBox<>();
         }
         return localAddress;
     }
 
     private JComboBox<String> getRemoteAddress() {
         if (remoteAddress == null) {
-            remoteAddress = new JComboBox<String>();
+            remoteAddress = new JComboBox<>();
             remoteAddress.setEditable(true);
         }
         return remoteAddress;

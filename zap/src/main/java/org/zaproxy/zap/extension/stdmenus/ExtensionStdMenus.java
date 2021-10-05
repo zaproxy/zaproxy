@@ -65,6 +65,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
     private PopupMenuShowInSites popupMenuShowInSites = null;
     private PopupMenuOpenUrlInBrowser popupMenuOpenUrlInBrowser = null;
     private PopupMenuItemContextInclude popupContextIncludeMenu = null;
+    private PopupMenuItemContextSiteInclude popupContextIncludeSiteMenu = null;
     private PopupMenuItemContextExclude popupContextExcludeMenu = null;
     private PopupMenuItemContextDataDriven popupContextDataDrivenMenu = null;
     private PopupMenuCopyUrls popupMenuCopyUrls = null;
@@ -109,36 +110,58 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
             // Be careful when changing the menu indexes (and order above) - its easy to get
             // unexpected
             // results!
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu(0));
-            if (isExtensionActiveScanEnabled) {
-                extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu(0));
-            }
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu(0));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupContextIncludeMenu(1));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupContextExcludeMenu(2));
+            int indexMenuItem = 0;
             extensionHook
                     .getHookMenu()
-                    .addPopupMenuItem(getPopupContextDataDrivenMenu(2)); // TODO ??
+                    .addPopupMenuItem(getPopupExcludeFromProxyMenu(indexMenuItem));
+            if (isExtensionActiveScanEnabled) {
+                extensionHook
+                        .getHookMenu()
+                        .addPopupMenuItem(getPopupExcludeFromScanMenu(indexMenuItem));
+            }
+            extensionHook
+                    .getHookMenu()
+                    .addPopupMenuItem(getPopupExcludeFromSpiderMenu(indexMenuItem));
+            extensionHook
+                    .getHookMenu()
+                    .addPopupMenuItem(getPopupContextIncludeMenu(++indexMenuItem));
+            extensionHook
+                    .getHookMenu()
+                    .addPopupMenuItem(getPopupContextIncludeSiteMenu(++indexMenuItem));
+            extensionHook
+                    .getHookMenu()
+                    .addPopupMenuItem(getPopupContextExcludeMenu(++indexMenuItem));
+            extensionHook
+                    .getHookMenu()
+                    .addPopupMenuItem(getPopupContextDataDrivenMenu(indexMenuItem)); // TODO ??
 
             if (isExtensionActiveScanEnabled) {
-                extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustom(3));
-            }
-
-            if (isExtensionHistoryEnabled) {
-                extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(4));
+                extensionHook
+                        .getHookMenu()
+                        .addPopupMenuItem(getPopupMenuActiveScanCustom(++indexMenuItem));
             }
 
             if (isExtensionHistoryEnabled) {
                 extensionHook
                         .getHookMenu()
-                        .addPopupMenuItem(getPopupMenuShowInHistory(6)); // Both are index 6
+                        .addPopupMenuItem(getPopupMenuResendMessage(++indexMenuItem));
+            }
+            indexMenuItem += 2;
+            if (isExtensionHistoryEnabled) {
+                extensionHook
+                        .getHookMenu()
+                        .addPopupMenuItem(
+                                getPopupMenuShowInHistory(
+                                        indexMenuItem)); // Both are the same index
             }
             extensionHook
                     .getHookMenu()
-                    .addPopupMenuItem(getPopupMenuShowInSites(6)); // on purpose ;)
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuOpenUrlInBrowser(7));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuCopyUrls(8));
-            // extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(7));
+                    .addPopupMenuItem(getPopupMenuShowInSites(indexMenuItem)); // on purpose ;)
+            extensionHook
+                    .getHookMenu()
+                    .addPopupMenuItem(getPopupMenuOpenUrlInBrowser(++indexMenuItem));
+            // extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(indexMenuItem));
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuCopyUrls(++indexMenuItem));
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuInScope());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuOutScope());
@@ -227,7 +250,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
                         @Override
                         protected List<Context> getContexts() {
-                            List<Context> contexts = new ArrayList<Context>();
+                            List<Context> contexts = new ArrayList<>();
                             for (Integer id : popupContextTreeMenuDelete.getContextIds()) {
                                 contexts.add(Model.getSingleton().getSession().getContext(id));
                             }
@@ -436,6 +459,14 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
             popupContextIncludeMenu.setParentMenuIndex(menuIndex);
         }
         return popupContextIncludeMenu;
+    }
+
+    private PopupMenuItemContextSiteInclude getPopupContextIncludeSiteMenu(int menuIndex) {
+        if (popupContextIncludeSiteMenu == null) {
+            popupContextIncludeSiteMenu = new PopupMenuItemContextSiteInclude();
+            popupContextIncludeSiteMenu.setParentMenuIndex(menuIndex);
+        }
+        return popupContextIncludeSiteMenu;
     }
 
     private PopupMenuItemContextExclude getPopupContextExcludeMenu(int menuIndex) {

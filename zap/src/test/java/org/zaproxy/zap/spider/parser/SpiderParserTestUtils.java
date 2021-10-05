@@ -28,7 +28,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import net.htmlparser.jericho.Source;
+import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -39,7 +41,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  *
  * @see org.zaproxy.zap.spider.parser.SpiderParser
  */
-public class SpiderParserTestUtils extends TestUtils {
+class SpiderParserTestUtils extends TestUtils {
 
     protected static Source createSource(HttpMessage messageHtmlResponse) {
         return new Source(messageHtmlResponse.getResponseBody().toString());
@@ -59,20 +61,19 @@ public class SpiderParserTestUtils extends TestUtils {
         return strBuilder.toString();
     }
 
-    public static TestSpiderParserListener createTestSpiderParserListener() {
+    static TestSpiderParserListener createTestSpiderParserListener() {
         return new TestSpiderParserListener();
     }
 
-    public static TestSpiderParserListener createAndAddTestSpiderParserListener(
-            SpiderParser parser) {
+    static TestSpiderParserListener createAndAddTestSpiderParserListener(SpiderParser parser) {
         TestSpiderParserListener listener = createTestSpiderParserListener();
         parser.addSpiderParserListener(listener);
         return listener;
     }
 
-    public static class TestSpiderParserListener implements SpiderParserListener {
+    protected static class TestSpiderParserListener implements SpiderParserListener {
 
-        private final List<SpiderResource> resources;
+        private final List<SpiderResourceFound> resources;
         private final List<String> urls;
 
         private TestSpiderParserListener() {
@@ -80,62 +81,83 @@ public class SpiderParserTestUtils extends TestUtils {
             urls = new ArrayList<>();
         }
 
-        public int getNumberOfUrlsFound() {
-            return resources.size();
+        int getNumberOfUrlsFound() {
+            return urls.size();
         }
 
-        public List<String> getUrlsFound() {
+        List<String> getUrlsFound() {
             return urls;
         }
 
-        public int getNumberOfResourcesFound() {
+        int getNumberOfResourcesFound() {
             return resources.size();
         }
 
-        public List<SpiderResource> getResourcesFound() {
+        List<SpiderResourceFound> getResourcesFound() {
             return resources;
         }
 
         @Override
-        public void resourceURIFound(HttpMessage responseMessage, int depth, String uri) {
-            urls.add(uri);
-            resources.add(uriResource(responseMessage, depth, uri));
+        public void resourceFound(SpiderResourceFound resourceFound) {
+            urls.add(resourceFound.getUri());
+            resources.add(resourceFound);
         }
 
-        @Override
-        public void resourceURIFound(
-                HttpMessage responseMessage, int depth, String uri, boolean shouldIgnore) {
-            urls.add(uri);
-            resources.add(uriResource(responseMessage, depth, uri, shouldIgnore));
-        }
-
-        @Override
-        public void resourcePostURIFound(
-                HttpMessage responseMessage, int depth, String uri, String requestBody) {
-            urls.add(uri);
-            resources.add(postResource(responseMessage, depth, uri, requestBody));
-        }
-
-        public boolean isResourceFound() {
+        boolean isResourceFound() {
             return false;
         }
     }
 
-    public static SpiderResource uriResource(HttpMessage message, int depth, String uri) {
-        return new SpiderResource(message, depth, uri);
+    static SpiderResourceFound uriResource(HttpMessage message, int depth, String uri) {
+        return SpiderResourceFound.builder()
+                .setMessage(message)
+                .setDepth(depth)
+                .setUri(uri)
+                .build();
     }
 
-    public static SpiderResource uriResource(
+    static SpiderResourceFound uriResource(
             HttpMessage message, int depth, String uri, boolean shouldIgnore) {
-        return new SpiderResource(message, depth, uri, shouldIgnore);
+        return uriResource(message, depth, uri, shouldIgnore, new ArrayList<>());
     }
 
-    public static SpiderResource postResource(
+    static SpiderResourceFound uriResource(
+            HttpMessage message,
+            int depth,
+            String uri,
+            boolean shouldIgnore,
+            List<HttpHeaderField> requestHeaders) {
+        return SpiderResourceFound.builder()
+                .setMessage(message)
+                .setDepth(depth)
+                .setUri(uri)
+                .setShouldIgnore(shouldIgnore)
+                .setHeaders(requestHeaders)
+                .build();
+    }
+
+    static SpiderResourceFound postResource(
             HttpMessage message, int depth, String uri, String requestBody) {
-        return new SpiderResource(message, depth, uri, requestBody);
+        return postResource(message, depth, uri, requestBody, new ArrayList<>());
     }
 
-    public static String params(String... params) {
+    static SpiderResourceFound postResource(
+            HttpMessage message,
+            int depth,
+            String uri,
+            String requestBody,
+            List<HttpHeaderField> requestHeaders) {
+        return SpiderResourceFound.builder()
+                .setMessage(message)
+                .setDepth(depth)
+                .setUri(uri)
+                .setMethod(HttpRequestHeader.POST)
+                .setBody(requestBody)
+                .setHeaders(requestHeaders)
+                .build();
+    }
+
+    static String params(String... params) {
         if (params == null || params.length == 0) {
             return "";
         }
@@ -150,131 +172,13 @@ public class SpiderParserTestUtils extends TestUtils {
         return strBuilder.toString();
     }
 
-    public static String param(String name, String value) {
+    static String param(String name, String value) {
         try {
             return URLEncoder.encode(name, StandardCharsets.UTF_8.name())
                     + "="
                     + URLEncoder.encode(value, StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    public static class SpiderResource {
-
-        private final HttpMessage message;
-        private final int depth;
-        private final String uri;
-
-        private final boolean shouldIgnore;
-
-        private final String requestBody;
-
-        private SpiderResource(HttpMessage message, int depth, String uri) {
-            this.message = message;
-            this.depth = depth;
-            this.uri = uri;
-            this.requestBody = null;
-            this.shouldIgnore = false;
-        }
-
-        private SpiderResource(HttpMessage message, int depth, String uri, boolean shouldIgnore) {
-            this.message = message;
-            this.depth = depth;
-            this.uri = uri;
-            this.requestBody = null;
-            this.shouldIgnore = shouldIgnore;
-        }
-
-        private SpiderResource(HttpMessage message, int depth, String uri, String requestBody) {
-            this.message = message;
-            this.depth = depth;
-            this.uri = uri;
-            this.requestBody = requestBody;
-            this.shouldIgnore = false;
-        }
-
-        public HttpMessage getMessage() {
-            return message;
-        }
-
-        public int getDepth() {
-            return depth;
-        }
-
-        public String getUri() {
-            return uri;
-        }
-
-        public boolean isShouldIgnore() {
-            return shouldIgnore;
-        }
-
-        public String getRequestBody() {
-            return requestBody;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = 31 + depth;
-            result = 31 * result + ((message == null) ? 0 : message.hashCode());
-            result = 31 * result + ((requestBody == null) ? 0 : requestBody.hashCode());
-            result = 31 * result + (shouldIgnore ? 1231 : 1237);
-            result = 31 * result + ((uri == null) ? 0 : uri.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj) {
-                return true;
-            }
-            if (obj == null) {
-                return false;
-            }
-            if (getClass() != obj.getClass()) {
-                return false;
-            }
-            SpiderResource other = (SpiderResource) obj;
-            if (depth != other.depth) {
-                return false;
-            }
-            if (message == null) {
-                if (other.message != null) {
-                    return false;
-                }
-            } else if (message != other.message) {
-                return false;
-            }
-            if (requestBody == null) {
-                if (other.requestBody != null) {
-                    return false;
-                }
-            } else if (!requestBody.equals(other.requestBody)) {
-                return false;
-            }
-            if (shouldIgnore != other.shouldIgnore) {
-                return false;
-            }
-            if (uri == null) {
-                if (other.uri != null) {
-                    return false;
-                }
-            } else if (!uri.equals(other.uri)) {
-                return false;
-            }
-            return true;
-        }
-
-        @Override
-        public String toString() {
-            StringBuilder strBuilder = new StringBuilder(250);
-            strBuilder.append("URI=").append(uri);
-            strBuilder.append(", Depth=").append(depth);
-            strBuilder.append(", RequestBody=").append(requestBody);
-            strBuilder.append(", ShouldIgnore=").append(shouldIgnore);
-            strBuilder.append(", Message=").append(message.hashCode());
-            return strBuilder.toString();
         }
     }
 }

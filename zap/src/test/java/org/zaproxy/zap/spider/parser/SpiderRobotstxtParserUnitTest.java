@@ -32,14 +32,14 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
 /** Unit test for {@link SpiderRobotstxtParser}. */
-public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
+class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
     private static final String ROBOTS_TXT_PATH = "/robots.txt";
     private static final int BASE_DEPTH = 0;
 
     @Test
-    public void shouldRequireNonNullSpiderParam() {
+    void shouldRequireNonNullSpiderParam() {
         // Given
         SpiderParam spiderParam = null;
         // When / Then
@@ -47,7 +47,7 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotFailToEvaluateAnUndefinedPath() {
+    void shouldNotFailToEvaluateAnUndefinedPath() {
         // Given
         String path = null;
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
@@ -56,7 +56,7 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseRobotsTxtPath() {
+    void shouldParseRobotsTxtPath() {
         // Given
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
         // When
@@ -66,7 +66,7 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseRobotsTxtPathWithDifferentCase() {
+    void shouldParseRobotsTxtPathWithDifferentCase() {
         // Given
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
         // When
@@ -76,7 +76,7 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldParseRobotsTxtPathEvenIfAlreadyParsed() {
+    void shouldParseRobotsTxtPathEvenIfAlreadyParsed() {
         // Given
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
         boolean parsed = true;
@@ -87,7 +87,7 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseNonRobotsTxtPath() {
+    void shouldNotParseNonRobotsTxtPath() {
         // Given
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
         // When
@@ -97,7 +97,7 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFailToParseAnUndefinedMessage() {
+    void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
@@ -108,7 +108,7 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotBeCompletelyParsedIfParseDisabled() {
+    void shouldNotBeCompletelyParsedIfParseDisabled() {
         // Given
         SpiderParam spiderParam = createSpiderParamWithConfig();
         spiderParam.setParseRobotsTxt(false);
@@ -121,7 +121,7 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldBeAlwaysCompletelyParsedIfParseEnabled() {
+    void shouldBeAlwaysCompletelyParsedIfParseEnabled() {
         // Given
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
         HttpMessage message = createMessageWith("");
@@ -132,7 +132,7 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotFindUrlsIfThereIsNone() {
+    void shouldNotFindUrlsIfThereIsNone() {
         // Given
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -156,7 +156,7 @@ public class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldFindUrls() {
+    void shouldFindUrls() {
         // Given
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();

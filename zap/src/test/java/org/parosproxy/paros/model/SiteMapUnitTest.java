@@ -46,7 +46,6 @@ import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 import org.zaproxy.zap.model.StandardParameterParser;
 
@@ -82,7 +81,6 @@ class SiteMapUnitTest {
         given(tableAlert.getAlertsBySourceHistoryId(anyInt())).willReturn(Collections.emptyList());
         HistoryReference.setTableAlert(tableAlert);
 
-        WithConfigsTest.setUpConstant();
         Model model = mock(Model.class);
 
         Control.initSingletonForTesting(model);

@@ -23,6 +23,7 @@ import java.awt.Dialog;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.text.MessageFormat;
@@ -43,6 +44,7 @@ import javax.swing.event.DocumentListener;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 /**
  * A {@code MultipleOptionsTablePanel} to manage regular expressions.
@@ -84,9 +86,39 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
         this.owner = owner;
         getTable().setSortOrder(0, SortOrder.ASCENDING);
         JButton importButton =
-                new JButton(Constant.messages.getString("context.include.import.label"));
+                new JButton(
+                        Constant.messages.getString(
+                                "multiple.options.regexes.dialog.import.button"));
         importButton.addActionListener(e -> importButtonClicked());
         addButton(importButton);
+
+        JButton exportButton =
+                new JButton(
+                        Constant.messages.getString(
+                                "multiple.options.regexes.dialog.export.button"));
+        exportButton.addActionListener(e -> exportRegexes());
+        addButton(exportButton);
+    }
+
+    private void exportRegexes() {
+        WritableFileChooser fc = new WritableFileChooser();
+        if (fc.showSaveDialog(owner) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+
+        File selectedFile = fc.getSelectedFile();
+        String lineSeparator = System.getProperty("line.separator", "\n");
+        try (Writer writer = Files.newBufferedWriter(selectedFile.toPath())) {
+            for (String regex : getRegexes()) {
+                writer.append(regex).append(lineSeparator);
+            }
+        } catch (IOException e) {
+            View.getSingleton()
+                    .showWarningDialog(
+                            Constant.messages.getString(
+                                    "multiple.options.regexes.dialog.export.error",
+                                    e.getLocalizedMessage()));
+        }
     }
 
     /**
@@ -113,7 +145,7 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
     private void importButtonClicked() {
         File file = selectImportFile();
         if (file != null) {
-            List<String> regexes = new ArrayList<String>(getRegexes());
+            List<String> regexes = new ArrayList<>(getRegexes());
 
             try (BufferedReader br =
                     Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
@@ -128,7 +160,8 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
                 View.getSingleton()
                         .showWarningDialog(
                                 Constant.messages.getString(
-                                        "context.include.import.error", e.getLocalizedMessage()));
+                                        "multiple.options.regexes.dialog.import.error",
+                                        e.getLocalizedMessage()));
                 return;
             }
             setRegexes(regexes);

@@ -386,6 +386,18 @@ public class TabbedPanel2 extends TabbedPanel {
         addTab(title, icon, c, hideable, visible, index, true);
     }
 
+    @Override
+    public void insertTab(String title, Icon icon, Component component, String tip, int index) {
+        super.insertTab(title, icon, component, tip, index);
+        if (!isPlusTab(icon) && !this.fullTabList.contains(component)) {
+            this.fullTabList.add(component);
+        }
+    }
+
+    private boolean isPlusTab(Icon icon) {
+        return icon == PLUS_ICON;
+    }
+
     /**
      * Adds a tab with the given component.
      *
@@ -509,7 +521,7 @@ public class TabbedPanel2 extends TabbedPanel {
     }
 
     public List<Component> getSortedTabList() {
-        List<Component> copy = new ArrayList<Component>(this.fullTabList);
+        List<Component> copy = new ArrayList<>(this.fullTabList);
         Collections.sort(copy, NAME_COMPARATOR);
         return copy;
     }

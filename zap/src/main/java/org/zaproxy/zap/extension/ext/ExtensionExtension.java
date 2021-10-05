@@ -109,7 +109,7 @@ public class ExtensionExtension extends ExtensionAdaptor implements CommandLineL
     @Override
     public List<String> getHandledExtensions() {
         // Support loading sessions
-        List<String> exts = new ArrayList<String>();
+        List<String> exts = new ArrayList<>();
         exts.add("session");
         return exts;
     }

@@ -26,19 +26,24 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
+import java.util.stream.Stream;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /** Unit test for {@link HttpRequestHeader}. */
-public class HttpRequestHeaderUnitTest {
+class HttpRequestHeaderUnitTest {
 
     @Test
-    public void shouldBeEmptyIfNoContents() {
+    void shouldBeEmptyIfNoContents() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         // When
@@ -48,7 +53,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotBeEmptyIfItHasRequestLine() throws Exception {
+    void shouldNotBeEmptyIfItHasRequestLine() throws Exception {
         // Given
         HttpRequestHeader header =
                 new HttpRequestHeader("GET http://example.com/ HTTP/1.1\r\n\r\n");
@@ -59,7 +64,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotBeEmptyIfItHasRequestLineAndHeaders() throws Exception {
+    void shouldNotBeEmptyIfItHasRequestLineAndHeaders() throws Exception {
         // Given
         HttpRequestHeader header =
                 new HttpRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n\r\n");
@@ -70,7 +75,23 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotBeImageIfItHasNoRequestUri() {
+    void shouldCreateConnectRequest() throws Exception {
+        // Given
+        String data = "CONNECT example.com:443 HTTP/1.1\\r\\nHost: example.com:443\\r\\n\\r\\n";
+        // When
+        HttpRequestHeader header = new HttpRequestHeader(data);
+        // Then
+        assertThat(header.getMethod(), is(equalTo("CONNECT")));
+        assertThat(header.getHostName(), is(equalTo("example.com")));
+        assertThat(header.getHostPort(), is(equalTo(443)));
+        assertThat(header.getURI().getAuthority(), is(equalTo("example.com:443")));
+        assertThat(header.getURI().getHost(), is(equalTo("example.com")));
+        assertThat(header.getURI().getPort(), is(equalTo(443)));
+        assertThat(header.getURI().toString(), is(equalTo("example.com:443")));
+    }
+
+    @Test
+    void shouldNotBeImageIfItHasNoRequestUri() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         // When
@@ -80,7 +101,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldNotBeImageIfRequestUriHasNoPath() throws Exception {
+    void shouldNotBeImageIfRequestUriHasNoPath() throws Exception {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         header.setURI(new URI("http://example.com", true));
@@ -91,7 +112,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldBeImageIfRequestUriHasPathWithImageExtension() throws Exception {
+    void shouldBeImageIfRequestUriHasPathWithImageExtension() throws Exception {
         // Given
         String[] extensions = {"bmp", "ico", "jpg", "jpeg", "gif", "tiff", "tif", "png"};
         HttpRequestHeader header = new HttpRequestHeader();
@@ -105,7 +126,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldSetCookieParam() {
+    void shouldSetCookieParam() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         TreeSet<HtmlParameter> cookies = parameters(cookieParam("c1", "v1"));
@@ -117,7 +138,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldSetCookieParams() {
+    void shouldSetCookieParams() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         TreeSet<HtmlParameter> cookies =
@@ -130,7 +151,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldSetCookieParamWithEmptyName() {
+    void shouldSetCookieParamWithEmptyName() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         TreeSet<HtmlParameter> cookies = parameters(cookieParam("", "v1"));
@@ -142,7 +163,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldRemoveCookieHeaderIfEmptyCookieParam() {
+    void shouldRemoveCookieHeaderIfEmptyCookieParam() {
         // Given
         HttpRequestHeader header = new HttpRequestHeader();
         TreeSet<HtmlParameter> cookies = parameters(cookieParam("", ""));
@@ -153,7 +174,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldRemoveCookieHeadersWhenSettingNoCookieParams() {
+    void shouldRemoveCookieHeadersWhenSettingNoCookieParams() {
         // Given
         HttpRequestHeader header = createRequestHeaderWithCookies();
         TreeSet<HtmlParameter> noCookies = new TreeSet<>();
@@ -164,7 +185,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldRemoveCookieHeadersWhenSettingNoCookieTypeParams() {
+    void shouldRemoveCookieHeadersWhenSettingNoCookieTypeParams() {
         // Given
         HttpRequestHeader header = createRequestHeaderWithCookies();
         TreeSet<HtmlParameter> paramsWithoutCookies =
@@ -176,7 +197,7 @@ public class HttpRequestHeaderUnitTest {
     }
 
     @Test
-    public void shouldReplaceAnyCookieHeaderWhenSettingCookieParams() {
+    void shouldReplaceAnyCookieHeaderWhenSettingCookieParams() {
         // Given
         HttpRequestHeader header = createRequestHeaderWithCookies();
         TreeSet<HtmlParameter> cookies =
@@ -188,40 +209,115 @@ public class HttpRequestHeaderUnitTest {
         assertThat(header.getHeaderValues(HttpHeader.COOKIE), hasSize(1));
     }
 
+    @Test
+    void shouldNotHaveContentLengthHeaderByDefault() throws Exception {
+        // Given / When
+        URI uri = new URI("http://example.com", true);
+        HttpRequestHeader header =
+                new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11);
+        // Then
+        assertThat(header.getHeaderValues(HttpHeader.CONTENT_LENGTH), is(empty()));
+    }
+
+    private static Stream<Arguments> falseTestCssUrls() {
+        return falseTestUrls("css");
+    }
+
     @ParameterizedTest
-    @ValueSource(
-            strings = {
-                "http://example.org/css/file.ext", // In directory path
-                "http://ericsson.com/", // In domain name
-                "https://example.css", // In domain extension (TLD)
-                "https://example.css/dir/file.ext", // In domain extension (TLD)
-                "https://example.org/dir/file?foo=bar&thing=css", // In parameter value
-                "http://example.org/css/file.ext?foo=bar&type=.css", // In parameter value including
-                // period
-                "http://example.org/css/file.ext?foo=bar&thing=styles.css", // In parameter value,
-                // plausible filename
-                "https://example.org/dir/file?foo=bar&css=file.ext" // In parameter name
-            })
-    public void isCssShouldReturnFalseWhenUrlDoesNotIndicateCss(String url) {
+    @MethodSource("falseTestCssUrls")
+    void isCssShouldReturnFalseWhenUrlDoesNotIndicateCss(String url) {
         // Given
         HttpRequestHeader reqHeader = createRequestHeader(url);
         // When / Then
         assertFalse(reqHeader.isCss());
     }
 
+    private static Stream<Arguments> trueTestCssUrls() {
+        return trueTestUrls("css");
+    }
+
     @ParameterizedTest
-    @ValueSource(
-            strings = {
-                "http://example.org/styles.css", // In path
-                "http://example.org/assets/css/styles.css", // In deeper path
-                "http://example.org/css/styles.css?foo=bar", // In path, ignoring params
-                "http://example.org/css/styles.css?foo=bar&thing=.css", // In path, ignoring params
-            })
-    public void isCssShouldReturnTrueWhenUrlIndicatesCss(String url) {
+    @MethodSource("trueTestCssUrls")
+    void isCssShouldReturnTrueWhenUrlIndicatesCss(String url) {
         // Given
         HttpRequestHeader reqHeader = createRequestHeader(url);
         // When / Then
         assertTrue(reqHeader.isCss());
+    }
+
+    private static Stream<Arguments> falseTestImageUrls() {
+        return falseTestUrls("gif");
+    }
+
+    @ParameterizedTest
+    @MethodSource("falseTestImageUrls")
+    void isImageShouldReturnFalseWhenUrlDoesNotIndicateImage(String url) {
+        // Given
+        HttpRequestHeader reqHeader = createRequestHeader(url);
+        // When / Then
+        assertFalse(reqHeader.isImage());
+    }
+
+    private static Stream<Arguments> trueTestImageUrls() {
+        // Per HttpRequestHeader.patternImage
+        return trueTestUrls("bmp", "ico", "jpg", "jpeg", "gif", "tiff", "tif", "png", "svg");
+    }
+
+    @ParameterizedTest
+    @MethodSource("trueTestImageUrls")
+    void isImageShouldReturnTrueWhenUrlIndicatesImage(String url) {
+        // Given
+        HttpRequestHeader reqHeader = createRequestHeader(url);
+        // When / Then
+        assertTrue(reqHeader.isImage());
+    }
+
+    private static Stream<Arguments> falseTestUrls(String extension) {
+        List<Arguments> urls = new ArrayList<>();
+        // In directory path
+        urls.add(arguments("http://example.org/" + extension + "/file.ext"));
+        // In domain name
+        urls.add(arguments("http://domain" + extension + ".com/"));
+        // In domain extension (TLD)
+        urls.add(arguments("https://example." + extension));
+        // In domain extension (TLD)
+        urls.add(arguments("https://example." + extension + "/dir/file.ext"));
+        // In parameter value
+        urls.add(arguments("https://example.org/dir/file?foo=bar&thing=" + extension));
+        // In parameter value including period
+        urls.add(
+                arguments(
+                        "http://example.org/"
+                                + extension
+                                + "/file.ext?foo=bar&type=."
+                                + extension));
+        // In parameter name
+        urls.add(arguments("https://example.org/dir/file?foo=bar&" + extension + "=file.ext"));
+        // In parameter name and value
+        urls.add(
+                arguments(
+                        "https://example.org/dir/file?foo=bar&"
+                                + extension
+                                + "=file."
+                                + extension));
+        return urls.stream();
+    }
+
+    private static Stream<Arguments> trueTestUrls(String... exts) {
+        List<Arguments> urls = new ArrayList<>();
+        for (String ext : exts) {
+            // In path
+            urls.add(arguments("http://example.org/example." + ext));
+            // In deeper path
+            urls.add(arguments("http://example.org/assets/images/example." + ext));
+            // In path, ignoring params
+            urls.add(arguments("http://example.org/images/example." + ext + "?foo=bar"));
+            // In path, ignoring params
+            urls.add(
+                    arguments(
+                            "http://example.org/images/example." + ext + "?foo=bar&thing=." + ext));
+        }
+        return urls.stream();
     }
 
     private static HttpRequestHeader createRequestHeader(String url) {

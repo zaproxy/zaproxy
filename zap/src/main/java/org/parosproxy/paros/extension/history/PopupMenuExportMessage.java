@@ -34,6 +34,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/11/05 Use WritableFileChooser for saves.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/04/08 Name logger (LOG) fullcaps as constant, use LF as EOL for text file content
 package org.parosproxy.paros.extension.history;
 
 import java.io.BufferedWriter;
@@ -57,9 +58,9 @@ public class PopupMenuExportMessage extends JMenuItem {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger log = LogManager.getLogger(PopupMenuExportMessage.class);
+    private static final Logger LOG = LogManager.getLogger(PopupMenuExportMessage.class);
 
-    private static final String CRLF = "\r\n";
+    private static final String EOL = "\n";
     private ExtensionHistory extension = null;
 
     public PopupMenuExportMessage() {
@@ -116,7 +117,7 @@ public class PopupMenuExportMessage extends JMenuItem {
                                                     + file.getAbsolutePath()
                                                     + ".");
                             // ZAP: Log exceptions
-                            log.warn(e1.getMessage(), e1);
+                            LOG.warn(e1.getMessage(), e1);
                         } finally {
                             try {
                                 if (fw != null) {
@@ -124,7 +125,7 @@ public class PopupMenuExportMessage extends JMenuItem {
                                 }
                             } catch (Exception e2) {
                                 // ZAP: Log exceptions
-                                log.warn(e2.getMessage(), e2);
+                                LOG.warn(e2.getMessage(), e2);
                             }
                         }
                     }
@@ -146,13 +147,13 @@ public class PopupMenuExportMessage extends JMenuItem {
         try {
             // ZAP: Changed to load the HttpMessage from the database only once.
             HttpMessage msg = ref.getHttpMessage();
-            writer.write("==== " + ref.getHistoryId() + " ==========" + CRLF);
+            writer.write("==== " + ref.getHistoryId() + " ==========" + EOL);
             s = msg.getRequestHeader().toString();
             writer.write(s);
             s = msg.getRequestBody().toString();
             writer.write(s);
-            if (!s.endsWith(CRLF)) {
-                writer.write(CRLF);
+            if (!s.endsWith(EOL)) {
+                writer.write(EOL);
             }
 
             if (!msg.getResponseHeader().isEmpty()) {
@@ -160,14 +161,14 @@ public class PopupMenuExportMessage extends JMenuItem {
                 writer.write(s);
                 s = msg.getResponseBody().toString();
                 writer.write(s);
-                if (!s.endsWith(CRLF)) {
-                    writer.write(CRLF);
+                if (!s.endsWith(EOL)) {
+                    writer.write(EOL);
                 }
             }
 
         } catch (Exception e) {
             // ZAP: Log exceptions
-            log.warn(e.getMessage(), e);
+            LOG.warn(e.getMessage(), e);
         }
     }
 

@@ -65,7 +65,7 @@ public class VariantFactory {
     }
 
     public List<Variant> createVariants(ScannerParam scanOptions, HttpMessage message) {
-        List<Variant> listVariant = new ArrayList<Variant>();
+        List<Variant> listVariant = new ArrayList<>();
 
         int targets = scanOptions.getTargetParamsInjectable();
         int enabledRPC = scanOptions.getTargetParamsEnabledRPC();
@@ -100,7 +100,9 @@ public class VariantFactory {
             }
 
             if ((enabledRPC & ScannerParam.RPC_JSON) != 0) {
-                listVariant.add(new VariantJSONQuery());
+                VariantJSONQuery variant = new VariantJSONQuery();
+                variant.setScanNullValues(scanOptions.isScanNullJsonValues());
+                listVariant.add(variant);
             }
 
             if ((enabledRPC & ScannerParam.RPC_GWT) != 0) {
@@ -158,7 +160,7 @@ public class VariantFactory {
     }
 
     public List<Variant> createSiteModifyingVariants() {
-        List<Variant> listVariant = new ArrayList<Variant>();
+        List<Variant> listVariant = new ArrayList<>();
 
         addScriptVariants(listVariant);
         addCustomVariants(listVariant);

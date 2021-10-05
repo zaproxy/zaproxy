@@ -25,7 +25,7 @@ import org.zaproxy.zap.view.HrefTypeInfo;
 /**
  * An highlighter for {@code HrefTypeInfo} showing an appropriate icon for the type value.
  *
- * @since TODO add version
+ * @since 2.10.0
  * @see HrefTypeInfo
  */
 public class HrefTypeInfoIconHighlighter extends AbstractTableCellItemIconHighlighter {

@@ -97,6 +97,8 @@
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/23 Expose getScannerParam() for tests.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/09/14 No longer force single threading if Anti CSRF handling turned on.
+// ZAP: 2021/09/30 Pass plugin to PluginStats instead of just the name.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -272,17 +274,7 @@ public class HostProcess implements Runnable {
         httpSender.setUser(this.user);
         httpSender.setRemoveUserDefinedAuthHeaders(true);
 
-        int maxNumberOfThreads;
-        if (scannerParam.getHandleAntiCSRFTokens()) {
-            // Single thread if handling anti CSRF tokens, otherwise token requests might get out of
-            // step
-            maxNumberOfThreads = 1;
-
-        } else {
-            maxNumberOfThreads = scannerParam.getThreadPerHost();
-        }
-
-        threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
+        threadPool = new ThreadPool(scannerParam.getThreadPerHost(), "ZAP-ActiveScanner-");
         this.techSet = TechSet.getAllTech();
     }
 
@@ -327,7 +319,7 @@ public class HostProcess implements Runnable {
             pluginFactory.reset();
             synchronized (mapPluginStats) {
                 for (Plugin plugin : pluginFactory.getPending()) {
-                    mapPluginStats.put(plugin.getId(), new PluginStats(plugin.getName()));
+                    mapPluginStats.put(plugin.getId(), new PluginStats(plugin));
                 }
             }
 
@@ -1111,6 +1103,7 @@ public class HostProcess implements Runnable {
             // Plugin was not processed
             return;
         }
+        pluginStats.stopped();
 
         StringBuilder sb = new StringBuilder();
         if (isStop()) {
@@ -1128,9 +1121,7 @@ public class HostProcess implements Runnable {
         }
 
         sb.append(hostAndPort).append(" | ").append(plugin.getCodeName());
-        long startTimeMillis = pluginStats.getStartTime();
-        long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
-        String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0);
+        String diffTimeString = decimalFormat.format(pluginStats.getTotalTime() / 1000.0);
         sb.append(" in ").append(diffTimeString).append('s');
         sb.append(" with ").append(pluginStats.getMessageCount()).append(" message(s) sent");
         sb.append(" and ").append(pluginStats.getAlertCount()).append(" alert(s) raised.");
@@ -1337,7 +1328,7 @@ public class HostProcess implements Runnable {
      * @param msg the message that will be checked
      * @param cpType the custom page type to be checked
      * @return {@code true} if the message matches, {@code false} otherwise
-     * @since TODO Add version
+     * @since 2.10.0
      */
     protected boolean isCustomPage(HttpMessage msg, CustomPage.Type cpType) {
         if (getContext() != null) {

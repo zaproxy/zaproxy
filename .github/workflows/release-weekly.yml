@@ -1,22 +1,22 @@
 name: Release Weekly
 
 on:
-  push:
-    tags:
-      - 'w*'
+  workflow_dispatch:
 
 jobs:
   release:
     name: Build and Release
-    if: github.actor == 'kingthorin' || github.actor == 'psiinon' || github.actor == 'thc202'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup Java 8
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Setup Java
       uses: actions/setup-java@v1
       with:
-        java-version: 8
+        java-version: 11
     - name: Build and Release
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createWeeklyReleaseFromGitHubRef
+        ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
+      run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createWeeklyRelease

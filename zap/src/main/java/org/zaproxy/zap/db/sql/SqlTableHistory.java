@@ -191,9 +191,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#read(int)
-     */
     @Override
     public RecordHistory read(int historyId)
             throws HttpMalformedHeaderException, DatabaseException {
@@ -216,9 +213,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#write(long, int, org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public RecordHistory write(long sessionId, int histType, HttpMessage msg)
             throws HttpMalformedHeaderException, DatabaseException {
@@ -391,9 +385,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#getHistoryIds(long)
-     */
     @Override
     public List<Integer> getHistoryIds(long sessionId) throws DatabaseException {
         return getHistoryIdsFromPreparedStatement(
@@ -438,9 +429,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                 null);
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#getHistoryIdsOfHistType(long, int)
-     */
     @Override
     public List<Integer> getHistoryIdsOfHistType(long sessionId, int... histTypes)
             throws DatabaseException {
@@ -474,9 +462,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                 histTypes.length);
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#getHistoryIdsExceptOfHistType(long, int)
-     */
     @Override
     public List<Integer> getHistoryIdsExceptOfHistType(long sessionId, int... histTypes)
             throws DatabaseException {
@@ -510,9 +495,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                 histTypes.length);
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#getHistoryList(long, int, java.lang.String, boolean)
-     */
     @Override
     public List<Integer> getHistoryList(
             long sessionId, int histType, String filter, boolean isRequest)
@@ -584,9 +566,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#deleteHistorySession(long)
-     */
     @Override
     public void deleteHistorySession(long sessionId) throws DatabaseException {
         SqlPreparedStatementWrapper psDeleteSession = null;
@@ -601,9 +580,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#deleteHistoryType(long, int)
-     */
     @Override
     public void deleteHistoryType(long sessionId, int historyType) throws DatabaseException {
         SqlPreparedStatementWrapper psDeleteType = null;
@@ -619,9 +595,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#delete(int)
-     */
     @Override
     public void delete(int historyId) throws DatabaseException {
         SqlPreparedStatementWrapper psDelete = null;
@@ -636,18 +609,12 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#delete(java.util.List)
-     */
     // ZAP: Added method.
     @Override
     public void delete(List<Integer> ids) throws DatabaseException {
         delete(ids, 1000);
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#delete(java.util.List, int)
-     */
     @Override
     public void delete(List<Integer> ids, int batchSize) throws DatabaseException {
         if (ids == null) {
@@ -701,9 +668,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         HistoryReference.removeTemporaryType(historyType);
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#deleteTemporary()
-     */
     @Override
     public void deleteTemporary() throws DatabaseException {
         SqlPreparedStatementWrapper psDeleteTemp = null;
@@ -720,9 +684,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#containsURI(long, int, java.lang.String, java.lang.String, byte[])
-     */
     @Override
     public boolean containsURI(
             long sessionId, int historyType, String method, String uri, byte[] body)
@@ -754,9 +715,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#getHistoryCache(org.parosproxy.paros.model.HistoryReference, org.parosproxy.paros.network.HttpMessage)
-     */
     @Override
     public RecordHistory getHistoryCache(HistoryReference ref, HttpMessage reqMsg)
             throws DatabaseException, HttpMalformedHeaderException {
@@ -898,9 +856,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#updateNote(int, java.lang.String)
-     */
     @Override
     public void updateNote(int historyId, String note) throws DatabaseException {
         SqlPreparedStatementWrapper psUpdateNote = null;
@@ -916,9 +871,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.TbleHistoryIf#lastIndex()
-     */
     @Override
     public int lastIndex() {
         return lastInsertedIndex;

@@ -30,6 +30,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/11/05 Use WritableFileChooser for saves.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/04/08 Set/name logger (LOG) fullcaps as constant, use LF as EOL for text file content
 package org.parosproxy.paros.extension.history;
 
 import java.io.BufferedOutputStream;
@@ -49,10 +50,10 @@ import org.zaproxy.zap.view.widgets.WritableFileChooser;
 public class PopupMenuExportResponse extends JMenuItem {
 
     private static final long serialVersionUID = 1L;
-    private static final String NEWLINE = System.lineSeparator();
+    private static final String NEWLINE = "\n";
 
     // ZAP: Added logger
-    private static Logger log = LogManager.getLogger(PopupMenuExportResponse.class);
+    private static final Logger LOG = LogManager.getLogger(PopupMenuExportResponse.class);
 
     private ExtensionHistory extension = null;
 
@@ -112,7 +113,7 @@ public class PopupMenuExportResponse extends JMenuItem {
                                                     + file.getAbsolutePath()
                                                     + ".");
                             // ZAP: Log exceptions
-                            log.warn(e1.getMessage(), e1);
+                            LOG.warn(e1.getMessage(), e1);
                         }
                     }
                 });
@@ -139,7 +140,7 @@ public class PopupMenuExportResponse extends JMenuItem {
 
         } catch (Exception e) {
             // ZAP: Log exceptions
-            log.warn(e.getMessage(), e);
+            LOG.warn(e.getMessage(), e);
         }
     }
 

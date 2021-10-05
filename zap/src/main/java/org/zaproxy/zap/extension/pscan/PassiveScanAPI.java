@@ -217,7 +217,7 @@ public class PassiveScanAPI extends ApiImplementor {
                     map.put("enabled", String.valueOf(scanner.isEnabled()));
                     map.put("alertThreshold", scanner.getAlertThreshold(true).name());
                     map.put("quality", scanner.getStatus().toString());
-                    resultList.addItem(new ApiResponseSet<String>("scanner", map));
+                    resultList.addItem(new ApiResponseSet<>("scanner", map));
                 }
 
                 result = resultList;
@@ -231,7 +231,7 @@ public class PassiveScanAPI extends ApiImplementor {
                     time = System.currentTimeMillis() - time;
                 }
                 map.put("time", String.valueOf(time));
-                result = new ApiResponseSet<String>(name, map);
+                result = new ApiResponseSet<>(name, map);
                 break;
             case VIEW_MAX_ALERTS_PER_RULE:
                 result =
