@@ -331,8 +331,13 @@ def main(argv):
         trigger_hook('zap_tuned', zap)
 
         if context_file:
-            # handle the context file, cant use base_dir as it might not have been set up
-            zap_import_context(zap, base_dir + os.path.basename(context_file))
+            # handle the context file, use base_dir only if it exists as it might not have been set up
+            if os.path.exists(base_dir):
+                logging.info(f'Importing context from base dir \'{base_dir}\'')
+                zap_import_context(zap, base_dir + os.path.basename(context_file))
+            else:
+                logging.info(f'Importing context from \'/zap/wrk\', because specified base dir \'{base_dir}\' does not exist')
+                zap_import_context(zap, '/zap/wrk' + os.path.basename(context_file))
             if (user):
                 zap_set_scan_user(zap, user)
 
