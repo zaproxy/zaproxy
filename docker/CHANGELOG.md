@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-10-05
+ - Fixed bug which caused the baseline scan to fail if a read-only mapped drive was used.
+
 ### 2021-09-21
  - Updated the Baseline scan to use the Automation Framework for the "-c config_file" and "-u config_url" options.
 

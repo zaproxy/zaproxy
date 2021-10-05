@@ -399,8 +399,12 @@ def main(argv):
                 yaml.dump({'jobs': jobs}, yf)
                 
                 if os.path.exists('/zap/wrk'):
-                    # Write the yaml file to the mapped directory, if there is one
-                    copyfile(yaml_file, '/zap/wrk/zap.yaml')
+                    yaml_copy_file = '/zap/wrk/zap.yaml'
+                    if os.access(yaml_copy_file, os.W_OK):
+                        # Write the yaml file to the mapped directory, if there is one
+                        copyfile(yaml_file, yaml_copy_file)
+                    else:
+                        print('Unable to copy yaml file to ' + yaml_copy_file)
  
             # Run ZAP inline with the yaml file
             try:
