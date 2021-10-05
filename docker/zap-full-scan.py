@@ -225,7 +225,7 @@ def main(argv):
         sys.exit(3)
 
     if running_in_docker():
-        base_dir = '/zap/wrk/'
+        base_dir = os.environ.get('ZAP_BASE_DIR', '/zap/wrk')
         if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
