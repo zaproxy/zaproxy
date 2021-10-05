@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-10-05
+ - The base directory path `/zap/wrk` can now be configured using the new environment variable `ZAP_BASE_DIR`.
+
 ### 2020-12-16
  - Update Webswing to latest version (20.2.1) to work with newer Java versions.
  - Update Java in stable image to version 11.
