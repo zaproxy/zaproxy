@@ -95,7 +95,7 @@ Scanners:
 10104   TestUserAgent
 10105   Weak Authentication Method
 10106   Http Only Site
-10107   Httpoxy - Proxy Header Misuse
+10107   Httproxy - Proxy Header Misuse
 10108   Blank link target
 10109   Modern Web Application (info)
 10110   Dangerous JS Function Scanner
