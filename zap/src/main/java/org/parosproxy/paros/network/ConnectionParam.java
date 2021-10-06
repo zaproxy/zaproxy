@@ -49,6 +49,7 @@
 // ZAP: 2020/01/02 Updated default user agent
 // ZAP: 2020/04/20 Allow to configure the SOCKS proxy (Issue 29).
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/10/06 Updated default user agent
 package org.parosproxy.paros.network;
 
 import java.net.PasswordAuthentication;
@@ -110,7 +111,7 @@ public class ConnectionParam extends AbstractParam {
     public static final String DEFAULT_USER_AGENT = CONNECTION_BASE_KEY + ".defaultUserAgent";
 
     public static final String DEFAULT_DEFAULT_USER_AGENT =
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:82.0) Gecko/20100101 Firefox/82.0";
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:92.0) Gecko/20100101 Firefox/92.0";
 
     /** The security property for TTL of successful DNS queries. */
     private static final String DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY =

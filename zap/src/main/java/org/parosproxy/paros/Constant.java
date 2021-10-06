@@ -113,6 +113,7 @@
 // ZAP: 2021/09/15 Added support for detecting containers
 // ZAP: 2021/09/21 Added support for detecting snapcraft
 // ZAP: 2021/10/01 Added support for detecting WebSwing
+// ZAP: 2021/10/06 Update user agent when upgrading from 2.10
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -713,7 +714,7 @@ public final class Constant {
                         upgradeFrom2_9_0(config);
                     }
                     if (ver <= V_2_10_0_TAG) {
-                        // Nothing to do
+                        upgradeFrom2_10_0(config);
                     }
 
                     // Execute always to pick installer choices.
@@ -1148,6 +1149,12 @@ public final class Constant {
                 OptionsParamView.LOOK_AND_FEEL, OptionsParamView.DEFAULT_LOOK_AND_FEEL_NAME);
         config.setProperty(
                 OptionsParamView.LOOK_AND_FEEL_CLASS, OptionsParamView.DEFAULT_LOOK_AND_FEEL_CLASS);
+    }
+
+    private static void upgradeFrom2_10_0(XMLConfiguration config) {
+        // Update to a newer default user agent
+        config.setProperty(
+                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
     }
 
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
