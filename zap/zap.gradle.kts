@@ -20,7 +20,7 @@ plugins {
 }
 
 group = "org.zaproxy"
-version = "2.11.0-SNAPSHOT"
+version = "2.11.0"
 val versionBC = "2.10.0"
 
 val versionLangFile = "1"
