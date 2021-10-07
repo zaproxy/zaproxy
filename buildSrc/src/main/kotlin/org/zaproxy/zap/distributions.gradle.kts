@@ -112,6 +112,7 @@ tasks.register<Zip>("distCore") {
             "plugnhack",
             "pscanrules",
             "quickstart",
+            "reports",
             "reveal",
             "saverawmessage",
             "tips")
