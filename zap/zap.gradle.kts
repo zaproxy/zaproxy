@@ -20,8 +20,8 @@ plugins {
 }
 
 group = "org.zaproxy"
-version = "2.11.0"
-val versionBC = "2.10.0"
+version = "2.12.0-SNAPSHOT"
+val versionBC = "2.11.0"
 
 val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
@@ -153,37 +153,13 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     newClasspath = files(tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME).map { it.archivePath })
     setIgnoreMissingClasses(true)
 
-    packageExcludes = listOf(
-        // Deprecated in 2.10, removal part of 2.11 milestone
-        "org.parosproxy.paros.extension.encoder",
-        "org.zaproxy.zap.extension.encoder2",
-        // Paros reports removed in 2.11 milestone
-        "org.parosproxy.paros.extension.report"
-        )
+    packageExcludes = listOf()
 
     fieldExcludes = listOf()
 
-    classExcludes = listOf(
-        "org.zaproxy.zap.extension.custompages.ContextCustomPagePanel\$CustomPagesMultipleOptionsPanel",
-        "org.parosproxy.paros.core.scanner.Variant#setParameters(org.parosproxy.paros.network.HttpMessage,java.util.List)",
-        "org.zaproxy.zap.extension.ascan.ChallengeCallbackAPI",
-        "org.zaproxy.zap.extension.ascan.ChallengeCallbackPlugin"
-        )
+    classExcludes = listOf()
 
-    methodExcludes = listOf(
-        // Not intended to be used directly by add-ons.
-        "org.parosproxy.paros.core.scanner.Plugin#getAlertTags()",
-        "org.zaproxy.zap.spider.parser.SpiderParserListener#resourcePostURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,java.lang.String)",
-        "org.zaproxy.zap.spider.parser.SpiderParserListener#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String)",
-        "org.zaproxy.zap.spider.parser.SpiderParserListener#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,boolean)",
-        "org.zaproxy.zap.spider.SpiderController#resourcePostURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,java.lang.String)",
-        "org.zaproxy.zap.spider.SpiderController#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String,boolean)",
-        "org.zaproxy.zap.spider.SpiderController#resourceURIFound(org.parosproxy.paros.network.HttpMessage,int,java.lang.String)",
-        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,int,java.lang.String,java.lang.String)",
-        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,int,java.lang.String)",
-        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,org.apache.commons.httpclient.URI,int,java.lang.String)",
-        "org.zaproxy.zap.spider.SpiderTask#SpiderTask(org.zaproxy.zap.spider.Spider,org.apache.commons.httpclient.URI,org.apache.commons.httpclient.URI,int,java.lang.String,java.lang.String)"
-    )
+    methodExcludes = listOf()
 
     richReport {
         destinationDir = file("$buildDir/reports/japicmp/")
