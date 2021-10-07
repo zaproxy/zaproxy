@@ -82,6 +82,7 @@ def usage():
     print('    -u config_url     URL of config file to use to INFO, IGNORE or FAIL warnings')
     print('    -g gen_file       generate default config file (all rules set to WARN)')
     print('    -m mins           the number of minutes to spider for (default 1)')
+    print('    -b base_dir       the directory path to read/write configs, progress and context files as well as reports (default /zap/wrk)')
     print('    -r report_html    file to write the full ZAP HTML report')
     print('    -w report_md      file to write the full ZAP Wiki (Markdown) report')
     print('    -x report_xml     file to write the full ZAP XML report')
@@ -108,13 +109,14 @@ def usage():
 
 '''
     This script is in the process of being converted to use the Automation Framework.
-    If you map a directory to /zap/wrk then the zap.yaml file generated will be copied to that directory.
+    If the specified base dir exists then the zap.yaml file generated will be copied to that directory.
     
     The following parameters are currently supported:
     
     -c config_file
     -u config_url
     -m mins
+    -b base_dir
     -r report_html
     -w report_md
     -x report_xml
@@ -168,7 +170,7 @@ def main(argv):
     zap_alpha = False
     info_unspecified = False
     ajax = False
-    base_dir = ''
+    base_dir = '/zap/wrk'
     zap_ip = 'localhost'
     zap_options = ''
     delay = 0
@@ -191,7 +193,7 @@ def main(argv):
     debug = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff"])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:b:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -227,6 +229,8 @@ def main(argv):
         elif opt == '-p':
             progress_file = arg
             af_supported = False
+        elif opt == '-b':
+            base_dir = arg
         elif opt == '-r':
             report_html = arg
         elif opt == '-J':
@@ -286,7 +290,6 @@ def main(argv):
         sys.exit(3)
 
     if running_in_docker():
-        base_dir = os.environ.get('ZAP_BASE_DIR', '/zap/wrk')
         if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
@@ -398,8 +401,8 @@ def main(argv):
             
                 yaml.dump({'jobs': jobs}, yf)
                 
-                if os.path.exists('/zap/wrk'):
-                    yaml_copy_file = '/zap/wrk/zap.yaml'
+                if os.path.exists(base_dir):
+                    yaml_copy_file = os.path.join(base_dir, 'zap.yaml')
                     if os.access(yaml_copy_file, os.W_OK):
                         # Write the yaml file to the mapped directory, if there is one
                         copyfile(yaml_file, yaml_copy_file)
@@ -501,13 +504,9 @@ def main(argv):
         trigger_hook('zap_tuned', zap)
 
         if context_file:
-            # handle the context file, use base_dir only if it exists as it might not have been set up
-            if os.path.exists(base_dir):
-                logging.info(f'Importing context from base dir \'{base_dir}\'')
-                zap_import_context(zap, base_dir + os.path.basename(context_file))
-            else:
-                logging.info(f'Importing context from \'/zap/wrk\', because specified base dir \'{base_dir}\' does not exist')
-                zap_import_context(zap, '/zap/wrk' + os.path.basename(context_file))
+            # handle the context file
+            logging.info(f'Importing context from base dir \'{base_dir}\'')
+            zap_import_context(zap, base_dir + os.path.basename(context_file))
             if (user):
                 zap_set_scan_user(zap, user)
 
