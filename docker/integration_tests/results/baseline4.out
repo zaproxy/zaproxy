@@ -1,4 +1,5 @@
 Using the Automation Framework
+Unable to copy yaml file to /zap/wrk/zap.yaml
 Total of 3 URLs
 PASS: Vulnerable JS Library [10003]
 PASS: Cookie No HttpOnly Flag [10010]
