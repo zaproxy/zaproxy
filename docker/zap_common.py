@@ -273,6 +273,7 @@ def create_start_options(mode, port, extra_params):
         'zap-x.sh', mode,
         '-port', str(port),
         '-host', '0.0.0.0',
+        '-addonupdate',
         '-config', 'database.recoverylog=false',
         '-config', 'api.disablekey=true',
         '-config', 'api.addrs.addr.name=.*',

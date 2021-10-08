@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-10-08
+ - Changed the packaged scans to always update all add-ons on start up to avoid a bug in the automation framework breaking plans
+
 ### 2021-10-05
  - Fixed bug which caused the baseline scan to fail if a read-only mapped drive was used.
 
