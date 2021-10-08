@@ -14,6 +14,7 @@ jobs:
       - run: |
           sudo apt-get install xmlstarlet
           echo "REL_VERSION=$(curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //core/version)" >> $GITHUB_ENV
+          echo "REL_DATE=$(date +%F)" >> $GITHUB_ENV
       -
         name: Login to DockerHub
         uses: docker/login-action@v1 
@@ -28,10 +29,12 @@ jobs:
           context: docker
           file: docker/Dockerfile-stable
           tags: |
+            owasp/zap2docker-stable:s${{ env.REL_DATE }}
             owasp/zap2docker-stable:${{ env.REL_VERSION }}
             owasp/zap2docker-stable:latest
           build-args: |
             WEBSWING_TOKEN=${{ secrets.WEBSWING_TOKEN }}
+      - run: docker push owasp/zap2docker-stable:s${{ env.REL_DATE }}
       - run: docker push owasp/zap2docker-stable:${{ env.REL_VERSION }}
       - run: docker push owasp/zap2docker-stable:latest
       -
@@ -42,7 +45,9 @@ jobs:
           context: docker
           file: docker/Dockerfile-bare
           tags: |
+            owasp/zap2docker-bare:b${{ env.REL_DATE }}
             owasp/zap2docker-bare:${{ env.REL_VERSION }}
             owasp/zap2docker-bare:latest
+      - run: docker push owasp/zap2docker-bare:b${{ env.REL_DATE }}
       - run: docker push owasp/zap2docker-bare:${{ env.REL_VERSION }}
       - run: docker push owasp/zap2docker-bare:latest
