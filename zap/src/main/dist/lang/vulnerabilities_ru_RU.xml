@@ -703,7 +703,7 @@ Inputs should be decoded and canonicalized to the application's current internal
 
 <vuln_items>wasc_29</vuln_items>
 <vuln_item_wasc_29>
-	<alert>LDAP Injection</alert>
+	<alert> LDAP  Внедрение</alert>
 	<desc>LDAP Injection is an attack technique used to exploit web sites that construct LDAP statements from user-supplied input.
 
 Lightweight Directory Access Protocol (LDAP) is an open-standard protocol for both querying and manipulating X.500 directory services. The LDAP protocol runs over Internet transport protocols, such as TCP. Web applications may use user-supplied input to create custom LDAP statements for dynamic web page requests.
@@ -796,7 +796,7 @@ A certificate binds an identity to a cryptographic key to authenticate a communi
 
 <vuln_items>wasc_33</vuln_items>
 <vuln_item_wasc_33>
-	<alert>Path Traversal</alert>
+	<alert>Обход Пути </alert>
 	<desc>The Path Traversal attack technique allows an attacker access to files, directories, and commands that potentially reside outside the web document root directory. An attacker may manipulate a URL in such a way that the web site will execute or reveal the contents of arbitrary files anywhere on the web server. Any device that exposes an HTTP-based interface is potentially vulnerable to Path Traversal.
 
 Most web sites restrict user access to a specific portion of the file-system, typically called the "web document root" or "CGI root" directory. These directories contain the files intended for user access and the executable necessary to drive web application functionality. To access files or execute commands anywhere on the file-system, Path Traversal attacks will utilize the ability of special-characters sequences.
@@ -872,7 +872,7 @@ If an attacker submits a Server-side Include statement, he may have the ability 
 
 <vuln_items>wasc_37</vuln_items>
 <vuln_item_wasc_37>
-	<alert>Session Fixation</alert>
+	<alert>Фиксация сеанса </alert>
 	<desc>Session Fixation is an attack technique that forces a user's session ID to an explicit value. Depending on the functionality of the target web site, a number of techniques can be utilized to "fix" the session ID value. These techniques range from Cross-site Scripting exploits to peppering the web site with previously made HTTP requests. After a user's session ID has been fixed, the attacker will wait for that user to login. Once the user does so, the attacker uses the predefined session ID value to assume the same online identity.
 
 Generally speaking there are two types of session management systems when it comes to ID values. The first type is "permissive" systems that allow web browsers to specify any ID. The second type is "strict" systems that only accept server-side-generated values. With permissive systems, arbitrary session IDs are maintained without contact with the web site. Strict systems require the attacker to maintain the "trap-session", with periodic web site contact, preventing inactivity timeouts.
@@ -912,7 +912,7 @@ Many open redirect problems occur because the programmer assumed that certain in
 
 <vuln_items>wasc_39</vuln_items>
 <vuln_item_wasc_39>
-	<alert>XPath Injection</alert>
+	<alert> XPath Инъекция</alert>
 	<desc>XPath Injection is an attack technique used to exploit applications that construct XPath (XML Path Language) queries from user-supplied input to query or navigate XML documents. It can be used directly by an application to query an XML document, as part of a larger operation such as applying an XSLT transformation to an XML document, or applying an XQuery to an XML document. The syntax of XPath bears some resemblance to an SQL query, and indeed, it is possible to form SQL-like queries on an XML document using XPath.
 
 If an application uses run-time XPath query construction, embedding unsafe user input into the query, it may be possible for the attacker to inject data into the query such that the newly formed query will be parsed in a way differing from the programmer's intention.</desc>
