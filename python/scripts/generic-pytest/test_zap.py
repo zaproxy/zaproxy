@@ -34,7 +34,7 @@ import os
 import platform
 import re
 import time
-from ConfigParser import SafeConfigParser
+from configparser import SafeConfigParser
 from zap import ZAP
 
 def element_to_str(alert, element):
@@ -106,7 +106,7 @@ def test_zap(zapconfig):
 					zapInstall = "C:\Program Files\OWASP\Zed Attack Proxy";
 			else:
 				# No default path for Mac OS or Linux
-				print "Installation directory must be set in " + zapconfig
+				print("Installation directory must be set in " + zapconfig)
 				
 		if (len(parser.get("Proxy", "home")) > 0):
 			zapScript = zapScript + " -d " + parser.get("Proxy", "home")
@@ -122,7 +122,7 @@ def test_zap(zapconfig):
 			# Give the sites tree a chance to get updated
 			time.sleep(2)
 
-			print 'Spidering %s' % spiderUrl
+			print('Spidering %s' % spiderUrl)
 			zap.start_spider(spiderUrl)
 		
 			# Give the Spider a chance to start
@@ -130,23 +130,23 @@ def test_zap(zapconfig):
 			while (int(zap.spider_status[0]) < 100):
 				#print 'Spider progress %: ' + zap.spider_status[0]
 				time.sleep(5)
-			print 'Finished spidering %s' % spiderUrl
+			print('Finished spidering %s' % spiderUrl)
 			
-		print 'Spider completed'
+		print('Spider completed')
 		# Give the passive scanner a chance to finish
 		time.sleep(5)
 		
 	scanUrls = parser.get("Actions", "scan");
 	if (len(scanUrls) > 0):
 		for scanUrl in scanUrls.split(','):
-			print 'Scanning %s' % scanUrl
+			print('Scanning %s' % scanUrl)
 			zap.start_scan(scanUrl)
 			while (int(zap.scan_status[0]) < 100):
 				#print 'Scan progress %: ' + zap.scan_status[0]
 				time.sleep(5)
-			print 'Finished scanning %s' % scanUrl
+			print('Finished scanning %s' % scanUrl)
 			
-		print 'Scanner completed'
+		print('Scanner completed')
 	
 	saveSession = parser.get("Actions", "savesession");
 	if (len(saveSession) > 0):
@@ -172,7 +172,7 @@ def test_zap(zapconfig):
 					break
 			if (not found):
 				# No match, fail the test
-				print "Required alert not present: " + requireAlertStr
+				print("Required alert not present: " + requireAlertStr)
 				assert 0
 		
 	ignoreAlertsStr = parser.get("Alerts", "ignore")
