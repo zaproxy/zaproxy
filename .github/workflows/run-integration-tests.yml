@@ -27,7 +27,7 @@ jobs:
           tags: |
             owasp/zap2docker-tests:latest
           build-args: |
-            WEBSWING_TOKEN=${{ secrets.WEBSWING_TOKEN }}
+            WEBSWING_URL=${{ secrets.WEBSWING_URL }}
       - 
         run: docker push owasp/zap2docker-tests:latest
       - 

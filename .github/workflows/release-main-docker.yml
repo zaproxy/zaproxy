@@ -33,7 +33,7 @@ jobs:
             owasp/zap2docker-stable:${{ env.REL_VERSION }}
             owasp/zap2docker-stable:latest
           build-args: |
-            WEBSWING_TOKEN=${{ secrets.WEBSWING_TOKEN }}
+            WEBSWING_URL=${{ secrets.WEBSWING_URL }}
       - run: docker push owasp/zap2docker-stable:s${{ env.REL_DATE }}
       - run: docker push owasp/zap2docker-stable:${{ env.REL_VERSION }}
       - run: docker push owasp/zap2docker-stable:latest
