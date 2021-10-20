@@ -3,7 +3,7 @@
 
 RES=0
 
-mkdir /zap/wrk/output
+mkdir -p /zap/wrk/output
 
 echo "TEST: Baseline test 1 (vs example.com)"
 /zap/zap-baseline.py -t https://www.example.com/ > /zap/wrk/output/baseline1.out
