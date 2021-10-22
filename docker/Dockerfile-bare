@@ -1,14 +1,19 @@
 # This dockerfile builds the zap stable release
-FROM alpine as builder
+FROM openjdk:8-jdk-alpine AS builder
 
 WORKDIR /zap
 
-RUN apk add --no-cache curl wget xmlstarlet unzip
+RUN apk add --no-cache wget xmlstarlet bash
 
-# Download and expand the latest stable release 
-RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
-    mv ZAP*/* . &&  \
-    rm -R ZAP* 
+# Download and expand the latest stable release
+RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
+	mv ZAP*/* . && \
+	rm -R ZAP*
+
+# Update add-ons
+RUN ./zap.sh -cmd -silent -addonupdate
+# Copy them to installation directory
+RUN cp /root/.ZAP/plugin/*.zap plugin/
 
 FROM openjdk:8-jdk-alpine
 LABEL maintainer="psiinon@gmail.com"
