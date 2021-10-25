@@ -20,8 +20,8 @@
 package org.zaproxy.zap.extension.authentication;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyOrNullString;
 
 import java.util.HashMap;
 import org.apache.commons.httpclient.URI;
@@ -154,7 +154,7 @@ class HttpSenderAuthHeaderListenerUnitTest {
 
         // Then
         assertThat(msgLocal.getRequestHeader().getHeader(headerType), is(headerValue));
-        assertThat(msgRemote.getRequestHeader().getHeader(headerType), isEmptyOrNullString());
+        assertThat(msgRemote.getRequestHeader().getHeader(headerType), is(emptyOrNullString()));
     }
 
     @Test

@@ -9,7 +9,7 @@ plugins {
     `java-library`
     jacoco
     id("me.champeau.gradle.japicmp")
-    id("org.zaproxy.crowdin") version "0.1.0"
+    id("org.zaproxy.crowdin") version "0.2.1"
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
@@ -75,8 +75,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
-    api("org.apache.commons:commons-csv:1.8")
-    val bcVersion = "1.68"
+    api("org.apache.commons:commons-csv:1.9.0")
+    val bcVersion = "1.69"
     api("org.bouncycastle:bcmail-jdk15on:$bcVersion")
     api("org.bouncycastle:bcprov-jdk15on:$bcVersion")
     api("org.bouncycastle:bcpkix-jdk15on:$bcVersion")
@@ -84,7 +84,7 @@ dependencies {
     api("org.jfree:jfreechart:1.5.3")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
-    api("org.xerial:sqlite-jdbc:3.36.0.1")
+    api("org.xerial:sqlite-jdbc:3.36.0.3")
 
     implementation("commons-validator:commons-validator:1.7")
     // Don't need its dependencies, for now.
@@ -99,16 +99,16 @@ dependencies {
         setTransitive(false)
     }
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.28.0") {
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.31.0") {
         // Not needed.
         exclude(group = "org.junit")
     }
-    testImplementation("org.hamcrest:hamcrest-all:1.3")
-    val jupiterVersion = "5.7.0"
+    testImplementation("org.hamcrest:hamcrest-core:2.2")
+    val jupiterVersion = "5.8.1"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-    testImplementation("org.mockito:mockito-junit-jupiter:3.6.28")
+    testImplementation("org.mockito:mockito-junit-jupiter:4.0.0")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
     testImplementation("org.nanohttpd:nanohttpd-webserver:2.3.1")
 

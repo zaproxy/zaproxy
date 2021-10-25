@@ -31,14 +31,14 @@ and subject to their respective licenses.
 
 | Library                             | License                   |
 |-------------------------------------|---------------------------|
-| bcmail-jdk15on-1.68.jar             | MIT                       |
-| bcpkix-jdk15on-1.68.jar             | MIT                       |
-| bcprov-jdk15on-1.68.jar             | MIT                       |
+| bcmail-jdk15on-1.69.jar             | MIT                       |
+| bcpkix-jdk15on-1.69.jar             | MIT                       |
+| bcprov-jdk15on-1.69.jar             | MIT                       |
 | commons-beanutils-1.9.4.jar         | Apache 2.0                |
 | commons-codec-1.15.jar              | Apache 2.0                |
 | commons-collections-3.2.2.jar       | Apache 2.0                |
 | commons-configuration-1.10.jar      | Apache 2.0                |
-| commons-csv-1.8.jar                 | Apache 2.0                |
+| commons-csv-1.9.0.jar               | Apache 2.0                |
 | commons-digester-1.8.1.jar          | Apache 2.0                |
 | commons-httpclient-3.1.jar          | Apache 2.0                |
 | commons-io-2.11.0.jar               | Apache 2.0                |
@@ -64,7 +64,7 @@ and subject to their respective licenses.
 | log4j-api-2.14.1.jar                | Apache 2.0                |
 | log4j-core-2.14.1.jar               | Apache 2.0                |
 | rsyntaxtextarea-3.1.3.jar           | BSD-3 clause              |
-| sqlite-jdbc-3.36.0.1.jar            | BSD-2 clause              |
+| sqlite-jdbc-3.36.0.3.jar            | BSD-2 clause              |
 | - NestedVM                          | Apache 2.0                |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
 | xom-1.3.7.jar                       | LGPL                      |
