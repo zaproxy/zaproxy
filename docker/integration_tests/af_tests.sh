@@ -33,3 +33,6 @@ done
 
 # Tidy up
 rm ~/.ZAP_D/config.xml
+
+echo "End result: $RES"
+exit $RES
