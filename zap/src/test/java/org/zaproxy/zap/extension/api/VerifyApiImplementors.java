@@ -21,8 +21,8 @@ package org.zaproxy.zap.extension.api;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ class VerifyApiImplementors {
             assertThat(
                     "API element: " + api.getPrefix() + "/" + element.getName(),
                     element.getDescriptionTag(),
-                    not(isEmptyString()));
+                    is(not(emptyString())));
             checkKey(element.getDescriptionTag());
             element.getParameters().stream()
                     .map(ApiParameter::getDescriptionKey)

@@ -20,9 +20,9 @@
 package org.zaproxy.zap.extension.api;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -282,7 +282,7 @@ class OptionsParamApiUnitTest {
         // Given / When
         OptionsParamApi param = new OptionsParamApi();
         // Then
-        assertThat(param.getRealKey(), isEmptyString());
+        assertThat(param.getRealKey(), is(emptyString()));
     }
 
     @Test
