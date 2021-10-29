@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+    <context>
+        <name>auth-http-poll.context</name>
+        <desc/>
+        <inscope>true</inscope>
+        <incregexes>https://www.example.com/.*</incregexes>
+        <excregexes>https://www.example.com/logout</excregexes>
+        <excregexes>https://www.example.com/status/.*</excregexes>
+        <tech>
+            <include>Db</include>
+            <include>Db.CouchDB</include>
+            <include>Db.Firebird</include>
+            <include>Db.HypersonicSQL</include>
+            <include>Db.IBM DB2</include>
+            <include>Db.Microsoft Access</include>
+            <include>Db.Microsoft SQL Server</include>
+            <include>Db.MongoDB</include>
+            <include>Db.MySQL</include>
+            <include>Db.Oracle</include>
+            <include>Db.PostgreSQL</include>
+            <include>Db.SAP MaxDB</include>
+            <include>Db.SQLite</include>
+            <include>Db.Sybase</include>
+            <include>Language</include>
+            <include>Language.ASP</include>
+            <include>Language.C</include>
+            <include>Language.JSP/Servlet</include>
+            <include>Language.Java</include>
+            <include>Language.Java.Spring</include>
+            <include>Language.JavaScript</include>
+            <include>Language.PHP</include>
+            <include>Language.Python</include>
+            <include>Language.Ruby</include>
+            <include>Language.XML</include>
+            <include>OS</include>
+            <include>OS.Linux</include>
+            <include>OS.MacOS</include>
+            <include>OS.Windows</include>
+            <include>SCM</include>
+            <include>SCM.Git</include>
+            <include>SCM.SVN</include>
+            <include>WS</include>
+            <include>WS.Apache</include>
+            <include>WS.IIS</include>
+            <include>WS.Tomcat</include>
+        </tech>
+        <urlparser>
+            <class>org.zaproxy.zap.model.StandardParameterParser</class>
+            <config>{"kvps":"&amp;","kvs":"=","struct":[]}</config>
+        </urlparser>
+        <postparser>
+            <class>org.zaproxy.zap.model.StandardParameterParser</class>
+            <config>{"kvps":"&amp;","kvs":"=","struct":[]}</config>
+        </postparser>
+        <authentication>
+            <type>3</type>
+            <strategy>POLL_URL</strategy>
+            <pollurl>http://www.example.com/poll</pollurl>
+            <polldata>aaa=bbb&amp;ccc=ddd</polldata>
+            <pollheaders>Content-Type:application/json
+X-Requested-With:XMLHttpRequest
+</pollheaders>
+            <pollfreq>61</pollfreq>
+            <pollunits>SECONDS</pollunits>
+            <loggedin>logged in</loggedin>
+            <loggedout>logged out</loggedout>
+            <http>
+                <hostname>host</hostname>
+                <realm>test</realm>
+                <port>8090</port>
+            </http>
+        </authentication>
+        <users>
+            <user>1;false;VXNlciAx;3;dXNlcjE=~cGFzc3dvcmQx~</user>
+            <user>2;false;VXNlciAy;3;dXNlcjI=~cGFzc3dvcmQy~</user>
+        </users>
+        <forceduser>-1</forceduser>
+        <session>
+            <type>0</type>
+        </session>
+        <authorization>
+            <type>0</type>
+            <basic>
+                <header/>
+                <body/>
+                <logic>AND</logic>
+                <code>-1</code>
+            </basic>
+        </authorization>
+    </context>
+</configuration>

@@ -20,7 +20,8 @@ for file in *.context
 do
 	echo
 	echo "Context: $file"
-	DIFF=$(diff $file /zap/wrk/output/$file) 
+	# Nasty sed expression to remove the user IDs which will change each time
+	DIFF=$(diff <(sed 's/user>.*;/user>x;/g' $file) <(sed 's/user>.*;/user>x;/g' /zap/wrk/output/$file)) 
 	if [ "$DIFF" != "" ] 
 	then
 	    echo "FAIL: differences:"
