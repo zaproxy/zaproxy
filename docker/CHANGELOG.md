@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-11-03
+ - Fixed issue with automation updates by install updates in a separate ZAP inline call.
+
 ### 2021-10-08
  - Changed the packaged scans to always update all add-ons on start up to avoid a bug in the automation framework breaking plans
 
