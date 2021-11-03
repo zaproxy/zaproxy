@@ -400,14 +400,17 @@ def main(argv):
                 
                 if os.path.exists('/zap/wrk'):
                     yaml_copy_file = '/zap/wrk/zap.yaml'
-                    if os.access(yaml_copy_file, os.W_OK):
+                    try:
                         # Write the yaml file to the mapped directory, if there is one
                         copyfile(yaml_file, yaml_copy_file)
-                    else:
-                        print('Unable to copy yaml file to ' + yaml_copy_file)
+                    except OSError as err:
+                        logging.warning('Unable to copy yaml file to ' + yaml_copy_file + ' ' + str(err))
  
-            # Run ZAP inline with the yaml file
             try:
+                # Run ZAP inline to update the add-ons
+                run_zap_inline(port, ['-addonupdate', '-silent'])
+                
+                # Run ZAP inline with the yaml file
                 params = ['-autorun', yaml_file]
     
                 add_zap_options(params, zap_options)
