@@ -2,10 +2,9 @@ import contextlib
 import os
 import tempfile
 import unittest
-from datetime import datetime
 from contextlib import contextmanager
-from unittest.mock import Mock, PropertyMock
-from unittest.mock import patch
+from datetime import datetime
+from unittest.mock import Mock, PropertyMock, patch
 
 import zap_common
 
@@ -27,18 +26,15 @@ def custom_hooks_file_malformed():
 
 
 class _MockHooks(object):
-
     def __init__(self):
         self.called = 0
-  
 
     def zap_started(self, zap, target):
         self.called += 1
-        return zap,
+        return (zap,)
 
 
 class TestZapHooks(unittest.TestCase):
-
     def setUp(self):
         zap_common.zap_hooks = None
         zap_common.context_id = None
@@ -52,29 +48,27 @@ class TestZapHooks(unittest.TestCase):
         zap_common.scan_user = None
 
     def test_trigger_hook_mismatch_exception(self):
-        """ If the hook signature doesn't match the hook the exception bubbles up """
+        """If the hook signature doesn't match the hook the exception bubbles up"""
         zap_common.zap_hooks = _MockHooks()
         with self.assertRaises(Exception):
-          zap_common.trigger_hook('zap_started')
+            zap_common.trigger_hook("zap_started")
         self.assertEqual(zap_common.zap_hooks.called, 0)
 
-
     def test_trigger_hook_verify_calls(self):
-        """ Verify the hook gets called if it matches signature """
+        """Verify the hook gets called if it matches signature"""
         zap_common.zap_hooks = _MockHooks()
-        args = ['zap', 'http://127.0.0.1']
-        zap_common.trigger_hook('zap_started', *args)
-        zap_common.trigger_hook('zap_started', *args)
-        zap_common.trigger_hook('zap_started', *args)
-        zap_common.trigger_hook('zap_started', *args)
-        zap_common.trigger_hook('zap_started', *args)
+        args = ["zap", "http://127.0.0.1"]
+        zap_common.trigger_hook("zap_started", *args)
+        zap_common.trigger_hook("zap_started", *args)
+        zap_common.trigger_hook("zap_started", *args)
+        zap_common.trigger_hook("zap_started", *args)
+        zap_common.trigger_hook("zap_started", *args)
         self.assertEqual(zap_common.zap_hooks.called, 5)
 
-
     def test_trigger_hook_maintain_signature(self):
-        """ Should return original args if there is a mismatch on the return signature """
+        """Should return original args if there is a mismatch on the return signature"""
         zap_common.zap_hooks = _MockHooks()
-        args = ['zap', 'http://127.0.0.1']
+        args = ["zap", "http://127.0.0.1"]
         # The defined hook method only returns 1 item
         return_direct = zap_common.zap_hooks.zap_started(*args)
         self.assertTrue(len(return_direct) == 1)
@@ -82,7 +76,7 @@ class TestZapHooks(unittest.TestCase):
 
         # However, when called in hook, if there is a different
         # return signature, ignore the hook return
-        return_args = zap_common.trigger_hook('zap_started', *args)
+        return_args = zap_common.trigger_hook("zap_started", *args)
         self.assertEqual(len(args), len(return_args))
         self.assertEqual(args, list(return_args))
 
@@ -109,21 +103,21 @@ class TestZapHooks(unittest.TestCase):
 
     def test_load_custom_hooks_from_env_var_file_not_exists(self):
         """Hooks are not loaded from env var defined file when not exists."""
-        os.environ['ZAP_HOOKS'] = "/some-dir/not-a-hooks-file"
+        os.environ["ZAP_HOOKS"] = "/some-dir/not-a-hooks-file"
         zap_common.load_custom_hooks()
         self.assertIsNone(zap_common.zap_hooks)
 
     def test_load_custom_hooks_from_env_var_file_exists(self):
         """Hooks are loaded from env var defined file when exists."""
         with custom_hooks_file() as file:
-            os.environ['ZAP_HOOKS'] = file.name
+            os.environ["ZAP_HOOKS"] = file.name
             zap_common.load_custom_hooks()
         self.assert_custom_hooks_loaded()
 
     def test_load_custom_hooks_from_env_var_file_with_errors(self):
         """Hooks are not loaded and exception is raised when the env var defined file has errors."""
         with custom_hooks_file_malformed() as file, self.assertRaises(SyntaxError):
-            os.environ['ZAP_HOOKS'] = file.name
+            os.environ["ZAP_HOOKS"] = file.name
             zap_common.load_custom_hooks()
         self.assertIsNone(zap_common.zap_hooks)
 
@@ -139,7 +133,9 @@ class TestZapHooks(unittest.TestCase):
 
         zap_common.load_config(config, config_dict, config_msg, out_of_scope_dict)
 
-        hooks.load_config.assert_called_once_with(config, config_dict, config_msg, out_of_scope_dict)
+        hooks.load_config.assert_called_once_with(
+            config, config_dict, config_msg, out_of_scope_dict
+        )
 
     def test_print_rules_triggers_hook(self):
         """Hook is triggered when print_rules is called."""
@@ -160,8 +156,18 @@ class TestZapHooks(unittest.TestCase):
         count = 0
         inprog_count = 0
 
-        zap_common.print_rules(zap, alert_dict, level, config_dict, config_msg, min_level, inc_rule, inc_extra,
-                               detailed_output, in_progress_issues)
+        zap_common.print_rules(
+            zap,
+            alert_dict,
+            level,
+            config_dict,
+            config_msg,
+            min_level,
+            inc_rule,
+            inc_extra,
+            detailed_output,
+            in_progress_issues,
+        )
 
         hooks.print_rules_wrap.assert_called_once_with(count, inprog_count)
 
@@ -173,7 +179,7 @@ class TestZapHooks(unittest.TestCase):
         port = 8080
         extra_zap_params = ["-config", "key=value"]
 
-        with patch("builtins.open"), patch('subprocess.Popen'):
+        with patch("builtins.open"), patch("subprocess.Popen"):
             zap_common.start_zap(port, extra_zap_params)
 
         hooks.start_zap.assert_called_once_with(port, extra_zap_params)
@@ -190,10 +196,12 @@ class TestZapHooks(unittest.TestCase):
 
         cid = "123"
 
-        with patch('subprocess.check_output', new=Mock(return_value=cid.encode())):
+        with patch("subprocess.check_output", new=Mock(return_value=cid.encode())):
             zap_common.start_docker_zap(docker_image, port, extra_zap_params, mount_dir)
 
-        hooks.start_docker_zap.assert_called_once_with(docker_image, port, extra_zap_params, mount_dir)
+        hooks.start_docker_zap.assert_called_once_with(
+            docker_image, port, extra_zap_params, mount_dir
+        )
         hooks.start_docker_zap_wrap.assert_called_once_with(cid)
 
     def test_zap_access_target_triggers_hook(self):
@@ -245,7 +253,9 @@ class TestZapHooks(unittest.TestCase):
         hooks = Mock(zap_active_scan=Mock(return_value=[]))
         zap_common.zap_hooks = hooks
 
-        zap = Mock(ascan=Mock(scan=Mock(return_value=1), status=Mock(return_value="100")))
+        zap = Mock(
+            ascan=Mock(scan=Mock(return_value=1), status=Mock(return_value="100"))
+        )
         target = "http://target.example.com"
         policy = "ScanPolicy"
 
@@ -269,7 +279,9 @@ class TestZapHooks(unittest.TestCase):
 
         zap_common.zap_get_alerts(zap, baseurl, ignore_scan_rules, out_of_scope_dict)
 
-        hooks.zap_get_alerts.assert_called_once_with(zap, baseurl, ignore_scan_rules, out_of_scope_dict)
+        hooks.zap_get_alerts.assert_called_once_with(
+            zap, baseurl, ignore_scan_rules, out_of_scope_dict
+        )
         hooks.zap_get_alerts_wrap.assert_called_once_with(alert_dict)
 
     def test_zap_import_context_triggers_hooks(self):
@@ -281,7 +293,9 @@ class TestZapHooks(unittest.TestCase):
 
         zap = Mock()
         zap.context.import_context.return_value = context_id
-        type(zap.context).context_list = PropertyMock(return_value=["Default Context", "My Context"])
+        type(zap.context).context_list = PropertyMock(
+            return_value=["Default Context", "My Context"]
+        )
         context_file = "/path/to/context"
 
         zap_common.zap_import_context(zap, context_file)
@@ -295,7 +309,7 @@ class TestZapHooks(unittest.TestCase):
         zap_common.zap_hooks = hooks
 
         user = "user1"
-        zap_common.context_users = [{'name': user, 'id': '1'}]
+        zap_common.context_users = [{"name": user, "id": "1"}]
 
         zap = Mock()
 
