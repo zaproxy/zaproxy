@@ -103,7 +103,8 @@ val prepareWin64InstallerData by tasks.registering(Sync::class) {
     }
 }
 
-if (JavaVersion.current() >= JavaVersion.VERSION_11) {
+val java11OrHigher = JavaVersion.current() >= JavaVersion.VERSION_11
+if (java11OrHigher) {
 
     val installers by tasks.registering(Install4jTask::class) {
         group = "Distribution"
@@ -166,7 +167,9 @@ if (JavaVersion.current() >= JavaVersion.VERSION_11) {
 
         install4jHomeDirValidated = true
     }
-} else {
+}
+
+if (!java11OrHigher) {
     tasks.register("installers") {
         group = "Distribution"
         description = "Creates the Linux and Windows installers."
