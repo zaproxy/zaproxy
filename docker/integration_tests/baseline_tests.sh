@@ -16,13 +16,13 @@ then
 fi
 if [ "$DIFF" != "" ] 
 then
-    echo "FAIL: differences:"
+    echo "ERROR: differences:"
     echo "$DIFF"
 	RES=1
 else
 	if [ "$RET" -ne 2 ] 
 	then
-    	echo "FAIL: exited with $RET instead of 2"
+    	echo "ERROR: exited with $RET instead of 2"
 		RES=1
 	else
     	echo "PASS"
@@ -43,13 +43,13 @@ then
 fi
 if [ "$DIFF" != "" ] 
 then
-    echo "FAIL: differences:"
+    echo "ERROR: differences:"
     echo "$DIFF"
 	RES=1
 else
 	if [ "$RET" -ne 1 ] 
 	then
-    	echo "FAIL: exited with $RET instead of 1"
+    	echo "ERROR: exited with $RET instead of 1"
 		RES=1
 	else
     	echo "PASS"
@@ -66,13 +66,13 @@ RET=$?
 DIFF=$(diff /zap/wrk/output/baseline3.out /zap/wrk/results/baseline3.out) 
 if [ "$DIFF" != "" ] 
 then
-    echo "FAIL: differences:"
+    echo "ERROR: differences:"
     echo "$DIFF"
 	RES=1
 else
 	if [ "$RET" -ne 1 ] 
 	then
-    	echo "FAIL: exited with $RET instead of 1"
+    	echo "ERROR: exited with $RET instead of 1"
 		RES=1
 	else
     	echo "PASS"
@@ -89,13 +89,13 @@ RET=$?
 DIFF=$(diff /zap/wrk/output/baseline4.out /zap/wrk/results/baseline4.out) 
 if [ "$DIFF" != "" ] 
 then
-    echo "FAIL: differences:"
+    echo "ERROR: differences:"
     echo "$DIFF"
 	RES=1
 else
 	if [ "$RET" -ne 1 ] 
 	then
-    	echo "FAIL: exited with $RET instead of 1"
+    	echo "ERROR: exited with $RET instead of 1"
 		RES=1
 	else
     	echo "PASS"

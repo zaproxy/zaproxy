@@ -24,7 +24,7 @@ do
 	DIFF=$(diff <(sed 's/user>.*;/user>x;/g' $file) <(sed 's/user>.*;/user>x;/g' /zap/wrk/output/$file)) 
 	if [ "$DIFF" != "" ] 
 	then
-	    echo "FAIL: differences:"
+	    echo "ERROR: differences:"
 	    echo "$DIFF"
 		RES=1
 	else
