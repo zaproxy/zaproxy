@@ -23,7 +23,7 @@ do
     
 	if [ "$RET" != 0 ] 
 	then
-	    echo "FAIL"
+	    echo "ERROR"
 		RES=1
 	else
     	echo "PASS"
