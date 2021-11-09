@@ -2012,6 +2012,14 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                     CommandLine.error(error);
                     continue;
                 }
+                if (ao.isMandatory()) {
+                    String error =
+                            Constant.messages.getString("cfu.cmdline.mandatoryaddon", aoName);
+                    errorMessages.append(error);
+                    errorMessages.append("\n");
+                    CommandLine.error(error);
+                    continue;
+                }
                 AddOnDependencyChecker addOnDependencyChecker =
                         new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
 

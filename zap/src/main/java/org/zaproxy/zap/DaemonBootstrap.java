@@ -72,7 +72,13 @@ class DaemonBootstrap extends HeadlessBootstrap {
 
                             @Override
                             public void run() {
-                                Control control = initControl();
+                                Control control;
+                                try {
+                                    control = initControl();
+                                } catch (IllegalStateException e) {
+                                    System.err.println("Failed to start ZAP. " + e.getMessage());
+                                    return;
+                                }
 
                                 warnAddOnsAndExtensionsNoLongerRunnable();
 

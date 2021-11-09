@@ -127,6 +127,10 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
         }
 
         AddOnWrapper addOnWrapper = getAddOnWrapper(rowIndex);
+        if (addOnWrapper.getAddOn().isMandatory()) {
+            return;
+        }
+
         if (AddOn.InstallationStatus.UNINSTALLATION_FAILED == addOnWrapper.getInstallationStatus()
                 || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED
                         == addOnWrapper.getInstallationStatus()) {
@@ -148,6 +152,10 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
         }
 
         AddOnWrapper addOnWrapper = getAddOnWrapper(rowIndex);
+        if (addOnWrapper.getAddOn().isMandatory()) {
+            return false;
+        }
+
         if (AddOn.InstallationStatus.UNINSTALLATION_FAILED == addOnWrapper.getInstallationStatus()
                 || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED
                         == addOnWrapper.getInstallationStatus()) {

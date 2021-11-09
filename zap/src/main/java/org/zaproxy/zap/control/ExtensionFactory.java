@@ -59,7 +59,7 @@ public class ExtensionFactory {
         super();
     }
 
-    private static AddOnLoader getAddOnLoader(List<File> extraDirs) {
+    public static AddOnLoader getAddOnLoader(List<File> extraDirs) {
         if (addOnLoader == null) {
             File[] dirs = new File[extraDirs.size() + 2];
             dirs[0] = new File(Constant.getZapInstall(), Constant.FOLDER_PLUGIN);
@@ -104,9 +104,7 @@ public class ExtensionFactory {
         log.info("Loading extensions");
         List<Extension> listExts = new ArrayList<>(CoreFunctionality.getBuiltInExtensions());
 
-        listExts.addAll(
-                getAddOnLoader(optionsParam.getCheckForUpdatesParam().getAddonDirectories())
-                        .getExtensions());
+        listExts.addAll(getAddOnLoader().getExtensions());
 
         ExtensionParam extParam = optionsParam.getExtensionParam();
         synchronized (mapAllExtension) {
@@ -274,7 +272,10 @@ public class ExtensionFactory {
             extension.setEnabled(false);
             return;
         }
-        extension.setEnabled(extensionParam.isExtensionEnabled(extension.getName()));
+
+        AddOn addOn = extension.getAddOn();
+        boolean mandatory = addOn != null && addOn.isMandatory();
+        extension.setEnabled(mandatory || extensionParam.isExtensionEnabled(extension.getName()));
 
         listAllExtension.add(extension);
         mapAllExtension.put(extension.getName(), extension);
