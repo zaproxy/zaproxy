@@ -85,6 +85,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove empty statement.
 // ZAP: 2021/09/13 Added setExitStatus.
+// ZAP: 2021/11/08 Validate if mandatory add-ons are present.
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -105,6 +106,9 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
+import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.control.AddOnCollection;
+import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.control.ExtensionFactory;
 
@@ -139,6 +143,27 @@ public class Control extends AbstractControl implements SessionListener {
     }
 
     private boolean init(ControlOverrides overrides, boolean startProxy) {
+        AddOnLoader addOnLoader =
+                ExtensionFactory.getAddOnLoader(
+                        model.getOptionsParam().getCheckForUpdatesParam().getAddonDirectories());
+        if (overrides != null) {
+            AddOnCollection addOnCollection = addOnLoader.getAddOnCollection();
+            overrides
+                    .getMandatoryAddOns()
+                    .forEach(
+                            id -> {
+                                AddOn addOn = addOnCollection.getAddOn(id);
+                                if (addOn == null) {
+                                    String message =
+                                            "The mandatory add-on was not found: "
+                                                    + id
+                                                    + "\nRefer to https://www.zaproxy.org/docs/developer/ if you are building ZAP from source.";
+                                    log.error(message);
+                                    throw new IllegalStateException(message);
+                                }
+                                addOn.setMandatory(true);
+                            });
+        }
 
         // Load extensions first as message bundles are loaded as a side effect
         loadExtension();

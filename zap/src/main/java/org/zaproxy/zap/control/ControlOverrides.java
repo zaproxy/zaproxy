@@ -19,8 +19,10 @@
  */
 package org.zaproxy.zap.control;
 
+import java.util.Collections;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -102,5 +104,15 @@ public class ControlOverrides {
 
     public void setExperimentalDb(boolean experimentalDb) {
         this.experimentalDb = experimentalDb;
+    }
+
+    /**
+     * Gets the IDs of the mandatory add-ons, needed for ZAP to work properly.
+     *
+     * @return a list with the IDs of the mandatory add-ons.
+     * @since 2.12.0
+     */
+    public List<String> getMandatoryAddOns() {
+        return Collections.emptyList();
     }
 }

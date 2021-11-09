@@ -27,6 +27,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
+import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.ExtensionFactory;
 
 public class OptionsExtensionTableModel extends AbstractTableModel {
@@ -97,6 +98,10 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         if (columnIndex == 0) {
             Extension selectedExtension = getExtension(rowIndex);
+            AddOn addOn = selectedExtension.getAddOn();
+            if (addOn != null && addOn.isMandatory()) {
+                return false;
+            }
             // Dont allow enabled core extensions to be edited via the UI (can edit the config file
             // directly;)
             if (selectedExtension.isCore() && getEnabledState(selectedExtension)) {

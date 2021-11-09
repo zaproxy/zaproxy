@@ -65,7 +65,13 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
             throw new RuntimeException(e);
         }
 
-        Control control = initControl();
+        Control control;
+        try {
+            control = initControl();
+        } catch (IllegalStateException e) {
+            System.err.println("Failed to start ZAP. " + e.getMessage());
+            return 1;
+        }
 
         warnAddOnsAndExtensionsNoLongerRunnable();
 

@@ -52,6 +52,7 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
      * Initialises the {@code Control} singleton without view and proxy.
      *
      * @return the initialised {@code Control} singleton.
+     * @throws IllegalStateException if an error occurred while initialising the {@code Control}.
      * @see Control#initSingletonWithoutViewAndProxy(org.zaproxy.zap.control.ControlOverrides)
      */
     protected Control initControl() {

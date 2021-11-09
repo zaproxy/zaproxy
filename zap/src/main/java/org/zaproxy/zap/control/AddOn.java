@@ -322,6 +322,12 @@ public class AddOn {
      */
     private HelpSetData helpSetData = HelpSetData.EMPTY_HELP_SET;
 
+    /**
+     * Flag that indicates if the add-on is mandatory, add-ons needed to start ZAP and that can't be
+     * uninstalled.
+     */
+    private boolean mandatory;
+
     private static final Logger logger = LogManager.getLogger(AddOn.class);
 
     /**
@@ -1806,6 +1812,29 @@ public class AddOn {
      */
     public HelpSetData getHelpSetData() {
         return helpSetData;
+    }
+
+    /**
+     * Sets if this add-on is mandatory.
+     *
+     * <p><strong>Note:</strong> This method should be called only by bootstrap classes.
+     *
+     * @param mandatory {@code true} if the add-on is mandatory, {@code false} otherwise.
+     * @since 2.12.0
+     * @see #isMandatory()
+     */
+    public void setMandatory(boolean mandatory) {
+        this.mandatory = mandatory;
+    }
+
+    /**
+     * Tells whether or not this add-on is mandatory.
+     *
+     * @return {@code true} if the add-on is mandatory, {@code false} otherwise.
+     * @since 2.12.0
+     */
+    public boolean isMandatory() {
+        return mandatory;
     }
 
     /**
