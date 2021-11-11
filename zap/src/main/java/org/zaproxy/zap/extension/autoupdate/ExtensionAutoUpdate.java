@@ -21,8 +21,6 @@ package org.zaproxy.zap.extension.autoupdate;
 
 import java.awt.EventQueue;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
@@ -110,7 +108,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     private DownloadManager downloadManager = null;
     private ManageAddOnsDialog addonsDialog = null;
-    // private UpdateDialog updateDialog = null;
     private Thread downloadProgressThread = null;
     private Thread remoteCallThread = null;
     private ScanStatus scanStatus = null;
@@ -225,13 +222,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                         new FileFilter() {
                                             @Override
                                             public boolean accept(File file) {
-                                                if (file.isDirectory()) {
-                                                    return true;
-                                                } else if (file.isFile()
-                                                        && AddOn.isAddOnFileName(file.getName())) {
-                                                    return true;
-                                                }
-                                                return false;
+                                                return file.isDirectory()
+                                                        || (file.isFile()
+                                                                && AddOn.isAddOnFileName(
+                                                                        file.getName()));
                                             }
 
                                             @Override
@@ -262,7 +256,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         try {
             ao = new AddOn(file);
         } catch (IOException e) {
-            logger.warn("Failed to create the add-on: " + e.getMessage(), e);
+            logger.warn("Failed to create the add-on: {}", e.getMessage(), e);
             return false;
         }
 
@@ -280,7 +274,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 }
             } catch (IOException e) {
                 logger.warn(
-                        "An error occurred while checking the add-ons' files: " + e.getMessage(),
+                        "An error occurred while checking the add-ons' files: {}",
+                        e.getMessage(),
                         e);
                 return false;
             }
@@ -597,7 +592,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             handledFiles.add(dl);
             try {
                 if (!dl.isValidated()) {
-                    logger.debug("Ignoring unvalidated download: " + dl.getUrl());
+                    logger.debug("Ignoring unvalidated download: {}", dl.getUrl());
                     allInstalled.setFalse();
                     if (addonsDialog != null) {
                         addonsDialog.notifyAddOnDownloadFailed(dl.getUrl().toString());
@@ -625,28 +620,23 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                             options.getDownloadDirectory(),
                                             dl.getTargetFile().getName());
                             logger.info(
-                                    "Moving downloaded add-on from "
-                                            + dl.getTargetFile().getAbsolutePath()
-                                            + " to "
-                                            + f.getAbsolutePath());
+                                    "Moving downloaded add-on from {} to {}",
+                                    dl.getTargetFile().getAbsolutePath(),
+                                    f.getAbsolutePath());
                             FileUtils.moveFile(dl.getTargetFile(), f);
                         } catch (Exception e) {
                             if (!f.exists() && dl.getTargetFile().exists()) {
                                 logger.error(
-                                        "Failed to move downloaded add-on from "
-                                                + dl.getTargetFile().getAbsolutePath()
-                                                + " to "
-                                                + f.getAbsolutePath()
-                                                + " - left at original location",
+                                        "Failed to move downloaded add-on from {} to {} - left at original location",
+                                        dl.getTargetFile().getAbsolutePath(),
+                                        f.getAbsolutePath(),
                                         e);
                                 f = dl.getTargetFile();
                             } else {
                                 logger.error(
-                                        "Failed to move downloaded add-on from "
-                                                + dl.getTargetFile().getAbsolutePath()
-                                                + " to "
-                                                + f.getAbsolutePath()
-                                                + " - skipping",
+                                        "Failed to move downloaded add-on from {} to {} - skipping",
+                                        dl.getTargetFile().getAbsolutePath(),
+                                        f.getAbsolutePath(),
                                         e);
                                 allInstalled.setFalse();
                                 continue;
@@ -662,14 +652,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                                     allInstalled.booleanValue() & install(ao));
                                         } else {
                                             logger.info(
-                                                    "Cant load add-on "
-                                                            + ao.getName()
-                                                            + " Not before="
-                                                            + ao.getNotBeforeVersion()
-                                                            + " Not from="
-                                                            + ao.getNotFromVersion()
-                                                            + " Version="
-                                                            + Constant.PROGRAM_VERSION);
+                                                    "Can't load add-on: {} Not before={} Not from={} Version={}",
+                                                    ao.getName(),
+                                                    ao.getNotBeforeVersion(),
+                                                    ao.getNotFromVersion(),
+                                                    Constant.PROGRAM_VERSION);
                                         }
                                     });
                 }
@@ -679,7 +666,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         }
 
         for (Downloader dl : handledFiles) {
-            // Cant remove in loop above as we're iterating through the list
+            // Can't remove in loop above as we're iterating through the list
             this.downloadFiles.remove(dl);
         }
         this.installsCompleted = true;
@@ -736,13 +723,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                     "/resource/icon/fugue/block.png")));
             addonsButton.setToolTipText(Constant.messages.getString("cfu.button.addons.browse"));
             addonsButton.setEnabled(true);
-            addonsButton.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            getAddOnsDialog().setVisible(true);
-                        }
-                    });
+            addonsButton.addActionListener(e -> getAddOnsDialog().setVisible(true));
         }
         return this.addonsButton;
     }
@@ -757,13 +738,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             checkForUpdatesButton.setToolTipText(
                     Constant.messages.getString("cfu.button.checkForUpdates"));
             checkForUpdatesButton.setEnabled(true);
-            checkForUpdatesButton.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            checkForUpdates(true);
-                        }
-                    });
+            checkForUpdatesButton.addActionListener(e -> checkForUpdates(true));
         }
         return this.checkForUpdatesButton;
     }
@@ -818,8 +793,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             return;
         }
 
-        if (hasView() && this.getPreviousVersionInfo() != null) {
-            ZapRelease rel = this.getPreviousVersionInfo().getZapRelease();
+        AddOnCollection prev = this.getPreviousVersionInfo();
+        if (hasView() && prev != null) {
+            ZapRelease rel = prev.getZapRelease();
             if (rel != null && rel.isNewerThan(this.getCurrentVersion())) {
                 File f = new File(Constant.FOLDER_LOCAL_PLUGIN, rel.getFileName());
                 if (f.exists() && f.length() >= rel.getSize()) {
@@ -883,11 +859,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         Date releaseCreated = Constant.getReleaseCreateDate();
         Date lastInstallWarning = options.getDayLastInstallWarned();
         int result = -1;
-        logger.debug("Install created " + releaseCreated);
+        logger.debug("Install created {}", releaseCreated);
         if (releaseCreated != null) {
             // Should only be null for dev builds
             int daysOld = dayDiff(today, releaseCreated);
-            logger.debug("Install is " + daysOld + " days old");
+            logger.debug("Install is {} days old", daysOld);
             if (daysOld > 365) {
                 // Oh no, its more than a year old!
                 boolean setCfuOnStart = false;
@@ -923,13 +899,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                             new ImageIcon(
                                     ExtensionAutoUpdate.class.getResource(
                                             "/resource/icon/16/050.png"))); // Alert triangle
-                    button.addActionListener(
-                            new ActionListener() {
-                                @Override
-                                public void actionPerformed(ActionEvent e) {
-                                    alertIfOutOfDate(true);
-                                }
-                            });
+                    button.addActionListener(e -> alertIfOutOfDate(true));
 
                     getView()
                             .getMainFrame()
@@ -996,13 +966,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                     new ImageIcon(
                             ExtensionAutoUpdate.class.getResource(
                                     "/resource/icon/16/050.png"))); // Alert triangle
-            outOfDateButton.addActionListener(
-                    new ActionListener() {
-                        @Override
-                        public void actionPerformed(ActionEvent e) {
-                            alertIfOutOfDate(true);
-                        }
-                    });
+            outOfDateButton.addActionListener(e -> alertIfOutOfDate(true));
         }
         return outOfDateButton;
     }
@@ -1129,8 +1093,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     }
 
     protected List<AddOn> getNewAddOns() {
-        if (this.getPreviousVersionInfo() != null) {
-            return this.getPreviousVersionInfo().getNewAddOns(this.getLatestVersionInfo());
+        AddOnCollection prev = this.getPreviousVersionInfo();
+        if (prev != null) {
+            return prev.getNewAddOns(this.getLatestVersionInfo());
         }
         return getLocalVersionInfo().getNewAddOns(this.getLatestVersionInfo());
     }
@@ -1175,7 +1140,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                             public void run() {
                                 // Using a thread as the first call could timeout
                                 // and we dont want the ui to hang in the meantime
-                                logger.debug("Getting latest version info from " + ZAP_CFU_SERVICE);
                                 try {
                                     latestVersionInfo =
                                             new AddOnCollection(
@@ -1184,7 +1148,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                                     false);
                                 } catch (Exception e1) {
                                     logger.warn(
-                                            "Failed to check for updates using: " + ZAP_CFU_SERVICE,
+                                            "Failed to check for updates using: {}",
+                                            ZAP_CFU_SERVICE,
                                             e1);
                                 }
                                 if (latestVersionInfo != null) {
@@ -1256,7 +1221,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     private boolean install(AddOn ao) {
         if (!ao.canLoadInCurrentVersion()) {
             throw new IllegalArgumentException(
-                    "Cant load add-on "
+                    "Can't load add-on "
                             + ao.getName()
                             + " Not before="
                             + ao.getNotBeforeVersion()
@@ -1267,13 +1232,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         }
 
         AddOn installedAddOn = this.getLocalVersionInfo().getAddOn(ao.getId());
-        if (installedAddOn != null) {
-            if (!uninstallAddOn(null, installedAddOn, true)) {
-                // Cant uninstall the old version, so dont try to install the new one
-                return false;
-            }
+        if (installedAddOn != null && !uninstallAddOn(null, installedAddOn, true)) {
+            // Can't uninstall the old version, so dont try to install the new one
+            return false;
         }
-        logger.info("Installing new addon " + ao.getId() + " v" + ao.getVersion());
+        logger.info("Installing new addon {} + v{}", ao.getId(), ao.getVersion());
         if (hasView()) {
             // Report info to the Output tab
             getView()
@@ -1286,7 +1249,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
         ExtensionFactory.getAddOnLoader().addAddon(ao);
 
-        logger.info("Finished installing new addon " + ao.getId() + " v" + ao.getVersion());
+        logger.info("Finished installing new addon {} + v{}", ao.getId(), ao.getVersion());
         if (hasView()) {
             // Report info to the Output tab
             getView()
@@ -1315,12 +1278,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     private boolean uninstall(
             AddOn addOn, boolean upgrading, AddOnUninstallationProgressCallback callback) {
-        logger.debug("Trying to uninstall addon " + addOn.getId() + " v" + addOn.getVersion());
+        logger.debug("Trying to uninstall addon {} v{}", addOn.getId(), addOn.getVersion());
 
         boolean removedDynamically =
                 ExtensionFactory.getAddOnLoader().removeAddOn(addOn, upgrading, callback);
         if (removedDynamically) {
-            logger.debug("Uninstalled add-on " + addOn.getName());
+            logger.debug("Uninstalled add-on {}", addOn.getName());
 
             if (latestVersionInfo != null) {
                 AddOn availableAddOn = latestVersionInfo.getAddOn(addOn.getId());
@@ -1331,14 +1294,14 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 }
             }
         } else {
-            logger.debug("Failed to uninstall add-on " + addOn.getId() + " v" + addOn.getVersion());
+            logger.debug("Failed to uninstall add-on {} v{}", addOn.getId(), addOn.getVersion());
         }
         return removedDynamically;
     }
 
     @Override
     public void insecureUrl(String url, Exception cause) {
-        logger.error("Failed to get check for updates on " + url, cause);
+        logger.error("Failed to get check for updates on {}", url, cause);
         if (hasView()) {
             getView().showWarningDialog(Constant.messages.getString("cfu.warn.badurl"));
         }
@@ -1365,7 +1328,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                     getModel().getOptionsParam().getCheckForUpdatesParam();
 
             if (rel.isNewerThan(getCurrentVersion())) {
-                logger.debug("There is a newer release: " + rel.getVersion());
+                logger.debug("There is a newer release: {}", rel.getVersion());
                 // New ZAP release
                 if (Constant.isKali()) {
                     // Kali has its own package management system
@@ -1395,7 +1358,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
             if (keepChecking && addonsDialog != null) {
                 List<AddOn> newAddOns = getNewAddOns();
-                if (newAddOns.size() > 0) {
+                if (!newAddOns.isEmpty()) {
                     boolean report = false;
                     for (AddOn addon : newAddOns) {
                         switch (addon.getStatus()) {
@@ -1437,7 +1400,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         }
 
         // Log at info for daemon mode as its the only indication if not auto-installing
-        logger.info("There is/are " + updates.size() + " newer addons");
+        logger.info("There is/are {} newer addons", updates.size());
         AddOnDependencyChecker addOnDependencyChecker =
                 new AddOnDependencyChecker(localVersionInfo, aoc);
         Set<AddOn> addOns = new HashSet<>(updates);
@@ -1452,8 +1415,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                     return false;
                 }
                 logger.info(
-                        "Updates not installed some add-ons would be uninstalled or require newer java version: "
-                                + result.getUninstalls());
+                        "Updates not installed some add-ons would be uninstalled or require newer java version: {}",
+                        result.getUninstalls());
             }
             return true;
         }
@@ -1699,8 +1662,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
         if (!failedUninstallations.isEmpty()) {
             logger.warn(
-                    "It's recommended to restart ZAP. Not all add-ons were successfully uninstalled: "
-                            + failedUninstallations);
+                    "It's recommended to restart ZAP. Not all add-ons were successfully uninstalled: {}",
+                    failedUninstallations);
             return false;
         }
 
@@ -1719,14 +1682,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         if (!EventQueue.isDispatchThread()) {
             try {
                 EventQueue.invokeAndWait(
-                        new Runnable() {
-
-                            @Override
-                            public void run() {
+                        () ->
                                 uninstallAddOnsWithView(
-                                        caller, addOns, updates, failedUninstallations);
-                            }
-                        });
+                                        caller, addOns, updates, failedUninstallations));
             } catch (InvocationTargetException | InterruptedException e) {
                 logger.error("Failed to uninstall add-ons:", e);
                 return false;
@@ -1821,8 +1779,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
                         if (!failedUninstallations.isEmpty()) {
                             logger.warn(
-                                    "Not all add-ons were successfully uninstalled: "
-                                            + failedUninstallations);
+                                    "Not all add-ons were successfully uninstalled: {}",
+                                    failedUninstallations);
                         }
 
                         return null;
