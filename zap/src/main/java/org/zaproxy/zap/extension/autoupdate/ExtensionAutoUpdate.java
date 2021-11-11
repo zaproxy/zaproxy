@@ -43,7 +43,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.function.Function;
-import javax.net.ssl.SSLHandshakeException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -51,6 +50,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
+import net.sf.json.JSONObject;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLPropertiesConfiguration;
 import org.apache.commons.httpclient.URI;
@@ -68,7 +68,9 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
@@ -95,26 +97,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     private static final String NAME = "ExtensionAutoUpdate";
 
-    // The short URL means that the number of checkForUpdates can be tracked
-    // Note that URLs must now use https (unless you change the code;)
-
-    private static final String ZAP_VERSIONS_REL_XML_DESKTOP_SHORT =
-            "https://bit.ly/owaspzap-2-11-0";
-    private static final String ZAP_VERSIONS_REL_XML_DAEMON_SHORT =
-            "https://bit.ly/owaspzap-2-11-0d";
-    private static final String ZAP_VERSIONS_REL_XML_FULL =
-            "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.11.xml";
-
-    private static final String ZAP_VERSIONS_DEV_XML_SHORT = "https://bit.ly/owaspzap-dev";
-    private static final String ZAP_VERSIONS_DEV_XML_FULL =
-            "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml";
-    private static final String ZAP_VERSIONS_WEEKLY_XML_SHORT = "https://bit.ly/owaspzap-devw";
-
-    // URLs for use when testing locally ;)
-    // private static final String ZAP_VERSIONS_XML_SHORT =
-    // "https://localhost:8080/zapcfu/ZapVersions.xml";
-    // private static final String ZAP_VERSIONS_XML_FULL =
-    // "https://localhost:8080/zapcfu/ZapVersions.xml";
+    private static final String ZAP_CFU_SERVICE = "https://cfu.zaproxy.org/ZAPcfu";
 
     private static final String VERSION_FILE_NAME = "ZapVersions.xml";
 
@@ -1033,7 +1016,25 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     private ZapXmlConfiguration getRemoteConfigurationUrl(String url)
             throws IOException, ConfigurationException, InvalidCfuUrlException {
+        logger.debug("Getting latest version info from {}", url);
+
+        // Create the data
+        JSONObject json = new JSONObject();
+        json.put("zapVersion", Constant.PROGRAM_VERSION);
+        json.put("os", Constant.getOS().name());
+        json.put(
+                "osVersion",
+                System.getProperty("os.name") + " : " + System.getProperty("os.version"));
+        json.put("javaVersion", System.getProperty("java.version"));
+        json.put("zapType", ZAP.getProcessType().name());
+        json.put("container", Constant.isInContainer() ? Constant.getContainerName() : "");
+
         HttpMessage msg = new HttpMessage(new URI(url, true));
+        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
+        msg.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, HttpHeader.JSON_CONTENT_TYPE);
+        msg.getRequestBody().setBody(json.toString());
+        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+
         getHttpSender().sendAndReceive(msg, true);
         if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
             throw new IOException(
@@ -1174,48 +1175,17 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                             public void run() {
                                 // Using a thread as the first call could timeout
                                 // and we dont want the ui to hang in the meantime
-                                String shortUrl;
-                                String longUrl;
-                                if (Constant.isDevBuild()) {
-                                    shortUrl = ZAP_VERSIONS_DEV_XML_SHORT;
-                                    longUrl = ZAP_VERSIONS_DEV_XML_FULL;
-                                } else if (Constant.isDailyBuild()) {
-                                    shortUrl = ZAP_VERSIONS_WEEKLY_XML_SHORT;
-                                    longUrl = ZAP_VERSIONS_DEV_XML_FULL;
-                                } else if (View.isInitialised()) {
-                                    shortUrl = ZAP_VERSIONS_REL_XML_DESKTOP_SHORT;
-                                    longUrl = ZAP_VERSIONS_REL_XML_FULL;
-                                } else {
-                                    shortUrl = ZAP_VERSIONS_REL_XML_DAEMON_SHORT;
-                                    longUrl = ZAP_VERSIONS_REL_XML_FULL;
-                                }
-                                boolean noInsecureUrlErrors = true;
-                                logger.debug("Getting latest version info from " + shortUrl);
+                                logger.debug("Getting latest version info from " + ZAP_CFU_SERVICE);
                                 try {
                                     latestVersionInfo =
                                             new AddOnCollection(
-                                                    getRemoteConfigurationUrl(shortUrl),
+                                                    getRemoteConfigurationUrl(ZAP_CFU_SERVICE),
                                                     getPlatform(),
                                                     false);
                                 } catch (Exception e1) {
-                                    logger.debug("Failed to access " + shortUrl, e1);
-                                    logger.debug("Getting latest version info from " + longUrl);
-                                    try {
-                                        latestVersionInfo =
-                                                new AddOnCollection(
-                                                        getRemoteConfigurationUrl(longUrl),
-                                                        getPlatform(),
-                                                        false);
-                                    } catch (SSLHandshakeException | InvalidCfuUrlException e2) {
-                                        noInsecureUrlErrors = false;
-                                        if (callback != null) {
-                                            callback.insecureUrl(longUrl, e2);
-                                        }
-                                    } catch (Exception e2) {
-                                        logger.warn(
-                                                "Failed to check for updates using: " + longUrl,
-                                                e2);
-                                    }
+                                    logger.warn(
+                                            "Failed to check for updates using: " + ZAP_CFU_SERVICE,
+                                            e1);
                                 }
                                 if (latestVersionInfo != null) {
                                     for (AddOn addOn : latestVersionInfo.getAddOns()) {
@@ -1227,8 +1197,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                         }
                                     }
                                 }
-                                if (noInsecureUrlErrors && callback != null) {
-                                    logger.debug("Calling callback with " + latestVersionInfo);
+                                if (callback != null) {
+                                    logger.debug("Calling callback with {}", latestVersionInfo);
                                     callback.gotLatestData(latestVersionInfo);
                                 }
                                 logger.debug("Done");
