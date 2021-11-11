@@ -7,6 +7,7 @@
 [![javadoc](https://javadoc.io/badge2/org.zaproxy/zap/javadoc.svg)](https://javadoc.io/doc/org.zaproxy/zap)
 [![OWASP Flagship](https://img.shields.io/badge/owasp-flagship-brightgreen.svg)](https://owasp.org/projects#div-flagships)
 [![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/zaproxy/zaproxy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/zaproxy/zaproxy/context:java)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zaproxy_zaproxy&metric=alert_status)](https://sonarcloud.io/dashboard?id=zaproxy_zaproxy)
 [![Twitter Follow](https://img.shields.io/twitter/follow/zaproxy.svg?style=social&label=Follow&maxAge=2592000)](https://twitter.com/zaproxy)
 
 The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free security tools and is actively maintained by a dedicated international team of volunteers. It can help you automatically find security vulnerabilities in your web applications while you are developing and testing your applications. It's also a great tool for experienced pentesters to use for manual security testing.
