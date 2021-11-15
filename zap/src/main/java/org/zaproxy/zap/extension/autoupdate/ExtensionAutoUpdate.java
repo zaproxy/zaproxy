@@ -1236,7 +1236,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             // Can't uninstall the old version, so dont try to install the new one
             return false;
         }
-        logger.info("Installing new addon {} + v{}", ao.getId(), ao.getVersion());
+        logger.info("Installing new addon {} v{}", ao.getId(), ao.getVersion());
         if (hasView()) {
             // Report info to the Output tab
             getView()
@@ -1249,7 +1249,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
         ExtensionFactory.getAddOnLoader().addAddon(ao);
 
-        logger.info("Finished installing new addon {} + v{}", ao.getId(), ao.getVersion());
+        logger.info("Finished installing new addon {} v{}", ao.getId(), ao.getVersion());
         if (hasView()) {
             // Report info to the Output tab
             getView()
