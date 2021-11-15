@@ -51,7 +51,7 @@ crowdin {
 
 tasks.named<JacocoReport>("jacocoTestReport") {
     reports {
-        xml.isEnabled = true
+        xml.required.set(true)
     }
 }
 
@@ -121,7 +121,7 @@ tasks.register<JavaExec>("run") {
     group = ApplicationPlugin.APPLICATION_GROUP
     description = "Runs ZAP from source, using the default dev home."
 
-    main = "org.zaproxy.zap.ZAP"
+    mainClass.set("org.zaproxy.zap.ZAP")
     classpath = sourceSets["main"].runtimeClasspath
     workingDir = distDir
 }
@@ -246,7 +246,7 @@ listOf(
         group = "ZAP Misc"
         description = "Generates (and copies) the ZAP API endpoints for $langName."
 
-        main = it
+        mainClass.set(it)
         classpath = sourceSets["main"].runtimeClasspath
         workingDir = file("$rootDir")
     }
