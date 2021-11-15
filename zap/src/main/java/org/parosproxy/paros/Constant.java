@@ -185,6 +185,15 @@ public final class Constant {
 
     private static final String VERSION_ELEMENT = "version";
 
+    public static enum OS {
+        Windows,
+        Linux,
+        MacOS,
+        Kali,
+        BackBox,
+        Unknown
+    }
+
     // Accessible for tests
     static final long VERSION_TAG = 2010000;
 
@@ -311,7 +320,9 @@ public final class Constant {
     // Install dir for ZAP, but default will be cwd
     private static String zapInstall = null;
 
+    private static OS os = null;
     private static Boolean onKali = null;
+    private static Boolean onBackBox = null;
     private static Boolean inContainer = null;
     private static String containerName;
     private static Boolean lowMemoryOption = null;
@@ -1569,6 +1580,26 @@ public final class Constant {
         return onKali;
     }
 
+    public static boolean isBackBox() {
+        if (onBackBox == null) {
+            onBackBox = Boolean.FALSE;
+            File issueFile = new File("/etc/issue");
+            if (isLinux() && !isDailyBuild() && issueFile.exists()) {
+                // Ignore the fact we're on BackBox if this is a daily build - they will only have
+                // been installed manually
+                try {
+                    String content = new String(Files.readAllBytes(issueFile.toPath()));
+                    if (content.startsWith("BackBox")) {
+                        onBackBox = Boolean.TRUE;
+                    }
+                } catch (Exception e) {
+                    // Ignore
+                }
+            }
+        }
+        return onBackBox;
+    }
+
     /**
      * Returns true if ZAP is running in a container like Docker or Flatpak
      *
@@ -1619,5 +1650,29 @@ public final class Constant {
     public static String getContainerName() {
         isInContainer();
         return containerName;
+    }
+
+    /**
+     * Returns the Operating System detected.
+     *
+     * @since 2.12.0
+     */
+    public static OS getOS() {
+        if (os == null) {
+            if (Constant.isWindows()) {
+                os = OS.Windows;
+            } else if (Constant.isKali()) {
+                os = OS.Kali;
+            } else if (Constant.isBackBox()) {
+                os = OS.BackBox;
+            } else if (Constant.isLinux()) {
+                os = OS.Linux;
+            } else if (Constant.isMacOsX()) {
+                os = OS.MacOS;
+            } else {
+                os = OS.Unknown;
+            }
+        }
+        return os;
     }
 }
