@@ -103,6 +103,7 @@ def usage():
     print('    --hook            path to python file that define your custom hooks')
     print('    --auto            use the automation framework if supported for the given parameters (this is now the default)')
     print('    --autooff         do not use the automation framework even if supported for the given parameters')
+    print('    --scripts_load    load all scripts from wrk/scripts folder with ZAP scripts structure')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/baseline-scan/')
 
@@ -144,6 +145,7 @@ def usage():
     --hook            will need scripting support in the AF
     -g gen_file       may never support
     --autooff         will never support, may remove at some point
+    --scripts_load    load all scripts from wrk/scripts folder with ZAP scripts structure
     
      
 '''
@@ -191,7 +193,7 @@ def main(argv):
     debug = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff"])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff", "scripts_load"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -269,6 +271,8 @@ def main(argv):
             af_override = True
         elif opt == '--autooff':
             use_af = False
+        elif opt == '--scripts_load':
+            scripts_load = True
 
     check_zap_client_version()
 
@@ -502,6 +506,30 @@ def main(argv):
         # Make suitable performance tweaks for running in this environment
         zap_tune(zap)
         trigger_hook('zap_tuned', zap)
+
+        if scripts_load:
+            list_scripts = []
+            for path, subdirs, files in os.walk('/zap/wrk/scripts'):
+                for name in files:
+                    list_scripts.append({
+                        'scriptName': name.rsplit('.', 1)[0],
+                        'scriptType': path.rsplit('/', 1)[1],
+                        'scriptEngine': 'Zest : Mozilla Zest' if name.rsplit('.')[1] == 'zst' else 'ECMAScript : Oracle Nashorn',
+                        'fileName': os.path.join(path, name),
+                    })
+            logging.debug(f'List of scripts: {list_scripts}')
+            for script in list_scripts:
+                zap.script.load(
+                    script['scriptName'],
+                    script['scriptType'],
+                    script['scriptEngine'],
+                    script['fileName']
+                )
+            logging.debug(f'List of loaded scripts: {zap.script.list_scripts}')
+            for script in list_scripts:
+                zap.script.enable(
+                    script['scriptName']
+                )
 
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
