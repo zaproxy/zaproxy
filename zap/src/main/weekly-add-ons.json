@@ -8,6 +8,7 @@
       ":addOns:ascanrulesBeta",
       ":addOns:automation",
       ":addOns:bruteforce",
+      ":addOns:callhome",
       ":addOns:commonlib",
       ":addOns:coreLang",
       ":addOns:diff",

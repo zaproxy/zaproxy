@@ -24,7 +24,6 @@ import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
@@ -41,6 +40,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -48,10 +48,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
-import net.sf.json.JSONObject;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLPropertiesConfiguration;
-import org.apache.commons.httpclient.URI;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.logging.log4j.LogManager;
@@ -66,11 +64,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.HttpHeader;
-import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
-import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOn;
@@ -95,16 +88,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     private static final String NAME = "ExtensionAutoUpdate";
 
-    private static final String ZAP_CFU_SERVICE = "https://cfu.zaproxy.org/ZAPcfu";
-
     private static final String VERSION_FILE_NAME = "ZapVersions.xml";
 
     private ZapMenuItem menuItemCheckUpdate = null;
     private ZapMenuItem menuItemLoadAddOn = null;
 
     private static final Logger logger = LogManager.getLogger(ExtensionAutoUpdate.class);
-
-    private HttpSender httpSender = null;
 
     private DownloadManager downloadManager = null;
     private ManageAddOnsDialog addonsDialog = null;
@@ -142,6 +131,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         ARG_CFU_LIST_IDX
     };
     private CommandLineArgument[] arguments = new CommandLineArgument[ARG_IDXS.length];
+    private Supplier<ZapXmlConfiguration> checkForUpdatesSupplier;
 
     public ExtensionAutoUpdate() {
         super();
@@ -763,17 +753,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         this.downloadManager.shutdown(true);
     }
 
-    private HttpSender getHttpSender() {
-        if (httpSender == null) {
-            httpSender =
-                    new HttpSender(
-                            Model.getSingleton().getOptionsParam().getConnectionParam(),
-                            true,
-                            HttpSender.CHECK_FOR_UPDATES_INITIATOR);
-        }
-        return httpSender;
-    }
-
     private int dayDiff(Date d1, Date d2) {
         long diff = d1.getTime() - d2.getTime();
         return (int) (diff / (1000 * 60 * 60 * 24));
@@ -978,54 +957,25 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         return localVersionInfo;
     }
 
-    private ZapXmlConfiguration getRemoteConfigurationUrl(String url)
-            throws IOException, ConfigurationException, InvalidCfuUrlException {
-        logger.debug("Getting latest version info from {}", url);
+    public void setCheckForUpdatesSupplier(Supplier<ZapXmlConfiguration> supplier) {
+        this.checkForUpdatesSupplier = supplier;
+    }
 
-        // Create the data
-        JSONObject json = new JSONObject();
-        json.put("zapVersion", Constant.PROGRAM_VERSION);
-        json.put("os", Constant.getOS().name());
-        json.put(
-                "osVersion",
-                System.getProperty("os.name") + " : " + System.getProperty("os.version"));
-        json.put("javaVersion", System.getProperty("java.version"));
-        json.put("zapType", ZAP.getProcessType().name());
-        json.put("container", Constant.isInContainer() ? Constant.getContainerName() : "");
-
-        HttpMessage msg = new HttpMessage(new URI(url, true));
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
-        msg.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, HttpHeader.JSON_CONTENT_TYPE);
-        msg.getRequestBody().setBody(json.toString());
-        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
-
-        getHttpSender().sendAndReceive(msg, true);
-        if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
-            throw new IOException(
-                    "Expected '200 OK' but got '"
-                            + msg.getResponseHeader().getStatusCode()
-                            + " "
-                            + msg.getResponseHeader().getReasonPhrase()
-                            + "'");
+    private ZapXmlConfiguration getRemoteConfiguration() throws ConfigurationException {
+        if (checkForUpdatesSupplier != null) {
+            ZapXmlConfiguration config = checkForUpdatesSupplier.get();
+            if (config != null) {
+                // Save version file so we can report new addons next time
+                File f = new File(Constant.FOLDER_LOCAL_PLUGIN, VERSION_FILE_NAME);
+                try {
+                    config.save(f);
+                } catch (Exception ex) {
+                    logger.error(ex.getMessage(), ex);
+                }
+                return config;
+            }
         }
-        if (!msg.getRequestHeader().isSecure()) {
-            // Only access the cfu page over https
-            throw new InvalidCfuUrlException(msg.getRequestHeader().getURI().toString());
-        }
-
-        ZapXmlConfiguration config = new ZapXmlConfiguration();
-        config.setDelimiterParsingDisabled(true);
-        config.load(new StringReader(msg.getResponseBody().toString()));
-
-        // Save version file so we can report new addons next time
-        File f = new File(Constant.FOLDER_LOCAL_PLUGIN, VERSION_FILE_NAME);
-        try {
-            Files.write(f.toPath(), msg.getResponseBody().getBytes());
-        } catch (IOException ioe) {
-            logger.error(ioe.getMessage(), ioe);
-        }
-
-        return config;
+        return null;
     }
 
     protected String getLatestVersionNumber() {
@@ -1141,15 +1091,14 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                 // Using a thread as the first call could timeout
                                 // and we dont want the ui to hang in the meantime
                                 try {
-                                    latestVersionInfo =
-                                            new AddOnCollection(
-                                                    getRemoteConfigurationUrl(ZAP_CFU_SERVICE),
-                                                    getPlatform(),
-                                                    false);
+                                    ZapXmlConfiguration conf = getRemoteConfiguration();
+                                    if (conf != null) {
+                                        latestVersionInfo =
+                                                new AddOnCollection(conf, getPlatform(), false);
+                                    }
                                 } catch (Exception e1) {
                                     logger.warn(
-                                            "Failed to check for updates using: {}",
-                                            ZAP_CFU_SERVICE,
+                                            "Failed to check for updates - see log for details",
                                             e1);
                                 }
                                 if (latestVersionInfo != null) {

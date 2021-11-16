@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.control;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -113,6 +113,6 @@ public class ControlOverrides {
      * @since 2.12.0
      */
     public List<String> getMandatoryAddOns() {
-        return Collections.emptyList();
+        return Arrays.asList("callhome");
     }
 }
