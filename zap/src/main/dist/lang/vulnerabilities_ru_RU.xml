@@ -804,22 +804,22 @@ WS-Addressing is a newer standard published by the W3C to provide routing functi
 
 Самая простая атака с обходом пути использует последовательность специальных символов «../» для изменения местоположения ресурса, запрашиваемого в URL-адресе.  Хотя большинство популярных веб-серверов не позволяют этой методике экранировать корень веб-документа, альтернативные кодировки последовательности «../» могут помочь обойти фильтры безопасности.  Эти варианты метода включают допустимую и недопустимую кодировку Unicode ("..% u2216" или "..% c0% af") символа прямой косой черты, символы обратной косой черты (".. \") на серверах под управлением Windows, кодирование URL символы "% 2e% 2e% 2f") и двойное кодирование URL ("..% 255c") символа обратной косой черты. 
 
-Even if the web server properly restricts Path Traversal attempts in the URL path, a web application itself may still be vulnerable due to improper handling of user-supplied input. This is a common problem of web applications that use template mechanisms or load static text from files. In variations of the attack, the original URL parameter value is substituted with the file name of one of the web application's dynamic scripts. Consequently, the results can reveal source code because the file is interpreted as text instead of an executable script. These techniques often employ additional special characters such as the dot (".") to reveal the listing of the current working directory, or "%00" NULL characters in order to bypass rudimentary file extension checks.</desc>
+Даже если веб-сервер правильно ограничивает попытки обхода пути в пути URL, само веб-приложение может быть уязвимо из-за неправильной обработки вводимых пользователем данных.  Это обычная проблема веб-приложений, которые используют механизмы шаблонов или загружают статический текст из файлов.  В вариантах атаки исходное значение параметра URL заменяется именем файла одного из динамических скриптов веб-приложения.  Следовательно, результаты могут раскрыть исходный код, поскольку файл интерпретируется как текст, а не как исполняемый сценарий.  В этих методах часто используются дополнительные специальные символы, такие как точка (".")  для отображения списка текущего рабочего каталога или символов «% 00» NULL, чтобы обойти элементарные проверки расширений файлов. </desc>
 	<solution>Предположим, что весь ввод злонамерен.  Используйте стратегию проверки входных данных «принять заведомо исправные», т. е. Используйте разрешенный список допустимых входных данных, которые строго соответствуют спецификациям.  Отклоняйте любой ввод, который не строго соответствует спецификациям, или преобразуйте его во что-то, что соответствует.  Не полагайтесь исключительно на поиск вредоносных или искаженных входных данных (т. е. Не полагайтесь на список запрещенных).  Однако списки запрета могут быть полезны для обнаружения потенциальных атак или определения того, какие входные данные настолько искажены, что их следует сразу отклонить. 
 
 При выполнении проверки ввода учитывайте все потенциально важные свойства, включая длину, тип ввода, полный диапазон допустимых значений, отсутствующие или дополнительные вводы, синтаксис, согласованность между связанными полями и соответствие бизнес-правилам.  В качестве примера логики бизнес-правила «лодка» может быть синтаксически допустимой, потому что она содержит только буквенно-цифровые символы, но недействительна, если вы ожидаете такие цвета, как «красный» или «синий». 
 
-Для имен файлов используйте строгие списки разрешений, которые ограничивают используемый набор символов.  If feasible, only allow a single "." character in the filename to avoid weaknesses, and exclude directory separators such as "/". Use an allow list of allowable file extensions.
+Для имен файлов используйте строгие списки разрешений, которые ограничивают используемый набор символов.  Если возможно, разрешите только один "." в имени файла, чтобы избежать слабых мест, и исключить разделители каталогов, такие как «/».  Используйте разрешенный список допустимых расширений файлов. 
 
-Warning: if you attempt to cleanse your data, then do so that the end result is not in the form that can be dangerous. A sanitizing mechanism can remove characters such as '.' and ';' which may be required for some exploits. An attacker can try to fool the sanitizing mechanism into "cleaning" data into a dangerous form. Suppose the attacker injects a '.' inside a filename (e.g. "sensi.tiveFile") and the sanitizing mechanism removes the character resulting in the valid filename, "sensitiveFile". If the input data are now assumed to be safe, then the file may be compromised. 
+Предупреждение: если вы попытаетесь очистить свои данные, сделайте так, чтобы конечный результат не был в форме, которая может быть опасной.  Механизм очистки может удалить такие символы, как "." а также ';' который может потребоваться для некоторых эксплойтов.  Злоумышленник может попытаться обмануть механизм очистки, чтобы «очистить» данные до опасной формы.  Предположим, злоумышленник вводит '.' внутри имени файла (например, "sensi.tiveFile"), а механизм очистки удаляет символ, в результате чего получается допустимое имя файла, "sensitiveFile".  Если теперь предполагается, что входные данные безопасны, файл может быть скомпрометирован.  
 
 Перед проверкой входные данные должны быть декодированы и канонизированы в текущее внутреннее представление приложения.  Убедитесь, что ваше приложение не декодирует один и тот же ввод дважды.  Такие ошибки можно использовать для обхода схем разрешенных списков путем введения опасных входных данных после их проверки. 
 
-Use a built-in path canonicalization function (such as realpath() in C) that produces the canonical version of the pathname, which effectively removes ".." sequences and symbolic links.
+Используйте встроенную функцию канонизации пути (например, realpath () в C), которая создает каноническую версию имени пути, которая эффективно удаляет последовательности «..» и символические ссылки. 
 
 Запустите свой код, используя самые низкие привилегии, необходимые для выполнения необходимых задач.  Если возможно, создайте изолированные учетные записи с ограниченными правами, которые используются только для одной задачи.  Таким образом, успешная атака не предоставит злоумышленнику немедленный доступ к остальному программному обеспечению или его среде.  Например, приложениям баз данных редко требуется запускать от имени администратора базы данных, особенно в повседневных операциях. 
 
-When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
+Когда набор допустимых объектов, таких как имена файлов или URL-адресов, ограничен или известен, создайте сопоставление из набора фиксированных входных значений (например, числовых идентификаторов) с фактическими именами файлов или URL-адресами и отклоните все остальные входные данные. 
 
 Запустите свой код в «тюрьме» или подобной среде песочницы, которая устанавливает строгие границы между процессом и операционной системой.  Это может эффективно ограничить, к каким файлам можно получить доступ в конкретном каталоге или какие команды могут выполняться вашим программным обеспечением. 
 
@@ -833,40 +833,41 @@ When the set of acceptable objects, such as filenames or URLs, is limited or kno
 
 <vuln_items>wasc_34</vuln_items>
 <vuln_item_wasc_34>
-	<alert>Predictable Resource Location</alert>
-	<desc>Predictable Resource Location is an attack technique used to uncover hidden web site content and functionality. By making educated guesses via brute forcing an attacker can guess file and directory names not intended for public viewing. Brute forcing filenames is easy because files/paths often have common naming convention and reside in standard locations. These can include temporary files, backup files, logs, administrative site sections, configuration files, demo applications, and sample files. These files may disclose sensitive information about the website, web application internals, database information, passwords, machine names, file paths to other sensitive areas, etc...
+	<alert>Прогнозируемое местоположение ресурса </alert>
+	<desc>Предсказуемое расположение ресурса - это метод атаки, используемый для обнаружения скрытого содержимого и функций веб-сайта.  Делая обоснованные предположения с помощью грубой силы, злоумышленник может угадать имена файлов и каталогов, не предназначенные для публичного просмотра.  Подобрать имена файлов просто, потому что файлы / пути часто имеют общее соглашение об именах и находятся в стандартных местах.  Сюда могут входить временные файлы, файлы резервных копий, журналы, разделы административного сайта, файлы конфигурации, демонстрационные приложения и файлы примеров.  Эти файлы могут раскрывать конфиденциальную информацию о веб-сайте, внутреннем устройстве веб-приложения, информацию о базе данных, пароли, имена компьютеров, пути к файлам в другие конфиденциальные области и т. Д. 
 
-This will not only assist with identifying site surface which may lead to additional site vulnerabilities, but also may disclose valuable information to an attacker about the environment or its users. Predictable Resource Location is also known as Forced Browsing, Forceful Browsing, File Enumeration, and Directory Enumeration.</desc>
-	<solution>Apply appropriate access control authorizations for each access to all restricted URLs, scripts or files.
+Это не только поможет идентифицировать поверхность сайта, которая может привести к дополнительным уязвимостям сайта, но также может раскрыть злоумышленнику ценную информацию о среде или ее пользователях.  Предсказуемое расположение ресурса также известно как принудительный просмотр, принудительный просмотр, перечисление файлов и перечисление каталогов. </desc>
+	<solution>Примените соответствующие разрешения управления доступом для каждого доступа ко всем ограниченным URL-адресам, скриптам или файлам. 
 
-Consider using MVC based frameworks such as Struts.</solution>
+Рассмотрите возможность использования фреймворков на основе MVC, таких как Struts. </solution>
 	<reference>http://projects.webappsec.org/Predictable-Resource-Location</reference>
 	<reference>http://cwe.mitre.org/data/definitions/425.html</reference>
 </vuln_item_wasc_34>
 
 <vuln_items>wasc_35</vuln_items>
 <vuln_item_wasc_35>
-	<alert>SOAP Array Abuse</alert>
-	<desc>XML SOAP arrays are a common target for malicious abuse. SOAP arrays are defined as having a type of "SOAP-ENC:Array" or a type derived there from. SOAP arrays have one or more dimensions (rank) whose members are distinguished by ordinal position. An array value is represented as a series of elements reflecting the array, with members appearing in ascending ordinal sequence. For multi-dimensional arrays the dimension on the right side varies most rapidly. Each member element is named as an independent element. A web-service that expects an array can be the target of a XML DoS attack by forcing the SOAP server to build a huge array in the machine's memory, thus inflicting a DoS condition on the machine due to the memory pre-allocation.</desc>
-	<solution> Perform adequate input validation against any value that influences the amount of memory that is allocated. Define an appropriate strategy for handling requests that exceed the limit, and consider supporting a configuration option so that the administrator can extend the amount of memory to be used if necessary.
+	<alert>Злоупотребление массивом SOAP </alert>
+	<desc>Массивы XML SOAP являются частой целью злонамеренных действий.  Массивы SOAP определяются как имеющие тип «SOAP-ENC: Array» или производный от него тип.  Массивы SOAP имеют одно или несколько измерений (ранг), члены которых различаются порядковым номером.  Значение массива представлено в виде серии элементов, отражающих массив, причем элементы отображаются в порядке возрастания.  Для многомерных массивов размер справа изменяется наиболее быстро.  Каждый элемент-член называется независимым элементом.  Веб-служба, которая ожидает массив, может стать целью XML-атаки DoS, вынуждая сервер SOAP создать огромный массив в памяти машины, тем самым вызывая состояние DoS на машине из-за предварительного выделения памяти. </desc>
+	<solution> Выполните адекватную проверку ввода по любому значению, которое влияет на объем выделяемой памяти.  Определите подходящую стратегию обработки запросов, превышающих лимит, и рассмотрите возможность поддержки параметра конфигурации, чтобы администратор мог при необходимости увеличить объем используемой памяти. 
 
-Run your program using system-provided resource limits for memory. This might still cause the program to crash or exit, but the impact to the rest of the system will be minimized.</solution>
+Запустите вашу программу, используя системные ограничения ресурсов для памяти.  Это по-прежнему может привести к сбою программы или выходу из нее, но влияние на остальную систему будет сведено к минимуму. </solution>
 	<reference>http://projects.webappsec.org/SOAP-Array-Abuse</reference>
 	<reference>http://cwe.mitre.org/data/definitions/789.html</reference>
 </vuln_item_wasc_35>
 
 <vuln_items>wasc_36</vuln_items>
 <vuln_item_wasc_36>
-	<alert>SSI Injection</alert>
-	<desc>SSI Injection (Server-side Include) is a server-side exploit technique that allows an attacker to send code into a web application, which will later be executed locally by the web server. SSI Injection exploits a web application's failure to sanitize user-supplied data before they are inserted into a server-side interpreted HTML file.
+	<alert>SSI инъекция </alert>
+	<desc>
+SSI Injection (Server-side Include) - это метод эксплойта на стороне сервера, который позволяет злоумышленнику отправить код в веб-приложение, которое позже будет выполняться локально веб-сервером.  SSI Injection exploits a web application's failure to sanitize user-supplied data before they are inserted into a server-side interpreted HTML file.
 
 Before serving an HTML web page, a web server may parse and execute Server-side Include statements before providing it to the client. In some cases (e.g. message boards, guest books, or content management systems), a web application will insert user-supplied data into the source of a web page.
 
 If an attacker submits a Server-side Include statement, he may have the ability to execute arbitrary operating system commands, or include a restricted file's contents the next time the page is served. This is performed at the permission level of the web server user.</desc>
-	<solution>Disable SSI execution on pages that do not require it. For pages requiring SSI ensure that you perform the following checks
-- Only enable the SSI directives that are needed for this page and disable all others.
-- HTML entity encode user supplied data before passing it to a page with SSI execution permissions.
-- Use SUExec to have the page execute as the owner of the file instead of the web server user.</solution>
+	<solution>Отключите выполнение SSI на страницах, которые этого не требуют.  Для страниц, требующих SSI, убедитесь, что вы выполнили следующие проверки
+- Включите только те директивы SSI, которые необходимы для этой страницы, и отключите все остальные. 
+- Сущность HTML кодирует предоставленные пользователем данные перед их передачей на страницу с разрешениями на выполнение SSI. 
+- Используйте SUExec, чтобы страница выполнялась как владелец файла, а не как пользователь веб-сервера. </solution>
 	<reference>http://projects.webappsec.org/SSI-Injection</reference>
 	<reference/>
 </vuln_item_wasc_36>
@@ -874,39 +875,39 @@ If an attacker submits a Server-side Include statement, he may have the ability 
 <vuln_items>wasc_37</vuln_items>
 <vuln_item_wasc_37>
 	<alert>Фиксация сеанса </alert>
-	<desc>Session Fixation is an attack technique that forces a user's session ID to an explicit value. Depending on the functionality of the target web site, a number of techniques can be utilized to "fix" the session ID value. These techniques range from Cross-site Scripting exploits to peppering the web site with previously made HTTP requests. After a user's session ID has been fixed, the attacker will wait for that user to login. Once the user does so, the attacker uses the predefined session ID value to assume the same online identity.
+	<desc>Фиксация сеанса - это метод атаки, при котором для идентификатора сеанса пользователя устанавливается явное значение.  В зависимости от функциональности целевого веб-сайта можно использовать ряд методов для «исправления» значения идентификатора сеанса.  Эти методы варьируются от эксплойтов межсайтового скриптинга до засыпки веб-сайта ранее сделанными HTTP-запросами.  После того, как идентификатор сеанса пользователя будет исправлен, злоумышленник будет ждать, пока этот пользователь войдет в систему.  Как только пользователь сделает это, злоумышленник использует предварительно определенное значение идентификатора сеанса, чтобы принять тот же сетевой идентификатор. 
 
-Generally speaking there are two types of session management systems when it comes to ID values. The first type is "permissive" systems that allow web browsers to specify any ID. The second type is "strict" systems that only accept server-side-generated values. With permissive systems, arbitrary session IDs are maintained without contact with the web site. Strict systems require the attacker to maintain the "trap-session", with periodic web site contact, preventing inactivity timeouts.
+Вообще говоря, когда дело доходит до значений идентификаторов, существует два типа систем управления сеансами.  Первый тип - это «разрешительные» системы, которые позволяют веб-браузерам указывать любой идентификатор.  Второй тип - это «строгие» системы, которые принимают только значения, сгенерированные на стороне сервера.  В разрешительных системах произвольные идентификаторы сеанса поддерживаются без связи с веб-сайтом.  Строгие системы требуют, чтобы злоумышленник поддерживал «ловушку-сессию» с периодическим контактом с веб-сайтом, предотвращая тайм-ауты бездействия. 
 
-Without active protection against Session Fixation, the attack can be mounted against any web site that uses sessions to identify authenticated users. Web sites using sessions IDs are normally cookie-based, but URLs and hidden form fields are used as well. Unfortunately, cookie-based sessions are the easiest to attack. Most of the currently identified attack methods are aimed toward the fixation of cookies.
+Без активной защиты от фиксации сеанса атака может быть проведена против любого веб-сайта, который использует сеансы для идентификации пользователей, прошедших проверку подлинности.  Веб-сайты, использующие идентификаторы сеансов, обычно основаны на файлах cookie, но также используются URL-адреса и скрытые поля формы.  К сожалению, легче всего атаковать сеансы на основе файлов cookie.  Большинство выявленных в настоящее время методов атак направлены на фиксацию файлов cookie. 
 
-In contrast to stealing a users' session IDs after they have logged into a web site, Session Fixation provides a much wider window of opportunity. The active part of the attack takes place before a user logs in.</desc>
-	<solution>Invalidate any existing session identifiers prior to authorizing a new user session
+В отличие от кражи идентификаторов сеансов пользователей после того, как они вошли на веб-сайт, Session Fixation предоставляет гораздо более широкое окно возможностей.  Активная часть атаки происходит до входа пользователя в систему. </desc>
+	<solution>Аннулировать все существующие идентификаторы сеанса до авторизации нового сеанса пользователя
 
-For platforms such as ASP that do not generate new values for sessionid cookies, utilize a secondary cookie. In this approach, set a secondary cookie on the user's browser to a random value and set a session variable to the same value. If the session variable and the cookie value ever don't match, invalidate the session, and force the user to log on again.</solution>
+Для таких платформ, как ASP, которые не генерируют новые значения для файлов cookie с идентификатором сеанса, используйте дополнительный файл cookie.  В этом подходе установите вторичный файл cookie в браузере пользователя на случайное значение и задайте такое же значение переменной сеанса.  Если переменная сеанса и значение cookie никогда не совпадают, сделайте сеанс недействительным и заставьте пользователя снова войти в систему. </solution>
 	<reference>http://projects.webappsec.org/Session-Fixation</reference>
 	<reference>http://cwe.mitre.org/data/definitions/384.html</reference>
 </vuln_item_wasc_37>
 
 <vuln_items>wasc_38</vuln_items>
 <vuln_item_wasc_38>
-	<alert>URL Redirector Abuse</alert>
-	<desc>URL redirectors represent common functionality employed by web sites to forward an incoming request to an alternate resource. This can be done for a variety of reasons and is often done to allow resources to be moved within the directory structure and to avoid breaking functionality for users that request the resource at its previous location. URL redirectors may also be used to implement load balancing, leveraging abbreviated URLs or recording outgoing links. It is this last implementation which is often used in phishing attacks as described in the example below. URL redirectors do not necessarily represent a direct security vulnerability but can be abused by attackers trying to social engineer victims into believing that they are navigating to a site other than the true destination.</desc>
+	<alert>Злоупотребление URL-адресом Redirector </alert>
+	<desc>Перенаправители URL-адресов представляют собой общие функции, используемые веб-сайтами для пересылки входящего запроса на альтернативный ресурс.  Это может быть сделано по разным причинам и часто делается для того, чтобы разрешить перемещение ресурсов в структуре каталогов и избежать нарушения функциональности для пользователей, которые запрашивают ресурс в его предыдущем расположении.  Перенаправители URL-адресов также могут использоваться для реализации балансировки нагрузки, использования сокращенных URL-адресов или записи исходящих ссылок.  Именно эта последняя реализация часто используется в фишинговых атаках, как описано в примере ниже.  Перенаправители URL-адресов не обязательно представляют собой прямую уязвимость системы безопасности, но могут использоваться злоумышленниками, пытающимися заставить жертв социальной инженерии поверить в то, что они переходят на сайт, отличный от истинного пункта назначения. </desc>
 	<solution>Предположим, что весь ввод злонамерен.  Используйте стратегию проверки входных данных «принять заведомо исправные», т. е. Используйте разрешенный список допустимых входных данных, которые строго соответствуют спецификациям.  Отклоняйте любой ввод, который не строго соответствует спецификациям, или преобразуйте его во что-то, что соответствует.  Не полагайтесь исключительно на поиск вредоносных или искаженных входных данных (т. е. Не полагайтесь на список запрещенных).  Однако списки запрета могут быть полезны для обнаружения потенциальных атак или определения того, какие входные данные настолько искажены, что их следует сразу отклонить. 
 
 При выполнении проверки ввода учитывайте все потенциально важные свойства, включая длину, тип ввода, полный диапазон допустимых значений, отсутствующие или дополнительные вводы, синтаксис, согласованность между связанными полями и соответствие бизнес-правилам.  В качестве примера логики бизнес-правила «лодка» может быть синтаксически допустимой, потому что она содержит только буквенно-цифровые символы, но недействительна, если вы ожидаете такие цвета, как «красный» или «синий». 
 
-Use an allow list of approved URLs or domains to be used for redirection.
+Используйте разрешенный список разрешенных URL-адресов или доменов, которые будут использоваться для перенаправления. 
 
-Use an intermediate disclaimer page that provides the user with a clear warning that they are leaving your site. Implement a long timeout before the redirect occurs, or force the user to click on the link. Be careful to avoid XSS problems when generating the disclaimer page.
+Используйте промежуточную страницу отказа от ответственности, которая дает пользователю четкое предупреждение о том, что он покидает ваш сайт.  Установите длительный тайм-аут до того, как произойдет перенаправление, или заставьте пользователя щелкнуть ссылку.  Будьте осторожны, чтобы избежать проблем XSS при создании страницы заявления об отказе от ответственности. 
 
-When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
+Когда набор допустимых объектов, таких как имена файлов или URL-адресов, ограничен или известен, создайте сопоставление из набора фиксированных входных значений (например, числовых идентификаторов) с фактическими именами файлов или URL-адресами и отклоните все остальные входные данные. 
 
-For example, ID 1 could map to "/login.asp" and ID 2 could map to "http://www.example.com/". Такие функции, как ESAPI AccessReferenceMap, предоставляют эту возможность. 
+Например, идентификатор 1 может отображаться на «/login.asp», а идентификатор 2 может отображаться на «http://www.example.com/».  Такие функции, как ESAPI AccessReferenceMap, предоставляют эту возможность. 
 
 Поймите все потенциальные области, в которых ненадежные входные данные могут попасть в ваше программное обеспечение: параметры или аргументы, файлы cookie, все, что считывается из сети, переменные среды, обратный поиск DNS, результаты запросов, заголовки запросов, компоненты URL, электронная почта, файлы, базы данных и любые внешние системы, которые предоставляют данные приложению.  Помните, что такие входные данные могут быть получены косвенно через вызовы API. 
 
-Many open redirect problems occur because the programmer assumed that certain inputs could not be modified, such as cookies and hidden form fields.</solution>
+Многие проблемы с открытым перенаправлением возникают из-за того, что программист предполагал, что определенные входные данные не могут быть изменены, такие как файлы cookie и скрытые поля формы. </solution>
 	<reference>http://projects.webappsec.org/URL-Redirector-Abuse</reference>
 	<reference>http://cwe.mitre.org/data/definitions/601.html</reference>
 </vuln_item_wasc_38>
@@ -914,26 +915,26 @@ Many open redirect problems occur because the programmer assumed that certain in
 <vuln_items>wasc_39</vuln_items>
 <vuln_item_wasc_39>
 	<alert> XPath Инъекция</alert>
-	<desc>XPath Injection is an attack technique used to exploit applications that construct XPath (XML Path Language) queries from user-supplied input to query or navigate XML documents. It can be used directly by an application to query an XML document, as part of a larger operation such as applying an XSLT transformation to an XML document, or applying an XQuery to an XML document. The syntax of XPath bears some resemblance to an SQL query, and indeed, it is possible to form SQL-like queries on an XML document using XPath.
+	<desc>XPath Injection - это метод атаки, используемый для использования приложений, которые создают запросы XPath (XML Path Language) из введенных пользователем данных для запроса или навигации по XML-документам.  Он может использоваться непосредственно приложением для запроса XML-документа как часть более крупной операции, такой как применение XSLT-преобразования к XML-документу или применение XQuery к XML-документу.  Синтаксис XPath имеет некоторое сходство с SQL-запросом, и действительно, с помощью XPath можно формировать SQL-подобные запросы к XML-документу. 
 
-If an application uses run-time XPath query construction, embedding unsafe user input into the query, it may be possible for the attacker to inject data into the query such that the newly formed query will be parsed in a way differing from the programmer's intention.</desc>
-	<solution>Use parameterized XPath queries (e.g. using XQuery). This will help ensure separation between data plane and control plane.
+Если приложение использует построение запроса XPath во время выполнения, встраивая в запрос небезопасный пользовательский ввод, злоумышленник может ввести данные в запрос, так что вновь сформированный запрос будет анализироваться способом, отличным от намерений программиста. </desc>
+	<solution>Используйте параметризованные запросы XPath (например, с помощью XQuery).  Это поможет обеспечить разделение между плоскостью данных и плоскостью управления. 
 
-Properly validate user input. Reject data where appropriate, filter where appropriate and escape where appropriate. Make sure input that will be used in XPath queries is safe in that context.</solution>
+Правильно проверяйте вводимые пользователем данные.  Отклоняйте данные, где это необходимо, фильтруйте, где это необходимо, и избегайте, когда это необходимо.  Убедитесь, что ввод, который будет использоваться в запросах XPath, безопасен в этом контексте. </solution>
 	<reference>http://projects.webappsec.org/XPath-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/643.html</reference>
 </vuln_item_wasc_39>
 
 <vuln_items>wasc_40</vuln_items>
 <vuln_item_wasc_40>
-	<alert>Insufficient Process Validation</alert>
-	<desc>Insufficient Process Validation occurs when a web application fails to prevent an attacker from circumventing the intended flow or business logic of the application. When seen in the real world, insufficient process validation has resulted in ineffective access controls and monetary loss.
+	<alert>Недостаточная проверка процесса </alert>
+	<desc>Недостаточная проверка процесса происходит, когда веб-приложению не удается помешать злоумышленнику обойти намеченный поток или бизнес-логику приложения.  В реальном мире недостаточная проверка процесса привела к неэффективному контролю доступа и денежным потерям. 
 
-There are two main types of processes that require validation: flow control and business logic.
+Существует два основных типа процессов, требующих проверки: управление потоком и бизнес-логика. 
 
-"Flow control" refers to multi-step processes that require each step to be performed in a specific order by the user. When an attacker performs the step incorrectly or out of order, the access controls may be bypassed and an application integrity error may occur. Examples of multi-step processes include wire transfer, password recovery, purchase checkout, and account sign-up.
+«Управление потоком» относится к многоэтапным процессам, которые требуют, чтобы каждый шаг выполнялся пользователем в определенном порядке.  Когда злоумышленник выполняет шаг неправильно или не по порядку, элементы управления доступом могут быть обойдены, и может возникнуть ошибка целостности приложения.  Примеры многоэтапных процессов включают банковский перевод, восстановление пароля, оформление покупки и регистрацию учетной записи. 
 
-"Business logic" refers to the context in which a process will execute as governed by the business requirements. Exploiting a business logic weakness requires knowledge of the business; if no knowledge is needed to exploit it, then most likely it isn't a business logic flaw. Due to this, typical security measures such as scans and code review will not find this class of weakness. One approach to testing is offered by OWASP in their Testing Guide.</desc>
+«Бизнес-логика» относится к контексту, в котором процесс будет выполняться в соответствии с бизнес-требованиями.  Использование слабых мест бизнес-логики требует знания бизнеса; если для его использования не нужны знания, то, скорее всего, это не ошибка бизнес-логики.  По этой причине типичные меры безопасности, такие как сканирование и проверка кода, не обнаруживают этот класс слабых мест.  Один из подходов к тестированию предлагается OWASP в их Руководстве по тестированию. </desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Process-Validation</reference>
 	<reference/>
@@ -941,13 +942,13 @@ There are two main types of processes that require validation: flow control and 
 
 <vuln_items>wasc_41</vuln_items>
 <vuln_item_wasc_41>
-	<alert>XML Attribute Blowup</alert>
-	<desc>XML Attribute Blowup is a denial of service attack against XML parsers. The attacker provides a malicious XML document, which vulnerable XML parsers process in a very inefficient manner, leading to excessive CPU load. The essence of the attack is to include many attributes in the same XML node. Vulnerable XML parsers manage the attributes in an inefficient manner (e.g. in a data container for which insertion of a new attribute has O(n) runtime), resulting in a non-linear (in this example, quadratic, i.e. O(n2)) overall runtime, leading to a denial of service condition via CPU exhaustion.</desc>
-	<solution>Design throttling mechanisms into the system architecture. Лучшая защита - это ограничить количество ресурсов, которые неавторизованный пользователь может использовать.  Надежная модель аутентификации и контроля доступа в первую очередь поможет предотвратить подобные атаки.  Приложение для входа в систему должно быть максимально защищено от DoS-атак.  Ограничение доступа к базе данных, возможно, путем кэширования наборов результатов, может помочь минимизировать затрачиваемые ресурсы.  Чтобы еще больше ограничить вероятность DoS-атаки, рассмотрите возможность отслеживания скорости запросов, полученных от пользователей, и блокировки запросов, которые превышают определенный порог скорости. 
+	<alert>Раздутие атрибута XML </alert>
+	<desc>XML Attribute Blowup - это атака отказа в обслуживании против анализаторов XML.  Злоумышленник предоставляет вредоносный XML-документ, который уязвимые парсеры XML обрабатывают очень неэффективно, что приводит к чрезмерной загрузке процессора.  Суть атаки заключается во включении множества атрибутов в один и тот же узел XML.  Уязвимые синтаксические анализаторы XML неэффективно управляют атрибутами (например, в контейнере данных, для которого вставка нового атрибута имеет время выполнения O (n)), что приводит к нелинейному (в данном примере квадратичному, т.е.  O (n2)) общее время выполнения, что приводит к отказу в обслуживании из-за нехватки ресурсов ЦП. </desc>
+	<solution>Разработайте механизмы дросселирования в архитектуре системы.  Лучшая защита - это ограничить количество ресурсов, которые неавторизованный пользователь может использовать.  Надежная модель аутентификации и контроля доступа в первую очередь поможет предотвратить подобные атаки.  Приложение для входа в систему должно быть максимально защищено от DoS-атак.  Ограничение доступа к базе данных, возможно, путем кэширования наборов результатов, может помочь минимизировать затрачиваемые ресурсы.  Чтобы еще больше ограничить вероятность DoS-атаки, рассмотрите возможность отслеживания скорости запросов, полученных от пользователей, и блокировки запросов, которые превышают определенный порог скорости. 
 
-Mitigation of resource exhaustion attacks requires that the target system either:
- * recognizes the attack and denies that user further access for a given amount of time, or
- * uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed. 
+Смягчение атак на исчерпание ресурсов требует, чтобы целевая система:
+  * распознает атаку и запрещает этому пользователю дальнейший доступ в течение определенного периода времени, или
+  * равномерно регулирует все запросы, чтобы усложнить потребление ресурсов быстрее, чем их можно будет снова освободить.  
 
 Первое из этих решений само по себе является проблемой, поскольку может позволить злоумышленникам предотвратить использование системы конкретным действующим пользователем.  Если злоумышленник выдает себя за действительного пользователя, он может предотвратить доступ пользователя к рассматриваемому серверу. 
 
@@ -955,25 +956,25 @@ Mitigation of resource exhaustion attacks requires that the target system either
 
 Убедитесь, что протоколы имеют определенные ограничения масштаба. 
 
-Ensure that all failures in resource allocation place the system into a safe posture.</solution>
+Убедитесь, что все сбои в распределении ресурсов переводят систему в безопасное состояние. </solution>
 	<reference>http://projects.webappsec.org/XML-Attribute-Blowup</reference>
 	<reference>http://cwe.mitre.org/data/definitions/400.html</reference>
 </vuln_item_wasc_41>
 
 <vuln_items>wasc_42</vuln_items>
 <vuln_item_wasc_42>
-	<alert>Abuse of Functionality</alert>
-	<desc>Abuse of Functionality is an attack technique that uses a web site's own features and functionality to attack itself or others. Abuse of Functionality can be described as the abuse of an application's intended functionality to perform an undesirable outcome. These attacks have varied results such as consuming resources, circumventing access controls, or leaking information. The potential and level of abuse will vary from web site to web site and application to application. Abuse of functionality attacks are often a combination of other attack types and/or utilize other attack vectors.</desc>
-	<solution>Always utilize APIs in the specified manner.</solution>
+	<alert>Злоупотребление функциональностью </alert>
+	<desc>Злоупотребление функциональностью - это метод атаки, при котором используются собственные функции и функции веб-сайта для атаки на себя или других.  Злоупотребление функциональностью можно описать как злоупотребление предполагаемой функциональностью приложения для достижения нежелательного результата.  Эти атаки приводят к различным результатам, таким как потребление ресурсов, обход средств контроля доступа или утечка информации.  Потенциал и уровень злоупотреблений будут варьироваться от веб-сайта к веб-сайту и от приложения к приложению.  Атаки со злоупотреблением функциональностью часто представляют собой комбинацию других типов атак и / или используют другие векторы атак. </desc>
+	<solution>Всегда используйте API указанным образом. </solution>
 	<reference>http://projects.webappsec.org/Abuse-of-Functionality</reference>
 	<reference>http://cwe.mitre.org/data/definitions/227.html</reference>
 </vuln_item_wasc_42>
 
 <vuln_items>wasc_43</vuln_items>
 <vuln_item_wasc_43>
-	<alert>XML External Entities</alert>
-	<desc>This technique takes advantage of a feature of XML to build documents dynamically at the time of processing. An XML message can either provide data explicitly or by pointing to an URI where the data exists. In the attack technique, external entities may replace the entity value with malicious data, alternate referrals or may compromise the security of the data the server/XML application has access to.
-	Attackers may also use External Entities to have the web services server download malicious code or content to the server for use in secondary or follow on attacks.</desc>
+	<alert>Внешние объекты XML </alert>
+	<desc>Этот метод использует преимущества XML для динамического создания документов во время обработки.  Сообщение XML может либо предоставлять данные явно, либо указывать на URI, в котором данные существуют.  В методе атаки внешние объекты могут заменить значение объекта вредоносными данными, альтернативными ссылками или могут поставить под угрозу безопасность данных, к которым сервер / приложение XML имеет доступ. 
+	Злоумышленники также могут использовать внешние объекты, чтобы сервер веб-служб загружал вредоносный код или контент на сервер для использования во вторичных или последующих атаках. </desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/XML-External-Entities</reference>
 	<reference/>
@@ -981,23 +982,23 @@ Ensure that all failures in resource allocation place the system into a safe pos
 
 <vuln_items>wasc_44</vuln_items>
 <vuln_item_wasc_44>
-	<alert>XML Entity Expansion</alert>
-	<desc>The XML Entity expansion attack, exploits a capability in XML DTDs that allows the creation of custom macros, called entities, that can be used throughout a document. By recursively defining a set of custom entities at the top of a document, an attacker can overwhelm parsers that attempt to completely resolve the entities by forcing them to iterate almost indefinitely on these recursive definitions.
+	<alert>Расширение сущности XML </alert>
+	<desc>Атака расширения XML Entity использует возможность XML DTD, которая позволяет создавать настраиваемые макросы, называемые объектами, которые можно использовать во всем документе.  Рекурсивно определяя набор настраиваемых сущностей в верхней части документа, злоумышленник может подавить синтаксические анализаторы, которые пытаются полностью разрешить сущности, заставляя их почти бесконечно повторять эти рекурсивные определения. 
 
-The malicious XML message is used to force recursive entity expansion (or other repeated processing) that completely uses up available server resources.</desc>
-	<solution>If possible, prohibit the use of DTDs or use an XML parser that limits the expansion of recursive DTD entities.
+Вредоносное сообщение XML используется для принудительного расширения рекурсивного объекта (или другой повторяющейся обработки), которая полностью использует доступные ресурсы сервера. </desc>
+	<solution>Если возможно, запретите использование DTD или используйте синтаксический анализатор XML, который ограничивает расширение рекурсивных сущностей DTD. 
 
-Before parsing XML files with associated DTDs, scan for recursive entity declarations and do not continue parsing potentially explosive content.</solution>
+Перед синтаксическим анализом файлов XML со связанными DTD просканируйте объявления рекурсивных сущностей и не продолжайте синтаксический анализ потенциально взрывоопасного содержимого. </solution>
 	<reference>http://projects.webappsec.org/XML-Entity-Expansion</reference>
 	<reference>http://cwe.mitre.org/data/definitions/776.html</reference>
 </vuln_item_wasc_44>
 
 <vuln_items>wasc_45</vuln_items>
 <vuln_item_wasc_45>
-	<alert>Fingerprinting</alert>
-	<desc>The most common methodology for attackers is to first footprint the target's web presence and enumerate as much information as possible. With this information, the attacker may develop an accurate attack scenario, which will effectively exploit a vulnerability in the software type/version being utilized by the target host.
+	<alert>Снятие отпечатков пальцев </alert>
+	<desc>Наиболее распространенная методология для злоумышленников - сначала отследить присутствие цели в сети и перечислить как можно больше информации.  Обладая этой информацией, злоумышленник может разработать точный сценарий атаки, который будет эффективно использовать уязвимость в типе / версии программного обеспечения, используемом целевым хостом. 
 
-Multi-tier fingerprinting is similar to its predecessor, TCP/IP Fingerprinting (with a scanner such as Nmap) except that it is focused on the Application Layer of the OSI model instead of the Transport Layer. The theory behind this fingerprinting is to create an accurate profile of the target's platform, web application software technology, backend database version, configurations and possibly even their network architecture/topology.</desc>
+Многоуровневое сканирование отпечатков пальцев аналогично своему предшественнику, TCP / IP Fingerprinting (со сканером, таким как Nmap), за исключением того, что оно сосредоточено на прикладном уровне модели OSI, а не на транспортном уровне.  Теория, лежащая в основе этого снятия отпечатков пальцев, заключается в создании точного профиля целевой платформы, технологии программного обеспечения веб-приложений, версии серверной базы данных, конфигураций и, возможно, даже их сетевой архитектуры / топологии. </desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Fingerprinting</reference>
 	<reference/>
@@ -1005,34 +1006,34 @@ Multi-tier fingerprinting is similar to its predecessor, TCP/IP Fingerprinting (
 
 <vuln_items>wasc_46</vuln_items>
 <vuln_item_wasc_46>
-	<alert>XQuery Injection</alert>
-	<desc>XQuery Injection is a variant of the classic SQL injection attack against the XML XQuery Language. XQuery Injection uses improperly validated data that is passed to XQuery commands. This inturn will execute commands on behalf of the attacker that the XQuery routines have access to. XQuery injection can be used to enumerate elements on the victim's environment, inject commands to the local host, or execute queries to remote files and data sources. Like SQL injection attacks, the attacker tunnels through the application entry point to target the resource access layer.</desc>
-	<solution>Use parameterized queries. This will help ensure separation between data plane and control plane.
+	<alert>Инъекция XQuery </alert>
+	<desc>XQuery Injection - это вариант классической атаки SQL-инъекции против языка XML XQuery.  XQuery Injection использует неправильно проверенные данные, которые передаются командам XQuery.  Этот inturn будет выполнять команды от имени злоумышленника, к которому подпрограммы XQuery имеют доступ.  Внедрение XQuery может использоваться для перечисления элементов в среде жертвы, ввода команд на локальный хост или выполнения запросов к удаленным файлам и источникам данных.  Подобно атакам с использованием SQL-инъекций, злоумышленник туннелирует через точку входа приложения для нацеливания на уровень доступа к ресурсам. </desc>
+	<solution>Используйте параметризованные запросы.  Это поможет обеспечить разделение между плоскостью данных и плоскостью управления. 
 
-Properly validate user input. Reject data where appropriate, filter where appropriate and escape where appropriate. Make sure input that will be used in XQL queries is safe in that context.</solution>
+Правильно проверяйте вводимые пользователем данные.  Отклоняйте данные, где это необходимо, фильтруйте, где это необходимо, и избегайте, когда это необходимо.  Убедитесь, что ввод, который будет использоваться в запросах XQL, безопасен в этом контексте. </solution>
 	<reference>http://projects.webappsec.org/XQuery-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/652.html</reference>
 </vuln_item_wasc_46>
 
 <vuln_items>wasc_47</vuln_items>
 <vuln_item_wasc_47>
-	<alert>Insufficient Session Expiration</alert>
-	<desc>Insufficient Session Expiration occurs when a Web application permits an attacker to reuse old session credentials or session IDs for authorization. Insufficient Session Expiration increases a Web site's exposure to attacks that steal or reuse user's session identifiers.
+	<alert>Недостаточный срок действия сеанса </alert>
+	<desc>Недостаточное истечение срока сеанса происходит, когда веб-приложение разрешает злоумышленнику повторно использовать старые учетные данные сеанса или идентификаторы сеанса для авторизации.  Недостаточный срок действия сеанса увеличивает уязвимость веб-сайта для атак, которые воруют или повторно используют идентификаторы сеанса пользователя. 
 
-Since HTTP is a stateless protocol, Web sites commonly use cookies to store session IDs that uniquely identify a user from request to request. Consequently, each session ID's confidentiality must be maintained in order to prevent multiple users from accessing the same account. A stolen session ID can be used to view another user's account or perform a fraudulent transaction.
+Поскольку HTTP является протоколом без сохранения состояния, веб-сайты обычно используют файлы cookie для хранения идентификаторов сеансов, которые однозначно идентифицируют пользователя от запроса к запросу.  Следовательно, необходимо поддерживать конфиденциальность каждого идентификатора сеанса, чтобы предотвратить доступ нескольких пользователей к одной и той же учетной записи.  Украденный идентификатор сеанса можно использовать для просмотра учетной записи другого пользователя или выполнения мошеннической транзакции. 
 
-Session expiration is comprised of two timeout types: inactivity and absolute. An absolute timeout is defined by the total amount of time a session can be valid without re-authentication and an inactivity timeout is the amount of idle time allowed before the session is invalidated. The lack of proper session expiration may increase the likelihood of success of certain attacks. A long expiration time increases an attacker's chance of successfully guessing a valid session ID. The longer the expiration time, the more concurrent open sessions will exist at any given time. The larger the pool of sessions, the more likely it will be for an attacker to guess one at random. Although a short session inactivity timeout does not help if a token is immediately used, the short timeout helps to insure that the token is harder to capture while it is still valid.
+Срок действия сеанса состоит из двух типов тайм-аута: бездействия и абсолютного.  Абсолютный тайм-аут определяется общим количеством времени, в течение которого сеанс может быть действительным без повторной аутентификации, а тайм-аут бездействия - это время простоя, разрешенное до того, как сеанс будет признан недействительным.  Отсутствие надлежащего истечения срока действия сеанса может увеличить вероятность успеха некоторых атак.  Длительное время истечения увеличивает шанс злоумышленника угадать действительный идентификатор сеанса.  Чем больше время истечения срока, тем больше одновременных открытых сеансов будет существовать в любой момент времени.  Чем больше пул сеансов, тем больше вероятность, что злоумышленник угадывает один случайным образом.  Хотя короткий тайм-аут неактивности сеанса не помогает, если токен используется немедленно, короткий тайм-аут помогает гарантировать, что токен сложнее захватить, пока он еще действителен. 
 
-A Web application should invalidate a session after a predefined idle time has passed (a timeout) and provide the user the means to invalidate their own session, i.e. logout; this helps to keep the lifespan of a session ID as short as possible and is necessary in a shared computing environment where more than one person has unrestricted physical access to a computer. The logout function should be prominently visible to the user, explicitly invalidate a user’s session and disallow reuse of the session token.</desc>
-	<solution>Set sessions/credentials expiration date.</solution>
+Веб-приложение должно аннулировать сеанс после истечения заранее определенного времени простоя (тайм-аут) и предоставлять пользователю средства для аннулирования своего собственного сеанса, т. Е. Выхода из системы; это помогает максимально сократить срок жизни идентификатора сеанса и необходимо в общей вычислительной среде, где более одного человека имеют неограниченный физический доступ к компьютеру.  Функция выхода из системы должна быть хорошо видна пользователю, явно аннулировать сеанс пользователя и запрещать повторное использование токена сеанса. </desc>
+	<solution>Установите дату истечения срока действия сеансов / учетных данных. </solution>
 	<reference>http://projects.webappsec.org/Insufficient-Session-Expiration</reference>
 	<reference>http://cwe.mitre.org/data/definitions/613.html</reference>
 </vuln_item_wasc_47>
 
 <vuln_items>wasc_48</vuln_items>
 <vuln_item_wasc_48>
-	<alert>Insecure Indexing</alert>
-	<desc>Insecure Indexing is a threat to the data confidentiality of the web-site. Indexing web-site contents via a process that has access to files which are not supposed to be publicly accessible has the potential of leaking information about the existence of such files, and about their content. In the process of indexing, such information is collected and stored by the indexing process, which can later be retrieved (albeit not trivially) by a determined attacker, typically through a series of queries to the search engine. The attacker does not thwart the security model of the search engine. As such, this attack is subtle and very hard to detect and to foil - it’s not easy to distinguish the attacker’s queries from a legitimate user’s queries.</desc>
+	<alert>Небезопасное индексирование </alert>
+	<desc>Небезопасное индексирование представляет собой угрозу конфиденциальности данных веб-сайта.  Индексирование содержимого веб-сайта с помощью процесса, который имеет доступ к файлам, которые не должны быть общедоступными, может привести к утечке информации о существовании таких файлов и об их содержании.  В процессе индексирования такая информация собирается и сохраняется процессом индексирования, который впоследствии может быть извлечен (хотя и нетривиально) определенным злоумышленником, обычно посредством серии запросов к поисковой системе.  Злоумышленник не нарушает модель безопасности поисковой системы.  Злоумышленник не нарушает модель безопасности поисковой системы. </desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insecure-Indexing</reference>
 	<reference/>
@@ -1040,23 +1041,23 @@ A Web application should invalidate a session after a predefined idle time has p
 
 <vuln_items>wasc_49</vuln_items>
 <vuln_item_wasc_49>
-	<alert>Insufficient Password Recovery</alert>
-	<desc>Insufficient Password Recovery is when a web site permits an attacker to illegally obtain, change or recover another user's password. Conventional web site authentication methods require users to select and remember a password or passphrase. The user should be the only person that knows the password and it must be remembered precisely. As time passes, a user's ability to remember a password fades. The matter is further complicated when the average user visits 20 sites requiring them to supply a password.  (RSA Survey: http://news.bbc.co.uk/1/hi/technology/3639679.stm) Thus, password recovery is an important part in servicing online users.
+	<alert>Недостаточное восстановление пароля </alert>
+	<desc>Недостаточное восстановление пароля - это когда веб-сайт позволяет злоумышленнику незаконно получить, изменить или восстановить пароль другого пользователя.  Обычные методы аутентификации веб-сайта требуют от пользователей выбора и запоминания пароля или ключевой фразы.  Пользователь должен быть единственным человеком, который знает пароль, и его необходимо точно запомнить.  Со временем способность пользователя запоминать пароль ослабевает.  Ситуация еще более усложняется, когда средний пользователь посещает 20 сайтов, требующих от них ввода пароля.   (Обзор RSA: http://news.bbc.co.uk/1/hi/technology/3639679.stm) Таким образом, восстановление пароля является важной частью обслуживания онлайн-пользователей. 
 
-Examples of automated password recovery processes include requiring the user to answer a "secret question" defined as part of the user registration process. This question can either be selected from a list of canned questions or supplied by the user. Another mechanism in use is having the user provide a "hint" during registration that will help the user remember his password. Other mechanisms require the user to provide several pieces of personal data such as their social security number, home address, zip code etc. to validate their identity. After the user has proven who they are, the recovery system will display or e-mail them a new password.
+Примеры автоматизированных процессов восстановления пароля включают требование к пользователю ответить на «секретный вопрос», определенный как часть процесса регистрации пользователя.  Этот вопрос может быть выбран из списка стандартных вопросов или задан пользователем.  Другой используемый механизм - это предоставление пользователем «подсказки» во время регистрации, которая поможет пользователю вспомнить свой пароль.  Другие механизмы требуют, чтобы пользователь предоставил несколько частей личных данных, таких как номер социального страхования, домашний адрес, почтовый индекс и т. Д., Чтобы подтвердить свою личность.  После того, как пользователь подтвердит, кто он, система восстановления отобразит новый пароль или отправит ему по электронной почте. 
 
-A web site is considered to have Insufficient Password Recovery when an attacker is able to foil the recovery mechanism being used. This happens when the information required to validate a user's identity for recovery is either easily guessed or can be circumvented. Password recovery systems may be compromised through the use of brute force attacks, inherent system weaknesses, or easily guessed secret questions.</desc>
-	<solution>Make sure that all input supplied by the user to the password recovery mechanism is thoroughly filtered and validated
+Считается, что веб-сайт имеет недостаточное восстановление пароля, если злоумышленник может помешать используемому механизму восстановления.  Это происходит, когда информация, необходимая для подтверждения личности пользователя для восстановления, либо легко угадывается, либо ее можно обойти.  Системы восстановления паролей могут быть скомпрометированы с помощью атак методом перебора, внутренних слабых мест системы или легко угадываемых секретных вопросов. </desc>
+	<solution>Убедитесь, что все данные, вводимые пользователем в механизм восстановления пароля, тщательно отфильтрованы и проверены.
 
-Do not use standard weak security questions and use several security questions.
+Не используйте стандартные слабые вопросы безопасности и используйте несколько вопросов безопасности. 
 
-Make sure that there is throttling on the number of incorrect answers to a security question. Disable the password recovery functionality after a certain (small) number of incorrect guesses.
+Убедитесь, что количество неправильных ответов на контрольный вопрос ограничено.  Отключите функцию восстановления пароля после определенного (небольшого) количества неверных угадываний. 
 
-Require that the user properly answers the security question prior to resetting their password and sending the new password to the e-mail address of record.
+Требовать, чтобы пользователь правильно ответил на секретный вопрос перед сбросом пароля и отправкой нового пароля на адрес электронной почты записи. 
 
-Never allow the user to control what e-mail address the new password will be sent to in the password recovery mechanism.
+Никогда не позволяйте пользователю контролировать, на какой адрес электронной почты будет отправлен новый пароль в механизме восстановления пароля. 
 
-Assign a new temporary password rather than revealing the original password.</solution>
+Назначьте новый временный пароль вместо того, чтобы раскрывать исходный пароль. </solution>
 	<reference>http://projects.webappsec.org/Insufficient-Password-Recovery</reference>
 	<reference>http://cwe.mitre.org/data/definitions/640.html</reference>
 </vuln_item_wasc_49>
