@@ -36,6 +36,7 @@
 // ZAP: 2020/10/26 Use empty border in the help button, to prevent the look and feel change from
 // resetting it. Also, use the icon from the ExtensionHelp.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/11/19 Remove empty parent nodes.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -482,12 +483,27 @@ public class AbstractParamContainerPanel extends JSplitPane {
 
         DefaultMutableTreeNode node = this.getTreeNodeFromPanelName(panel.getName(), true);
         if (node != null) {
-            getTreeModel().removeNodeFromParent(node);
+            removeNode(node);
         }
 
         removeSearchAndHighlightComponents(panel);
         getPanelParam().remove(panel);
         tablePanel.remove(panel.getName());
+    }
+
+    /**
+     * Removes the given node and any empty parent nodes.
+     *
+     * @param node the (main) node to remove.
+     */
+    private void removeNode(DefaultMutableTreeNode node) {
+        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+        getTreeModel().removeNodeFromParent(node);
+        if (!parent.isRoot()
+                && parent.getChildCount() == 0
+                && getParamPanel((String) parent.getUserObject()) == null) {
+            removeNode(parent);
+        }
     }
 
     private void removeSearchAndHighlightComponents(AbstractParamPanel panel) {
