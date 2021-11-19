@@ -559,6 +559,7 @@ public class AddOn {
         }
         this.id = extractAddOnId(file.getFileName().toString());
         this.file = file.toFile();
+        this.size = Files.size(file);
         readZapAddOnXmlFile(result.getManifest());
     }
 
