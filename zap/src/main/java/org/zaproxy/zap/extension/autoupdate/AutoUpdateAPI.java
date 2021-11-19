@@ -199,6 +199,7 @@ public class AutoUpdateAPI extends ApiImplementor {
         map.put("installationStatus", ObjectUtils.toString(ao.getInstallationStatus()));
         if (localAddOn) {
             map.put("file", ao.getFile().toString());
+            map.put("mandatory", String.valueOf(ao.isMandatory()));
         }
         return new ApiResponseSet<>("addon", map);
     }
