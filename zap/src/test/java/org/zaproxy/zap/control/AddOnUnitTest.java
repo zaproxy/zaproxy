@@ -614,6 +614,16 @@ class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
+    void shouldHaveCorrectSize() throws Exception {
+        // Given
+        AddOn addOn = new AddOn(createAddOnFile("addon.zap"));
+        // When
+        long size = addOn.getSize();
+        // Then
+        assertThat(size, is(equalTo(189L)));
+    }
+
+    @Test
     void shouldHaveEmptyBundleByDefault() throws Exception {
         // Given
         Path file = createAddOnFile("addon.zap", "release", "1.0.0");
