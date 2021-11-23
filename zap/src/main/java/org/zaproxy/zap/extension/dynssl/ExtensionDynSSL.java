@@ -50,6 +50,7 @@ import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.network.SSLConnector;
 import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
 import org.parosproxy.paros.security.SslCertificateService;
 
@@ -113,6 +114,8 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
         if (isCertExpired(getRootCaCertificate())) {
             warnRootCaCertExpired();
         }
+
+        SSLConnector.setSslCertificateService(CachedSslCertifificateServiceImpl.getService());
     }
 
     public void createNewRootCa()

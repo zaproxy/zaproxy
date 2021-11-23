@@ -42,6 +42,7 @@
 // ZAP: 2020/04/20 Let SOCKS proxy resolve hosts if set (Issue 29).
 // ZAP: 2020/10/30 Add SNI hostname when using SOCKS with unresolved addresses.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/11/23 Allow to set certificates service.
 package org.parosproxy.paros.network;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
@@ -94,8 +95,8 @@ import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
 import org.parosproxy.paros.security.CertData;
+import org.parosproxy.paros.security.MissingRootCertificateException;
 import org.parosproxy.paros.security.SslCertificateService;
 
 public class SSLConnector implements SecureProtocolSocketFactory {
@@ -187,6 +188,8 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
     // ZAP: Added logger
     private static final Logger logger = LogManager.getLogger(SSLConnector.class);
+
+    private static SslCertificateService sslCertificateService;
 
     private static SSLContextManager sslContextManager = null;
 
@@ -735,8 +738,21 @@ public class SSLConnector implements SecureProtocolSocketFactory {
                     new CertData.Name(CertData.Name.IP_ADDRESS, hostname));
         }
 
-        KeyStore ks = CachedSslCertifificateServiceImpl.getService().createCertForHost(certData);
+        if (sslCertificateService == null) {
+            throw new MissingRootCertificateException("The certificates service was not set.");
+        }
+
+        KeyStore ks = sslCertificateService.createCertForHost(certData);
         keyManagerFactory.init(ks, SslCertificateService.PASSPHRASE);
+    }
+
+    /**
+     * Sets the service used to issue server certificates.
+     *
+     * @param service the service.
+     */
+    public static void setSslCertificateService(SslCertificateService service) {
+        sslCertificateService = service;
     }
 
     private static boolean isIpAddress(String value) {
