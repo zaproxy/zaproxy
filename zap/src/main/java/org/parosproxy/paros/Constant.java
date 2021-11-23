@@ -297,7 +297,7 @@ public final class Constant {
     public static final String FLATPAK_NAME = "flatpak";
     private static final String SNAP_FILE = "meta/snap.yaml";
     public static final String SNAP_NAME = "snapcraft";
-    private static final String WEBSWING_ENVVAR = "WEBSWING_VERSION";
+    private static final String HOME_ENVVAR = "HOME";
     public static final String WEBSWING_NAME = "webswing";
 
     //
@@ -1604,7 +1604,8 @@ public final class Constant {
             File snapFile = new File(SNAP_FILE);
             if (isLinux() && containerFile.exists()) {
                 inContainer = true;
-                boolean inWebSwing = System.getenv(WEBSWING_ENVVAR) != null;
+                String home = System.getenv(HOME_ENVVAR);
+                boolean inWebSwing = home != null && home.contains(WEBSWING_NAME);
                 try {
                     containerName =
                             new String(
