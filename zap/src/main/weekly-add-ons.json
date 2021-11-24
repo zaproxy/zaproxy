@@ -22,6 +22,7 @@
       ":addOns:graphql",
       ":addOns:importurls",
       ":addOns:invoke",
+      ":addOns:network",
       ":addOns:oast",
       ":addOns:onlineMenu",
       ":addOns:openapi",

@@ -25,7 +25,6 @@ import edu.umass.cs.benchlab.har.HarLog;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,7 +32,6 @@ import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,8 +53,6 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
-import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -83,7 +79,6 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.AlertAPI;
 import org.zaproxy.zap.extension.alert.AlertParam;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.model.StructuralNode;
@@ -276,7 +271,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] {PARAM_REGEX}));
         this.addApiAction(new ApiAction(ACTION_SET_HOME_DIRECTORY, new String[] {PARAM_DIR}));
         this.addApiAction(new ApiAction(ACTION_SET_MODE, new String[] {PARAM_MODE}));
-        this.addApiAction(new ApiAction(ACTION_GENERATE_ROOT_CA));
+        this.addApiAction(deprecatedNetworkApi(new ApiAction(ACTION_GENERATE_ROOT_CA)));
         this.addApiAction(
                 new ApiAction(
                         ACTION_SEND_REQUEST,
@@ -378,7 +373,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 new String[] {PARAM_BASE_URL, PARAM_RISK}))));
 
         this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
-        this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
+        this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_ROOT_CERT, false)));
         this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_XML_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_HTML_REPORT)));
@@ -403,6 +398,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
         addApiOptions(this.connectionParam);
+    }
+
+    private <T extends ApiElement> T deprecatedNetworkApi(T element) {
+        return depreciatedApi(element, Constant.messages.getString("core.api.deprecated.network"));
     }
 
     private <T extends ApiElement> T depreciatedAlertApi(T element) {
@@ -662,16 +661,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_MODE);
             }
         } else if (ACTION_GENERATE_ROOT_CA.equals(name)) {
-            ExtensionDynSSL extDyn =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.class);
-            if (extDyn != null) {
-                try {
-                    extDyn.createNewRootCa();
-                } catch (Exception e) {
-                    logger.error("Failed to create the new Root CA cert:", e);
-                    throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-                }
-            }
+            return getNetworkImplementor().handleApiAction("generateRootCaCert", params);
         } else if (ACTION_SEND_REQUEST.equals(name)) {
             HttpMessage request;
             try {
@@ -866,6 +856,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }
         return ApiResponseElement.OK;
+    }
+
+    private static ApiImplementor getNetworkImplementor() throws ApiException {
+        return API.getInstance().getImplementors().get("network");
     }
 
     @Override
@@ -1375,36 +1369,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
             return msg;
         } else if (OTHER_ROOT_CERT.equals(name)) {
-            ExtensionDynSSL extDynSSL =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.class);
-            if (extDynSSL != null) {
-                try {
-                    Certificate rootCA = extDynSSL.getRootCA();
-                    if (rootCA == null) {
-                        throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
-                    }
-                    final StringWriter sw = new StringWriter();
-                    try (final PemWriter pw = new PemWriter(sw)) {
-                        pw.writeObject(new JcaMiscPEMGenerator(rootCA));
-                        pw.flush();
-                    }
-                    String response = sw.toString();
-                    msg.setResponseHeader(
-                            API.getDefaultResponseHeader(
-                                            "application/pkix-cert;", response.length())
-                                    + "Content-Disposition: attachment; filename=\"ZAPCACert.cer\"\r\n");
-
-                    msg.setResponseBody(response);
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                    throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-                }
-
-            } else {
-                throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
-            }
-
-            return msg;
+            return getNetworkImplementor().handleApiOther(msg, "rootCaCert", params);
         } else if (OTHER_XML_REPORT.equals(name)) {
             generateReport(msg, ScanReportType.XML);
             return msg;

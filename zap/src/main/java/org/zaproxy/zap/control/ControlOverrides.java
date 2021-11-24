@@ -113,6 +113,6 @@ public class ControlOverrides {
      * @since 2.12.0
      */
     public List<String> getMandatoryAddOns() {
-        return Arrays.asList("callhome");
+        return Arrays.asList("callhome", "network");
     }
 }
