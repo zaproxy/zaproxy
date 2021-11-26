@@ -22,6 +22,7 @@ package org.parosproxy.paros.security;
 import java.util.ArrayList;
 import java.util.Objects;
 
+@Deprecated
 public class CertData {
 
     private String commonName;

@@ -95,9 +95,6 @@ import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.security.CertData;
-import org.parosproxy.paros.security.MissingRootCertificateException;
-import org.parosproxy.paros.security.SslCertificateService;
 
 public class SSLConnector implements SecureProtocolSocketFactory {
 
@@ -189,7 +186,8 @@ public class SSLConnector implements SecureProtocolSocketFactory {
     // ZAP: Added logger
     private static final Logger logger = LogManager.getLogger(SSLConnector.class);
 
-    private static SslCertificateService sslCertificateService;
+    @SuppressWarnings("deprecation")
+    private static org.parosproxy.paros.security.SslCertificateService sslCertificateService;
 
     private static SSLContextManager sslContextManager = null;
 
@@ -719,6 +717,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
         }
     }
 
+    @SuppressWarnings("deprecation")
     static void initKeyManagerFactoryWithCertForHostname(
             KeyManagerFactory keyManagerFactory, String hostname, InetAddress listeningAddress)
             throws InvalidKeyException, UnrecoverableKeyException, NoSuchAlgorithmException,
@@ -727,23 +726,30 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
         boolean hostnameIsIpAddress = isIpAddress(hostname);
 
-        CertData certData = hostnameIsIpAddress ? new CertData() : new CertData(hostname);
+        org.parosproxy.paros.security.CertData certData =
+                hostnameIsIpAddress
+                        ? new org.parosproxy.paros.security.CertData()
+                        : new org.parosproxy.paros.security.CertData(hostname);
         if (hostname == null && listeningAddress != null) {
             certData.addSubjectAlternativeName(
-                    new CertData.Name(CertData.Name.IP_ADDRESS, listeningAddress.getHostAddress()));
+                    new org.parosproxy.paros.security.CertData.Name(
+                            org.parosproxy.paros.security.CertData.Name.IP_ADDRESS,
+                            listeningAddress.getHostAddress()));
         }
 
         if (hostnameIsIpAddress) {
             certData.addSubjectAlternativeName(
-                    new CertData.Name(CertData.Name.IP_ADDRESS, hostname));
+                    new org.parosproxy.paros.security.CertData.Name(
+                            org.parosproxy.paros.security.CertData.Name.IP_ADDRESS, hostname));
         }
 
         if (sslCertificateService == null) {
-            throw new MissingRootCertificateException("The certificates service was not set.");
+            throw new org.parosproxy.paros.security.MissingRootCertificateException(
+                    "The certificates service was not set.");
         }
 
         KeyStore ks = sslCertificateService.createCertForHost(certData);
-        keyManagerFactory.init(ks, SslCertificateService.PASSPHRASE);
+        keyManagerFactory.init(ks, org.parosproxy.paros.security.SslCertificateService.PASSPHRASE);
     }
 
     /**
@@ -751,7 +757,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
      *
      * @param service the service.
      */
-    public static void setSslCertificateService(SslCertificateService service) {
+    @SuppressWarnings("deprecation")
+    public static void setSslCertificateService(
+            org.parosproxy.paros.security.SslCertificateService service) {
         sslCertificateService = service;
     }
 

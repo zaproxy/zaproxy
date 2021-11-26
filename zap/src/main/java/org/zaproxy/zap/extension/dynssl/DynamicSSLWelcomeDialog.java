@@ -46,6 +46,7 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.FontUtils;
 
+@Deprecated
 public class DynamicSSLWelcomeDialog extends AbstractDialog {
 
     private static final long serialVersionUID = -7686931099484922846L;

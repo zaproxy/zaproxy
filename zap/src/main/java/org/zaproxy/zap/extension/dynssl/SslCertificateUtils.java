@@ -62,9 +62,9 @@ import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.parosproxy.paros.security.SslCertificateService;
 
 /** @author MaWoKi */
+@Deprecated
 public class SslCertificateUtils {
 
     /**
@@ -179,9 +179,9 @@ public class SslCertificateUtils {
             ks = KeyStore.getInstance(KeyStore.getDefaultType());
             ks.load(null, null);
             ks.setKeyEntry(
-                    SslCertificateService.ZAPROXY_JKS_ALIAS,
+                    org.parosproxy.paros.security.SslCertificateService.ZAPROXY_JKS_ALIAS,
                     privKey,
-                    SslCertificateService.PASSPHRASE,
+                    org.parosproxy.paros.security.SslCertificateService.PASSPHRASE,
                     new Certificate[] {cert});
         } catch (final Exception e) {
             throw new IllegalStateException("Errors during assembling root CA.", e);
@@ -200,7 +200,7 @@ public class SslCertificateUtils {
     public static final String keyStore2String(KeyStore keystore)
             throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        keystore.store(baos, SslCertificateService.PASSPHRASE);
+        keystore.store(baos, org.parosproxy.paros.security.SslCertificateService.PASSPHRASE);
         final byte[] bytes = baos.toByteArray();
         baos.close();
         return Base64.getUrlEncoder().encodeToString(bytes);
@@ -219,7 +219,7 @@ public class SslCertificateUtils {
         final byte[] bytes = Base64.getUrlDecoder().decode(str);
         final ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         final KeyStore ks = KeyStore.getInstance(KeyStore.getDefaultType());
-        ks.load(bais, SslCertificateService.PASSPHRASE);
+        ks.load(bais, org.parosproxy.paros.security.SslCertificateService.PASSPHRASE);
         bais.close();
         return ks;
     }
@@ -300,9 +300,9 @@ public class SslCertificateUtils {
         keystore.load(null);
         keystore.setCertificateEntry("cert-alias", cert);
         keystore.setKeyEntry(
-                SslCertificateService.ZAPROXY_JKS_ALIAS,
+                org.parosproxy.paros.security.SslCertificateService.ZAPROXY_JKS_ALIAS,
                 key,
-                SslCertificateService.PASSPHRASE,
+                org.parosproxy.paros.security.SslCertificateService.PASSPHRASE,
                 new Certificate[] {cert});
         return keystore;
     }
