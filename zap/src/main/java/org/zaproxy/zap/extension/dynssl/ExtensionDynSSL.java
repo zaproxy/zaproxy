@@ -96,6 +96,14 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
 
     @Override
     public void start() {
+        try {
+            startImpl();
+        } finally {
+            SSLConnector.setSslCertificateService(CachedSslCertifificateServiceImpl.getService());
+        }
+    }
+
+    private void startImpl() {
         final KeyStore rootca = getParams().getRootca();
         if (rootca == null) {
             try {
@@ -114,8 +122,6 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
         if (isCertExpired(getRootCaCertificate())) {
             warnRootCaCertExpired();
         }
-
-        SSLConnector.setSslCertificateService(CachedSslCertifificateServiceImpl.getService());
     }
 
     public void createNewRootCa()
