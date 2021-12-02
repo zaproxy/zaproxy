@@ -25,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 /** @author MaWoKi */
+@Deprecated
 public class DynSSLParam extends AbstractParam {
 
     /*default*/ static final String PARAM_ROOT_CA = "dynssl.param.rootca";

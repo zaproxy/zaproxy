@@ -20,6 +20,7 @@
 package org.parosproxy.paros.security;
 
 /** Signal not initialized root CA certificate store. */
+@Deprecated
 public class MissingRootCertificateException extends IllegalStateException {
 
     private static final long serialVersionUID = -9087082417871920302L;

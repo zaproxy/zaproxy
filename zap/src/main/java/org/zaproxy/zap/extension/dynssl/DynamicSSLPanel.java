@@ -54,13 +54,13 @@ import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
-import org.parosproxy.paros.security.SslCertificateService;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
+@Deprecated
 public class DynamicSSLPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
@@ -301,7 +301,9 @@ public class DynamicSSLPanel extends AbstractParamPanel {
         if (rootca != null) {
             try {
                 final Certificate cert =
-                        rootca.getCertificate(SslCertificateService.ZAPROXY_JKS_ALIAS);
+                        rootca.getCertificate(
+                                org.parosproxy.paros.security.SslCertificateService
+                                        .ZAPROXY_JKS_ALIAS);
                 try (final PemWriter pw = new PemWriter(sw)) {
                     pw.writeObject(new JcaMiscPEMGenerator(cert));
                     pw.flush();
