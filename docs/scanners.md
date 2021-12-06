@@ -36,7 +36,7 @@ Scanners:
 10017   Cross-domain JavaScript source file inclusion
 10018   Untrusted domains in JavaScript source code
 10019   Content-Type header missing
-10020   X-Frame-Options header not set
+10020   Anti-clickjacking Header
 10021   X-Content-Type-Options header missing
 10022   Information disclosure - database error messages [Deprecated]
 10023   Information disclosure - debug error messages
