@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.file.FileVisitDetails;
 import org.gradle.api.tasks.OutputDirectory;
@@ -54,7 +55,7 @@ import org.gradle.api.tasks.TaskAction;
  *   <li>Remove constant {@code ZZ_BUFFERSIZE}, not used;
  *   <li>Remove {@code throws IOException} from {@code yylex()}, not actually thrown;
  *   <li>Add {@code @SuppressWarnings("fallthrough")} annotation to {@code yylex()};
- *   <li>Add {@code @Override} annotation to {@code yybegin}.
+ *   <li>Add {@code @Override} annotation to {@code yybegin} and {@code yyclose}.
  * </ul>
  *
  * @see JFlexGenerator
@@ -104,8 +105,7 @@ public class JFlexToRstaTokenMaker extends SourceTask {
                                     SuppressWarnings.class, "\"fallthrough\"");
                         });
 
-        type.getMethodsByName("yybegin")
-                .forEach(method -> method.addMarkerAnnotation(Override.class));
+        addOverrideAnnotation(type, "yybegin", "yyclose");
 
         Path outputFile = outputDir.resolve(source.getRelativePath().getPathString());
         try {
@@ -122,6 +122,17 @@ public class JFlexToRstaTokenMaker extends SourceTask {
         } catch (FileNotFoundException e) {
             throw new BuildException("File not found: " + file, e);
         }
+    }
+
+    private static void addOverrideAnnotation(TypeDeclaration<?> type, String... names) {
+        if (names == null || names.length == 0) {
+            return;
+        }
+
+        Stream.of(names)
+                .map(type::getMethodsByName)
+                .flatMap(List::stream)
+                .forEach(method -> method.addMarkerAnnotation(Override.class));
     }
 
     private static void removeInitialisation(FieldDeclaration field) {
