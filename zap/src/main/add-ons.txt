@@ -20,7 +20,7 @@ https://github.com/zaproxy/zap-extensions/releases/download/fuzz-v13.5.0/fuzz-be
 https://github.com/zaproxy/zap-extensions/releases/download/gettingStarted-v13/gettingStarted-release-13.zap 3eea769ec19f28c2ac7e924f5c77dbd1c3c59f40f409a1fcd3bf97cebdfd36ad
 https://github.com/zaproxy/zap-extensions/releases/download/graaljs-v0.2.0/graaljs-alpha-0.2.0.zap 6201ffc802a1d4922a4f2b5ea38f58a7332a5638e3719f4796efba375aa15045
 https://github.com/zaproxy/zap-extensions/releases/download/graphql-v0.7.0/graphql-alpha-0.7.0.zap 371ae81ca9b5a2d14357211a5313eb7fc9a977f3117d3d4f678267a1a447cf61
-https://github.com/zaproxy/zap-core-help/releases/download/help-v13/help-release-13.zap fff11e2e2c99a635a599a826fc3fb1bcec250486823e4e39b7ab545b14d5c58c
+https://github.com/zaproxy/zap-core-help/releases/download/help-v14/help-release-14.zap b9a0927ce7a80df42b28b40beafad0ecfa34e45d628b302cf93e0bc825d93ee8
 https://github.com/zaproxy/zap-hud/releases/download/v0.13.0/hud-beta-0.13.0.zap 06bdf1f9ef0c7f1f55cdd1d5eb9c9ba1a53903b8a3a26224c941d7bb9f18c8ef
 https://github.com/zaproxy/zap-extensions/releases/download/importurls-v8/importurls-beta-8.zap 22d509de7ef01de5ca046614c58a2a83d40180a4c593053735e680ac86e99d87
 https://github.com/zaproxy/zap-extensions/releases/download/invoke-v11/invoke-beta-11.zap 088ed335a7dbe1ad1569fc249e1a395f1957e39598c6d4d648cdc49780cb71fc
