@@ -13,7 +13,7 @@ RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVers
 # Update add-ons
 RUN ./zap.sh -cmd -silent -addonupdate
 # Copy them to installation directory
-RUN cp /root/.ZAP/plugin/*.zap plugin/
+RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
 FROM openjdk:8-jdk-alpine
 LABEL maintainer="psiinon@gmail.com"
