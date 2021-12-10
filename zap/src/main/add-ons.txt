@@ -6,7 +6,7 @@
 # The URLs should be followed by the checksum (SHA-256).
 
 https://github.com/zaproxy/zap-extensions/releases/download/alertFilters-v13/alertFilters-release-13.zap 71ecbe94847cf1ade03ed81d57831d806317b65c72d468521fb43f280dd710a9
-https://github.com/zaproxy/zap-extensions/releases/download/automation-v0.9.0/automation-alpha-0.9.0.zap1744ad5a02fdc48db0e17c1e95aed4badb6761bd7a40092faa06c3e3cfea526d
+https://github.com/zaproxy/zap-extensions/releases/download/automation-v0.9.0/automation-alpha-0.9.0.zap 1744ad5a02fdc48db0e17c1e95aed4badb6761bd7a40092faa06c3e3cfea526d
 https://github.com/zaproxy/zap-extensions/releases/download/ascanrules-v43/ascanrules-release-43.zap 8f95ec46efc54a4cb05e631619268e41bc4bc3c642ab1fa12359006181b3bbff
 https://github.com/zaproxy/zap-extensions/releases/download/bruteforce-v11/bruteforce-beta-11.zap b0713b47c7e16a33d46002382b83ebcdd18bfdf852bf021574378dde49f347fc
 https://github.com/zaproxy/zap-extensions/releases/download/callhome-v0.0.3/callhome-alpha-0.0.3.zap de340fd154462695cfbf584cf48bf16a501c0bb1889c2383ea7060f39dccdf8e
