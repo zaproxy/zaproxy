@@ -62,6 +62,6 @@ WARN-NEW: Server Leaks Version Information via "Server" HTTP Response Header Fie
 WARN-NEW: Content Security Policy (CSP) Header Not Set [10038] x 2 
 	https://www.example.com/ (200 OK)
 	https://www.example.com/sitemap.xml (404 Not Found)
-FAIL-NEW: X-Frame-Options Header Not Set [10020] x 1 Custom X-Frame-Options option message
+FAIL-NEW: Missing Anti-clickjacking Header [10020] x 1 Custom X-Frame-Options option message
 	https://www.example.com/ (200 OK)
 FAIL-NEW: 1	FAIL-INPROG: 0	WARN-NEW: 4	WARN-INPROG: 0	INFO: 1	IGNORE: 1	PASS: 47
