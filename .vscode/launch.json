@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Launch ZAP",
+            "request": "launch",
+            "mainClass": "org.zaproxy.zap.ZAP",
+            "projectName": "zap"
+        }
+    ]
+}
