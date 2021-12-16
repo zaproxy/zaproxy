@@ -56,11 +56,11 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV WEBSWING_VERSION 21.1.5
+ENV WEBSWING_VERSION 21.2.4
 
 # Setup Webswing
 RUN if [ -z "$WEBSWING_URL" ] ; \
-	then curl -s -L  "https://storage.googleapis.com/builds.webswing.org/releases/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
 	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
