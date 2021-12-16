@@ -41,6 +41,8 @@
 // ZAP: 2021/04/08 Remove/fix boilerplate javadocs, and un-necessary fully qualified method return
 // types.
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2021/12/30 Disable snapshot menu item if session not already persisted, add tooltip to
+// disabled menu item (Issue 6938).
 package org.parosproxy.paros.view;
 
 import java.awt.event.ActionEvent;
@@ -283,6 +285,9 @@ public class MainMenuBar extends JMenuBar {
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             try {
                                 getMenuFileControl().newSession(true);
+                                if (Model.getSingleton().getSession().isNewState()) {
+                                    toggleSnapshotState(false);
+                                }
                             } catch (Exception e1) {
                                 View.getSingleton()
                                         .showWarningDialog(
@@ -307,6 +312,9 @@ public class MainMenuBar extends JMenuBar {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             getMenuFileControl().openSession();
+                            if (!Model.getSingleton().getSession().isNewState()) {
+                                toggleSnapshotState(true);
+                            }
                         }
                     });
         }
@@ -327,6 +335,9 @@ public class MainMenuBar extends JMenuBar {
                                         .showWarningDialog(
                                                 Constant.messages.getString(
                                                         "menu.file.sessionExists.error"));
+                            }
+                            if (!Model.getSingleton().getSession().isNewState()) {
+                                toggleSnapshotState(true);
                             }
                         }
                     });
@@ -351,6 +362,7 @@ public class MainMenuBar extends JMenuBar {
                             }
                         }
                     });
+            toggleSnapshotState(false);
         }
         return menuFileSnapshot;
     }
@@ -545,5 +557,15 @@ public class MainMenuBar extends JMenuBar {
             this.getMenuFileSaveAs().setEnabled(session.isNewState());
             this.getMenuFileSnapshot().setEnabled(!session.isNewState());
         }
+    }
+
+    private void toggleSnapshotState(boolean enabled) {
+        if (enabled) {
+            menuFileSnapshot.setToolTipText("");
+        } else {
+            menuFileSnapshot.setToolTipText(
+                    Constant.messages.getString("menu.file.snapshotSession.disabled.tooltip"));
+        }
+        menuFileSnapshot.setEnabled(enabled);
     }
 }
