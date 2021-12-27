@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2021-12-27
+ - Updated to use Webswing 21.2.5
+
 ### 2021-12-16
  - Updated to use Webswing 21.2.4
 

@@ -48,7 +48,7 @@ RUN mkdir /home/zap/.vnc
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
-ENV WEBSWING_VERSION 21.2.4
+ENV WEBSWING_VERSION 21.2.5
 
 # Pull the ZAP repo
 RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
