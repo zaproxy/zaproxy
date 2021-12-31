@@ -1,7 +1,7 @@
 # [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/zap32x32.png) OWASP ZAP](https://www.zaproxy.org)
 [![License](https://img.shields.io/badge/license-Apache%202-4EB1BA.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 [![GitHub release](https://img.shields.io/github/release/zaproxy/zaproxy.svg)](https://www.zaproxy.org/download/)
-[![Build Status](https://travis-ci.com/zaproxy/zaproxy.svg?branch=main)](https://travis-ci.com/zaproxy/zaproxy)
+[![Java CI](https://github.com/zaproxy/zaproxy/actions/workflows/ci.yml/badge.svg)](https://github.com/zaproxy/zaproxy/actions/workflows/ci.yml)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/24/badge)](https://bestpractices.coreinfrastructure.org/projects/24)
 [![Github Releases](https://img.shields.io/github/downloads/zaproxy/zaproxy/latest/total.svg?maxAge=2592000)](https://zapbot.github.io/zap-mgmt-scripts/downloads.html)
 [![javadoc](https://javadoc.io/badge2/org.zaproxy/zap/javadoc.svg)](https://javadoc.io/doc/org.zaproxy/zap)
