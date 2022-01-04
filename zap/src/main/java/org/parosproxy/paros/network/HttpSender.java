@@ -87,6 +87,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2020/12/09 Set content encoding to the response body.
 // ZAP: 2021/05/14 Remove redundant type arguments and empty statement.
+// ZAP: 2022/01/04 Add initiator constant OAST_INITIATOR for OAST requests.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -147,6 +148,7 @@ public class HttpSender {
     public static final int WEB_SOCKET_INITIATOR = 13;
     public static final int AUTHENTICATION_HELPER_INITIATOR = 14;
     public static final int AUTHENTICATION_POLL_INITIATOR = 15;
+    public static final int OAST_INITIATOR = 16;
 
     private static Logger log = LogManager.getLogger(HttpSender.class);
 
