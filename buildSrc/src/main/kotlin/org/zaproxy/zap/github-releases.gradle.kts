@@ -101,7 +101,7 @@ tasks.register<CreateMainRelease>("createMainRelease") {
     tagMessage.set("Version ${project.version}")
 
     title.set(tagName)
-    body.set("")
+    body.set("Release notes: https://www.zaproxy.org/docs/desktop/releases/${project.version}/")
     checksumAlgorithm.set("SHA-256")
     draft.set(true)
 
