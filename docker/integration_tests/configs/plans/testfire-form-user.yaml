@@ -1,0 +1,54 @@
+---
+env:
+  contexts:
+  - name: "demo.testfire.net"
+    urls:
+    - "http://demo.testfire.net"
+    includePaths:
+    - "http://demo.testfire.net.*"
+    excludePaths: []
+    authentication:
+      method: "form"
+      parameters:
+        loginPageUrl: "http://demo.testfire.net/doLogin"
+        loginRequestUrl: "http://demo.testfire.net/doLogin"
+        loginRequestBody: "uid={%username%}&passw={%password%}&btnSubmit=Login"
+      verification:
+        method: "response"
+        loggedInRegex: "\\Q\" >MY ACCOUNT</a>\\E"
+        pollFrequency: 60
+        pollUnits: "requests"
+        pollUrl: ""
+        pollPostData: ""
+    sessionManagement:
+      method: "cookie"
+      parameters: {}
+    users:
+    - name: "jsmith"
+      username: "jsmith"
+      password: "demo1234"
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    progressToStdout: true
+  vars: {}
+jobs:
+- parameters:
+    user: "jsmith"
+  requests:
+  - url: "http://demo.testfire.net"
+    name: ""
+    method: "GET"
+    data: ""
+    responseCode: 200
+  tests:
+  - onFail: "ERROR"
+    statistic: "stats.auth.state.loggedin"
+    site: "http://demo.testfire.net"
+    operator: ">="
+    value: 1
+    name: "requestor/stats"
+    type: "stats"
+  name: "requestor"
+  type: "requestor"
+
