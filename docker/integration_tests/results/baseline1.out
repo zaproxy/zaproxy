@@ -47,7 +47,7 @@ PASS: Charset Mismatch [90011]
 PASS: Application Error Disclosure [90022]
 PASS: WSDL File Detection [90030]
 PASS: Loosely Scoped Cookie [90033]
-WARN-NEW: Incomplete or No Cache-control Header Set [10015] x 1 
+WARN-NEW: Re-examine Cache-control Directives [10015] x 1 
 	https://www.example.com/ (200 OK)
 WARN-NEW: Missing Anti-clickjacking Header [10020] x 1 
 	https://www.example.com/ (200 OK)

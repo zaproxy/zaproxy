@@ -51,7 +51,7 @@ IGNORE: Retrieved from Cache [10050] x 3
 	https://www.example.com/ (200 OK)
 	https://www.example.com/robots.txt (404 Not Found)
 	https://www.example.com/sitemap.xml (404 Not Found)
-INFO: Incomplete or No Cache-control Header Set [10015] x 1 
+INFO: Re-examine Cache-control Directives [10015] x 1 
 	https://www.example.com/ (200 OK)
 WARN-NEW: X-Content-Type-Options Header Missing [10021] x 1 
 	https://www.example.com/ (200 OK)
