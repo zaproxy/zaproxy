@@ -169,7 +169,8 @@ Scanners:
 40040	CORS active scan rule
 40041   FileUpload Scanner
 40042   Spring Actuator Test
-40043   Log4Shell (CVE-2021-44228)
+40043   Log4Shell (CVE-2021-44228, CVE-2021-45046)
+40044   Exponential Entity Expansion (Billion Laughs Attack)
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
