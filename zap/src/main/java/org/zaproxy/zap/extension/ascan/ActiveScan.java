@@ -75,6 +75,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     private int maxResultsToList = 0;
 
     private final List<Integer> hRefs = Collections.synchronizedList(new ArrayList<>());
+    private final List<Integer> hRefsWithError = Collections.synchronizedList(new ArrayList<>());
     private final List<Integer> alerts = Collections.synchronizedList(new ArrayList<>());
 
     private ScheduledExecutorService scheduler;
@@ -273,7 +274,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     }
 
     @Override
-    public void notifyNewMessage(final HttpMessage msg) {
+    public void notifyNewTaskResult(final ScannerTaskResult scannerTaskResult) {
+        HttpMessage msg = scannerTaskResult.getHttpMessage();
         HistoryReference hRef = msg.getHistoryRef();
         if (hRef == null) {
             try {
@@ -283,12 +285,12 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
                                 HistoryReference.TYPE_SCANNER_TEMPORARY,
                                 msg);
                 msg.setHistoryRef(null);
-                hRefs.add(hRef.getHistoryId());
+                addHref(hRef.getHistoryId(), scannerTaskResult.isProcessed());
             } catch (HttpMalformedHeaderException | DatabaseException e) {
                 log.error(e.getMessage(), e);
             }
         } else {
-            hRefs.add(hRef.getHistoryId());
+            addHref(hRef.getHistoryId(), scannerTaskResult.isProcessed());
         }
 
         this.rcTotals.incResponseCodeCount(msg.getResponseHeader().getStatusCode());
@@ -299,17 +301,26 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
             if (this.rcTotals.getTotal() > this.maxResultsToList) {
                 removeFirstHistoryReferenceInEdt();
             }
-            addHistoryReferenceInEdt(hRef);
+            addHistoryReferenceInEdt(hRef, scannerTaskResult);
         }
     }
 
-    private void addHistoryReferenceInEdt(final HistoryReference hRef) {
+    private void addHref(int historyId, boolean noError) {
+        if (noError) {
+            hRefs.add(historyId);
+        } else {
+            hRefsWithError.add(historyId);
+        }
+    }
+
+    private void addHistoryReferenceInEdt(
+            final HistoryReference hRef, ScannerTaskResult scannerTaskResult) {
         EventQueue.invokeLater(
                 new Runnable() {
 
                     @Override
                     public void run() {
-                        messagesTableModel.addHistoryReference(hRef);
+                        messagesTableModel.addEntry(hRef, scannerTaskResult);
                     }
                 });
     }
@@ -372,6 +383,22 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
      */
     public List<Integer> getMessagesIds() {
         return hRefs;
+    }
+
+    /**
+     * Returns the IDs of all messages sent/created during the scan which threw an error (e.g.
+     * IOException). The message must be recreated with a HistoryReference.
+     *
+     * <p><strong>Note:</strong> Iterations must be {@code synchronized} on returned object. Failing
+     * to do so might result in {@code ConcurrentModificationException}.
+     *
+     * @return the IDs of all the messages sent/created during the scan which threw an error (e.g.
+     *     IOException)
+     * @see HistoryReference
+     * @see ConcurrentModificationException
+     */
+    public List<Integer> getMessagesIdsWithError() {
+        return hRefsWithError;
     }
 
     /**

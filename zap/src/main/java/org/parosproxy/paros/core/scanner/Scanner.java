@@ -52,6 +52,7 @@
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/01/04 Use changed ScannerListener interface
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -79,6 +80,7 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ActiveScanEventPublisher;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.extension.ascan.ScannerTaskResult;
 import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.extension.script.ScriptCollection;
@@ -455,10 +457,16 @@ public class Scanner implements Runnable {
         return pause;
     }
 
+    /** @deprecated (2.12.0) Use {@link #notifyNewMessage(ScannerTaskResult)} */
+    @Deprecated
     public void notifyNewMessage(HttpMessage msg) {
+        notifyNewMessage(new ScannerTaskResult(msg));
+    }
+
+    public void notifyNewMessage(ScannerTaskResult scannerTaskResult) {
         for (int i = 0; i < listenerList.size(); i++) {
             ScannerListener listener = listenerList.get(i);
-            listener.notifyNewMessage(msg);
+            listener.notifyNewTaskResult(scannerTaskResult);
         }
     }
 

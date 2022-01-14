@@ -70,6 +70,8 @@
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j2 getLogger() and deprecate Log4j1.x.
 // ZAP: 2021/07/20 Correct message updated with the scan rule ID header (Issue 6689).
+// ZAP: 2022/01/04 Process notifications also on exception during sendAndReceive (Issue
+// 7004).
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -94,6 +96,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
+import org.zaproxy.zap.extension.ascan.ScannerTaskResult;
 import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
@@ -309,16 +312,25 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         // ZAP: Runs the "beforeScan" methods of any ScannerHooks
         parent.performScannerHookBeforeScan(message, this);
 
-        if (isFollowRedirect) {
-            parent.getHttpSender().sendAndReceive(message, getParent().getRedirectRequestConfig());
-        } else {
-            parent.getHttpSender().sendAndReceive(message, false);
+        try {
+            if (isFollowRedirect) {
+                parent.getHttpSender()
+                        .sendAndReceive(message, getParent().getRedirectRequestConfig());
+            } else {
+                parent.getHttpSender().sendAndReceive(message, false);
+            }
+        } catch (IOException e) {
+            message.setErrorResponse(e);
+            // ZAP: Notify parent
+            parent.notifyNewMessage(this, new ScannerTaskResult(message, e.getLocalizedMessage()));
+            return;
         }
 
         // ZAP: Notify parent
-        parent.notifyNewMessage(this, message);
+        parent.notifyNewMessage(this, new ScannerTaskResult(message));
 
-        // ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
+        // ZAP: Set the history reference back and run the "afterScan" methods of any
+        // ScannerHooks
         parent.performScannerHookAfterScan(message, this);
     }
 

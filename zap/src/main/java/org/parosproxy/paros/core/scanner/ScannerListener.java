@@ -25,9 +25,11 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/10 Issue 5278: Adding filtered messages to active scan panel.
 // ZAP: 2021/05/14 Remove empty statement.
+// ZAP: 2022/01/14 deprecated notifyNewMessage and added notifyNewTaskResult
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.ascan.ScannerTaskResult;
 
 public interface ScannerListener {
 
@@ -41,8 +43,13 @@ public interface ScannerListener {
 
     void alertFound(Alert alert);
 
-    // ZAP: Added notifyNewMessage
-    void notifyNewMessage(HttpMessage msg);
+    /** @deprecated (2.12.0) Use {@link #notifyNewTaskResult(ScannerTaskResult)} */
+    @Deprecated
+    default void notifyNewMessage(HttpMessage msg) {}
+
+    default void notifyNewTaskResult(ScannerTaskResult scannerTaskResult) {
+        notifyNewMessage(scannerTaskResult.getHttpMessage());
+    }
 
     /**
      * Added to notify reason for filtering message from scanning.

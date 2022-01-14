@@ -43,6 +43,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/26 Remove null check in sendAndReceive(HttpMessage). (LGTM Issue)
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/01/04 Use changed ScannerListener interface
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -63,6 +64,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.zaproxy.zap.extension.ascan.ScannerTaskResult;
 import org.zaproxy.zap.model.StructuralNode;
 
 public class Analyser {
@@ -519,7 +521,7 @@ public class Analyser {
 
         httpSender.sendAndReceive(msg, parent.getRedirectRequestConfig());
         requestCount++;
-        parent.notifyNewMessage(msg);
+        parent.notifyNewMessage(new ScannerTaskResult(msg));
     }
 
     public int getDelayInMs() {

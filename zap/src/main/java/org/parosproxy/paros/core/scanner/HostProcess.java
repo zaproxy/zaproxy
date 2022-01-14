@@ -99,6 +99,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/09/14 No longer force single threading if Anti CSRF handling turned on.
 // ZAP: 2021/09/30 Pass plugin to PluginStats instead of just the name.
+// ZAP: 2022/01/04 Use changed ScannerListener interface
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -126,6 +127,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.extension.ascan.ScannerTaskResult;
 import org.zaproxy.zap.extension.ascan.filters.FilterResult;
 import org.zaproxy.zap.extension.ascan.filters.ScanFilter;
 import org.zaproxy.zap.extension.custompages.CustomPage;
@@ -646,7 +648,7 @@ public class HostProcess implements Runnable {
     private boolean obtainResponse(HistoryReference hRef, HttpMessage message) {
         try {
             getHttpSender().sendAndReceive(message);
-            notifyNewMessage(message);
+            notifyNewMessage(new ScannerTaskResult(message));
             requestCount++;
             return true;
         } catch (IOException e) {
@@ -839,9 +841,11 @@ public class HostProcess implements Runnable {
      *
      * @param msg the new HTTP message
      * @since 1.2.0
+     * @deprecated (2.12.0) Use {@link #notifyNewMessage(ScannerTaskResult)}
      */
+    @Deprecated
     public void notifyNewMessage(HttpMessage msg) {
-        parentScanner.notifyNewMessage(msg);
+        notifyNewMessage(new ScannerTaskResult(msg));
     }
 
     /**
@@ -852,9 +856,37 @@ public class HostProcess implements Runnable {
      * @throws IllegalArgumentException if the given {@code plugin} is {@code null}.
      * @since 2.5.0
      * @see #notifyNewMessage(Plugin)
+     * @deprecated (2.12.0) Use {@link #notifyNewMessage(Plugin, ScannerTaskResult)}
      */
+    @Deprecated
     public void notifyNewMessage(Plugin plugin, HttpMessage message) {
-        parentScanner.notifyNewMessage(message);
+        notifyNewMessage(plugin, new ScannerTaskResult(message));
+    }
+
+    /**
+     * Notifies interested parties that a new message was sent (and received).
+     *
+     * <p>{@link Plugin Plugins} should call {@link #notifyNewMessage(Plugin)} or {@link
+     * #notifyNewMessage(Plugin, ScannerTaskResult)}, instead.
+     *
+     * @param scannerTaskResult contains the new HTTP message
+     * @since 1.2.0
+     */
+    public void notifyNewMessage(ScannerTaskResult scannerTaskResult) {
+        parentScanner.notifyNewMessage(scannerTaskResult);
+    }
+
+    /**
+     * Notifies that the given {@code plugin} sent (and received) the given HTTP message.
+     *
+     * @param plugin the plugin that sent the message
+     * @param scannerTaskResult contains the message sent
+     * @throws IllegalArgumentException if the given {@code plugin} is {@code null}.
+     * @since 2.5.0
+     * @see #notifyNewMessage(Plugin)
+     */
+    public void notifyNewMessage(Plugin plugin, ScannerTaskResult scannerTaskResult) {
+        parentScanner.notifyNewMessage(scannerTaskResult);
         notifyNewMessage(plugin);
     }
 
@@ -867,7 +899,7 @@ public class HostProcess implements Runnable {
      * @param plugin the plugin that sent a non-HTTP message
      * @throws IllegalArgumentException if the given parameter is {@code null}.
      * @since 2.5.0
-     * @see #notifyNewMessage(Plugin, HttpMessage)
+     * @see #notifyNewMessage(Plugin, ScannerTaskResult)
      */
     public void notifyNewMessage(Plugin plugin) {
         if (plugin == null) {

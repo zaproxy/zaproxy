@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2017 The ZAP Development Team
+ * Copyright 2022 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,19 +17,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.extension.callback.ui;
+package org.zaproxy.zap.view.table;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
-import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableModel;
 
-/**
- * @deprecated (2.11.0) Superseded by {@link
- *     org.zaproxy.zap.view.table.DefaultCustomColumnHistoryReferencesTableModel}.
- */
-@Deprecated
 public class DefaultCustomColumnHistoryReferencesTableModel<
                 T extends DefaultHistoryReferencesTableEntry>
         extends DefaultHistoryReferencesTableModel {
@@ -47,14 +40,14 @@ public class DefaultCustomColumnHistoryReferencesTableModel<
      *     on that particular index.
      */
     public DefaultCustomColumnHistoryReferencesTableModel(
-            final Column[] columns, final ArrayList<CustomColumn<T>> customColumns, Class<T> type) {
+            final Column[] columns, final List<CustomColumn<T>> customColumns, Class<T> type) {
         super(columns);
         this.type = type;
         this.customColumns = createCustomColumnMap(columns, customColumns);
     }
 
     private Map<Integer, CustomColumn<T>> createCustomColumnMap(
-            Column[] columns, ArrayList<CustomColumn<T>> customColumns) {
+            Column[] columns, List<CustomColumn<T>> customColumns) {
         Map<Integer, CustomColumn<T>> customColumnMap = new HashMap<>();
 
         int customColumnIndex = 0;
@@ -71,7 +64,7 @@ public class DefaultCustomColumnHistoryReferencesTableModel<
     }
 
     private CustomColumn<T> getCustomColumnIfExists(
-            ArrayList<CustomColumn<T>> customColumns, Integer index) {
+            List<CustomColumn<T>> customColumns, Integer index) {
         if (index < customColumns.size()) {
             return customColumns.get(index);
         }
