@@ -174,7 +174,7 @@ public class PassiveScanAPI extends ApiImplementor {
                         extension.setPluginPassiveScannerEnabled(pluginId, enabled);
                     }
                 } catch (NumberFormatException e) {
-                    logger.error("Failed to parse scanner ID: " + e.getMessage(), e);
+                    logger.error("Failed to parse scanner ID: {}", e.getMessage(), e);
                 }
             }
         }
