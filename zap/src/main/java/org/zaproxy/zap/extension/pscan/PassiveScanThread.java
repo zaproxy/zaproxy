@@ -172,7 +172,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                     if (shutDown) {
                         return;
                     }
-                    logger.error("Failed to read record " + currentId + " from History table", e);
+                    logger.error("Failed to read record {} from History table", currentId, e);
                 }
 
                 if (href != null
@@ -213,12 +213,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                                         Stats.incCounter("stats.pscan.reqBodyTooBig");
                                         if (logger.isDebugEnabled()) {
                                             logger.debug(
-                                                    "Request to "
-                                                            + msg.getRequestHeader().getURI()
-                                                            + " body size "
-                                                            + msg.getRequestBody().length()
-                                                            + " larger than max configured "
-                                                            + maxBodySize);
+                                                    "Request to {} body size {} larger than max configured {}",
+                                                    msg.getRequestHeader().getURI(),
+                                                    msg.getRequestBody().length(),
+                                                    maxBodySize);
                                         }
                                     }
                                     if (msg.isResponseFromTargetHost()) {
@@ -231,12 +229,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                                             Stats.incCounter("stats.pscan.respBodyTooBig");
                                             if (logger.isDebugEnabled()) {
                                                 logger.debug(
-                                                        "Response from "
-                                                                + msg.getRequestHeader().getURI()
-                                                                + " body size "
-                                                                + msg.getResponseBody().length()
-                                                                + " larger than max configured "
-                                                                + maxBodySize);
+                                                        "Response from {} body size {} larger than max configured {}",
+                                                        msg.getRequestHeader().getURI(),
+                                                        msg.getResponseBody().length(),
+                                                        maxBodySize);
                                             }
                                         }
                                     }
@@ -269,14 +265,11 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                                                                 + msg.getResponseBody().length();
                                             }
                                             logger.warn(
-                                                    "Passive Scan rule "
-                                                            + currentRuleName
-                                                            + " took "
-                                                            + (timeTaken / 1000)
-                                                            + " seconds to scan "
-                                                            + currentUrl
-                                                            + " "
-                                                            + responseInfo);
+                                                    "Passive Scan rule {} took {} seconds to scan {} {}",
+                                                    currentRuleName,
+                                                    timeTaken / 1000,
+                                                    currentUrl,
+                                                    responseInfo);
                                         }
                                     }
                                 }
@@ -285,14 +278,11 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                                     return;
                                 }
                                 logger.error(
-                                        "Scanner "
-                                                + scanner.getName()
-                                                + " failed on record "
-                                                + currentId
-                                                + " from History table: "
-                                                + href.getMethod()
-                                                + " "
-                                                + href.getURI(),
+                                        "Scan rule '{}' failed on record {} from History table: {} {}",
+                                        scanner.getName(),
+                                        currentId,
+                                        href.getMethod(),
+                                        href.getURI(),
                                         e);
                             }
                             // Unset in case this is the last one that gets run for a while
@@ -303,13 +293,11 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                         if (HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
                             if (logger.isDebugEnabled()) {
                                 logger.debug(
-                                        "Temporary record " + currentId + " no longer available:",
-                                        e);
+                                        "Temporary record {} no longer available:", currentId, e);
                             }
                         } else {
                             logger.error(
-                                    "Parser failed on record " + currentId + " from History table",
-                                    e);
+                                    "Parser failed on record {} from History table", currentId, e);
                         }
                     }
                     currentUrl = "";
@@ -318,7 +306,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                 if (shutDown) {
                     return;
                 }
-                logger.error("Failed on record " + currentId + " from History table", e);
+                logger.error("Failed on record {} from History table", currentId, e);
             }
             int recordsToScan = getRecordsToScan();
             Stats.setHighwaterMark("stats.pscan.recordsToScan", recordsToScan);
@@ -368,7 +356,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
         }
 
         if (currentId != id) {
-            logger.error("Alert id != currentId! " + id + " " + currentId);
+            logger.error("Alert id != currentId! {} {}", id, currentId);
         }
 
         alert.setSource(Alert.Source.PASSIVE);
@@ -387,11 +375,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
                 PassiveScanner scanner = this.scannerList.getScanner(alert.getPluginId());
                 if (scanner != null) {
                     logger.info(
-                            "Disabling passive scanner "
-                                    + scanner.getName()
-                                    + " as it has raised more than "
-                                    + this.pscanOptions.getMaxAlertsPerRule()
-                                    + " alerts.");
+                            "Disabling passive scan rule {} as it has raised more than {} alerts.",
+                            scanner.getName(),
+                            this.pscanOptions.getMaxAlertsPerRule());
                     scanner.setEnabled(false);
                 }
             }

@@ -286,18 +286,16 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
                 getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
             }
 
-            logger.info("loaded passive scan rule: " + scanner.getName());
+            logger.info("loaded passive scan rule: {}", scanner.getName());
             if (scanner.getPluginId() == -1) {
                 logger.error(
-                        "The passive scan rule \""
-                                + scanner.getName()
-                                + "\" ["
-                                + scanner.getClass().getCanonicalName()
-                                + "] does not have a defined ID.");
+                        "The passive scan rule \"{}\" [{}] does not have a defined ID.",
+                        scanner.getName(),
+                        scanner.getClass().getCanonicalName());
             }
 
         } catch (Exception e) {
-            logger.error("Failed to load passive scanner " + scanner.getName(), e);
+            logger.error("Failed to load passive scan rule {}", scanner.getName(), e);
         }
 
         return added;
