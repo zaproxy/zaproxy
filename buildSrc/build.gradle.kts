@@ -38,7 +38,7 @@ dependencies {
     else
         // Just for compilation, not actually used (installers task is replaced).
         implementation("gradle.plugin.install4j.install4j:gradle_plugin:8.0.11")
-    implementation("me.champeau.gradle:japicmp-gradle-plugin:0.2.9")
+    implementation("me.champeau.gradle:japicmp-gradle-plugin:0.3.0")
     // A japicmp dependency being excluded by japicmp-gradle-plugin.
     implementation("com.google.guava:guava:30.1-jre")
 }
