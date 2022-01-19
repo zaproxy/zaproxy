@@ -487,7 +487,7 @@ public class WebUI {
                                 + API.API_NONCE_PARAM
                                 + "="
                                 + API.getInstance()
-                                        .getLongLivedNonce("/OTHER/core/other/rootcert/")));
+                                        .getLongLivedNonce("/OTHER/network/other/rootCaCert/")));
         sb.append(Constant.messages.getString("api.home.links.header"));
         if (apiEnabled) {
             sb.append(Constant.messages.getString("api.home.links.api.enabled"));
