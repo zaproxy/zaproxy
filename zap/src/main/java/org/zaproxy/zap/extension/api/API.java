@@ -397,6 +397,7 @@ public class API {
 
                     msg.setResponseHeader(getDefaultResponseHeader(contentType));
                     msg.getResponseHeader().setContentLength(icon.length);
+                    msg.getResponseBody().setBody(icon);
                     httpOut.write(msg.getResponseHeader());
                     httpOut.write(icon);
                     httpOut.flush();
