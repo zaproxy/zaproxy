@@ -54,6 +54,12 @@ public class HrefTypeInfo implements Comparable<HrefTypeInfo> {
 
         hrefTypeInfo =
                 new HrefTypeInfo(
+                        HistoryReference.TYPE_PROXY_CONNECT,
+                        Constant.messages.getString("view.href.type.name.proxy"));
+        temp.put(hrefTypeInfo.getType(), hrefTypeInfo);
+
+        hrefTypeInfo =
+                new HrefTypeInfo(
                         HistoryReference.TYPE_ZAP_USER,
                         Constant.messages.getString("view.href.type.name.manual"));
         temp.put(hrefTypeInfo.getType(), hrefTypeInfo);
@@ -114,6 +120,7 @@ public class HrefTypeInfo implements Comparable<HrefTypeInfo> {
         }
         switch (source) {
             case HistoryReference.TYPE_PROXIED:
+            case HistoryReference.TYPE_PROXY_CONNECT:
                 return new ImageIcon(
                         HrefTypeInfo.class.getResource("/resource/icon/16/doublearrow.png"));
             case HistoryReference.TYPE_ZAP_USER:
