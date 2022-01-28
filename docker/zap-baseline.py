@@ -125,7 +125,7 @@ def usage():
     -I
     -j
     -s
-    -T
+    -T mins
     -z zap_options
 
     The following parameters are partially supported. 
