@@ -60,9 +60,12 @@
 // ZAP: 2021/04/01 Detect WebSocket upgrade messages having multiple Connection directives
 // ZAP: 2021/05/11 Fixed conversion of Request Method to/from CONNECT
 // ZAP: 2021/05/14 Add missing override annotation.
+// ZAP: 2022/01/14 Added setErrorResponse method
+
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -74,11 +77,14 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
+import javax.net.ssl.SSLException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.eventBus.Event;
@@ -1238,5 +1244,54 @@ public class HttpMessage implements Message {
     @Override
     public String getType() {
         return MESSAGE_TYPE;
+    }
+
+    public void setErrorResponse(Exception cause) {
+        StringBuilder strBuilder = new StringBuilder(250);
+        if (cause instanceof SSLException) {
+            strBuilder.append(Constant.messages.getString("network.ssl.error.connect"));
+            strBuilder.append(this.getRequestHeader().getURI().toString()).append('\n');
+            strBuilder
+                    .append(Constant.messages.getString("network.ssl.error.exception"))
+                    .append(cause.getMessage())
+                    .append('\n');
+            strBuilder
+                    .append(Constant.messages.getString("network.ssl.error.exception.rootcause"))
+                    .append(ExceptionUtils.getRootCauseMessage(cause))
+                    .append('\n');
+            strBuilder.append(
+                    Constant.messages.getString(
+                            "network.ssl.error.help",
+                            Constant.messages.getString("network.ssl.error.help.url")));
+
+            strBuilder.append("\n\nStack Trace:\n");
+            for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
+                strBuilder.append(stackTraceFrame).append('\n');
+            }
+        } else {
+            strBuilder
+                    .append(cause.getClass().getName())
+                    .append(": ")
+                    .append(cause.getLocalizedMessage())
+                    .append("\n\nStack Trace:\n");
+            for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
+                strBuilder.append(stackTraceFrame).append('\n');
+            }
+        }
+
+        String message = strBuilder.toString();
+
+        HttpResponseHeader responseHeader;
+        try {
+            responseHeader = new HttpResponseHeader("HTTP/1.1 400 ZAP IO Error");
+            responseHeader.setHeader(HttpHeader.CONTENT_TYPE, "text/plain; charset=UTF-8");
+            responseHeader.setHeader(
+                    HttpHeader.CONTENT_LENGTH,
+                    Integer.toString(message.getBytes(StandardCharsets.UTF_8).length));
+            this.setResponseHeader(responseHeader);
+            this.setResponseBody(message);
+        } catch (HttpMalformedHeaderException e) {
+            log.error("Failed to create error response:", e);
+        }
     }
 }

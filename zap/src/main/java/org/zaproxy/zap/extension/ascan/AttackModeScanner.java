@@ -38,7 +38,6 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMapEventPublisher;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
@@ -381,8 +380,8 @@ public class AttackModeScanner implements EventConsumer {
         }
 
         @Override
-        public void notifyNewMessage(HttpMessage msg) {
-            ascanWrapper.notifyNewMessage(msg);
+        public void notifyNewTaskResult(ScannerTaskResult scannerTaskResult) {
+            ascanWrapper.notifyNewMessage(scannerTaskResult);
         }
 
         public void shutdown() {

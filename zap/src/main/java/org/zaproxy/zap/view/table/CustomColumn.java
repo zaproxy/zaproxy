@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2017 The ZAP Development Team
+ * Copyright 2022 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.extension.callback.ui;
+package org.zaproxy.zap.view.table;
 
-/** @deprecated (2.11.0) {@link org.zaproxy.zap.view.table.CustomColumn}. */
-@Deprecated
 public abstract class CustomColumn<T> {
     Class<?> columnClass;
     String name;

@@ -112,6 +112,7 @@ public class ActiveScanAPI extends ApiImplementor {
     private static final String VIEW_STATUS = "status";
     private static final String VIEW_SCANS = "scans";
     private static final String VIEW_MESSAGES_IDS = "messagesIds";
+    private static final String VIEW_MESSAGES_IDS_WITH_ERROR = "messagesIdsWithError";
     private static final String VIEW_ALERTS_IDS = "alertsIds";
     private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
     private static final String VIEW_SCANNERS = "scanners";
@@ -261,6 +262,7 @@ public class ActiveScanAPI extends ApiImplementor {
         this.addApiView(new ApiView(VIEW_STATUS, null, new String[] {PARAM_SCAN_ID}));
         this.addApiView(new ApiView(VIEW_SCAN_PROGRESS, null, new String[] {PARAM_SCAN_ID}));
         this.addApiView(new ApiView(VIEW_MESSAGES_IDS, new String[] {PARAM_SCAN_ID}));
+        this.addApiView(new ApiView(VIEW_MESSAGES_IDS_WITH_ERROR, new String[] {PARAM_SCAN_ID}));
         this.addApiView(new ApiView(VIEW_ALERTS_IDS, new String[] {PARAM_SCAN_ID}));
         this.addApiView(new ApiView(VIEW_SCANS));
         this.addApiView(new ApiView(VIEW_SCAN_POLICY_NAMES));
@@ -1033,6 +1035,16 @@ public class ActiveScanAPI extends ApiImplementor {
                 activeScan = getActiveScan(params);
                 synchronized (activeScan.getMessagesIds()) {
                     for (Integer id : activeScan.getMessagesIds()) {
+                        resultList.addItem(new ApiResponseElement("id", id.toString()));
+                    }
+                }
+                result = resultList;
+                break;
+            case VIEW_MESSAGES_IDS_WITH_ERROR:
+                resultList = new ApiResponseList(name);
+                activeScan = getActiveScan(params);
+                synchronized (activeScan.getMessagesIdsWithError()) {
+                    for (Integer id : activeScan.getMessagesIdsWithError()) {
                         resultList.addItem(new ApiResponseElement("id", id.toString()));
                     }
                 }

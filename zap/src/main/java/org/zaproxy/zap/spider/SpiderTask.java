@@ -24,16 +24,12 @@ import java.net.ConnectException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import javax.net.ssl.SSLException;
 import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
@@ -43,7 +39,6 @@ import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
-import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.filters.ParseFilter.FilterResult;
 import org.zaproxy.zap.spider.parser.SpiderParser;
@@ -177,7 +172,7 @@ public class SpiderTask implements Runnable {
         try {
             fetchResource(msg);
         } catch (Exception e) {
-            setErrorResponse(msg, e);
+            msg.setErrorResponse(e);
             parent.notifyListenersSpiderTaskResult(
                     new SpiderTaskResult(msg, getSkippedMessage("ioerror")));
             return;
@@ -301,55 +296,6 @@ public class SpiderTask implements Runnable {
         if (getExtensionHistory() != null) {
             getExtensionHistory().delete(reference);
             reference = null;
-        }
-    }
-
-    private void setErrorResponse(HttpMessage msg, Exception cause) {
-        StringBuilder strBuilder = new StringBuilder(250);
-        if (cause instanceof SSLException) {
-            strBuilder.append(Constant.messages.getString("network.ssl.error.connect"));
-            strBuilder.append(msg.getRequestHeader().getURI().toString()).append('\n');
-            strBuilder
-                    .append(Constant.messages.getString("network.ssl.error.exception"))
-                    .append(cause.getMessage())
-                    .append('\n');
-            strBuilder
-                    .append(Constant.messages.getString("network.ssl.error.exception.rootcause"))
-                    .append(ExceptionUtils.getRootCauseMessage(cause))
-                    .append('\n');
-            strBuilder.append(
-                    Constant.messages.getString(
-                            "network.ssl.error.help",
-                            Constant.messages.getString("network.ssl.error.help.url")));
-
-            strBuilder.append("\n\nStack Trace:\n");
-            for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
-                strBuilder.append(stackTraceFrame).append('\n');
-            }
-        } else {
-            strBuilder
-                    .append(cause.getClass().getName())
-                    .append(": ")
-                    .append(cause.getLocalizedMessage())
-                    .append("\n\nStack Trace:\n");
-            for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
-                strBuilder.append(stackTraceFrame).append('\n');
-            }
-        }
-
-        String message = strBuilder.toString();
-
-        HttpResponseHeader responseHeader;
-        try {
-            responseHeader = new HttpResponseHeader("HTTP/1.1 400 ZAP IO Error");
-            responseHeader.setHeader(HttpHeader.CONTENT_TYPE, "text/plain; charset=UTF-8");
-            responseHeader.setHeader(
-                    HttpHeader.CONTENT_LENGTH,
-                    Integer.toString(message.getBytes(StandardCharsets.UTF_8).length));
-            msg.setResponseHeader(responseHeader);
-            msg.setResponseBody(message);
-        } catch (HttpMalformedHeaderException e) {
-            log.error("Failed to create error response:", e);
         }
     }
 

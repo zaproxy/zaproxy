@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2017 The ZAP Development Team
+ * Copyright 2022 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,30 +17,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.extension.callback.ui;
+package org.zaproxy.zap.extension.ascan;
 
-/** @deprecated (2.11.0) {@link org.zaproxy.zap.view.table.CustomColumn}. */
-@Deprecated
-public abstract class CustomColumn<T> {
-    Class<?> columnClass;
-    String name;
+import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
 
-    public CustomColumn(Class<?> columnClass, String name) {
-        this.columnClass = columnClass;
-        this.name = name;
+public class ActiveScanTableEntry extends DefaultHistoryReferencesTableEntry {
+
+    private ActiveScanProcessedCellItem processedCellItem;
+
+    public ActiveScanTableEntry(
+            HistoryReference historyReference, ActiveScanProcessedCellItem processedCellItem) {
+        super(historyReference, ActiveScanTableModel.COLUMNS);
+        this.processedCellItem = processedCellItem;
     }
 
-    public Class<?> getColumnClass() {
-        return columnClass;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public abstract Object getValue(T model);
-
-    public Object getPrototypeValue() {
-        return null;
+    public ActiveScanProcessedCellItem getProcessedCellItem() {
+        return processedCellItem;
     }
 }

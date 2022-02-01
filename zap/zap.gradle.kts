@@ -160,7 +160,7 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     classExcludes = listOf()
 
-    methodExcludes = listOf()
+    methodExcludes = listOf("org.parosproxy.paros.core.scanner.ScannerListener#notifyNewTaskResult(org.zaproxy.zap.extension.ascan.ScannerTaskResult)")
 
     richReport {
         destinationDir = file("$buildDir/reports/japicmp/")

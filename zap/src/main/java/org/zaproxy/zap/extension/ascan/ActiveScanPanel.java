@@ -39,7 +39,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
@@ -75,7 +74,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
             new FilterMessageTableModel();
 
     private ExtensionActiveScan extension;
-    private HistoryReferencesTable messagesTable;
+    private ActiveScanTable messagesTable;
     private ZapTable filterMessageTable;
 
     private JButton policyButton = null;
@@ -281,7 +280,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 
     private HistoryReferencesTable getMessagesTable() {
         if (messagesTable == null) {
-            messagesTable = new HistoryReferencesTable(EMPTY_RESULTS_MODEL);
+            messagesTable = new ActiveScanTable(EMPTY_RESULTS_MODEL);
             messagesTable.setName(MESSAGE_CONTAINER_NAME);
             messagesTable.setAutoCreateColumnsFromModel(false);
         }
@@ -371,7 +370,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
     }
 
     @Override
-    public void notifyNewMessage(HttpMessage msg) {}
+    public void notifyNewTaskResult(ScannerTaskResult scannerTaskResult) {}
 
     private void updateNewAlertCount() {
         ActiveScan ac = this.getSelectedScanner();
