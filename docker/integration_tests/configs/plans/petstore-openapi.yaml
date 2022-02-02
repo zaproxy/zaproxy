@@ -1,0 +1,41 @@
+---
+env:
+  contexts:
+  - name: "petstore.swagger.io"
+    urls:
+    - "https://petstore.swagger.io"
+    includePaths:
+    - "https://petstore.swagger.io.*"
+    excludePaths: []
+    authentication:
+      parameters: {}
+      verification:
+        method: "response"
+        pollFrequency: 60
+        pollUnits: "requests"
+        pollUrl: ""
+        pollPostData: ""
+    sessionManagement:
+      method: "cookie"
+      parameters: {}
+  parameters:
+    failOnError: true
+    failOnWarning: true
+    progressToStdout: true
+  vars: {}
+jobs:
+- parameters:
+    apiFile: ""
+    apiUrl: "https://petstore.swagger.io/v2/swagger.json"
+    targetUrl: ""
+  name: "openapi"
+  type: "openapi"
+  tests:
+  - onFail: "ERROR"
+    statistic: "openapi.urls.added"
+    site: ""
+    operator: ">"
+    value: 50
+    name: "openapi/stats"
+    type: "stats"
+
