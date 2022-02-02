@@ -158,7 +158,23 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     fieldExcludes = listOf()
 
-    classExcludes = listOf()
+    classExcludes = listOf(
+        "org.parosproxy.paros.common.FileXML",
+        "org.parosproxy.paros.core.proxy.SenderThread",
+        "org.parosproxy.paros.core.proxy.SenderThreadListener",
+        "org.parosproxy.paros.core.proxy.StreamForwarder",
+        "org.parosproxy.paros.core.scanner.AbstractDefaultFilePlugin",
+        "org.parosproxy.paros.extension.history.BrowserDialog",
+        "org.parosproxy.paros.extension.history.PopupMenuResend",
+        "org.parosproxy.paros.extension.history.PopupMenuResendSites",
+        "org.parosproxy.paros.model.HistoryList",
+        "org.parosproxy.paros.model.HttpMessageList",
+        "org.parosproxy.paros.network.ByteVector",
+        "org.parosproxy.paros.network.ProxyExcludedDomainMatcher",
+        "org.zaproxy.zap.extension.brk.BreakpointMessageHandler",
+        "org.zaproxy.zap.httputils.RequestUtils",
+        "org.zaproxy.zap.view.HistoryReferenceTableModel"
+    )
 
     methodExcludes = listOf()
 
