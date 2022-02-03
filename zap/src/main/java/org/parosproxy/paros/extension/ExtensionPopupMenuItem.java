@@ -143,14 +143,6 @@ public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupM
         return false;
     }
 
-    /** @deprecated (2.3.0) Not used. It will be removed in a following release. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    // ZAP: Support supermenus
-    public boolean isSuperMenu() {
-        return false;
-    }
-
     // ZAP: Support dummy menu items - used for dynamic menus
     public boolean isDummyItem() {
         return false;

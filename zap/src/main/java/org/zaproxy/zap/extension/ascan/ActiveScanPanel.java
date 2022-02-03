@@ -57,9 +57,6 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 
     private static final long serialVersionUID = 1L;
 
-    /** @deprecated (2.3.0) Replaced by {@link #MESSAGE_CONTAINER_NAME}. */
-    @Deprecated public static final String PANEL_NAME = "ascan";
-
     /**
      * The name of the active scan HTTP messages container.
      *
