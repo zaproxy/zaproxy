@@ -369,64 +369,6 @@ public class SpiderParam extends AbstractParam {
     }
 
     /**
-     * Gets the text describing the text.
-     *
-     * @return returns the scope.
-     * @deprecated (2.3.0) Replaced by {@link #getDomainsAlwaysInScope()} and {@link
-     *     #getDomainsAlwaysInScopeEnabled()}. <strong>Note:</strong> Newer regular expression
-     *     excluded domains will not be returned by this method.
-     */
-    @Deprecated
-    public String getScopeText() {
-        StringBuilder scopeTextStringBuilder = new StringBuilder("");
-        for (DomainAlwaysInScopeMatcher domainInScope : domainsAlwaysInScope) {
-            if (!domainInScope.isRegex()) {
-                scopeTextStringBuilder.append(domainInScope.getValue()).append(';');
-            }
-        }
-        return scopeTextStringBuilder.toString();
-    }
-
-    /**
-     * Gets the scope's regex.
-     *
-     * @return returns the scope.
-     * @deprecated (2.3.0) Replaced by {@link #getDomainsAlwaysInScope()} and {@link
-     *     #getDomainsAlwaysInScopeEnabled()}.
-     */
-    @Deprecated
-    public String getScope() {
-        StringBuilder scopeTextStringBuilder = new StringBuilder();
-        for (DomainAlwaysInScopeMatcher domainInScope : domainsAlwaysInScope) {
-            if (domainInScope.isRegex()) {
-                scopeTextStringBuilder.append("\\Q").append(domainInScope.getValue()).append("\\E");
-            } else {
-                scopeTextStringBuilder.append(domainInScope.getValue());
-            }
-            scopeTextStringBuilder.append('|');
-        }
-
-        if (scopeTextStringBuilder.length() != 0) {
-            scopeTextStringBuilder.append("(");
-            scopeTextStringBuilder.replace(
-                    scopeTextStringBuilder.length() - 1, scopeTextStringBuilder.length() - 1, ")$");
-        }
-
-        return scopeTextStringBuilder.toString();
-    }
-
-    /**
-     * Sets the scope string.
-     *
-     * @param scope The scope string to set.
-     * @deprecated (2.3.0) Replaced by {@link #setDomainsAlwaysInScope(List)}
-     */
-    @Deprecated
-    public void setScopeString(String scope) {
-        setDomainsAlwaysInScope(convertOldDomainsInScopeOption(scope));
-    }
-
-    /**
      * Gets the thread count.
      *
      * @return Returns the thread count

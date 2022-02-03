@@ -156,7 +156,10 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     packageExcludes = listOf()
 
-    fieldExcludes = listOf()
+    fieldExcludes = listOf(
+        "org.zaproxy.zap.extension.ascan.ActiveScanPanel#PANEL_NAME",
+        "org.zaproxy.zap.extension.search.SearchPanel#PANEL_NAME"
+    )
 
     classExcludes = listOf(
         "org.parosproxy.paros.common.FileXML",
@@ -173,10 +176,26 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.parosproxy.paros.network.ProxyExcludedDomainMatcher",
         "org.zaproxy.zap.extension.brk.BreakpointMessageHandler",
         "org.zaproxy.zap.httputils.RequestUtils",
-        "org.zaproxy.zap.view.HistoryReferenceTableModel"
+        "org.zaproxy.zap.view.HistoryReferenceTableModel",
+        "org.zaproxy.zap.view.PopupMenuHistoryReference",
+        "org.zaproxy.zap.view.PopupMenuHttpMessage",
+        "org.zaproxy.zap.view.PopupMenuSiteNode"
     )
 
-    methodExcludes = listOf()
+    methodExcludes = listOf(
+        "org.parosproxy.paros.core.scanner.Alert#setDetail(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,org.parosproxy.paros.network.HttpMessage)",
+        "org.parosproxy.paros.db.paros.ParosTableHistory#getHistoryList(long,int)",
+        "org.parosproxy.paros.db.paros.ParosTableHistory#getHistoryList(long)",
+        "org.parosproxy.paros.extension.ExtensionPopupMenuItem#isSuperMenu()",
+        "org.parosproxy.paros.network.ConnectionParam#getProxyChainSkipName()",
+        "org.parosproxy.paros.network.ConnectionParam#setProxyChainSkipName(java.lang.String)",
+        "org.zaproxy.zap.extension.ExtensionPopupMenu#prepareShow()",
+        "org.zaproxy.zap.spider.SpiderParam#getScope()",
+        "org.zaproxy.zap.spider.SpiderParam#setScopeString(java.lang.String)",
+        "org.zaproxy.zap.spider.SpiderParam#getScopeText()",
+        "org.zaproxy.zap.view.ContextExcludePanel#getPanelName(org.zaproxy.zap.model.Context)",
+        "org.zaproxy.zap.view.ContextIncludePanel#getPanelName(org.zaproxy.zap.model.Context)"
+    )
 
     richReport {
         destinationDir = file("$buildDir/reports/japicmp/")
