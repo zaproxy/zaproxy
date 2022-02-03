@@ -151,25 +151,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         return activeActions;
     }
 
-    /**
-     * @deprecated (2.4.3) Use {@link #addPluginPassiveScanner(PluginPassiveScanner)} instead, the
-     *     status of the scanner is not properly set.
-     * @see PluginPassiveScanner#getStatus()
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public boolean addPassiveScanner(String className) {
-        try {
-            Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
-            this.addPassiveScanner((PluginPassiveScanner) c.newInstance());
-            return true;
-
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
     public boolean removePassiveScanner(String className) {
 
         PassiveScanner scanner = getPassiveScannerList().removeScanner(className);

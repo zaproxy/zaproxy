@@ -158,7 +158,12 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     fieldExcludes = listOf(
         "org.zaproxy.zap.extension.ascan.ActiveScanPanel#PANEL_NAME",
-        "org.zaproxy.zap.extension.search.SearchPanel#PANEL_NAME"
+        "org.zaproxy.zap.extension.search.SearchPanel#PANEL_NAME",
+        "org.parosproxy.paros.Constant#FILE_CONFIG_DEFAULT",
+        "org.parosproxy.paros.Constant#VULNS_BASE",
+        "org.parosproxy.paros.core.scanner.Alert#MSG_RELIABILITY",
+        "org.parosproxy.paros.core.scanner.Alert#SUSPICIOUS",
+        "org.parosproxy.paros.core.scanner.Alert#WARNING"
     )
 
     classExcludes = listOf(
@@ -183,13 +188,22 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     )
 
     methodExcludes = listOf(
+        "org.parosproxy.paros.core.scanner.Alert#getReliability()",
         "org.parosproxy.paros.core.scanner.Alert#setDetail(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,org.parosproxy.paros.network.HttpMessage)",
+        "org.parosproxy.paros.core.scanner.Alert#setRiskReliability(int,int)",
+        "org.parosproxy.paros.core.scanner.PluginFactory#loadedPlugin(java.lang.String)",
+        "org.parosproxy.paros.core.scanner.PluginFactory#unloadedPlugin(java.lang.String)",
+        "org.parosproxy.paros.db.RecordAlert#getReliability()",
+        "org.parosproxy.paros.db.RecordAlert#setReliability(int)",
         "org.parosproxy.paros.db.paros.ParosTableHistory#getHistoryList(long,int)",
         "org.parosproxy.paros.db.paros.ParosTableHistory#getHistoryList(long)",
         "org.parosproxy.paros.extension.ExtensionPopupMenuItem#isSuperMenu()",
         "org.parosproxy.paros.network.ConnectionParam#getProxyChainSkipName()",
         "org.parosproxy.paros.network.ConnectionParam#setProxyChainSkipName(java.lang.String)",
+        "org.parosproxy.paros.view.AbstractFrame#loadIconImages()",
+        "org.zaproxy.zap.control.AddOn#canLoad()",
         "org.zaproxy.zap.extension.ExtensionPopupMenu#prepareShow()",
+        "org.zaproxy.zap.extension.pscan.ExtensionPassiveScan#addPassiveScanner(java.lang.String)",
         "org.zaproxy.zap.spider.SpiderParam#getScope()",
         "org.zaproxy.zap.spider.SpiderParam#setScopeString(java.lang.String)",
         "org.zaproxy.zap.spider.SpiderParam#getScopeText()",
