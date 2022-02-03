@@ -44,6 +44,8 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/03 Removed getHistoryList(long, int) and getHistoryList(long)
+
 package org.parosproxy.paros.db.paros;
 
 import java.nio.charset.StandardCharsets;
@@ -55,7 +57,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -693,28 +694,6 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     public List<Integer> getHistoryIdsExceptOfHistTypeStartingAt(
             long sessionId, int startAtHistoryId, int... histTypes) throws DatabaseException {
         return getHistoryIdsByParams(sessionId, startAtHistoryId, false, histTypes);
-    }
-
-    /**
-     * @deprecated (2.3.0) Use {@link #getHistoryIdsOfHistType(long, int...)} instead. If the
-     *     thread-safety provided by the class {@code Vector} is really required "wrap" the returned
-     *     List with {@link Collections#synchronizedList(List)} instead.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public Vector<Integer> getHistoryList(long sessionId, int histType) throws DatabaseException {
-        return new Vector<>(getHistoryIdsOfHistType(sessionId, histType));
-    }
-
-    /**
-     * @deprecated (2.3.0) Use {@link #getHistoryIds(long)} instead. If the thread-safety provided
-     *     by the class {@code Vector} is really required "wrap" the returned List with {@link
-     *     Collections#synchronizedList(List)} instead.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public Vector<Integer> getHistoryList(long sessionId) throws DatabaseException {
-        return new Vector<>(getHistoryIds(sessionId));
     }
 
     @Override

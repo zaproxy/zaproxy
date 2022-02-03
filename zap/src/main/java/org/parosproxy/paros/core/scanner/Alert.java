@@ -59,6 +59,7 @@
 // ZAP: 2020/11/03 Add alertRef field.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/06/22 Moved the ReportGenerator.entityEncode method to this class.
+// ZAP: 2022/02/02 Deleted a deprecated setDetails method.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -349,34 +350,6 @@ public class Alert implements Comparable<Alert> {
      */
     public void setName(String name) {
         this.name = (name == null) ? "" : name;
-    }
-
-    /**
-     * Sets the details of the alert.
-     *
-     * @param description the description of the alert
-     * @param uri the URI that has the issue
-     * @param param the parameter that has the issue
-     * @param attack the attack that triggers the issue
-     * @param otherInfo other information about the issue
-     * @param solution the solution for the issue
-     * @param reference references about the issue
-     * @param msg the HTTP message that triggers/triggered the issue
-     * @deprecated (2.2.0) Replaced by {@link #setDetail(String, String, String, String, String,
-     *     String, String, String, int, int, HttpMessage)}. It will be removed in a future release.
-     * @see Builder
-     */
-    @Deprecated
-    public void setDetail(
-            String description,
-            String uri,
-            String param,
-            String attack,
-            String otherInfo,
-            String solution,
-            String reference,
-            HttpMessage msg) {
-        setDetail(description, uri, param, attack, otherInfo, solution, reference, "", -1, -1, msg);
     }
 
     /**

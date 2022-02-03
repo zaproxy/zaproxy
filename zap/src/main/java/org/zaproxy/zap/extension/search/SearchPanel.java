@@ -55,9 +55,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 
     private static final long serialVersionUID = 1L;
 
-    /** @deprecated (2.3.0) Replaced by {@link #HTTP_MESSAGE_CONTAINER_NAME}. */
-    @Deprecated public static final String PANEL_NAME = "search";
-
     /**
      * The name of the search results HTTP messages container.
      *
