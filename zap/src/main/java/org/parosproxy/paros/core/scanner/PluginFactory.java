@@ -57,6 +57,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/02/03 Removed loadedPlugin and unloadedPlugin.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -194,24 +195,6 @@ public class PluginFactory {
         }
     }
 
-    /**
-     * @deprecated (2.4.3) Use {@link #loadedPlugin(AbstractPlugin)} instead, the status of the
-     *     scanner is not properly set.
-     * @see AbstractPlugin#getStatus()
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public static boolean loadedPlugin(String className) {
-        try {
-            Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
-            loadedPlugin((AbstractPlugin) c.getDeclaredConstructor().newInstance());
-            return true;
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
     public static void unloadedPlugin(AbstractPlugin plugin) {
         if (loadedPlugins == null) {
             return;
@@ -223,27 +206,6 @@ public class PluginFactory {
                 return;
             }
         }
-    }
-
-    /**
-     * @deprecated (2.4.3) Use {@link #unloadedPlugin(AbstractPlugin)} instead, which ensures that
-     *     the exact scanner instance is unloaded.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public static boolean unloadedPlugin(String className) {
-        if (loadedPlugins == null) {
-            return true;
-        }
-
-        for (AbstractPlugin plugin : loadedPlugins) {
-            if (plugin.getClass().getName().equals(className)) {
-                loadedPlugins.remove(plugin);
-                mapLoadedPlugins.remove(plugin.getId());
-                return true;
-            }
-        }
-        return false;
     }
 
     // now order the list by the highest risk thrown, in descending order (to execute the more

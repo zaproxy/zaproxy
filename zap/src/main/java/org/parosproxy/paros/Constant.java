@@ -114,6 +114,7 @@
 // ZAP: 2021/09/21 Added support for detecting snapcraft
 // ZAP: 2021/10/01 Added support for detecting WebSwing
 // ZAP: 2021/10/06 Update user agent when upgrading from 2.10
+// ZAP: 2022/02/03 Removed deprecated FILE_CONFIG_DEFAULT and VULNS_BASE
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -220,13 +221,6 @@ public final class Constant {
     public static final String SYSTEM_PAROS_USER_LOG = "zap.user.log";
 
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
-
-    /**
-     * @deprecated (2.4.2) The path does not take into account the installation directory, use
-     *     {@link #getPathDefaultConfigFile()} instead.
-     */
-    @Deprecated public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
-
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
     /**
@@ -349,12 +343,6 @@ public final class Constant {
      * @since 2.4.0
      */
     public static final String VULNERABILITIES_PREFIX = "vulnerabilities";
-
-    /**
-     * @deprecated (2.4.0) Use {@link #VULNERABILITIES_PREFIX} instead. It will be removed in a
-     *     following release.
-     */
-    @Deprecated public static String VULNS_BASE = VULNERABILITIES_PREFIX;
 
     /**
      * Extension (with dot) of vulnerabilities.xml files.
