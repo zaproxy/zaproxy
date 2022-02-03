@@ -1237,16 +1237,6 @@ public class AddOn {
     }
 
     /**
-     * @deprecated (2.4.0) Use {@link #calculateRunRequirements(Collection)} instead. Returns {@code
-     *     false}.
-     * @return {@code false} always.
-     */
-    @Deprecated
-    public boolean canLoad() {
-        return false;
-    }
-
-    /**
      * Tells whether or not this add-on can be loaded in the currently running ZAP version, as given
      * by {@code Constant.PROGRAM_VERSION}.
      *

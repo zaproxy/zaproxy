@@ -60,6 +60,8 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/06/22 Moved the ReportGenerator.entityEncode method to this class.
 // ZAP: 2022/02/02 Deleted a deprecated setDetails method.
+// ZAP: 2022/02/03 Removed SUSPICIOUS, WARNING, MSG_RELIABILITY, setRiskReliability(int, int) and
+// getReliability()
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -166,33 +168,14 @@ public class Alert implements Comparable<Alert> {
 
     // ZAP: Added FALSE_POSITIVE
     public static final int CONFIDENCE_FALSE_POSITIVE = 0;
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #CONFIDENCE_LOW} confidence. SUSPICIOUS reliability
-     *     has been deprecated in favour of using CONFIDENCE_LOW confidence.
-     */
-    @Deprecated public static final int SUSPICIOUS = 1;
 
     public static final int CONFIDENCE_LOW = 1;
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #CONFIDENCE_MEDIUM} confidence. WARNING reliability
-     *     has been deprecated in favour of using CONFIDENCE_MEDIUM confidence.
-     */
-    @Deprecated public static final int WARNING = 2;
 
     public static final int CONFIDENCE_MEDIUM = 2;
     public static final int CONFIDENCE_HIGH = 3;
     public static final int CONFIDENCE_USER_CONFIRMED = 4;
 
     public static final String[] MSG_RISK = {"Informational", "Low", "Medium", "High"};
-    // ZAP: Added "false positive"
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #MSG_CONFIDENCE}. Use of reliability has been
-     *     deprecated in favour of using confidence.
-     */
-    @Deprecated
-    public static final String[] MSG_RELIABILITY = {
-        "False Positive", "Low", "Medium", "High", "Confirmed"
-    };
 
     public static final String[] MSG_CONFIDENCE = {
         "False Positive", "Low", "Medium", "High", "Confirmed"
@@ -295,17 +278,6 @@ public class Alert implements Comparable<Alert> {
                 recordAlert.getAlert());
 
         init(recordAlert, ref);
-    }
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #setRiskConfidence(int, int)}. Use of reliability has
-     *     been deprecated in favour of using confidence
-     * @param risk the new risk
-     * @param confidence the new confidence
-     */
-    @Deprecated
-    public void setRiskReliability(int risk, int confidence) {
-        this.risk = risk;
-        this.confidence = confidence;
     }
 
     public void setRiskConfidence(int risk, int confidence) {
@@ -745,14 +717,6 @@ public class Alert implements Comparable<Alert> {
     /** @return Returns the reference. */
     public String getReference() {
         return reference;
-    }
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #getConfidence()}.
-     * @return the reliability.
-     */
-    @Deprecated
-    public int getReliability() {
-        return confidence;
     }
 
     /** @return Returns the confidence. */
