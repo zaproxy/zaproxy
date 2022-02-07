@@ -538,9 +538,7 @@ Supposez que toutes les entrées sont malveillantes. Use an "accept known good" 
 
 Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Phase: Implementation
-
-Be especially careful to validate your input when you invoke code that crosses language boundaries, such as from an interpreted language to native code. Cela pourrait créer une interaction inattendue entre les langages. Assurez-vous que vous ne violez aucune des attentes du langage que vous interfacez. Par exemple, bien que Java ne soit pas sensible aux débordements de tampon, fournir un argument de grande taille à un appel à du code natif peut déclencher un dépassement de capacité.
+Soyez vigilant de valider votre saisie quand vous utilisez du code transposable, comme depuis un langage interprété à du code natif. Cela pourrait créer une interaction inattendue entre les langages. Assurez-vous que vous ne violez aucune des attentes du langage que vous interfacez. Par exemple, bien que Java ne soit pas sensible aux débordements de tampon, fournir un argument de grande taille à un appel à du code natif peut déclencher un dépassement de capacité.
 
 Convertissez directement le type d'entrée dans le type de donnée attendu, par exemple en utilisant une fonction de conversion d'une chaîne de caractères en un nombre. Après avoir converti vers le type de données attendu, assurez-vous que les valeurs de l'entrée entrent dans la gamme attendue des valeurs autorisées, et que les consistances entre champs sont maintenues.
 
@@ -833,7 +831,7 @@ Ceci peut ne pas être une solution adéquate. Par ailleurs, elle limite l'impac
 Cela n'aidera pas seulement à identifier la surface du site qui peut conduire à des vulnérabilités supplémentaires, mais cela peut aussi divulguer des informations précieuses pour un agresseur sur l'environnement ou ses utilisateurs. L'emplacement prévisible de ressources est également connu sous le nom de navigation forcée, de navigation efficace, l'énumération de fichiers et l'énumération de répertoires.</desc>
 	<solution>Apply appropriate access control authorizations for each access to all restricted URLs, scripts or files.
 
-Consider using MVC based frameworks such as Struts.</solution>
+Envisagez d'utiliser des frameworks basés sur MVC comme Struts.</solution>
 	<reference>http://projects.webappsec.org/Predictable-Resource-Location</reference>
 	<reference>http://cwe.mitre.org/data/definitions/425.html</reference>
 </vuln_item_wasc_34>
