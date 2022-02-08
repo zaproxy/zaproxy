@@ -210,7 +210,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
     public ActiveScan getLastScan() {
         activeScansLock.lock();
         try {
-            if (activeScanList.size() == 0) {
+            if (activeScanList.isEmpty()) {
                 return null;
             }
             return activeScanList.get(activeScanList.size() - 1);

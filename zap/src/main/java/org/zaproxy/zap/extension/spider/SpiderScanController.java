@@ -164,7 +164,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
     public SpiderScan getLastScan() {
         spiderScansLock.lock();
         try {
-            if (spiderScanList.size() == 0) {
+            if (spiderScanList.isEmpty()) {
                 return null;
             }
             return spiderScanList.get(spiderScanList.size() - 1);

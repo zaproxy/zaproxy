@@ -249,7 +249,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
             }
         }
 
-        if (enabledComponents.size() == 0) {
+        if (enabledComponents.isEmpty()) {
             currentComponent = null;
             switchEmptyComponent();
             notifyDisplayedMessageChangedListeners(oldMessage, message);
@@ -513,7 +513,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
     private void disableComponent(HttpPanelComponentInterface component) {
         toolBarComponents.remove(component.getButton());
         enabledComponents.remove(component);
-        if (enabledComponents.size() == 0) {
+        if (enabledComponents.isEmpty()) {
             toolBarComponents.removeAll();
         }
     }

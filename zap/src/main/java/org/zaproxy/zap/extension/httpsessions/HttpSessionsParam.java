@@ -108,7 +108,7 @@ public class HttpSessionsParam extends AbstractParam {
             this.defaultTokens = new ArrayList<>(DEFAULT_TOKENS.length);
             log.error("Error while parsing config file: " + e.getMessage(), e);
         }
-        if (this.defaultTokens.size() == 0) {
+        if (this.defaultTokens.isEmpty()) {
             for (String tokenName : DEFAULT_TOKENS) {
                 this.defaultTokens.add(new HttpSessionToken(tokenName));
                 this.defaultTokensEnabled.add(tokenName);
