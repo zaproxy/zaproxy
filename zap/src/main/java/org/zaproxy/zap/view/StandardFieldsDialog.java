@@ -1002,7 +1002,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
             throw new IllegalArgumentException("Field already added: " + field);
         }
 
-        if (buttons == null || buttons.size() == 0) {
+        if (buttons == null || buttons.isEmpty()) {
             if (fieldLabel == null) {
                 this.getMainPanel()
                         .add(
@@ -1092,7 +1092,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
         if (this.fieldList.contains(field)) {
             throw new IllegalArgumentException("Field already added: " + field);
         }
-        if (buttons == null || buttons.size() == 0) {
+        if (buttons == null || buttons.isEmpty()) {
             this.tabPanels
                     .get(tabIndex)
                     .add(
@@ -1699,7 +1699,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                                 GridBagConstraints.BOTH,
                                 new Insets(4, 4, 4, 4)));
 
-        if (this.fieldList.size() == 0) {
+        if (this.fieldList.isEmpty()) {
             // First field, always grab focus
             component.requestFocusInWindow();
         }
@@ -1732,7 +1732,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                                 0.0D,
                                 GridBagConstraints.BOTH,
                                 new Insets(4, 4, 4, 4)));
-        if (this.fieldList.size() == 0) {
+        if (this.fieldList.isEmpty()) {
             // First field, always grab focus
             component.requestFocusInWindow();
         }

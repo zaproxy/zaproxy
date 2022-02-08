@@ -286,7 +286,7 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
     }
 
     private static String listToCsv(List<String> list) {
-        if (list == null || list.size() == 0) {
+        if (list == null || list.isEmpty()) {
             return "";
         } else if (list.size() == 1) {
             return list.get(0);

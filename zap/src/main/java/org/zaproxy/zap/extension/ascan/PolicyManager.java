@@ -64,7 +64,7 @@ public class PolicyManager {
                     }
                 }
             }
-            if (allPolicyNames.size() == 0) {
+            if (allPolicyNames.isEmpty()) {
                 // No policies :( Create a default one
                 ScanPolicy defaultPolicy = new ScanPolicy();
                 defaultPolicy.setName(DEFAULT_POLICY_NAME);

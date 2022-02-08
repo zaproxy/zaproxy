@@ -51,6 +51,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/10/06 Updated default user agent
 // ZAP: 2022/02/02 Removed getProxyChainSkipName() and setProxyChainSkipName(String)
+// ZAP: 2022/02/08 Use isEmpty where applicable.
 package org.parosproxy.paros.network;
 
 import java.net.PasswordAuthentication;
@@ -767,7 +768,7 @@ public class ConnectionParam extends AbstractParam {
 
     private void loadSecurityProtocolsEnabled() {
         List<Object> protocols = getConfig().getList(ALL_SECURITY_PROTOCOLS_ENABLED_KEY);
-        if (protocols.size() != 0) {
+        if (!protocols.isEmpty()) {
             securityProtocolsEnabled = new String[protocols.size()];
             securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
             setClientEnabledProtocols();

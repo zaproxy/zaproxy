@@ -225,7 +225,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
             this.enabledTokensNames = new ArrayList<>(defaultList.size());
         }
 
-        if (this.tokens.size() == 0) {
+        if (this.tokens.isEmpty()) {
             for (GlobalExcludeURLParamToken geu : defaultList) {
                 this.tokens.add(new GlobalExcludeURLParamToken(geu));
             }
