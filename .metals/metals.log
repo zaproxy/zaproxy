@@ -1,0 +1,375 @@
+2022.02.08 05:00:07 INFO  tracing is disabled for protocol LSP, to enable tracing of incoming and outgoing JSON messages create an empty file at c:\Users\Administrator\Documents\GitHub\zaproxy\.metals\lsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\lsp.trace.json
+2022.02.08 05:00:08 INFO  logging to file C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\metals.log
+2022.02.08 05:00:08 INFO  Started: Metals version 0.11.1 in workspace 'C:\Users\Administrator\Documents\GitHub\zaproxy' for client Visual Studio Code 1.64.0.
+2022.02.08 05:00:08 INFO  Parse release: 17.0.2
+2022.02.08 05:00:13 INFO  time: initialize in 4.69s
+2022.02.08 05:00:13 WARN  Build server is not auto-connectable.
+2022.02.08 05:00:17 INFO  running 'C:\Users\Administrator\Documents\GitHub\zaproxy\gradlew.bat --console=plain --init-script C:\Users\ADMINI~1\AppData\Local\Temp\metals14719129610875608131\init-script.gradle bloopInstall'
+2022.02.08 05:00:18 INFO  Starting a Gradle Daemon, 4 incompatible and 2 stopped Daemons could not be reused, use --status for details
+2022.02.08 05:00:32 INFO  > Task :buildSrc:generateExternalPluginSpecBuilders UP-TO-DATE
+2022.02.08 05:00:32 INFO  > Task :buildSrc:extractPrecompiledScriptPluginPlugins UP-TO-DATE
+2022.02.08 05:00:32 INFO  > Task :buildSrc:compilePluginsBlocks UP-TO-DATE
+2022.02.08 05:00:32 INFO  > Task :buildSrc:generatePrecompiledScriptPluginAccessors UP-TO-DATE
+2022.02.08 05:00:32 INFO  > Task :buildSrc:generateScriptPluginAdapters UP-TO-DATE
+2022.02.08 05:00:32 INFO  > Task :buildSrc:compileKotlin UP-TO-DATE
+2022.02.08 05:00:32 INFO  > Task :buildSrc:compileJava UP-TO-DATE
+2022.02.08 05:00:32 INFO  > Task :buildSrc:compileGroovy NO-SOURCE
+2022.02.08 05:00:32 INFO  > Task :buildSrc:pluginDescriptors UP-TO-DATE
+2022.02.08 05:00:32 INFO  > Task :buildSrc:processResources
+2022.02.08 05:00:32 INFO  > Task :buildSrc:classes
+2022.02.08 05:00:32 INFO  > Task :buildSrc:inspectClassesForKotlinIC UP-TO-DATE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:jar
+2022.02.08 05:00:33 INFO  > Task :buildSrc:assemble
+2022.02.08 05:00:33 INFO  > Task :buildSrc:spotlessJava UP-TO-DATE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:spotlessJavaCheck UP-TO-DATE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:spotlessKotlinGradle UP-TO-DATE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:spotlessKotlinGradleCheck UP-TO-DATE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:spotlessCheck UP-TO-DATE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:compileTestKotlin NO-SOURCE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:pluginUnderTestMetadata UP-TO-DATE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:compileTestJava NO-SOURCE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:compileTestGroovy NO-SOURCE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:processTestResources NO-SOURCE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:testClasses UP-TO-DATE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:test NO-SOURCE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:validatePlugins UP-TO-DATE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:check UP-TO-DATE
+2022.02.08 05:00:33 INFO  > Task :buildSrc:build
+2022.02.08 05:00:49 INFO  > Task :configureBloopInstall
+2022.02.08 05:00:49 INFO  > Task :bloopInstall
+2022.02.08 05:00:50 INFO  > Task :zap:configureBloopInstall
+2022.02.08 05:01:20 INFO  > Task :zap:bloopInstall
+Feb 08, 2022 5:01:21 AM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2022.02.08 05:01:38 INFO  
+2022.02.08 05:01:38 INFO  Deprecated Gradle features were used in this build, making it incompatible with Gradle 8.0.
+2022.02.08 05:01:38 INFO  
+2022.02.08 05:01:38 INFO  You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+2022.02.08 05:01:38 INFO  
+2022.02.08 05:01:38 INFO  See https://docs.gradle.org/7.3.3/userguide/command_line_interface.html#sec:command_line_warnings
+2022.02.08 05:01:38 INFO  
+2022.02.08 05:01:38 INFO  BUILD SUCCESSFUL in 1m 20s
+2022.02.08 05:01:38 INFO  21 actionable tasks: 6 executed, 15 up-to-date
+2022.02.08 05:01:38 INFO  time: ran 'gradle bloopInstall' in 1m21s
+2022.02.08 05:01:38 INFO  Attempting to connect to the build server...
+Feb 08, 2022 5:01:39 AM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2022.02.08 05:02:02 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\bsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2022.02.08 05:02:03 INFO  time: Connected to build server in 25s
+2022.02.08 05:02:03 INFO  Connected to Build server: Bloop v1.4.12
+2022.02.08 05:02:03 INFO  time: Imported build in 0.18s
+2022.02.08 05:02:11 INFO  time: indexed workspace in 7.25s
+2022.02.08 05:03:24 INFO  compiling zap (1149 java sources)
+2022.02.08 05:03:29 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:03:29 WARN  javac exited with exit code 1
+2022.02.08 05:03:29 INFO  time: compiled zap in 4.86s
+2022.02.08 05:03:30 INFO  compiling zap (1149 java sources)
+2022.02.08 05:03:33 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:03:33 WARN  javac exited with exit code 1
+2022.02.08 05:03:33 INFO  time: compiled zap in 3.08s
+Feb 08, 2022 5:03:39 AM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+Feb 08, 2022 5:04:18 AM org.eclipse.lsp4j.jsonrpc.services.GenericEndpoint notify
+INFO: Unsupported notification method: $/setTrace
+2022.02.08 05:05:35 INFO  compiling zap (1149 java sources)
+Feb 08, 2022 5:05:36 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 8
+2022.02.08 05:05:43 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:05:43 WARN  javac exited with exit code 1
+2022.02.08 05:06:07 INFO  no build target found for C:\Users\Administrator\Documents\GitHub\zaproxy\zap\src\main\java\org\apache\commons\httpclient\HttpConnection.java. Using presentation compiler with project's scala-library version: 3.1.0
+2022.02.08 05:06:07 INFO  time: compiled zap in 32s
+2022.02.08 05:06:07 INFO  compiling zap (1149 java sources)
+Feb 08, 2022 5:06:08 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 10
+Feb 08, 2022 5:06:08 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 14
+Feb 08, 2022 5:06:08 AM org.eclipse.lsp4j.jsonrpc.RemoteEndpoint handleCancellation
+WARNING: Unmatched cancel notification for request id 15
+2022.02.08 05:06:11 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:06:11 WARN  javac exited with exit code 1
+2022.02.08 05:06:11 INFO  time: compiled zap in 3.34s
+2022.02.08 05:06:11 INFO  compiling zap (1149 java sources)
+2022.02.08 05:06:14 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:06:14 WARN  javac exited with exit code 1
+2022.02.08 05:06:14 INFO  time: compiled zap in 2.22s
+Exception in thread "pool-3-thread-1" java.util.NoSuchElementException: next on empty iterator
+	at scala.collection.Iterator$$anon$19.next(Iterator.scala:966)
+	at scala.collection.Iterator$$anon$19.next(Iterator.scala:964)
+	at scala.collection.mutable.MutationTracker$CheckedIterator.next(MutationTracker.scala:76)
+	at scala.collection.IterableOps.head(Iterable.scala:222)
+	at scala.collection.IterableOps.head$(Iterable.scala:222)
+	at scala.collection.AbstractIterable.head(Iterable.scala:926)
+	at dotty.tools.dotc.interactive.InteractiveDriver.run(InteractiveDriver.scala:165)
+	at scala.meta.internal.pc.ScalaPresentationCompiler.hover$$anonfun$1(ScalaPresentationCompiler.scala:349)
+	at scala.meta.internal.pc.CompilerAccess.withSharedCompiler(CompilerAccess.scala:137)
+	at scala.meta.internal.pc.CompilerAccess.withNonInterruptableCompiler$$anonfun$1(CompilerAccess.scala:125)
+	at scala.meta.internal.pc.CompilerAccess.onCompilerJobQueue$$anonfun$1(CompilerAccess.scala:197)
+	at scala.meta.internal.pc.CompilerJobQueue$Job.run(CompilerJobQueue.scala:139)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Exception in thread "pool-3-thread-2" java.util.NoSuchElementException: next on empty iterator
+	at scala.collection.Iterator$$anon$19.next(Iterator.scala:966)
+	at scala.collection.Iterator$$anon$19.next(Iterator.scala:964)
+	at scala.collection.mutable.MutationTracker$CheckedIterator.next(MutationTracker.scala:76)
+	at scala.collection.IterableOps.head(Iterable.scala:222)
+	at scala.collection.IterableOps.head$(Iterable.scala:222)
+	at scala.collection.AbstractIterable.head(Iterable.scala:926)
+	at dotty.tools.dotc.interactive.InteractiveDriver.run(InteractiveDriver.scala:165)
+	at scala.meta.internal.pc.ScalaPresentationCompiler.hover$$anonfun$1(ScalaPresentationCompiler.scala:349)
+	at scala.meta.internal.pc.CompilerAccess.withSharedCompiler(CompilerAccess.scala:137)
+	at scala.meta.internal.pc.CompilerAccess.withNonInterruptableCompiler$$anonfun$1(CompilerAccess.scala:125)
+	at scala.meta.internal.pc.CompilerAccess.onCompilerJobQueue$$anonfun$1(CompilerAccess.scala:197)
+	at scala.meta.internal.pc.CompilerJobQueue$Job.run(CompilerJobQueue.scala:139)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Exception in thread "pool-3-thread-3" java.util.NoSuchElementException: next on empty iterator
+	at scala.collection.Iterator$$anon$19.next(Iterator.scala:966)
+	at scala.collection.Iterator$$anon$19.next(Iterator.scala:964)
+	at scala.collection.mutable.MutationTracker$CheckedIterator.next(MutationTracker.scala:76)
+	at scala.collection.IterableOps.head(Iterable.scala:222)
+	at scala.collection.IterableOps.head$(Iterable.scala:222)
+	at scala.collection.AbstractIterable.head(Iterable.scala:926)
+	at dotty.tools.dotc.interactive.InteractiveDriver.run(InteractiveDriver.scala:165)
+	at scala.meta.internal.pc.ScalaPresentationCompiler.hover$$anonfun$1(ScalaPresentationCompiler.scala:349)
+	at scala.meta.internal.pc.CompilerAccess.withSharedCompiler(CompilerAccess.scala:137)
+	at scala.meta.internal.pc.CompilerAccess.withNonInterruptableCompiler$$anonfun$1(CompilerAccess.scala:125)
+	at scala.meta.internal.pc.CompilerAccess.onCompilerJobQueue$$anonfun$1(CompilerAccess.scala:197)
+	at scala.meta.internal.pc.CompilerJobQueue$Job.run(CompilerJobQueue.scala:139)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Exception in thread "pool-3-thread-4" java.util.NoSuchElementException: next on empty iterator
+	at scala.collection.Iterator$$anon$19.next(Iterator.scala:966)
+	at scala.collection.Iterator$$anon$19.next(Iterator.scala:964)
+	at scala.collection.mutable.MutationTracker$CheckedIterator.next(MutationTracker.scala:76)
+	at scala.collection.IterableOps.head(Iterable.scala:222)
+	at scala.collection.IterableOps.head$(Iterable.scala:222)
+	at scala.collection.AbstractIterable.head(Iterable.scala:926)
+	at dotty.tools.dotc.interactive.InteractiveDriver.run(InteractiveDriver.scala:165)
+	at scala.meta.internal.pc.ScalaPresentationCompiler.hover$$anonfun$1(ScalaPresentationCompiler.scala:349)
+	at scala.meta.internal.pc.CompilerAccess.withSharedCompiler(CompilerAccess.scala:137)
+	at scala.meta.internal.pc.CompilerAccess.withNonInterruptableCompiler$$anonfun$1(CompilerAccess.scala:125)
+	at scala.meta.internal.pc.CompilerAccess.onCompilerJobQueue$$anonfun$1(CompilerAccess.scala:197)
+	at scala.meta.internal.pc.CompilerJobQueue$Job.run(CompilerJobQueue.scala:139)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+2022.02.08 05:07:42 INFO  compiling zap (1149 java sources)
+2022.02.08 05:07:44 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:07:44 WARN  javac exited with exit code 1
+2022.02.08 05:07:44 INFO  time: compiled zap in 1.54s
+2022.02.08 05:07:46 INFO  Disconnecting from Bloop session...
+2022.02.08 05:07:47 INFO  Attempting to connect to the build server...
+2022.02.08 05:07:48 INFO  Attempting to connect to the build server...
+2022.02.08 05:07:48 ERROR timeout: build server 'bloop' during shutdown
+2022.02.08 05:07:48 INFO  Attempting to connect to the build server...
+2022.02.08 05:07:48 INFO  Attempting to connect to the build server...
+2022.02.08 05:07:48 INFO  Attempting to connect to the build server...
+2022.02.08 05:07:48 INFO  Attempting to connect to the build server...
+2022.02.08 05:07:48 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\bsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2022.02.08 05:07:49 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\bsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2022.02.08 05:07:49 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\bsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2022.02.08 05:07:49 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\bsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2022.02.08 05:07:49 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\bsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2022.02.08 05:07:49 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\bsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2022.02.08 05:07:49 INFO  time: Connected to build server in 0.64s
+2022.02.08 05:07:49 INFO  time: Connected to build server in 1.19s
+2022.02.08 05:07:49 INFO  Connected to Build server: Bloop v1.4.12
+2022.02.08 05:07:49 INFO  Connected to Build server: Bloop v1.4.12
+2022.02.08 05:07:49 INFO  time: Connected to build server in 3.01s
+2022.02.08 05:07:50 INFO  time: Connected to build server in 0.5s
+2022.02.08 05:07:49 INFO  Connected to Build server: Bloop v1.4.12
+2022.02.08 05:07:49 INFO  time: Connected to build server in 1.14s
+2022.02.08 05:07:49 INFO  Connected to Build server: Bloop v1.4.12
+2022.02.08 05:07:50 INFO  Connected to Build server: Bloop v1.4.12
+2022.02.08 05:07:49 INFO  time: Connected to build server in 1.05s
+2022.02.08 05:07:49 INFO  Connected to Build server: Bloop v1.4.12
+2022.02.08 05:07:50 INFO  time: Imported build in 0.37s
+2022.02.08 05:07:49 INFO  time: Imported build in 0.36s
+2022.02.08 05:07:50 INFO  time: Imported build in 0.36s
+2022.02.08 05:07:49 INFO  time: Imported build in 0.37s
+2022.02.08 05:07:49 INFO  time: Imported build in 0.37s
+2022.02.08 05:07:49 INFO  time: Imported build in 0.39s
+2022.02.08 05:07:56 INFO  time: indexed workspace in 5.65s
+2022.02.08 05:07:56 INFO  time: indexed workspace in 5.74s
+2022.02.08 05:07:56 INFO  time: indexed workspace in 5.78s
+2022.02.08 05:07:57 INFO  compiling zap (1149 java sources)
+2022.02.08 05:07:59 INFO  time: indexed workspace in 9.09s
+2022.02.08 05:07:59 INFO  time: indexed workspace in 9.09s
+2022.02.08 05:07:59 INFO  time: indexed workspace in 9.12s
+2022.02.08 05:08:00 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:08:00 WARN  javac exited with exit code 1
+2022.02.08 05:08:00 INFO  time: compiled zap in 3.09s
+2022.02.08 05:08:00 INFO  compiling zap (1149 java sources)
+2022.02.08 05:08:02 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:08:02 WARN  javac exited with exit code 1
+2022.02.08 05:08:02 INFO  time: compiled zap in 1.64s
+2022.02.08 05:08:38 INFO  no build target found for C:\Users\Administrator\Documents\GitHub\zaproxy\zap\src\main\java\org\apache\commons\httpclient\HttpConnection.java. Using presentation compiler with project's scala-library version: 3.1.0
+2022.02.08 05:09:05 INFO  compiling zap (1140 java sources)
+2022.02.08 05:09:10 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:09:10 WARN  javac exited with exit code 1
+2022.02.08 05:09:10 INFO  time: compiled zap in 5.02s
+2022.02.08 05:09:10 INFO  compiling zap (1165 java sources)
+2022.02.08 05:09:16 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:09:16 WARN  javac exited with exit code 1
+2022.02.08 05:09:16 INFO  time: compiled zap in 4.42s
+2022.02.08 05:09:16 INFO  compiling zap (1165 java sources)
+2022.02.08 05:09:19 WARN  Unexpected javac output: warning: [path] bad path element "C:\Users\Administrator\Documents\GitHub\zaproxy\.bloop\zap\build\classes-empty-zap": no such file or directory
+error: plug-in not found: semanticdb
+1 error
+1 warning.
+2022.02.08 05:09:19 WARN  javac exited with exit code 1
+2022.02.08 05:09:19 INFO  time: compiled zap in 2.55s
+2022.02.08 05:10:17 INFO  shutting down Metals
+2022.02.08 05:10:17 INFO  Shut down connection with build server.
+2022.02.08 05:10:18 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\bsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2022.02.08 05:10:18 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\bsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\bsp.trace.json
+2022.02.08 05:10:18 INFO  tracing is disabled for protocol BSP, to enable tracing of incoming and outgoing JSON messages create an empty file at C:\Users\Administrator\Documents\GitHub\zaproxy\.metals\bsp.trace.json or C:\Users\Administrator\AppData\Local\scalameta\metals\cache\bsp.trace.json
+Exception in thread "pool-1-thread-700" java.lang.InterruptedException
+	at java.base/java.util.concurrent.CompletableFuture.reportGet(CompletableFuture.java:386)
+	at java.base/java.util.concurrent.CompletableFuture.get(CompletableFuture.java:2096)
+	at scala.meta.internal.metals.BuildServerConnection$.initialize(BuildServerConnection.scala:419)
+	at scala.meta.internal.metals.BuildServerConnection$.$anonfun$fromSockets$1(BuildServerConnection.scala:329)
+	at scala.util.Success.$anonfun$map$1(Try.scala:255)
+	at scala.util.Success.map(Try.scala:213)
+	at scala.concurrent.Future.$anonfun$map$1(Future.scala:292)
+	at scala.concurrent.impl.Promise.liftedTree1$1(Promise.scala:33)
+	at scala.concurrent.impl.Promise.$anonfun$transform$1(Promise.scala:33)
+	at scala.concurrent.impl.CallbackRunnable.run(Promise.scala:64)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Exception in thread "bsp-client-to-server" java.net.SocketException: Socket is closed
+	at java.base/java.net.Socket.getOutputStream(Socket.java:998)
+	at bloop.launcher.bsp.BspBridge.$anonfun$wireBspConnectionStreams$1(BspBridge.scala:195)
+	at bloop.bloopgun.core.Shell$$anon$2.run(Shell.scala:156)
+Exception in thread "bsp-server-to-client" java.net.SocketException: Socket is closed
+	at java.base/java.net.Socket.getInputStream(Socket.java:927)
+	at bloop.launcher.bsp.BspBridge.$anonfun$wireBspConnectionStreams$2(BspBridge.scala:226)
+	at bloop.bloopgun.core.Shell$$anon$2.run(Shell.scala:156)
+java.util.concurrent.RejectedExecutionException: Task scala.concurrent.impl.CallbackRunnable@12dc058a rejected from java.util.concurrent.ThreadPoolExecutor@65e9d646[Shutting down, pool size = 12, active threads = 5, queued tasks = 0, completed tasks = 27706]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2065)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:833)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1365)
+	at scala.concurrent.impl.ExecutionContextImpl$$anon$4.execute(ExecutionContextImpl.scala:138)
+	at scala.concurrent.impl.CallbackRunnable.executeWithValue(Promise.scala:72)
+	at scala.concurrent.impl.Promise$DefaultPromise.$anonfun$tryComplete$1(Promise.scala:288)
+	at scala.concurrent.impl.Promise$DefaultPromise.$anonfun$tryComplete$1$adapted(Promise.scala:288)
+	at scala.concurrent.impl.Promise$DefaultPromise.tryComplete(Promise.scala:288)
+	at scala.concurrent.Promise.complete(Promise.scala:53)
+	at scala.concurrent.Promise.complete$(Promise.scala:52)
+	at scala.concurrent.impl.Promise$DefaultPromise.complete(Promise.scala:187)
+	at scala.concurrent.impl.Promise.$anonfun$transform$1(Promise.scala:33)
+	at scala.concurrent.impl.CallbackRunnable.run(Promise.scala:64)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Feb 08, 2022 5:10:18 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireStreamClosed
+INFO: The input stream was closed.
+java.nio.channels.ClosedByInterruptException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:199)
+	at java.base/sun.nio.ch.SocketChannelImpl.endRead(SocketChannelImpl.java:389)
+	at java.base/sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:428)
+	at java.base/sun.nio.ch.SourceChannelImpl.read(SourceChannelImpl.java:113)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:59)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:107)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:101)
+	at java.base/java.io.InputStream.read(InputStream.java:218)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:81)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:79)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+
+Feb 08, 2022 5:10:18 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireStreamClosed
+INFO: The input stream was closed.
+java.nio.channels.ClosedByInterruptException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:199)
+	at java.base/sun.nio.ch.SocketChannelImpl.endRead(SocketChannelImpl.java:389)
+	at java.base/sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:428)
+	at java.base/sun.nio.ch.SourceChannelImpl.read(SourceChannelImpl.java:113)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:59)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:107)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:101)
+	at java.base/java.io.InputStream.read(InputStream.java:218)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:81)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:79)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+
+java.util.concurrent.RejectedExecutionException: Task scala.concurrent.impl.CallbackRunnable@40c6c8dc rejected from java.util.concurrent.ThreadPoolExecutor@65e9d646[Shutting down, pool size = 2, active threads = 2, queued tasks = 0, completed tasks = 27709]
+	at java.base/java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:2065)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:833)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1365)
+	at scala.concurrent.impl.ExecutionContextImpl$$anon$4.execute(ExecutionContextImpl.scala:138)
+	at scala.concurrent.impl.CallbackRunnable.executeWithValue(Promise.scala:72)
+	at scala.concurrent.impl.Promise$DefaultPromise.$anonfun$tryComplete$1(Promise.scala:288)
+	at scala.concurrent.impl.Promise$DefaultPromise.$anonfun$tryComplete$1$adapted(Promise.scala:288)
+	at scala.concurrent.impl.Promise$DefaultPromise.tryComplete(Promise.scala:288)
+	at scala.concurrent.Promise.complete(Promise.scala:53)
+	at scala.concurrent.Promise.complete$(Promise.scala:52)
+	at scala.concurrent.impl.Promise$DefaultPromise.complete(Promise.scala:187)
+	at scala.concurrent.impl.Promise.$anonfun$transform$1(Promise.scala:33)
+	at scala.concurrent.impl.CallbackRunnable.run(Promise.scala:64)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+Feb 08, 2022 5:10:18 AM org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer fireStreamClosed
+INFO: The input stream was closed.
+java.nio.channels.ClosedByInterruptException
+	at java.base/java.nio.channels.spi.AbstractInterruptibleChannel.end(AbstractInterruptibleChannel.java:199)
+	at java.base/sun.nio.ch.SocketChannelImpl.endRead(SocketChannelImpl.java:389)
+	at java.base/sun.nio.ch.SocketChannelImpl.read(SocketChannelImpl.java:428)
+	at java.base/sun.nio.ch.SourceChannelImpl.read(SourceChannelImpl.java:113)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:59)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:107)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:101)
+	at java.base/java.io.InputStream.read(InputStream.java:218)
+	at java.base/sun.nio.ch.ChannelInputStream.read(ChannelInputStream.java:81)
+	at org.eclipse.lsp4j.jsonrpc.json.StreamMessageProducer.listen(StreamMessageProducer.java:79)
+	at org.eclipse.lsp4j.jsonrpc.json.ConcurrentMessageProcessor.run(ConcurrentMessageProcessor.java:113)
+	at java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:539)
+	at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1136)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:635)
+	at java.base/java.lang.Thread.run(Thread.java:833)
+
