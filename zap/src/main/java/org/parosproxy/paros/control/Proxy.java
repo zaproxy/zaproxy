@@ -36,22 +36,23 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/09/17 Remove irrelevant conditional in stopServer().
 // ZAP: 2019/12/13 Save the proxy port if it had to be selected during startup (Issue 2016).
+// ZAP: 2022/02/09 Deprecate the class.
 package org.parosproxy.paros.control;
 
 import java.util.List;
-import org.parosproxy.paros.core.proxy.CacheProcessingItem;
 import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
-import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.control.ControlOverrides;
 
+/** @deprecated (2.12.0) No longer used/needed by core. Use the network add-on instead. */
+@Deprecated
 public class Proxy {
 
     private Model model = null;
-    private ProxyServer proxyServer = null;
+    private org.parosproxy.paros.core.proxy.ProxyServer proxyServer = null;
     private boolean reverseProxy = false;
     private String reverseProxyHost = "";
     private ControlOverrides overrides = null;
@@ -61,7 +62,7 @@ public class Proxy {
         this.model = model;
         this.overrides = overrides;
 
-        proxyServer = new ProxyServer();
+        proxyServer = new org.parosproxy.paros.core.proxy.ProxyServer();
         proxyServer.setEnableApi(true);
     }
 
@@ -206,7 +207,7 @@ public class Proxy {
         }
     }
 
-    public void addCacheProcessingList(CacheProcessingItem item) {
+    public void addCacheProcessingList(org.parosproxy.paros.core.proxy.CacheProcessingItem item) {
         if (proxyServer != null) {
             proxyServer.addCacheProcessingList(item);
         }

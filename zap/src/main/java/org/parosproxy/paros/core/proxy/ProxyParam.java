@@ -43,6 +43,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/08 Use isEmpty where applicable.
+// ZAP: 2022/02/09 Deprecate the class.
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
@@ -55,7 +56,11 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.SSLConnector;
 
-/** @author simon */
+/**
+ * @author simon
+ * @deprecated (2.12.0) Use the network add-on instead.
+ */
+@Deprecated
 public class ProxyParam extends AbstractParam {
 
     //	private static final String PROXY = "proxy";
@@ -183,8 +188,6 @@ public class ProxyParam extends AbstractParam {
             return;
         }
         this.proxyIp = proxyIp.trim();
-        getConfig().setProperty(PROXY_IP, this.proxyIp);
-        determineProxyIpAnyLocalAddress();
     }
 
     public int getProxyPort() {
@@ -193,7 +196,6 @@ public class ProxyParam extends AbstractParam {
 
     public void setProxyPort(int proxyPort) {
         this.proxyPort = proxyPort;
-        getConfig().setProperty(PROXY_PORT, Integer.toString(this.proxyPort));
     }
 
     public String getReverseProxyIp() {

@@ -48,6 +48,7 @@
 // ZAP: 2019/10/09 Issue 5619: Ensure -configfile maintains key order
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/02/09 No longer parse host/port and deprecate related code.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -79,8 +80,11 @@ public class CommandLine {
     public static final String HELP2 = "-h";
     public static final String DIR = "-dir";
     public static final String VERSION = "-version";
-    public static final String PORT = "-port";
-    public static final String HOST = "-host";
+    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    @Deprecated public static final String PORT = "-port";
+    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    @Deprecated public static final String HOST = "-host";
+
     public static final String CMD = "-cmd";
     public static final String INSTALL_DIR = "-installdir";
     public static final String CONFIG = "-config";
@@ -122,8 +126,6 @@ public class CommandLine {
     private boolean lowMem = false;
     private boolean experimentalDb = false;
     private boolean silent = false;
-    private int port = -1;
-    private String host = null;
     private String[] args;
     private final Map<String, String> configs = new LinkedHashMap<>();
     private final Hashtable<String, String> keywords = new Hashtable<>();
@@ -386,14 +388,6 @@ public class CommandLine {
             Constant.setZapInstall(keywords.get(INSTALL_DIR));
             result = true;
 
-        } else if (checkPair(args, HOST, i)) {
-            this.host = keywords.get(HOST);
-            result = true;
-
-        } else if (checkPair(args, PORT, i)) {
-            this.port = Integer.parseInt(keywords.get(PORT));
-            result = true;
-
         } else if (checkPair(args, CONFIG, i)) {
             String pair = keywords.get(CONFIG);
             if (pair != null && pair.indexOf("=") > 0) {
@@ -494,12 +488,16 @@ public class CommandLine {
         return this.displaySupportInfo;
     }
 
+    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    @Deprecated
     public int getPort() {
-        return this.port;
+        return -1;
     }
 
+    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    @Deprecated
     public String getHost() {
-        return host;
+        return null;
     }
 
     /**
