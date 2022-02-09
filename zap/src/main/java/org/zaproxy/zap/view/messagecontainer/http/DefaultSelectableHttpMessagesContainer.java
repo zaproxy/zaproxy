@@ -99,7 +99,7 @@ public class DefaultSelectableHttpMessagesContainer extends DefaultMultipleHttpM
 
     @Override
     public boolean hasSelectedMessages() {
-        return selectedHttpMessages.size() != 0;
+        return !selectedHttpMessages.isEmpty();
     }
 
     @Override

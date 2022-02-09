@@ -27,6 +27,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/08 Use isEmpty where applicable.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.TreeMap;
@@ -79,7 +80,7 @@ public class Kb {
     public synchronized Object get(String key) {
         // ZAP: Added the type argument.
         Vector<Object> v = getList(key);
-        if (v == null || v.size() == 0) {
+        if (v == null || v.isEmpty()) {
             return null;
         }
 
@@ -167,7 +168,7 @@ public class Kb {
     public synchronized Object get(URI uri, String key) {
         // ZAP: Added the type argument.
         Vector<Object> v = getList(uri, key);
-        if (v == null || v.size() == 0) {
+        if (v == null || v.isEmpty()) {
             return null;
         }
 

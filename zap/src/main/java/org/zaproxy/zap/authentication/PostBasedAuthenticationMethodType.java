@@ -593,7 +593,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             LOGGER.debug("ExtensionAntiCSRF is not available, skipping ACSRF replacing task");
             return;
         }
-        if (freshAcsrfTokens == null || freshAcsrfTokens.size() == 0) {
+        if (freshAcsrfTokens == null || freshAcsrfTokens.isEmpty()) {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         "No ACSRF token found in the response of "
@@ -946,7 +946,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
                     ExtensionUserManagement userExt = getUserExt();
                     if (userExt != null
-                            && userExt.getUIConfiguredUsers(context.getId()).size() == 0) {
+                            && userExt.getUIConfiguredUsers(context.getId()).isEmpty()) {
                         String username = userParam.getValue();
                         String password = passwdParam.getValue();
                         if (!username.isEmpty()

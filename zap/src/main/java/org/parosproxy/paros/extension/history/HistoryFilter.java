@@ -106,8 +106,8 @@ public class HistoryFilter {
             boolean foundAlert = false;
             if (riskList.size() > 0 || confidenceList.size() > 0) {
                 for (Alert alert : historyRef.getAlerts()) {
-                    if ((riskList.size() == 0 || riskList.contains(Alert.MSG_RISK[alert.getRisk()]))
-                            && (confidenceList.size() == 0
+                    if ((riskList.isEmpty() || riskList.contains(Alert.MSG_RISK[alert.getRisk()]))
+                            && (confidenceList.isEmpty()
                                     || confidenceList.contains(
                                             Alert.MSG_CONFIDENCE[alert.getConfidence()]))) {
                         foundAlert = true;

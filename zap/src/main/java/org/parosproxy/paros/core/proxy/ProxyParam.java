@@ -42,6 +42,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/08 Use isEmpty where applicable.
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
@@ -366,7 +367,7 @@ public class ProxyParam extends AbstractParam {
 
     private void loadSecurityProtocolsEnabled() {
         List<Object> protocols = getConfig().getList(ALL_SECURITY_PROTOCOLS_ENABLED_KEY);
-        if (protocols.size() != 0) {
+        if (!protocols.isEmpty()) {
             securityProtocolsEnabled = new String[protocols.size()];
             securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
             setServerEnabledProtocols();

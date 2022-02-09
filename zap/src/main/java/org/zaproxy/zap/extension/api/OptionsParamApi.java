@@ -336,7 +336,7 @@ public class OptionsParamApi extends AbstractParam {
 
         addrsEnabled.trimToSize();
 
-        if (permittedAddresses.size() == 0) {
+        if (permittedAddresses.isEmpty()) {
             // None specified - add in the defaults (which can then be disabled)
             DomainMatcher addr = new DomainMatcher("127.0.0.1");
             permittedAddresses.add(addr);
