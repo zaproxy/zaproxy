@@ -33,6 +33,8 @@ import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.NetworkUtils;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 
+/** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+@Deprecated
 public class OptionsLocalProxyPanel extends JPanel {
 
     private static final long serialVersionUID = -1350537974139536669L;

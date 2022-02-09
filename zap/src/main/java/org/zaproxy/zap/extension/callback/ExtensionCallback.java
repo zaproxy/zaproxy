@@ -31,7 +31,6 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
-import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -54,7 +53,7 @@ public class ExtensionCallback extends ExtensionAdaptor
     private static final String TEST_PREFIX = "ZapTest";
     private static final String NAME = "ExtensionCallback";
 
-    private ProxyServer proxyServer;
+    private org.parosproxy.paros.core.proxy.ProxyServer proxyServer;
     private CallbackParam callbackParam;
     private OptionsCallbackPanel optionsCallbackPanel;
 
@@ -67,7 +66,7 @@ public class ExtensionCallback extends ExtensionAdaptor
     private org.zaproxy.zap.extension.callback.ui.CallbackPanel callbackPanel;
 
     public ExtensionCallback() {
-        proxyServer = new ProxyServer("ZAP-CallbackServer");
+        proxyServer = new org.parosproxy.paros.core.proxy.ProxyServer("ZAP-CallbackServer");
         proxyServer.addOverrideMessageProxyListener(new CallbackProxyListener());
     }
 

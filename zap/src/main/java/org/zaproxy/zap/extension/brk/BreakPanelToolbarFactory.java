@@ -100,8 +100,19 @@ public class BreakPanelToolbarFactory {
     /** The object to synchronise changes to {@link #countCaughtMessages}. */
     private final Object countLock = new Object();
 
+    private final ExtensionBreak extensionBreak;
+
     public BreakPanelToolbarFactory(BreakpointsParam breakpointsParams, BreakPanel breakPanel) {
+        this(null, breakpointsParams, breakPanel);
+    }
+
+    public BreakPanelToolbarFactory(
+            ExtensionBreak extensionBreak,
+            BreakpointsParam breakpointsParams,
+            BreakPanel breakPanel) {
         super();
+
+        this.extensionBreak = extensionBreak;
 
         continueButtonAction = new ContinueButtonAction();
         stepButtonAction = new StepButtonAction();
@@ -358,10 +369,9 @@ public class BreakPanelToolbarFactory {
         }
         // If forces or either break buttons are pressed force the proxy to submit requests and
         // responses serially
-        if (forceSerialize || isBreakRequest() || isBreakResponse() || isBreakAll) {
-            Control.getSingleton().getProxy().setSerialize(true);
-        } else {
-            Control.getSingleton().getProxy().setSerialize(false);
+        boolean serialise = forceSerialize || isBreakRequest() || isBreakResponse() || isBreakAll;
+        if (extensionBreak != null) {
+            extensionBreak.getSerialisationRequiredListeners().forEach(e -> e.accept(serialise));
         }
     }
 

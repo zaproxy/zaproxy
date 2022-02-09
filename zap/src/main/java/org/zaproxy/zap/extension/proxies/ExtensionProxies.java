@@ -32,14 +32,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.core.proxy.ProxyParam;
-import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
+/** @deprecated (2.12.0) Use the capabilities provided by the network add-on. */
+@Deprecated
 public class ExtensionProxies extends ExtensionAdaptor implements OptionsChangedListener {
 
     public static final String NAME = "ExtensionProxies";
@@ -47,7 +47,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
 
     private ProxiesParam proxiesParam = null;
     private OptionsProxiesPanel optionsProxiesPanel = null;
-    private Map<String, ProxyServer> proxyServers = new HashMap<>();
+    private Map<String, org.parosproxy.paros.core.proxy.ProxyServer> proxyServers = new HashMap<>();
 
     private static Logger log = LogManager.getLogger(ExtensionProxies.class);
 
@@ -89,7 +89,8 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
     public void stop() {
         super.stop();
         // Stop all of the running servers
-        for (Entry<String, ProxyServer> entry : proxyServers.entrySet()) {
+        for (Entry<String, org.parosproxy.paros.core.proxy.ProxyServer> entry :
+                proxyServers.entrySet()) {
             stopProxyServer(entry.getKey(), entry.getValue());
         }
         proxyServers.clear();
@@ -108,13 +109,13 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
     private void restartProxies() {
         List<ProxiesParamProxy> proxyParams = this.getParam().getProxies();
         Map<String, ProxiesParamProxy> newProxies = new HashMap<>();
-        Map<String, ProxyServer> currentProxies = proxyServers;
+        Map<String, org.parosproxy.paros.core.proxy.ProxyServer> currentProxies = proxyServers;
         proxyServers = new HashMap<>();
         for (ProxiesParamProxy proxyParam : proxyParams) {
             if (proxyParam.isEnabled()) {
                 // Treat disabled proxies as if they dont really exist
                 String key = createProxyKey(proxyParam.getAddress(), proxyParam.getPort());
-                ProxyServer proxy = currentProxies.remove(key);
+                org.parosproxy.paros.core.proxy.ProxyServer proxy = currentProxies.remove(key);
                 if (proxy == null) {
                     // Its a new one
                     newProxies.put(key, proxyParam);
@@ -125,17 +126,19 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
             }
         }
         // Any proxies left have been removed
-        for (Entry<String, ProxyServer> entry : currentProxies.entrySet()) {
+        for (Entry<String, org.parosproxy.paros.core.proxy.ProxyServer> entry :
+                currentProxies.entrySet()) {
             stopProxyServer(entry.getKey(), entry.getValue());
         }
         for (Entry<String, ProxiesParamProxy> entry : newProxies.entrySet()) {
-            ProxyServer proxy = startProxyServer(entry.getValue());
+            org.parosproxy.paros.core.proxy.ProxyServer proxy = startProxyServer(entry.getValue());
             proxyServers.put(entry.getKey(), proxy);
         }
     }
 
-    private static void applyProxyOptions(ProxiesParamProxy param, ProxyServer proxyServer) {
-        ProxyParam proxyParam = proxyServer.getProxyParam();
+    private static void applyProxyOptions(
+            ProxiesParamProxy param, org.parosproxy.paros.core.proxy.ProxyServer proxyServer) {
+        org.parosproxy.paros.core.proxy.ProxyParam proxyParam = proxyServer.getProxyParam();
         proxyParam.setAlwaysDecodeGzip(param.isAlwaysDecodeGzip());
         proxyParam.setBehindNat(param.isBehindNat());
         proxyParam.setRemoveUnsupportedEncodings(param.isRemoveUnsupportedEncodings());
@@ -152,13 +155,13 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         return address + ":" + port;
     }
 
-    private ProxyServer startProxyServer(ProxiesParamProxy param) {
+    private org.parosproxy.paros.core.proxy.ProxyServer startProxyServer(ProxiesParamProxy param) {
         String address = param.getAddress();
         int port = param.getPort();
         String key = createProxyKey(address, port);
         log.info("Starting alt proxy server: " + key);
-        ProxyServer proxyServer =
-                new ProxyServer(ZAP_PROXY_THREAD_PREFIX + key) {
+        org.parosproxy.paros.core.proxy.ProxyServer proxyServer =
+                new org.parosproxy.paros.core.proxy.ProxyServer(ZAP_PROXY_THREAD_PREFIX + key) {
 
                     @Override
                     public boolean excludeUrl(URI uri) {
@@ -193,7 +196,8 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         return proxyServer;
     }
 
-    private void stopProxyServer(String proxyKey, ProxyServer proxyServer) {
+    private void stopProxyServer(
+            String proxyKey, org.parosproxy.paros.core.proxy.ProxyServer proxyServer) {
         log.info("Stopping alt proxy server: " + proxyKey);
         proxyServer.stopServer();
         Control.getSingleton().getExtensionLoader().removeProxyServer(proxyServer);
@@ -221,14 +225,14 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
             throw new IllegalArgumentException("Cannot listen on: " + key);
         }
 
-        ProxyServer proxyServer = startProxyServer(proxy);
+        org.parosproxy.paros.core.proxy.ProxyServer proxyServer = startProxyServer(proxy);
         proxyServers.put(key, proxyServer);
         this.getParam().addProxy(proxy);
     }
 
     public void removeProxy(String address, int port) {
         String key = createProxyKey(address, port);
-        ProxyServer proxyServer = proxyServers.remove(key);
+        org.parosproxy.paros.core.proxy.ProxyServer proxyServer = proxyServers.remove(key);
         if (proxyServer == null) {
             throw new IllegalArgumentException("Proxy not found: " + key);
         }

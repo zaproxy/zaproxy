@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -181,48 +182,25 @@ class CommandLineUnitTest {
     }
 
     @Test
-    void shouldFailIfPortArgumentDoesNotHaveValue() throws Exception {
-        // Given
-        String[] args = {CommandLine.PORT};
-        // When / Then
-        assertThrows(ArrayIndexOutOfBoundsException.class, () -> new CommandLine(args));
-    }
-
-    @Test
-    void shouldFailToParseInvalidPortArgument() throws Exception {
-        // Given
-        String[] args = {CommandLine.PORT, "InvalidPort"};
-        // When / Then
-        assertThrows(IllegalArgumentException.class, () -> new CommandLine(args));
-    }
-
-    @Test
-    void shouldParseValidPortArgument() throws Exception {
+    @SuppressWarnings("deprecation")
+    void shouldNotParsePortArgument() throws Exception {
         // Given
         int port = 8080;
         // When
         cmdLine = new CommandLine(new String[] {CommandLine.PORT, Integer.toString(port)});
         // Then
-        assertThat(cmdLine.getPort(), is(equalTo(port)));
-        assertThat(cmdLine.getArgument(CommandLine.PORT), is(equalTo("8080")));
+        assertThat(cmdLine.getPort(), is(equalTo(-1)));
     }
 
     @Test
-    void shouldFailIfHostArgumentDoesNotHaveValue() throws Exception {
-        // Given
-        String[] args = {CommandLine.HOST};
-        // When / Then
-        assertThrows(ArrayIndexOutOfBoundsException.class, () -> new CommandLine(args));
-    }
-
-    @Test
-    void shouldParseHostArgument() throws Exception {
+    @SuppressWarnings("deprecation")
+    void shouldNotParseHostArgument() throws Exception {
         // Given
         String hostname = "127.0.0.1";
         // When
         cmdLine = new CommandLine(new String[] {CommandLine.HOST, hostname});
         // Then
-        assertThat(cmdLine.getHost(), is(equalTo(hostname)));
+        assertThat(cmdLine.getHost(), is(nullValue()));
     }
 
     @Test

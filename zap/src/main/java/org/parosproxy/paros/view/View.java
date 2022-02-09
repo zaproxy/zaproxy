@@ -89,6 +89,7 @@
 // ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
 // ZAP: 2019/12/13 Update new footer proxy label in postInit (Issue 2016)
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/09 Remove method call no longer needed.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -351,7 +352,6 @@ public class View implements ViewDelegate {
                 });
         mainFrame.getMainMenuBar().getMenuView().add(unpinAllMenu);
 
-        mainFrame.getMainFooterPanel().optionsChanged();
         postInitialisation = true;
     }
 

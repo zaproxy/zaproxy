@@ -41,6 +41,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/13 Handle proxy port conflict at startup (issue 2016).
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/09 Deprecate the class.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -66,6 +67,8 @@ import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 
+/** @deprecated (2.12.0) Use the network add-on instead. */
+@Deprecated
 public class ProxyServer implements Runnable {
 
     protected Thread thread = null;

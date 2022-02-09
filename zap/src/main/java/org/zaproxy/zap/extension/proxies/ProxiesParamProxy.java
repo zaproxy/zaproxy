@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.proxies;
 
 import org.zaproxy.zap.utils.Enableable;
 
+/** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+@Deprecated
 public class ProxiesParamProxy extends Enableable {
 
     private String address = "localhost";

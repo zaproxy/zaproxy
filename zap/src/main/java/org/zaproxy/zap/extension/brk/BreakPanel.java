@@ -124,7 +124,7 @@ public class BreakPanel extends AbstractPanel implements Tab, BreakpointManageme
 
         this.setLayout(new BorderLayout());
 
-        breakToolbarFactory = new BreakPanelToolbarFactory(breakpointsParams, this);
+        breakToolbarFactory = new BreakPanelToolbarFactory(extension, breakpointsParams, this);
 
         panelContent = new JPanel(new CardLayout());
         this.add(panelContent, BorderLayout.CENTER);

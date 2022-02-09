@@ -24,9 +24,12 @@ import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.function.Consumer;
 import javax.swing.JList;
 import javax.swing.JTree;
 import javax.swing.tree.TreePath;
@@ -108,6 +111,7 @@ public class ExtensionBreak extends ExtensionAdaptor
     private ZapMenuItem menuHttpBreakpoint = null;
 
     private BreakAPI api = new BreakAPI(this);
+    private List<Consumer<Boolean>> serialisationRequiredListeners;
 
     public ExtensionBreak() {
         super(NAME);
@@ -119,8 +123,27 @@ public class ExtensionBreak extends ExtensionAdaptor
         return Constant.messages.getString("brk.name");
     }
 
+    @Override
+    public void init() {
+        serialisationRequiredListeners = Collections.synchronizedList(new ArrayList<>(1));
+    }
+
     public BreakpointManagementInterface getBreakpointManagementInterface() {
         return this.breakpointManagementInterface;
+    }
+
+    public void addSerialisationRequiredListener(Consumer<Boolean> listener) {
+        Objects.requireNonNull(listener);
+        serialisationRequiredListeners.add(listener);
+    }
+
+    public void removeSerialisationRequiredListener(Consumer<Boolean> listener) {
+        Objects.requireNonNull(listener);
+        serialisationRequiredListeners.remove(listener);
+    }
+
+    List<Consumer<Boolean>> getSerialisationRequiredListeners() {
+        return serialisationRequiredListeners;
     }
 
     /** @deprecated (2.6.0) Classes outside of this package should not access the UI directly */

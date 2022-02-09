@@ -56,7 +56,7 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
      * @see Control#initSingletonWithoutViewAndProxy(org.zaproxy.zap.control.ControlOverrides)
      */
     protected Control initControl() {
-        Control.initSingletonWithoutViewAndProxy(getControlOverrides());
+        Control.initSingletonWithoutView(getControlOverrides());
         return Control.getSingleton();
     }
 

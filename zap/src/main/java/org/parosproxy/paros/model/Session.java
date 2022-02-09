@@ -87,6 +87,7 @@
 // ZAP: 2020/10/14 Require just the name when importing context.
 // ZAP: 2020/11/02 Validate parameters in getLeafName(...)
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/09 Remove code no longer needed and deprecate a method.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -999,23 +1000,9 @@ public class Session {
 
         this.excludeFromProxyRegexs = stripEmptyLines(ignoredRegexs);
 
-        setExcludeFromProxyUrls();
-
         model.getDb()
                 .getTableSessionUrl()
                 .setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
-    }
-
-    /**
-     * Sets, into the Local Proxy, the URLs that should be excluded from it (URLs set in the session
-     * and global exclude URLs).
-     */
-    private void setExcludeFromProxyUrls() {
-        List<String> fullList = new ArrayList<>();
-        fullList.addAll(this.excludeFromProxyRegexs);
-        fullList.addAll(getGlobalExcludeURLRegexs());
-
-        Control.getSingleton().setExcludeFromProxyUrls(fullList);
     }
 
     public void addExcludeFromProxyRegex(String ignoredRegex) throws DatabaseException {
@@ -1023,7 +1010,6 @@ public class Session {
         Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
 
         this.excludeFromProxyRegexs.add(ignoredRegex);
-        Control.getSingleton().setExcludeFromProxyUrls(this.excludeFromProxyRegexs);
         model.getDb()
                 .getTableSessionUrl()
                 .setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
@@ -1108,10 +1094,10 @@ public class Session {
      * <p>This should be considered an internal method, to be called only by core code.
      *
      * @since 2.3.0
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
      */
-    public void forceGlobalExcludeURLRefresh() {
-        setExcludeFromProxyUrls();
-    }
+    @Deprecated
+    public void forceGlobalExcludeURLRefresh() {}
 
     /**
      * Gets the global exclude URLs.
