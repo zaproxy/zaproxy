@@ -45,3 +45,4 @@ hs_err_pid*
 # ZAP
 # ---
 *.zap
+.vscode/settings.json
