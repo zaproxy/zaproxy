@@ -24,6 +24,8 @@ import java.util.List;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
+/** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+@Deprecated
 public class OptionsProxiesTableModel extends AbstractMultipleOptionsTableModel<ProxiesParamProxy> {
 
     private static final long serialVersionUID = 1L;

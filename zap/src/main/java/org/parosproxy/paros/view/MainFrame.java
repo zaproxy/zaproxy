@@ -35,6 +35,7 @@
 // ZAP: 2019/12/13 Display the primary proxy details (host:port) in the footer (Issue 2016).
 // ZAP: 2020/09/29 Add support for dynamic Look and Feel switching (Issue 6201)
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/09 Remove method call no longer needed.
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -643,7 +644,6 @@ public class MainFrame extends AbstractFrame {
         setResponsePanelPosition(position);
 
         setShowTabNames(options.getViewParam().getShowTabNames());
-        getMainFooterPanel().optionsChanged();
     }
 
     /**

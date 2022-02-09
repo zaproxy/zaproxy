@@ -56,7 +56,6 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
@@ -1300,7 +1299,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             throws ApiException {
 
         if (OTHER_PROXY_PAC.equals(name)) {
-            final ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
+            @SuppressWarnings("deprecation")
+            final org.parosproxy.paros.core.proxy.ProxyParam proxyParam =
+                    Model.getSingleton().getOptionsParam().getProxyParam();
             final int port = proxyParam.getProxyPort();
             try {
                 String domain = null;

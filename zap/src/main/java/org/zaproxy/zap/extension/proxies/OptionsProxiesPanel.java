@@ -37,6 +37,8 @@ import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
+/** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+@Deprecated
 public class OptionsProxiesPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
