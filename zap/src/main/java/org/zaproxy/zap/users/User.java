@@ -274,6 +274,9 @@ public class User extends Enableable {
                                     this);
         } catch (UnsupportedAuthenticationCredentialsException e) {
             log.error("User does not have the expected type of credentials:", e);
+        } catch (Exception e) {
+            log.error("An error occurred while authenticating:", e);
+            return;
         }
         // no issues appear if a simultaneous call to #queueAuthentication() is made
         synchronized (this) {
