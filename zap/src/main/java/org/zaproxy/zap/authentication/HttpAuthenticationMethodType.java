@@ -382,8 +382,8 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
     public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
         return new ApiDynamicActionImplementor(
                 API_METHOD_NAME,
-                new String[] {PARAM_HOSTNAME, PARAM_REALM},
-                new String[] {PARAM_PORT}) {
+                new String[] {PARAM_HOSTNAME},
+                new String[] {PARAM_REALM, PARAM_PORT}) {
 
             @Override
             public void handleAction(JSONObject params) throws ApiException {
@@ -398,7 +398,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
                     throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_HOSTNAME);
                 }
 
-                if (params.containsKey(PARAM_REALM)) method.realm = params.getString(PARAM_REALM);
+                method.realm = params.optString(PARAM_REALM);
 
                 if (params.containsKey(PARAM_PORT))
                     try {
