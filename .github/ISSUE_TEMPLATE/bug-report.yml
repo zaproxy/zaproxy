@@ -1,0 +1,77 @@
+name: Bug Report
+description: Report a bug impacting ZAP.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a ZAP bug! Fill out the form below to provide us with info to help fix the bug. 
+        Only use this if you're 100% sure you've found a bug and can reproduce it. If you're looking for general help with ZAP, try the [User Group](https://groups.google.com/g/zaproxy-users).
+        Please do not ask questions as issues - these will be closed.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce the behavior
+      description: A clear and concise description of what the bug is.
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: A clear and concise description of what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: version
+    attributes:
+      label: Software versions
+      description: "Please add version information from ZAPs menu Help > Support Info, or from the CLI using the -suppinfo switch"
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: |
+        If applicable, add screenshots to help explain your problem.
+
+        Tip: You can attach files by clicking this area to highlight it and then dragging files in.
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Errors from the zap.log file
+      description: |
+        See https://www.zaproxy.org/faq/what-is-the-default-directory-that-zap-uses/ for the location of the zap.log file for your OS.
+        
+        Tip: You can attach files by clicking this area to highlight it and then dragging files in.
+    validations:
+      required: false
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add any other context about the problem here.
+    validations:
+        required: false
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Would you like to help fix this issue?
+      description: "Just say if you'd like to try and help fix this issue. We'll provide any advice and guidance you need."
+      options:
+        - label: "Yes"
