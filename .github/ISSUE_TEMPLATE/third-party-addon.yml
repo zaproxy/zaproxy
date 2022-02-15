@@ -1,0 +1,75 @@
+name: "3rd party add-on"
+description: "Tell us about a 3rd party add-on that we should add or update in the ZAP Marketplace"
+labels: ["marketplace"]
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to let us know about this addon.
+  - type: input
+    id: repo
+    attributes:
+      label: "Add-on repo"
+      description: "The URL of the repository for the add-on."
+    validations:
+      required: true
+  - type: input
+    id: contact
+    attributes:
+      label: Your contact details
+      description: "Email, twitter, whatever works for you."
+      placeholder: me at foo dot com
+    validations:
+      required: true
+  - type: checkboxes
+    id: author
+    attributes:
+      label: "Are you one of the authors?"
+      options:
+        - label: "Yes"
+  - type: input
+    id: license
+    attributes:
+      label: License
+      description: If not clearly stated in the repo.
+    validations:
+      required: false
+  - type: textarea
+    id: build
+    attributes:
+      label: Build instructions
+      description: If not in the repo.
+    validations:
+      required: false
+  - type: textarea
+    id: info
+    attributes:
+      label: Link for more information
+      description: "Is there a relevant blog or user guide we should know about?"
+    validations:
+      required: false
+  - type: textarea
+    id: twitter
+    attributes:
+      label: "Twitter handle for tool or author(s)"
+      description: "Will be used in the announcement tweet from [@zaproxy](https://twitter.com/zaproxy/)"
+    validations:
+      required: false
+  - type: textarea
+    id: promote
+    attributes:
+      label: "Promote to Beta or Release?"
+      description: |
+        Note that all new add-ons start at Alpha status.
+
+        Refer to the following pages for the guidelines of each status:
+        https://github.com/zaproxy/zap-extensions/wiki/AddOnsAlpha
+        https://github.com/zaproxy/zap-extensions/wiki/AddOnsBeta
+        https://github.com/zaproxy/zap-extensions/wiki/AddOnsRelease
+    validations:
+      required: false
+  - type: textarea
+    id: other
+    attributes:
+      label: Anything else we should know
+    validations:
+      required: false
