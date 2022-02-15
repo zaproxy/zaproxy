@@ -30,6 +30,7 @@ import org.zaproxy.zap.utils.ZapSupportUtils;
 public class ZapSupportPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
+    private JTextArea supportDetailsTextArea = new JTextArea(20, 0);
 
     /** Constructs an {@code ZapSupportPanel}. */
     public ZapSupportPanel() {
@@ -37,7 +38,6 @@ public class ZapSupportPanel extends JPanel {
 
         GridBagConstraints gbcSupportDetails = new GridBagConstraints();
 
-        JTextArea supportDetailsTextArea = new JTextArea(20, 0);
         supportDetailsTextArea.setEditable(false);
 
         supportDetailsTextArea.setText(ZapSupportUtils.getAll(true));
@@ -54,5 +54,9 @@ public class ZapSupportPanel extends JPanel {
         gbcSupportDetails.insets = new Insets(2, 2, 2, 2);
 
         this.add(new JScrollPane(supportDetailsTextArea), gbcSupportDetails);
+    }
+
+    public String getSupportInfo() {
+        return supportDetailsTextArea.getText();
     }
 }
