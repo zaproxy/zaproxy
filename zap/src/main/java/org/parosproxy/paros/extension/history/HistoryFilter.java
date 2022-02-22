@@ -19,16 +19,20 @@
  */
 package org.parosproxy.paros.extension.history;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
+import org.zaproxy.zap.utils.Enableable;
 
-public class HistoryFilter {
+public class HistoryFilter extends Enableable {
 
     public static final String NOTES_IGNORE =
             Constant.messages.getString("history.filter.notes.ignore");
@@ -38,6 +42,7 @@ public class HistoryFilter {
             Constant.messages.getString("history.filter.notes.absent");
     public static final String[] NOTES_OPTIONS = {NOTES_IGNORE, NOTES_PRESENT, NOTES_ABSENT};
 
+    private String name;
     private List<String> methodList = new ArrayList<>();
     private List<Integer> codeList = new ArrayList<>();
     private List<String> riskList = new ArrayList<>();
@@ -46,6 +51,7 @@ public class HistoryFilter {
     private String note = null;
     private List<Pattern> urlIncPatternList = new ArrayList<>();
     private List<Pattern> urlExcPatternList = new ArrayList<>();
+    private Optional<Long> startTimeSentInMs = Optional.empty();
 
     private Logger logger = LogManager.getLogger(HistoryFilter.class);
 
@@ -74,6 +80,22 @@ public class HistoryFilter {
         confidenceList.addAll(reliabilities);
     }
 
+    public Optional<Long> getStartTimeSentInMs() {
+        return startTimeSentInMs;
+    }
+
+    public void setStartTimeSentInMs(Optional<Long> startTimeSentInMs) {
+        this.startTimeSentInMs = startTimeSentInMs;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void reset() {
         this.methodList.clear();
         this.codeList.clear();
@@ -81,6 +103,7 @@ public class HistoryFilter {
         this.riskList.clear();
         this.confidenceList.clear();
         this.note = null;
+        this.startTimeSentInMs = Optional.empty();
     }
 
     public boolean matches(HistoryReference historyRef) {
@@ -147,6 +170,10 @@ public class HistoryFilter {
                     return false;
                 }
             }
+            if (startTimeSentInMs.isPresent()
+                    && historyRef.getTimeSentMillis() < startTimeSentInMs.get()) {
+                return false;
+            }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -193,6 +220,12 @@ public class HistoryFilter {
                 sb.append(", ");
             }
             sb.append(Constant.messages.getString("history.filter.desc.label.urlexcregex"));
+        }
+        if (startTimeSentInMs.isPresent()) {
+            if (sb.length() > 0) {
+                sb.append(", ");
+            }
+            sb.append(Constant.messages.getString("history.filter.desc.label.startTimeSentInMs"));
         }
 
         if (sb.length() > 0) {
@@ -284,33 +317,107 @@ public class HistoryFilter {
             sb.append(' ');
             sb.append(note);
         }
+        if (urlIncPatternList != null && urlIncPatternList.size() > 0) {
+            empty = false;
+            sb.append(Constant.messages.getString("history.filter.label.urlincregex"));
+            sb.append(' ');
+            for (Pattern excPattern : urlIncPatternList) {
+                sb.append(excPattern.pattern());
+                sb.append(' ');
+            }
+        }
+        if (urlExcPatternList != null && urlExcPatternList.size() > 0) {
+            empty = false;
+            sb.append(Constant.messages.getString("history.filter.label.urlexcregex"));
+            sb.append(' ');
+            for (Pattern excPattern : urlExcPatternList) {
+                sb.append(excPattern.pattern());
+                sb.append(' ');
+            }
+        }
+        if (startTimeSentInMs.isPresent()) {
+            empty = false;
+            sb.append(Constant.messages.getString("history.filter.label.startTimeSentInMs"));
+            sb.append(' ');
+            DateFormat dateFormat =
+                    DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
+            sb.append(dateFormat.format(new Date(startTimeSentInMs.get())));
+        }
         if (empty) {
             sb.append(Constant.messages.getString("history.filter.label.off"));
         }
         return sb.toString();
     }
 
-    public void setNote(Object selectedItem) {
-        if (selectedItem == null) {
-            note = null;
-        } else {
-            note = selectedItem.toString();
-        }
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public List<Pattern> getUrlIncPatternList() {
         return urlIncPatternList;
     }
 
+    public String[] getUrlIncPatternValueList() {
+        return patternToStringArray(urlIncPatternList);
+    }
+
     public void setUrlIncPatternList(List<Pattern> urlIncPatternList) {
         this.urlIncPatternList = urlIncPatternList;
+    }
+
+    public void setUrlIncPatternList(String[] urlIncPatternValueList) {
+        setUrlIncPatternList(stringArrayToPatternList(urlIncPatternValueList));
     }
 
     public List<Pattern> getUrlExcPatternList() {
         return urlExcPatternList;
     }
 
+    public String[] getUrlExcPatternValueList() {
+        return patternToStringArray(urlExcPatternList);
+    }
+
     public void setUrlExcPatternList(List<Pattern> urlExcPatternList) {
         this.urlExcPatternList = urlExcPatternList;
+    }
+
+    public void setUrlExcPatternList(String[] urlExcPatternValueList) {
+        setUrlExcPatternList(stringArrayToPatternList(urlExcPatternValueList));
+    }
+
+    private String[] patternToStringArray(List<Pattern> patternList) {
+        return patternList.stream().map(p -> p.pattern()).toArray(String[]::new);
+    }
+
+    private List<Pattern> stringArrayToPatternList(String[] urlIncPatternValueList) {
+        List<Pattern> patterns = new ArrayList<>();
+        for (String patternValue : urlIncPatternValueList) {
+            patterns.add(Pattern.compile(patternValue));
+        }
+        return patterns;
+    }
+
+    public List<String> getMethodList() {
+        return methodList;
+    }
+
+    public List<Integer> getCodeList() {
+        return codeList;
+    }
+
+    public List<String> getRiskList() {
+        return riskList;
+    }
+
+    public List<String> getConfidenceList() {
+        return confidenceList;
+    }
+
+    public List<String> getTagList() {
+        return tagList;
+    }
+
+    public String getNote() {
+        return note;
     }
 }

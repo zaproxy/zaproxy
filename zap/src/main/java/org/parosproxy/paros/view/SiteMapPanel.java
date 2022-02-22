@@ -205,7 +205,7 @@ public class SiteMapPanel extends AbstractPanel {
 
     private HistoryFilterPlusDialog getFilterPlusDialog() {
         if (filterPlusDialog == null) {
-            filterPlusDialog = new HistoryFilterPlusDialog(getView().getMainFrame(), true);
+            filterPlusDialog = new HistoryFilterPlusDialog(getView().getMainFrame(), true, null);
             // Override the title as we're reusing the history filter dialog
             filterPlusDialog.setTitle(Constant.messages.getString("sites.filter.title"));
         }
