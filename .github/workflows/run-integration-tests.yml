@@ -36,9 +36,9 @@ jobs:
       - 
         name: Run baseline tests
         run: docker run --rm -t owasp/zap2docker-tests:latest wrk/baseline_tests.sh
-      #- 
-        #name: Automation Framework context tests
-        #run: docker run --rm -t owasp/zap2docker-tests:latest wrk/af_context_tests.sh
+      - 
+        name: Automation Framework context tests
+        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/af_context_tests.sh
       - 
         name: Automation Framework plan tests
         run: docker run --rm -t owasp/zap2docker-tests:latest wrk/af_plan_tests.sh
