@@ -20,15 +20,21 @@ for file in *.context
 do
 	echo
 	echo "Context: $file"
-	# Nasty sed expression to remove the user IDs which will change each time
-	DIFF=$(diff <(sed 's/user>.*;/user>x;/g' $file) <(sed 's/user>.*;/user>x;/g' /zap/wrk/output/$file)) 
-	if [ "$DIFF" != "" ] 
+	if [ ! -f /zap/wrk/output/$file ]
 	then
-	    echo "ERROR: differences:"
-	    echo "$DIFF"
+	    echo "ERROR: /zap/wrk/output/$file not generated"
 		RES=1
 	else
-    	echo "PASS"
+		# Nasty sed expression to remove the user IDs which will change each time
+		DIFF=$(diff <(sed 's/user>.*;/user>x;/g' $file) <(sed 's/user>.*;/user>x;/g' /zap/wrk/output/$file)) 
+		if [ "$DIFF" != "" ] 
+		then
+		    echo "ERROR: differences:"
+		    echo "$DIFF"
+			RES=1
+		else
+	    	echo "PASS"
+		fi
 	fi
 done
 
