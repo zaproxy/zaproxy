@@ -87,6 +87,7 @@
 // ZAP: 2021/09/13 Added setExitStatus.
 // ZAP: 2021/11/08 Validate if mandatory add-ons are present.
 // ZAP: 2022/02/09 No longer manage the proxy, deprecate related code.
+// ZAP: 2022/02/24 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -604,22 +605,6 @@ public class Control extends AbstractControl implements SessionListener {
         getExtensionLoader().sessionAboutToChangeAllPlugin(null);
         model.discardSession();
         getExtensionLoader().sessionChangedAllPlugin(null);
-    }
-
-    /**
-     * @deprecated (2.5.0) Use just {@link #newSession()} (or {@link #newSession(String,
-     *     SessionListener)}) instead, which already takes care to create and open an untitled
-     *     database.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void createAndOpenUntitledDb() throws ClassNotFoundException, Exception {
-        log.info("Create and Open Untitled Db");
-        getExtensionLoader().sessionAboutToChangeAllPlugin(null);
-        model.closeSession();
-        model.createAndOpenUntitledDb();
-        getExtensionLoader().databaseOpen(model.getDb());
-        getExtensionLoader().sessionChangedAllPlugin(model.getSession());
     }
 
     @Override

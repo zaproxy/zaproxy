@@ -242,15 +242,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         filterMessageTableModel.addResult(msg.getRequestHeader().getURI().toString(), reason);
     }
 
-    /**
-     * @deprecated (2.5.0) No longer used/needed, the request count is automatically
-     *     updated/maintained by {@link HostProcess}.
-     */
-    @Deprecated
-    public void updatePluginRequestCounts() {
-        // No longer used.
-    }
-
     @Override
     public void scannerComplete(int id) {
         this.timeFinished = new Date();

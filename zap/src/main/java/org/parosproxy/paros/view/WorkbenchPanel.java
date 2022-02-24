@@ -39,6 +39,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/02 Add OneTouchExapandable control to Sites Tree/Request&Response panels
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/26 Remove deprecated methods in 2.5.0
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -64,7 +65,6 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
-import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ComponentMaximiser;
 import org.zaproxy.zap.view.ComponentMaximiserMouseListener;
@@ -394,20 +394,6 @@ public class WorkbenchPanel extends JPanel {
     private boolean showTabNames;
 
     /**
-     * @deprecated (2.5.0) Use {@link WorkbenchPanel#WorkbenchPanel(OptionsParamView, AbstractPanel,
-     *     AbstractPanel)} instead.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public WorkbenchPanel(int displayOption) {
-        this(
-                Model.getSingleton().getOptionsParam().getViewParam(),
-                View.getSingleton().getRequestPanel(),
-                View.getSingleton().getResponsePanel());
-        changeDisplayOption(displayOption);
-    }
-
-    /**
      * Constructs a {@code WorkbenchPanel} with the given options and request and response panels.
      *
      * @param viewOptions the options
@@ -465,13 +451,6 @@ public class WorkbenchPanel extends JPanel {
         if (parameter == null) {
             throw new IllegalArgumentException("Parameter " + parameterName + " must not be null");
         }
-    }
-
-    /** @deprecated (2.5.0) Use {@link #setWorkbenchLayout(Layout)} instead. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void changeDisplayOption(int option) {
-        setWorkbenchLayout(Layout.getLayout(option));
     }
 
     /**
@@ -706,15 +685,6 @@ public class WorkbenchPanel extends JPanel {
         return tabbedFull;
     }
 
-    /** @deprecated (2.5.0) No longer in use, it does nothing. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void splitPaneWorkWithTabbedPanel(TabbedPanel tabbedPanel, int orientation) {}
-
-    /** @deprecated (2.5.0) No longer in use, it does nothing. */
-    @Deprecated
-    public void removeSplitPaneWork() {}
-
     /**
      * Gets the tabbed panel that has the {@link PanelType#STATUS STATUS} panels.
      *
@@ -736,13 +706,6 @@ public class WorkbenchPanel extends JPanel {
         return tabbedStatus;
     }
 
-    /** @deprecated (2.5.0) No longer in use, it returns a new {@code TabbedPanel2}. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public TabbedPanel2 getTabbedOldStatus() {
-        return new TabbedPanel2();
-    }
-
     /**
      * Gets the tabbed panel that has the {@link PanelType#WORK WORK} panels.
      *
@@ -761,26 +724,6 @@ public class WorkbenchPanel extends JPanel {
         }
         return tabbedWork;
     }
-
-    /** @deprecated (2.5.0) No longer in use, it returns a new {@code TabbedPanel2}. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public TabbedPanel2 getTabbedOldWork() {
-        return new TabbedPanel2();
-    }
-
-    /** @deprecated (2.5.0) No longer in use, it does nothing. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void setTabbedOldWork(TabbedPanel2 t) {}
-    /** @deprecated (2.5.0) No longer in use, it does nothing. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void setTabbedOldStatus(TabbedPanel2 t) {}
-    /** @deprecated (2.5.0) No longer in use, it does nothing. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void setTabbedOldSelect(TabbedPanel2 t) {}
 
     /**
      * Sets whether or not the tabs should display the name of the panels.
@@ -826,13 +769,6 @@ public class WorkbenchPanel extends JPanel {
         }
 
         return tabbedSelect;
-    }
-
-    /** @deprecated (2.5.0) No longer in use, it returns a new {@code TabbedPanel2}. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public TabbedPanel2 getTabbedOldSelect() {
-        return new TabbedPanel2();
     }
 
     /**

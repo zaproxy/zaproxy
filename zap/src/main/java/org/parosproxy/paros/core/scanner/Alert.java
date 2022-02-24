@@ -62,6 +62,7 @@
 // ZAP: 2022/02/02 Deleted a deprecated setDetails method.
 // ZAP: 2022/02/03 Removed SUSPICIOUS, WARNING, MSG_RELIABILITY, setRiskReliability(int, int) and
 // getReliability()
+// ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -305,15 +306,6 @@ public class Alert implements Comparable<Alert> {
         this.confidence = confidence;
     }
 
-    /**
-     * @deprecated (2.5.0) Replaced by {@link #setName}. Use of alert has been deprecated in favour
-     *     of using name.
-     * @param alert the new name
-     */
-    @Deprecated
-    public void setAlert(String alert) {
-        setName(alert);
-    }
     /**
      * Sets the name of the alert to name
      *
@@ -668,15 +660,7 @@ public class Alert implements Comparable<Alert> {
     public String paragraph(String text) {
         return "<p>" + text.replaceAll("\\r\\n", "</p><p>").replaceAll("\\n", "</p><p>") + "</p>";
     }
-    /**
-     * @deprecated (2.5.0) Replaced by {@link #getName}. Use of alert has been deprecated in favour
-     *     of using name.
-     * @return Returns the alert.
-     */
-    @Deprecated
-    public String getAlert() {
-        return name;
-    }
+
     /**
      * @return Returns the name of the alert.
      * @since 2.5.0
