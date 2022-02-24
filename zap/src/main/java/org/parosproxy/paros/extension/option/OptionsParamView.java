@@ -48,6 +48,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/09/16 Add support for enabling app integration in containers
 // ZAP: 2022/02/25 Deprecate options no longer in use.
+// ZAP: 2022/02/26 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.extension.option;
 
 import java.awt.Window;
@@ -269,16 +270,6 @@ public class OptionsParamView extends AbstractParam {
     }
 
     /**
-     * @deprecated (2.5.0) Use {@link #isShowMainToolbar()} instead. It will be removed in a future
-     *     release.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public int getShowMainToolbar() {
-        return showMainToolbar;
-    }
-
-    /**
      * Tells whether or not the main tool bar should be shown.
      *
      * @return {@code true} if the main tool bar should be shown, {@code false} otherwise.
@@ -286,16 +277,6 @@ public class OptionsParamView extends AbstractParam {
      */
     public boolean isShowMainToolbar() {
         return showMainToolbar != 0;
-    }
-
-    /**
-     * @deprecated (2.5.0) Use {@link #setShowMainToolbar(boolean)} instead. It will be removed in a
-     *     future release.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void setShowMainToolbar(int showMainToolbar) {
-        setShowMainToolbar(showMainToolbar != 0);
     }
 
     /**

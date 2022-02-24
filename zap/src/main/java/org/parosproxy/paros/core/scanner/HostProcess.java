@@ -99,6 +99,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/09/14 No longer force single threading if Anti CSRF handling turned on.
 // ZAP: 2021/09/30 Pass plugin to PluginStats instead of just the name.
+// ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -736,17 +737,6 @@ public class HostProcess implements Runnable {
         return pluginStats.getProgress();
     }
 
-    /**
-     * @deprecated (2.5.0) No longer used/needed, Plugin's progress is automatically
-     *     updated/maintained by {@code HostProcess}.
-     * @param plugin unused
-     * @param value unused
-     */
-    @Deprecated
-    public void setTestCurrentCount(Plugin plugin, int value) {
-        // No longer used.
-    }
-
     /** @return Returns the httpSender. */
     public HttpSender getHttpSender() {
         return httpSender;
@@ -1260,17 +1250,6 @@ public class HostProcess implements Runnable {
 
     public String getHostAndPort() {
         return this.hostAndPort;
-    }
-
-    /**
-     * @deprecated (2.5.0) No longer used/needed, Plugin's request count is automatically
-     *     updated/maintained by {@code HostProcess}.
-     * @param pluginId the ID of the plugin
-     * @param reqCount the number of requests sent
-     */
-    @Deprecated
-    public void setPluginRequestCount(int pluginId, int reqCount) {
-        // No longer used.
     }
 
     /**

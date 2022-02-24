@@ -134,21 +134,6 @@ public class TabbedPanel2 extends TabbedPanel {
         menu.show(this, this.getMousePosition().x, this.getMousePosition().y);
     }
 
-    /**
-     * Clones the given tabbed panel.
-     *
-     * @param tabbedPanel the tabbed panel to clone
-     * @return the cloned tabbed panel
-     * @deprecated (2.5.0) The implementation is not correct, not all state is correctly cloned.
-     */
-    @Deprecated
-    public TabbedPanel2 clone(TabbedPanel2 tabbedPanel) {
-        TabbedPanel2 t = new TabbedPanel2();
-        t.fullTabList = new ArrayList<>(tabbedPanel.fullTabList);
-        t.hiddenTabs = new ArrayList<>(tabbedPanel.hiddenTabs);
-        return t;
-    }
-
     private void setCloseButtonStates() {
         // Hide all 'close' buttons except for the selected tab
         for (int i = 0; i < this.getTabCount(); i++) {
