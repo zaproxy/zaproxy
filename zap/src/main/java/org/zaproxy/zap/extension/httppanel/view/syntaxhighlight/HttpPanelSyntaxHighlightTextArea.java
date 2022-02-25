@@ -364,6 +364,10 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
                         key + ANIMATED_BRACKET_MATCHING, this.getAnimateBracketMatching()));
     }
 
+    public void setLineWrapDisabled(boolean disabled) {
+        viewMenu.setWordWrapEnabled(!disabled);
+    }
+
     public void saveConfiguration(String key, FileConfiguration fileConfiguration) {
         fileConfiguration.setProperty(key + ANTI_ALIASING, this.getAntiAliasingEnabled());
 
