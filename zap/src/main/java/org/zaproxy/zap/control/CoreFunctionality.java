@@ -111,12 +111,6 @@ public final class CoreFunctionality {
                     new org.zaproxy.zap.extension.httppanel.view.image
                             .ExtensionHttpPanelImageView());
             extensions.add(
-                    new org.zaproxy.zap.extension.httppanel.view.largerequest
-                            .ExtensionHttpPanelLargeRequestView());
-            extensions.add(
-                    new org.zaproxy.zap.extension.httppanel.view.largeresponse
-                            .ExtensionHttpPanelLargeResponseView());
-            extensions.add(
                     new org.zaproxy.zap.extension.httppanel.view.paramtable
                             .ExtensionHttpPanelRequestFormTableView());
             extensions.add(

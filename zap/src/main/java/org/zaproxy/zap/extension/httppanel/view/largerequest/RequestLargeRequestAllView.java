@@ -23,6 +23,8 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.all.request.HttpRequestAllPanelTextView;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class RequestLargeRequestAllView extends HttpRequestAllPanelTextView {
 
     public static final String NAME = "RequestLargeRequestAllView";

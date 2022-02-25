@@ -22,6 +22,8 @@ package org.zaproxy.zap.extension.httppanel.view.largeresponse;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class LargeResponseUtil {
 
     public static final int DEFAULT_MIN_CONTENT_LENGTH = 100000;
