@@ -31,6 +31,7 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.AutoDetectSyntaxHttpPanelTextArea;
+import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.ContentSplitter;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.httppanel.view.util.HttpTextViewUtils;
@@ -49,13 +50,32 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
     private static final String XML =
             Constant.messages.getString("http.panel.view.syntaxtext.syntax.xml");
 
+    private ContentSplitter contentSplitter;
+
     public HttpResponseAllPanelSyntaxHighlightTextView(ResponseStringHttpPanelViewModel model) {
         super(model);
     }
 
     @Override
     protected HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
-        return new HttpResponseAllPanelSyntaxHighlightTextArea();
+        contentSplitter = new ContentSplitter(getMainPanel());
+        HttpPanelSyntaxHighlightTextArea textArea =
+                new HttpResponseAllPanelSyntaxHighlightTextArea(contentSplitter);
+        contentSplitter.setTextArea(textArea);
+        return textArea;
+    }
+
+    @Override
+    protected void setModelData(String data) {
+        if (data.isEmpty()) {
+            super.setModelData(data);
+            return;
+        }
+
+        int separator = data.indexOf("\n\n") + 2;
+        String header = data.substring(0, separator);
+        String body = contentSplitter.process(data.substring(separator));
+        super.setModelData(header + body);
     }
 
     private static class HttpResponseAllPanelSyntaxHighlightTextArea
@@ -72,9 +92,13 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
         // private static final String SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY =
         // "text/http-response-header-body";
 
+        private final ContentSplitter contentSplitter;
+
         private static ResponseAllTokenMakerFactory tokenMakerFactory = null;
 
-        public HttpResponseAllPanelSyntaxHighlightTextArea() {
+        public HttpResponseAllPanelSyntaxHighlightTextArea(ContentSplitter contentSplitter) {
+            this.contentSplitter = contentSplitter;
+
             // addSyntaxStyle(HTTP_RESPONSE_HEADER_AND_BODY,
             // SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY);
             addSyntaxStyle(CSS, SyntaxConstants.SYNTAX_STYLE_CSS);
@@ -127,6 +151,10 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
                                 sm.getMessage().getResponseHeader().toString(),
                                 sm.getStart(),
                                 sm.getEnd());
+
+                if (pos.length != 0) {
+                    pos = contentSplitter.highlightOffsets(pos[0], pos[1]);
+                }
             }
 
             if (pos.length == 0) {

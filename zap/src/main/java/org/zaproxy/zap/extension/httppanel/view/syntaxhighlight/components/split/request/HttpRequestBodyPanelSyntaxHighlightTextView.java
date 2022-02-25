@@ -32,6 +32,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestBodyStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.AutoDetectSyntaxHttpPanelTextArea;
+import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.ContentSplitter;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFocusGain;
@@ -55,6 +56,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
     public static final String NAME = "HttpRequestBodySyntaxTextView";
 
     private MessageLocationProducerFocusListenerAdapter focusListenerAdapter;
+    private ContentSplitter contentSplitter;
 
     public HttpRequestBodyPanelSyntaxHighlightTextView(RequestBodyStringHttpPanelViewModel model) {
         super(model);
@@ -88,7 +90,16 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 
     @Override
     protected HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
-        return new HttpRequestBodyPanelSyntaxHighlightTextArea();
+        contentSplitter = new ContentSplitter(getMainPanel());
+        HttpPanelSyntaxHighlightTextArea textArea =
+                new HttpRequestBodyPanelSyntaxHighlightTextArea(contentSplitter);
+        contentSplitter.setTextArea(textArea);
+        return textArea;
+    }
+
+    @Override
+    protected void setModelData(String data) {
+        super.setModelData(contentSplitter.process(data));
     }
 
     private static class HttpRequestBodyPanelSyntaxHighlightTextArea
@@ -109,9 +120,13 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 
         private static RequestBodyTokenMakerFactory tokenMakerFactory = null;
 
+        private final ContentSplitter contentSplitter;
+
         private CaretVisibilityEnforcerOnFocusGain caretVisibilityEnforcer;
 
-        public HttpRequestBodyPanelSyntaxHighlightTextArea() {
+        public HttpRequestBodyPanelSyntaxHighlightTextArea(ContentSplitter contentSplitter) {
+            this.contentSplitter = contentSplitter;
+
             addSyntaxStyle(X_WWW_FORM_URLENCODED, SYNTAX_STYLE_X_WWW_FORM);
             addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
             addSyntaxStyle(JSON, SyntaxConstants.SYNTAX_STYLE_JSON);
@@ -181,7 +196,8 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
                 return;
             }
 
-            highlight(sm.getStart(), sm.getEnd());
+            int[] offsets = contentSplitter.highlightOffsets(sm.getStart(), sm.getEnd());
+            highlight(offsets[0], offsets[1]);
         }
 
         @Override

@@ -29,11 +29,14 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseBodyStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.AutoDetectSyntaxHttpPanelTextArea;
+import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.ContentSplitter;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpResponseBodyPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
+
+    private ContentSplitter contentSplitter;
 
     public HttpResponseBodyPanelSyntaxHighlightTextView(
             ResponseBodyStringHttpPanelViewModel model) {
@@ -42,7 +45,16 @@ public class HttpResponseBodyPanelSyntaxHighlightTextView extends HttpPanelSynta
 
     @Override
     protected HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
-        return new HttpResponseBodyPanelSyntaxHighlightTextArea();
+        contentSplitter = new ContentSplitter(getMainPanel());
+        HttpPanelSyntaxHighlightTextArea textArea =
+                new HttpResponseBodyPanelSyntaxHighlightTextArea(contentSplitter);
+        contentSplitter.setTextArea(textArea);
+        return textArea;
+    }
+
+    @Override
+    protected void setModelData(String data) {
+        super.setModelData(contentSplitter.process(data));
     }
 
     private static class HttpResponseBodyPanelSyntaxHighlightTextArea
@@ -63,7 +75,11 @@ public class HttpResponseBodyPanelSyntaxHighlightTextView extends HttpPanelSynta
 
         private static ResponseBodyTokenMakerFactory tokenMakerFactory = null;
 
-        public HttpResponseBodyPanelSyntaxHighlightTextArea() {
+        private final ContentSplitter contentSplitter;
+
+        public HttpResponseBodyPanelSyntaxHighlightTextArea(ContentSplitter contentSplitter) {
+            this.contentSplitter = contentSplitter;
+
             addSyntaxStyle(CSS, SyntaxConstants.SYNTAX_STYLE_CSS);
             addSyntaxStyle(HTML, SyntaxConstants.SYNTAX_STYLE_HTML);
             addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
@@ -93,7 +109,8 @@ public class HttpResponseBodyPanelSyntaxHighlightTextView extends HttpPanelSynta
                 return;
             }
 
-            highlight(sm.getStart(), sm.getEnd());
+            int[] offsets = contentSplitter.highlightOffsets(sm.getStart(), sm.getEnd());
+            highlight(offsets[0], offsets[1]);
         }
 
         @Override
