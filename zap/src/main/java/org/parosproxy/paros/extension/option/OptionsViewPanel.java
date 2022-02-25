@@ -39,6 +39,7 @@
 // ZAP: 2020/12/03 Add constants for indexes of possible break buttons locations
 // ZAP: 2021/05/14 Remove redundant type arguments and empty statement.
 // ZAP: 2021/09/16 Add support for enabling app integration in containers
+// ZAP: 2022/02/25 Remove options no longer in use.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -74,8 +75,6 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.extension.brk.BreakpointsParam;
-import org.zaproxy.zap.extension.httppanel.view.largerequest.LargeRequestUtil;
-import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.TimeStampUtils;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
@@ -133,9 +132,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
     private JComboBox<String> timeStampsFormatSelect = null;
     private JComboBox<LookAndFeelInfoUi> lookAndFeel = null;
 
-    private ZapNumberSpinner largeRequestSize = null;
-    private ZapNumberSpinner largeResponseSize = null;
-
     private JLabel brkPanelViewLabel = null;
     private JLabel advancedViewLabel = null;
     private JLabel wmUiHandlingLabel = null;
@@ -147,8 +143,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
     private JLabel outputTabTimeStampLabel = null;
     private JLabel outputTabTimeStampExampleLabel = null;
     private JLabel showSplashScreenLabel = null;
-    private JLabel largeRequestLabel = null;
-    private JLabel largeResponseLabel = null;
     private JLabel lookAndFeelLabel = null;
     private Map<FontUtils.FontType, JLabel> fontLabels = new EnumMap<>(FontUtils.FontType.class);
     private Map<FontUtils.FontType, ZapNumberSpinner> fontSizes =
@@ -225,10 +219,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
                     new JLabel(
                             Constant.messages.getString(
                                     "options.display.timestamp.format.outputtabtimestamps.label"));
-            largeRequestLabel =
-                    new JLabel(Constant.messages.getString("view.options.label.largeRequestSize"));
-            largeResponseLabel =
-                    new JLabel(Constant.messages.getString("view.options.label.largeResponseSize"));
             lookAndFeelLabel =
                     new JLabel(Constant.messages.getString("view.options.label.lookandfeel"));
             outputTabTimeStampExampleLabel =
@@ -262,24 +252,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
                     LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
             panelMisc.add(
                     getBrkPanelViewSelect(),
-                    LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
-
-            row++;
-            largeRequestLabel.setLabelFor(getLargeRequestSize());
-            panelMisc.add(
-                    largeRequestLabel,
-                    LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
-            panelMisc.add(
-                    getLargeRequestSize(),
-                    LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
-
-            row++;
-            largeResponseLabel.setLabelFor(getLargeResponseSize());
-            panelMisc.add(
-                    largeResponseLabel,
-                    LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
-            panelMisc.add(
-                    getLargeResponseSize(),
                     LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
 
             row++;
@@ -627,24 +599,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
         return showLocalConnectRequestsCheckbox;
     }
 
-    private ZapNumberSpinner getLargeRequestSize() {
-        if (largeRequestSize == null) {
-            largeRequestSize =
-                    new ZapNumberSpinner(
-                            -1, LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH, Integer.MAX_VALUE);
-        }
-        return largeRequestSize;
-    }
-
-    private ZapNumberSpinner getLargeResponseSize() {
-        if (largeResponseSize == null) {
-            largeResponseSize =
-                    new ZapNumberSpinner(
-                            -1, LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH, Integer.MAX_VALUE);
-        }
-        return largeResponseSize;
-    }
-
     private ZapNumberSpinner initFontSize(FontUtils.FontType fontType) {
         ZapNumberSpinner fontSize;
         fontSize = new ZapNumberSpinner(-1, 8, 100);
@@ -780,8 +734,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
                 options.getViewParam().getOutputTabTimeStampsFormat());
         getShowLocalConnectRequestsCheckbox()
                 .setSelected(options.getViewParam().isShowLocalConnectRequests());
-        largeRequestSize.setValue(options.getViewParam().getLargeRequestSize());
-        largeResponseSize.setValue(options.getViewParam().getLargeResponseSize());
         for (FontUtils.FontType fontType : FontUtils.FontType.values()) {
             getFontSize(fontType).setValue(options.getViewParam().getFontSize(fontType));
             getFontName(fontType).setSelectedItem(options.getViewParam().getFontName(fontType));
@@ -835,8 +787,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
                         (String) getTimeStampsFormatSelect().getSelectedItem());
         options.getViewParam()
                 .setShowLocalConnectRequests(getShowLocalConnectRequestsCheckbox().isSelected());
-        options.getViewParam().setLargeRequestSize(getLargeRequestSize().getValue());
-        options.getViewParam().setLargeResponseSize(getLargeResponseSize().getValue());
         for (FontUtils.FontType fontType : FontUtils.FontType.values()) {
             options.getViewParam().setFontSize(fontType, getFontSize(fontType).getValue());
             options.getViewParam()
