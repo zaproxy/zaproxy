@@ -44,6 +44,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/08 Use isEmpty where applicable.
 // ZAP: 2022/02/09 Deprecate the class.
+// ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
@@ -241,34 +242,6 @@ public class ProxyParam extends AbstractParam {
 
         useReverseProxy = 0;
         getConfig().setProperty(USE_REVERSE_PROXY, Integer.toString(useReverseProxy));
-    }
-
-    /**
-     * Sets whether the proxy should modify/remove the "Accept-Encoding" request-header field or
-     * not.
-     *
-     * @param modifyAcceptEncodingHeader {@code true} if the proxy should modify/remove the
-     *     "Accept-Encoding" request-header field, {@code false} otherwise
-     * @deprecated (2.6.0) Use {@link #setRemoveUnsupportedEncodings(boolean)} instead.
-     * @since 2.0.0
-     */
-    @Deprecated
-    public void setModifyAcceptEncodingHeader(boolean modifyAcceptEncodingHeader) {
-        setRemoveUnsupportedEncodings(modifyAcceptEncodingHeader);
-    }
-
-    /**
-     * Tells whether the proxy should modify/remove the "Accept-Encoding" request-header field or
-     * not.
-     *
-     * @return {@code true} if the proxy should modify/remove the "Accept-Encoding" request-header
-     *     field, {@code false} otherwise
-     * @deprecated (2.6.0) Use {@link #isRemoveUnsupportedEncodings()} instead.
-     * @since 2.0.0
-     */
-    @Deprecated
-    public boolean isModifyAcceptEncodingHeader() {
-        return isRemoveUnsupportedEncodings();
     }
 
     /**

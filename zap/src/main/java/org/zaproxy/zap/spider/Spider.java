@@ -139,28 +139,6 @@ public class Spider {
     private final String id;
 
     /**
-     * Instantiates a new spider.
-     *
-     * @param extension the extension
-     * @param spiderParam the spider param
-     * @param connectionParam the connection param
-     * @param model the model
-     * @param scanContext if a scan context is set, only URIs within the context are fetched and
-     *     processed
-     * @deprecated (2.6.0) Use {@link #Spider(String, ExtensionSpider, SpiderParam, ConnectionParam,
-     *     Model, Context)} instead.
-     */
-    @Deprecated
-    public Spider(
-            ExtensionSpider extension,
-            SpiderParam spiderParam,
-            ConnectionParam connectionParam,
-            Model model,
-            Context scanContext) {
-        this("?", extension, spiderParam, connectionParam, model, scanContext);
-    }
-
-    /**
      * Constructs a {@code Spider} with the given data.
      *
      * @param id the ID of the spider, usually a unique integer
