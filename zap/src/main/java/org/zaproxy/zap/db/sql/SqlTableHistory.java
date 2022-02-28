@@ -648,26 +648,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
-    /**
-     * @deprecated (2.5.0) Use {@link HistoryReference#addTemporaryType(int)} instead.
-     * @since 2.4
-     * @param historyType the history type that will be set as temporary
-     * @see #deleteTemporary()
-     */
-    @Deprecated
-    public static void setHistoryTypeAsTemporary(int historyType) {}
-
-    /**
-     * @deprecated (2.5.0) Use {@link HistoryReference#removeTemporaryType(int)} instead.
-     * @since 2.4
-     * @param historyType the history type that will be marked as temporary
-     * @see #deleteTemporary()
-     */
-    @Deprecated
-    public static void unsetHistoryTypeAsTemporary(int historyType) {
-        HistoryReference.removeTemporaryType(historyType);
-    }
-
     @Override
     public void deleteTemporary() throws DatabaseException {
         SqlPreparedStatementWrapper psDeleteTemp = null;

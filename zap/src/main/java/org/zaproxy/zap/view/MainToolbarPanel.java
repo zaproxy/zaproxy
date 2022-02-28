@@ -457,16 +457,6 @@ public class MainToolbarPanel extends JPanel {
         return btnOptions;
     }
 
-    /**
-     * @deprecated (2.5.0) No longer in use, the tool bar buttons are updated at the same time as
-     *     the layout.
-     * @see
-     *     org.parosproxy.paros.view.MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void setDisplayOption(int option) {}
-
     public void sessionChanged(Session session) {
         if (session != null) {
             this.getBtnSave().setEnabled(session.isNewState());
