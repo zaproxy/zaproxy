@@ -126,25 +126,6 @@ public class SpiderThread extends ScanThread implements SpiderListener {
     /**
      * Constructs a {@code SpiderThread} with the given data.
      *
-     * @param extension the extension to obtain configurations and notify the view
-     * @param spiderParams the spider options
-     * @param site the name that identifies the target site
-     * @param listenner the scan listener
-     * @deprecated (2.6.0) Use {@link #SpiderThread(String, ExtensionSpider, SpiderParam, String,
-     *     ScanListenner)}
-     */
-    @Deprecated
-    public SpiderThread(
-            ExtensionSpider extension,
-            SpiderParam spiderParams,
-            String site,
-            ScanListenner listenner) {
-        this("?", extension, spiderParams, site, listenner);
-    }
-
-    /**
-     * Constructs a {@code SpiderThread} with the given data.
-     *
      * @param id the ID of the spider, usually a unique integer
      * @param extension the extension to obtain configurations and notify the view
      * @param spiderParams the spider options

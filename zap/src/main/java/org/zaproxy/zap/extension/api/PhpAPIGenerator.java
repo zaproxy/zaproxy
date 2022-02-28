@@ -86,18 +86,6 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
         super(path, optional, resourceBundle);
     }
 
-    /**
-     * Generates the API client files of the given API implementors.
-     *
-     * @param implementors the implementors
-     * @throws IOException if an error occurred while generating the APIs.
-     * @deprecated (2.6.0) Use {@link #generateAPIFiles(List)} instead.
-     */
-    @Deprecated
-    public void generatePhpFiles(List<ApiImplementor> implementors) throws IOException {
-        this.generateAPIFiles(implementors);
-    }
-
     private void generatePhpElement(ApiElement element, String component, String type, Writer out)
             throws IOException {
 

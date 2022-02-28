@@ -128,29 +128,6 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
      * @param spiderURI the starting URI, may be {@code null}.
      * @param scanUser the user to be used in the scan, may be {@code null}.
      * @param scanId the ID of the scan
-     * @deprecated (2.6.0) Use {@link #SpiderScan(ExtensionSpider, SpiderParam, Target, URI, User,
-     *     int, String)} instead.
-     */
-    @Deprecated
-    public SpiderScan(
-            ExtensionSpider extension,
-            SpiderParam spiderParams,
-            Target target,
-            URI spiderURI,
-            User scanUser,
-            int scanId) {
-        this(extension, spiderParams, target, spiderURI, scanUser, scanId, "SpiderScan" + scanId);
-    }
-
-    /**
-     * Constructs a {@code SpiderScan} with the given data.
-     *
-     * @param extension the extension to obtain configurations and notify the view
-     * @param spiderParams the spider options
-     * @param target the spider target
-     * @param spiderURI the starting URI, may be {@code null}.
-     * @param scanUser the user to be used in the scan, may be {@code null}.
-     * @param scanId the ID of the scan
      * @param name the name that identifies the target
      * @since 2.6.0
      */
