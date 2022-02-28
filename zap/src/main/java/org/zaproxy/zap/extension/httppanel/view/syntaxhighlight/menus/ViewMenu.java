@@ -173,6 +173,10 @@ public class ViewMenu extends ExtensionPopupMenu {
         animatedBracketMatchingOption.setSelected(httpPanelTextArea.getAnimateBracketMatching());
     }
 
+    public void setWordWrapEnabled(boolean enabled) {
+        wordWrapOption.setEnabled(enabled);
+    }
+
     private JCheckBoxMenuItem createAndAddOption(TextAction action, JMenu menu) {
         JCheckBoxMenuItem option = new JCheckBoxMenuItem(action);
         option.setSelected(false);
