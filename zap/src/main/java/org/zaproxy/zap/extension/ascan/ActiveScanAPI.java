@@ -671,13 +671,21 @@ public class ActiveScanAPI extends ApiImplementor {
 
     private void setAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
         if (isParamExists(params, PARAM_ALERT_THRESHOLD)) {
-            policy.setDefaultThreshold(getAlertThresholdFromParamAlertThreshold(params));
+            try {
+                policy.setDefaultThreshold(getAlertThresholdFromParamAlertThreshold(params));
+            } catch (IllegalArgumentException e) {
+                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
+            }
         }
     }
 
     private void setAttackStrength(ScanPolicy policy, JSONObject params) throws ApiException {
         if (isParamExists(params, PARAM_ATTACK_STRENGTH)) {
-            policy.setDefaultStrength(getAttackStrengthFromParamAttack(params));
+            try {
+                policy.setDefaultStrength(getAttackStrengthFromParamAttack(params));
+            } catch (IllegalArgumentException e) {
+                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
+            }
         }
     }
 
