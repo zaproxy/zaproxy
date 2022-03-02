@@ -587,6 +587,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     private JComboBox<String> getComboThreshold() {
         if (comboThreshold == null) {
             comboThreshold = new JComboBox<>();
+            comboThreshold.addItem(Constant.messages.getString("ascan.options.level.off"));
             comboThreshold.addItem(Constant.messages.getString("ascan.options.level.low"));
             comboThreshold.addItem(Constant.messages.getString("ascan.options.level.medium"));
             comboThreshold.addItem(Constant.messages.getString("ascan.options.level.high"));
@@ -596,6 +597,17 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
                         public void actionPerformed(ActionEvent e) {
                             // Set the explanation and save
                             if (comboThreshold
+                                    .getSelectedItem()
+                                    .equals(
+                                            Constant.messages.getString(
+                                                    "ascan.options.level.off"))) {
+                                getThresholdNotes()
+                                        .setText(
+                                                Constant.messages.getString(
+                                                        "ascan.options.level.off.label"));
+                                policy.setDefaultThreshold(AlertThreshold.OFF);
+
+                            } else if (comboThreshold
                                     .getSelectedItem()
                                     .equals(
                                             Constant.messages.getString(

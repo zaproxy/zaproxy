@@ -25,8 +25,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.EnumSource;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -81,18 +79,14 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         assertThat(scanPolicy.getDefaultStrength(), is(equalTo(Plugin.AttackStrength.MEDIUM)));
     }
 
-    @ParameterizedTest
-    @EnumSource(
-            value = Plugin.AlertThreshold.class,
-            names = {"OFF", "DEFAULT"})
-    void shouldThrowIfDefaultScannerLevelIsSetToOffOrDefault(Plugin.AlertThreshold alertThreshold)
-            throws Exception {
+    @Test
+    void shouldThrowIfDefaultScannerLevelIsSetToDefault() throws Exception {
         // Given
         ScanPolicy scanPolicy = new ScanPolicy();
         // When / Then
         assertThrows(
                 IllegalArgumentException.class,
-                () -> scanPolicy.setDefaultThreshold(alertThreshold));
+                () -> scanPolicy.setDefaultThreshold(Plugin.AlertThreshold.DEFAULT));
     }
 
     @Test
@@ -105,15 +99,11 @@ class ScanPolicyUnitTest extends WithConfigsTest {
                 () -> scanPolicy.setDefaultStrength(Plugin.AttackStrength.DEFAULT));
     }
 
-    @ParameterizedTest
-    @EnumSource(
-            value = Plugin.AlertThreshold.class,
-            names = {"OFF", "DEFAULT"})
-    void shouldUseMediumIfDefaultScannerLevelFromConfigIsOffOrDefault(
-            Plugin.AlertThreshold alertThreshold) throws Exception {
+    @Test
+    void shouldUseMediumIfDefaultScannerLevelFromConfigIsDefault() throws Exception {
         // Given
         ZapXmlConfiguration conf = new ZapXmlConfiguration();
-        conf.setProperty(DEFAULT_SCANNER_LEVEL_KEY, alertThreshold.name());
+        conf.setProperty(DEFAULT_SCANNER_LEVEL_KEY, Plugin.AlertThreshold.DEFAULT.name());
         // When
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then

@@ -829,12 +829,21 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     @Override
     public void setAlertThreshold(AlertThreshold level) {
         setProperty("level", level.name());
-        setEnabled(level != AlertThreshold.OFF);
+        setEnabledFromLevel();
     }
 
     @Override
     public void setDefaultAlertThreshold(AlertThreshold level) {
         this.defaultAttackThreshold = level;
+        setEnabledFromLevel();
+    }
+
+    private void setEnabledFromLevel() {
+        AlertThreshold level = getAlertThreshold(true);
+        setEnabled(
+                level != AlertThreshold.OFF
+                        && !(level == AlertThreshold.DEFAULT
+                                && this.defaultAttackThreshold == AlertThreshold.OFF));
     }
 
     /** Override this if you plugin supports other levels. */
