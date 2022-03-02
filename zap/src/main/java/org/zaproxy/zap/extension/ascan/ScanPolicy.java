@@ -96,9 +96,9 @@ public class ScanPolicy {
     }
 
     public void setDefaultThreshold(AlertThreshold defaultThreshold) {
-        if (defaultThreshold == AlertThreshold.OFF || defaultThreshold == AlertThreshold.DEFAULT) {
+        if (defaultThreshold == AlertThreshold.DEFAULT) {
             throw new IllegalArgumentException(
-                    "Default threshold must be one of LOW, MEDIUM, or HIGH.");
+                    "Default threshold must be one of OFF, LOW, MEDIUM, or HIGH.");
         }
         this.defaultThreshold = defaultThreshold;
         for (Plugin plugin : pluginFactory.getAllPlugin()) {
@@ -125,7 +125,6 @@ public class ScanPolicy {
         String alertThreshold = conf.getString("scanner.level", "");
         if (alertThreshold.isEmpty()
                 || !EnumUtils.isValidEnum(AlertThreshold.class, alertThreshold)
-                || AlertThreshold.OFF.name().equals(alertThreshold)
                 || AlertThreshold.DEFAULT.name().equals(alertThreshold)) {
             logger.warn(
                     "Found illegal value {} for alert threshold, using MEDIUM instead.",
