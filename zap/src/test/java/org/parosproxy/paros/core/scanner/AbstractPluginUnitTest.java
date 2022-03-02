@@ -40,6 +40,7 @@ import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.parosproxy.paros.Constant;
@@ -189,6 +190,51 @@ class AbstractPluginUnitTest extends PluginTestUtils {
     void shouldBeEnabledByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
+        // Then
+        assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
+    }
+
+    @Test
+    void shouldBeDisabledWhenOffThresholdSet() {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig();
+        // When
+        plugin.setAlertThreshold(AlertThreshold.OFF);
+        // Then
+        assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
+    }
+
+    @Test
+    void shouldBeDisabledWhenDefaultOffThresholdSet() {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig();
+        // When
+        plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
+        // Then
+        assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
+    }
+
+    @Test
+    void shouldBeDisabledWhenOffAndDefaultOffThresholdSet() {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig();
+        // When
+        plugin.setAlertThreshold(AlertThreshold.OFF);
+        plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
+        // Then
+        assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = AlertThreshold.class,
+            names = {"LOW", "MEDIUM", "HIGH"})
+    void shouldBeEnabledWhenThresholdSetButDefaultOff(AlertThreshold threshold) {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig();
+        // When
+        plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
+        plugin.setAlertThreshold(threshold);
         // Then
         assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
     }
@@ -406,7 +452,6 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         pluginA.setDefaultAttackStrength(Plugin.AttackStrength.LOW);
         pluginA.setTechSet(TechSet.getAllTech());
         pluginA.setStatus(AddOn.Status.beta);
-        pluginA.setEnabled(false);
         AbstractPlugin pluginB = createAbstractPluginWithConfig();
         // When
         pluginA.cloneInto(pluginB);
