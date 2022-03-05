@@ -100,7 +100,7 @@ dependencies {
         setTransitive(false)
     }
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.31.0") {
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0") {
         // Not needed.
         exclude(group = "org.junit")
     }
