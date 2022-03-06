@@ -297,7 +297,8 @@ public class AlertAPI extends ApiImplementor {
             boolean recurse = this.getParam(params, PARAM_RECURSE, false);
 
             // 0 (RISK_INFO) -> 3 (RISK_HIGH)
-            int[] counts = new int[] {0, 0, 0, 0};
+            int[] riskCounts = new int[] {0, 0, 0, 0};
+            int falsePositiveCount = 0;
 
             AlertTreeModel model = extension.getTreeModel();
             AlertNode root = (AlertNode) model.getRoot();
@@ -308,14 +309,19 @@ public class AlertAPI extends ApiImplementor {
 
                 ApiResponseList alertList = filterAlertInstances(child, url, recurse);
                 if (alertList.getItems().size() > 0) {
-                    counts[alert.getRisk()] += 1;
+                    if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
+                        falsePositiveCount += 1;
+                    } else {
+                        riskCounts[alert.getRisk()] += 1;
+                    }
                 }
             }
             Map<String, Integer> map = new HashMap<>();
-            map.put(Alert.MSG_RISK[Alert.RISK_HIGH], counts[Alert.RISK_HIGH]);
-            map.put(Alert.MSG_RISK[Alert.RISK_MEDIUM], counts[Alert.RISK_MEDIUM]);
-            map.put(Alert.MSG_RISK[Alert.RISK_LOW], counts[Alert.RISK_LOW]);
-            map.put(Alert.MSG_RISK[Alert.RISK_INFO], counts[Alert.RISK_INFO]);
+            map.put(Alert.MSG_RISK[Alert.RISK_HIGH], riskCounts[Alert.RISK_HIGH]);
+            map.put(Alert.MSG_RISK[Alert.RISK_MEDIUM], riskCounts[Alert.RISK_MEDIUM]);
+            map.put(Alert.MSG_RISK[Alert.RISK_LOW], riskCounts[Alert.RISK_LOW]);
+            map.put(Alert.MSG_RISK[Alert.RISK_INFO], riskCounts[Alert.RISK_INFO]);
+            map.put(Alert.MSG_CONFIDENCE[Alert.CONFIDENCE_FALSE_POSITIVE], falsePositiveCount);
             result = new ApiResponseSet<>(name, map);
         } else {
             throw new ApiException(ApiException.Type.BAD_VIEW);
