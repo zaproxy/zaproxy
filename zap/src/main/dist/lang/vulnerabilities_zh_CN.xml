@@ -16,7 +16,7 @@ Use an authentication framework or library such as the OWASP ESAPI Authenticatio
 
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
-	<alert>Insufficient Authorization</alert>
+	<alert>授权方式不足</alert>
 	<desc>Insufficient Authorization results when an application does not perform adequate authorization checks to ensure that the user is performing a function or accessing data in a manner consistent with the security policy. Authorization procedures should enforce what a user, service or application is permitted to do. When a user is authenticated to a web site, it does not necessarily mean that the user should have full access to all content and functionality.
 
 Insufficient Function Authorization
@@ -46,7 +46,7 @@ L'autorisation insuffisante pour l'accès aux données est plus fréquente que l
 
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
-	<alert>Tamsayı taşması</alert>
+	<alert>整数溢出</alert>
 	<desc>Un dépassement d'entier (integer overflow) est la condition qui se produit lorsque le résultat d'une opération arithmétique, par exemple multiplication ou addition, dépasse la taille maximale du type d'entier utilisé pour le stocker. En cas de dépassement d'entier, la valeur interprétée paraîtra avoir "été retournée" autour de la valeur maximale en recommençant à la valeur minimale, de la même manière qu'une horloge représenterait 13:00 en pointant à 01:00.
 
 Na primer, 8-bitni celi broj s predznakom na većini računarskih arhitektura ima maksimalnu  vrednost 127 i minimalnu vrednost -128. Ako programer pohranjuje vrijednost 127 u takvu varijablu i dodaje joj 1, rezultat bi trebao biti 128. Međutim, ova vrednost premašuje maksimum za ovu celobrojnu vrstu, tako interpretirana vrednost će se "zaokrenuti" i postati -128.</desc>
@@ -78,7 +78,7 @@ Derleyici uyarılarını yakından inceleyin ve signed / unsigned uyumsuzluklar�
 
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
-	<alert>Insufficient Transport Layer Protection</alert>
+	<alert>传输层防护不足</alert>
 	<desc>Insufficient Transport Layer Protection
 Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
  
@@ -164,7 +164,7 @@ Many file inclusion problems occur because the programmer assumed that certain i
 
 <vuln_items>wasc_6</vuln_items>
 <vuln_item_wasc_6>
-	<alert>Format String</alert>
+	<alert>格式化字符串</alert>
 	<desc>Format String Attacks alter the flow of an application by using string formatting library features to access other memory space. Vulnerabilities occur when user-supplied data are used directly as formatting string input for certain C/C++ functions (e.g. fprintf, printf, sprintf, setproctitle, syslog, ...).
 
 If an attacker passes a format string consisting of printf conversion characters (e.g. "%f", "%p", "%n", etc.) as a parameter value to the web application, they may:
@@ -235,7 +235,7 @@ Replace unbounded copy functions with analogous functions that support length ar
 
 <vuln_items>wasc_8</vuln_items>
 <vuln_item_wasc_8>
-	<alert>Cross-site Scripting</alert>
+	<alert>跨站脚本攻击</alert>
 	<desc>Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user's browser instance. A browser instance can be a standard web browser client, or a browser object embedded in a software product such as the browser within WinAmp, an RSS reader, or an email client. The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology.
 When an attacker gets a user's browser to execute his/her code, the code will run within the security context (or zone) of the hosting web site. With this level of privilege, the code has the ability to read, modify and transmit any sensitive data accessible by the browser. A Cross-site Scripted user could have his/her account hijacked (cookie theft), their browser redirected to another location, or possibly shown fraudulent content delivered by the web site they are visiting. Cross-site Scripting attacks essentially compromise the trust relationship between a user and the web site. Applications utilizing browser object instances which load content from the file system may execute code under the local machine zone allowing for system compromise.
 
@@ -273,7 +273,7 @@ Ensure that you perform input validation at well-defined interfaces within the a
 
 <vuln_items>wasc_9</vuln_items>
 <vuln_item_wasc_9>
-	<alert>Cross Site Request Forgery</alert>
+	<alert>跨站请求伪造</alert>
 	<desc>A cross-site request forgery is an attack that involves forcing a victim to send an HTTP request to a target destination without their knowledge or intent in order to perform an action as the victim. The underlying cause is application functionality using predictable URL/form actions in a repeatable way. The nature of the attack is that CSRF exploits the trust that a web site has for a user. By contrast, cross-site scripting (XSS) exploits the trust that a user has for a web site. Like XSS, CSRF attacks are not necessarily cross-site, but they can be. Cross-site request forgery is also known as CSRF, XSRF, one-click attack, session riding, confused deputy, and sea surf.
 
 CSRF attacks are effective in a number of situations, including:
@@ -309,7 +309,7 @@ Check the HTTP Referer header to see if the request originated from an expected 
 
 <vuln_items>wasc_10</vuln_items>
 <vuln_item_wasc_10>
-	<alert>Denial of Service</alert>
+	<alert>拒绝服务</alert>
 	<desc>Denial of Service (DoS) is an attack technique with the intent of preventing a web site from serving normal user activity. DoS attacks, which are easily normally applied to the network layer, are also possible at the application layer. These malicious attacks can succeed by starving a system of critical resources, vulnerability exploit, or abuse of functionality.
 
 Many times DoS attacks will attempt to consume all of a web site's available system resources such as: CPU, memory, disk space etc. When any one of these critical resources reach full utilization, the web site will normally be inaccessible.
@@ -337,7 +337,7 @@ Ensure that all failures in resource allocation place the system into a safe pos
 
 <vuln_items>wasc_11a</vuln_items>
 <vuln_item_wasc_11a>
-	<alert>Brute Forcing Log-in Credentials</alert>
+	<alert>暴力破解登录凭据</alert>
 	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. For example, while an 8 character alphanumeric password can have 2.8 trillion possible values, many people will select their passwords from a much smaller subset consisting of common words and terms.
 
 The most common type of a brute force attack in web applications is an attack against log-in credentials. Since users need to remember passwords, they often select easy to memorize words or phrases as passwords, making a brute force attack using a dictionary useful. Such an attack attempting to log-in to a system using a large list of words and phrases as potential passwords is often called a "word list attack" or a "dictionary attack". Attempted passwords may also include variations of words common to passwords such as those generated by replacing "o" with "0" and "i" with "1" as well as personal information including family member names, birth dates and phone numbers.
@@ -349,7 +349,7 @@ The most common type of a brute force attack in web applications is an attack ag
 
 <vuln_items>wasc_11b</vuln_items>
 <vuln_item_wasc_11b>
-	<alert>Brute Forcing Session Identifiers</alert>
+	<alert>暴力破解会话标识</alert>
 	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. For example, while an 8 character alphanumeric password can have 2.8 trillion possible values, many people will select their passwords from a much smaller subset consisting of common words and terms.
 
 Since HTTP is a stateless protocol, in order to maintain state web applications need to ensure that a session identifier is sent by the browser with each request. The session identifier is most commonly stored in an HTTP cookie or URL. Using a brute force attack, an attacker can guess the session identifier of another user. This can lead to the attacker impersonating the user, retrieving personal information and performing actions on behalf of the user.
@@ -361,7 +361,7 @@ Since HTTP is a stateless protocol, in order to maintain state web applications 
 
 <vuln_items>wasc_11c</vuln_items>
 <vuln_item_wasc_11c>
-	<alert>Brute Forcing Directories and Files</alert>
+	<alert>目录和文件列举</alert>
 	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. For example, while an 8 character alphanumeric password can have 2.8 trillion possible values, many people will select their passwords from a much smaller subset consisting of common words and terms.
 
 When files reside in directories that are served by the web server but are not linked anywhere, accessing those files requires knowing their file name. In some cases those files have been left by mistake: for example a backup file automatically created when editing a file or leftovers from an older version of the web application. In other cases files are intentionally left unlinked as a "security by obscurity" mechanism allowing only people who know the file names to access them.
@@ -375,7 +375,7 @@ A brute force attack tries to locate the unlinked file by trying to access a lar
 
 <vuln_items>wasc_11d</vuln_items>
 <vuln_item_wasc_11d>
-	<alert>Brute Forcing Credit Card Information</alert>
+	<alert>暴力破解信用卡信息</alert>
 	<desc>A brute force attack is a method to determine an unknown value by using an automated process to try a large number of possible values. The attack takes advantage of the fact that the entropy of the values is smaller than perceived. For example, while an 8 character alphanumeric password can have 2.8 trillion possible values, many people will select their passwords from a much smaller subset consisting of common words and terms.
 
 Shopping online with stolen credit cards usually requires information in addition to the credit card number, most often the CVV/SCS and/or expiration date. A fraudster may hold a stolen credit card number without the additional information. For example the CVV/CSC is not imprinted on the card or stored on the magnetic stripe so it cannot be collected by mechanical or magnetic credit card swiping devices.
@@ -391,7 +391,7 @@ In order to fill in the missing information the hacker can guess the missing inf
 
 <vuln_items>wasc_12</vuln_items>
 <vuln_item_wasc_12>
-	<alert>Content Spoofing</alert>
+	<alert>内容欺骗</alert>
 	<desc>Content Spoofing is an attack technique that allows an attacker to inject a malicious payload that is later misrepresented as legitimate content of a web application.
  
 Text Only Content Spoofing
@@ -411,7 +411,7 @@ This attack exploits the trust relationship established between the user and the
 
 <vuln_items>wasc_13</vuln_items>
 <vuln_item_wasc_13>
-	<alert>Information Leakage</alert>
+	<alert>信息泄露</alert>
 	<desc>Information Leakage is an application weakness where an application reveals sensitive data, such as technical details of the web application, environment, or user-specific data. Sensitive data may be used by an attacker to exploit the target web application, its hosting network, or its users. Therefore, leakage of sensitive data should be limited or prevented whenever possible. Information Leakage, in its most common form, is the result of one or more of the following conditions: A failure to scrub out HTML/Script comments containing sensitive information, improper application or server configurations, or differences in page responses for valid versus invalid data.
 
 Failure to scrub HTML/Script comments prior to a push to the production environment can result in the leak of sensitive, contextual, information such as server directory structure, SQL query structure, and internal network information. Often a developer will leave comments within the HTML and/or script code to help facilitate the debugging or integration process during the pre-production phase. Although there is no harm in allowing developers to include inline comments within the content they develop, these comments should all be removed prior to the content's public release.
@@ -426,7 +426,7 @@ Pages that provide different responses based on the validity of the data can als
 
 <vuln_items>wasc_14</vuln_items>
 <vuln_item_wasc_14>
-	<alert>Server Misconfiguration</alert>
+	<alert>误配置服务器</alert>
 	<desc>Server Misconfiguration attacks exploit configuration weaknesses found in web servers and application servers. Many servers come with unnecessary default and sample files, including applications, configuration files, scripts, and web pages. They may also have unnecessary services enabled, such as content management and remote administration functionality. Debugging functions may be enabled or administrative functions may be accessible to anonymous users. These features may provide a means for a hacker to bypass authentication methods and gain access to sensitive information, perhaps with elevated privileges.
 
 Servers may include well-known default accounts and passwords. Failure to fully lock down or harden the server may leave improperly set file and directory permissions. Misconfigured SSL certificates and encryption settings, the use of default certificates, and improper authentication implementation with external systems may compromise the confidentiality of information.
@@ -439,7 +439,7 @@ Verbose and informative error messages may result in data leakage, and the infor
 
 <vuln_items>wasc_15</vuln_items>
 <vuln_item_wasc_15>
-	<alert>Application Misconfiguration</alert>
+	<alert>误配置应用程序</alert>
 	<desc>Application Misconfiguration attacks exploit configuration weaknesses found in web applications. Many applications come with unnecessary and unsafe features, such as debug and QA features, enabled by default. These features may provide a means for a hacker to bypass authentication methods and gain access to sensitive information, perhaps with elevated privileges.
 
 Likewise, default installations may include well-known usernames and passwords, hard-coded backdoor accounts, special access mechanisms, and incorrect permissions set for files accessible through web servers. Default samples may be accessible in production environments. Application-based configuration files that are not properly locked down may reveal clear text connection strings to the database, and default settings in configuration files may not have been set with security in mind. All of these misconfigurations may lead to unauthorized access to sensitive information.</desc>
@@ -450,7 +450,7 @@ Likewise, default installations may include well-known usernames and passwords, 
 
 <vuln_items>wasc_16</vuln_items>
 <vuln_item_wasc_16>
-	<alert>Directory Indexing</alert>
+	<alert>目录遍历</alert>
 	<desc>Automatic directory listing/indexing is a web server function that lists all of the files within a requested directory if the normal base file (index.html/home.html/default.htm/default.asp/default.aspx/index.php) is not present. When a user requests the main page of a web site, they normally type in a URL such as: http://www.example.com/directory1/ - using the domain name and excluding a specific file. The web server processes this request and searches the document root directory for the default file name and sends this page to the client. If this page is not present, the web server will dynamically issue a directory listing and send the output to the client. Essentially, this is equivalent to issuing an "ls" (Unix) or "dir" (Windows) command within this directory and showing the results in HTML form. From an attack and countermeasure perspective, it is important to realize that unintended directory listings may be possible due to software vulnerabilities (discussed in the example section below) combined with a specific web request.</desc>
 	<solution>Recommendations include restricting access to important directories or files by adopting a need to know requirement for both the document and server root, and turning off features such as Automatic Directory Listings that could expose private files and provide information that could be utilized by an attacker when formulating or conducting an attack.</solution>
 	<reference>http://projects.webappsec.org/Directory-Indexing</reference>
@@ -459,7 +459,7 @@ Likewise, default installations may include well-known usernames and passwords, 
 
 <vuln_items>wasc_17</vuln_items>
 <vuln_item_wasc_17>
-	<alert>Improper Filesystem Permissions</alert>
+	<alert>不合适的文件系统权限</alert>
 	<desc>Improper filesystem permissions are a threat to the confidentiality, integrity and availability of a web application. The problem arises when incorrect filesystem permissions are set on files, folders, and symbolic links. When improper permissions are set, an attacker may be able to access restricted files or directories and modify or delete their contents. For example, if an anonymous user account has write permission to a file, then an attacker may be able to modify the contents of the file influencing the web application in undesirable ways. An attacker may also exploit improper symlinks to escalate their privileges and/or access unauthorized files; for example, a symlink that points to a directory outside of the web root.</desc>
 	<solution>Very carefully manage the setting, management and handling of permissions. 明確に、ソフトウェアの信頼範囲を管理してください。</solution>
 	<reference>http://projects.webappsec.org/Improper-Filesystem-Permissions</reference>
@@ -468,7 +468,7 @@ Likewise, default installations may include well-known usernames and passwords, 
 
 <vuln_items>wasc_18</vuln_items>
 <vuln_item_wasc_18>
-	<alert>Credential and Session Prediction</alert>
+	<alert>凭据和会话猜测</alert>
 	<desc>Credential/Session Prediction is a method of hijacking or impersonating a web site user. Deducing or guessing the unique value that identifies a particular session or user accomplishes the attack. Also known as Session Hijacking, the consequences could allow attackers the ability to issue web site requests with the compromised user's privileges.
 
 Many web sites are designed to authenticate and track a user when communication is first established. To do this, users must prove their identity to the web site, typically by supplying a username/password (credentials) combination. Rather than passing these confidential credentials back and forth with each transaction, web sites will generate a unique "session ID" to identify the user session as authenticated. Subsequent communication between the user and the web site is tagged with the session ID as "proof" of the authenticated session. If an attacker is able predict or guess the session ID of another user, fraudulent activity is possible.</desc>
@@ -515,7 +515,7 @@ When feasible, it may be safest to disallow meta-characters entirely, instead of
 
 <vuln_items>wasc_20</vuln_items>
 <vuln_item_wasc_20>
-	<alert>Improper Input Handling</alert>
+	<alert>不合适的输入处理</alert>
 	<desc>Improper input handling is one of the most common weaknesses identified across applications today. Poorly handled input is a leading cause behind critical vulnerabilities that exist in systems and applications.
 	
 Generally, the term input handing is used to describe functions like validation, sanitization, filtering, encoding and/or decoding of input data. Applications receive input from various sources including human users, software agents (browsers), and network/peripheral devices to name a few. In the case of web applications, input can be transferred in various formats (name value pairs, JSON, SOAP, etc...) and obtained via URL query strings, POST data, HTTP headers, Cookies, etc... Non-web application input can be obtained via application variables, environment variables, the registry, configuration files, etc... Regardless of the data format or source/location of the input, all input should be considered untrusted and potentially malicious. Applications which process untrusted input may become vulnerable to attacks such as Buffer Overflows, SQL Injection, OS Commanding, Denial of Service just to name a few.
@@ -558,7 +558,7 @@ When exchanging data between components, ensure that both components are using t
 
 <vuln_items>wasc_21</vuln_items>
 <vuln_item_wasc_21>
-	<alert>Insufficient Anti automation</alert>
+	<alert>不合适的防止自动化措施</alert>
 	<desc>Insufficient Anti-automation occurs when a web application permits an attacker to automate a process that was originally designed to be performed only in a manual fashion, i.e. by a human web user.
 
 Web application functionality that is often a target for automation attacks may include:
@@ -580,7 +580,7 @@ Web application functionality that is often a target for automation attacks may 
 
 <vuln_items>wasc_22</vuln_items>
 <vuln_item_wasc_22>
-	<alert>Improper Output Handling</alert>
+	<alert>不合适的输出处理</alert>
 	<desc>Output handling refers to how an application generates outgoing data.  If an application has improper output handling, the output data may be consumed leading to vulnerabilities and actions never intended by the application developer.  In many cases, this unintended interpretation is classified as one or more forms of critical application vulnerabilities.
 
 Any location where data leaves an application boundary may be subject to improper output handling.  Application boundaries exist where data leaves one context and enters another.  This includes applications passing data to other applications via web services, sockets, command line, environmental variables, etc...  It also includes passing data between tiers within an application architecture, such as a database, directory server, HTML/JavaScript interpreter (browser), or operating system.  More detail on where improper output handling can occur can be found in the section below titled "Common Data Output Locations”.
@@ -615,7 +615,7 @@ When exchanging data between components, ensure that both components are using t
 
 <vuln_items>wasc_23</vuln_items>
 <vuln_item_wasc_23>
-	<alert>XML Injection</alert>
+	<alert>XML 注入</alert>
 	<desc>XML Injection is an attack technique used to manipulate or compromise the logic of an XML application or service. The injection of unintended XML content and/or structures into an XML message can alter the intend logic of the application. Further, XML injection can cause the insertion of malicious content into the resulting message/document.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/XML-Injection</reference>
@@ -624,7 +624,7 @@ When exchanging data between components, ensure that both components are using t
 
 <vuln_items>wasc_24</vuln_items>
 <vuln_item_wasc_24>
-	<alert>HTTP Request Splitting</alert>
+	<alert>HTTP 请求分割</alert>
 	<desc>HTTP Request Splitting is an attack that enables forcing the browser to send arbitrary HTTP requests, inflicting XSS and poisoning the browser's cache. The essence of the attack is the ability of the attacker, once the victim (browser) is forced to load the attacker's malicious HTML page, to manipulate one of the browser's functions to send 2 HTTP requests instead of one HTTP request. Two such mechanisms have been exploited to date: the XmlHttpRequest object (XHR for short) and the HTTP digest authentication mechanism. For this attack to work, the browser must use a forward HTTP proxy (not all of them "support" this attack), or the attack must be carried out against a host located on the same IP (from the browser's perspective) with the attacker's machine.</desc>
 	<solution>Avoid using CRLF as a special sequence.
 
@@ -635,7 +635,7 @@ Appropriately filter or quote CRLF sequences in user-controlled input.</solution
 
 <vuln_items>wasc_25</vuln_items>
 <vuln_item_wasc_25>
-	<alert>HTTP Response Splitting</alert>
+	<alert>HTTP 响应分割</alert>
 	<desc>In the HTTP Response Splitting attack, there are always 3 parties (at least) involved:
     * Web server, which has a security hole enabling HTTP Response Splitting
     * Target - an entity that interacts with the web server perhaps on behalf of the attacker. Typically this is a cache server forward/reverse proxy), or a browser (possibly with a browser cache).
@@ -651,7 +651,7 @@ HTTP Response Splitting attacks take place where the server script embeds user d
 
 <vuln_items>wasc_26</vuln_items>
 <vuln_item_wasc_26>
-	<alert>HTTP Request Smuggling</alert>
+	<alert>HTTP 请求走私</alert>
 	<desc>HTTP Request Smuggling is an attack technique that abuses the discrepancy in parsing of non RFC compliant HTTP requests between two HTTP devices (typically a front-end proxy or HTTP-enabled firewall and a back-end web server) to smuggle a request to the second device "through" the first device. This technique enables the attacker to send one set of requests to the second device while the first device sees a different set of requests. In turn, this facilitates several possible exploitations, such as partial cache poisoning, bypassing firewall protection and XSS.</desc>
 	<solution>Use a web server that employs a strict HTTP parsing procedure, such as Apache (See paper in reference).
 
@@ -666,7 +666,7 @@ Turn all pages to non-cacheable.</solution>
 
 <vuln_items>wasc_27</vuln_items>
 <vuln_item_wasc_27>
-	<alert>HTTP Response Smuggling</alert>
+	<alert>HTTP 响应走私</alert>
 	<desc>HTTP response smuggling is a technique to "smuggle" 2 HTTP responses from a server to a client, through an intermediary HTTP device that expects (or allows) a single response from the server.
 
 One use for this technique is to enhance the basic HTTP response splitting technique in order to evade anti- HTTP response splitting measures. In this case, the intermediary is the anti-HTTP response splitting mechanism between the web server and the proxy server (or web browser). Another use case is to spoof responses received by the browser. In this case a malicious web site serves the browser a page that the browser will interpret as originating from a different (target) domain. HTTP response smuggling can be used to achieve this when the browser uses a proxy server to access both sites.
@@ -680,7 +680,7 @@ HTTP response smuggling makes use of HTTP request smuggling -like techniques to 
 
 <vuln_items>wasc_28</vuln_items>
 <vuln_item_wasc_28>
-	<alert>Null Byte Injection</alert>
+	<alert>空字节注入</alert>
 	<desc>Null Byte Injection is an active exploitation technique used to bypass sanity checking filters in web infrastructure by adding URL-encoded null byte characters (i.e. %00, or 0x00 in hex) to the user-supplied data. This injection process can alter the intended logic of the application and allow malicious adversary to get unauthorized access to the system files.
 
 Most web applications today are developed using higher-level languages such as, PHP, ASP, Perl, and Java. However, these web applications at some point require processing of high-level code at system level and this process is usually accomplished by using ‘C/C++’ functions. The diverse nature of these dependent technologies has resulted in an attack class called ‘Null Byte Injection’ or ‘Null Byte Poisoning’ attack. In C/C++, a null byte represents the string termination point or delimiter character which means to stop processing the string immediately. Bytes following the delimiter will be ignored. If the string loses its null character, the length of a string becomes unknown until memory pointer happens to meet next zero byte. This unintended ramification can cause unusual behavior and introduce vulnerabilities within the system or application scope. In similar terms, several higher-level languages treat the ‘null byte’ as a placeholder for the string length as it has no special meaning in their context. Due to this difference in interpretation, null bytes can easily be injected to manipulate the application behavior.
@@ -714,7 +714,7 @@ When a web application fails to properly sanitize user-supplied input, it is pos
 
 <vuln_items>wasc_30</vuln_items>
 <vuln_item_wasc_30>
-	<alert>Mail Command Injection</alert>
+	<alert>邮件命令注入</alert>
 	<desc>Mail Command Injection is an attack technique used to exploit mail servers and webmail applications that construct IMAP/SMTP statements from user-supplied input that is not properly sanitized. Depending on the type of statement taken advantage by the attacker, we meet two types of injections: IMAP and SMTP Injection. An IMAP/SMTP Injection may make it possible to access a mail server which you previously had no access to before-hand. In some cases, these internal systems do not have the same level of infrastructure security hardening applied to them as most front-end web servers. Hence, attackers may find that the mail server yields better results in terms of exploitation. On the other hand, this technique allows to evade possible restrictions that could exist at application level (CAPTCHA, maximum number of requests, etc.).</desc>
 	<solution>Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, request headers as well as content, URL components, e-mail, files, databases, and any external systems that provide data to the application. Perform input validation at well-defined interfaces.
 
@@ -737,7 +737,7 @@ When your application combines data from multiple sources, perform the validatio
 
 <vuln_items>wasc_31</vuln_items>
 <vuln_item_wasc_31>
-	<alert>OS Commanding</alert>
+	<alert>操作系统命令攻击</alert>
 	<desc>OS Commanding is an attack technique used for unauthorized execution of operating system commands.
 
 OS Commanding is the direct result of mixing trusted code and untrusted data. This attack is possible when an application accepts untrusted input to build operating system commands in an insecure manner involving improper data sanitization, and/or improper calling of external programs. In OS Commanding, executed commands by an attacker will run with the same privileges of the component that executed the command, (e.g. database server, web application server, web server, wrapper, application). Since the commands are executed under the privileges of the executing component an attacker can leverage this to gain access or damage parts that are otherwise unreachable (e.g. the operating system directories and files).</desc>
@@ -830,7 +830,7 @@ This may not be a feasible solution, and it only limits the impact to the operat
 
 <vuln_items>wasc_34</vuln_items>
 <vuln_item_wasc_34>
-	<alert>Predictable Resource Location</alert>
+	<alert>可预测的资源地址</alert>
 	<desc>Predictable Resource Location is an attack technique used to uncover hidden web site content and functionality. By making educated guesses via brute forcing an attacker can guess file and directory names not intended for public viewing. Brute forcing filenames is easy because files/paths often have common naming convention and reside in standard locations. These can include temporary files, backup files, logs, administrative site sections, configuration files, demo applications, and sample files. These files may disclose sensitive information about the website, web application internals, database information, passwords, machine names, file paths to other sensitive areas, etc...
 
 This will not only assist with identifying site surface which may lead to additional site vulnerabilities, but also may disclose valuable information to an attacker about the environment or its users. Predictable Resource Location is also known as Forced Browsing, Forceful Browsing, File Enumeration, and Directory Enumeration.</desc>
@@ -843,7 +843,7 @@ Consider using MVC based frameworks such as Struts.</solution>
 
 <vuln_items>wasc_35</vuln_items>
 <vuln_item_wasc_35>
-	<alert>SOAP Array Abuse</alert>
+	<alert>滥用 SOAP 数组</alert>
 	<desc>XML SOAP arrays are a common target for malicious abuse. SOAP arrays are defined as having a type of "SOAP-ENC:Array" or a type derived there from. SOAP arrays have one or more dimensions (rank) whose members are distinguished by ordinal position. An array value is represented as a series of elements reflecting the array, with members appearing in ascending ordinal sequence. For multi-dimensional arrays the dimension on the right side varies most rapidly. Each member element is named as an independent element. A web-service that expects an array can be the target of a XML DoS attack by forcing the SOAP server to build a huge array in the machine's memory, thus inflicting a DoS condition on the machine due to the memory pre-allocation.</desc>
 	<solution> Perform adequate input validation against any value that influences the amount of memory that is allocated. Define an appropriate strategy for handling requests that exceed the limit, and consider supporting a configuration option so that the administrator can extend the amount of memory to be used if necessary.
 
@@ -854,7 +854,7 @@ Run your program using system-provided resource limits for memory. This might st
 
 <vuln_items>wasc_36</vuln_items>
 <vuln_item_wasc_36>
-	<alert>SSI Injection</alert>
+	<alert>SSI 注入</alert>
 	<desc>SSI Injection (Server-side Include) is a server-side exploit technique that allows an attacker to send code into a web application, which will later be executed locally by the web server. SSI Injection exploits a web application's failure to sanitize user-supplied data before they are inserted into a server-side interpreted HTML file.
 
 Before serving an HTML web page, a web server may parse and execute Server-side Include statements before providing it to the client. In some cases (e.g. message boards, guest books, or content management systems), a web application will insert user-supplied data into the source of a web page.
@@ -887,7 +887,7 @@ For platforms such as ASP that do not generate new values for sessionid cookies,
 
 <vuln_items>wasc_38</vuln_items>
 <vuln_item_wasc_38>
-	<alert>URL Redirector Abuse</alert>
+	<alert>滥用 URL 重定向</alert>
 	<desc>URL redirectors represent common functionality employed by web sites to forward an incoming request to an alternate resource. This can be done for a variety of reasons and is often done to allow resources to be moved within the directory structure and to avoid breaking functionality for users that request the resource at its previous location. URL redirectors may also be used to implement load balancing, leveraging abbreviated URLs or recording outgoing links. It is this last implementation which is often used in phishing attacks as described in the example below. URL redirectors do not necessarily represent a direct security vulnerability but can be abused by attackers trying to social engineer victims into believing that they are navigating to a site other than the true destination.</desc>
 	<solution>Assume all input is malicious. Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
@@ -910,7 +910,7 @@ Many open redirect problems occur because the programmer assumed that certain in
 
 <vuln_items>wasc_39</vuln_items>
 <vuln_item_wasc_39>
-	<alert>XPath Injection</alert>
+	<alert>XPath 攻击</alert>
 	<desc>XPath Injection is an attack technique used to exploit applications that construct XPath (XML Path Language) queries from user-supplied input to query or navigate XML documents. It can be used directly by an application to query an XML document, as part of a larger operation such as applying an XSLT transformation to an XML document, or applying an XQuery to an XML document. The syntax of XPath bears some resemblance to an SQL query, and indeed, it is possible to form SQL-like queries on an XML document using XPath.
 
 If an application uses run-time XPath query construction, embedding unsafe user input into the query, it may be possible for the attacker to inject data into the query such that the newly formed query will be parsed in a way differing from the programmer's intention.</desc>
@@ -923,7 +923,7 @@ Properly validate user input. Reject data where appropriate, filter where approp
 
 <vuln_items>wasc_40</vuln_items>
 <vuln_item_wasc_40>
-	<alert>Insufficient Process Validation</alert>
+	<alert>过程验证不充分</alert>
 	<desc>Insufficient Process Validation occurs when a web application fails to prevent an attacker from circumventing the intended flow or business logic of the application. When seen in the real world, insufficient process validation has resulted in ineffective access controls and monetary loss.
 
 There are two main types of processes that require validation: flow control and business logic.
@@ -938,7 +938,7 @@ There are two main types of processes that require validation: flow control and 
 
 <vuln_items>wasc_41</vuln_items>
 <vuln_item_wasc_41>
-	<alert>XML Attribute Blowup</alert>
+	<alert>XML 实体爆炸</alert>
 	<desc>XML Attribute Blowup is a denial of service attack against XML parsers. The attacker provides a malicious XML document, which vulnerable XML parsers process in a very inefficient manner, leading to excessive CPU load. The essence of the attack is to include many attributes in the same XML node. Vulnerable XML parsers manage the attributes in an inefficient manner (e.g. in a data container for which insertion of a new attribute has O(n) runtime), resulting in a non-linear (in this example, quadratic, i.e. O(n2)) overall runtime, leading to a denial of service condition via CPU exhaustion.</desc>
 	<solution>Design throttling mechanisms into the system architecture. The best protection is to limit the amount of resources that an unauthorized user can cause to be expended. A strong authentication and access control model will help prevent such attacks from occurring in the first place. The login application should be protected against DoS attacks as much as possible. Limiting the database access, perhaps by caching result sets, can help minimize the resources expended. To further limit the potential for a DoS attack, consider tracking the rate of requests received from users and blocking requests that exceed a defined rate threshold.
 
@@ -959,7 +959,7 @@ Ensure that all failures in resource allocation place the system into a safe pos
 
 <vuln_items>wasc_42</vuln_items>
 <vuln_item_wasc_42>
-	<alert>Abuse of Functionality</alert>
+	<alert>功能滥用</alert>
 	<desc>Abuse of Functionality is an attack technique that uses a web site's own features and functionality to attack itself or others. Abuse of Functionality can be described as the abuse of an application's intended functionality to perform an undesirable outcome. These attacks have varied results such as consuming resources, circumventing access controls, or leaking information. The potential and level of abuse will vary from web site to web site and application to application. Abuse of functionality attacks are often a combination of other attack types and/or utilize other attack vectors.</desc>
 	<solution>Always utilize APIs in the specified manner.</solution>
 	<reference>http://projects.webappsec.org/Abuse-of-Functionality</reference>
@@ -968,7 +968,7 @@ Ensure that all failures in resource allocation place the system into a safe pos
 
 <vuln_items>wasc_43</vuln_items>
 <vuln_item_wasc_43>
-	<alert>XML External Entities</alert>
+	<alert>XML 外部实体</alert>
 	<desc>This technique takes advantage of a feature of XML to build documents dynamically at the time of processing. An XML message can either provide data explicitly or by pointing to an URI where the data exists. In the attack technique, external entities may replace the entity value with malicious data, alternate referrals or may compromise the security of the data the server/XML application has access to.
 	Attackers may also use External Entities to have the web services server download malicious code or content to the server for use in secondary or follow on attacks.</desc>
 	<solution>TBA</solution>
@@ -978,7 +978,7 @@ Ensure that all failures in resource allocation place the system into a safe pos
 
 <vuln_items>wasc_44</vuln_items>
 <vuln_item_wasc_44>
-	<alert>XML Entity Expansion</alert>
+	<alert>XML 实体扩展攻击</alert>
 	<desc>The XML Entity expansion attack, exploits a capability in XML DTDs that allows the creation of custom macros, called entities, that can be used throughout a document. By recursively defining a set of custom entities at the top of a document, an attacker can overwhelm parsers that attempt to completely resolve the entities by forcing them to iterate almost indefinitely on these recursive definitions.
 
 The malicious XML message is used to force recursive entity expansion (or other repeated processing) that completely uses up available server resources.</desc>
@@ -991,7 +991,7 @@ Before parsing XML files with associated DTDs, scan for recursive entity declara
 
 <vuln_items>wasc_45</vuln_items>
 <vuln_item_wasc_45>
-	<alert>Fingerprinting</alert>
+	<alert>指纹识别</alert>
 	<desc>The most common methodology for attackers is to first footprint the target's web presence and enumerate as much information as possible. With this information, the attacker may develop an accurate attack scenario, which will effectively exploit a vulnerability in the software type/version being utilized by the target host.
 
 Multi-tier fingerprinting is similar to its predecessor, TCP/IP Fingerprinting (with a scanner such as Nmap) except that it is focused on the Application Layer of the OSI model instead of the Transport Layer. The theory behind this fingerprinting is to create an accurate profile of the target's platform, web application software technology, backend database version, configurations and possibly even their network architecture/topology.</desc>
@@ -1002,7 +1002,7 @@ Multi-tier fingerprinting is similar to its predecessor, TCP/IP Fingerprinting (
 
 <vuln_items>wasc_46</vuln_items>
 <vuln_item_wasc_46>
-	<alert>XQuery Injection</alert>
+	<alert>XQuery 注入</alert>
 	<desc>XQuery Injection is a variant of the classic SQL injection attack against the XML XQuery Language. XQuery Injection uses improperly validated data that is passed to XQuery commands. This inturn will execute commands on behalf of the attacker that the XQuery routines have access to. XQuery injection can be used to enumerate elements on the victim's environment, inject commands to the local host, or execute queries to remote files and data sources. Like SQL injection attacks, the attacker tunnels through the application entry point to target the resource access layer.</desc>
 	<solution>Use parameterized queries. This will help ensure separation between data plane and control plane.
 
@@ -1013,7 +1013,7 @@ Properly validate user input. Reject data where appropriate, filter where approp
 
 <vuln_items>wasc_47</vuln_items>
 <vuln_item_wasc_47>
-	<alert>Insufficient Session Expiration</alert>
+	<alert>会话过期不充分</alert>
 	<desc>Insufficient Session Expiration occurs when a Web application permits an attacker to reuse old session credentials or session IDs for authorization. Insufficient Session Expiration increases a Web site's exposure to attacks that steal or reuse user's session identifiers.
 
 Since HTTP is a stateless protocol, Web sites commonly use cookies to store session IDs that uniquely identify a user from request to request. Consequently, each session ID's confidentiality must be maintained in order to prevent multiple users from accessing the same account. A stolen session ID can be used to view another user's account or perform a fraudulent transaction.
@@ -1028,7 +1028,7 @@ A Web application should invalidate a session after a predefined idle time has p
 
 <vuln_items>wasc_48</vuln_items>
 <vuln_item_wasc_48>
-	<alert>Insecure Indexing</alert>
+	<alert>不安全的索引</alert>
 	<desc>Insecure Indexing is a threat to the data confidentiality of the web-site. Indexing web-site contents via a process that has access to files which are not supposed to be publicly accessible has the potential of leaking information about the existence of such files, and about their content. In the process of indexing, such information is collected and stored by the indexing process, which can later be retrieved (albeit not trivially) by a determined attacker, typically through a series of queries to the search engine. The attacker does not thwart the security model of the search engine. As such, this attack is subtle and very hard to detect and to foil - it’s not easy to distinguish the attacker’s queries from a legitimate user’s queries.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insecure-Indexing</reference>
@@ -1037,7 +1037,7 @@ A Web application should invalidate a session after a predefined idle time has p
 
 <vuln_items>wasc_49</vuln_items>
 <vuln_item_wasc_49>
-	<alert>Insufficient Password Recovery</alert>
+	<alert>“找回密码”不充分</alert>
 	<desc>Insufficient Password Recovery is when a web site permits an attacker to illegally obtain, change or recover another user's password. Conventional web site authentication methods require users to select and remember a password or passphrase. The user should be the only person that knows the password and it must be remembered precisely. As time passes, a user's ability to remember a password fades. The matter is further complicated when the average user visits 20 sites requiring them to supply a password.  (RSA Survey: http://news.bbc.co.uk/1/hi/technology/3639679.stm) Thus, password recovery is an important part in servicing online users.
 
 Examples of automated password recovery processes include requiring the user to answer a "secret question" defined as part of the user registration process. This question can either be selected from a list of canned questions or supplied by the user. Another mechanism in use is having the user provide a "hint" during registration that will help the user remember his password. Other mechanisms require the user to provide several pieces of personal data such as their social security number, home address, zip code etc. to validate their identity. After the user has proven who they are, the recovery system will display or e-mail them a new password.
