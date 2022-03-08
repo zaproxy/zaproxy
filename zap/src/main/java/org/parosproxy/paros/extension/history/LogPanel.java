@@ -53,6 +53,7 @@
 // ZAP: 2020/07/09 Removed unused variable (and related import) and remove boilerplate javadoc for
 // getScrollLog()
 // ZAP: 2022/02/26 Remove code deprecated in 2.5.0
+// ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -381,10 +382,6 @@ public class LogPanel extends AbstractPanel {
     protected void display(final HistoryReference historyRef) {
         getHistoryReferenceTable().selectHistoryReference(historyRef.getHistoryId());
     }
-
-    /** @deprecated (2.6.0) No longer used/needed. */
-    @Deprecated
-    public void clearDisplayQueue() {}
 
     public void setFilterStatus(HistoryFilter filter) {
         filterStatus.setText(filter.toShortString());

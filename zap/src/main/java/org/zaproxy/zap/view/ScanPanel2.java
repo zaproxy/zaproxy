@@ -40,7 +40,6 @@ import javax.swing.JToolBar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -90,21 +89,6 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
     private Mode mode = Control.getSingleton().getMode();
 
     private static Logger log = LogManager.getLogger(ScanPanel2.class);
-
-    /**
-     * Constructs a {@code ScanPanel2} with the given message resources prefix, tab icon and scan
-     * controller.
-     *
-     * @param prefix the prefix for the resource messages
-     * @param icon the icon for the tab of the panel
-     * @param controller the scan controller
-     * @param scanParam unused
-     * @deprecated (2.6.0) Use {@link #ScanPanel2(String, ImageIcon, ScanController)} instead.
-     */
-    @Deprecated
-    public ScanPanel2(String prefix, ImageIcon icon, SC controller, AbstractParam scanParam) {
-        this(prefix, icon, controller);
-    }
 
     /**
      * Constructs a {@code ScanPanel2} with the given message resources prefix, tab icon and scan

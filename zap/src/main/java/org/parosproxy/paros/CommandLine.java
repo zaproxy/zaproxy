@@ -49,6 +49,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
 // ZAP: 2022/02/09 No longer parse host/port and deprecate related code.
+// ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -498,18 +499,6 @@ public class CommandLine {
     @Deprecated
     public String getHost() {
         return null;
-    }
-
-    /**
-     * Gets the {@code config} command line arguments, in no specific order.
-     *
-     * @return the {@code config} command line arguments.
-     * @deprecated (2.6.0) Use {@link #getOrderedConfigs()} instead, which are in the order they
-     *     were specified.
-     */
-    @Deprecated
-    public Hashtable<String, String> getConfigs() {
-        return new Hashtable<>(configs);
     }
 
     /**

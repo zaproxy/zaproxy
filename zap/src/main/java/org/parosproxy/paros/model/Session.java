@@ -88,6 +88,7 @@
 // ZAP: 2020/11/02 Validate parameters in getLeafName(...)
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/09 Remove code no longer needed and deprecate a method.
+// ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -1112,32 +1113,6 @@ public class Session {
         return Collections.unmodifiableList(
                 model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
     }
-
-    /**
-     * Adds the given regular expression to the list of global exclude URLs.
-     *
-     * <p><strong>Note:</strong> The changes are lost after changing the session.
-     *
-     * @param regex the regular expression to add.
-     * @deprecated (2.6.0) No longer works, modification of global exclude URLs should not be done
-     *     through the session.
-     * @since 2.3.0
-     */
-    @Deprecated
-    public void addGlobalExcludeURLRegexs(String regex) {}
-
-    /**
-     * Sets the global exclude URLs.
-     *
-     * <p><strong>Note:</strong> The changes are lost after changing the session.
-     *
-     * @param ignoredRegexs the global exclude URLs
-     * @deprecated (2.6.0) No longer works, when needed, the global exclude URLs are obtained from
-     *     the options.
-     * @since 2.3.0
-     */
-    @Deprecated
-    public void setGlobalExcludeURLRegexs(List<String> ignoredRegexs) {}
 
     public void setSessionUrls(int type, List<String> urls) throws DatabaseException {
         model.getDb().getTableSessionUrl().setUrls(type, urls);

@@ -94,6 +94,7 @@
 // ZAP: 2020/01/02 Do not display messages being deleted.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/09 Deprecate methods related to core proxy.
+// ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -225,10 +226,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
         return logPanel;
     }
-
-    /** @deprecated (2.6.0) No longer used/needed. */
-    @Deprecated
-    public void clearLogPanelDisplayQueue() {}
 
     public HistoryReference getSelectedHistoryReference() {
         return getLogPanel().getSelectedHistoryReference();

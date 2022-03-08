@@ -29,7 +29,6 @@ import java.nio.file.Paths;
 import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -89,18 +88,6 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 
     public JavaAPIGenerator(String path, boolean optional, ResourceBundle resourceBundle) {
         super(path, optional, resourceBundle);
-    }
-
-    /**
-     * Generates the API client files of the given API implementors.
-     *
-     * @param implementors the implementors
-     * @throws IOException if an error occurred while generating the APIs.
-     * @deprecated (2.6.0) Use {@link #generateAPIFiles(List)} instead.
-     */
-    @Deprecated
-    public void generateJavaFiles(List<ApiImplementor> implementors) throws IOException {
-        generateAPIFiles(implementors);
     }
 
     private void generateJavaElement(ApiElement element, String component, String type, Writer out)
