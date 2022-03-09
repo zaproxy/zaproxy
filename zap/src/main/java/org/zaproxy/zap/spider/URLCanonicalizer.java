@@ -103,6 +103,9 @@ public final class URLCanonicalizer {
      * @return the canonical url
      */
     public static String getCanonicalURL(String url, String baseURL) {
+        if ("javascript:".equals(url)) {
+            return null;
+        }
 
         try {
             /* Build the absolute URL, from the url and the baseURL */
