@@ -26,6 +26,8 @@ import static org.hamcrest.Matchers.is;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
 /**
@@ -142,16 +144,19 @@ class URLCanonicalizerUnitTest {
         }
     }
 
-    @Test
-    void shouldIgnoreURIsWithNoAuthority() {
-        // Given
-        String[] uris = {"javascript:ignore()", "mailto:ignore@example.com"};
-        for (String uri : uris) {
-            // When
-            String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
-            // Then
-            assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(null)));
-        }
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "javascript:",
+                "javascript:ignore()",
+                "mailto:ignore@example.com",
+                "tel:+1-900-555-0191"
+            })
+    void shouldIgnoreURIsWithNoAuthority(String uri) {
+        // Given / When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        // Then
+        assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(null)));
     }
 
     @Test
