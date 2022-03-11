@@ -30,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.nio.file.Path;
 import net.htmlparser.jericho.Source;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
@@ -638,6 +640,34 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(0)));
         assertThat(listener.getUrlsFound(), is(empty()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "DocTypeWithFullUrl.html",
+                "DocTypeWithRelativeUrl.html",
+                "ManifestWithFullUrl.html",
+                "ManifestWithRelativeUrl.html",
+                "BackgroundWithFullUrl.html",
+                "BackgroundWithRelativeUrl.html"
+            })
+    void shouldFindUrlInFile(String file) {
+        // Given
+        SpiderParam spiderOptions = createSpiderParamWithConfig();
+        spiderOptions.setParseComments(false);
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(spiderOptions);
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith(file);
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(listener.getUrlsFound(), contains("http://example.com/found"));
     }
 
     private static HttpMessage createMessageWith(String filename) {

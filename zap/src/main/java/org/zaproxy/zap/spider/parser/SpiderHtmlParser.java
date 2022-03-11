@@ -106,6 +106,16 @@ public class SpiderHtmlParser extends SpiderParser {
             }
         }
 
+        // Parse the DOCTYPEs (should only be one, but you never know;)
+        List<StartTag> doctypes = source.getAllStartTags(StartTagType.DOCTYPE_DECLARATION);
+        for (StartTag doctype : doctypes) {
+            for (String str : doctype.getTagContent().toString().split(" ")) {
+                if (str.startsWith("\"") && str.endsWith("\"")) {
+                    processURL(message, depth, str.substring(1, str.length() - 1), baseURL);
+                }
+            }
+        }
+
         return false;
     }
 
@@ -185,6 +195,18 @@ public class SpiderHtmlParser extends SpiderParser {
                     }
                 }
             }
+        }
+
+        // Process HTML manifest elements
+        elements = source.getAllElements(HTMLElementName.HTML);
+        for (Element el : elements) {
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "manifest");
+        }
+
+        // Process BODY background elements
+        elements = source.getAllElements(HTMLElementName.BODY);
+        for (Element el : elements) {
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "background");
         }
 
         return resourcesfound;
