@@ -43,6 +43,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/12/09 Added getHeaderValues(String) method (returning List) and deprecated
 // getHeaders(String) method (returning Vector).
+// ZAP: 2022/03/11 Added headers: Content-Location, Link, Refresh
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
@@ -63,6 +64,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String CONTENT_LENGTH = "Content-Length";
     public static final String TRANSFER_ENCODING = "Transfer-Encoding";
     public static final String CONTENT_ENCODING = "Content-Encoding";
+    public static final String CONTENT_LOCATION = "Content-Location";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String PROXY_CONNECTION = "Proxy-Connection";
     public static final String PROXY_AUTHENTICATE = "Proxy-Authenticate";
@@ -104,6 +106,8 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String IDENTITY = "identity";
     public static final String SEC_PROXY_INTERCEPT = "intercept";
     public static final String SEC_PROXY_RECORD = "record";
+    public static final String LINK = "Link";
+    public static final String REFRESH = "Refresh";
     public static final Pattern patternCRLF = Pattern.compile("\\r\\n", Pattern.MULTILINE);
     public static final Pattern patternLF = Pattern.compile("\\n", Pattern.MULTILINE);
     // ZAP: Issue 410: charset wrapped in quotation marks

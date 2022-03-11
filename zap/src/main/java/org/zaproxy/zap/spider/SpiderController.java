@@ -37,6 +37,7 @@ import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderGitParser;
 import org.zaproxy.zap.spider.parser.SpiderHtmlFormParser;
 import org.zaproxy.zap.spider.parser.SpiderHtmlParser;
+import org.zaproxy.zap.spider.parser.SpiderHttpHeaderParser;
 import org.zaproxy.zap.spider.parser.SpiderODataAtomParser;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.spider.parser.SpiderParserListener;
@@ -130,6 +131,10 @@ public class SpiderController implements SpiderParserListener {
 
         // Redirect requests parser
         parser = new SpiderRedirectParser();
+        parsers.add(parser);
+
+        // HTTP Header parser
+        parser = new SpiderHttpHeaderParser();
         parsers.add(parser);
 
         // Simple HTML parser

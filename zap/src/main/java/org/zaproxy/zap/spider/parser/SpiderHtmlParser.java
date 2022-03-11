@@ -39,8 +39,8 @@ import org.zaproxy.zap.spider.URLCanonicalizer;
  */
 public class SpiderHtmlParser extends SpiderParser {
 
-    /** The Constant urlPattern defining the pattern for a meta url. */
-    private static final Pattern urlPattern =
+    /** The Constant URL_PATTERN defining the pattern for a meta url. */
+    static final Pattern URL_PATTERN =
             Pattern.compile("url\\s*=\\s*[\"']?([^;'\"]+)", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern PLAIN_COMMENTS_URL_PATTERN =
@@ -177,7 +177,7 @@ public class SpiderHtmlParser extends SpiderParser {
                 // http-equiv="refresh" content="0;URL=http://foo.bar/..."
                 // http-equiv="location" content="url=http://foo.bar/..."
                 if (equiv.equalsIgnoreCase("refresh") || equiv.equalsIgnoreCase("location")) {
-                    Matcher matcher = urlPattern.matcher(content);
+                    Matcher matcher = URL_PATTERN.matcher(content);
                     if (matcher.find()) {
                         String url = matcher.group(1);
                         processURL(message, depth, url, baseURL);
