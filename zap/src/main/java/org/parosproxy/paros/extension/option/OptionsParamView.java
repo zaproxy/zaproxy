@@ -49,15 +49,19 @@
 // ZAP: 2021/09/16 Add support for enabling app integration in containers
 // ZAP: 2022/02/25 Deprecate options no longer in use.
 // ZAP: 2022/02/26 Remove code deprecated in 2.5.0
+// ZAP: 2022/04/28 Add set and get of the open recent menu
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.Window;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Stream;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
@@ -144,6 +148,7 @@ public class OptionsParamView extends AbstractParam {
             "view.confirmRemoveSpiderExcludeRegex";
     private static final String FONT_NAME_POSTFIX = "Name";
     private static final String FONT_SIZE_POSTFIX = "Size";
+    private static final String RECENT_SESSIONS_KEY = BASE_VIEW_KEY + ".recentsessions.path";
 
     private int advancedViewEnabled = 0;
     private int processImages = 0;
@@ -164,6 +169,7 @@ public class OptionsParamView extends AbstractParam {
             new EnumMap<>(FontUtils.FontType.class);
     private Map<FontUtils.FontType, Integer> fontSizes = new EnumMap<>(FontUtils.FontType.class);
     private Map<FontUtils.FontType, String> fontNames = new EnumMap<>(FontUtils.FontType.class);
+    private List<String> recentSessions;
 
     /**
      * Flag that indicates if the HTTP CONNECT requests received by the local proxy should be
@@ -253,6 +259,9 @@ public class OptionsParamView extends AbstractParam {
 
         this.confirmRemoveSpiderExcludeRegex =
                 getBoolean(CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY, false);
+
+        recentSessions = new ArrayList<>();
+        Stream.of(getConfig().getStringArray(RECENT_SESSIONS_KEY)).forEach(recentSessions::add);
     }
 
     /** @return Returns the skipImage. */
@@ -751,6 +760,32 @@ public class OptionsParamView extends AbstractParam {
                                 Constant.messages.getString("view.options.warn.applylaf")));
             }
             return mainPanel;
+        }
+    }
+
+    public List<String> getRecentSessions() {
+        return recentSessions;
+    }
+
+    public void addLatestSession(String path) {
+        int index = recentSessions.indexOf(path);
+        if (index == 0) {
+            return;
+        }
+
+        if (index > 0) {
+            recentSessions.remove(index);
+        }
+
+        recentSessions.add(0, path);
+
+        if (recentSessions.size() > 10) {
+            recentSessions.subList(10, recentSessions.size()).clear();
+        }
+
+        getConfig().clearProperty(RECENT_SESSIONS_KEY);
+        for (int i = 0; i < recentSessions.size(); ++i) {
+            getConfig().setProperty(RECENT_SESSIONS_KEY + "(" + i + ")", recentSessions.get(i));
         }
     }
 }
