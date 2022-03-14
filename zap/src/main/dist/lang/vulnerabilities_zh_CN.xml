@@ -3,7 +3,7 @@
 
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
-	<alert>身份验证不足</alert>
+	<alert>身份验证不充分</alert>
 	<desc>当一个 Web 站点允许攻击者访问敏感内容或功能而无需正确验证时，判定为身份验证不足。 基于Web的管理工具是Web站点提供对敏感功能访问能力的很好的例子。 虽然Web应用种类多样，然而这些Web应用应需要用户来正确验证他们的身份后才可允许访问敏感内容。
 
 To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
@@ -16,7 +16,7 @@ Use an authentication framework or library such as the OWASP ESAPI Authenticatio
 
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
-	<alert>授权方式不足</alert>
+	<alert>授权方式不充分</alert>
 	<desc>Insufficient Authorization results when an application does not perform adequate authorization checks to ensure that the user is performing a function or accessing data in a manner consistent with the security policy. Authorization procedures should enforce what a user, service or application is permitted to do. When a user is authenticated to a web site, it does not necessarily mean that the user should have full access to all content and functionality.
 
 Insufficient Function Authorization
@@ -27,13 +27,13 @@ A very visible example was the 2005 hack of the Harvard Business School's applic
  
 Insufficient Data Authorization
 
-Many applications expose underlying data identifiers in a URL. たとえば、以下のようなURLをもつ医療記録システムがあるかもしれません。
+Many applications expose underlying data identifiers in a URL. 比如，访问某个医疗系统的医疗记录的 URL 可能如下所示：
 
 http://example.com/RecordView?id=12345
 
-仮に、閲覧権限を持つ承認されたユーザIDをアプリケーションが確認しない場合、閲覧すべきでないデータが当該ユーザに表示される可能性があります。
+如果应用没有检查验证的用户 ID 是否具有读权限，可能会给不应阅读到记录的用户呈现数据，
 
-L'autorisation insuffisante pour l'accès aux données est plus fréquente que l'autorisation insuffisante d'accès aux fonctions, car les programmeurs ont généralement une parfaite connaissance des fonctionnalités de l'application, mais n'ont pas toujours une vue complète de toutes les données auxquelles l'application accède.  プログラマーは、承認機能のアルゴリズムはきっちりと定義しますが、データの承認を行うデータベースなどは別のシステムに頼っています。</desc>
+授权数据不充分比授权方法不充足更加常见，因为程序员通常可以完全保证应用的功能性，但不太注意所访问应用数据是否有正确地映射。 程序员通常会在认证机制函数中收缩控制，而依赖诸如数据库等其它系统来保证数据认证。</desc>
 	<solution>フェーズ： アーキテクチャと設計；オペレーション
 特に注意して、設定、マネジメント、および権限の操作を管理してください。 明確に、ソフトウェアの信頼範囲を管理してください。
 
@@ -78,7 +78,7 @@ Derleyici uyarılarını yakından inceleyin ve signed / unsigned uyumsuzluklar�
 
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
-	<alert>传输层防护不足</alert>
+	<alert>传输层防护不充分</alert>
 	<desc>Insufficient Transport Layer Protection
 Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
  
@@ -167,12 +167,10 @@ Many file inclusion problems occur because the programmer assumed that certain i
 	<alert>格式化字符串</alert>
 	<desc>Format String Attacks alter the flow of an application by using string formatting library features to access other memory space. Vulnerabilities occur when user-supplied data are used directly as formatting string input for certain C/C++ functions (e.g. fprintf, printf, sprintf, setproctitle, syslog, ...).
 
-If an attacker passes a format string consisting of printf conversion characters (e.g. "%f", "%p", "%n", etc.) as a parameter value to the web application, they may:
-    * Execute arbitrary code on the server
-    * Read values off the stack
-    * Cause segmentation faults / software crashes
-
-Format String attacks are related to other attacks in the Threat Classification: Buffer Overflows and Integer Overflows. All three are based in their ability to manipulate memory or its interpretation in a way that contributes to an attacker's goal.</desc>
+如果某个攻击者在网络应用中提交了一个包含 printf 转义字符串（如 "%f"、"%p”、"%n" 等）标志作为参数，他们将可能会：
+    * 执行服务器上的任意代码
+    * 从堆栈上读出值
+    * 导致段错误或软件崩溃 All three are based in their ability to manipulate memory or its interpretation in a way that contributes to an attacker's goal.</desc>
 	<solution>Phase: Requirements
 Choose a language that is not subject to this flaw.
 
