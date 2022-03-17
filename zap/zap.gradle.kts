@@ -56,7 +56,7 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.1.4")
+    api("com.fifesoft:rsyntaxtextarea:3.2.0")
     api("com.github.zafarkhaja:java-semver:0.9.0")
     api("commons-beanutils:commons-beanutils:1.9.4")
     api("commons-codec:commons-codec:1.15")
@@ -69,7 +69,7 @@ dependencies {
     api("org.apache.commons:commons-text:1.9")
     api("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
-    val log4jVersion = "2.17.1"
+    val log4jVersion = "2.17.2"
     api("org.apache.logging.log4j:log4j-api:$log4jVersion")
     api("org.apache.logging.log4j:log4j-1.2-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
@@ -92,7 +92,7 @@ dependencies {
     implementation("org.jitsi:ice4j:3.0-24-g34c2ce5") {
         setTransitive(false)
     }
-    implementation("com.formdev:flatlaf:2.0.1")
+    implementation("com.formdev:flatlaf:2.0.2")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
@@ -105,11 +105,11 @@ dependencies {
         exclude(group = "org.junit")
     }
     testImplementation("org.hamcrest:hamcrest-core:2.2")
-    val jupiterVersion = "5.8.1"
+    val jupiterVersion = "5.8.2"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-    testImplementation("org.mockito:mockito-junit-jupiter:4.0.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:4.4.0")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
     testImplementation("org.nanohttpd:nanohttpd-webserver:2.3.1")
 
