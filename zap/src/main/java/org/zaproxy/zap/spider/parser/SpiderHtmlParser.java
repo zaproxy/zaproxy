@@ -173,6 +173,7 @@ public class SpiderHtmlParser extends SpiderParser {
         elements = source.getAllElements(HTMLElementName.IMG);
         for (Element el : elements) {
             resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "longdesc");
         }
 
         // Process META elements
