@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://example.com/sample/">
+<meta charset="UTF-8">
+<title>Applet Elements - Spider HTML Parser</title>
+</head>
+<body>
+
+<!-- src -->
+<applet src="/applet/src/file.class"></applet>
+<applet src="https://example.com/applet/src/file.class"></applet>
+
+<!-- codebase -->
+<applet codebase="https://example.com/absolute/codebase/"></applet>
+<applet codebase="relative/applet/codebase/"></applet>
+<applet codebase="/absolute/applet/codebase/"></applet>
+
+<!-- archive -->
+<applet archive="/test/html/body/applet/archive"></applet>
+<applet archive="https://example.com/absolute/archive"></applet>
+<applet archive="/archive.zip"></applet>
+
+<!-- Ignored: -->
+<applet></applet>
+
+</body>
+</html>
