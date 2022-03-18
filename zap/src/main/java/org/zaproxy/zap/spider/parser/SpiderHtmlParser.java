@@ -138,6 +138,14 @@ public class SpiderHtmlParser extends SpiderParser {
             resourcesfound |= processAttributeElement(message, depth, baseURL, el, "ping");
         }
 
+        // Process Applet elements
+        elements = source.getAllElements(HTMLElementName.APPLET);
+        for (Element el : elements) {
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "archive");
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "codebase");
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
+        }
+
         // Process AREA elements
         elements = source.getAllElements(HTMLElementName.AREA);
         for (Element el : elements) {
@@ -153,6 +161,12 @@ public class SpiderHtmlParser extends SpiderParser {
 
         // Process IFrame Elements
         elements = source.getAllElements(HTMLElementName.IFRAME);
+        for (Element el : elements) {
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
+        }
+
+        // Process Input elements
+        elements = source.getAllElements(HTMLElementName.INPUT);
         for (Element el : elements) {
             resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
         }
@@ -174,6 +188,8 @@ public class SpiderHtmlParser extends SpiderParser {
         for (Element el : elements) {
             resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
             resourcesfound |= processAttributeElement(message, depth, baseURL, el, "longdesc");
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "lowsrc");
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "dynsrc");
         }
 
         // Process META elements
