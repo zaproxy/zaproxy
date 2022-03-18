@@ -498,7 +498,7 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                 htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(9)));
         assertThat(
                 listener.getUrlsFound(),
                 contains(
@@ -508,7 +508,9 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://example.com/sample/img/relative",
                         "http://example.com/sample/",
                         "http://example.com/img/absolute",
-                        "ftp://img.example.com/"));
+                        "ftp://img.example.com/",
+                        "http://example.com/relative/longdesc",
+                        "https://img.example.com/full/longdesc"));
     }
 
     @Test
