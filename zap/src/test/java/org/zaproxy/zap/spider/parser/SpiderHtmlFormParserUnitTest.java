@@ -778,6 +778,32 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    void shouldUseButtonFormActionIfPresent() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("GET", "FormWithFormactionButtons.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(8)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.org/formaction1?field1=field1&field2=field2",
+                        "http://example.org/form2?field1=field1&field2=field2",
+                        "http://example.org/formaction2?field1=field1&field2=field2",
+                        "http://example.org/emptyform",
+                        "http://example.org/withchildbutton",
+                        "http://example.org/withoutchildbutton",
+                        "http://actionnoreset.com/",
+                        "http://actionnobutton.com/"));
+    }
+
+    @Test
     void shouldIgnoreRelativePathBaseHtmlUrlWhenParsingGetFormWithAbsoluteAction() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
