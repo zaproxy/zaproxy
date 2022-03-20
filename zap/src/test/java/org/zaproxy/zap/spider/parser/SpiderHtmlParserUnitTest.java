@@ -409,6 +409,28 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    void shouldFindUrlsInAudioElements() throws Exception {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("AudioElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(3)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.com/sample/relative/src",
+                        "http://example.com/absolute/src",
+                        "https://audio.example.com/external/audio/src"));
+    }
+
+    @Test
     void shouldFindUrlsInEmbedElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -487,6 +509,28 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    void shouldFindUrlsInIsIndexElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("IsIndexElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(3)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.com/sample/relative/action",
+                        "http://example.com/absolute/action",
+                        "https://isindex.example.com/action/target.html"));
+    }
+
+    @Test
     void shouldFindUrlsInLinkElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -532,6 +576,36 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://example.com/sample/relative/src",
                         "http://example.com/absolute/src",
                         "https://input.example.com/external/inputsrc"));
+    }
+
+    @Test
+    void shouldFindUrlsInObjectElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("ObjectElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(11)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://object.example.com/base/data",
+                        "http://object.example.com:8000/data",
+                        "https://object.example.com/data?a=b",
+                        "http://example.com/sample/data/relative",
+                        "http://example.com/sample/",
+                        "http://example.com/data/absolute",
+                        "ftp://object.example.com/data",
+                        "http://object.example.com/codebase/scheme",
+                        "https://object.example.com/codebase?a=b",
+                        "http://example.com/sample/codebase/relative",
+                        "http://example.com/codebase/absolute"));
     }
 
     @Test

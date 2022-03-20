@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Form With Button Using Formaction - Spider HTML Form Parser</title>
+</head>
+<body>
+
+<form action="http://example.org/form1" method="%%METHOD%%">
+    <input type="text" name="field1" value="field1" />
+    <input type="text" name="field2" value="field2" />
+    <button formaction="http://example.org/formaction1"></button>
+</form>
+
+<form action="http://example.org/form2" method="%%METHOD%%">
+    <input type="text" name="field1" value="field1" />
+    <input type="text" name="field2" value="field2" />
+    <button>Default Action</button>
+    <button formaction="http://example.org/formaction2">FormAction2</button>
+</form>
+
+<form>
+    <button type="submit" formaction="http://example.org/emptyform"></button>
+</form>
+
+<form id="withchildbutton">
+    <button form="withchildbutton" formaction="http://example.org/withchildbutton"></button>
+</form>
+
+<form id="withoutchildbutton">
+</form>
+<button form="withoutchildbutton" formaction="http://example.org/withoutchildbutton"></button>
+
+<form action="http://actionnoreset.com">
+    <button type="reset" formaction="http://resetbuttonsdonotsubmit.com"></button>
+</form>
+
+<form action="http://actionnobutton.com">
+    <button type="button" formaction="http://formbuttonsdonotsubmit.com"></button>
+</form>
+
+<!--  Ignored: -->
+<form>
+    <button type="submit" formaction="http:// invalidurl"></button>
+</form>
+
+</body>
+</html>
