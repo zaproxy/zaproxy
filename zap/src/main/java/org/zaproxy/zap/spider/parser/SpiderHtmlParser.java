@@ -153,6 +153,12 @@ public class SpiderHtmlParser extends SpiderParser {
             resourcesfound |= processAttributeElement(message, depth, baseURL, el, "ping");
         }
 
+        // Process Embed Elements
+        elements = source.getAllElements(HTMLElementName.EMBED);
+        for (Element el : elements) {
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
+        }
+
         // Process Frame Elements
         elements = source.getAllElements(HTMLElementName.FRAME);
         for (Element el : elements) {
