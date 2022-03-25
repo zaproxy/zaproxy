@@ -409,6 +409,32 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    void shouldFindUrlsInEmbedElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("EmbedElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://embed.example.com/base/scheme",
+                        "http://embed.example.com:8000/b",
+                        "https://embed.example.com/c?a=b",
+                        "http://example.com/sample/embed/relative",
+                        "http://example.com/sample/",
+                        "http://example.com/embed/absolute",
+                        "ftp://embed.example.com/"));
+    }
+
+    @Test
     void shouldFindUrlsInFrameElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());

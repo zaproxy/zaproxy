@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://example.com/sample/">
+<meta charset="UTF-8">
+<title>Enbed Elements - Spider HTML Parser</title>
+</head>
+<body>
+
+<embed src="//embed.example.com/base/scheme">
+<embed src="http://embed.example.com:8000/b">
+<embed src="https://embed.example.com/c?a=b#fragment">
+<embed src="embed/relative">
+<embed src="">
+<embed src="/embed/absolute">
+<embed src="ftp://embed.example.com/">
+
+<!--  Ignored: -->
+<embed>
+<embed src="mailto:embed@example.com">
+<embed src="javascript:hello();">
+<embed src="scheme://embed.example.com/invalid">
+
+</body>
+</html>
