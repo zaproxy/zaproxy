@@ -34,6 +34,9 @@ jobs:
         name: Run install tests
         run: docker run --rm -t owasp/zap2docker-tests:latest wrk/install_tests.sh
       - 
+        name: Run python tests
+        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/python_tests.sh
+      - 
         name: Run baseline tests
         run: docker run --rm -t owasp/zap2docker-tests:latest wrk/baseline_tests.sh
       - 
