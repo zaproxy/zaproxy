@@ -85,6 +85,25 @@ class VariantJSONQueryUnitTest {
         assertLogEvent(Level.WARN, "EOF reached while reading JSON field name");
     }
 
+    @Test
+    void shouldNotThrowExceptionIfResponseIsEmpty() throws HttpMalformedHeaderException {
+        // Given
+        withLoggerAppender();
+        VariantJSONQuery variantJSONQuery = new VariantJSONQuery();
+        variantJSONQuery.setMessage(getMessageWithBody(""));
+        // When
+        List<NameValuePair> parameters = variantJSONQuery.getParamList();
+        // Then
+        assertThat(parameters, is(empty()));
+        for (AppendedLogEvent logEvent : testAppender.getLogEvents()) {
+            String logMessage = logEvent.getMessage();
+            if (logMessage != null
+                    && logMessage.contains("Input is invalid JSON; does not start with")) {
+                fail("Wrote parsing warning when the body was empty: " + logMessage);
+            }
+        }
+    }
+
     @ParameterizedTest
     @ValueSource(strings = {"true", "True", "false", "False"})
     void shouldNotFindParametersForBooleanValues(String value) throws HttpMalformedHeaderException {
