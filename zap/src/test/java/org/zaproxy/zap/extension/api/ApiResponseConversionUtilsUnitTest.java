@@ -24,14 +24,11 @@ import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 
-import java.io.ByteArrayOutputStream;
-import java.util.zip.GZIPOutputStream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
@@ -111,33 +108,5 @@ class ApiResponseConversionUtilsUnitTest {
         assertThat(response.getValues(), hasEntry("responseHeader", responseHeader.toString()));
         assertThat(response.getValues(), hasEntry("timestamp", "1010101010101"));
         assertThat(response.getValues(), hasEntry("rtt", "200"));
-    }
-
-    @Test
-    void compressedResponseBodyShouldBeDeflatedIntoApiResponse() throws Exception {
-        given(responseHeader.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
-        given(responseBody.getBytes()).willReturn(gzip(new byte[] {97, 98, 99}));
-
-        ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
-
-        assertThat(response.getValues(), hasEntry("responseBody", "abc"));
-    }
-
-    @Test
-    void brokenCompressedResponseBodyShouldBeStoredAsStringRepresentationInApiResponse() {
-        given(responseHeader.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
-        given(responseBody.getBytes()).willReturn(new byte[] {0, 0, 0});
-
-        ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
-
-        assertThat(response.getValues(), hasEntry("responseBody", responseBody.toString()));
-    }
-
-    private static byte[] gzip(byte[] raw) throws Exception {
-        ByteArrayOutputStream bytes = new ByteArrayOutputStream(raw.length);
-        try (GZIPOutputStream zip = new GZIPOutputStream(bytes)) {
-            zip.write(raw);
-        }
-        return bytes.toByteArray();
     }
 }
