@@ -89,6 +89,7 @@
 // ZAP: 2021/05/14 Remove redundant type arguments and empty statement.
 // ZAP: 2022/01/04 Add initiator constant OAST_INITIATOR for OAST requests.
 // ZAP: 2022/04/08 Deprecate getSSLConnector() and executeMethod.
+// ZAP: 2022/04/10 Add support for unencoded redirects
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -531,9 +532,7 @@ public class HttpSender {
                                     && temp.getResponseHeader().getStatusCode()
                                             != HttpStatusCode.NOT_MODIFIED);
                     i++) {
-                String location = temp.getResponseHeader().getHeader(HttpHeader.LOCATION);
-                URI baseUri = temp.getRequestHeader().getURI();
-                URI newLocation = new URI(baseUri, location, false);
+                URI newLocation = extractRedirectLocation(temp);
                 temp.getRequestHeader().setURI(newLocation);
 
                 temp.getRequestHeader().setMethod(HttpRequestHeader.GET);
@@ -1201,8 +1200,13 @@ public class HttpSender {
         try {
             return new URI(message.getRequestHeader().getURI(), location, true);
         } catch (URIException ex) {
-            throw new InvalidRedirectLocationException(
-                    "Invalid redirect location: " + location, location, ex);
+            try {
+                // Handle redirect URLs that are unencoded
+                return new URI(message.getRequestHeader().getURI(), location, false);
+            } catch (URIException e) {
+                throw new InvalidRedirectLocationException(
+                        "Invalid redirect location: " + location, location, ex);
+            }
         }
     }
 }

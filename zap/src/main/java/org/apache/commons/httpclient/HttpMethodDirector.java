@@ -686,7 +686,11 @@ public class HttpMethodDirector {
 			);
 			
             String charset = method.getParams().getUriCharset();
-            redirectUri = new URI(location, true, charset);
+            try {
+                redirectUri =  new URI(location, true, charset);
+            } catch (URIException ex) {
+                redirectUri =  new URI(location, false, charset);
+            }
 			
             if (redirectUri.isRelativeURI()) {
 				if (this.params.isParameterTrue(HttpClientParams.REJECT_RELATIVE_REDIRECT)) {
