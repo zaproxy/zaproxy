@@ -45,6 +45,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/06/05 Remove usage of HttpException.
 // ZAP: 2022/06/09 Quote the query component used in the regular expression.
+// ZAP: 2022/06/09 Use Analyser in more circumstances.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -155,22 +156,26 @@ public class Analyser {
         // if analysed already, return;
         // move to host part
         if (node.getHistoryReference() == null) {
+            logger.debug("Node being analysed has no History Reference");
             return;
         }
 
         if (!parent.nodeInScope(node.getName())) {
+            logger.debug("Node being analysed is out of scope");
             return;
         }
 
         // ZAP: Removed unnecessary cast.
         HttpMessage baseMsg = node.getHistoryReference().getHttpMessage();
         URI baseUri = (URI) baseMsg.getRequestHeader().getURI().clone();
+        logger.debug("Analysing {}", baseUri);
 
         baseUri.setQuery(null);
         // System.out.println("analysing: " + baseUri.toString());
 
         // already exist one.  no need to test
         if (mapVisited.get(baseUri.toString()) != null) {
+            logger.debug("Skipping: This node has already been analysed");
             return;
         }
 
@@ -181,22 +186,25 @@ public class Analyser {
         uri.setPath(path);
         msg.getRequestHeader().setURI(uri);
         // System.out.println("analysing 2: " + uri);
-
+        logger.debug("Sending first analyse request {}", uri);
         sendAndReceive(msg);
 
         // standard RFC response, no further check is needed
         if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.NOT_FOUND) {
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_RFC);
+            logger.debug("Analysis determined standard 404 handling");
             return;
         }
 
         if (HttpStatusCode.isRedirection(msg.getResponseHeader().getStatusCode())) {
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_REDIRECT);
+            logger.debug("Analysis determined error page redirect handling");
             return;
         }
 
         if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_NON_RFC);
+            logger.debug("Analysis determined non-RFC error page handling");
             return;
         }
 
@@ -206,6 +214,7 @@ public class Analyser {
         uri2 = (URI) baseUri.clone();
         uri2.setPath(path2);
         msg2.getRequestHeader().setURI(uri2);
+        logger.debug("Sending second analyse request {}", uri2);
         sendAndReceive(msg2);
 
         // remove HTML HEAD as this may contain expiry time which dynamic changes
@@ -216,6 +225,7 @@ public class Analyser {
         if (resBody1.equals(resBody2)) {
             msg.getResponseBody().setBody(resBody1);
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_STATIC);
+            logger.debug("Analysis determined static error page handling");
             return;
         }
 
@@ -229,11 +239,13 @@ public class Analyser {
         if (resBody1.equals(resBody2)) {
             msg.getResponseBody().setBody(resBody1);
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_DYNAMIC_BUT_DETERMINISTIC);
+            logger.debug("Analysis determined dynamic but deterministic error page handling");
             return;
         }
 
         // else mark app "undeterministic".
         addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_UNDETERMINISTIC);
+        logger.debug("Analysis fell all the way through to non-deterministic error page handling");
     }
 
     /**
@@ -349,23 +361,25 @@ public class Analyser {
      * @return the number of nodes available at this layer
      */
     private int inOrderAnalyse(StructuralNode node) {
+        if (isStop || node == null) {
+            return 0;
+        }
+
         int subtreeNodes = 0;
 
-        if (isStop) {
+        if (mapVisited.containsKey(node.getURI().toString())) {
             return 0;
         }
 
-        if (node == null) {
-            return 0;
-        }
-
-        // analyse entity if not root and not leaf.
-        // Leaf is not analysed because only folder entity is used to determine if path exist.
         try {
             if (!node.isRoot()) {
                 if (!node.isLeaf() || node.isLeaf() && node.getParent().isRoot()) {
+                    logger.debug(
+                            "Node being analysed isn't a leaf or is a leaf whose parent is root");
                     analyse(node);
-
+                } else if (node.isLeaf() && !node.getParent().isRoot()) {
+                    logger.debug("Node being analysed is a leaf whose parent is not root");
+                    inOrderAnalyse(node.getParent());
                 } else {
                     // ZAP: it's a Leaf then no children are available
                     return 1;
@@ -376,6 +390,7 @@ public class Analyser {
         }
 
         Iterator<StructuralNode> iter = node.getChildIterator();
+        logger.debug("Iterating children of {} with URI {}", node.getName(), node.getURI());
         while (iter.hasNext()) {
             subtreeNodes += inOrderAnalyse(iter.next());
         }
