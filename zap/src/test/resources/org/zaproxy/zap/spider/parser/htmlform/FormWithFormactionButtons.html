@@ -39,9 +39,29 @@
     <button type="button" formaction="http://formbuttonsdonotsubmit.com"></button>
 </form>
 
+<form id="tobeoverridden" action="http://externaltobeoverridden.com">
+</form>
+
+<form action="http://not.overridden.by.nested.buttons.com">
+    <button formaction="http://i.override.to.be.overridden.com" form="tobeoverridden"></button>
+    <button type="button" formaction="http://i.do.not.override.to.be.overridden.com" form="tobeoverridden"></button>
+</form>
+
 <!--  Ignored: -->
 <form>
     <button type="submit" formaction="http:// invalidurl"></button>
+</form>
+
+<form action="http:// invalidurl">
+    <button type="submit" form="invalidformreference" formaction="http://valid.url.com"></button>
+</form>
+
+<form action="http://I_look_legit_but_i_am_not.com">
+    <button type="submit" formaction="http://I_am_also_not_legit.com"></button>
+</form>
+
+<form>
+    <button formaction="http://totally\invalidurl"></button>
 </form>
 
 </body>
