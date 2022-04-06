@@ -789,7 +789,9 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(8)));
+        //TODO
+        System.out.println(listener.getUrlsFound());
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(10)));
         assertThat(
                 listener.getUrlsFound(),
                 contains(
@@ -800,7 +802,9 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                         "http://example.org/withchildbutton",
                         "http://example.org/withoutchildbutton",
                         "http://actionnoreset.com/",
-                        "http://actionnobutton.com/"));
+                        "http://actionnobutton.com/",
+                        "http://i.override.to.be.overridden.com/",
+                        "http://not.overridden.by.nested.buttons.com/"));
     }
 
     @Test
