@@ -27,6 +27,8 @@ import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpMessage;
 
+/** @deprecated (2.12.0) This class has been moved to the zap-extensions repo. */
+@Deprecated
 public class HtmlContextAnalyser {
 
     private char[] quotes = {'\'', '"'};
