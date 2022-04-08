@@ -88,6 +88,7 @@
 // ZAP: 2020/12/09 Set content encoding to the response body.
 // ZAP: 2021/05/14 Remove redundant type arguments and empty statement.
 // ZAP: 2022/01/04 Add initiator constant OAST_INITIATOR for OAST requests.
+// ZAP: 2022/04/08 Deprecate getSSLConnector() and executeMethod.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -257,6 +258,13 @@ public class HttpSender {
         clientViaProxy.getParams().setCookiePolicy(policy);
     }
 
+    /**
+     * Gets the {@code SSLConnector} of the client.
+     *
+     * @return the {@code SSLConnector} used by the sender.
+     * @deprecated (2.12.0) It will be removed in a following version.
+     */
+    @Deprecated
     public static SSLConnector getSSLConnector() {
         return (SSLConnector) protocol.getSocketFactory();
     }
@@ -364,7 +372,22 @@ public class HttpSender {
         }
     }
 
+    /**
+     * Executes the given method.
+     *
+     * @param method the method.
+     * @param state the state, might be {@code null}.
+     * @return the status code.
+     * @throws IOException if an error occurred while executing the method.
+     * @deprecated (2.12.0) Use one of the {@code sendAndReceive} methods. It will be removed in a
+     *     following version.
+     */
+    @Deprecated
     public int executeMethod(HttpMethod method, HttpState state) throws IOException {
+        return executeMethodImpl(method, state);
+    }
+
+    private int executeMethodImpl(HttpMethod method, HttpState state) throws IOException {
         int responseCode = -1;
 
         String hostName;
@@ -666,13 +689,13 @@ public class HttpSender {
             // cant do this for EntityEnclosingMethod methods - it will fail
             method.setFollowRedirects(isFollowRedirect);
         }
-        // ZAP: Use custom HttpState if needed
+
+        HttpState state = null;
         User forceUser = this.getUser(msg);
         if (forceUser != null) {
-            this.executeMethod(method, forceUser.getCorrespondingHttpState());
-        } else {
-            this.executeMethod(method, null);
+            state = forceUser.getCorrespondingHttpState();
         }
+        executeMethodImpl(method, state);
 
         HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);
 
