@@ -26,9 +26,9 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -38,6 +38,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link StandardParameterParser}. */
 class StandardParameterParserUnitTest {
@@ -78,6 +80,53 @@ class StandardParameterParserUnitTest {
         assertEquals(res2.get(2).getValue(), "f");
         assertEquals(res2.get(3).getName(), "d");
         assertEquals(res2.get(3).getValue(), "g");
+    }
+
+    @Test
+    void defaultTreePath() throws HttpMalformedHeaderException, URIException {
+        spp.setStructuralParameters(asList("page"));
+
+        // GET https://www.example.com/app/aaa?page=p1&ddd=eee
+        {
+            HttpMessage msg = new HttpMessage();
+            msg.setRequestHeader("GET /app/aaa?page=p1&ddd=eee HTTP/1.1\r\nHost: example.com\r\n");
+
+            List<String> treePath = spp.getTreePath(msg);
+
+            assertEquals(asList("app", "aaa", "p1"), treePath);
+        }
+
+        // GET https://www.example.com/app/aaa?page=p2&ddd=fff
+        {
+            HttpMessage msg = new HttpMessage();
+            msg.setRequestHeader("GET /app/aaa?page=p2&ddd=fff HTTP/1.1\r\nHost: example.com\r\n");
+
+            List<String> treePath = spp.getTreePath(msg);
+
+            assertEquals(asList("app", "aaa", "p2"), treePath);
+        }
+
+        // POST https://www.example.com/app/aaa?page=p1&ddd=eee
+        {
+            HttpMessage msg = new HttpMessage();
+            msg.setRequestHeader("POST /app/aaa HTTP/1.1\r\nHost: example.com\r\n");
+            msg.setRequestBody("page=p1&ddd=eee");
+
+            List<String> treePath = spp.getTreePath(msg);
+
+            assertEquals(asList("app", "aaa", "p1"), treePath);
+        }
+
+        // POST https://www.example.com/app/aaa?page=p2&ddd=fff
+        {
+            HttpMessage msg = new HttpMessage();
+            msg.setRequestHeader("POST /app/aaa HTTP/1.1\r\nHost: example.com\r\n");
+            msg.setRequestBody("page=p2&ddd=fff");
+
+            List<String> treePath = spp.getTreePath(msg);
+
+            assertEquals(asList("app", "aaa", "p2"), treePath);
+        }
     }
 
     @Test
@@ -251,7 +300,7 @@ class StandardParameterParserUnitTest {
     void shouldInitWithNullAndEmptyConfig(String config) {
         // Given
         StandardParameterParser parser = new StandardParameterParser("A", "B");
-        parser.setStructuralParameters(Arrays.asList("C", "D"));
+        parser.setStructuralParameters(asList("C", "D"));
         // When
         parser.init(config);
         // Then
