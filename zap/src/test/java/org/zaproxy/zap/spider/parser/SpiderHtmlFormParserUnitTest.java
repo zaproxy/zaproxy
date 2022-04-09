@@ -789,8 +789,6 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        //TODO
-        System.out.println(listener.getUrlsFound());
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(10)));
         assertThat(
                 listener.getUrlsFound(),
@@ -805,6 +803,63 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
                         "http://actionnobutton.com/",
                         "http://i.override.to.be.overridden.com/",
                         "http://not.overridden.by.nested.buttons.com/"));
+    }
+
+    @Test
+    void shouldUseButtonFormMethodIfPresentGET() {
+        // Given
+        SpiderParam spiderOptions = createSpiderParamWithConfig();
+        // Disable POST handling, we need just to retrieve the forms with GET methods
+        spiderOptions.setPostForm(false);
+        SpiderHtmlFormParser htmlParser =
+                new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("GET", "OverriddenMethodByButtonForms.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(4)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.org/form1?field1=Text+1&field2=Text+2",
+                        "http://ignore.button.org/form3?a=x&b=y&c=z",
+                        "http://ignore.reset.org/form4?a=x&b=y",
+                        "http://example.org/form6?a=x&b=y"));
+    }
+
+    @Test
+    void shouldUseButtonFormMethodIfPresentPOST() {
+        // Given
+        SpiderParam spiderOptions = createSpiderParamWithConfig();
+        // Ensure POST handling is enabled, now both GET and POST methods should be identified by
+        // our code
+        spiderOptions.setPostForm(true);
+        // Disable POST handling, we need just to retrieve the forms with GET methods
+        SpiderHtmlFormParser htmlParser =
+                new SpiderHtmlFormParser(spiderOptions, new DefaultValueGenerator());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("GET", "OverriddenMethodByButtonForms.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.org/form1?field1=Text+1&field2=Text+2",
+                        "http://example.org/form2",
+                        "http://ignore.button.org/form3?a=x&b=y&c=z",
+                        "http://ignore.reset.org/form4?a=x&b=y",
+                        "http://outside.org/form5",
+                        "http://example.org/form6?a=x&b=y",
+                        "http://example.org/form7"));
     }
 
     @Test

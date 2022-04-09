@@ -53,6 +53,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
     private static final String ENCODING_TYPE = "UTF-8";
     private static final String DEFAULT_EMPTY_VALUE = "";
+    private static final String METHOD_GET = "GET";
     private static final String METHOD_POST = "POST";
     private URI uri;
     private String url;
@@ -134,12 +135,14 @@ public class SpiderHtmlFormParser extends SpiderParser {
                 envAttributes.put(att.getKey(), att.getValue());
             }
             // Get method and action
-            String method = form.getAttributeValue("method");
+            String formMethod = form.getAttributeValue("method");
 
             // A single form can have multiple actions associated to it
-            List<String> formActions = processFormActions(form, baseURL, source);
+            List<FormAction> formActions = processFormActions(form, formMethod, baseURL, source);
 
-            for (String action : formActions) {
+            for (FormAction fAction : formActions) {
+                String action = fAction.action;
+                String method = fAction.method;
                 getLogger()
                         .debug(
                                 "Found new form with method: '"
@@ -205,6 +208,16 @@ public class SpiderHtmlFormParser extends SpiderParser {
         return false;
     }
 
+    private static class FormAction {
+        final String action;
+        final String method;
+
+        FormAction(String action, String method) {
+            this.action = action;
+            this.method = method;
+        }
+    }
+
     /**
      * Processes the given form element into, possibly, several URLs.
      *
@@ -213,9 +226,11 @@ public class SpiderHtmlFormParser extends SpiderParser {
      *
      * @param form the form to inspect
      * @param baseURL the base URL
+     * @return a list of FormAction objects containing the action and associated method
      */
-    private List<String> processFormActions(Element form, String baseURL, Source source) {
-        List<String> formActions = new ArrayList<>();
+    private List<FormAction> processFormActions(
+            Element form, String originalMethod, String baseURL, Source source) {
+        List<FormAction> formActions = new ArrayList<>();
 
         String action = form.getAttributeValue("action");
         // If no action, use the base url
@@ -247,27 +262,33 @@ public class SpiderHtmlFormParser extends SpiderParser {
                             .collect(Collectors.toList()));
         }
 
-        if (formButtonElements.size() > 0) {
+        if (!formButtonElements.isEmpty()) {
             final String defaultAction = action;
             formButtonElements.forEach(
                     button -> {
                         // A button without a formaction submits to the default action for the form
                         if (StringUtils.isEmpty(button.getAttributeValue("formaction"))) {
-                            formActions.add(defaultAction);
+                            formActions.add(
+                                    new FormAction(
+                                            defaultAction,
+                                            processFormMethodWithButton(button, originalMethod)));
                         } else {
-                            formActions.add(button.getAttributeValue("formaction"));
+                            formActions.add(
+                                    new FormAction(
+                                            button.getAttributeValue("formaction"),
+                                            processFormMethodWithButton(button, originalMethod)));
                         }
                     });
         } else {
             // If no buttons, return just the default action for the form
-            formActions.add(action);
+            formActions.add(new FormAction(action, originalMethod));
         }
 
         return formActions;
     }
 
     /**
-     * Function that defines the allowed button types that should be considered in a form reset and
+     * Function that defines the allowed button types that should be considered in a form, reset and
      * button type buttons do not trigger any action so should be ignored
      *
      * @param element an Element of type button
@@ -278,6 +299,23 @@ public class SpiderHtmlFormParser extends SpiderParser {
         return element.getStartTag().getName().equals(HTMLElementName.BUTTON)
                 && !StringUtils.equalsIgnoreCase(type, "button")
                 && !StringUtils.equalsIgnoreCase(type, "reset");
+    }
+
+    /**
+     * Defines the correct form method to use in case a button belongs to a form. Valid form methods
+     * are GET and POST, if a button has no valid form method the original form method is returned
+     *
+     * @param button an Element of type button
+     * @param defaultMethod the default method of the parent form
+     * @return the form method to be used
+     */
+    private String processFormMethodWithButton(Element button, String defaultMethod) {
+        String buttonMethod = button.getAttributeValue("formmethod");
+        return StringUtils.isEmpty(buttonMethod)
+                        || (!buttonMethod.equalsIgnoreCase(METHOD_GET)
+                                && !buttonMethod.equalsIgnoreCase(METHOD_POST))
+                ? defaultMethod
+                : buttonMethod;
     }
 
     /**
