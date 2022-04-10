@@ -22,6 +22,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2021/09/18 Remove commented code.
+// ZAP: 2022/04/10 Deprecated.
 package org.parosproxy.paros.network;
 
 import java.io.InputStream;
@@ -30,6 +31,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URISyntaxException;
 
+/**
+ * @deprecated (2.12.0) No longer in effective use by core. It will be removed in a following
+ *     release.
+ */
+@Deprecated
 public class HttpUtil {
 
     public static String encodeURI(String uri) throws URISyntaxException {

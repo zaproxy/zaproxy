@@ -122,7 +122,6 @@ import org.parosproxy.paros.network.HttpOutputStream;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.network.HttpUtil;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.api.API;
@@ -687,7 +686,7 @@ public class ProxyThread implements Runnable {
             }
         }
 
-        HttpUtil.closeSocket(inSocket);
+        org.parosproxy.paros.network.HttpUtil.closeSocket(inSocket);
 
         if (httpSender != null) {
             httpSender.shutdown();
