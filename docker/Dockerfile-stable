@@ -56,7 +56,7 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV WEBSWING_VERSION 21.2.5
+ENV WEBSWING_VERSION 21.2.8
 
 # Setup Webswing
 RUN if [ -z "$WEBSWING_URL" ] ; \
