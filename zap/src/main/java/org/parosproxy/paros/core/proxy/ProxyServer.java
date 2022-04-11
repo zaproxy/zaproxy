@@ -63,7 +63,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.ConnectionParam;
-import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 
@@ -294,7 +293,7 @@ public class ProxyServer implements Runnable {
         }
 
         isProxyRunning = false;
-        HttpUtil.closeServerSocket(proxySocket);
+        org.parosproxy.paros.network.HttpUtil.closeServerSocket(proxySocket);
 
         try {
             thread.join(); // (PORT_TIME_OUT);
