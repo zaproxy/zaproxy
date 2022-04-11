@@ -50,6 +50,7 @@
 // ZAP: 2021/05/14 Remove redundant type arguments.
 // ZAP: 2022/02/09 No longer parse host/port and deprecate related code.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
+// ZAP: 2022/04/11 Remove -nouseragent option.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -66,7 +67,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
-import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.ZAP;
 
 public class CommandLine {
@@ -117,8 +117,6 @@ public class CommandLine {
      * @since 2.8.0
      */
     public static final String DEV_MODE = "-dev";
-
-    static final String NO_USER_AGENT = "-nouseragent";
 
     private boolean GUI = true;
     private boolean daemon = false;
@@ -325,12 +323,7 @@ public class CommandLine {
 
         boolean result = false;
 
-        if (checkSwitch(args, NO_USER_AGENT, i)) {
-            HttpSender.setUserAgent("");
-            Constant.setEyeCatcher("");
-            result = true;
-
-        } else if (checkSwitch(args, CMD, i)) {
+        if (checkSwitch(args, CMD, i)) {
             setDaemon(false);
             setGUI(false);
 

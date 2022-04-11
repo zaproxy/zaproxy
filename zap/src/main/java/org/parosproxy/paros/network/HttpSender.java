@@ -90,6 +90,7 @@
 // ZAP: 2022/01/04 Add initiator constant OAST_INITIATOR for OAST requests.
 // ZAP: 2022/04/08 Deprecate getSSLConnector() and executeMethod.
 // ZAP: 2022/04/10 Add support for unencoded redirects
+// ZAP: 2022/04/11 Deprecate set/getUserAgent() and remove userAgent/modifyUserAgent().
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -181,7 +182,6 @@ public class HttpSender {
     }
 
     private static HttpMethodHelper helper = new HttpMethodHelper();
-    private static String userAgent = "";
     private static final ThreadLocal<Boolean> IN_LISTENER = new ThreadLocal<>();
 
     private HttpClient client = null;
@@ -682,7 +682,6 @@ public class HttpSender {
             throws IOException {
         HttpMethod method = null;
         // no more retry
-        modifyUserAgent(msg);
         method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody(), params);
         if (!(method instanceof EntityEnclosingMethod) || method instanceof ZapGetMethod) {
             // cant do this for EntityEnclosingMethod methods - it will fail
@@ -705,45 +704,23 @@ public class HttpSender {
         this.followRedirect = followRedirect;
     }
 
-    private void modifyUserAgent(HttpMessage msg) {
-
-        try {
-            // no modification to user agent if empty
-            if (userAgent.equals("") || msg.getRequestHeader().isEmpty()) {
-                return;
-            }
-
-            // append new user agent to existing user agent
-            String currentUserAgent = msg.getRequestHeader().getHeader(HttpHeader.USER_AGENT);
-            if (currentUserAgent == null) {
-                currentUserAgent = "";
-            }
-
-            if (currentUserAgent.indexOf(userAgent) >= 0) {
-                // user agent already in place, exit
-                return;
-            }
-
-            String delimiter = "";
-            if (!currentUserAgent.equals("") && !currentUserAgent.endsWith(" ")) {
-                delimiter = " ";
-            }
-
-            currentUserAgent = currentUserAgent + delimiter + userAgent;
-            msg.getRequestHeader().setHeader(HttpHeader.USER_AGENT, currentUserAgent);
-        } catch (Exception e) {
-        }
-    }
-
-    /** @return Returns the userAgent. */
+    /**
+     * @return Returns the userAgent.
+     * @deprecated (2.12.0) No longer supported, it returns an empty string.
+     * @see #setUserAgent(String)
+     */
+    @Deprecated
     public static String getUserAgent() {
-        return userAgent;
+        return "";
     }
 
-    /** @param userAgent The userAgent to set. */
-    public static void setUserAgent(String userAgent) {
-        HttpSender.userAgent = userAgent;
-    }
+    /**
+     * @param userAgent The userAgent to set.
+     * @deprecated (2.12.0) No longer supported, use a {@link HttpSenderListener} to actually set
+     *     the user agent.
+     */
+    @Deprecated
+    public static void setUserAgent(String userAgent) {}
 
     private void setCommonManagerParams(MultiThreadedHttpConnectionManager mgr) {
         int timeout = (int) TimeUnit.SECONDS.toMillis(this.param.getTimeoutInSecs());
