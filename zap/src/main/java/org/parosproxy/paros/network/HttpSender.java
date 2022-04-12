@@ -91,6 +91,7 @@
 // ZAP: 2022/04/08 Deprecate getSSLConnector() and executeMethod.
 // ZAP: 2022/04/10 Add support for unencoded redirects
 // ZAP: 2022/04/11 Deprecate set/getUserAgent() and remove userAgent/modifyUserAgent().
+// ZAP: 2022/04/11 Prevent null listeners and add JavaDoc to add/removeListener.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -99,6 +100,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
@@ -831,12 +833,31 @@ public class HttpSender {
      * method.releaseConnection(); } } }
      */
 
+    /**
+     * Adds the given listener to be notified of each message sent/received by each {@code
+     * HttpSender}.
+     *
+     * <p>The listener might be notified concurrently.
+     *
+     * @param listener the listener to add.
+     * @since 2.0.0
+     * @throws NullPointerException if the given listener is {@code null}.
+     */
     public static void addListener(HttpSenderListener listener) {
+        Objects.requireNonNull(listener);
         listeners.add(listener);
         Collections.sort(listeners, getListenersComparator());
     }
 
+    /**
+     * Removes the given listener.
+     *
+     * @param listener the listener to remove.
+     * @since 2.0.0
+     * @throws NullPointerException if the given listener is {@code null}.
+     */
     public static void removeListener(HttpSenderListener listener) {
+        Objects.requireNonNull(listener);
         listeners.remove(listener);
     }
 
