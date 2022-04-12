@@ -241,7 +241,7 @@ public class ExtensionAlert extends ExtensionAdaptor
     private static boolean isInvalid(Alert alert) {
         if (alert.getUri().isEmpty() || alert.getMessage() == null) {
             logger.error(
-                    "Attempting to raise an alert without URI and/or HTTP message, Plugin ID: "
+                    "Attempting to raise an alert without URI or HTTP message, Plugin ID: "
                             + alert.getPluginId()
                             + " Alert Name:"
                             + alert.getName()
