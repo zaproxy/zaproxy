@@ -1689,6 +1689,52 @@ class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    void shouldCheckAuthIssueWithParent() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.AUTH_4XX;
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        given(parent.getAnalyser()).willReturn(analyser);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPageAuthIssue(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, type);
+        verifyNoInteractions(analyser);
+    }
+
+    @Test
+    void isPageAuthIssueShouldReturnTrueIfCustomPageMatches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.AUTH_4XX;
+        HttpMessage message = new HttpMessage();
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPageAuthIssue(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verify(parent).isCustomPage(message, type);
+    }
+
+    @Test
+    void isPageAuthIssueShouldReturnFalseIfCustomPage200Matches() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.AUTH_4XX;
+        given(parent.isCustomPage(message, type)).willReturn(true);
+        given(parent.isCustomPage(message, CustomPage.Type.OK_200)).willReturn(true);
+        given(parent.getAnalyser()).willReturn(analyser);
+        plugin.init(message, parent);
+        // When
+        boolean result = plugin.isPageAuthIssue(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(parent).isCustomPage(message, CustomPage.Type.OK_200);
+        verifyNoInteractions(analyser);
+    }
+
+    @Test
     void isSuccessShouldReturnTrueIfCustomPage200Matches() {
         // Given
         CustomPage.Type type = CustomPage.Type.OK_200;

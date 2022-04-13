@@ -45,6 +45,7 @@ import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod;
 import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod.LogicalOperator;
 import org.zaproxy.zap.extension.custompages.CustomPage;
+import org.zaproxy.zap.extension.custompages.ExtensionCustomPages;
 import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
 import org.zaproxy.zap.session.SessionManagementMethod;
 
@@ -864,6 +865,9 @@ public class Context {
                 return msg.getResponseHeader().getStatusCode() == HttpStatusCode.NOT_FOUND;
             case OK_200:
                 return msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK;
+            case AUTH_4XX:
+                return ExtensionCustomPages.AUTH_HTTP_STATUS_CODES.contains(
+                        msg.getResponseHeader().getStatusCode());
             default:
                 return false;
         }
