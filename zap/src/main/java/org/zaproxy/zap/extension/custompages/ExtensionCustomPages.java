@@ -20,6 +20,8 @@
 package org.zaproxy.zap.extension.custompages;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +36,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
@@ -54,6 +57,10 @@ public class ExtensionCustomPages extends ExtensionAdaptor {
     public static final String CONTEXT_CONFIG_CUSTOM_PAGES =
             Context.CONTEXT_CONFIG + ".custompages";
     public static final String CONTEXT_CONFIG_CUSTOM_PAGE = CONTEXT_CONFIG_CUSTOM_PAGES + ".page";
+
+    public static final List<Integer> AUTH_HTTP_STATUS_CODES =
+            Collections.unmodifiableList(
+                    Arrays.asList(HttpStatusCode.UNAUTHORIZED, HttpStatusCode.FORBIDDEN));
 
     private static final int TYPE_CUSTOM_PAGE = 600;
     private static final Logger LOGGER = LogManager.getLogger(ExtensionCustomPages.class);

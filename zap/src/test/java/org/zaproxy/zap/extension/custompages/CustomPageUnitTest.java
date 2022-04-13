@@ -77,5 +77,6 @@ class CustomPageUnitTest {
         assertEquals("Not Found", i18n.getString(CustomPage.Type.NOTFOUND_404.getNameKey()));
         assertEquals("Ok", i18n.getString(CustomPage.Type.OK_200.getNameKey()));
         assertEquals("Other", i18n.getString(CustomPage.Type.OTHER.getNameKey()));
+        assertEquals("Auth. Issue", i18n.getString(CustomPage.Type.AUTH_4XX.getNameKey()));
     }
 }

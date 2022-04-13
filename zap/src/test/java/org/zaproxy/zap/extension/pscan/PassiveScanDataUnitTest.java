@@ -36,9 +36,12 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.extension.users.ContextUserAuthManager;
@@ -468,6 +471,79 @@ class PassiveScanDataUnitTest extends WithConfigsTest {
         // Then
         assertThat(result, is(equalTo(true)));
         verify(context).isCustomPageWithFallback(msg, type);
+    }
+
+    @Test
+    void shouldCheckPageAuthIssueWithContext() {
+        // Given
+        CustomPage.Type type = CustomPage.Type.AUTH_4XX;
+        HttpMessage msg = createMessage();
+        given(context.isCustomPageWithFallback(msg, type)).willReturn(true);
+        given(context.isCustomPageWithFallback(msg, CustomPage.Type.OK_200)).willReturn(false);
+        given(session.getContextsForUrl(msg.getRequestHeader().getURI().toString()))
+                .willReturn(asList(context));
+        PassiveScanData psd = new PassiveScanData(msg);
+        // When
+        boolean result = psd.isPageAuthIssue(msg);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(context).isCustomPageWithFallback(msg, CustomPage.Type.OK_200);
+        verify(context).isCustomPageWithFallback(msg, type);
+    }
+
+    @Test
+    void isPageAuthIssueShouldReturnFalseIfCustomPage200Matches() {
+        // Given
+        HttpMessage message = createMessage();
+        given(context.isCustomPageWithFallback(message, CustomPage.Type.OK_200)).willReturn(true);
+        given(session.getContextsForUrl(message.getRequestHeader().getURI().toString()))
+                .willReturn(asList(context));
+        PassiveScanData psd = new PassiveScanData(message);
+        // When
+        boolean result = psd.isPageAuthIssue(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
+    }
+
+    @Test
+    void isPageAuthIssueShouldReturnFalseIfNeitherCustomPageAuthIssueNorStatusCodeMatch() {
+        // Given
+        HttpMessage message = createMessage();
+        message.getResponseHeader().setStatusCode(302);
+        given(context.isCustomPageWithFallback(message, CustomPage.Type.OK_200)).willReturn(false);
+        given(context.isCustomPageWithFallback(message, CustomPage.Type.AUTH_4XX))
+                .willReturn(false);
+        given(session.getContextsForUrl(message.getRequestHeader().getURI().toString()))
+                .willReturn(asList(context));
+        PassiveScanData psd = new PassiveScanData(message);
+        // When
+        boolean result = psd.isPageAuthIssue(message);
+        // Then
+        assertThat(result, is(equalTo(false)));
+        verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
+        verify(context).isCustomPageWithFallback(message, CustomPage.Type.AUTH_4XX);
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {HttpStatusCode.UNAUTHORIZED, HttpStatusCode.FORBIDDEN})
+    void isPageAuthIssueShouldReturnTrueIfCustomPageAuthIssueDoesNotMatchButStatusCodeDoes(
+            int statusCode) {
+        // Given
+        HttpMessage message = createMessage();
+        message.getResponseHeader().setStatusCode(statusCode);
+        given(context.isCustomPageWithFallback(message, CustomPage.Type.OK_200)).willReturn(false);
+        given(context.isCustomPageWithFallback(message, CustomPage.Type.AUTH_4XX))
+                .willReturn(false);
+        given(session.getContextsForUrl(message.getRequestHeader().getURI().toString()))
+                .willReturn(asList(context));
+        PassiveScanData psd = new PassiveScanData(message);
+        // When
+        boolean result = psd.isPageAuthIssue(message);
+        // Then
+        assertThat(result, is(equalTo(true)));
+        verify(context).isCustomPageWithFallback(message, CustomPage.Type.AUTH_4XX);
+        verify(context).isCustomPageWithFallback(message, CustomPage.Type.OK_200);
     }
 
     @Test
