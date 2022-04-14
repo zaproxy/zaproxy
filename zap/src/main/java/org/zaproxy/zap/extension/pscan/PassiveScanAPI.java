@@ -164,19 +164,20 @@ public class PassiveScanAPI extends ApiImplementor {
         return ApiResponseElement.OK;
     }
 
-    private void setPluginPassiveScannersEnabled(JSONObject params, boolean enabled) {
-        String[] ids = getParam(params, PARAM_IDS, "").split(",");
-        if (ids.length > 0) {
+    private void setPluginPassiveScannersEnabled(JSONObject params, boolean enabled)
+            throws ApiException {
+        try {
+            String[] ids = getParam(params, PARAM_IDS, "").split(",");
             for (String id : ids) {
-                try {
-                    int pluginId = Integer.valueOf(id.trim());
-                    if (pluginId > 0) {
-                        extension.setPluginPassiveScannerEnabled(pluginId, enabled);
-                    }
-                } catch (NumberFormatException e) {
-                    logger.error("Failed to parse scanner ID: {}", e.getMessage(), e);
+                int pluginId = Integer.parseInt(id.trim());
+                if (!extension.hasPluginPassiveScanner(pluginId)) {
+                    throw new ApiException(ApiException.Type.DOES_NOT_EXIST, id.trim());
                 }
+                extension.setPluginPassiveScannerEnabled(pluginId, enabled);
             }
+        } catch (NumberFormatException e) {
+            logger.error("Failed to parse scanner ID: {}", e.getMessage(), e);
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
         }
     }
 
