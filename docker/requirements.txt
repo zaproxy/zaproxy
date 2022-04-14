@@ -1,2 +1,3 @@
 python_owasp_zap_v2.4
+validators
 pyyaml

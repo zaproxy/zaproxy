@@ -42,7 +42,6 @@
 # You can also add your own messages for the rules by appending them after a tab
 # at the end of each line.
 
-import getopt
 import json
 import logging
 import os
@@ -50,6 +49,9 @@ import os.path
 import sys
 import time
 import yaml
+import argparse
+from argparse import RawTextHelpFormatter, SUPPRESS
+from validators import url
 from datetime import datetime
 from pathlib import Path
 from shutil import copyfile
@@ -73,38 +75,21 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 logging.getLogger("requests").setLevel(logging.WARNING)
 
 
-def usage():
-    print('Usage: zap-baseline.py -t <target> [options]')
-    print('    -t target         target URL including the protocol, e.g. https://www.example.com')
-    print('Options:')
-    print('    -h                print this help message')
-    print('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
-    print('    -u config_url     URL of config file to use to INFO, IGNORE or FAIL warnings')
-    print('    -g gen_file       generate default config file (all rules set to WARN)')
-    print('    -m mins           the number of minutes to spider for (default 1)')
-    print('    -r report_html    file to write the full ZAP HTML report')
-    print('    -w report_md      file to write the full ZAP Wiki (Markdown) report')
-    print('    -x report_xml     file to write the full ZAP XML report')
-    print('    -J report_json    file to write the full ZAP JSON document')
-    print('    -a                include the alpha passive scan rules as well')
-    print('    -d                show debug messages')
-    print('    -P                specify listen port')
-    print('    -D secs           delay in seconds to wait for passive scanning ')
-    print('    -i                default rules not in the config file to INFO')
-    print('    -I                do not return failure on warning')
-    print('    -j                use the Ajax spider in addition to the traditional one')
-    print('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
-    print('    -n context_file   context file which will be loaded prior to spidering the target')
-    print('    -p progress_file  progress file which specifies issues that are being addressed')
-    print('    -s                short output format - dont show PASSes or example URLs')
-    print('    -T mins           max time in minutes to wait for ZAP to start and the passive scan to run')
-    print('    -U user           username to use for authenticated scans - must be defined in the given context file')
-    print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
-    print('    --hook            path to python file that define your custom hooks')
-    print('    --auto            use the automation framework if supported for the given parameters (this is now the default)')
-    print('    --autooff         do not use the automation framework even if supported for the given parameters')
-    print('')
-    print('For more details see https://www.zaproxy.org/docs/docker/baseline-scan/')
+DISCRIPTION = '''                                                                                                                             
+d88888P  d888b8b  ?88,.d88b,  88bd88b d8888b ?88,  88P?88   d8P 
+   d8P' d8P' ?88  `?88'  ?88  88P'  `d8P' ?88 `?8bd8P'd88   88  
+ d8P'   88b  ,88b   88b  d8P d88     88b  d88 d8P?8b, ?8(  d88  
+d88888P'`?88P'`88b  888888P'd88'     `?8888P'd8P' `?8b`?88P'?8b 
+                    88P'                                     )88
+                   d88                                      ,d8P
+                   ?8P                                   `?888P'
+
+
+Usage: zap-api-scan.py -t <target> [options]
+
+For more details see https://www.zaproxy.org/docs/docker/baseline-scan/
+'''
+
 
 '''
     This script is in the process of being converted to use the Automation Framework.
@@ -148,37 +133,102 @@ def usage():
      
 '''
 
+
 def main(argv):
+
+    parser = argparse.ArgumentParser(description=DISCRIPTION, add_help=False,
+                                     usage=SUPPRESS, formatter_class=RawTextHelpFormatter)
+    parser.add_argument('-t', "--target", required=True,
+                        help='target API definition, OpenAPI or SOAP, local file or URL, e.g. https://www.example.com/openapi.json\n\t or target endpoint URL, GraphQL, e.g. https://www.example.com/graphql')
+    parser.add_argument('-h', "--help", action='help',
+                        help='shows this help message and exit')
+    parser.add_argument("-c", "--config-file", default='',
+                        help="config file to use to INFO, IGNORE or FAIL warnings")
+    parser.add_argument("-u", "--config-url", default='',
+                        help="URL of config file to use to INFO, IGNORE or FAIL warnings")
+    parser.add_argument("-g", "--generate-config", default='',
+                        help="generate default config file(all rules set to WARN)")
+    parser.add_argument("-m", "--mins", type=int, default=1,
+                        help=" the number of minutes to spider for (default 1)")
+    parser.add_argument("-r", "--report-html", default='',
+                        help="file to write the full ZAP HTML report")
+    parser.add_argument("-w", "--report-md", default='',
+                        help="file to write the full ZAP Wiki(Markdown) report")
+    parser.add_argument("-x", "--report-xml", default='',
+                        help="file to write the full ZAP XML report")
+    parser.add_argument("-J", "--report-json", default='',
+                        help="file to write the full ZAP JSON document")
+    parser.add_argument("-a", "--include-alpha", action='store_true', default=False,
+                        help="include the alpha passive scan rules as well")
+    parser.add_argument("-d", "--debug", action='store_true', default=False,
+                        help="show debug messages")
+    parser.add_argument("-P", "--port", type=int, default=0,
+                        help="specify listen port")
+    parser.add_argument("-D", "--delay", type=int, default=0,
+                        help="delay in seconds to wait for passive scanning")
+    parser.add_argument("-i", "--info-unspecified", action='store_true', default=False,
+                        help="default rules not in the config file to INFO")
+    parser.add_argument("-I", "--ignore-warn", action='store_true', default=False,
+                        help="do not return failure on warning")
+    parser.add_argument("-l", "--level", default='PASS', choices=["PASS", "IGNORE", "INFO", "WARN", "FAIL"],
+                        help="minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs")
+    parser.add_argument("-n", "--context-file", default='',
+                        help="context file which will be loaded prior to scanning the target")
+    parser.add_argument("-p", "--progress-file", default='',
+                        help="progress file which specifies issues that are being addressed")
+    parser.add_argument("-s", "--short", action='store_false', default=True,
+                        help="short output format - dont show PASSes or example URLs")
+    parser.add_argument("-T", "--timeout", type=int, default=0,
+                        help="max time in minutes to wait for ZAP to start and the passive scan to run")
+    parser.add_argument("-U", "--user", default='',
+                        help="username to use for authenticated scans - must be defined in the given context file")
+    parser.add_argument("-z", "--zap-options", default='',
+                        help="ZAP command line options e.g. -z \"-config aaa=bbb -config ccc=ddd\"")
+    parser.add_argument("-j", "--ajax-spider", action='store_true', default=False,
+                        help="use the Ajax spider in addition to the traditional one")
+    parser.add_argument("--hook", default=None,
+                        help="path to python file that define your custom hooks")
+    parser.add_argument("--auto", action='store_true', default=True,
+                        help="use the automation framework if supported for the given parameters (this is now the default)\n")
+    parser.add_argument("--autooff", action='store_false', default=True,
+                        help="do not use the automation framework even if supported for the given parameters")
+
+    # if just start code showed help & exit else scan starts
+    is_scan = ["-h"] if len(sys.argv) == 1 else None
+    args = parser.parse_args(is_scan)
+
     global min_level
     global in_progress_issues
+
     cid = ''
-    context_file = ''
-    progress_file = ''
-    config_file = ''
-    config_url = ''
-    generate = ''
-    mins = 1
-    port = 0
-    detailed_output = True
-    report_html = ''
-    report_md = ''
-    report_xml = ''
-    report_json = ''
-    target = ''
-    zap_alpha = False
-    info_unspecified = False
-    ajax = False
+    context_file = args.context_file
+    progress_file = args.progress_file
+    config_file = args.config_file
+    config_url = args.config_url
+    generate = args.generate_config
+    mins = args.mins
+    port = args.port
+    detailed_output = args.short
+    report_html = args.report_html
+    report_md = args.report_md
+    report_xml = args.report_xml
+    report_json = args.report_json
+    target = args.target
+    zap_alpha = args.inclode_alpha
+    info_unspecified = args.info_unspecified
+    ajax = args.ajax_spider
     base_dir = ''
     zap_ip = 'localhost'
-    zap_options = ''
-    delay = 0
-    timeout = 0
-    ignore_warn = False
-    hook_file = None
-    user = ''
-    use_af = True
+    zap_options = args.zap_options
+    delay = args.delay
+    timeout = args.timeout
+    ignore_warn = args.ingore_warn
+    hook_file = args.hook_file
+    user = args.user
+    use_af = args.autooff and args.auto
     af_supported = True
-    af_override = False
+    af_override = False if args.autooff == '' else True  # * This value not used
+    min_level = zap_conf_lvls.index(args.level)
 
     pass_count = 0
     warn_count = 0
@@ -188,115 +238,48 @@ def main(argv):
     warn_inprog_count = 0
     fail_inprog_count = 0
     exception_raised = False
-    debug = False
+    debug = args.debug
 
-    try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff"])
-    except getopt.GetoptError as exc:
-        logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
-        usage()
+    check_af_supported = [
+        generate == '',
+        delay == 0,
+        context_file == '',
+        progress_file == '',
+        info_unspecified == False,
+        user == '',
+        hook_file == None
+    ]
+    if False in check_af_supported:
+        af_supported = False
+
+    if not url(target):
+        parser.print_help()
+        logging.warning('Invalid Target URL: ' + target)
         sys.exit(3)
 
-    for opt, arg in opts:
-        if opt == '-h':
-            usage()
-            sys.exit(0)
-        elif opt == '-t':
-            target = arg
-            logging.debug('Target: ' + target)
-        elif opt == '-c':
-            config_file = arg
-        elif opt == '-u':
-            config_url = arg
-        elif opt == '-g':
-            generate = arg
-            af_supported = False
-        elif opt == '-d':
-            logging.getLogger().setLevel(logging.DEBUG)
-            debug = True
-        elif opt == '-m':
-            mins = int(arg)
-        elif opt == '-P':
-            port = int(arg)
-        elif opt == '-D':
-            delay = int(arg)
-            af_supported = False
-        elif opt == '-n':
-            context_file = arg
-            af_supported = False
-        elif opt == '-p':
-            progress_file = arg
-            af_supported = False
-        elif opt == '-r':
-            report_html = arg
-        elif opt == '-J':
-            report_json = arg
-        elif opt == '-w':
-            report_md = arg
-        elif opt == '-x':
-            report_xml = arg
-        elif opt == '-a':
-            zap_alpha = True
-        elif opt == '-i':
-            info_unspecified = True
-            af_supported = False
-        elif opt == '-I':
-            ignore_warn = True
-        elif opt == '-j':
-            ajax = True
-        elif opt == '-l':
-            try:
-                min_level = zap_conf_lvls.index(arg)
-            except ValueError:
-                logging.warning('Level must be one of ' + str(zap_conf_lvls))
-                usage()
-                sys.exit(3)
-            af_supported = False
-        elif opt == '-z':
-            zap_options = arg
-        elif opt == '-s':
-            detailed_output = False
-        elif opt == '-T':
-            timeout = int(arg)
-        elif opt == '-U':
-            user = arg
-            af_supported = False
-        elif opt == '--hook':
-            hook_file = arg
-            af_supported = False
-        elif opt == '--auto':
-            use_af = True
-            af_override = True
-        elif opt == '--autooff':
-            use_af = False
+    logging.debug('Target: ' + target)
+    if args.debug:
+        logging.getLogger().setLevel(logging.DEBUG)
 
     check_zap_client_version()
 
     load_custom_hooks(hook_file)
-    trigger_hook('cli_opts', opts)
-
-    # Check target supplied and ok
-    if len(target) == 0:
-        usage()
-        sys.exit(3)
-
-    if not (target.startswith('http://') or target.startswith('https://')):
-        logging.warning('Target must start with \'http://\' or \'https://\'')
-        usage()
-        sys.exit(3)
+    trigger_hook('cli_opts', args)
 
     if running_in_docker():
         base_dir = '/zap/wrk/'
         if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file:
             # Check directory has been mounted
             if not os.path.exists(base_dir):
-                logging.warning('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
-                usage()
+                parser.print_help()
+                logging.warning(
+                    'A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
                 sys.exit(3)
 
     if user and not context_file:
-        logging.warning('A context file must be specified (and include the user) if the user option is selected')
-        usage()
+        parser.print_help()
+        logging.warning(
+            'A context file must be specified (and include the user) if the user option is selected')
         sys.exit(3)
 
     # Choose a random 'ephemeral' port and check its available if it wasn't specified with -P option
@@ -311,15 +294,19 @@ def main(argv):
             try:
                 load_config(f, config_dict, config_msg, out_of_scope_dict)
             except ValueError as e:
-                logging.warning("Failed to load config file " + base_dir + config_file + " " + str(e))
+                logging.warning("Failed to load config file " +
+                                base_dir + config_file + " " + str(e))
                 sys.exit(3)
     elif config_url:
         # load config file from url
         try:
-            config_data = urlopen(config_url).read().decode('UTF-8').splitlines()
-            load_config(config_data, config_dict, config_msg, out_of_scope_dict)
+            config_data = urlopen(config_url).read().decode(
+                'UTF-8').splitlines()
+            load_config(config_data, config_dict,
+                        config_msg, out_of_scope_dict)
         except ValueError as e:
-            logging.warning("Failed to read configs from " + config_url + " " + str(e))
+            logging.warning("Failed to read configs from " +
+                            config_url + " " + str(e))
             sys.exit(3)
         except:
             logging.warning('Failed to read configs from ' + config_url)
@@ -343,101 +330,109 @@ def main(argv):
             home_dir = str(Path.home())
             yaml_file = home_dir + '/zap.yaml'
             summary_file = home_dir + '/zap_out.json'
-            
+
             with open(yaml_file, 'w') as yf:
 
                 # Add the top level to the scope for backwards compatibility
-                top_levels = [ target ]
+                top_levels = [target]
                 if target.count('/') > 2:
                     # The url can include a valid path, but always reset to spider the host (backwards compatibility)
                     t2 = target[0:target.index('/', 8)+1]
                     if not t2 == target:
                         target = t2
                         top_levels.append(target)
-               
+
                 yaml.dump(get_af_env(top_levels, out_of_scope_dict, debug), yf)
-                
+
                 alertFilters = []
-                
+
                 # Handle id specific alertFilters - rules that apply to all IDs are excluded from the env
                 for id in out_of_scope_dict:
                     if id != '*':
                         for regex in out_of_scope_dict[id]:
-                            alertFilters.append({'ruleId': id, 'newRisk': 'False Positive', 'url': regex.pattern, 'urlRegex': True})
-                
+                            alertFilters.append(
+                                {'ruleId': id, 'newRisk': 'False Positive', 'url': regex.pattern, 'urlRegex': True})
+
                 addons = ['pscanrulesBeta']
                 if zap_alpha:
                     addons.append('pscanrulesAlpha')
-                    
+
                 jobs = [
-                        get_af_addons(addons, []),
-                        get_af_pscan_config()]
+                    get_af_addons(addons, []),
+                    get_af_pscan_config()]
 
                 if len(alertFilters) > 0:
                     jobs.append(get_af_alertFilter(alertFilters))
-                
+
                 jobs.append(get_af_spider(target, mins))
 
                 if ajax:
                     jobs.append(get_af_spiderAjax(target, mins))
-                
+
                 jobs.append(get_af_pscan_wait(timeout))
-                jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict, config_msg))
-                
+                jobs.append(get_af_output_summary(('Short', 'Long')[
+                            detailed_output], summary_file, config_dict, config_msg))
+
                 if report_html:
-                    jobs.append(get_af_report('traditional-html', base_dir, report_html, 'ZAP Scanning Report', ''))
-            
+                    jobs.append(get_af_report(
+                        'traditional-html', base_dir, report_html, 'ZAP Scanning Report', ''))
+
                 if report_md:
-                    jobs.append(get_af_report('traditional-md', base_dir, report_md, 'ZAP Scanning Report', ''))
-            
+                    jobs.append(get_af_report('traditional-md',
+                                base_dir, report_md, 'ZAP Scanning Report', ''))
+
                 if report_xml:
-                    jobs.append(get_af_report('traditional-xml', base_dir, report_xml, 'ZAP Scanning Report', ''))
-            
+                    jobs.append(get_af_report('traditional-xml',
+                                base_dir, report_xml, 'ZAP Scanning Report', ''))
+
                 if report_json:
-                    jobs.append(get_af_report('traditional-json', base_dir, report_json, 'ZAP Scanning Report', ''))
-            
+                    jobs.append(get_af_report(
+                        'traditional-json', base_dir, report_json, 'ZAP Scanning Report', ''))
+
                 yaml.dump({'jobs': jobs}, yf)
-                
+
                 if os.path.exists('/zap/wrk'):
                     yaml_copy_file = '/zap/wrk/zap.yaml'
                     try:
                         # Write the yaml file to the mapped directory, if there is one
                         copyfile(yaml_file, yaml_copy_file)
                     except OSError as err:
-                        logging.warning('Unable to copy yaml file to ' + yaml_copy_file + ' ' + str(err))
- 
+                        logging.warning(
+                            'Unable to copy yaml file to ' + yaml_copy_file + ' ' + str(err))
+
             try:
                 # Run ZAP inline to update the add-ons
                 run_zap_inline(port, ['-addonupdate', '-silent'])
-                
+
                 # Run ZAP inline with the yaml file
                 params = ['-autorun', yaml_file]
-    
+
                 add_zap_options(params, zap_options)
-    
+
                 out = run_zap_inline(port, params)
-                
-                ignore_strs = ["Found Java version", "Available memory", "Using JVM args", "Add-on already installed", "[main] INFO", 
+
+                ignore_strs = ["Found Java version", "Available memory", "Using JVM args", "Add-on already installed", "[main] INFO",
                                "Automation plan succeeded"]
-                
+
                 for line in out.splitlines():
                     if any(x in line for x in ignore_strs):
                         continue
                     print(line)
-    
+
             except OSError:
                 logging.warning('Failed to start ZAP :(')
                 sys.exit(3)
-    
+
             # Read the status file to find out what code we should exit with
-            if not os.path.isfile(summary_file): 
-                logging.warning('Failed to access summary file ' + summary_file)
+            if not os.path.isfile(summary_file):
+                logging.warning(
+                    'Failed to access summary file ' + summary_file)
                 sys.exit(3)
 
             try:
                 with open(summary_file) as f:
                     summary_data = json.load(f)
-                    
+
                     if summary_data['fail'] > 0:
                         sys.exit(1)
                     elif (not ignore_warn) and summary_data['warn'] > 0:
@@ -450,22 +445,22 @@ def main(argv):
                 logging.warning('Failed to read summary file ' + summary_file)
 
             sys.exit(3)
-           
+
         else:
             try:
                 params = [
-                          '-config', 'spider.maxDuration=' + str(mins),
-                          '-addonupdate',
-                          '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
-    
+                    '-config', 'spider.maxDuration=' + str(mins),
+                    '-addonupdate',
+                    '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
+
                 if zap_alpha:
                     params.append('-addoninstall')
                     params.append('pscanrulesAlpha')
-    
+
                 add_zap_options(params, zap_options)
-    
+
                 start_zap(port, params)
-    
+
             except OSError:
                 logging.warning('Failed to start ZAP :(')
                 sys.exit(3)
@@ -477,8 +472,8 @@ def main(argv):
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
         params = [
-                '-config', 'spider.maxDuration=' + str(mins),
-                '-addonupdate']
+            '-config', 'spider.maxDuration=' + str(mins),
+            '-addonupdate']
 
         if (zap_alpha):
             params.extend(['-addoninstall', 'pscanrulesAlpha'])
@@ -486,7 +481,8 @@ def main(argv):
         add_zap_options(params, zap_options)
 
         try:
-            cid = start_docker_zap('owasp/zap2docker-weekly', port, params, mount_dir)
+            cid = start_docker_zap(
+                'owasp/zap2docker-weekly', port, params, mount_dir)
             zap_ip = ipaddress_for_cid(cid)
             logging.debug('Docker ZAP IP Addr: ' + zap_ip)
         except OSError:
@@ -494,7 +490,8 @@ def main(argv):
             sys.exit(3)
 
     try:
-        zap = ZAPv2(proxies={'http': 'http://' + zap_ip + ':' + str(port), 'https': 'http://' + zap_ip + ':' + str(port)})
+        zap = ZAPv2(proxies={'http': 'http://' + zap_ip + ':' +
+                    str(port), 'https': 'http://' + zap_ip + ':' + str(port)})
 
         wait_for_zap_start(zap, timeout * 60)
         trigger_hook('zap_started', zap, target)
@@ -505,7 +502,8 @@ def main(argv):
 
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
-            zap_import_context(zap, '/zap/wrk/' + os.path.basename(context_file))
+            zap_import_context(zap, '/zap/wrk/' +
+                               os.path.basename(context_file))
             if (user):
                 zap_set_scan_user(zap, user)
 
@@ -527,19 +525,22 @@ def main(argv):
             start_scan = datetime.now()
             while ((datetime.now() - start_scan).seconds < delay):
                 time.sleep(5)
-                logging.debug('Delay passive scan check ' + str(delay - (datetime.now() - start_scan).seconds) + ' seconds')
+                logging.debug('Delay passive scan check ' + str(delay -
+                              (datetime.now() - start_scan).seconds) + ' seconds')
 
         zap_wait_for_passive_scan(zap, timeout * 60)
 
         # Print out a count of the number of urls
         num_urls = len(zap.core.urls())
         if num_urls == 0:
-            logging.warning('No URLs found - is the target URL accessible? Local services may not be accessible from the Docker container')
+            logging.warning(
+                'No URLs found - is the target URL accessible? Local services may not be accessible from the Docker container')
         else:
             if detailed_output:
                 print('Total of ' + str(num_urls) + ' URLs')
 
-            alert_dict = zap_get_alerts(zap, target, ignore_scan_rules, out_of_scope_dict)
+            alert_dict = zap_get_alerts(
+                zap, target, ignore_scan_rules, out_of_scope_dict)
 
             all_rules = zap.pscan.scanners
             all_dict = {}
@@ -553,9 +554,12 @@ def main(argv):
                 # Create the config file
                 with open(base_dir + generate, 'w') as f:
                     f.write('# zap-baseline rule configuration file\n')
-                    f.write('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
-                    f.write('# Only the rule identifiers are used - the names are just for info\n')
-                    f.write('# You can add your own messages to each rule by appending them after a tab on each line.\n')
+                    f.write(
+                        '# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
+                    f.write(
+                        '# Only the rule identifiers are used - the names are just for info\n')
+                    f.write(
+                        '# You can add your own messages to each rule by appending them after a tab on each line.\n')
                     for key, rule in sorted(all_dict.items()):
                         f.write(key + '\tWARN\t(' + rule + ')\n')
 
@@ -576,19 +580,19 @@ def main(argv):
 
             # print out the ignored rules
             ignore_count, not_used = print_rules(zap, alert_dict, 'IGNORE', config_dict, config_msg, min_level,
-                inc_ignore_rules, True, detailed_output, {})
+                                                 inc_ignore_rules, True, detailed_output, {})
 
             # print out the info rules
             info_count, not_used = print_rules(zap, alert_dict, 'INFO', config_dict, config_msg, min_level,
-                inc_info_rules, info_unspecified, detailed_output, in_progress_issues)
+                                               inc_info_rules, info_unspecified, detailed_output, in_progress_issues)
 
             # print out the warning rules
             warn_count, warn_inprog_count = print_rules(zap, alert_dict, 'WARN', config_dict, config_msg, min_level,
-                inc_warn_rules, not info_unspecified, detailed_output, in_progress_issues)
+                                                        inc_warn_rules, not info_unspecified, detailed_output, in_progress_issues)
 
             # print out the failing rules
             fail_count, fail_inprog_count = print_rules(zap, alert_dict, 'FAIL', config_dict, config_msg, min_level,
-                inc_fail_rules, True, detailed_output, in_progress_issues)
+                                                        inc_fail_rules, True, detailed_output, in_progress_issues)
 
             if report_html:
                 # Save the report
@@ -607,8 +611,8 @@ def main(argv):
                 write_report(base_dir + report_xml, zap.core.xmlreport())
 
             print('FAIL-NEW: ' + str(fail_count) + '\tFAIL-INPROG: ' + str(fail_inprog_count) +
-                '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +
-                '\tINFO: ' + str(info_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
+                  '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +
+                  '\tINFO: ' + str(info_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
 
         trigger_hook('zap_pre_shutdown', zap)
         # Stop ZAP
