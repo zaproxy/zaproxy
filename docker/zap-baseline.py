@@ -244,7 +244,7 @@ def main():
         progress_file == '',
         info_unspecified == False,
         user == '',
-        hook_file == None
+        hook_file is None
     ]
     if False in check_af_supported:
         af_supported = False
