@@ -57,7 +57,6 @@ import subprocess
 import sys
 import time
 import argparse
-from argparse import RawTextHelpFormatter, SUPPRESS
 from validators import url
 from datetime import datetime
 from six.moves.urllib.parse import urljoin
@@ -96,21 +95,20 @@ d88888P'`?88P'`88b  888888P'd88'     `?8888P'd8P' `?8b`?88P'?8b
 
 
 Usage: zap-api-scan.py -t <target> -f <format> [options]
-
-For more details see https://www.zaproxy.org/docs/docker/api-scan/
 '''
+MORE_INFO = 'For more details see https://www.zaproxy.org/docs/docker/api-scan/\n'
 
 
 def main():
-
-    parser = argparse.ArgumentParser(description=DISCRIPTION, add_help=False,
-                                     usage=SUPPRESS, formatter_class=RawTextHelpFormatter)
+    
+    parser = argparse.ArgumentParser(description=DISCRIPTION, add_help=False, epilog=MORE_INFO,
+                                     usage=argparse.SUPPRESS, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-t', "--target", required=True,
                         help='target API definition, OpenAPI or SOAP, local file or URL, e.g. https://www.example.com/openapi.json\n\t or target endpoint URL, GraphQL, e.g. https://www.example.com/graphql')
-    parser.add_argument('-h', "--help", action='help',
-                        help='shows this help message and exit')
     parser.add_argument('-f', "--format", choices=['openapi', 'soap', 'graphql'], default='',
                         help='choose openapi, soap, or graphql')
+    parser.add_argument('-h', "--help", action='help',
+                        help='shows this help message and exit')
     parser.add_argument("-c", "--config-file", default='',
                         help="config file to use to INFO, IGNORE or FAIL warnings")
     parser.add_argument("-u", "--config-url", default='',
@@ -151,7 +149,7 @@ def main():
                         help="max time in minutes to wait for ZAP to start and the passive scan to run")
     parser.add_argument("-U", "--user", default='',
                         help="username to use for authenticated scans - must be defined in the given context file")
-    parser.add_argument("-O", default='',
+    parser.add_argument("-O", default='', dest='override',
                         help="the hostname to override in the (remote) OpenAPI spec")
     parser.add_argument("-z", "--zap-options", default='',
                         help="ZAP command line options e.g. -z \"-config aaa=bbb -config ccc=ddd\"")
@@ -181,7 +179,7 @@ def main():
     report_json = args.report_json
     target = args.target
     target_url = ''
-    host_override = args.O
+    host_override = args.override
     format = args.format
     zap_alpha = args.include_alpha
     baseline = args.safe

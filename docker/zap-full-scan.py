@@ -44,7 +44,6 @@
 # By default all of the active scan rules run but you can prevent rules from
 # running by supplying a configuration file with the rules set to IGNORE.
 
-import getopt
 import json
 import logging
 import os
@@ -52,7 +51,6 @@ import os.path
 import sys
 import time
 import argparse
-from argparse import RawTextHelpFormatter, SUPPRESS
 from validators import url
 from datetime import datetime
 from zapv2 import ZAPv2
@@ -86,17 +84,16 @@ d88888P'`?88P'`88b  888888P'd88'     `?8888P'd8P' `?8b`?88P'?8b
 
 
 Usage: zap-api-scan.py -t <target> [options]
-
-For more details see https://www.zaproxy.org/docs/docker/full-scan/
 '''
+MORE_INFO = 'For more details see https://www.zaproxy.org/docs/docker/full-scan/'
 
 
 def main():
 
-    parser = argparse.ArgumentParser(description=DISCRIPTION, add_help=False,
-                                     usage=SUPPRESS, formatter_class=RawTextHelpFormatter)
+    parser = argparse.ArgumentParser(description=DISCRIPTION, add_help=False, epilog=MORE_INFO,
+                                     usage=argparse.SUPPRESS, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-t', "--target", required=True,
-                        help='target API definition, OpenAPI or SOAP, local file or URL, e.g. https://www.example.com/openapi.json\n\t or target endpoint URL, GraphQL, e.g. https://www.example.com/graphql')
+                        help='target URL including the protocol, e.g. https://www.example.com')
     parser.add_argument('-h', "--help", action='help',
                         help='shows this help message and exit')
     parser.add_argument("-c", "--config-file", default='',
