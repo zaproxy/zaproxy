@@ -146,10 +146,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.customPanels = customPanels;
         this.policyPanel =
                 new ScanPolicyPanel(
-                        this,
-                        extension,
-                        Constant.messages.getString("ascan.custom.tab.policy"),
-                        new ScanPolicy());
+                        this, extension, Constant.messages.getString("ascan.custom.tab.policy"));
         this.filterPanel = new FilterPanel();
         addWindowListener(
                 new WindowAdapter() {
@@ -259,6 +256,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         getTechTree().refresh();
         setTechSet(techTreeState);
 
+        policyPanel.initScanPolicy(scanPolicy);
         this.setCustomTabPanel(4, policyPanel);
 
         // Filter panel
@@ -982,14 +980,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
         private List<PolicyCategoryPanel> categoryPanels = Collections.emptyList();
         private ScanPolicy scanPolicy;
 
-        public ScanPolicyPanel(
-                Window parent,
-                ExtensionActiveScan extension,
-                String rootName,
-                ScanPolicy scanPolicy) {
+        ScanPolicyPanel(Window parent, ExtensionActiveScan extension, String rootName) {
             super(rootName);
 
-            this.scanPolicy = scanPolicy;
+            this.scanPolicy = new ScanPolicy();
             String[] ROOT = {};
 
             policyAllCategoryPanel =
@@ -1021,6 +1015,26 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 this.categoryPanels.add(panel);
             }
             showDialog(true);
+
+            scanPolicy = null;
+        }
+
+        /**
+         * Initialises the panel with the given policy.
+         *
+         * <p>Successive calls have no effect.
+         *
+         * @param scanPolicy the scan policy.
+         * @see #setScanPolicy(ScanPolicy)
+         * @see #resetAndSetPolicy(String)
+         */
+        void initScanPolicy(ScanPolicy scanPolicy) {
+            if (this.scanPolicy != null || scanPolicy == null) {
+                return;
+            }
+
+            this.scanPolicy = scanPolicy;
+            setScanPolicy(scanPolicy);
         }
 
         public void resetAndSetPolicy(String scanPolicyName) {
