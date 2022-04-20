@@ -1061,7 +1061,9 @@ public class ActiveScanAPI extends ApiImplementor {
                 List<Plugin> scanners = policy.getPluginFactory().getAllPlugin();
 
                 categoryId = getParam(params, PARAM_CATEGORY_ID, -1);
-                verifyCategoryId(categoryId, PARAM_CATEGORY_ID);
+                if (categoryId != -1) {
+                    verifyCategoryId(categoryId, PARAM_CATEGORY_ID);
+                }
                 resultList = new ApiResponseList(name);
                 for (Plugin scanner : scanners) {
                     if (categoryId == -1 || categoryId == scanner.getCategory()) {
