@@ -41,6 +41,7 @@ public class AntiCsrfAPI extends ApiImplementor {
 
     private static final String OTHER_GENERATE_FORM = "genForm";
     private static final String OTHER_GENERATE_FORM_PARAM_HREFID = "hrefId";
+    private static final String OTHER_GENERATE_FORM_ACTION_URL = "actionUrl";
 
     private static final String TOKEN_NAME = "tokenName";
 
@@ -50,7 +51,10 @@ public class AntiCsrfAPI extends ApiImplementor {
         this.extension = ext;
         this.addApiView(new ApiView(VIEW_TOKENS_NAMES));
         this.addApiOthers(
-                new ApiOther(OTHER_GENERATE_FORM, new String[] {OTHER_GENERATE_FORM_PARAM_HREFID}));
+                new ApiOther(
+                        OTHER_GENERATE_FORM,
+                        new String[] {OTHER_GENERATE_FORM_PARAM_HREFID},
+                        new String[] {OTHER_GENERATE_FORM_ACTION_URL}));
     }
 
     @Override
@@ -107,9 +111,11 @@ public class AntiCsrfAPI extends ApiImplementor {
                         ApiException.Type.ILLEGAL_PARAMETER, OTHER_GENERATE_FORM_PARAM_HREFID, e);
             }
 
+            String actionUrl = params.optString(OTHER_GENERATE_FORM_ACTION_URL, "");
+
             try {
                 HttpMessage originalMessage = new HistoryReference(hrefId, true).getHttpMessage();
-                String response = extension.generateForm(originalMessage);
+                String response = extension.generateForm(originalMessage, actionUrl);
 
                 // Get the charset from the original message
                 String charset = originalMessage.getResponseHeader().getCharset();
