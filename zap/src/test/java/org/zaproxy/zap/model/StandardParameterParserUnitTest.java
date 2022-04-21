@@ -32,11 +32,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -82,51 +85,31 @@ class StandardParameterParserUnitTest {
         assertEquals(res2.get(3).getValue(), "g");
     }
 
-    @Test
-    void defaultTreePath() throws HttpMalformedHeaderException, URIException {
+    @ParameterizedTest
+    @MethodSource("treePathProvider")
+    void defaultTreePath(
+            String method, String queryString, String requestBody, List<String> expected)
+            throws HttpMalformedHeaderException, URIException {
         spp.setStructuralParameters(asList("page"));
 
-        // GET https://www.example.com/app/aaa?page=p1&ddd=eee
-        {
-            HttpMessage msg = new HttpMessage();
-            msg.setRequestHeader("GET /app/aaa?page=p1&ddd=eee HTTP/1.1\r\nHost: example.com\r\n");
+        HttpMessage msg = new HttpMessage();
+        String header =
+                String.format(
+                        "%s %s HTTP/1.1\r\nHost: example.com\r\n",
+                        method, String.join("?", "/app/aaa", queryString));
+        msg.setRequestHeader(header);
+        msg.setRequestBody(requestBody);
 
-            List<String> treePath = spp.getTreePath(msg);
+        List<String> treePath = spp.getTreePath(msg);
+        assertEquals(expected, treePath);
+    }
 
-            assertEquals(asList("app", "aaa", "p1"), treePath);
-        }
-
-        // GET https://www.example.com/app/aaa?page=p2&ddd=fff
-        {
-            HttpMessage msg = new HttpMessage();
-            msg.setRequestHeader("GET /app/aaa?page=p2&ddd=fff HTTP/1.1\r\nHost: example.com\r\n");
-
-            List<String> treePath = spp.getTreePath(msg);
-
-            assertEquals(asList("app", "aaa", "p2"), treePath);
-        }
-
-        // POST https://www.example.com/app/aaa?page=p1&ddd=eee
-        {
-            HttpMessage msg = new HttpMessage();
-            msg.setRequestHeader("POST /app/aaa HTTP/1.1\r\nHost: example.com\r\n");
-            msg.setRequestBody("page=p1&ddd=eee");
-
-            List<String> treePath = spp.getTreePath(msg);
-
-            assertEquals(asList("app", "aaa", "p1"), treePath);
-        }
-
-        // POST https://www.example.com/app/aaa?page=p2&ddd=fff
-        {
-            HttpMessage msg = new HttpMessage();
-            msg.setRequestHeader("POST /app/aaa HTTP/1.1\r\nHost: example.com\r\n");
-            msg.setRequestBody("page=p2&ddd=fff");
-
-            List<String> treePath = spp.getTreePath(msg);
-
-            assertEquals(asList("app", "aaa", "p2"), treePath);
-        }
+    static Stream<Arguments> treePathProvider() {
+        return Stream.of(
+                Arguments.of("GET", "page=p1&ddd=eee", "", asList("app", "aaa", "p1")),
+                Arguments.of("GET", "page=p2&ddd=fff", "", asList("app", "aaa", "p2")),
+                Arguments.of("POST", "", "page=p1&ddd=eee", asList("app", "aaa", "p1")),
+                Arguments.of("POST", "", "page=p2&ddd=fff", asList("app", "aaa", "p2")));
     }
 
     @Test
