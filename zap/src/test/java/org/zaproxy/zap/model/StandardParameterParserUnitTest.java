@@ -109,7 +109,14 @@ class StandardParameterParserUnitTest {
                 Arguments.of("GET", "page=p1&ddd=eee", "", asList("app", "aaa", "p1")),
                 Arguments.of("GET", "page=p2&ddd=fff", "", asList("app", "aaa", "p2")),
                 Arguments.of("POST", "", "page=p1&ddd=eee", asList("app", "aaa", "p1")),
-                Arguments.of("POST", "", "page=p2&ddd=fff", asList("app", "aaa", "p2")));
+                Arguments.of("POST", "", "page=p2&ddd=fff", asList("app", "aaa", "p2")),
+                Arguments.of("POST", "page=p1", "ddd=fff", asList("app", "aaa", "p1")),
+                Arguments.of("POST", "ddd=fff", "page=p1", asList("app", "aaa", "p1")),
+                Arguments.of(
+                        "POST",
+                        "page=p1&ddd=fff",
+                        "page=p2&ddd=fff",
+                        asList("app", "aaa", "p1", "p2")));
     }
 
     @Test
