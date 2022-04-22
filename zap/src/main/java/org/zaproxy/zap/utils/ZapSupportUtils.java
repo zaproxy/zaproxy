@@ -136,9 +136,9 @@ public final class ZapSupportUtils {
     public static String getAll(boolean formatted) {
         StringBuilder installedAddons = new StringBuilder(200);
         if (formatted) {
-            installedAddons.append("---").append(NEWLINE);
+            installedAddons.append(NEWLINE);
             installedAddons.append(WordUtils.wrap(getInstalledAddons(), 60)).append(NEWLINE);
-            installedAddons.append("---").append(NEWLINE);
+            installedAddons.append(NEWLINE);
         } else {
             installedAddons.append(getInstalledAddons()).append(NEWLINE);
         }
