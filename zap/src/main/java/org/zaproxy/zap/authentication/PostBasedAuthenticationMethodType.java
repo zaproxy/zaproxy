@@ -231,11 +231,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
         protected HttpSender getHttpSender() {
             if (this.httpSender == null) {
-                this.httpSender =
-                        new HttpSender(
-                                Model.getSingleton().getOptionsParam().getConnectionParam(),
-                                true,
-                                HttpSender.AUTHENTICATION_INITIATOR);
+                this.httpSender = new HttpSender(HttpSender.AUTHENTICATION_INITIATOR);
             }
             return httpSender;
         }

@@ -1015,10 +1015,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     private static HttpSender createHttpSender() {
-        return new HttpSender(
-                Model.getSingleton().getOptionsParam().getConnectionParam(),
-                true,
-                HttpSender.MANUAL_REQUEST_INITIATOR);
+        return new HttpSender(HttpSender.MANUAL_REQUEST_INITIATOR);
     }
 
     private static void persistMessage(final HttpMessage message) {

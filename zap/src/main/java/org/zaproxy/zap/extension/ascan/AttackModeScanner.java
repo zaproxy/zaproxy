@@ -279,7 +279,6 @@ public class AttackModeScanner implements EventConsumer {
                     new AttackScan(
                             Constant.messages.getString("ascan.attack.scan"),
                             extension.getScannerParam(),
-                            extension.getModel().getOptionsParam().getConnectionParam(),
                             extension.getPolicyManager().getAttackScanPolicy(),
                             ruleConfigParam,
                             this);
@@ -308,7 +307,6 @@ public class AttackModeScanner implements EventConsumer {
                     Scanner scanner =
                             new Scanner(
                                     extension.getScannerParam(),
-                                    extension.getModel().getOptionsParam().getConnectionParam(),
                                     extension.getPolicyManager().getAttackScanPolicy(),
                                     ruleConfigParam);
                     scanner.setStartNode(node);

@@ -40,17 +40,16 @@ public class AttackScan extends ActiveScan {
             ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
-        this(displayName, scannerParam, param, scanPolicy, ruleConfigParam, null);
+        this(displayName, scannerParam, scanPolicy, ruleConfigParam, null);
     }
 
     AttackScan(
             String displayName,
             ScannerParam scannerParam,
-            ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam,
             AttackModeScannerThread attackModeScannerThread) {
-        super(displayName, scannerParam, param, scanPolicy, ruleConfigParam);
+        super(displayName, scannerParam, scanPolicy, ruleConfigParam);
         this.attackModeScannerThread = attackModeScannerThread;
     }
 

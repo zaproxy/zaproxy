@@ -32,7 +32,6 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
@@ -220,11 +219,7 @@ public abstract class AuthenticationMethod {
 
     private HttpSender getHttpSender() {
         if (this.httpSender == null) {
-            this.httpSender =
-                    new HttpSender(
-                            Model.getSingleton().getOptionsParam().getConnectionParam(),
-                            true,
-                            HttpSender.AUTHENTICATION_POLL_INITIATOR);
+            this.httpSender = new HttpSender(HttpSender.AUTHENTICATION_POLL_INITIATOR);
         }
         return httpSender;
     }
