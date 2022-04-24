@@ -93,6 +93,7 @@
 // ZAP: 2022/04/11 Deprecate set/getUserAgent() and remove userAgent/modifyUserAgent().
 // ZAP: 2022/04/11 Prevent null listeners and add JavaDoc to add/removeListener.
 // ZAP: 2022/04/23 Use main connection options directly.
+// ZAP: 2022/04/24 Notify listeners of all redirects followed.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -122,7 +123,6 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
@@ -187,13 +187,16 @@ public class HttpSender {
 
     private static HttpMethodHelper helper = new HttpMethodHelper();
     private static final ThreadLocal<Boolean> IN_LISTENER = new ThreadLocal<>();
+    private static final HttpRequestConfig NO_REDIRECTS = HttpRequestConfig.builder().build();
+    private static final HttpRequestConfig FOLLOW_REDIRECTS =
+            HttpRequestConfig.builder().setFollowRedirects(true).build();
 
     private HttpClient client = null;
     private HttpClient clientViaProxy = null;
     private ConnectionParam param = null;
     private MultiThreadedHttpConnectionManager httpConnManager = null;
     private MultiThreadedHttpConnectionManager httpConnManagerProxy = null;
-    private boolean followRedirect = false;
+    private HttpRequestConfig followRedirect = NO_REDIRECTS;
     private boolean useCookies;
     private boolean useGlobalState;
     private int initiator = -1;
@@ -523,66 +526,7 @@ public class HttpSender {
      * @see #sendAndReceive(HttpMessage, HttpRequestConfig)
      */
     public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws IOException {
-
-        log.debug(
-                "sendAndReceive "
-                        + msg.getRequestHeader().getMethod()
-                        + " "
-                        + msg.getRequestHeader().getURI()
-                        + " start");
-        msg.setTimeSentMillis(System.currentTimeMillis());
-
-        try {
-            notifyRequestListeners(msg);
-            if (!isFollowRedirect
-                    || !(msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)
-                            || msg.getRequestHeader()
-                                    .getMethod()
-                                    .equalsIgnoreCase(HttpRequestHeader.PUT))) {
-                // ZAP: Reauthentication when sending a message from the perspective of a User
-                sendAuthenticated(msg, isFollowRedirect);
-                return;
-            }
-
-            // ZAP: Reauthentication when sending a message from the perspective of a User
-            sendAuthenticated(msg, false);
-
-            HttpMessage temp = msg.cloneAll();
-            temp.setRequestingUser(getUser(msg));
-            // POST/PUT method cannot be redirected by library. Need to follow by code
-
-            // loop 1 time only because httpclient can handle redirect itself after first GET.
-            for (int i = 0;
-                    i < 1
-                            && (HttpStatusCode.isRedirection(
-                                            temp.getResponseHeader().getStatusCode())
-                                    && temp.getResponseHeader().getStatusCode()
-                                            != HttpStatusCode.NOT_MODIFIED);
-                    i++) {
-                URI newLocation = extractRedirectLocation(temp);
-                temp.getRequestHeader().setURI(newLocation);
-
-                temp.getRequestHeader().setMethod(HttpRequestHeader.GET);
-                temp.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
-                // ZAP: Reauthentication when sending a message from the perspective of a User
-                sendAuthenticated(temp, true);
-            }
-
-            msg.setResponseHeader(temp.getResponseHeader());
-            msg.setResponseBody(temp.getResponseBody());
-
-        } finally {
-            msg.setTimeElapsedMillis((int) (System.currentTimeMillis() - msg.getTimeSentMillis()));
-            log.debug(
-                    "sendAndReceive "
-                            + msg.getRequestHeader().getMethod()
-                            + " "
-                            + msg.getRequestHeader().getURI()
-                            + " took "
-                            + msg.getTimeElapsedMillis());
-
-            notifyResponseListeners(msg);
-        }
+        sendAndReceive(msg, isFollowRedirect ? FOLLOW_REDIRECTS : NO_REDIRECTS);
     }
 
     private void notifyRequestListeners(HttpMessage msg) {
@@ -642,13 +586,7 @@ public class HttpSender {
         return msg.getRequestingUser();
     }
 
-    // ZAP: Make sure a message that needs to be authenticated is authenticated
-    private void sendAuthenticated(HttpMessage msg, boolean isFollowRedirect) throws IOException {
-        sendAuthenticated(msg, isFollowRedirect, null);
-    }
-
-    private void sendAuthenticated(
-            HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params) throws IOException {
+    private void sendAuthenticated(HttpMessage msg, HttpMethodParams params) throws IOException {
         // Modify the request message if a 'Requesting User' has been set
         User forceUser = this.getUser(msg);
         if (forceUser != null) {
@@ -661,7 +599,7 @@ public class HttpSender {
 
         log.debug("Sending message to: " + msg.getRequestHeader().getURI().toString());
         // Send the message
-        send(msg, isFollowRedirect, params);
+        send(msg, params);
 
         // If there's a 'Requesting User', make sure the response corresponds to an authenticated
         // session and, if not, attempt a reauthentication and try again
@@ -676,17 +614,16 @@ public class HttpSender {
                             + ". Authenticating and trying again...");
             forceUser.queueAuthentication(msg);
             forceUser.processMessageToMatchUser(msg);
-            send(msg, isFollowRedirect, params);
+            send(msg, params);
         } else log.debug("SUCCESSFUL");
     }
 
-    private void send(HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params)
-            throws IOException {
+    private void send(HttpMessage msg, HttpMethodParams params) throws IOException {
         HttpMethod method = null;
         HttpResponseHeader resHeader = null;
 
         try {
-            method = runMethod(msg, isFollowRedirect, params);
+            method = runMethod(msg, params);
             // successfully executed;
             resHeader = HttpMethodHelper.getHttpResponseHeader(method);
             resHeader.setHeader(
@@ -716,15 +653,11 @@ public class HttpSender {
         }
     }
 
-    private HttpMethod runMethod(HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params)
-            throws IOException {
+    private HttpMethod runMethod(HttpMessage msg, HttpMethodParams params) throws IOException {
         HttpMethod method = null;
         // no more retry
         method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody(), params);
-        if (!(method instanceof EntityEnclosingMethod) || method instanceof ZapGetMethod) {
-            // cant do this for EntityEnclosingMethod methods - it will fail
-            method.setFollowRedirects(isFollowRedirect);
-        }
+        method.setFollowRedirects(false);
 
         HttpState state = null;
         User forceUser = this.getUser(msg);
@@ -739,7 +672,7 @@ public class HttpSender {
     }
 
     public void setFollowRedirect(boolean followRedirect) {
-        this.followRedirect = followRedirect;
+        this.followRedirect = followRedirect ? FOLLOW_REDIRECTS : NO_REDIRECTS;
     }
 
     /**
@@ -1089,7 +1022,7 @@ public class HttpSender {
                 params = new HttpMethodParams();
                 params.setSoTimeout(requestConfig.getSoTimeout());
             }
-            sendAuthenticated(message, false, params);
+            sendAuthenticated(message, params);
 
         } finally {
             message.setTimeElapsedMillis(
