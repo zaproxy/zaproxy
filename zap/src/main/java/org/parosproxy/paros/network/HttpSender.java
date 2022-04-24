@@ -95,18 +95,26 @@
 // ZAP: 2022/04/23 Use main connection options directly.
 // ZAP: 2022/04/24 Notify listeners of all redirects followed.
 // ZAP: 2022/04/24 Move network initialisations from ZAP class.
+// ZAP: 2022/04/24 Allow to download to file.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Authenticator;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ProxySelector;
 import java.net.Socket;
 import java.net.SocketAddress;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -207,6 +215,17 @@ public class HttpSender {
     private static final HttpRequestConfig NO_REDIRECTS = HttpRequestConfig.builder().build();
     private static final HttpRequestConfig FOLLOW_REDIRECTS =
             HttpRequestConfig.builder().setFollowRedirects(true).build();
+
+    private static final ResponseBodyConsumer DEFAULT_BODY_CONSUMER =
+            (msg, method) -> {
+                if (msg.isEventStream()) {
+                    msg.getResponseBody().setCharset(msg.getResponseHeader().getCharset());
+                    msg.getResponseBody().setLength(0);
+                    return;
+                }
+
+                msg.setResponseBody(method.getResponseBody());
+            };
 
     private HttpClient client = null;
     private HttpClient clientViaProxy = null;
@@ -529,6 +548,47 @@ public class HttpSender {
         }
     }
 
+    /**
+     * Downloads the response (body) to the given file.
+     *
+     * <p>The body in the given {@code message} will be empty.
+     *
+     * @param message the message containing the request to send.
+     * @param file the file where to save the response body.
+     * @throws IOException if an error occurred while sending the request or while downloading.
+     * @since 2.12.0
+     * @see #setFollowRedirect(boolean)
+     */
+    public void sendAndReceive(HttpMessage message, Path file) throws IOException {
+        sendAndReceive(
+                message,
+                followRedirect,
+                (msg, method) -> {
+                    if (followRedirect.isFollowRedirects()
+                            && isRedirectionNeeded(msg.getResponseHeader().getStatusCode())) {
+                        DEFAULT_BODY_CONSUMER.accept(message, method);
+                        return;
+                    }
+
+                    HttpResponseHeader header = msg.getResponseHeader();
+                    try (FileChannel channel =
+                                    (FileChannel)
+                                            Files.newByteChannel(
+                                                    file,
+                                                    EnumSet.of(
+                                                            StandardOpenOption.WRITE,
+                                                            StandardOpenOption.CREATE,
+                                                            StandardOpenOption.TRUNCATE_EXISTING));
+                            InputStream is = method.getResponseBodyAsStream()) {
+                        long totalRead = 0;
+                        while ((totalRead +=
+                                        channel.transferFrom(
+                                                Channels.newChannel(is), totalRead, 1 << 24))
+                                < header.getContentLength()) ;
+                    }
+                });
+    }
+
     public void sendAndReceive(HttpMessage msg) throws IOException {
         sendAndReceive(msg, followRedirect);
     }
@@ -603,7 +663,9 @@ public class HttpSender {
         return msg.getRequestingUser();
     }
 
-    private void sendAuthenticated(HttpMessage msg, HttpMethodParams params) throws IOException {
+    private void sendAuthenticated(
+            HttpMessage msg, HttpMethodParams params, ResponseBodyConsumer responseBodyConsumer)
+            throws IOException {
         // Modify the request message if a 'Requesting User' has been set
         User forceUser = this.getUser(msg);
         if (forceUser != null) {
@@ -616,7 +678,7 @@ public class HttpSender {
 
         log.debug("Sending message to: " + msg.getRequestHeader().getURI().toString());
         // Send the message
-        send(msg, params);
+        send(msg, params, responseBodyConsumer);
 
         // If there's a 'Requesting User', make sure the response corresponds to an authenticated
         // session and, if not, attempt a reauthentication and try again
@@ -631,11 +693,13 @@ public class HttpSender {
                             + ". Authenticating and trying again...");
             forceUser.queueAuthentication(msg);
             forceUser.processMessageToMatchUser(msg);
-            send(msg, params);
+            send(msg, params, responseBodyConsumer);
         } else log.debug("SUCCESSFUL");
     }
 
-    private void send(HttpMessage msg, HttpMethodParams params) throws IOException {
+    private void send(
+            HttpMessage msg, HttpMethodParams params, ResponseBodyConsumer responseBodyConsumer)
+            throws IOException {
         HttpMethod method = null;
         HttpResponseHeader resHeader = null;
 
@@ -649,14 +713,7 @@ public class HttpSender {
             // "");
             msg.setResponseHeader(resHeader);
 
-            // ZAP: Do not read response body for Server-Sent Events stream
-            // ZAP: Moreover do not set content length to zero
-            if (!msg.isEventStream()) {
-                msg.setResponseBody(method.getResponseBody());
-            } else {
-                msg.getResponseBody().setCharset(resHeader.getCharset());
-                msg.getResponseBody().setLength(0);
-            }
+            responseBodyConsumer.accept(msg, method);
             msg.setResponseFromTargetHost(true);
 
             // ZAP: set method to retrieve upgraded channel later
@@ -992,6 +1049,14 @@ public class HttpSender {
      */
     public void sendAndReceive(HttpMessage message, HttpRequestConfig requestConfig)
             throws IOException {
+        sendAndReceive(message, requestConfig, DEFAULT_BODY_CONSUMER);
+    }
+
+    private void sendAndReceive(
+            HttpMessage message,
+            HttpRequestConfig requestConfig,
+            ResponseBodyConsumer responseBodyConsumer)
+            throws IOException {
         if (message == null) {
             throw new IllegalArgumentException("Parameter message must not be null.");
         }
@@ -999,10 +1064,10 @@ public class HttpSender {
             throw new IllegalArgumentException("Parameter requestConfig must not be null.");
         }
 
-        sendAndReceiveImpl(message, requestConfig);
+        sendAndReceiveImpl(message, requestConfig, responseBodyConsumer);
 
         if (requestConfig.isFollowRedirects()) {
-            followRedirections(message, requestConfig);
+            followRedirections(message, requestConfig, responseBodyConsumer);
         }
     }
 
@@ -1018,7 +1083,10 @@ public class HttpSender {
      * @throws IOException if an error occurred while sending the message or following the
      *     redirections.
      */
-    private void sendAndReceiveImpl(HttpMessage message, HttpRequestConfig requestConfig)
+    private void sendAndReceiveImpl(
+            HttpMessage message,
+            HttpRequestConfig requestConfig,
+            ResponseBodyConsumer responseBodyConsumer)
             throws IOException {
         if (log.isDebugEnabled()) {
             log.debug(
@@ -1039,7 +1107,7 @@ public class HttpSender {
                 params = new HttpMethodParams();
                 params.setSoTimeout(requestConfig.getSoTimeout());
             }
-            sendAuthenticated(message, params);
+            sendAuthenticated(message, params, responseBodyConsumer);
 
         } finally {
             message.setTimeElapsedMillis(
@@ -1077,7 +1145,10 @@ public class HttpSender {
      *     redirections
      * @see #isRedirectionNeeded(int)
      */
-    private void followRedirections(HttpMessage message, HttpRequestConfig requestConfig)
+    private void followRedirections(
+            HttpMessage message,
+            HttpRequestConfig requestConfig,
+            ResponseBodyConsumer responseBodyConsumer)
             throws IOException {
         HttpRedirectionValidator validator = requestConfig.getRedirectionValidator();
         validator.notifyMessageReceived(message);
@@ -1106,7 +1177,7 @@ public class HttpSender {
                 redirectMessage.setRequestBody("");
             }
 
-            sendAndReceiveImpl(redirectMessage, requestConfig);
+            sendAndReceiveImpl(redirectMessage, requestConfig, responseBodyConsumer);
             validator.notifyMessageReceived(redirectMessage);
 
             // Update the response of the (original) message
@@ -1192,6 +1263,11 @@ public class HttpSender {
                         "Invalid redirect location: " + location, location, ex);
             }
         }
+    }
+
+    private interface ResponseBodyConsumer {
+
+        void accept(HttpMessage message, HttpMethod method) throws IOException;
     }
 
     /**
