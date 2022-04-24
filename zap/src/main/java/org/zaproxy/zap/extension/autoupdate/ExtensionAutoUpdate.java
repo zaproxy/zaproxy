@@ -64,6 +64,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOn;
@@ -142,8 +143,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     private void initialize() {
         this.setName(NAME);
         this.setOrder(1); // High order so that cmdline updates are installed asap
-        this.downloadManager =
-                new DownloadManager(Model.getSingleton().getOptionsParam().getConnectionParam());
+        this.downloadManager = new DownloadManager(HttpSender.CHECK_FOR_UPDATES_INITIATOR);
         this.downloadManager.start();
         // Do this before it can get overwritten by the latest one
         this.getPreviousVersionInfo();
