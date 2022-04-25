@@ -87,7 +87,6 @@ public final class CoreFunctionality {
                     new org.parosproxy.paros.extension.manualrequest
                             .ExtensionManualRequestEditor());
             extensions.add(new org.parosproxy.paros.extension.option.ExtensionOption());
-            extensions.add(new org.parosproxy.paros.extension.state.ExtensionState());
             extensions.add(new org.zaproxy.zap.extension.alert.ExtensionAlert());
             extensions.add(new org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF());
             extensions.add(new org.zaproxy.zap.extension.api.ExtensionAPI());
