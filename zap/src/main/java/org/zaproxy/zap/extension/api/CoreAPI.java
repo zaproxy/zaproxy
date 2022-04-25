@@ -371,7 +371,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 null,
                                 new String[] {PARAM_BASE_URL, PARAM_RISK}))));
 
-        this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
+        this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_PROXY_PAC, false)));
         this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_ROOT_CERT, false)));
         this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_XML_REPORT)));
@@ -391,8 +391,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         new String[] {PARAM_REQUEST},
                         new String[] {PARAM_FOLLOW_REDIRECTS}));
 
-        this.addApiShortcut(OTHER_PROXY_PAC);
-        // this.addApiShortcut(OTHER_ROOT_CERT);
         this.addApiShortcut(OTHER_SET_PROXY);
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
@@ -1296,30 +1294,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             throws ApiException {
 
         if (OTHER_PROXY_PAC.equals(name)) {
-            @SuppressWarnings("deprecation")
-            final org.parosproxy.paros.core.proxy.ProxyParam proxyParam =
-                    Model.getSingleton().getOptionsParam().getProxyParam();
-            final int port = proxyParam.getProxyPort();
-            try {
-                String domain = null;
-                if (proxyParam.isProxyIpAnyLocalAddress()) {
-                    String localDomain = msg.getRequestHeader().getHostName();
-                    if (!API.API_DOMAIN.equals(localDomain)) {
-                        domain = localDomain;
-                    }
-                }
-                if (domain == null) {
-                    domain = proxyParam.getProxyIp();
-                }
-                String response = this.getPacFile(domain, port);
-                msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
-
-                msg.setResponseBody(response);
-
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-            return msg;
+            return getNetworkImplementor().handleApiOther(msg, OTHER_PROXY_PAC, params);
         } else if (OTHER_SET_PROXY.equals(name)) {
             /* JSON string:
              *  {"type":1,
@@ -1654,12 +1629,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     @Override
     public HttpMessage handleShortcut(HttpMessage msg) throws ApiException {
         try {
-            if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_PROXY_PAC)) {
-                return this.handleApiOther(msg, OTHER_PROXY_PAC, new JSONObject());
-            } else if (msg.getRequestHeader()
-                    .getURI()
-                    .getPath()
-                    .startsWith("/" + OTHER_SET_PROXY)) {
+            if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SET_PROXY)) {
                 JSONObject params = new JSONObject();
                 params.put(PARAM_PROXY_DETAILS, msg.getRequestBody().toString());
                 return this.handleApiOther(msg, OTHER_SET_PROXY, params);
@@ -1675,16 +1645,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         }
         throw new ApiException(
                 ApiException.Type.URL_NOT_FOUND, msg.getRequestHeader().getURI().toString());
-    }
-
-    private String getPacFile(String host, int port) {
-        // Could put in 'ignore urls'?
-        StringBuilder sb = new StringBuilder(100);
-        sb.append("function FindProxyForURL(url, host) {\n");
-        sb.append("  return \"PROXY ").append(host).append(':').append(port).append("\";\n");
-        sb.append("} // End of function\n");
-
-        return sb.toString();
     }
 
     private static void addUrlsToList(
