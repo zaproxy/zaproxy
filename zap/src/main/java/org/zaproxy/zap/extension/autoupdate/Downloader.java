@@ -19,19 +19,19 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import java.io.BufferedInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.Date;
+import org.apache.commons.httpclient.URI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.utils.HashUtils;
 
 public class Downloader extends Thread {
     private URL url;
-    private Proxy proxy;
     private File targetFile;
     private Exception exception = null;
     private long size = 0;
@@ -41,20 +41,29 @@ public class Downloader extends Thread {
     private boolean cancelDownload = false;
     private String hash = null;
     private boolean validated = false;
+    private final int initiator;
 
     private static final Logger logger = LogManager.getLogger(Downloader.class);
 
+    /** @deprecated (2.12.0) */
+    @Deprecated
     public Downloader(URL url, Proxy proxy, File targetFile, String hash) {
         this(url, proxy, targetFile, 0, hash);
     }
 
+    /** @deprecated (2.12.0) */
+    @Deprecated
     public Downloader(URL url, Proxy proxy, File targetFile, long size, String hash) {
+        this(url, targetFile, 0, hash, HttpSender.CHECK_FOR_UPDATES_INITIATOR);
+    }
+
+    Downloader(URL url, File targetFile, long size, String hash, int initiator) {
         super();
         this.url = url;
-        this.proxy = proxy;
         this.targetFile = targetFile;
         this.size = size;
         this.hash = hash;
+        this.initiator = initiator;
     }
 
     @Override
@@ -84,28 +93,18 @@ public class Downloader extends Thread {
     }
 
     private void downloadFile() {
+        HttpSender sender = null;
         try {
-            /*
-             * The following code may be more efficient, but doesn't give us the option
-             * of cancelling downloads.
-             *
-             * ReadableByteChannel rbc = Channels.newChannel(url.openStream());
-             * FileOutputStream fos = new FileOutputStream(targetFile);
-             * fos.getChannel().transferFrom(rbc, 0, 1 << 24);
-             */
-
-            // XXX Change to use HttpClient to respect all proxy settings (e.g. use of SOCKS).
-            try (BufferedInputStream in =
-                            new BufferedInputStream(url.openConnection(proxy).getInputStream());
-                    FileOutputStream out = new FileOutputStream(this.targetFile)) {
-                byte[] data = new byte[1024];
-                int count;
-                while (!cancelDownload && (count = in.read(data, 0, 1024)) != -1) {
-                    out.write(data, 0, count);
-                }
-            }
+            sender = new HttpSender(initiator);
+            sender.setFollowRedirect(true);
+            HttpMessage message = new HttpMessage(new URI(url.toString(), true));
+            sender.sendAndReceive(message, targetFile.toPath());
         } catch (Exception e) {
             this.exception = e;
+        } finally {
+            if (sender != null) {
+                sender.shutdown();
+            }
         }
     }
 
@@ -131,6 +130,7 @@ public class Downloader extends Thread {
 
     public void cancelDownload() {
         this.cancelDownload = true;
+        interrupt();
         if (complete && this.targetFile.exists()) {
             this.targetFile.delete();
         }
