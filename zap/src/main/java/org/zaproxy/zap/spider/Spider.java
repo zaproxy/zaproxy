@@ -514,13 +514,10 @@ public class Spider {
                         new SpiderThreadFactory("ZAP-SpiderThreadPool-" + id + "-thread-"));
 
         // Initialize the HTTP sender
-        httpSender =
-                new HttpSender(
-                        connectionParam,
-                        connectionParam.isHttpStateEnabled()
-                                ? true
-                                : !spiderParam.isAcceptCookies(),
-                        HttpSender.SPIDER_INITIATOR);
+        httpSender = new HttpSender(HttpSender.SPIDER_INITIATOR);
+        httpSender.setUseGlobalState(
+                connectionParam.isHttpStateEnabled() || !spiderParam.isAcceptCookies());
+
         // Do not follow redirections because the request is not updated, the redirections will be
         // handled manually.
         httpSender.setFollowRedirect(false);

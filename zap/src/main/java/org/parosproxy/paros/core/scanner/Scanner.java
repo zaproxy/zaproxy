@@ -52,6 +52,7 @@
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/04/23 Use new HttpSender constructor.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -111,7 +112,6 @@ public class Scanner implements Runnable {
     // ZAP: Added a list of scannerhooks
     private Vector<ScannerHook> hookList = new Vector<>();
     private ScannerParam scannerParam = null;
-    private ConnectionParam connectionParam = null;
     private ScanPolicy scanPolicy;
     private RuleConfigParam ruleConfigParam;
     private boolean isStop = false;
@@ -154,13 +154,27 @@ public class Scanner implements Runnable {
      * @param scanPolicy the scan policy
      * @param ruleConfigParam the rules' configurations, might be {@code null}.
      * @since 2.6.0
+     * @deprecated (2.12.0) Use {@link #Scanner(ScannerParam, ScanPolicy, RuleConfigParam)} instead.
      */
+    @Deprecated
     public Scanner(
             ScannerParam scannerParam,
             ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
-        this.connectionParam = param;
+        this(scannerParam, scanPolicy, ruleConfigParam);
+    }
+
+    /**
+     * Constructs a {@code Scanner}.
+     *
+     * @param scannerParam the scanner parameters
+     * @param scanPolicy the scan policy
+     * @param ruleConfigParam the rules' configurations, might be {@code null}.
+     * @since 2.12.0
+     */
+    public Scanner(
+            ScannerParam scannerParam, ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
         this.scannerParam = scannerParam;
         this.scanPolicy = scanPolicy;
         this.ruleConfigParam = ruleConfigParam;
@@ -317,13 +331,7 @@ public class Scanner implements Runnable {
 
     private HostProcess createHostProcess(String hostAndPort, StructuralNode node) {
         HostProcess hostProcess =
-                new HostProcess(
-                        hostAndPort,
-                        this,
-                        scannerParam,
-                        connectionParam,
-                        scanPolicy,
-                        ruleConfigParam);
+                new HostProcess(hostAndPort, this, scannerParam, scanPolicy, ruleConfigParam);
         hostProcess.setStartNode(node);
         hostProcess.setUser(this.user);
         hostProcess.setTechSet(this.techSet);

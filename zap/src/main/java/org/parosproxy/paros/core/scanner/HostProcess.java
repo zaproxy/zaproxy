@@ -100,6 +100,7 @@
 // ZAP: 2021/09/14 No longer force single threading if Anti CSRF handling turned on.
 // ZAP: 2021/09/30 Pass plugin to PluginStats instead of just the name.
 // ZAP: 2022/02/25 Remove code deprecated in 2.5.0
+// ZAP: 2022/04/23 Use new HttpSender constructor.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -252,12 +253,32 @@ public class HostProcess implements Runnable {
      * @param scanPolicy the scan policy
      * @param ruleConfigParam the rules' configurations, might be {@code null}.
      * @since 2.6.0
+     * @deprecated (2.12.0) Use {@link #HostProcess(String, Scanner, ScannerParam, ScanPolicy,
+     *     RuleConfigParam)} instead.
      */
+    @Deprecated
     public HostProcess(
             String hostAndPort,
             Scanner parentScanner,
             ScannerParam scannerParam,
             ConnectionParam connectionParam,
+            ScanPolicy scanPolicy,
+            RuleConfigParam ruleConfigParam) {}
+
+    /**
+     * Constructs a {@code HostProcess}.
+     *
+     * @param hostAndPort the host:port value of the site that need to be processed
+     * @param parentScanner the scanner instance which instantiated this process
+     * @param scannerParam the session scanner parameters
+     * @param scanPolicy the scan policy
+     * @param ruleConfigParam the rules' configurations, might be {@code null}.
+     * @since 2.12.0
+     */
+    public HostProcess(
+            String hostAndPort,
+            Scanner parentScanner,
+            ScannerParam scannerParam,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
 
@@ -271,7 +292,7 @@ public class HostProcess implements Runnable {
         this.messagesIdsToAppScan = new ArrayList<>();
         this.startNodes = new ArrayList<>();
 
-        httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
+        httpSender = new HttpSender(HttpSender.ACTIVE_SCANNER_INITIATOR);
         httpSender.setUser(this.user);
         httpSender.setRemoveUserDefinedAuthHeaders(true);
 

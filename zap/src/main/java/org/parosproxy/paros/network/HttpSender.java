@@ -92,6 +92,7 @@
 // ZAP: 2022/04/10 Add support for unencoded redirects
 // ZAP: 2022/04/11 Deprecate set/getUserAgent() and remove userAgent/modifyUserAgent().
 // ZAP: 2022/04/11 Prevent null listeners and add JavaDoc to add/removeListener.
+// ZAP: 2022/04/23 Use main connection options directly.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -128,6 +129,7 @@ import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
@@ -204,13 +206,6 @@ public class HttpSender {
     /**
      * Constructs an {@code HttpSender}.
      *
-     * <p>If {@code useGlobalState} is {@code true} the HttpSender will use the HTTP state given by
-     * {@code ConnectionParam#getHttpState()} iff {@code ConnectionParam#isHttpStateEnabled()}
-     * returns {@code true} otherwise it doesn't have any state (i.e. cookies are disabled). If
-     * {@code useGlobalState} is {@code false} it uses a non shared HTTP state. The actual state
-     * used is overridden, per message, when {@code HttpMessage#getRequestingUser()} returns non
-     * {@code null}.
-     *
      * <p>The {@code initiator} is used to indicate the component that is sending the messages when
      * the {@code HttpSenderListener}s are notified of messages sent and received.
      *
@@ -221,9 +216,32 @@ public class HttpSender {
      * @see ConnectionParam#getHttpState()
      * @see HttpSenderListener
      * @see HttpMessage#getRequestingUser()
+     * @deprecated (2.12.0) Use {@link #HttpSender(int)} instead, refer also to {@link
+     *     #setUseGlobalState(boolean)}.
      */
+    @Deprecated
     public HttpSender(ConnectionParam connectionParam, boolean useGlobalState, int initiator) {
-        this.param = connectionParam;
+        init(useGlobalState, initiator);
+    }
+
+    /**
+     * Constructs an {@code HttpSender}.
+     *
+     * <p>Refer to {@link #setUseGlobalState(boolean)} to know how the HTTP state is managed.
+     *
+     * <p>The {@code initiator} is used to indicate the component that is sending the messages when
+     * the {@code HttpSenderListener}s are notified of messages sent and received.
+     *
+     * @param initiator the ID of the initiator of the HTTP messages sent
+     * @since 2.12.0
+     * @see HttpSenderListener
+     */
+    public HttpSender(int initiator) {
+        init(true, initiator);
+    }
+
+    private void init(boolean useGlobalState, int initiator) {
+        this.param = Model.getSingleton().getOptionsParam().getConnectionParam();
         this.initiator = initiator;
 
         client = createHttpClient();
@@ -303,14 +321,20 @@ public class HttpSender {
     }
 
     /**
-     * Sets whether or not the global state should be used.
+     * Sets whether or not the global state should be used. Defaults to {@code true}.
      *
-     * <p>Refer to {@link #HttpSender(ConnectionParam, boolean, int)} for details on how the global
-     * state is used.
+     * <p>If {@code enableGlobalState} is {@code true} the {@code HttpSender} will use the HTTP
+     * state given by the connections options iff the HTTP state is enabled there otherwise it
+     * doesn't have any state (i.e. cookies are disabled). If {@code enableGlobalState} is {@code
+     * false} it uses a non shared HTTP state.
+     *
+     * <p><strong>Note:</strong> The actual state used is overridden when {@link
+     * #getUser(HttpMessage)} returns non-{@code null}.
      *
      * @param enableGlobalState {@code true} if the global state should be used, {@code false}
      *     otherwise.
      * @since 2.8.0
+     * @see #setUseCookies(boolean)
      */
     public void setUseGlobalState(boolean enableGlobalState) {
         this.useGlobalState = enableGlobalState;
@@ -323,6 +347,7 @@ public class HttpSender {
      *
      * @param shouldUseCookies {@code true} if cookies should be used, {@code false} otherwise.
      * @since 2.9.0
+     * @see #setUseGlobalState(boolean)
      */
     public void setUseCookies(boolean shouldUseCookies) {
         this.useCookies = shouldUseCookies;
@@ -598,9 +623,20 @@ public class HttpSender {
         }
     }
 
+    /**
+     * Gets the user set in this {@code HttpSender} if any, otherwise the one in the given {@code
+     * HttpMessage}.
+     *
+     * @param msg usually the message being sent, that might have a user.
+     * @return the user set in the {@code HttpSender} or in the given {@code HttpMessage}. Might be
+     *     {@code null} if no user set.
+     * @throws NullPointerException if the given message is {@code null}.
+     * @since 2.4.1
+     * @see #setUser(User)
+     * @see HttpMessage#getRequestingUser()
+     */
     public User getUser(HttpMessage msg) {
         if (this.user != null) {
-            // If its set for the sender it overrides the message
             return user;
         }
         return msg.getRequestingUser();
