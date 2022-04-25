@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Overridden Method by Button Forms - Spider HTML Form Parser</title>
+</head>
+<body>
+
+<form action="http://example.org/form1" method="POST">
+    <input type="text" name="field1" value="Text 1" />
+    <input type="text" name="field2" value="Text 2" />
+    <button formmethod="GET">POST to GET</button>
+</form>
+
+<form action="http://example.org/form2" method="GET">
+    <input type="text" name="a" value="x" />
+    <input type="text" name="b" value="y" />
+    <button formmethod="POST">GET to POST</button>
+</form>
+
+<form action="http://ignore.button.org/form3" method="GET">
+    <input type="text" name="a" value="x" />
+    <input type="text" name="b" value="y" />
+    <input type="submit" name="c" value="z" />
+    <button type="button" formmethod="POST"></button>
+</form>
+
+<form action="http://ignore.reset.org/form4" method="GET">
+    <input type="text" name="a" value="x" />
+    <input type="text" name="b" value="y" />
+    <button type="reset" formmethod="POST"></button>
+</form>
+
+<form id="outside" action="http://outside.org/form5" method="GET">
+    <input type="text" name="a" value="x" />
+    <input type="text" name="b" value="y" />
+    <input type="submit" name="c" value="z" />
+</form>
+
+<button formmethod="POST" form="outside"></button>
+
+<form action="http://example.org/form6" method="GET">
+    <input type="text" name="a" value="x" />
+    <input type="text" name="b" value="y" />
+    <button formmethod="INVALID">Invalid form method</button>
+</form>
+
+<form action="http://example.org/form7" method="POST">
+    <input type="text" name="a" value="x" />
+    <input type="text" name="b" value="y" />
+    <button formmethod="INVALID">Invalid form method</button>
+</form>
+
+</body>
+</html>
