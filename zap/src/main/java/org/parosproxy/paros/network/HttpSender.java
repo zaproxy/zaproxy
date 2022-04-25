@@ -94,9 +94,16 @@
 // ZAP: 2022/04/11 Prevent null listeners and add JavaDoc to add/removeListener.
 // ZAP: 2022/04/23 Use main connection options directly.
 // ZAP: 2022/04/24 Notify listeners of all redirects followed.
+// ZAP: 2022/04/24 Move network initialisations from ZAP class.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
+import java.net.Authenticator;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ProxySelector;
+import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -104,6 +111,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import javax.net.SocketFactory;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
@@ -124,6 +132,7 @@ import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -135,8 +144,10 @@ import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.network.HttpSenderListener;
+import org.zaproxy.zap.network.ZapAuthenticator;
 import org.zaproxy.zap.network.ZapCookieSpec;
 import org.zaproxy.zap.network.ZapNTLMScheme;
+import org.zaproxy.zap.network.ZapProxySelector;
 import org.zaproxy.zap.users.User;
 
 public class HttpSender {
@@ -168,6 +179,9 @@ public class HttpSender {
     private User user = null;
 
     static {
+        ProxySelector.setDefault(ZapProxySelector.getSingleton());
+        Authenticator.setDefault(ZapAuthenticator.getSingleton());
+
         try {
             protocol = Protocol.getProtocol("https");
             sslFactory = protocol.getSocketFactory();
@@ -179,6 +193,9 @@ public class HttpSender {
                     "https",
                     new Protocol("https", (ProtocolSocketFactory) new SSLConnector(true), 443));
         }
+
+        Protocol.registerProtocol(
+                "http", new Protocol("http", new ProtocolSocketFactoryImpl(), 80));
 
         AuthPolicy.registerAuthScheme(AuthPolicy.NTLM, ZapNTLMScheme.class);
         CookiePolicy.registerCookieSpec(CookiePolicy.DEFAULT, ZapCookieSpec.class);
@@ -1174,6 +1191,51 @@ public class HttpSender {
                 throw new InvalidRedirectLocationException(
                         "Invalid redirect location: " + location, location, ex);
             }
+        }
+    }
+
+    /**
+     * A {@link ProtocolSocketFactory} for plain sockets.
+     *
+     * <p>Remote hostnames are not resolved if {@link HttpMethodDirector#PARAM_RESOLVE_HOSTNAME} is
+     * {@code false}.
+     */
+    private static class ProtocolSocketFactoryImpl implements ProtocolSocketFactory {
+
+        @Override
+        public Socket createSocket(
+                String host,
+                int port,
+                InetAddress localAddress,
+                int localPort,
+                HttpConnectionParams params)
+                throws IOException {
+            if (params == null) {
+                throw new IllegalArgumentException("Parameters may not be null");
+            }
+            Socket socket = SocketFactory.getDefault().createSocket();
+            socket.bind(new InetSocketAddress(localAddress, localPort));
+            SocketAddress remoteAddress;
+            if (params.getBooleanParameter(HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
+                remoteAddress = new InetSocketAddress(host, port);
+            } else {
+                remoteAddress = InetSocketAddress.createUnresolved(host, port);
+            }
+            socket.connect(remoteAddress, params.getConnectionTimeout());
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(String host, int port, InetAddress localAddress, int localPort)
+                throws IOException {
+            throw new UnsupportedOperationException(
+                    "Method not supported, not required/called by Commons HttpClient library (version >= 3.0).");
+        }
+
+        @Override
+        public Socket createSocket(String host, int port) throws IOException {
+            throw new UnsupportedOperationException(
+                    "Method not supported, not required/called by Commons HttpClient library (version >= 3.0).");
         }
     }
 }

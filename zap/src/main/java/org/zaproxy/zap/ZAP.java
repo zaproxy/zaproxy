@@ -21,31 +21,17 @@ package org.zaproxy.zap;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.Authenticator;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.ProxySelector;
-import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.URLConnection;
 import java.util.Arrays;
 import java.util.Locale;
-import javax.net.SocketFactory;
-import org.apache.commons.httpclient.HttpMethodDirector;
-import org.apache.commons.httpclient.params.HttpConnectionParams;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.commons.io.output.NullOutputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.parosproxy.paros.CommandLine;
-import org.parosproxy.paros.network.SSLConnector;
 import org.zaproxy.zap.eventBus.EventBus;
 import org.zaproxy.zap.eventBus.SimpleEventBus;
-import org.zaproxy.zap.network.ZapAuthenticator;
-import org.zaproxy.zap.network.ZapProxySelector;
 
 public class ZAP {
 
@@ -69,9 +55,6 @@ public class ZAP {
     private static final Logger logger = LogManager.getLogger(ZAP.class);
 
     static {
-        ProxySelector.setDefault(ZapProxySelector.getSingleton());
-        Authenticator.setDefault(ZapAuthenticator.getSingleton());
-
         try {
             // Disable JAR caching to avoid leaking add-on files and use of stale data.
             URLConnection.class
@@ -82,26 +65,6 @@ public class ZAP {
         }
 
         Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionLogger());
-
-        // set SSLConnector as socketfactory in HttpClient.
-        ProtocolSocketFactory sslFactory = null;
-        try {
-            final Protocol protocol = Protocol.getProtocol("https");
-            sslFactory = protocol.getSocketFactory();
-
-        } catch (final IllegalStateException e) {
-            // Print the exception - log not yet initialised
-            e.printStackTrace();
-        }
-
-        if (sslFactory == null || !(sslFactory instanceof SSLConnector)) {
-            Protocol.registerProtocol(
-                    "https",
-                    new Protocol("https", (ProtocolSocketFactory) new SSLConnector(), 443));
-        }
-
-        Protocol.registerProtocol(
-                "http", new Protocol("http", new ProtocolSocketFactoryImpl(), 80));
     }
 
     /**
@@ -401,51 +364,6 @@ public class ZAP {
         public PrintStream append(char c) {
             delegatee.append(c);
             return this;
-        }
-    }
-
-    /**
-     * A {@link ProtocolSocketFactory} for plain sockets.
-     *
-     * <p>Remote hostnames are not resolved if {@link HttpMethodDirector#PARAM_RESOLVE_HOSTNAME} is
-     * {@code false}.
-     */
-    private static class ProtocolSocketFactoryImpl implements ProtocolSocketFactory {
-
-        @Override
-        public Socket createSocket(
-                String host,
-                int port,
-                InetAddress localAddress,
-                int localPort,
-                HttpConnectionParams params)
-                throws IOException {
-            if (params == null) {
-                throw new IllegalArgumentException("Parameters may not be null");
-            }
-            Socket socket = SocketFactory.getDefault().createSocket();
-            socket.bind(new InetSocketAddress(localAddress, localPort));
-            SocketAddress remoteAddress;
-            if (params.getBooleanParameter(HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
-                remoteAddress = new InetSocketAddress(host, port);
-            } else {
-                remoteAddress = InetSocketAddress.createUnresolved(host, port);
-            }
-            socket.connect(remoteAddress, params.getConnectionTimeout());
-            return socket;
-        }
-
-        @Override
-        public Socket createSocket(String host, int port, InetAddress localAddress, int localPort)
-                throws IOException {
-            throw new UnsupportedOperationException(
-                    "Method not supported, not required/called by Commons HttpClient library (version >= 3.0).");
-        }
-
-        @Override
-        public Socket createSocket(String host, int port) throws IOException {
-            throw new UnsupportedOperationException(
-                    "Method not supported, not required/called by Commons HttpClient library (version >= 3.0).");
         }
     }
 }
