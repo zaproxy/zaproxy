@@ -263,7 +263,9 @@ public class HostProcess implements Runnable {
             ScannerParam scannerParam,
             ConnectionParam connectionParam,
             ScanPolicy scanPolicy,
-            RuleConfigParam ruleConfigParam) {}
+            RuleConfigParam ruleConfigParam) {
+        this(hostAndPort, parentScanner, scannerParam, scanPolicy, ruleConfigParam);
+    }
 
     /**
      * Constructs a {@code HostProcess}.
