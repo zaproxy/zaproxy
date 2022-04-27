@@ -57,9 +57,6 @@ public class Spider {
     /** The spider parameters. */
     private SpiderParam spiderParam;
 
-    /** The connection parameters. */
-    private ConnectionParam connectionParam;
-
     /** The model. */
     private Model model;
 
@@ -149,7 +146,10 @@ public class Spider {
      * @param scanContext if a scan context is set, only URIs within the context are fetched and
      *     processed
      * @since 2.6.0
+     * @deprecated (2.12.0) Use {@link #Spider(String, ExtensionSpider, SpiderParam, Model,
+     *     Context)} instead.
      */
+    @Deprecated
     public Spider(
             String id,
             ExtensionSpider extension,
@@ -157,11 +157,30 @@ public class Spider {
             ConnectionParam connectionParam,
             Model model,
             Context scanContext) {
+        this(id, extension, spiderParam, model, scanContext);
+    }
+
+    /**
+     * Constructs a {@code Spider} with the given data.
+     *
+     * @param id the ID of the spider, usually a unique integer
+     * @param extension the extension
+     * @param spiderParam the spider param
+     * @param model the model
+     * @param scanContext if a scan context is set, only URIs within the context are fetched and
+     *     processed
+     * @since 2.12.0
+     */
+    public Spider(
+            String id,
+            ExtensionSpider extension,
+            SpiderParam spiderParam,
+            Model model,
+            Context scanContext) {
         super();
         log.info("Spider initializing...");
         this.id = id;
         this.spiderParam = spiderParam;
-        this.connectionParam = connectionParam;
         this.model = model;
         this.extension = extension;
         this.controller = new SpiderController(this, extension.getCustomParsers());
@@ -516,7 +535,7 @@ public class Spider {
         // Initialize the HTTP sender
         httpSender = new HttpSender(HttpSender.SPIDER_INITIATOR);
         httpSender.setUseGlobalState(
-                connectionParam.isHttpStateEnabled() || !spiderParam.isAcceptCookies());
+                httpSender.isGlobalStateEnabled() || !spiderParam.isAcceptCookies());
 
         // Do not follow redirections because the request is not updated, the redirections will be
         // handled manually.

@@ -96,6 +96,7 @@
 // ZAP: 2022/04/24 Notify listeners of all redirects followed.
 // ZAP: 2022/04/24 Move network initialisations from ZAP class.
 // ZAP: 2022/04/24 Allow to download to file.
+// ZAP: 2022/04/27 Expose global HTTP state enabled status.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -373,12 +374,24 @@ public class HttpSender {
      * @param enableGlobalState {@code true} if the global state should be used, {@code false}
      *     otherwise.
      * @since 2.8.0
+     * @see #isGlobalStateEnabled()
      * @see #setUseCookies(boolean)
      */
     public void setUseGlobalState(boolean enableGlobalState) {
         this.useGlobalState = enableGlobalState;
 
         checkState();
+    }
+
+    /**
+     * Tells whether or not the global HTTP state is enabled.
+     *
+     * @return {@code true} if the global HTTP state is enabled, {@code false} otherwise.
+     * @since 2.12.0
+     * @see #setUseGlobalState(boolean)
+     */
+    public boolean isGlobalStateEnabled() {
+        return param.isHttpStateEnabled();
     }
 
     /**
