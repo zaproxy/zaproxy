@@ -228,14 +228,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
     /** Start spider. */
     private void startSpider() {
 
-        spider =
-                new Spider(
-                        id,
-                        extension,
-                        spiderParams,
-                        extension.getModel().getOptionsParam().getConnectionParam(),
-                        extension.getModel(),
-                        this.scanContext);
+        spider = new Spider(id, extension, spiderParams, extension.getModel(), this.scanContext);
 
         // Register this thread as a Spider Listener, so it gets notified of events and is able
         // to manipulate the UI accordingly
