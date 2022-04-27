@@ -26,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.Test;
-import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 /** Unit test for {@link HttpPrefixFetchFilter}. */
+@SuppressWarnings("deprecation")
 class HttpPrefixFetchFilterUnitTest {
 
     @Test
@@ -36,7 +36,9 @@ class HttpPrefixFetchFilterUnitTest {
         // Given
         URI undefinedUri = null;
         // When / Then
-        assertThrows(IllegalArgumentException.class, () -> new HttpPrefixFetchFilter(undefinedUri));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(undefinedUri));
     }
 
     @Test
@@ -44,7 +46,9 @@ class HttpPrefixFetchFilterUnitTest {
         // Given
         URI prefixUri = new URI("example.org/", true);
         // When / Then
-        assertThrows(IllegalArgumentException.class, () -> new HttpPrefixFetchFilter(prefixUri));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri));
     }
 
     @Test
@@ -52,7 +56,9 @@ class HttpPrefixFetchFilterUnitTest {
         // Given
         URI prefixUri = new URI("ftp://example.org/", true);
         // When / Then
-        assertThrows(IllegalArgumentException.class, () -> new HttpPrefixFetchFilter(prefixUri));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri));
     }
 
     @Test
@@ -60,7 +66,9 @@ class HttpPrefixFetchFilterUnitTest {
         // Given
         URI prefixUri = new URI("http://", true);
         // When / Then
-        assertThrows(IllegalArgumentException.class, () -> new HttpPrefixFetchFilter(prefixUri));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri));
     }
 
     @Test
@@ -68,14 +76,17 @@ class HttpPrefixFetchFilterUnitTest {
         // Given
         URI prefixUri = new URI("http://a%0/", true);
         // When / Then
-        assertThrows(IllegalArgumentException.class, () -> new HttpPrefixFetchFilter(prefixUri));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri));
     }
 
     @Test
     void shouldNotAddPathToNormalisedPrefixIfPrefixDoesNotHavePath() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         // When
         String normalisedPrefix = fetchFilter.getNormalisedPrefix();
         // Then
@@ -86,7 +97,8 @@ class HttpPrefixFetchFilterUnitTest {
     void shouldDiscardUserInfoFromPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("http://user:pass@example.org", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         // When
         String normalisedPrefix = fetchFilter.getNormalisedPrefix();
         // Then
@@ -97,7 +109,8 @@ class HttpPrefixFetchFilterUnitTest {
     void shouldDiscardEverythingAfterPathComponentFromPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("https://example.org/path?query#fragment", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         // When
         String normalisedPrefix = fetchFilter.getNormalisedPrefix();
         // Then
@@ -108,7 +121,8 @@ class HttpPrefixFetchFilterUnitTest {
     void shouldDiscardDefaultHttpPortFromPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org:80/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         // When
         String normalisedPrefix = fetchFilter.getNormalisedPrefix();
         // Then
@@ -119,7 +133,8 @@ class HttpPrefixFetchFilterUnitTest {
     void shouldDiscardDefaultHttpsPortFromPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("https://example.org:443/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         // When
         String normalisedPrefix = fetchFilter.getNormalisedPrefix();
         // Then
@@ -130,7 +145,8 @@ class HttpPrefixFetchFilterUnitTest {
     void shouldKeepNonDefaultPortFromPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("https://example.org:8443/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         // When
         String normalisedPrefix = fetchFilter.getNormalisedPrefix();
         // Then
@@ -141,7 +157,8 @@ class HttpPrefixFetchFilterUnitTest {
     void shouldKeepDefaultHttpPortInHttpsPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("https://example.org:80/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         // When
         String normalisedPrefix = fetchFilter.getNormalisedPrefix();
         // Then
@@ -152,7 +169,8 @@ class HttpPrefixFetchFilterUnitTest {
     void shouldKeepDefaultHttpsPortInHttpPrefix() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org:443/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         // When
         String normalisedPrefix = fetchFilter.getNormalisedPrefix();
         // Then
@@ -163,178 +181,238 @@ class HttpPrefixFetchFilterUnitTest {
     void shouldFilterUndefinedUriAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(null);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(null);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithNoSchemeAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("/path", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithNonHttpOrHttpsSchemeAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("ftp://example.org/", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithNoHostAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("http://", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithMalformedHostAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("http://a%0/", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithDifferentSchemeAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("https://example.org/", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithDifferentSchemeButSamePortAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("https://example.org:80/", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithDifferentPortAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("http://example.org:1234/", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithDifferentHostAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("http://domain.example.org/", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithDifferentSmallerPathAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/path", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("http://example.org/p", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithDifferentPathAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/path", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("http://example.org/not/same/path", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithDifferentNonEmptyPathAsOutOfScope() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("http://example.org", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
     void shouldFilterUriWithSamePathPrefixAsValid() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/path", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("http://example.org/path/subtree", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.VALID)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID)));
     }
 
     @Test
     void shouldFilterUriAsValidWhenPathPrefixIsEmpty() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("http://example.org/path/subtree", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.VALID)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID)));
     }
 
     @Test
     void shouldFilterUriWithSamePathPrefixEvenIfHasQueryOrFragmentAsValid() throws Exception {
         // Given
         URI prefixUri = new URI("http://example.org/path", true);
-        HttpPrefixFetchFilter fetchFilter = new HttpPrefixFetchFilter(prefixUri);
+        org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter fetchFilter =
+                new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(prefixUri);
         URI uri = new URI("http://example.org/path/subtree/a?query#fragment", true);
         // When
-        FetchStatus filterStatus = fetchFilter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterStatus =
+                fetchFilter.checkFilter(uri);
         // Then
-        assertThat(filterStatus, is(equalTo(FetchStatus.VALID)));
+        assertThat(
+                filterStatus,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID)));
     }
 }

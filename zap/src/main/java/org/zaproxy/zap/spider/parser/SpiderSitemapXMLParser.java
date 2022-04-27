@@ -36,7 +36,6 @@ import org.parosproxy.paros.network.HttpStatusCode;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.XmlUtils;
 
 /**
@@ -44,7 +43,9 @@ import org.zaproxy.zap.utils.XmlUtils;
  * helpfully) resides in the web root.
  *
  * @author 70pointer
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderSitemapXMLParser extends SpiderParser {
 
     /** a pattern to match the sitemap.xml file name */
@@ -56,7 +57,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
                     "^<\\?xml\\s+version\\s*=\\s*\"[0-9.]+\"\\s+encoding\\s*=\\s*\"[^\"]+\"\\s*\\?>");
 
     /** The Spider parameters. */
-    private SpiderParam params;
+    private org.zaproxy.zap.spider.SpiderParam params;
 
     /** used to parse the XML based file format */
     private static DocumentBuilder dBuilder;
@@ -81,7 +82,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
      * @param params the params
      * @throws IllegalArgumentException if {@code params} is null.
      */
-    public SpiderSitemapXMLParser(SpiderParam params) {
+    public SpiderSitemapXMLParser(org.zaproxy.zap.spider.SpiderParam params) {
         super();
         if (params == null) {
             throw new IllegalArgumentException("Parameter params must not be null.");

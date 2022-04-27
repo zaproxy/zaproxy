@@ -26,6 +26,12 @@ import org.parosproxy.paros.Constant;
 
 /** The Class HttpSessionsTableModel that is used as a TableModel for the Http Sessions Panel. */
 @SuppressWarnings("serial")
+/**
+ * The Class HttpSessionsTableModel that is used as a TableModel for the Http Sessions Panel.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
+@Deprecated
 public class SpiderPanelTableModel extends AbstractTableModel {
 
     /** The Constant serialVersionUID. */

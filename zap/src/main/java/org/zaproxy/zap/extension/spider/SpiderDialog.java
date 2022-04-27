@@ -39,12 +39,12 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
-import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
 @SuppressWarnings("serial")
+/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+@Deprecated
 public class SpiderDialog extends StandardFieldsDialog {
 
     private static final String FIELD_START = "spider.custom.label.start";
@@ -76,7 +76,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private JButton[] extraButtons = null;
 
     private ExtensionSpider extension = null;
-    private SpiderParam spiderParam = null;
+    private org.zaproxy.zap.spider.SpiderParam spiderParam = null;
 
     /**
      * Flag that holds the previous checked state of the "Subtree Only" checkbox.
@@ -199,10 +199,10 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.pack();
     }
 
-    private SpiderParam getSpiderParam() {
+    private org.zaproxy.zap.spider.SpiderParam getSpiderParam() {
         if (spiderParam == null) {
             // First time in clone the global options, after that keep the last ones the user set
-            spiderParam = (SpiderParam) extension.getSpiderParam().clone();
+            spiderParam = (org.zaproxy.zap.spider.SpiderParam) extension.getSpiderParam().clone();
         }
         return spiderParam;
     }
@@ -347,7 +347,8 @@ public class SpiderDialog extends StandardFieldsDialog {
             contextSpecificObjects.add(startUri);
 
             if (getBoolValue(FIELD_SUBTREE_ONLY)) {
-                contextSpecificObjects.add(new HttpPrefixFetchFilter(startUri));
+                contextSpecificObjects.add(
+                        new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(startUri));
             }
         }
 

@@ -34,7 +34,9 @@ import org.apache.logging.log4j.Logger;
  *
  * @since 2.5.0
  * @see #checkFilter(URI)
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class HttpPrefixFetchFilter extends FetchFilter {
 
     private static final Logger LOGGER = LogManager.getLogger(HttpPrefixFetchFilter.class);

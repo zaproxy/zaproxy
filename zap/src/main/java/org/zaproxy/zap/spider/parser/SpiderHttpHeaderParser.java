@@ -28,7 +28,9 @@ import org.parosproxy.paros.network.HttpMessage;
  * The Class SpiderHttpHeaderParser is used for parsing of HTTP headers that can include URLs.
  *
  * @see SpiderRedirectParser
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderHttpHeaderParser extends SpiderParser {
 
     @Override

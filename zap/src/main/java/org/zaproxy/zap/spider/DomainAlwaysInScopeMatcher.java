@@ -28,7 +28,9 @@ import org.zaproxy.zap.utils.Enableable;
  * <p>It supports both plain text and regular expression checks.
  *
  * @see #matches(String)
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class DomainAlwaysInScopeMatcher extends Enableable {
 
     private final Pattern pattern;

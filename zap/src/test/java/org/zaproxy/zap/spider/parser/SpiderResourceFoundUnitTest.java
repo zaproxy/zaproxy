@@ -42,6 +42,7 @@ import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link SpiderResourceFound}. */
+@SuppressWarnings("deprecation")
 class SpiderResourceFoundUnitTest {
 
     private SpiderResourceFound.Builder builder;

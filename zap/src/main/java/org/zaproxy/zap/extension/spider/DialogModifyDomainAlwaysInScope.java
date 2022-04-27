@@ -21,8 +21,9 @@ package org.zaproxy.zap.extension.spider;
 
 import java.awt.Dialog;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 
+/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+@Deprecated
 class DialogModifyDomainAlwaysInScope extends DialogAddDomainAlwaysInScope {
 
     private static final long serialVersionUID = -4031122965844883255L;
@@ -42,7 +43,8 @@ class DialogModifyDomainAlwaysInScope extends DialogAddDomainAlwaysInScope {
         return CONFIRM_BUTTON_LABEL;
     }
 
-    public void setDomainAlwaysInScope(DomainAlwaysInScopeMatcher excludedDomain) {
+    public void setDomainAlwaysInScope(
+            org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher excludedDomain) {
         this.domainAlwaysInScope = excludedDomain;
     }
 

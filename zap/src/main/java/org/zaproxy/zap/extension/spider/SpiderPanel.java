@@ -50,7 +50,6 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
-import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.ScanPanel2;
@@ -60,8 +59,11 @@ import org.zaproxy.zap.view.table.decorator.AbstractTableCellItemIconHighlighter
 /**
  * The Class SpiderPanel implements the Panel that is shown to the users when selecting the Spider
  * Scan Tab.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
 @SuppressWarnings("serial")
+@Deprecated
 public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderScan>>
         implements ScanListenner2 {
 
@@ -190,7 +192,8 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
      * @param extension the extension
      * @param spiderScanParam the spider scan parameters
      */
-    public SpiderPanel(ExtensionSpider extension, SpiderParam spiderScanParam) {
+    public SpiderPanel(
+            ExtensionSpider extension, org.zaproxy.zap.spider.SpiderParam spiderScanParam) {
         super(
                 "spider",
                 new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")),

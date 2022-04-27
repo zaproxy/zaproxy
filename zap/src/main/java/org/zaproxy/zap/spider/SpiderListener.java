@@ -19,14 +19,15 @@
  */
 package org.zaproxy.zap.spider;
 
-import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
-
 /**
  * The listener interface for receiving spider related events. The class that is interested in
  * processing a spider event implements this interface, and the object created with that class is
  * registered with a component using the component's <code>addSpiderListener</code> method. When the
  * spider event occurs, that object's appropriate method is invoked.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public interface SpiderListener {
 
     /**
@@ -47,7 +48,10 @@ public interface SpiderListener {
      * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
      *     stating the reason of the filtering
      */
-    void foundURI(String uri, String method, FetchStatus status);
+    void foundURI(
+            String uri,
+            String method,
+            org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status);
 
     /**
      * Notifies that a new {@link SpiderTask}'s result is available.

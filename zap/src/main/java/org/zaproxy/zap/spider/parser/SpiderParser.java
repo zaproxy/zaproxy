@@ -26,13 +26,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
-import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
  * The Abstract Class SpiderParser is the base for parsers used by the spider. The main purpose of
  * these Parsers is to find links (uris) to resources in the provided content. Uses the Jericho
  * Library for parsing.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public abstract class SpiderParser {
 
     /** The listeners to spider parsing events. */
@@ -140,7 +142,7 @@ public abstract class SpiderParser {
      */
     protected void processURL(HttpMessage message, int depth, String localURL, String baseURL) {
         // Build the absolute canonical URL
-        String fullURL = URLCanonicalizer.getCanonicalURL(localURL, baseURL);
+        String fullURL = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(localURL, baseURL);
         if (fullURL == null) {
             return;
         }

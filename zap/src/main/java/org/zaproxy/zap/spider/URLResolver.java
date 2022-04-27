@@ -18,7 +18,12 @@
  */
 package org.zaproxy.zap.spider;
 
-/** The UrlResolve handles the process of resolving a relative URL against a base URL (context). */
+/**
+ * The UrlResolve handles the process of resolving a relative URL against a base URL (context).
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
+@Deprecated
 public final class URLResolver {
 
     /** Private constructor to avoid initialization of object. */

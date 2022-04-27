@@ -45,10 +45,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.model.ValueGenerator;
-import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.spider.URLCanonicalizer;
 
-/** The Class SpiderHtmlFormParser is used for parsing HTML files for processing forms. */
+/**
+ * The Class SpiderHtmlFormParser is used for parsing HTML files for processing forms.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
+@Deprecated
 public class SpiderHtmlFormParser extends SpiderParser {
 
     private static final String ENCODING_TYPE = "UTF-8";
@@ -62,7 +65,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
     private Map<String, String> envAttributes = new HashMap<>();
 
     /** The spider parameters. */
-    private final SpiderParam param;
+    private final org.zaproxy.zap.spider.SpiderParam param;
 
     /** Create new Value Generator field */
     private final ValueGenerator valueGenerator;
@@ -73,7 +76,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
      * @param param the parameters for the spider
      * @throws IllegalArgumentException if {@code param} is null.
      */
-    public SpiderHtmlFormParser(SpiderParam param) {
+    public SpiderHtmlFormParser(org.zaproxy.zap.spider.SpiderParam param) {
         this(param, new DefaultValueGenerator());
     }
 
@@ -84,7 +87,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
      * @param valueGenerator the ValueGenerator
      * @throws IllegalArgumentException if {@code param} or {@code valueGenerator} is null.
      */
-    public SpiderHtmlFormParser(SpiderParam param, ValueGenerator valueGenerator) {
+    public SpiderHtmlFormParser(
+            org.zaproxy.zap.spider.SpiderParam param, ValueGenerator valueGenerator) {
         super();
         if (param == null) {
             throw new IllegalArgumentException("Parameter param must not be null.");
@@ -121,7 +125,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
             }
             String href = base.getAttributeValue("href");
             if (href != null && !href.isEmpty()) {
-                baseURL = URLCanonicalizer.getCanonicalURL(href, baseURL);
+                baseURL = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(href, baseURL);
             }
         }
 
@@ -164,13 +168,15 @@ public class SpiderHtmlFormParser extends SpiderParser {
                     action = action.substring(0, fs);
                 }
 
-                url = URLCanonicalizer.getCanonicalURL(action, baseURL);
+                url = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(action, baseURL);
                 FormData formData = prepareFormDataSet(source, form);
 
                 // Process the case of a POST method
                 if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
                     // Build the absolute canonical URL
-                    String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
+                    String fullURL =
+                            org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(
+                                    action, baseURL);
                     if (fullURL == null) {
                         return false;
                     }

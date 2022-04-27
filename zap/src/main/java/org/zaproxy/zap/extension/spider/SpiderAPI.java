@@ -55,13 +55,11 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
-import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
-import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
-import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
-import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 
+/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+@Deprecated
 public class SpiderAPI extends ApiImplementor {
 
     private static final Logger log = LogManager.getLogger(SpiderAPI.class);
@@ -343,17 +341,19 @@ public class SpiderAPI extends ApiImplementor {
             case ACTION_ADD_DOMAIN_ALWAYS_IN_SCOPE:
                 try {
                     String value = params.getString(PARAM_VALUE);
-                    DomainAlwaysInScopeMatcher domainAlwaysInScope;
+                    org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher domainAlwaysInScope;
                     if (getParam(params, PARAM_IS_REGEX, false)) {
                         domainAlwaysInScope =
-                                new DomainAlwaysInScopeMatcher(
-                                        DomainAlwaysInScopeMatcher.createPattern(value));
+                                new org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher(
+                                        org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher
+                                                .createPattern(value));
                     } else {
-                        domainAlwaysInScope = new DomainAlwaysInScopeMatcher(value);
+                        domainAlwaysInScope =
+                                new org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher(value);
                     }
                     domainAlwaysInScope.setEnabled(getParam(params, PARAM_IS_ENABLED, true));
 
-                    List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope =
+                    List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domainsAlwaysInScope =
                             new ArrayList<>(extension.getSpiderParam().getDomainsAlwaysInScope());
                     domainsAlwaysInScope.add(domainAlwaysInScope);
                     extension.getSpiderParam().setDomainsAlwaysInScope(domainsAlwaysInScope);
@@ -369,20 +369,21 @@ public class SpiderAPI extends ApiImplementor {
                         throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX);
                     }
 
-                    DomainAlwaysInScopeMatcher oldDomain =
+                    org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher oldDomain =
                             extension.getSpiderParam().getDomainsAlwaysInScope().get(idx);
                     String value = getParam(params, PARAM_VALUE, oldDomain.getValue());
                     if (value.isEmpty()) {
                         value = oldDomain.getValue();
                     }
 
-                    DomainAlwaysInScopeMatcher newDomain;
+                    org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher newDomain;
                     if (getParam(params, PARAM_IS_REGEX, oldDomain.isRegex())) {
                         newDomain =
-                                new DomainAlwaysInScopeMatcher(
-                                        DomainAlwaysInScopeMatcher.createPattern(value));
+                                new org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher(
+                                        org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher
+                                                .createPattern(value));
                     } else {
-                        newDomain = new DomainAlwaysInScopeMatcher(value);
+                        newDomain = new org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher(value);
                     }
                     newDomain.setEnabled(getParam(params, PARAM_IS_ENABLED, oldDomain.isEnabled()));
 
@@ -390,7 +391,7 @@ public class SpiderAPI extends ApiImplementor {
                         break;
                     }
 
-                    List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope =
+                    List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domainsAlwaysInScope =
                             new ArrayList<>(extension.getSpiderParam().getDomainsAlwaysInScope());
                     domainsAlwaysInScope.set(idx, newDomain);
                     extension.getSpiderParam().setDomainsAlwaysInScope(domainsAlwaysInScope);
@@ -408,7 +409,7 @@ public class SpiderAPI extends ApiImplementor {
                         throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX);
                     }
 
-                    List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope =
+                    List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domainsAlwaysInScope =
                             new ArrayList<>(extension.getSpiderParam().getDomainsAlwaysInScope());
                     domainsAlwaysInScope.remove(idx);
                     extension.getSpiderParam().setDomainsAlwaysInScope(domainsAlwaysInScope);
@@ -429,9 +430,10 @@ public class SpiderAPI extends ApiImplementor {
     }
 
     private void setDomainsAlwaysInScopeEnabled(boolean enabled) {
-        List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope =
+        List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domainsAlwaysInScope =
                 extension.getSpiderParam().getDomainsAlwaysInScope();
-        for (DomainAlwaysInScopeMatcher x : extension.getSpiderParam().getDomainsAlwaysInScope()) {
+        for (org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher x :
+                extension.getSpiderParam().getDomainsAlwaysInScope()) {
             x.setEnabled(enabled);
         }
         extension.getSpiderParam().setDomainsAlwaysInScope(domainsAlwaysInScope);
@@ -542,18 +544,20 @@ public class SpiderAPI extends ApiImplementor {
         if (startURI != null) {
             objs.add(startURI);
             if (subtreeOnly) {
-                objs.add(new HttpPrefixFetchFilter(startURI));
+                objs.add(new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(startURI));
             }
         }
 
         if (maxChildren > 0) {
             // Add the filters to filter on maximum number of children
-            MaxChildrenFetchFilter maxChildrenFetchFilter = new MaxChildrenFetchFilter();
+            org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter maxChildrenFetchFilter =
+                    new org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter();
             maxChildrenFetchFilter.setMaxChildren(maxChildren);
             maxChildrenFetchFilter.setModel(extension.getModel());
 
-            MaxChildrenParseFilter maxChildrenParseFilter =
-                    new MaxChildrenParseFilter(extension.getMessages());
+            org.zaproxy.zap.spider.filters.MaxChildrenParseFilter maxChildrenParseFilter =
+                    new org.zaproxy.zap.spider.filters.MaxChildrenParseFilter(
+                            extension.getMessages());
             maxChildrenParseFilter.setMaxChildren(maxChildren);
             maxChildrenParseFilter.setModel(extension.getModel());
             objs.add(maxChildrenFetchFilter);
@@ -725,10 +729,12 @@ public class SpiderAPI extends ApiImplementor {
     }
 
     private ApiResponse domainMatchersToApiResponseList(
-            String name, List<DomainAlwaysInScopeMatcher> domains, boolean excludeDisabled) {
+            String name,
+            List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domains,
+            boolean excludeDisabled) {
         ApiResponseList apiResponse = new ApiResponseList(name);
         for (int i = 0; i < domains.size(); i++) {
-            DomainAlwaysInScopeMatcher domain = domains.get(i);
+            org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher domain = domains.get(i);
             if (!domain.isEnabled() && excludeDisabled) {
                 continue;
             }

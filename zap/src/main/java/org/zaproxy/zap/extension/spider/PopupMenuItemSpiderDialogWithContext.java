@@ -29,7 +29,9 @@ import org.zaproxy.zap.model.Target;
  * Context}.
  *
  * @see ExtensionSpider#showSpiderDialog(Target)
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class PopupMenuItemSpiderDialogWithContext extends PopupContextTreeMenu {
 
     private static final long serialVersionUID = 1L;

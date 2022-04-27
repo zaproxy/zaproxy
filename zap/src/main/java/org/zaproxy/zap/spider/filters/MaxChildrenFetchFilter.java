@@ -25,7 +25,10 @@ import org.parosproxy.paros.model.SiteNode;
 
 /**
  * The MaxChildrenFetchFilter defines a filter rule for limiting the number of children explored.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class MaxChildrenFetchFilter extends FetchFilter {
 
     private int maxChildren = -1;
