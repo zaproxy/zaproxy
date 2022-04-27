@@ -30,7 +30,10 @@ import org.parosproxy.paros.network.HttpMessage;
  *
  * <p>It's derived from the SpiderTextParser. Even if the format of the file is XML we will process
  * it as a simple text file
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderODataAtomParser extends SpiderParser {
 
     /** The Constant urlPattern defining the pattern for an url. */

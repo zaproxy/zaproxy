@@ -33,9 +33,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.spider.SpiderParam;
 
 /** Unit test for {@link SpiderHtmlParser}. */
+@SuppressWarnings("deprecation")
 class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
@@ -47,7 +47,7 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFailToCreateParserWithUndefinedSpiderOptions() {
         // Given
-        SpiderParam undefinedSpiderOptions = null;
+        org.zaproxy.zap.spider.SpiderParam undefinedSpiderOptions = null;
         // When / Then
         assertThrows(
                 IllegalArgumentException.class, () -> new SpiderHtmlParser(undefinedSpiderOptions));
@@ -57,7 +57,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         // When / Then
         assertThrows(
                 NullPointerException.class,
@@ -67,7 +68,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParseHtmlResponse() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         HttpMessage messageHtmlResponse = createMessageWith("NoURLsSpiderHtmlParser.html");
         boolean parsed = false;
         // When
@@ -79,7 +81,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParseHtmlResponseEvenIfProvidedPathIsNull() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         HttpMessage messageHtmlResponse = createMessageWith("NoURLsSpiderHtmlParser.html");
         boolean parsed = false;
         // When
@@ -91,7 +94,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseHtmlResponseIfAlreadyParsed() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         HttpMessage messageHtmlResponse = createMessageWith("NoURLsSpiderHtmlParser.html");
         boolean parsed = true;
         // When
@@ -104,7 +108,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         Source source = createSource(createMessageWith("NoURLsSpiderHtmlParser.html"));
         // When / Then
         assertThrows(
@@ -116,7 +121,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     void shouldParseMessageEvenWithoutSource() {
         // Given
         Source source = null;
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         HttpMessage messageHtmlResponse = createMessageWith("NoURLsSpiderHtmlParser.html");
         // When / Then
         assertDoesNotThrow(() -> htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH));
@@ -126,7 +132,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     void shouldNeverConsiderCompletelyParsed() {
         // Given
         Source source = null;
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         HttpMessage messageHtmlResponse = createMessageWith("NoURLsSpiderHtmlParser.html");
         // When
         boolean completelyParsed =
@@ -138,7 +145,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInAElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("AElementsSpiderHtmlParser.html");
@@ -164,7 +172,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInAnchorPingElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =
@@ -212,7 +221,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInAppletElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("AppletElementsSpiderHtmlParser.html");
@@ -239,7 +249,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInImportElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("ImportElementsSpiderHtmlParser.html");
@@ -263,7 +274,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInAreaPingElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =
@@ -311,7 +323,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldUseMessageUriIfNoBaseElement() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =
@@ -329,7 +342,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldUseAbsolutePathBaseElement() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =
@@ -351,7 +365,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldUseRelativePathBaseElement() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =
@@ -373,7 +388,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldIgnoreBaseAndUseMessageUriIfBaseElementDoesNotHaveHref() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =
@@ -391,7 +407,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldIgnoreBaseAndUseMessageUriIfBaseElementHaveEmptyHref() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =
@@ -409,7 +426,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInAreaElements() throws Exception {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("AreaElementsSpiderHtmlParser.html");
@@ -435,7 +453,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInAudioElements() throws Exception {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("AudioElementsSpiderHtmlParser.html");
@@ -457,7 +476,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInEmbedElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("EmbedElementsSpiderHtmlParser.html");
@@ -483,7 +503,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInFrameElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("FrameElementsSpiderHtmlParser.html");
@@ -509,7 +530,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInIFrameElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("IFrameElementsSpiderHtmlParser.html");
@@ -535,7 +557,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInIsIndexElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("IsIndexElementsSpiderHtmlParser.html");
@@ -557,7 +580,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInLinkElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("LinkElementsSpiderHtmlParser.html");
@@ -583,7 +607,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInInputElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("InputElementsSpiderHtmlParser.html");
@@ -605,7 +630,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInObjectElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("ObjectElementsSpiderHtmlParser.html");
@@ -635,7 +661,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInScriptElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("ScriptElementsSpiderHtmlParser.html");
@@ -661,7 +688,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInTableElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("TableElementsSpiderHtmlParser.html");
@@ -691,7 +719,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInVideoElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("VideoElementsSpiderHtmlParser.html");
@@ -724,7 +753,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInImgElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("ImgElementsSpiderHtmlParser.html");
@@ -767,7 +797,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInMetaElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("MetaElementsSpiderHtmlParser.html");
@@ -808,7 +839,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInString() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse = createMessageWith("StringSpiderHtmlParser.html");
@@ -831,7 +863,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     void shouldFindUrlsInCommentsWithElements() {
         // AKA shouldNotFindPlainUrlsInCommentsWithElements
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =
@@ -860,7 +893,7 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotFindUrlsInCommentsWithElementsIfNotEnabledToParseComments() {
         // Given
-        SpiderParam spiderOptions = createSpiderParamWithConfig();
+        org.zaproxy.zap.spider.SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setParseComments(false);
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(spiderOptions);
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -880,7 +913,8 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInCommentsWithoutElements() {
         // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        SpiderHtmlParser htmlParser =
+                new SpiderHtmlParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =
@@ -910,7 +944,7 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotFindUrlsInCommentsWithoutElementsIfNotEnabledToParseComments() {
         // Given
-        SpiderParam spiderOptions = createSpiderParamWithConfig();
+        org.zaproxy.zap.spider.SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setParseComments(false);
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(spiderOptions);
         TestSpiderParserListener listener = createTestSpiderParserListener();
@@ -939,7 +973,7 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
             })
     void shouldFindUrlInFile(String file) {
         // Given
-        SpiderParam spiderOptions = createSpiderParamWithConfig();
+        org.zaproxy.zap.spider.SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setParseComments(false);
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(spiderOptions);
         TestSpiderParserListener listener = createTestSpiderParserListener();

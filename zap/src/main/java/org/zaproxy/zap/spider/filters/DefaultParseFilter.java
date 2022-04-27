@@ -25,7 +25,6 @@ import java.util.ResourceBundle;
 import java.util.regex.Pattern;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
-import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * The DefaultParseFilter is an implementation of a {@link ParseFilter} that is default for
@@ -37,7 +36,10 @@ import org.zaproxy.zap.spider.SpiderParam;
  *   <li>the resource must be of parsable type (text, html, xml, javascript). Actually, the content
  *       type should be text/...
  * </ul>
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class DefaultParseFilter extends ParseFilter {
 
     /**
@@ -66,7 +68,7 @@ public class DefaultParseFilter extends ParseFilter {
             Pattern.compile(".*/sitemap.xml$", Pattern.CASE_INSENSITIVE);
 
     /** The configurations of the spider, never {@code null}. */
-    private final SpiderParam params;
+    private final org.zaproxy.zap.spider.SpiderParam params;
 
     private final FilterResult filterResultEmpty;
     private final FilterResult filterResultMaxSize;
@@ -80,7 +82,7 @@ public class DefaultParseFilter extends ParseFilter {
     @Deprecated
     public DefaultParseFilter() {
         this(
-                new SpiderParam(),
+                new org.zaproxy.zap.spider.SpiderParam(),
                 new ResourceBundle() {
 
                     @Override
@@ -107,7 +109,8 @@ public class DefaultParseFilter extends ParseFilter {
      * @since 2.7.0
      * @see SpiderParam#getMaxParseSizeBytes()
      */
-    public DefaultParseFilter(SpiderParam params, ResourceBundle resourceBundle) {
+    public DefaultParseFilter(
+            org.zaproxy.zap.spider.SpiderParam params, ResourceBundle resourceBundle) {
         if (params == null) {
             throw new IllegalArgumentException("Parameter params must not be null.");
         }

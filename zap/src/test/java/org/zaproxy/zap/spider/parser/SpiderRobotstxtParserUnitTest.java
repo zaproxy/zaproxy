@@ -29,9 +29,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.spider.SpiderParam;
 
 /** Unit test for {@link SpiderRobotstxtParser}. */
+@SuppressWarnings("deprecation")
 class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
@@ -41,7 +41,7 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldRequireNonNullSpiderParam() {
         // Given
-        SpiderParam spiderParam = null;
+        org.zaproxy.zap.spider.SpiderParam spiderParam = null;
         // When / Then
         assertThrows(NullPointerException.class, () -> new SpiderRobotstxtParser(spiderParam));
     }
@@ -50,7 +50,8 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     void shouldNotFailToEvaluateAnUndefinedPath() {
         // Given
         String path = null;
-        SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
+        SpiderRobotstxtParser spiderParser =
+                new SpiderRobotstxtParser(new org.zaproxy.zap.spider.SpiderParam());
         // When / Then
         assertDoesNotThrow(() -> spiderParser.canParseResource(null, path, false));
     }
@@ -58,7 +59,8 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParseRobotsTxtPath() {
         // Given
-        SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
+        SpiderRobotstxtParser spiderParser =
+                new SpiderRobotstxtParser(new org.zaproxy.zap.spider.SpiderParam());
         // When
         boolean canParse = spiderParser.canParseResource(null, ROBOTS_TXT_PATH, false);
         // Then
@@ -68,7 +70,8 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParseRobotsTxtPathWithDifferentCase() {
         // Given
-        SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
+        SpiderRobotstxtParser spiderParser =
+                new SpiderRobotstxtParser(new org.zaproxy.zap.spider.SpiderParam());
         // When
         boolean canParse = spiderParser.canParseResource(null, "/RoBoTs.TxT", false);
         // Then
@@ -78,7 +81,8 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParseRobotsTxtPathEvenIfAlreadyParsed() {
         // Given
-        SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
+        SpiderRobotstxtParser spiderParser =
+                new SpiderRobotstxtParser(new org.zaproxy.zap.spider.SpiderParam());
         boolean parsed = true;
         // When
         boolean canParse = spiderParser.canParseResource(null, ROBOTS_TXT_PATH, parsed);
@@ -89,7 +93,8 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseNonRobotsTxtPath() {
         // Given
-        SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
+        SpiderRobotstxtParser spiderParser =
+                new SpiderRobotstxtParser(new org.zaproxy.zap.spider.SpiderParam());
         // When
         boolean canParse = spiderParser.canParseResource(null, ROOT_PATH, false);
         // Then
@@ -100,7 +105,8 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
+        SpiderRobotstxtParser spiderParser =
+                new SpiderRobotstxtParser(new org.zaproxy.zap.spider.SpiderParam());
         // When / Then
         assertThrows(
                 NullPointerException.class,
@@ -110,7 +116,7 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotBeCompletelyParsedIfParseDisabled() {
         // Given
-        SpiderParam spiderParam = createSpiderParamWithConfig();
+        org.zaproxy.zap.spider.SpiderParam spiderParam = createSpiderParamWithConfig();
         spiderParam.setParseRobotsTxt(false);
         SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(spiderParam);
         HttpMessage message = createMessageWith("");
@@ -123,7 +129,8 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldBeAlwaysCompletelyParsedIfParseEnabled() {
         // Given
-        SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
+        SpiderRobotstxtParser spiderParser =
+                new SpiderRobotstxtParser(new org.zaproxy.zap.spider.SpiderParam());
         HttpMessage message = createMessageWith("");
         // When
         boolean completelyParsed = spiderParser.parseResource(message, null, BASE_DEPTH);
@@ -134,7 +141,8 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotFindUrlsIfThereIsNone() {
         // Given
-        SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
+        SpiderRobotstxtParser spiderParser =
+                new SpiderRobotstxtParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage message =
@@ -158,7 +166,8 @@ class SpiderRobotstxtParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrls() {
         // Given
-        SpiderRobotstxtParser spiderParser = new SpiderRobotstxtParser(new SpiderParam());
+        SpiderRobotstxtParser spiderParser =
+                new SpiderRobotstxtParser(new org.zaproxy.zap.spider.SpiderParam());
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =

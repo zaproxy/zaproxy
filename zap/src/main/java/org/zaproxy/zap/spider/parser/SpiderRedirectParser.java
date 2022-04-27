@@ -24,7 +24,12 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 
-/** The Class SpiderRedirectParser is used for parsing of HTTP Redirection messages. */
+/**
+ * The Class SpiderRedirectParser is used for parsing of HTTP Redirection messages.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
+@Deprecated
 public class SpiderRedirectParser extends SpiderParser {
 
     @Override

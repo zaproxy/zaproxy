@@ -29,15 +29,16 @@ import net.htmlparser.jericho.Source;
 import net.htmlparser.jericho.StartTag;
 import net.htmlparser.jericho.StartTagType;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
  * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.
  *
  * <p><strong>NOTE:</strong> Handling of HTML Forms is not done in this Parser. Instead see {@link
  * SpiderHtmlFormParser}.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderHtmlParser extends SpiderParser {
 
     /** The Constant URL_PATTERN defining the pattern for a meta URL. */
@@ -84,7 +85,7 @@ public class SpiderHtmlParser extends SpiderParser {
     private boolean baseTagSet;
 
     /** The params. */
-    private SpiderParam params;
+    private org.zaproxy.zap.spider.SpiderParam params;
 
     /**
      * Instantiates a new spider html parser.
@@ -92,7 +93,7 @@ public class SpiderHtmlParser extends SpiderParser {
      * @param params the params
      * @throws IllegalArgumentException if {@code params} is null.
      */
-    public SpiderHtmlParser(SpiderParam params) {
+    public SpiderHtmlParser(org.zaproxy.zap.spider.SpiderParam params) {
         super();
         if (params == null) {
             throw new IllegalArgumentException("Parameter params must not be null.");
@@ -120,7 +121,7 @@ public class SpiderHtmlParser extends SpiderParser {
             }
             String href = base.getAttributeValue("href");
             if (href != null && !href.isEmpty()) {
-                baseURL = URLCanonicalizer.getCanonicalURL(href, baseURL);
+                baseURL = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(href, baseURL);
                 baseTagSet = true;
             }
         }

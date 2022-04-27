@@ -32,7 +32,12 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
-/** The SpiderParam wraps all the parameters that are given to the spider. */
+/**
+ * The SpiderParam wraps all the parameters that are given to the spider.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
+@Deprecated
 public class SpiderParam extends AbstractParam {
 
     /**

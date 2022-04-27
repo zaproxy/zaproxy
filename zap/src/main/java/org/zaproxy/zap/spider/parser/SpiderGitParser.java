@@ -24,7 +24,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * The Class SpiderGitParser is used for parsing Git metadata from the .git/index file This parser
@@ -33,11 +32,13 @@ import org.zaproxy.zap.spider.SpiderParam;
  * Git version 0.05 in 2005.
  *
  * @author 70pointer
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderGitParser extends SpiderParser {
 
     /** The Spider parameters. */
-    private SpiderParam params;
+    private org.zaproxy.zap.spider.SpiderParam params;
 
     /** a pattern to match the file name of the Git index file */
     private static final Pattern gitIndexFilenamePattern = Pattern.compile("/.git/index$");
@@ -52,7 +53,7 @@ public class SpiderGitParser extends SpiderParser {
      *
      * @param params the params
      */
-    public SpiderGitParser(SpiderParam params) {
+    public SpiderGitParser(org.zaproxy.zap.spider.SpiderParam params) {
         super();
         this.params = params;
     }

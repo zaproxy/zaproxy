@@ -24,7 +24,10 @@ package org.zaproxy.zap.extension.spider;
  *
  * <p>Contains the HTTP method used to fetch the resource, status code and reason, URI and the ID of
  * the corresponding (persisted) HTTP message.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderResource {
 
     private final int historyId;

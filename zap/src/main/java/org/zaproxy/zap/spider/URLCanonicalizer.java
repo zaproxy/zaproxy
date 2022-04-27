@@ -32,7 +32,6 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
 /**
  * The URLCanonicalizer is used for the process of converting an URL into a canonical (normalized)
@@ -43,7 +42,10 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
  * href="http://stackoverflow.com/a/4057470/405418">stackoverflow</a>
  *
  * <p>Added support for OData URLs
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public final class URLCanonicalizer {
 
     /** The Constant log. */
@@ -245,12 +247,14 @@ public final class URLCanonicalizer {
             throws URIException {
         // If the option is set to use all the information, just use the default string
         // representation
-        if (handleParameters.equals(HandleParametersOption.USE_ALL)) {
+        if (handleParameters.equals(
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL)) {
             return uri.toString();
         }
 
         // If the option is set to ignore parameters completely, ignore the query completely
-        if (handleParameters.equals(HandleParametersOption.IGNORE_COMPLETELY)) {
+        if (handleParameters.equals(
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY)) {
             return createBaseUriWithCleanedPath(
                     uri, handleParameters, handleODataParametersVisited);
         }
@@ -258,7 +262,8 @@ public final class URLCanonicalizer {
         // If the option is set to ignore the value, we get the parameters and we only add their
         // name to the
         // query
-        if (handleParameters.equals(HandleParametersOption.IGNORE_VALUE)) {
+        if (handleParameters.equals(
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE)) {
             StringBuilder retVal =
                     new StringBuilder(
                             createBaseUriWithCleanedPath(
@@ -280,7 +285,7 @@ public final class URLCanonicalizer {
 
     private static String createBaseUriWithCleanedPath(
             org.apache.commons.httpclient.URI uri,
-            HandleParametersOption handleParameters,
+            org.zaproxy.zap.spider.SpiderParam.HandleParametersOption handleParameters,
             boolean handleODataParametersVisited)
             throws URIException {
         StringBuilder uriBuilder = new StringBuilder(createBaseUri(uri));
@@ -303,7 +308,7 @@ public final class URLCanonicalizer {
 
     private static String getCleanedPath(
             String escapedPath,
-            HandleParametersOption handleParameters,
+            org.zaproxy.zap.spider.SpiderParam.HandleParametersOption handleParameters,
             boolean handleODataParametersVisited) {
         if (escapedPath == null) {
             return "";
@@ -353,10 +358,13 @@ public final class URLCanonicalizer {
      * @param handleParameters tThe cleaning mode
      * @return A cleaned path
      */
-    private static String cleanODataPath(String path, HandleParametersOption handleParameters) {
+    private static String cleanODataPath(
+            String path,
+            org.zaproxy.zap.spider.SpiderParam.HandleParametersOption handleParameters) {
         String cleanedPath = path;
 
-        if (HandleParametersOption.USE_ALL.equals(handleParameters)) {
+        if (org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL.equals(
+                handleParameters)) {
             cleanedPath = path;
         } else {
 
@@ -373,8 +381,10 @@ public final class URLCanonicalizer {
                 String beforeSubstring = path.substring(0, begin);
                 String afterSubstring = path.substring(end);
 
-                if (HandleParametersOption.IGNORE_COMPLETELY.equals(handleParameters)
-                        || HandleParametersOption.IGNORE_VALUE.equals(handleParameters)) {
+                if (org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY
+                                .equals(handleParameters)
+                        || org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE
+                                .equals(handleParameters)) {
 
                     StringBuilder sb = new StringBuilder(beforeSubstring);
                     sb.append(resourceName).append("()").append(afterSubstring);
@@ -395,7 +405,8 @@ public final class URLCanonicalizer {
                     String beforeSubstring = path.substring(0, begin);
                     String afterSubstring = path.substring(end);
 
-                    if (HandleParametersOption.IGNORE_COMPLETELY.equals(handleParameters)) {
+                    if (org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY
+                            .equals(handleParameters)) {
                         cleanedPath = beforeSubstring + afterSubstring;
                     } else {
                         StringBuilder sb = new StringBuilder(beforeSubstring);

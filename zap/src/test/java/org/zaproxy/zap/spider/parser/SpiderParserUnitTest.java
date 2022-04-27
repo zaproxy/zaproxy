@@ -32,6 +32,7 @@ import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link SpiderParser}. */
+@SuppressWarnings("deprecation")
 class SpiderParserUnitTest extends SpiderParserTestUtils {
 
     @Test
@@ -48,8 +49,10 @@ class SpiderParserUnitTest extends SpiderParserTestUtils {
         TestSpiderParser testSpiderParser = new TestSpiderParser();
         TestSpiderParserListener listener1 = createTestSpiderParserListener();
         TestSpiderParserListener listener2 = createTestSpiderParserListener();
-        SpiderResourceFound resourceFound1 = mock(SpiderResourceFound.class);
-        SpiderResourceFound resourceFound2 = mock(SpiderResourceFound.class);
+        org.zaproxy.zap.spider.parser.SpiderResourceFound resourceFound1 =
+                mock(org.zaproxy.zap.spider.parser.SpiderResourceFound.class);
+        org.zaproxy.zap.spider.parser.SpiderResourceFound resourceFound2 =
+                mock(org.zaproxy.zap.spider.parser.SpiderResourceFound.class);
         // When
         testSpiderParser.addSpiderParserListener(listener1);
         testSpiderParser.addSpiderParserListener(listener2);
@@ -68,8 +71,10 @@ class SpiderParserUnitTest extends SpiderParserTestUtils {
         testSpiderParser.addSpiderParserListener(listener1);
         TestSpiderParserListener listener2 = createTestSpiderParserListener();
         testSpiderParser.addSpiderParserListener(listener2);
-        SpiderResourceFound resourceFound1 = mock(SpiderResourceFound.class);
-        SpiderResourceFound resourceFound2 = mock(SpiderResourceFound.class);
+        org.zaproxy.zap.spider.parser.SpiderResourceFound resourceFound1 =
+                mock(org.zaproxy.zap.spider.parser.SpiderResourceFound.class);
+        org.zaproxy.zap.spider.parser.SpiderResourceFound resourceFound2 =
+                mock(org.zaproxy.zap.spider.parser.SpiderResourceFound.class);
         // When
         testSpiderParser.notifyListenersResourceFound(resourceFound1);
         testSpiderParser.removeSpiderParserListener(listener2);

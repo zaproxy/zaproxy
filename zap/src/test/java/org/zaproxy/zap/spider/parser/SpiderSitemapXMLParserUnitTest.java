@@ -29,9 +29,9 @@ import java.nio.file.Path;
 import net.htmlparser.jericho.Source;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.spider.SpiderParam;
 
 /** Unit test for {@link SpiderSitemapXMLParser}. */
+@SuppressWarnings("deprecation")
 class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
@@ -43,18 +43,21 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFailToCreateParserWithUndefinedSpiderOptions() {
         // Given
-        SpiderParam undefinedSpiderOptions = null;
+        org.zaproxy.zap.spider.SpiderParam undefinedSpiderOptions = null;
         // When / Then
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new SpiderSitemapXMLParser(undefinedSpiderOptions));
+                () ->
+                        new org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser(
+                                undefinedSpiderOptions));
     }
 
     @Test
     void shouldNotFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         // When
         boolean canParse = spiderParser.canParseResource(undefinedMessage, ROOT_PATH, false);
         // Then
@@ -65,7 +68,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     void shouldFailToEvaluateAnUndefinedPath() {
         // Given
         String undefinedPath = null;
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         // When / Then
         assertThrows(
                 NullPointerException.class,
@@ -75,7 +79,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParsePathThatEndsWithSitemapXml() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         boolean parsed = false;
         // When
         boolean canParse = spiderParser.canParseResource(new HttpMessage(), "/sitemap.xml", parsed);
@@ -86,7 +91,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParseMessageEvenIfAlreadyParsed() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         boolean parsed = true;
         // When
         boolean canParse = spiderParser.canParseResource(new HttpMessage(), "/sitemap.xml", parsed);
@@ -98,7 +104,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     void shouldNotParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         // When
         boolean completelyParsed =
                 spiderParser.parseResource(undefinedMessage, new Source(""), BASE_DEPTH);
@@ -110,7 +117,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     void shouldNotRequireSourceToParseMessage() {
         // Given
         Source undefinedSource = null;
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("NoUrlsSitemap.xml");
         // When
         boolean completelyParsed = spiderParser.parseResource(message, undefinedSource, BASE_DEPTH);
@@ -121,9 +129,10 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseMessageIfParseOfSitemapXmlIsDisabled() {
         // Given
-        SpiderParam params = createSpiderParamWithConfig();
+        org.zaproxy.zap.spider.SpiderParam params = createSpiderParamWithConfig();
         params.setParseSitemapXml(false);
-        SpiderSitemapXMLParser spiderParser = new SpiderSitemapXMLParser(params);
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                new org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser(params);
         HttpMessage message = createMessageWith("NoUrlsSitemap.xml");
         // When
         boolean completelyParsed = spiderParser.parseResource(message, null, BASE_DEPTH);
@@ -134,7 +143,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseNonXmlMessage() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("text/html", "NoUrlsSitemap.xml");
         // When
         boolean completelyParsed = spiderParser.parseResource(message, null, BASE_DEPTH);
@@ -145,7 +155,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseXmlMessageIfClientError() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("404 Not Found", "text/xml", "NoUrlsSitemap.xml");
         // When
         boolean completelyParsed = spiderParser.parseResource(message, null, BASE_DEPTH);
@@ -156,7 +167,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseXmlMessageIfServerError() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         HttpMessage message =
                 createMessageWith("500 Internal Server Error", "text/xml", "NoUrlsSitemap.xml");
         // When
@@ -168,7 +180,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseEmptyXmlMessage() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("EmptyFile.xml");
         // When
         boolean completelyParsed = spiderParser.parseResource(message, null, BASE_DEPTH);
@@ -179,7 +192,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseMalformedXmlMessage() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("MalformedSitemap.xml");
         // When
         boolean completelyParsed = spiderParser.parseResource(message, null, BASE_DEPTH);
@@ -190,7 +204,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseXmlMessageWithDoctype() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         HttpMessage message = createMessageWith("DoctypeSitemap.xml");
         // When
         boolean completelyParsed = spiderParser.parseResource(message, null, BASE_DEPTH);
@@ -201,7 +216,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotFindUrlsIfNoneDefinedInSitemap() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage message = createMessageWith("NoUrlsSitemap.xml");
@@ -215,7 +231,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotFindUrlsIfUrlHasNoLocationIsEmptyInSitemap() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage message = createMessageWith("UrlNoLocationSitemap.xml");
@@ -229,7 +246,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotFindUrlsIfUrlLocationIsEmptyInSitemap() {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage message = createMessageWith("UrlEmptyLocationSitemap.xml");
@@ -243,7 +261,8 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInValidSitemapXml() throws Exception {
         // Given
-        SpiderSitemapXMLParser spiderParser = createSpiderSitemapXMLParser();
+        org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser spiderParser =
+                createSpiderSitemapXMLParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage message = createMessageWith("MultipleUrlsSitemap.xml");
@@ -262,10 +281,11 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
                         "http://www.example.com/%C7"));
     }
 
-    private static SpiderSitemapXMLParser createSpiderSitemapXMLParser() {
-        SpiderParam params = createSpiderParamWithConfig();
+    private static org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser
+            createSpiderSitemapXMLParser() {
+        org.zaproxy.zap.spider.SpiderParam params = createSpiderParamWithConfig();
         params.setParseSitemapXml(true);
-        return new SpiderSitemapXMLParser(params);
+        return new org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser(params);
     }
 
     private static HttpMessage createMessageWith(String filename) {

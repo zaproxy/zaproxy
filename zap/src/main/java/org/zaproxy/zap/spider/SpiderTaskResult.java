@@ -27,7 +27,9 @@ import org.parosproxy.paros.network.HttpMessage;
  * <p>Contains the message and processing details.
  *
  * @since 2.7.0
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderTaskResult {
 
     private final HttpMessage httpMessage;

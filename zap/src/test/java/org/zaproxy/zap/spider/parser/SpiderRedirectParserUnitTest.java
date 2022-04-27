@@ -36,6 +36,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 
 /** Unit test for {@link SpiderRedirectParser}. */
+@SuppressWarnings("deprecation")
 class SpiderRedirectParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";

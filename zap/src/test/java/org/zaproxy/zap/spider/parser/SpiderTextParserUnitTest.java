@@ -31,6 +31,7 @@ import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link SpiderTextParser}. */
+@SuppressWarnings("deprecation")
 class SpiderTextParserUnitTest extends SpiderParserTestUtils {
 
     private static final String EMPTY_BODY = "";
@@ -41,7 +42,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        org.zaproxy.zap.spider.parser.SpiderTextParser spiderParser =
+                new org.zaproxy.zap.spider.parser.SpiderTextParser();
         // When / Then
         assertThrows(
                 NullPointerException.class,
@@ -51,7 +53,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseMessageIfAlreadyParsed() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        org.zaproxy.zap.spider.parser.SpiderTextParser spiderParser =
+                new org.zaproxy.zap.spider.parser.SpiderTextParser();
         boolean parsed = true;
         // When
         boolean canParse = spiderParser.canParseResource(new HttpMessage(), ROOT_PATH, parsed);
@@ -134,7 +137,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNeverConsiderCompletelyParsed() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        org.zaproxy.zap.spider.parser.SpiderTextParser spiderParser =
+                new org.zaproxy.zap.spider.parser.SpiderTextParser();
         HttpMessage message = createMessageWith("Non Empty Body...");
         Source source = createSource(message);
         // When
@@ -146,7 +150,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotFindUrlsIfThereIsNone() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        org.zaproxy.zap.spider.parser.SpiderTextParser spiderParser =
+                new org.zaproxy.zap.spider.parser.SpiderTextParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage message =
@@ -168,7 +173,8 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInCommentsWithoutElements() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
+        org.zaproxy.zap.spider.parser.SpiderTextParser spiderParser =
+                new org.zaproxy.zap.spider.parser.SpiderTextParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =

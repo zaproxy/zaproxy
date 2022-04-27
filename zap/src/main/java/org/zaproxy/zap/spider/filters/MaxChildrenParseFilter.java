@@ -28,7 +28,10 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * The MaxChildrenFetchFilter defines a filter rule for limiting the number of children explored.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class MaxChildrenParseFilter extends ParseFilter {
 
     private int maxChildren = -1;

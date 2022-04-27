@@ -42,7 +42,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.XmlUtils;
 
 /**
@@ -50,7 +49,9 @@ import org.zaproxy.zap.utils.XmlUtils;
  * "wc.db" files.
  *
  * @author 70pointer
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderSVNEntriesParser extends SpiderParser {
     /* this class was Cloned from SpiderRobotstxtParser, by Cosmin. Credit where credit is due. */
 
@@ -69,7 +70,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
             Pattern.compile("^(http://|https://)", Pattern.CASE_INSENSITIVE);
 
     /** The Spider parameters. */
-    private SpiderParam params;
+    private org.zaproxy.zap.spider.SpiderParam params;
 
     /** used to parse the XML based .svn/entries file format */
     private static DocumentBuilder dBuilder;
@@ -90,7 +91,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
      *
      * @param params the params
      */
-    public SpiderSVNEntriesParser(SpiderParam params) {
+    public SpiderSVNEntriesParser(org.zaproxy.zap.spider.SpiderParam params) {
         super();
         this.params = params;
     }
