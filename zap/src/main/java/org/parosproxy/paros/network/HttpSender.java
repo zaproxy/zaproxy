@@ -97,6 +97,7 @@
 // ZAP: 2022/04/24 Move network initialisations from ZAP class.
 // ZAP: 2022/04/24 Allow to download to file.
 // ZAP: 2022/04/27 Expose global HTTP state enabled status.
+// ZAP: 2022/04/27 Use latest proxy settings always.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -134,7 +135,6 @@ import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.InvalidRedirectLocationException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
-import org.apache.commons.httpclient.ProxyHost;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.auth.AuthPolicy;
@@ -229,10 +229,8 @@ public class HttpSender {
             };
 
     private HttpClient client = null;
-    private HttpClient clientViaProxy = null;
     private ConnectionParam param = null;
     private MultiThreadedHttpConnectionManager httpConnManager = null;
-    private MultiThreadedHttpConnectionManager httpConnManagerProxy = null;
     private HttpRequestConfig followRedirect = NO_REDIRECTS;
     private boolean useCookies;
     private boolean useGlobalState;
@@ -285,7 +283,6 @@ public class HttpSender {
         this.initiator = initiator;
 
         client = createHttpClient();
-        clientViaProxy = createHttpClientViaProxy();
         setAllowCircularRedirects(true);
 
         // Set how cookie headers are sent no matter of the "allowState", in case a state is forced
@@ -295,17 +292,8 @@ public class HttpSender {
         client.getParams()
                 .setBooleanParameter(
                         HttpMethodParams.SINGLE_COOKIE_HEADER, singleCookieRequestHeader);
-        clientViaProxy
-                .getParams()
-                .setBooleanParameter(
-                        HttpMethodParams.SINGLE_COOKIE_HEADER, singleCookieRequestHeader);
         String defaultUserAgent = param.getDefaultUserAgent();
         client.getParams()
-                .setParameter(
-                        HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS,
-                        defaultUserAgent);
-        clientViaProxy
-                .getParams()
                 .setParameter(
                         HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS,
                         defaultUserAgent);
@@ -316,7 +304,6 @@ public class HttpSender {
 
     private void setClientsCookiePolicy(String policy) {
         client.getParams().setCookiePolicy(policy);
-        clientViaProxy.getParams().setCookiePolicy(policy);
     }
 
     /**
@@ -337,8 +324,6 @@ public class HttpSender {
         } else if (useGlobalState) {
             if (param.isHttpStateEnabled()) {
                 client.setState(param.getHttpState());
-                clientViaProxy.setState(param.getHttpState());
-                setProxyAuth(clientViaProxy);
                 setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
             } else {
                 setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
@@ -352,12 +337,7 @@ public class HttpSender {
 
     private void resetState() {
         HttpState state = new HttpState();
-        HttpState proxyState = new HttpState();
-
         client.setState(state);
-        clientViaProxy.setState(proxyState);
-
-        setProxyAuth(clientViaProxy);
     }
 
     /**
@@ -414,28 +394,6 @@ public class HttpSender {
         return new HttpClient(httpConnManager);
     }
 
-    private HttpClient createHttpClientViaProxy() {
-
-        if (!param.isUseProxyChain()) {
-            return createHttpClient();
-        }
-
-        httpConnManagerProxy = new MultiThreadedHttpConnectionManager();
-        setCommonManagerParams(httpConnManagerProxy);
-        HttpClient clientProxy = new HttpClient(httpConnManagerProxy);
-        clientProxy
-                .getHostConfiguration()
-                .setProxy(param.getProxyChainName(), param.getProxyChainPort());
-
-        setProxyAuth(clientProxy);
-
-        return clientProxy;
-    }
-
-    private void setProxyAuth(HttpClient client) {
-        setProxyAuth(client.getState());
-    }
-
     private void setProxyAuth(HttpState state) {
         if (param.isUseProxyChain() && param.isUseProxyChainAuth()) {
             String realm = param.getProxyChainRealm();
@@ -449,6 +407,8 @@ public class HttpSender {
                             param.getProxyChainPassword(),
                             "",
                             realm));
+        } else {
+            state.clearProxyCredentials();
         }
     }
 
@@ -478,14 +438,6 @@ public class HttpSender {
         HttpClient requestClient;
         if (isConnectionUpgrade(method)) {
             requestClient = new HttpClient(new ZapHttpConnectionManager());
-            if (param.isUseProxy(hostName)) {
-                requestClient
-                        .getHostConfiguration()
-                        .setProxy(param.getProxyChainName(), param.getProxyChainPort());
-                setProxyAuth(requestClient);
-            }
-        } else if (param.isUseProxy(hostName)) {
-            requestClient = clientViaProxy;
         } else {
             requestClient = client;
         }
@@ -514,11 +466,6 @@ public class HttpSender {
                     hostName,
                     method.getURI().getPort(),
                     new Protocol("https", (ProtocolSocketFactory) new SSLConnector(false), 443));
-            if (param.isUseProxy(hostName)) {
-                hc.setProxyHost(
-                        new ProxyHost(param.getProxyChainName(), param.getProxyChainPort()));
-                setProxyAuth(requestClient);
-            }
         }
 
         method.getParams()
@@ -531,7 +478,18 @@ public class HttpSender {
             // Make sure cookies are enabled
             method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
             setProxyAuth(state);
+        } else {
+            setProxyAuth(requestClient.getState());
         }
+
+        if (param.isUseProxy(hostName)) {
+            if (hc == null) {
+                hc = new HostConfiguration();
+                hc.setHost(hostName, method.getURI().getPort(), method.getURI().getScheme());
+            }
+            hc.setProxy(param.getProxyChainName(), param.getProxyChainPort());
+        }
+
         responseCode = requestClient.executeMethod(hc, method, state);
 
         return responseCode;
@@ -555,9 +513,6 @@ public class HttpSender {
     public void shutdown() {
         if (httpConnManager != null) {
             httpConnManager.shutdown();
-        }
-        if (httpConnManagerProxy != null) {
-            httpConnManagerProxy.shutdown();
         }
     }
 
@@ -987,10 +942,6 @@ public class HttpSender {
         client.getParams()
                 .setBooleanParameter(
                         HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, removeHeaders);
-        clientViaProxy
-                .getParams()
-                .setBooleanParameter(
-                        HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, removeHeaders);
     }
 
     /**
@@ -1010,7 +961,6 @@ public class HttpSender {
 
         HttpMethodRetryHandler retryHandler = new DefaultHttpMethodRetryHandler(retries, false);
         client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
-        clientViaProxy.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
     }
 
     /**
@@ -1028,7 +978,6 @@ public class HttpSender {
                     "Parameter maxRedirects must be greater or equal to zero.");
         }
         client.getParams().setIntParameter(HttpClientParams.MAX_REDIRECTS, maxRedirects);
-        clientViaProxy.getParams().setIntParameter(HttpClientParams.MAX_REDIRECTS, maxRedirects);
     }
 
     /**
@@ -1044,9 +993,6 @@ public class HttpSender {
      */
     public void setAllowCircularRedirects(boolean allow) {
         client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
-        clientViaProxy
-                .getParams()
-                .setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
     }
 
     /**
