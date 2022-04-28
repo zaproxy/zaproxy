@@ -32,7 +32,9 @@ import org.parosproxy.paros.network.ConnectionParam;
  * <p>Authenticates to HTTP and SOCKS proxies.
  *
  * @since 2.10.0
+ * @deprecated (2.12.0) No longer in use, it will be removed in a following version.
  */
+@Deprecated
 public class ZapAuthenticator extends Authenticator {
 
     private static final ZapAuthenticator SINGLETON = new ZapAuthenticator();
