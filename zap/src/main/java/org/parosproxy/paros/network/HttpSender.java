@@ -102,10 +102,8 @@ package org.parosproxy.paros.network;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.Authenticator;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.ProxySelector;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.nio.channels.Channels;
@@ -153,10 +151,8 @@ import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.network.HttpSenderListener;
-import org.zaproxy.zap.network.ZapAuthenticator;
 import org.zaproxy.zap.network.ZapCookieSpec;
 import org.zaproxy.zap.network.ZapNTLMScheme;
-import org.zaproxy.zap.network.ZapProxySelector;
 import org.zaproxy.zap.users.User;
 
 public class HttpSender {
@@ -188,9 +184,6 @@ public class HttpSender {
     private User user = null;
 
     static {
-        ProxySelector.setDefault(ZapProxySelector.getSingleton());
-        Authenticator.setDefault(ZapAuthenticator.getSingleton());
-
         try {
             protocol = Protocol.getProtocol("https");
             sslFactory = protocol.getSocketFactory();
