@@ -98,6 +98,7 @@
 // ZAP: 2022/04/24 Allow to download to file.
 // ZAP: 2022/04/27 Expose global HTTP state enabled status.
 // ZAP: 2022/04/27 Use latest proxy settings always.
+// ZAP: 2022/04/29 Deprecate setAllowCircularRedirects.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -276,7 +277,7 @@ public class HttpSender {
         this.initiator = initiator;
 
         client = createHttpClient();
-        setAllowCircularRedirects(true);
+        client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, true);
 
         // Set how cookie headers are sent no matter of the "allowState", in case a state is forced
         // by
@@ -983,10 +984,11 @@ public class HttpSender {
      *
      * @param allow {@code true} if circular redirects should be allowed, {@code false} otherwise
      * @since 2.4.0
+     * @deprecated (2.12.0) No longer supported, the circular redirects are allowed always. If
+     *     needed they can be prevented with a custom {@link HttpRedirectionValidator}.
      */
-    public void setAllowCircularRedirects(boolean allow) {
-        client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
-    }
+    @Deprecated
+    public void setAllowCircularRedirects(boolean allow) {}
 
     /**
      * Sends the request of given HTTP {@code message} with the given configurations.
