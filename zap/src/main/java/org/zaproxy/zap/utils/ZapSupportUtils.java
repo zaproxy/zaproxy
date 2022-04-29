@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.utils;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -133,6 +134,18 @@ public final class ZapSupportUtils {
         return Constant.messages.getString("support.installed.addons.label") + " " + sortedAddOns;
     }
 
+    /**
+     * Gets the default charset (preceded with the corresponding label).
+     *
+     * @return the default charset.
+     * @since 2.12.0
+     */
+    public static String getDefaultCharset() {
+        return Constant.messages.getString("support.charset.default.label")
+                + " "
+                + Charset.defaultCharset();
+    }
+
     public static String getAll(boolean formatted) {
         StringBuilder installedAddons = new StringBuilder(200);
         if (formatted) {
@@ -153,6 +166,7 @@ public final class ZapSupportUtils {
         supportDetailsBuilder.append(getLocaleSystem()).append(NEWLINE);
         supportDetailsBuilder.append(getLocaleDisplay()).append(NEWLINE);
         supportDetailsBuilder.append(getLocaleFormat()).append(NEWLINE);
+        supportDetailsBuilder.append(getDefaultCharset()).append(NEWLINE);
         supportDetailsBuilder.append(getZapHomeDirectory()).append(NEWLINE);
         supportDetailsBuilder.append(getZapInstallDirectory()).append(NEWLINE);
         supportDetailsBuilder.append(getLookAndFeel()).append(NEWLINE);
