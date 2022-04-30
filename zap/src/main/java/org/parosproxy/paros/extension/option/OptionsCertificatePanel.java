@@ -94,8 +94,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
     private javax.swing.JPanel certificatePanel;
     private ZapTextField certificateTextField;
     private javax.swing.JTabbedPane certificatejTabbedPane;
-    private javax.swing.JPanel cryptoApiPanel;
-    private javax.swing.JLabel cryptoApiLabel;
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton driverButton;
     private javax.swing.JComboBox<String> driverComboBox;
@@ -219,10 +217,8 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
             driverComboBox = new javax.swing.JComboBox<>();
             driverButton = new javax.swing.JButton();
             passwordPkcs11Label = new javax.swing.JLabel();
-            cryptoApiLabel = new javax.swing.JLabel();
             addPkcs11Button = new javax.swing.JButton();
             pkcs11PasswordField = new javax.swing.JPasswordField();
-            cryptoApiPanel = new javax.swing.JPanel();
             useClientCertificateCheckBox = new javax.swing.JCheckBox();
             enableUnsafeSSLRenegotiationCheckBox = new javax.swing.JCheckBox();
             textLabel = new javax.swing.JLabel();
@@ -658,25 +654,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 
             certificatejTabbedPane.addTab(
                     Constant.messages.getString("options.cert.tab.pkcs11"), pkcs11Panel);
-
-            javax.swing.GroupLayout cryptoApiPanelLayout =
-                    new javax.swing.GroupLayout(cryptoApiPanel);
-            cryptoApiPanel.setLayout(cryptoApiPanelLayout);
-            cryptoApiLabel.setText(Constant.messages.getString("options.cert.error.crypto"));
-            cryptoApiPanelLayout.setHorizontalGroup(
-                    cryptoApiPanelLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGap(0, 389, Short.MAX_VALUE)
-                            .addComponent(cryptoApiLabel));
-
-            cryptoApiPanelLayout.setVerticalGroup(
-                    cryptoApiPanelLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGap(0, 124, Short.MAX_VALUE)
-                            .addComponent(cryptoApiLabel));
-
-            certificatejTabbedPane.addTab(
-                    Constant.messages.getString("options.cert.tab.cryptoapi"), cryptoApiPanel);
 
             useClientCertificateCheckBox.setText(
                     Constant.messages.getString("options.cert.label.useclientcert"));
