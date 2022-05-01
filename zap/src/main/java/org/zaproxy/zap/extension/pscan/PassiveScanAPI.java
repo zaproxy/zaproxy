@@ -218,6 +218,7 @@ public class PassiveScanAPI extends ApiImplementor {
                     map.put("enabled", String.valueOf(scanner.isEnabled()));
                     map.put("alertThreshold", scanner.getAlertThreshold(true).name());
                     map.put("quality", scanner.getStatus().toString());
+                    map.put("status", scanner.getStatus().toString());
                     resultList.addItem(new ApiResponseSet<>("scanner", map));
                 }
 

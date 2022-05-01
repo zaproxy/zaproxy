@@ -1320,6 +1320,7 @@ public class ActiveScanAPI extends ApiImplementor {
             scannerData.put("policyId", String.valueOf(scanner.getCategory()));
             scannerData.put("enabled", String.valueOf(scanner.isEnabled()));
             scannerData.put("quality", scanner.getStatus().toString());
+            scannerData.put("status", scanner.getStatus().toString());
 
             boolean allDepsAvailable =
                     policy.getPluginFactory().hasAllDependenciesAvailable(scanner);

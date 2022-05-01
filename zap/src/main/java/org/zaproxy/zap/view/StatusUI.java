@@ -22,8 +22,8 @@ package org.zaproxy.zap.view;
 import org.zaproxy.zap.control.AddOn;
 
 /**
- * A utility class for handling various UI elements related to status/quality related to extensions
- * and extension components
+ * A utility class for handling various UI elements related to status related to extensions and
+ * extension components
  *
  * @since 2.5.0
  */
