@@ -84,6 +84,10 @@
 // ZAP: 2020/11/23 Allow to initialise the singleton with an ExtensionLoader for tests.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove empty statement.
+// ZAP: 2021/09/13 Added setExitStatus.
+// ZAP: 2021/11/08 Validate if mandatory add-ons are present.
+// ZAP: 2022/02/09 No longer manage the proxy, deprecate related code.
+// ZAP: 2022/02/24 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -104,6 +108,9 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
+import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.control.AddOnCollection;
+import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.control.ExtensionFactory;
 
@@ -120,11 +127,11 @@ public class Control extends AbstractControl implements SessionListener {
     private static Logger log = LogManager.getLogger(Control.class);
 
     private static Control control = null;
-    private Proxy proxy = null;
     private MenuFileControl menuFileControl = null;
     private MenuToolsControl menuToolsControl = null;
     private SessionListener lastCallback = null;
     private Mode mode = null;
+    private int exitStatus = 0;
 
     private Control(Model model, View view) {
         super(model, view);
@@ -136,18 +143,31 @@ public class Control extends AbstractControl implements SessionListener {
         super(null, null);
     }
 
-    private boolean init(ControlOverrides overrides, boolean startProxy) {
+    private boolean init(ControlOverrides overrides) {
+        AddOnLoader addOnLoader =
+                ExtensionFactory.getAddOnLoader(
+                        model.getOptionsParam().getCheckForUpdatesParam().getAddonDirectories());
+        if (overrides != null) {
+            AddOnCollection addOnCollection = addOnLoader.getAddOnCollection();
+            overrides
+                    .getMandatoryAddOns()
+                    .forEach(
+                            id -> {
+                                AddOn addOn = addOnCollection.getAddOn(id);
+                                if (addOn == null) {
+                                    String message =
+                                            "The mandatory add-on was not found: "
+                                                    + id
+                                                    + "\nRefer to https://www.zaproxy.org/docs/developer/ if you are building ZAP from source.";
+                                    log.error(message);
+                                    throw new IllegalStateException(message);
+                                }
+                                addOn.setMandatory(true);
+                            });
+        }
 
         // Load extensions first as message bundles are loaded as a side effect
         loadExtension();
-
-        // ZAP: Start proxy even if no view
-        Proxy proxy = getProxy(overrides);
-        proxy.setIgnoreList(model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
-        getExtensionLoader().hookProxyListener(proxy);
-        getExtensionLoader().hookOverrideMessageProxyListener(proxy);
-        getExtensionLoader().hookPersistentConnectionListener(proxy);
-        getExtensionLoader().hookConnectRequestProxyListeners(proxy);
 
         if (hasView()) {
             // ZAP: Add site map listeners
@@ -156,12 +176,6 @@ public class Control extends AbstractControl implements SessionListener {
 
         model.postInit();
 
-        if (startProxy) {
-            proxy.setShouldPrompt(true);
-            boolean started = proxy.startServer();
-            proxy.setShouldPrompt(false);
-            return started;
-        }
         return false;
     }
 
@@ -169,16 +183,15 @@ public class Control extends AbstractControl implements SessionListener {
         return view != null;
     }
 
+    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    @Deprecated
     public Proxy getProxy() {
         return this.getProxy(null);
     }
-
+    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    @Deprecated
     public Proxy getProxy(ControlOverrides overrides) {
-        if (proxy == null) {
-            proxy = new Proxy(model, overrides);
-        }
-
-        return proxy;
+        return new Proxy(model, overrides);
     }
 
     @Override
@@ -210,7 +223,6 @@ public class Control extends AbstractControl implements SessionListener {
                 view.getResponsePanel().saveConfig(model.getOptionsParam().getConfig());
             }
 
-            getProxy(null).stopServer();
             super.shutdown(compact);
         } finally {
             // Ensure all extensions' config changes done during shutdown are saved.
@@ -313,7 +325,7 @@ public class Control extends AbstractControl implements SessionListener {
                                 } catch (Throwable e) {
                                     log.error("An error occurred while shutting down:", e);
                                 } finally {
-                                    System.exit(0);
+                                    System.exit(exitStatus);
                                 }
                             }
                         },
@@ -328,6 +340,29 @@ public class Control extends AbstractControl implements SessionListener {
         } else {
             t.start();
         }
+    }
+
+    /**
+     * Sets the non zero value ZAP will exit cleanly with. ZAP may still exit with a non zero value
+     * if a serious error occurs. This will work however ZAP is run but it makes more sense if ZAP
+     * is run in cmdline mode. Any add-on can set an exit status so attempts to reset the status to
+     * zero will be rejected.
+     *
+     * @param exitStatus the non zero value ZAP will exit it with
+     * @param logMessage the message that will be logged at info level
+     * @since 2.11.0
+     */
+    public void setExitStatus(int exitStatus, String logMessage) {
+        if (exitStatus == 0) {
+            log.error("Not setting the exit status to zero - culprit: {}", logMessage);
+        } else {
+            this.exitStatus = exitStatus;
+            log.info(logMessage);
+        }
+    }
+
+    public int getExitStatus() {
+        return exitStatus;
     }
 
     private static String wrapEntriesInLiTags(List<String> entries) {
@@ -349,7 +384,7 @@ public class Control extends AbstractControl implements SessionListener {
         Model.getSingleton().getDb().deleteSession(sessionName);
 
         log.info(Constant.PROGRAM_TITLE + " terminated.");
-        System.exit(0);
+        System.exit(this.getExitStatus());
     }
 
     public static Control getSingleton() {
@@ -359,17 +394,21 @@ public class Control extends AbstractControl implements SessionListener {
 
     public static boolean initSingletonWithView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), View.getSingleton());
-        return control.init(overrides, true);
+        return control.init(overrides);
     }
 
     public static boolean initSingletonWithoutView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), null);
-        return control.init(overrides, true);
+        return control.init(overrides);
     }
 
+    /**
+     * @deprecated (2.12.0) Use {@link #initSingletonWithoutView(ControlOverrides)} instead. It will
+     *     be removed in a future release.
+     */
+    @Deprecated
     public static void initSingletonWithoutViewAndProxy(ControlOverrides overrides) {
-        control = new Control(Model.getSingleton(), null);
-        control.init(overrides, false);
+        initSingletonWithoutView(overrides);
     }
 
     // ZAP: Added method to allow for testing
@@ -428,16 +467,12 @@ public class Control extends AbstractControl implements SessionListener {
     }
 
     /**
-     * Creates a new session and resets session related data in other components (e.g. proxy
-     * excluded URLs).
+     * Creates a new session.
      *
      * @return the newly created session.
      */
     private Session createNewSession() {
-        Session session = model.newSession();
-        getProxy()
-                .setIgnoreList(model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
-        return session;
+        return model.newSession();
     }
 
     public void runCommandLineOpenSession(String fileName) throws Exception {
@@ -451,9 +486,12 @@ public class Control extends AbstractControl implements SessionListener {
         control.getExtensionLoader().sessionChangedAllPlugin(session);
     }
 
-    public void setExcludeFromProxyUrls(List<String> urls) {
-        this.getProxy(null).setIgnoreList(urls);
-    }
+    /**
+     * @deprecated (2.12.0) The proxy is no longer managed by Control. It will be removed in a
+     *     future release.
+     */
+    @Deprecated
+    public void setExcludeFromProxyUrls(List<String> urls) {}
 
     public void openSession(final File file, final SessionListener callback) {
         log.info("Open Session");
@@ -567,22 +605,6 @@ public class Control extends AbstractControl implements SessionListener {
         getExtensionLoader().sessionAboutToChangeAllPlugin(null);
         model.discardSession();
         getExtensionLoader().sessionChangedAllPlugin(null);
-    }
-
-    /**
-     * @deprecated (2.5.0) Use just {@link #newSession()} (or {@link #newSession(String,
-     *     SessionListener)}) instead, which already takes care to create and open an untitled
-     *     database.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void createAndOpenUntitledDb() throws ClassNotFoundException, Exception {
-        log.info("Create and Open Untitled Db");
-        getExtensionLoader().sessionAboutToChangeAllPlugin(null);
-        model.closeSession();
-        model.createAndOpenUntitledDb();
-        getExtensionLoader().databaseOpen(model.getDb());
-        getExtensionLoader().sessionChangedAllPlugin(model.getSession());
     }
 
     @Override

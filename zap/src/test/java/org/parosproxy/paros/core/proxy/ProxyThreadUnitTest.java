@@ -36,6 +36,7 @@ import org.zaproxy.zap.network.HttpEncoding;
 import org.zaproxy.zap.network.HttpResponseBody;
 
 /** Unit test for {@link ProxyThread}. */
+@Deprecated
 class ProxyThreadUnitTest {
 
     @Test

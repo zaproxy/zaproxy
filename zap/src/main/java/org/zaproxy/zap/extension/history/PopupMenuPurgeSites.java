@@ -26,7 +26,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
@@ -79,21 +78,6 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
 
         if (extHistory != null) {
             extHistory.purge(Model.getSingleton().getSession().getSiteTree(), sn);
-        }
-    }
-
-    /**
-     * @deprecated As of release 2.5.0, replaced by {@link
-     *     org.parosproxy.paros.extension.history.ExtensionHistory#purge(
-     *     org.parosproxy.paros.model.SiteMap, org.parosproxy.paros.model.SiteNode)}
-     */
-    @Deprecated
-    public static void purge(SiteMap map, SiteNode node) {
-        ExtensionHistory extHistory =
-                Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
-
-        if (extHistory != null) {
-            extHistory.purge(map, node);
         }
     }
 

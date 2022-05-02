@@ -44,6 +44,8 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/03 Removed getHistoryList(long, int) and getHistoryList(long)
+// ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.db.paros;
 
 import java.nio.charset.StandardCharsets;
@@ -55,7 +57,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
@@ -695,28 +696,6 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
         return getHistoryIdsByParams(sessionId, startAtHistoryId, false, histTypes);
     }
 
-    /**
-     * @deprecated (2.3.0) Use {@link #getHistoryIdsOfHistType(long, int...)} instead. If the
-     *     thread-safety provided by the class {@code Vector} is really required "wrap" the returned
-     *     List with {@link Collections#synchronizedList(List)} instead.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public Vector<Integer> getHistoryList(long sessionId, int histType) throws DatabaseException {
-        return new Vector<>(getHistoryIdsOfHistType(sessionId, histType));
-    }
-
-    /**
-     * @deprecated (2.3.0) Use {@link #getHistoryIds(long)} instead. If the thread-safety provided
-     *     by the class {@code Vector} is really required "wrap" the returned List with {@link
-     *     Collections#synchronizedList(List)} instead.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public Vector<Integer> getHistoryList(long sessionId) throws DatabaseException {
-        return new Vector<>(getHistoryIds(sessionId));
-    }
-
     @Override
     public List<Integer> getHistoryList(
             long sessionId, int histType, String filter, boolean isRequest)
@@ -883,28 +862,6 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
-    }
-
-    /**
-     * @deprecated (2.5.0) Use {@link HistoryReference#addTemporaryType(int)} instead.
-     * @since 2.4
-     * @param historyType the history type that will be set as temporary
-     * @see #deleteTemporary()
-     */
-    @Deprecated
-    public static void setHistoryTypeAsTemporary(int historyType) {
-        HistoryReference.addTemporaryType(historyType);
-    }
-
-    /**
-     * @deprecated (2.5.0) Use {@link HistoryReference#removeTemporaryType(int)} instead.
-     * @since 2.4
-     * @param historyType the history type that will be marked as temporary
-     * @see #deleteTemporary()
-     */
-    @Deprecated
-    public static void unsetHistoryTypeAsTemporary(int historyType) {
-        HistoryReference.removeTemporaryType(historyType);
     }
 
     /**

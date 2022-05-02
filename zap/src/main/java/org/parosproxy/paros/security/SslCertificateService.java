@@ -34,6 +34,7 @@ import java.security.cert.CertificateException;
  *
  * @author MaWoKi
  */
+@Deprecated
 public interface SslCertificateService {
 
     /** The passphrase which is used for all Paros Proxy SSL crypto stuff */

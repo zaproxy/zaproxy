@@ -27,9 +27,6 @@ public class HsqldbDatabase extends SqlDatabase {
         super();
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#deleteSession(java.lang.String)
-     */
     @Override
     public void deleteSession(String sessionName) {
         super.deleteSession(sessionName);
@@ -57,9 +54,6 @@ public class HsqldbDatabase extends SqlDatabase {
         return new HsqldbDatabaseServer(path);
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.DatabaseIF#close(boolean, boolean)
-     */
     @Override
     public void close(boolean compact, boolean cleanup) {
         getLogger().debug("close");

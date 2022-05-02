@@ -36,6 +36,7 @@
 // ZAP: 2017/05/02 Removed Menu Item 'Session tracking'
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/04/25 Deprecate the class.
 package org.parosproxy.paros.extension.state;
 
 import org.apache.commons.httpclient.HttpState;
@@ -46,6 +47,8 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 
+/** @deprecated (2.12.0) No longer in use, it will be removed in a following version. */
+@Deprecated
 public class ExtensionState extends ExtensionAdaptor implements SessionChangedListener {
 
     private static final String NAME = "ExtensionState";
@@ -60,7 +63,6 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
         return Constant.messages.getString("state.name");
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);

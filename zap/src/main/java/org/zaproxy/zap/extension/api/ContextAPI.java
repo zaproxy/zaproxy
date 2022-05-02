@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -37,6 +38,9 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
@@ -49,6 +53,7 @@ import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.JsonUtil;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ContextAPI extends ApiImplementor {
 
@@ -458,13 +463,23 @@ public class ContextAPI extends ApiImplementor {
      * @return the api response
      */
     private ApiResponse buildResponseFromContext(Context c) {
-        Map<String, String> fields = new HashMap<>();
+        Map<String, Object> fields = new HashMap<>();
         fields.put("name", c.getName());
         fields.put("id", Integer.toString(c.getId()));
         fields.put("description", c.getDescription());
         fields.put("inScope", Boolean.toString(c.isInScope()));
         fields.put("excludeRegexs", jsonEncodeList(c.getExcludeFromContextRegexs()));
         fields.put("includeRegexs", jsonEncodeList(c.getIncludeInContextRegexs()));
+        fields.put(
+                "includedTechnologies",
+                c.getTechSet().getIncludeTech().stream()
+                        .map(Tech::toString)
+                        .collect(Collectors.toList()));
+        fields.put(
+                "excludedTechnologies",
+                c.getTechSet().getExcludeTech().stream()
+                        .map(Tech::toString)
+                        .collect(Collectors.toList()));
 
         AuthenticationMethod authenticationMethod = c.getAuthenticationMethod();
         if (authenticationMethod != null) {
@@ -502,7 +517,40 @@ public class ContextAPI extends ApiImplementor {
                 "postParameterParserClass", c.getPostParamParser().getClass().getCanonicalName());
         fields.put("postParameterParserConfig", c.getPostParamParser().getConfig());
 
-        return new ApiResponseSet<>("context", fields);
+        return new ContextApiResponseSet<>("context", fields);
+    }
+
+    private static class ContextApiResponseSet<T> extends ApiResponseSet<T> {
+
+        ContextApiResponseSet(String name, Map<String, T> values) {
+            super(name, values);
+        }
+
+        @Override
+        public void toXML(Document doc, Element parent) {
+            parent.setAttribute("type", "set");
+            for (Map.Entry<String, T> val : getValues().entrySet()) {
+                Element el = doc.createElement(val.getKey());
+                if ("includedTechnologies".equals(val.getKey())
+                        || "excludedTechnologies".equals(val.getKey())) {
+                    el.setAttribute("type", "list");
+                    @SuppressWarnings("unchecked")
+                    List<String> techs = (List<String>) val.getValue();
+                    for (String tech : techs) {
+                        Element elTech = doc.createElement("tech");
+                        elTech.appendChild(
+                                doc.createTextNode(XMLStringUtil.escapeControlChrs(tech)));
+
+                        el.appendChild(elTech);
+                    }
+                } else {
+                    String textValue = val.getValue() == null ? "" : val.getValue().toString();
+                    Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(textValue));
+                    el.appendChild(text);
+                }
+                parent.appendChild(el);
+            }
+        }
     }
 
     private String jsonEncodeList(List<String> list) {

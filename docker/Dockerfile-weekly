@@ -27,7 +27,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade pip zapcli python-owasp-zap-v2.4 pyyaml
+RUN pip3 install --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3 zapcli
 
 RUN useradd -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
@@ -40,7 +40,7 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV WEBSWING_VERSION 21.1.3
+ENV WEBSWING_VERSION 21.2.8
 
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i weekly | wget --content-disposition -i - && \
 	unzip *.zip && \
@@ -49,7 +49,7 @@ RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersio
 	rm -R ZAP* && \
 	# Setup Webswing
 	if [ -z "$WEBSWING_URL" ] ; \
-	then curl -s -L  "https://storage.googleapis.com/builds.webswing.org/releases/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
 	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
@@ -75,6 +75,8 @@ COPY policies /home/zap/.ZAP_D/policies/
 COPY policies /root/.ZAP_D/policies/
 COPY scripts /home/zap/.ZAP_D/scripts/
 COPY .xinitrc /home/zap/
+
+RUN echo "zap2docker-weekly" > /zap/container
 
 #Copy doesn't respect USER directives so we need to chown and to do that we need to be root
 USER root

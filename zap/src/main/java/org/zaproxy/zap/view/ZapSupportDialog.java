@@ -25,6 +25,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
 import javax.swing.JButton;
@@ -49,6 +52,7 @@ public class ZapSupportDialog extends AbstractDialog {
     private ZapSupportPanel supportPanel = null;
     private JButton btnOK = null;
     private JButton btnOpen = null;
+    private JButton btnCopy = null;
 
     /**
      * Constructs an {@code ZapSupportDialog} with no owner and not modal.
@@ -56,8 +60,7 @@ public class ZapSupportDialog extends AbstractDialog {
      * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
      */
     public ZapSupportDialog() {
-        super();
-        initialize();
+        this(null, true);
     }
 
     /**
@@ -69,10 +72,7 @@ public class ZapSupportDialog extends AbstractDialog {
      */
     public ZapSupportDialog(Frame owner, boolean modal) {
         super(owner, modal);
-        initialize();
-    }
 
-    private void initialize() {
         this.setContentPane(getMainPanel());
         this.pack();
     }
@@ -83,6 +83,7 @@ public class ZapSupportDialog extends AbstractDialog {
 
             GridBagConstraints gbcPanel = new GridBagConstraints();
             GridBagConstraints gbcOpenButton = new GridBagConstraints();
+            GridBagConstraints gbcCopyButton = new GridBagConstraints();
             GridBagConstraints gbcOkButton = new GridBagConstraints();
 
             gbcPanel.gridx = 0;
@@ -93,20 +94,29 @@ public class ZapSupportDialog extends AbstractDialog {
             gbcPanel.weightx = 1.0D;
             gbcPanel.weighty = 1.0D;
             gbcPanel.ipady = 2;
-            gbcPanel.gridwidth = 2;
+            gbcPanel.gridwidth = 3;
 
-            gbcOpenButton.gridx = 0;
+            int gridx = 0;
+            Insets insets = new Insets(2, 2, 2, 2);
+            gbcOpenButton.gridx = gridx;
             gbcOpenButton.gridy = 1;
-            gbcOpenButton.insets = new Insets(2, 2, 2, 2);
+            gbcOpenButton.insets = insets;
             gbcOpenButton.anchor = GridBagConstraints.SOUTHEAST;
 
-            gbcOkButton.gridx = 1;
+            gbcCopyButton.gridx = ++gridx;
+            gbcCopyButton.gridy = 1;
+            gbcCopyButton.insets = insets;
+            gbcCopyButton.anchor = GridBagConstraints.SOUTHEAST;
+
+            gbcOkButton.gridx = ++gridx;
             gbcOkButton.gridy = 1;
-            gbcOkButton.insets = new Insets(2, 2, 2, 2);
+            gbcOkButton.insets = insets;
             gbcOkButton.anchor = GridBagConstraints.SOUTHEAST;
 
             mainPanel.add(getSupportPanel(), gbcPanel);
             mainPanel.add(getBtnOpen(), gbcOpenButton);
+            mainPanel.add(getBtnCopy(), gbcCopyButton);
+            this.getRootPane().setDefaultButton(getBtnCopy());
             mainPanel.add(getBtnOK(), gbcOkButton);
         }
         return mainPanel;
@@ -123,13 +133,7 @@ public class ZapSupportDialog extends AbstractDialog {
         if (btnOK == null) {
             btnOK = new JButton();
             btnOK.setText(Constant.messages.getString("all.button.ok"));
-            btnOK.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            ZapSupportDialog.this.dispose();
-                        }
-                    });
+            btnOK.addActionListener(e -> ZapSupportDialog.this.dispose());
         }
         return btnOK;
     }
@@ -145,19 +149,32 @@ public class ZapSupportDialog extends AbstractDialog {
             btnOpen.setText(Constant.messages.getString("support.open.button"));
             btnOpen.setToolTipText(Constant.messages.getString("support.open.button.tooltip"));
             btnOpen.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent e) {
-                            try {
-                                Desktop.getDesktop().open(new File(Constant.getZapHome()));
-                            } catch (IOException e1) {
-                                LOGGER.error(
-                                        "An exception occurred while trying to have the OS open ZAP's Home Directory.",
-                                        e1);
-                            }
+                    e -> {
+                        try {
+                            Desktop.getDesktop().open(new File(Constant.getZapHome()));
+                        } catch (IOException e1) {
+                            LOGGER.error(
+                                    "An exception occurred while trying to have the OS open ZAP's Home Directory.",
+                                    e1);
                         }
                     });
         }
         return btnOpen;
+    }
+
+    private JButton getBtnCopy() {
+        if (btnCopy == null) {
+            btnCopy = new JButton();
+            btnCopy.setText(Constant.messages.getString("support.copy.button"));
+            btnCopy.setToolTipText(Constant.messages.getString("support.copy.button.tooltip"));
+            btnCopy.addActionListener(
+                    e -> {
+                        StringSelection stringSelection =
+                                new StringSelection(supportPanel.getSupportInfo());
+                        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+                        clipboard.setContents(stringSelection, null);
+                    });
+        }
+        return btnCopy;
     }
 }

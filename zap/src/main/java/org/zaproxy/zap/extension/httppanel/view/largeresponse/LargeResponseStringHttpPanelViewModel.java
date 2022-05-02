@@ -23,6 +23,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class LargeResponseStringHttpPanelViewModel extends ResponseStringHttpPanelViewModel {
 
     @Override

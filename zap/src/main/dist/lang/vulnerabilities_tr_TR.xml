@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8"?>
 <vulnerabilities xmlns="http://tempuri.org/XMLSchemaOptions.xsd">
 
 <vuln_items>wasc_1</vuln_items>
@@ -129,7 +129,7 @@ Bu, şifrelenmemiş veriyi kodda daha kolay farkedebilmenizi sağlar.</solution>
 Neredeyse tüm internet uygulama çerçeveleri dosyaların eklenmesini desteklemektedir. Dosya dahil etme temel olarak, daha sonra ana uygulama modülleri tarafından referans gösterilecek ortak kodları ayrı dosyalar halinde paketlemek için kullanılır. Web uygulaması, dahil etme dosyasına referansta bulunduğunda, bu dosyadaki kod belirli prosedürleri çağırarak dolaylı veya dolaysız olarak çalıştırılabilir. Eğer yükleme modülü seçimi HTTP isteği öğelerine bağlıysa, web uygulaması RFI karşısında savunmasız olabilir.
 Bir saldırganın RFI'yı kullanma durumları şunlardır:
     * Sunucuda zararlı yazılım çalıştırma: zararlı dosyalar içeren kodlar sunucu tarafından çalıştırılır. Dosya içerme "wrapper" kullanarak çalıştırılmamış ise, içerikteki kodlar sunucu kullanıcı bağlamında yürütülür. Bu bir tam sistem uyuşmazlığına neden olabilir.
-    *İstemciler üzerinde kötü amaçlı kod kullanımı: saldırganın kullandığı zararlı kod istemciye gönderilen yanıtın içeriğini manipule edebilir. Saldırgan, müşteri tarafından yürütülecek cevap içerisinde zararlı kod gömebilir (örneğin müşterinin seans çerezini çalmak için Javascript gibi).
+    *İstemciler üzerinde kötü amaçlı kod kullanımı: saldırganın kullandığı zararlı kod istemciye gönderilen yanıtın içeriğini manipule edebilir. The attacker can embed malicious code in the response that will be run by the client (for example, JavaScript to steal the client session cookies).
 
 PHP, PHP programlamasında yaygın olarak kullanılan "dosya dahil etme" ve RFI saldırılarına olan eğilimi artırarak varsayılan sunucu konfigürasyonu nedeniyle özellikle RFI saldırıları karşısında savunmasızdır.</desc>
 	<solution>Yürütülen Program: Mimarlık ve Tasarım
@@ -144,8 +144,9 @@ CWE-243 ve diğer Jail alakalı zayıf noktalara karşı dikkatli olun.
 PHP için yorumlayıcı, saldırgan uygulamalardan çıkmasını zorlaştıracak şekilde açık basedir veya güvenli mod gibi kısıtlamalar sunar. Aynı zamanda sertleştirilmiş PHP uzantısı olan ve bazı tehlikeli PHP özelliklerini devre dışı bırakmak için farklı seçenekler barındıran Suhosin'i de ele alın.
 
 Aşama: Uygulama
-Tüm girdilerin zararlı olduğunu kabul edelim. "Accept known good" (bilinen mal kabulü) giriş onaylama stratejisi kullanın. Spesifikasyonlara kesinlikle uyan kabul edilebilir girdilerden oluşan bir beyaz liste oluşturun. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Sadece zararlı veya kusurlu girdilere güvenmeyin (örn, sadece kara listeye güvenmeyin). Yine de kara liste, olası saldırıları belirlemede veya hangi girdilerin kusurlu olduğunu ve reddedilmesi gerektiğini belirlemede faydalıdır.
-Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. İş kuralı mantığına örnek olarak "boat" yalnıza alfanumerik karakterler içerdiği için sözdizimsel olarak uygun olabilir, fakat yalnızca "mavi" ya da "kırmızı" gibi renkleri kabul ettiğiniz durumlarda geçerli değildir. Eğer uygulanabilirse, CWE-23 gibi zayıflıklardan kaçınmak için dosya isimlerinde "." gibi tek karakterlere izin verin ve CWE-36 kaçınmak için "/" gibi hedef dizin ayırıcılarından kaçının. CWE-434 kaçınmaya yardımcı olacak izin verilebilen dosya uzantıları beyaz listesi kullanın.
+Tüm girdilerin zararlı olduğunu kabul edelim. Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
+Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+For filenames, use stringent allow lists that limit the character set to be used. Eğer uygulanabilirse, CWE-23 gibi zayıflıklardan kaçınmak için dosya isimlerinde "." gibi tek karakterlere izin verin ve CWE-36 kaçınmak için "/" gibi hedef dizin ayırıcılarından kaçının. Use an allow list of allowable file extensions, which will help to avoid CWE-434.
 
 Fazlar: Mimari ve Tasarım; Operasyon
 Mümkünse kütüphane, dahil etme ve yardımcı yazılımları web belgesi kökünün dışında tutun. Aksi durumlarda bunları ayrı bir hedef dizisinde saklayın ve saldırganların doğrudan istekte bulunmasını engellemek için web sunucusu erişim kontrolü yetenekleri kullanın. Genel bir uygulama, her çağıran programda tam bir sabit tanımlama ve daha sonra sabitin varlığını kitaplık / kapsam dosyasında kontrol etmektir; sabit yoksa, dosya direkt olarak istenir ve hemen çıkabilir.
@@ -182,7 +183,7 @@ Yapı: Derleyicilerin ve bağlayıcıların uyarılarına dikkat edin çünkü u
 
 <vuln_items>wasc_7</vuln_items>
 <vuln_item_wasc_7>
-	<alert>Arabellek Taşması</alert>
+	<alert>Bellek Taşması</alert>
 	<desc>Arabellek Taşması, bir bellek bloğuna veya arabelleğe yazılınca, arabellek tutmak için ayrıldığı zamandan daha fazla veri yazıldığında oluşan bir kusurdur.
  Bir arabellek taşmasından faydalanmak, saldırganın hedef işlemin adres alanının bölümlerini değiştirmesine imkan sağlar. Bu beceri, aşağıdakileri de içeren bir dizi amaçla kullanılabilir:
     * Sürecin yürütülmesini kontrol etme
@@ -257,11 +258,11 @@ Oluşturulan her türlü web sayfası için ISO-8859-1 veya UTF-8 gibi bir karak
 
 Kullanıcının oturum tanımlama bilgisine karşı XSS saldırılarını hafifletmeye yardımcı olmak için oturum tanımlama bilgisini HttpOnly olarak ayarlayın. HttpOnly özelliğini (Internet Explorer ve Firefox'un daha yeni sürümleri gibi) destekleyen tarayıcılarda bu özellik, kullanıcının oturum tanımlama bilgisini, document.cookie kullanan kötü amaçlı kullanıcı tarafından komut dosyalarından erişilmesini engelleyebilir. HttpOnly tüm tarayıcılar tarafından desteklenmediği için bu tam bir çözüm değildir. Daha da önemlisi, XMLHTTP İsteği ve diğer güçlü tarayıcı teknolojileri, HttpOnly bayrağının ayarlandığı Set-Cookie başlığı da dahil olmak üzere HTTP üstbilgilerine okuma erişimi sağlar.
 
-Tüm girdilerin zararlı olduğunu varsay. "Accept known good" (bilinen mal kabulü) giriş onaylama stratejisi kullanın. Spesifikasyonlara kesinlikle uyan kabul edilebilir girdilerden oluşan bir beyaz liste oluşturun. Spesifikasyonlara kesinlikle uymayan girdileri reddedin veya bunu yapan bir şey haline getirin. Sadece zararlı veya kusurlu girdilere güvenmeyin (örn, sadece kara listeye güvenmeyin). Bununla birlikte, kara listeler potansiyel saldırıları tespit etmek veya hangi girdilerin yanlış olduğunu belirlemek için faydalı olabilirler.
+Tüm girdilerin zararlı olduğunu varsay. Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. Bir iş kuralı mantığına örneği olarak "tekne", yalnızca alfasayısal karakterler içerdiği için sözdizimsel olarak geçerli olabilir, ancak "kırmızı" veya "mavi" gibi renklerin olması bekleniyorsa geçerli değildir.
+Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Giriş doğrulamasının, uygulama içinde açıkça tanımlanmış arabirimler üzerinde gerçekleştirildiğinden emin olun. Bu, bir bileşen başka yerlerde yeniden kullanılması veya taşınması durumunda bile uygulamayı korumaya yardımcı olacaktır.
+Ensure that you perform input validation at well-defined interfaces within the application. Bu, bir bileşen başka yerlerde yeniden kullanılması veya taşınması durumunda bile uygulamayı korumaya yardımcı olacaktır.
 	</solution>
 	<reference>http://projects.webappsec.org/Cross-Site-Scripting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/79.html</reference>
@@ -290,7 +291,7 @@ Her bir form için benzersiz bir nonce oluşturulur, nonce'ı forma yerleştirin
 Bunun, XSS'yi kullanarak atlanabileceğini unutmayın.
 
 Özellikle tehlikeli işlemleri belirleyin. Kullanıcı tehlikeli bir işlem yaparsa, kullanıcının bu işlemi gerçekleştirmesini istediğinden emin olmak için ayrı bir onay isteği gönderin.
-Bunu XSS kullanarak atlatabileceğinizi unutmayın.
+Bunun, XSS'yi kullanarak atlanabileceğini unutmayın.
 
 ESAPI Oturum Yöneticisi kontrolünü kullan.
 Bu kontrol CSRF için bir bileşen içerir.
@@ -345,7 +346,7 @@ Web uygulamalarındaki en yaygın kaba kuvvet saldırısı tipi, giriş bilgiler
 <vuln_items>wasc_11b</vuln_items>
 <vuln_item_wasc_11b>
 	<alert>Oturum tanımlayıcılarını zorlama</alert>
-	<desc>Bir kaba kuvvet saldırısı, bilinmeyen bir değerin çok sayıdaki olası değerleri deneyen otomatik bir işlem kullanılarak belirlenmesidir. Saldırı, entropi değerlerinin algılanandan daha küçük olduğu gerçeğinden faydalanır. Örneğin, 8 karakterli alfasayısal şifre 2,8 trilyon olası değer içerebilirken, birçok kişi şifrelerini ortak sözcükler ve terimlerden oluşan çok daha küçük bir alt gruptan seçecektir.
+	<desc>Bir kaba kuvvet saldırısı, bilinmeyen bir değerin çok sayıdaki olası değerleri deneyen otomatik bir işlem kullanılarak belirlenmesidir. Saldırı, değerlerin entroposinin algılanandan daha küçük olması gerçeğinden yararlanır. Örneğin, 8 karakterli alfasayısal şifre 2,8 trilyon olası değer içerebilirken, birçok kişi şifrelerini ortak sözcükler ve terimlerden oluşan çok daha küçük bir alt gruptan seçecektir.
 
 HTTP durum bilgisi olmayan bir protokol olduğundan, devlet web korumak için uygulamaları bir oturum kimliği ve her isteğin bir tarayıcı tarafından gönderildiğinden emin olunması gerekir. Oturum tanımlayıcısı en sık HTTP çerezinde veya URL'de depolanmaktadır. Kaba kuvvet saldırısı kullanarak, bir saldırgan başka bir kullanıcının oturum tanımlayıcısını tahmin edebilir. Bu, saldırganların kullanıcıların kimliğine bürünmesine, kişisel bilgilerin çalınmasına ve kullanıcı adına eylemler gerçekleştirmesine neden olabilir.
 	</desc>
@@ -357,7 +358,7 @@ HTTP durum bilgisi olmayan bir protokol olduğundan, devlet web korumak için uy
 <vuln_items>wasc_11c</vuln_items>
 <vuln_item_wasc_11c>
 	<alert>Kaba Kuvvet Dizinleri ve Dosyaları</alert>
-	<desc>Bir kaba kuvvet saldırısı, bilinmeyen bir değerin çok sayıdaki olası değerleri deneyen otomatik bir işlem kullanılarak belirlenmesidir. Saldırı, entropi değerlerinin algılanandan daha küçük olduğu gerçeğinden faydalanır. Örneğin, 8 karakterli alfasayısal şifre 2,8 trilyon olası değer içerebilirken, birçok kişi şifrelerini ortak sözcükler ve terimlerden oluşan çok daha küçük bir alt gruptan seçecektir.
+	<desc>Bir kaba kuvvet saldırısı, bilinmeyen bir değerin çok sayıdaki olası değerleri deneyen otomatik bir işlem kullanılarak belirlenmesidir. Saldırı, değerlerin entroposinin algılanandan daha küçük olması gerçeğinden yararlanır. Örneğin, 8 karakterli alfasayısal şifre 2,8 trilyon olası değer içerebilirken, birçok kişi şifrelerini ortak sözcükler ve terimlerden oluşan çok daha küçük bir alt gruptan seçecektir.
 
 Dosyalar herhangi bir yerle bağlantılı değilse ve web sunucusu tarafından sağlanan dizinlerde bulunuyorsa, bu dosyalara erişmek, onların dosya adlarını bilmeyi gerektirir. Bazı durumlarda bu dosyalar yanlışlıkla bırakılmıştır: örneğin bir dosyayı düzenlerken veya web uygulamasının daha eski bir sürümünden kalanlardan otomatik olarak oluşturulmuş bir yedek dosya olabilir. Başka durumlarda dosyalar kasıtlı olarak "güvenlikle gizlilik" mekanizması olarak yalnızca dosya isimlerini bilen kişilerce erişmelerine izin vermek üzere bağlantısı kesilir.
 
@@ -393,7 +394,7 @@ Sadece tekst Sızdırma teksti
 Sayfaları hareketli olarak meydana getirmek için ortak bir yaklaşım, cesedi veya bölümleri bir sorgu dizesi değeri aracılığıyla sayfaya geçirmeyi içerir. Bu yaklaşım hata sayfalarında veya hikaye ya da haber gönderileri sağlayan sitelerde sıktır. Bu parametrede belirtilen içerik daha sonra sayfanın içeriğini oluşturmak için sayfaya da yansıtılır.
  
 İşaretlenen Yansıyan İçeriklerin Sızdırılması
-Bazı web sayfaları, dinamik olarak oluşturulmuş HTML içerik kaynaklarını kullanılarak oluşmaktadır. Örneğin, bir çerçevenin <frame src="http://foo.example/file.html"/>) kaynağı konumunu bir URL parametre değeri ile belirtilebilir. (http://foo.example/page?frame_src=http://foo.example/file.html). Bir saldırgan, "frame_src" parametre değerlerini "frame_src = http: //attacker.example/spoof.html" ile değiştirebilir. Yönlendiricilerin aksine, sonuç sayfası sunulduğunda, tarayıcı konum çubuğu kullanıcı tarafından beklenen alan adının (foo.example) altında görünür kalır, ancak yabancı veriler (attacker.example) geçerli içerik tarafından örtülür.
+Bazı web sayfaları, dinamik olarak oluşturulmuş HTML içerik kaynaklarını kullanılarak oluşmaktadır. For example, the source location of a frame <frame src="http://foo.example/file.html"/>) could be specified by a URL parameter value. (http://foo.example/page?frame_src=http://foo.example/file.html). Bir saldırgan, "frame_src" parametre değerlerini "frame_src = http: //attacker.example/spoof.html" ile değiştirebilir. Yönlendiricilerin aksine, sonuç sayfası sunulduğunda, tarayıcı konum çubuğu kullanıcı tarafından beklenen alan adının (foo.example) altında görünür kalır, ancak yabancı veriler (attacker.example) geçerli içerik tarafından örtülür.
 
 Özel hazırlanmış bağlantılar bir kullanıcının e-postasına anında ileti gönderir, bülten tahtasına gönderilir veya kullanıcılara Cross-site Scripting ile zorla gönderilebilir. Bir saldırgan, bir kullanıcının kötü amaçlı URL'sinin belirlediği bir web sayfasını ziyaret etmesini sağlar, kullanıcı, gerçek içeriği olmadığı halde bir konumdan denetlendiğine güvenir. Tarayıcı konum çubuğunda aslında http: //attacker.example'yi referans alan HTML çerçevesi http: //foo.example göründüğünde, kullanıcılar sahte içeriğe dolaylı olarak güvenebilir.
 
@@ -429,7 +430,7 @@ Sunucular, herkesçe bilinen hesapları ve parolaları içerebilir. Sunucuyu tam
 Ayrıntılı ve bilgilendirici hata mesajları veri sızıntılarına neden olabilir ve ortaya çıkan bu bilgiler bir sonraki saldırının formüle edilmesi için kullanılabilir. Sunucu yazılımındaki yanlış yapılandırmalar dizin ekleme ve yol geçişi saldırılarına izin verebilir.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Server-Misconfiguration</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_14>
 
 <vuln_items>wasc_15</vuln_items>
@@ -440,7 +441,7 @@ Ayrıntılı ve bilgilendirici hata mesajları veri sızıntılarına neden olab
 Aynı şekilde, varsayılan yüklemeler iyi bilinen kullanıcı adlarını ve şifreleri içerebilir, sabit kodlu arka kapı hesaplarını, özel erişim mekanizmalarını ve Web sunucuları üzerinden erişilebilen dosyalar için yanlış izinler ayarlanır. Varsayılan örnekler, üretim ortamlarında erişilebilir olmalıdır. Düzgün kilitlenmemiş uygulama tabanlı yapılandırma dosyaları, açık metin bağlantı dizelerini veritabanına gösterebilir ve yapılandırma dosyalarındaki varsayılan ayarlar güvenlik göz önüne alınarak yapılmamış olabilir. Bu yanlış yapılandırmaların tümü, hassas bilgilere yetkisiz erişime neden olabilir.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Application-Misconfiguration</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_15>
 
 <vuln_items>wasc_16</vuln_items>
@@ -456,7 +457,7 @@ Aynı şekilde, varsayılan yüklemeler iyi bilinen kullanıcı adlarını ve ş
 <vuln_item_wasc_17>
 	<alert>Yanlış dosya sistem izinleri</alert>
 	<desc>Yanlış dosya sistemi izinleri, bir web uygulamasının gizliliği, bütünlüğü ve kullanılabilirliği için bir tehdittir. Yanlış dosya sistemi izinleri dosyalar, klasörler ve simgesel bağlantılar üzerinde ayarlandığında sorun çıkar. Yanlış izinler ayarlandığında, bir saldırgan kısıtlanmış dosyalara veya dizinlere erişebilir ve içeriğini değiştirebilir veya silebilir. Örneğin, anonim bir kullanıcı hesabı bir dosyaya yazma iznine sahipse, bir saldırgan web uygulamasını etkileyen dosyanın içeriğini istenmeyen yollarla değiştirebilir. Bir saldırgan ayrıcalıklarını tırmandırmak ve/veya yetkisiz dosyalara erişmek için uygun olmayan sembolik bağları da kullanabilir; örneğin, web kökü dışında bir dizine işaret eden bir sembolik bağ.</desc>
-	<solution>İzinlerin ayarını, yönetimini ve ele alınmasını çok dikkatli bir şekilde yönetin. Yazılımdaki güven bölgelerini açıkça yönetin.</solution>
+	<solution>Very carefully manage the setting, management and handling of permissions. Yazılımdaki güven sınırlarını kesin bir şekilde yönetin.</solution>
 	<reference>http://projects.webappsec.org/Improper-Filesystem-Permissions</reference>
 	<reference>http://cwe.mitre.org/data/definitions/280.html</reference>
 </vuln_item_wasc_17>
@@ -469,7 +470,7 @@ Aynı şekilde, varsayılan yüklemeler iyi bilinen kullanıcı adlarını ve ş
 Birçok web sitesi, iletişim ilk kurulduğunda bir kullanıcıyı kimliklendirmek ve takip etmek üzere tasarlanmıştır. Bunu yapmak için, kullanıcı genelde kullanıcı adı / şifre (kimlik bilgileri) kombinasyonu sağlayarak kimlik bilgilerini web sitesinde ispatlamalıdır. Bu özel bilgileri her işlemle ileri geri taşımaktansa, web siteleri kullanıcı oturumunu kimliklendirilmiş olarak tanımlamak için eşsiz bir "oturum kimliği" oluşturacaktır. Kimliklendirilmiş oturumun bir "kanıtı olarak", kullanıcı ile web sitesi arasındaki sonraki iletişim, oturum kimliği ile etiketlenir. Bir saldırgan, başka bir kullanıcının oturum kimliğini tahmin edebiliyorsa sahte etkinlik mümkündür.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Credential-and-Session-Prediction</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_18>
 
 <vuln_items>wasc_19</vuln_items>
@@ -491,21 +492,21 @@ Kodunuzu, gerekli görevleri başarmak için gereken en düşük ayrıcalıklar�
 Özellikle, bir SQL veri tabanına kullanıcı hesapları oluştururken en az ayrıcalık ilkesini takip edin. Veritabanı kullanıcıları yalnızca hesaplarını kullanmak için gereken minimum haklara sahip olmalıdırlar. Sistemin gereklilikleri, bir kullanıcının okuyabileceğini gösteriyor ise ve verilerini değiştirip kendi haklarını kısıtlayarak başkalarının verilerini okuyamaz/yazamazlar. Sadece yürütme gibi saklı prosedürler için tüm veritabanı nesnelerin de mümkün olan en katı izinleri kullanın.
 
 Aşama: Uygulama
-Riske rağmen dinamik olarak oluşturulmuş sorgu dizilerini veya komutlarını kullanmanız gerekiyorsa, argümanı doğru bir şekilde alıntılayın ve bu argümanlarda herhangi bir özel karakter kullanmaktan kaçının. En güvenli yaklaşım, son derece katı beyaz listeden geçemeyen tüm karakterleri filtrelemek ve kullanmaktan kaçınmaktır. (örneğin alfasayısal veya boşluk olmayan herşey). Beyaz boşluk gibi bazı özel karakterler hala gerekli ise, her argümanı kaçış/filtreleme adımından sonra tırnak işaretleriyle sarın. Argüman enjeksiyonuna dikkat edin (CWE-88).
+Riske rağmen dinamik olarak oluşturulmuş sorgu dizilerini veya komutlarını kullanmanız gerekiyorsa, argümanı doğru bir şekilde alıntılayın ve bu argümanlarda herhangi bir özel karakter kullanmaktan kaçının. The most conservative approach is to escape or filter all characters that do not pass an extremely strict allow list (such as everything that is not alphanumeric or white space). Beyaz boşluk gibi bazı özel karakterler hala gerekli ise, her argümanı kaçış/filtreleme adımından sonra tırnak işaretleriyle sarın. Argüman enjeksiyonuna dikkat edin (CWE-88).
 
 Kendi uygulamanızı oluşturmak yerine, bu özellikler veri tabanında veya programlama dili içinde bulunabilir. Örneğin, Oracle DBMS ASSERT pakedi, parametrelerin kendilerini SQL enjeksiyonuna daha dirençli hale getiren özelliklerine sahip olup olmadığını kontrol edebilir veya sahip olmasını sağlayabilir. MySQL için, mysql gerçek kaçış metini() API işlevi hem C hem de PHP'de mevcuttur.
 
-Tüm girdilerin zararlı olduğunu varsayalım. "Accept known good" (bilinen mal kabulü) giriş onaylama stratejisi kullanın. Spesifikasyonlara kesinlikle uyan kabul edilebilir girdilerden oluşan bir beyaz liste oluşturun. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Sadece zararlı veya kusurlu girdilere güvenmeyin (örn, sadece kara listeye güvenmeyin). Yine de kara liste, olası saldırıları belirlemede veya hangi girdilerin kusurlu olduğunu ve reddedilmesi gerektiğini belirlemede faydalıdır.
+Tüm girdilerin zararlı olduğunu varsay. Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. İş kuralı mantığına bir örnek olarak, "tekne" sözdizimsel olarak geçerli olabilir, çünkü dize yalnızca alfasayısal karakterler içerir, ancak "kırmızı" veya "mavi" gibi renkler beklenmesi durumunda geçerli değildir.
+Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-SQL sorgu dizeleri oluştururken, sorgudaki parametrenin beklenen değerine dayalı olarak karakter kümesini sınırlayan güçlü beyaz listeleri kullanın. Bu dolaylı olarak saldırının kapsamını sınırlar, ancak bu teknik uygun çıktı kodlamasından ve kaçışından daha az önemlidir.
+When constructing SQL query strings, use stringent allow lists that limit the character set based on the expected value of the parameter in the request. Bu dolaylı olarak saldırının kapsamını sınırlar, ancak bu teknik uygun çıktı kodlamasından ve kaçışından daha az önemlidir.
 
 Unutmayın ki, girdi doğrulaması bazı derinlemesine savunmalar getirebilmesine rağmen, SQL enjeksiyonunu önlemek için en etkili çözüm uygun çıktı kodlaması, kaçışı ve alıntılamadır. Bunun nedeni, çıktıda görünecek olan şeyleri etkin biçimde sınırlandırmasıdır. Giriş doğrulaması her zaman SQL enjeksiyonunu engellemez, özellikle keyfi karakterler içerebilen serbest çalışma metin alanlarını desteklemeniz gerekiyorsa. Örneğin, "O'Reilly" ismi İngilizce'de sık bulunan bir soyadı olduğu için büyük ihtimalle doğrulama aşamasını geçecektir. Ancak, kaçınılması veya başka türlü ele alınması gereken "'" kesme işareti karakterini içerdiğinden, doğrudan veri tabanına eklenemez. Bu durumda, kesme işaretini kaldırmak SQL enjeksiyonun riskini azaltabilir, ancak yanlış isim kaydedileceğinden dolayı yanlış davranışa neden olur.
 
 Uygulanabilir olduğunda, meta-karakterlerden kaçınmak yerine onları tamamen reddetmek en güvenlisi olabilir. Bu derinlemesine bir savunma sağlayacaktır. Veriler veritabanına girildikten sonra, daha sonraki süreçler kullanmadan önce meta karakterlerden kaçmayı görmezden gelebilir ve bu süreçler üzerinde kontrol sahibi olamazsınız.</solution>
 	<reference>http://projects.webappsec.org/SQL-Injection</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_19>
 
 <vuln_items>wasc_20</vuln_items>
@@ -528,21 +529,21 @@ Güvenilir olmayan girdilerin yazılımınıza girebilecek bütün potansiyel al
 
 İstemci tarafında yapılan kontrollerin sunucu güvenliğine göre az yararı olsa da, yine de kullanışlıdır. Birinci, saldırı tespitini destekleyebilirler. Eğer sunucu istemci tarafından reddedilmesi gereken bir girdi alırsa, bu bir saldırının belirtisi olabilir. İkinci olarak, istemci tarafı hata kontrolü geçerli girdiler beklentileri hakkında yararlı geribildirimler yapabilir. Üçüncü olarak, kazara olan girdi hataları için sunucu tarafı işlem süresinde azalma olabilir ama bu genellikle küçük bir tasarruftur.
 
-Kötü amaçlı girdileri algılamak ve çıktıyı kodlamak için sadece kara liste doğrulamasına güvenmeyin. Aynı karakteri kodlamak için çok fazla yol var, bu yüzden bazı değişkenleri gözden kaçırmanız olasıdır.
+Do not rely exclusively on deny list validation to detect malicious input or to encode output. Aynı karakteri kodlamak için çok fazla yol var, bu yüzden bazı değişkenleri gözden kaçırmanız olasıdır.
 
 Uygulamanız birden çok kaynaktan gelen verileri birleştirdiğinde, doğrulamayı kaynaklar birleştirildikten sonra yapın. Tekil veri öğeleri doğrulama adımını geçebilir ama birleştirildikten sonra amaçlanan kısıtlamaları ihlal edebilir.
 
-Tüm girdilerin zararlı olduğunu varsay. "Accept known good" (bilinen mal kabulü) giriş onaylama stratejisi kullanın. Spesifikasyonlara kesinlikle uyan kabul edilebilir girdilerden oluşan bir beyaz liste oluşturun. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Sadece zararlı veya kusurlu girdilere güvenmeyin (örn, sadece kara listeye güvenmeyin). Yine de kara liste, olası saldırıları belirlemede veya hangi girdilerin kusurlu olduğunu ve reddedilmesi gerektiğini belirlemede faydalıdır.
+Tüm girdilerin zararlı olduğunu varsay. Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. İş kuralı mantığının bir örneği olarak, "tekne" sözdizimsel olarak geçerlidir çünkü sadece alfasayısal karakterler içermektedir ama "kırmızı" veya "mavi" gibi renkler bekliyorsanız geçersizdir.
+Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Aşama: Uygulama
+Phase: Implementation
 
-Dil sınırlarını aşan bir kod çağırdığınızda, örneğin yorumlanmış bir koddan ana koda geçerken, girdinizi doğrularken özellikle dikkatli olun. Bu dil sınırları arasında beklenmeyen bir etkileşim yaratabilir. Ara yüzünüzde kullandığınız dilin, dil beklentilerini ihlal etmediğinizden emin olunuz. Örneğin, Java arabellek taşmalarına duyarlı olmasa da, yerel kod çağrısında büyük argüman sağlamak taşma olasılığını tetikleyebilir.
+Be especially careful to validate your input when you invoke code that crosses language boundaries, such as from an interpreted language to native code. Bu dil sınırları arasında beklenmeyen bir etkileşim yaratabilir. Ara yüzünüzde kullandığınız dilin, dil beklentilerini ihlal etmediğinizden emin olunuz. Örneğin, Java arabellek taşmalarına duyarlı olmasa da, yerel kod çağrısında büyük argüman sağlamak taşma olasılığını tetikleyebilir.
 
 Girdi türünüzü beklenen veri türüne doğrudan çevirin, örneğin diziyi sayıya çeviren bir dönüştürme işlevi kullanarak. Beklenen veri türüne dönüştürüldükten sonra, girdinin değerlerinin beklenen izin verilen değerler aralığına düştüğünden ve çok alanlı tutarlılıklarının korunduğundan emin olun.
 
-Girişler doğrulanmadan önce uygulamanın mevcut iç temsiline göre kodlanmalı ve standart hale getirilmelidir. Uygulamanızın aynı girişi yanlışlıkla iki defa çözmediğine emin olun. Bu tür hatalar kontrol edildikten sonra tehlikeli girdiler girerek beyaz liste düzenlerini atlamak için kullanılabilir. OWASP ESAPI Canonicalization kontrolü gibi kütüphaneleri kullanın.
+Girişler doğrulanmadan önce uygulamanın mevcut iç temsiline göre kodlanmalı ve standart hale getirilmelidir. Uygulamanızın aynı girişi yanlışlıkla iki defa çözmediğine emin olun. Such errors could be used to bypass allow list schemes by introducing dangerous inputs after they have been checked. OWASP ESAPI Canonicalization kontrolü gibi kütüphaneleri kullanın.
 
 Girdiniz artık değişmeyene kadar, tekrarlanan kanonlaştırma uygulamayı düşünün. Bu çift-kod çözmeyi ve benzer senaryoları önleyecektir ama doğru kodlanmış tehlikeli içeriği tutmasına izin verilen girdileri yanlışlıkla değiştirebilir.
 
@@ -578,7 +579,7 @@ Aşağıdaki özellikler otomatik saldırıların hedefidir:
 	<alert>Uygun olmayan çıktı işlemi</alert>
 	<desc>Çıktı yönetimi, bir uygulamanın nasıl giden veriyi oluşturduğunu ifade eder.  Eğer bir uygulamanın yanlış çıktı yönetimi varsa, çıktı verisi açıklara ve uygulama geliştiricisi tarafından asla istenmeyen eylemlere neden olarak kullanılabilir.  Bir çok durumda, bu istenmeyen yorumlama bir ya da birden fazla kritik uygulama açığı biçimi olarak sınıflandırılır.
 
-Verilerin bir uygulama sınırından ayrıldığı herhangi bir yer, uygun olmayan çıktı işlemine tabi tutulabilir.  Uygulama sınırları, verilerin bir bağlamdan çıktığı ve başkasına girdiği yerde bulunur.  Bu; web hizmetleri, soketler, komut satırı, ortam değişkenleri gibi diğer uygulamalara veri veren uygulamaları içermektedir.  Veritabanı, dizin sunucusu, HTML/JavaScript yorumlayıcı (tarayıcı) veya işletim sistemi gibi, uygulama mimarisindeki katmanlar arasında veri vermeyi de içermektedir.  Yanlış çıktı işlemesinin nerede oluşabileceği ile ilgili daha ayrıntılı bilgi, aşağıdaki "Ortak Veri Çıktı Konumları" başlıklı bölümde bulunabilir.
+Verilerin bir uygulama sınırından ayrıldığı herhangi bir yer, uygun olmayan çıktı işlemine tabi tutulabilir.  Uygulama sınırları, verilerin bir bağlamdan çıktığı ve başkasına girdiği yerde bulunur.  This includes applications passing data to other applications via web services, sockets, command line, environmental variables, etc...  It also includes passing data between tiers within an application architecture, such as a database, directory server, HTML/JavaScript interpreter (browser), or operating system.  Yanlış çıktı işlemesinin nerede oluşabileceği ile ilgili daha ayrıntılı bilgi, aşağıdaki "Ortak Veri Çıktı Konumları" başlıklı bölümde bulunabilir.
 
 Yanlış çıktı işleme, uygulama içinde çeşitli formatlarda ortaya çıkabilir.  Bu formlar, protokol hataları, uygulama hataları ve veri tüketici ile ilgili hatalar olarak kategorize edilebilir.  Protokol hataları, eksik veya yanlış çıktı kodlamayı veya geçersiz verilerin kaçışını ve çıktısını içerir.  Uygulama hataları, yanlış verileri çıkarma veya kötü amaçlı içeriği filtrelenmemiş olarak geçirme gibi mantıksal hataları içerir.  Uygulama, meşru içeriği gayri meşrudan ayırt etmezse, ya da veri tüketicisinde bilinen güvenlik açıkları etrafında çalışmazsa, hatalı çıkış işlemesinden kaynaklanan veri tüketici istismarına neden olabilir.
 
@@ -599,13 +600,13 @@ Varsa, veri ile kod arasındaki ayrımı otomatik olarak uygulayan yapısal meka
 
 Verilerinizin kullanılacağı içeriği ve beklenen kodlamayı anlayın. Bu, farklı bileşenler arasında veri iletirken veya web sayfaları veya çok parçalı e-posta iletileri gibi aynı anda birden fazla kodlama içerebilecek çıktılar üretirken özellikle önem taşır. Gerekli kodlama stratejilerini belirlemek için beklenen tüm iletişim protokollerini ve veri sunumlarını incele.
 
-Bazı durumlarda, çıktı doğrulaması tam bir çözüm olmadığından giriş doğrulaması önemli bir strateji olabilir. Örneğin, farklı kodlamalar veya sunumlar kullanan birden çok tüketicinin işleyeceği aynı çıktıyı sağlayabilirsiniz. Diğer durumlarda, kullanıcı tarafından sağlanan girdinin kontrol bilgisini içermesine izin vermeniz gerekebilir, örneğin bir wiki veya ilan tahtasında biçimlendirmeyi destekleyen sınırlı HTML etiketleri. Bu tip bir gereklilik zorunlu tutulduğunda, hangi kontrol serilerinin kullanılabileceğini kısıtlamak için son derece sıkı bir beyaz liste kullanın. Sonuçlanan sözdizimi yapısının beklediğiniz şey olduğunu doğrulayın. Normal kodlama yöntemlerini girdinin geri kalanı için kullanın.
+Bazı durumlarda, çıktı doğrulaması tam bir çözüm olmadığından giriş doğrulaması önemli bir strateji olabilir. Örneğin, farklı kodlamalar veya sunumlar kullanan birden çok tüketicinin işleyeceği aynı çıktıyı sağlayabilirsiniz. Diğer durumlarda, kullanıcı tarafından sağlanan girdinin kontrol bilgisini içermesine izin vermeniz gerekebilir, örneğin bir wiki veya ilan tahtasında biçimlendirmeyi destekleyen sınırlı HTML etiketleri. When this type of requirement must be met, use an extremely strict allow list to limit which control sequences can be used. Sonuçlanan sözdizimi yapısının beklediğiniz şey olduğunu doğrulayın. Normal kodlama yöntemlerini girdinin geri kalanı için kullanın.
 
 Girdi doğrulamasını derinlemesine saldırı ölçütü olarak kullanarak çıktı kodlama hatalarının olasılığını düşürün (CWE-20'e bakınız).
 
 Bileşenler arasında veri alışverişi yaparken, iki bileşenin de aynı karakter kodlamasını kullandığından emin olun. Her bir arayüzde doğru şifreleme uygulandığından emin olun. Protokolün buna izin verdiğinde her zaman kullandığınız kodlamayı açıkça belirtin.</solution>
 	<reference>http://projects.webappsec.org/Improper-Output-Handling</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_22>
 
 <vuln_items>wasc_23</vuln_items>
@@ -614,16 +615,16 @@ Bileşenler arasında veri alışverişi yaparken, iki bileşenin de aynı karak
 	<desc>XML enjeksiyonu XML uygulamasının ya da hizmetinin mantığını değiştirmek ya da bozmak için kullanılan bir saldırı tekniğidir. İstenmeyen XML içeriği ve/veya yapılarını bir XML iletisine enjekte edilmesi, uygulamanın mantığını değiştirebilir. Dahası, XML enjeksiyonu ortaya çıkan mesaja/belgeye zararlı içeriğin eklenmesine neden olabilir.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/XML-Injection</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_23>
 
 <vuln_items>wasc_24</vuln_items>
 <vuln_item_wasc_24>
 	<alert>HTTP İstek Bölme</alert>
 	<desc>HTTP İstek Bölme, XSS'i zorlayarak ve tarayıcı önbelleğini zehirleyerek, tarayıcının rastgele HTTP istekleri göndermeye zorlanmasına izin veren bir saldırıdır. Saldırının özü, kurban (tarayıcı) saldırganın kötü niyetli HTML sayfasını yüklemeye zorlandığında, bir HTTP isteği yerine 2 HTTP isteği göndermek için tarayıcı işlevlerinden birini değiştirmesi, saldırganın yeteneğidir. İki mekanizma bugüne kadar kullanılmıştır: XmlHttpRequest nesnesi (kısaca XHR) ve HTTP temel doğrulama mekanizması. Bu saldırının çalışması için tarayıcının ileri bir HTTP proxy kullanması gerekir (hepsi bu saldırıyı "desteklemez") veya saldırı aynı IP'de (tarayıcı perspektifinden) bulunan bir ana makineye karşı saldırganın makinesi ile gerçekleştirilmelidir.</desc>
-	<solution>CRLF'yi özel dizi olarak kullanmaktan kaçının.
+	<solution>Avoid using CRLF as a special sequence.
 
-Kullanıcı tarafından kontrol edilen girdilerdeki CRLF dizilerini uygun olarak filtreleyin ve alıntılayın.</solution>
+Appropriately filter or quote CRLF sequences in user-controlled input.</solution>
 	<reference>http://projects.webappsec.org/HTTP-Request-Splitting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/93.html</reference>
 </vuln_item_wasc_24>
@@ -670,7 +671,7 @@ HTTP cevap kaçakçılığı, bir anti-HTTP Cevap Bölme mekanizmasının (veya 
 	</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/HTTP-Response-Smuggling</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_27>
 
 <vuln_items>wasc_28</vuln_items>
@@ -687,22 +688,22 @@ Tüm girdilerin zararlı olduğunu varsay. Görüntülenecek veya depolanacak ve
 
 Güçlü çıktı kodlaması belirleyin ve kullanın (örneğin ISO 8859-1 veya UTF 8).
 
-Kötü amaçlı girdileri algılamak ve çıktıyı kodlamak için sadece kara liste doğrulamasına güvenmeyin. Bir karakteri kodlamak için çok fazla değişken var. Bazı değişkenleri gözden kaçırmanız olasıdır.
+Do not rely exclusively on deny list validation to detect malicious input or to encode output. Bir karakteri kodlamak için çok fazla değişken var. Bazı değişkenleri gözden kaçırmanız olasıdır.
 
-Girişler doğrulanmadan önce uygulamanın mevcut iç temsiline göre kodlanmalı ve standart hale getirilmelidir. Uygulamanızın aynı girdiyi iki kez deşifre etmediğinden emin olun. Bu tür hatalar kontrol edildikten sonra tehlikeli girdiler getirerek temiz liste şemalarına yerleştirilir.</solution>
+Girişler doğrulanmadan önce uygulamanın mevcut iç temsiline göre kodlanmalı ve standart hale getirilmelidir. Uygulamanızın aynı girdiyi iki kez deşifre etmediğinden emin olun. Such errors could be used to bypass allow list schemes by introducing dangerous inputs after they have been checked.</solution>
 	<reference>http://projects.webappsec.org/Null-Byte-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/158.html</reference>
 </vuln_item_wasc_28>
 
 <vuln_items>wasc_29</vuln_items>
 <vuln_item_wasc_29>
-	<alert>LDAP enjeksiyonu</alert>
+	<alert>LDAP Enjeksiyonu</alert>
 	<desc>LDAP Enjeksiyonu, kullanıcı tarafından verilen girdilerden LDAP ifadeleri oluşturan web sitelerinden faydalanmak için kullanılan bir saldırı tekniğidir.
 
 Basit Dizin Erişim Protokolü (LDAP), X.500 dizin hizmetlerini sorgulayan ve değiştiren bir açık standart protokolüdür. LDAP protokolü, TCP gibi Internet taşıma protokolleri üzerinden çalışır. Web uygulamaları, dinamik web sayfası istekleri için özel LDAP ifadeleri oluşturmak amacıyla kullanıcı tarafından verilen girdileri kullanabilir.
 
 Bir web uygulaması kullanıcı-kaynaklı girdileri düzgün temizleyemediğinde, bir saldırganın LDAP komutunun yapısını değiştirmesi mümkündür. Bir saldırgan LDAP ifadesinin yapısını değiştirebildiğinde, işlem komutu çalıştıran komutla aynı izinlere sahip olarak devam edecektir. (Örneğin: Veritabanı sunucusu, Web uygulama sunucusu, Web sunucusu vb.). LDAP ağacının içinden herhangi bir şeyi sorgulamak, silmek veya değiştirmek gibi yetkileri vermek ciddi güvenlik sorunlarına sebep olabilir. SQL Enjeksiyon içinde bulunan faydalanma teknikleri, LDAP Enjeksiyonu içinde benzer bir şekilde uygulanabilir.</desc>
-	<solution>Bütün girdilerin kötü olduğunu varsayın. Kullanıcı-LDAP Kullanıcı kontrollü girdilerdeki LDAP sözdizimlerini etkisiz hale getirmek için kara listelerin ve beyaz listelerin uygun bir kombinasyonunu kullanın.</solution>
+	<solution>Tüm girdilerin zararlı olduğunu varsay. Use an appropriate combination of black lists and white lists to neutralize LDAP syntax from user-controlled input.</solution>
 	<reference>http://projects.webappsec.org/LDAP-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/90.html</reference>
 </vuln_item_wasc_29>
@@ -713,19 +714,19 @@ Bir web uygulaması kullanıcı-kaynaklı girdileri düzgün temizleyemediğinde
 	<desc>Mail Komut Enjeksiyonu, mail sunucularından ve doğru bir şekilde temizlenmeyen kullanıcı kaynaklı girdilerden IMAP/SMTP ifadeleri oluşturan web mail uygulamalarından faydalanmak için kullanılan bir saldırı tekniğidir. Saldırganın faydalandığı ifade çeşidine bağlı olarak iki tip enjeksiyonla karşılaşıyoruz: IMAP ve SMTP Enjeksiyonu. Bir IMAP / SMTP Enjeksiyonu, daha önce erişemediğiniz bir posta sunucusuna önceden erişebilme olağanı verebilir. Bazı durumlarda bu iç sistemlere, çoğu ön-yüz ağ sunucusuyla aynı seviyede altyapı güvenlik sıkılaştırma uygulanmamıştır. Dolayısıyla, saldırganlar posta sunucusunun sömürü açısından daha iyi sonuçlar verdiğini bulabilir. Öte yandan bu teknik olabildiğince, uygulama seviyesinde bulunan kısıtlamalardan (CAPTCHA, maksimum istek sayısı vb) kaçınmaya olanak sağlar.</desc>
 	<solution>Güvenilir olmayan verilerin yazılımıza girebileceği tüm potansiyel alanları anlayın: parametreler ve argümanlar, çerezler, ağdan okunan her şey, çevre değişkenleri, içerik ve istek başlıkları, URL bileşenleri, e-posta, dosyalar, veritabanları ve uygulamanız için veri sağlayan herhangi bir dış sistem. İyi tanımlanmış arayüzlerde girdi doğrulaması yapın.
 
-Tüm girdilerin zararlı olduğunu varsay. "Bilinen İyiyi Kabul Et" girdi doğrulama stratejisi kullanın (yani bir beyaz liste kullanın). Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Beklenmedik girdileri reddetmek ve olası saldırıları algılamak için bir kara liste kullanın.
+Tüm girdilerin zararlı olduğunu varsay. Use an "accept known good" input validation strategy (i.e., use an allow list). Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Use a deny list to reject any unexpected inputs and detect potential attacks.
 
-Kötü amaçlı girdileri algılamak ve çıktıyı kodlamak için sadece kara liste doğrulamasına güvenmeyin. Aynı karakteri kodlamak için çok fazla yol var, bu yüzden bazı değişkenleri gözden kaçırmanız olasıdır.
+Do not rely exclusively on deny list validation to detect malicious input or to encode output. Aynı karakteri kodlamak için çok fazla yol var, bu yüzden bazı değişkenleri gözden kaçırmanız olasıdır.
 
 Girdi türünüzü beklenen veri türüne doğrudan çevirin, örneğin diziyi sayıya çeviren bir dönüştürme işlevi kullanarak. Beklenen veri türüne dönüştürüldükten sonra, girdinin değerlerinin beklenen izin verilen değerler aralığına düştüğünden ve çok alanlı tutarlılıklarının korunduğundan emin olun.
 
-Girişler doğrulanmadan önce uygulamanın mevcut iç temsiline göre kodlanmalı ve standart hale getirilmelidir. Uygulamanızın aynı girdiyi yanlışlıkla iki kez deşifre etmediğinden emin olun. Bu tür hatalar kontrol edildikten sonra tehlikeli girdiler girerek beyaz liste düzenlerini atlamak için kullanılabilir. OWASP ESAPI Canonicalization kontrolü gibi kütüphaneleri kullanın.
+Girişler doğrulanmadan önce uygulamanın mevcut iç temsiline göre kodlanmalı ve standart hale getirilmelidir. Uygulamanızın aynı girdiyi yanlışlıkla iki kez deşifre etmediğinden emin olun. Such errors could be used to bypass allow list schemes by introducing dangerous inputs after they have been checked. OWASP ESAPI Canonicalization kontrolü gibi kütüphaneleri kullanın.
 
 Girdiniz artık değişmeyene kadar, tekrarlanan kanonlaştırma uygulamayı düşünün. Bu çift-kod çözmeyi ve benzer senaryoları önleyecektir ama doğru kodlanmış tehlikeli içeriği tutmasına izin verilen girdileri yanlışlıkla değiştirebilir.
 
 Bileşenler arasında veri alışverişi yaparken, iki bileşenin de aynı karakter kodlamasını kullandığından emin olun. Her bir arayüzde doğru şifreleme uygulandığından emin olun. Protokolün buna izin verdiğinde her zaman kullandığınız kodlamayı açıkça belirtin.
 
-Uygulamanız birden fazla kaynaktan gelen verileri bir araya getirdiğinde, kaynak birleştirildikten sonra doğrulayın. Tekil veri öğeleri doğrulama adımını geçebilir ama birleştirildikten sonra amaçlanan kısıtlamaları ihlal edebilir.</solution>
+Uygulamanız birden çok kaynaktan gelen verileri birleştirdiğinde, doğrulamayı kaynaklar birleştirildikten sonra yapın. Tekil veri öğeleri doğrulama adımını geçebilir ama birleştirildikten sonra amaçlanan kısıtlamaları ihlal edebilir.</solution>
 	<reference>http://projects.webappsec.org/Mail-Command-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/88.html</reference>
 </vuln_item_wasc_30>
@@ -740,7 +741,7 @@ Uygulamanız birden fazla kaynaktan gelen verileri bir araya getirdiğinde, kayn
 
 Kodunuzu "jail" ya da işlem ve işletim sistemi arasına sıkı sınırlar koyan, benzer bir sanal test ortamında çalıştırın. Bu durum, belirli bir hedef dizin içerisinde hangi dosyalara erişileceğini veya yazılım tarafından hangi komutların uygulanacağını etkili şekilde kısıtlayabilir.
 
-İşletim sistemi seviyesi örneklerine Unix chroot jail, AppArmor ve SeLinux da dahildir. Genel olarak yönetilen kod bazı korumalar sağlayabilir. Örneğin, Java Güvenlik Yöneticisi içerisindeki java.io.FilePermission, dosya operasyonları üzerinde kısıtlamaları belirtmenize izin verir.
+İşletim sistemi seviyesi örneklerine Unix chroot jail, AppArmor ve SeLinux da dahildir. Genel olarak, yönetilen kod bazı korumalar sağlayabilir. Örneğin, Java Güvenlik Yöneticisi içerisindeki java.io.FilePermission, dosya operasyonları üzerinde kısıtlamaları belirtmenize izin verir.
 Bu pratik bir çözüm olmayabilir ve sadece işletim sistemi üzerindeki etkileri kısıtlar; uygulamaların kalanları savunmasız kalabilir.
 
 Gerçekleştirilecek bir komutu oluşturmak için kullanılacak herhangi bir veri için, bu verileri mümkün olduğunca dış kontrolün dışında tutun. Örneğin, ağ uygulamalarında komutu gizli bir form alanında kullanıcılara göndermek yerine oturumun durumunda yerel olarak depolama gerektirebilir.
@@ -749,7 +750,7 @@ Dikkatle incelenmiş, bu zayıflığın oluşmasına izin vermeyen veya bu zayı
 
 Örneğin, ESAPI Şifreleme kontrolü veya benzer bir araç, kütüphane veya framework kullanımını göz önünde bulundurun. Bunlar yazılımcının çıktıları daha az hataya eğilimli şekilde şifrelemesine yardımcı olacaktır.
 
-Eğer riske rağmen dinamik olarak oluşturulmuş sorgu katarlarını veya komut dizinlerini kullanmaya ihtiyacınız varsa, argümanları uygun şekilde alıntılayın ve bu argümanlarda özel karakter kullanımından kaçının. En güvenli yaklaşım, son derece katı beyaz listeden geçemeyen tüm karakterleri filtrelemek ve kullanmaktan kaçınmaktır. (örneğin alfasayısal veya boşluk olmayan herşey). Beyaz boşluk gibi bazı özel karakterler hala gerekli ise, her argümanı kaçış/filtreleme adımından sonra tırnak işaretleriyle sarın. Argüman enjeksiyonuna dikkat edin.
+Eğer riske rağmen dinamik olarak oluşturulmuş sorgu katarlarını veya komut dizinlerini kullanmaya ihtiyacınız varsa, argümanları uygun şekilde alıntılayın ve bu argümanlarda özel karakter kullanımından kaçının. The most conservative approach is to escape or filter all characters that do not pass an extremely strict allow list (such as everything that is not alphanumeric or white space). Beyaz boşluk gibi bazı özel karakterler hala gerekli ise, her argümanı kaçış/filtreleme adımından sonra tırnak işaretleriyle sarın. Argüman enjeksiyonuna dikkat edin.
 
 Gerçekleştirilecek program, bağımsız değişkenlerin bir girdi dosyası içinde veya standart girdide belirtilmesine izin veriyorsa, bu modu kullanmayı komut satırı yerine bağımsız değişkenleri geçirmek için düşünün.
 
@@ -757,11 +758,11 @@ Varsa, veri ile kod arasındaki ayrımı otomatik olarak uygulayan yapısal meka
 
 Bazı diller komutları çalıştırmak için kullanılabilen birden fazla fonksiyon önerir. Tek bir katar kullanarak bir komut kabuğunu çalıştıran herhangi bir fonksiyon saptadığınızda, mümkünse ayrık argümanlar gerektiren bir fonksiyon ile yerini değiştirin. Bu işlevler genellikle argümanların uygun bir şekilde alıntılanmasını ve filtrelenmesini gerçekleştirir. Örneğin; C'de, system() fonksiyonu, çalıştırılacak tüm komutları içeren bir dizgeyi kabul ederken, execl(), execve() ve benzeri diğer fonksiyonlar, her argüman için ayrı dizge dizileri gerektirir. Windows'ta CreateProcess(), bir seferde yalnızca bir komut kabul eder. Perl dilinde eğer system() argümanların bir diziminden sağlanıyorsa o zaman system() her bir argümanı alıntılayacaktır.
 
-Tüm girdilerin zararlı olduğunu varsay. "Accept known good" (bilinen mal kabulü) giriş onaylama stratejisi kullanın. Spesifikasyonlara kesinlikle uyan kabul edilebilir girdilerden oluşan bir beyaz liste oluşturun. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Sadece zararlı veya kusurlu girdilere güvenmeyin (örn, sadece kara listeye güvenmeyin). Yine de kara liste, olası saldırıları belirlemede veya hangi girdilerin kusurlu olduğunu ve reddedilmesi gerektiğini belirlemede faydalıdır.
+Tüm girdilerin zararlı olduğunu varsay. Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. İş kuralı mantığına bir örnek olarak, "tekne" sözdizimsel olarak geçerli olabilir, çünkü dize yalnızca alfasayısal karakterler içerir, ancak "kırmızı" veya "mavi" gibi renkler beklenmesi durumunda geçerli değildir.
+Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-OS komut dizelerini oluştururken, sorguda parametrenin beklenen değerine dayalı olarak karakter kümesini sınırlayan güçlü beyaz listeleri kullanın. Bu dolaylı olarak saldırının kapsamını sınırlar, ancak bu teknik uygun çıktı kodlamasından ve kaçışından daha az önemlidir.
+When constructing OS command strings, use stringent allow lists that limit the character set based on the expected value of the parameter in the request. Bu dolaylı olarak saldırının kapsamını sınırlar, ancak bu teknik uygun çıktı kodlamasından ve kaçışından daha az önemlidir.
 
 Uygun çıktı şifreleme, kaçınma ve alıntılama işletim sistemi komut enjeksiyonundan kaçınmak için en etkili çözüm olduğunu unutmayın, gerçi girdi doğrulaması derinine koruma sağlayabilir. Bunun nedeni, çıktıda görünecek olan şeyleri etkin biçimde sınırlandırmasıdır. Girdi doğrulama her zaman İşletim Sistemi komut enjeksiyonunu önlemez, özellikle de eğer rastgele karakterler içerebilen düzensiz metin alanlarını desteklemeniz gerekiyorsa. Örneğin, bir posta programını başlattığınızda kaçılması veya yönetilmesi gereken ";" ve ">" gibi aksi-tehlikeli girdiler içerimesi için konu alanlarına izin vermeye ihtiyaç duyabilirsiniz. Bu durumda, karakteri soyma İS komut enjeksiyonu riskini azaltabilir, fakat konu alanı kullanıcının istediği gibi kaydedilmeyeceği için yanlış davranışla sonuçlanabilir. Bu ufak bir zahmet gibi görünebilir, fakat program diğer bileşenlere mesajları aktarmak için iyi yapılandırılmış konu satırlarına dayandığı zaman daha önemli olabilir.
 
@@ -796,16 +797,16 @@ Bir sertifika, iletişim kuran tarafın kimliğini doğrulama için kimlik şifr
 
 En temel saldırılardan olan Güzergah Geçiş saldırısı, URL'de belirtilen kaynak konumunu değiştirmek için "../" özel karakter sırasını kullanır. Çoğu popüler web sunucusu bu tekniğin web belgesinin kökünün kurtulmasını önleyecek olsa bile, "../" dizisinin alternatif kodlamaları güvenlik filtrelerini atlamanıza yardımcı olabilir. Bu yöntem çeşitleri, Windows-tabanlı ağlardaki ileri eğik çizgi, ters eğik çizgi(".. \"), URL şifreleme karakterleri ""%2e%2e%2f") ve ters eğik çizgi karakterinin çift URL şifrelemesi ("..%255c") geçerli ve geçersiz Unicode-şifrelemeyi ("..%u2216" or "..%c0%af") içerir.
 
-Web sunucusu, URL yolundaki Yol Geçiş girişimlerini düzgün şekilde kısıtlasa bile, kullanıcı tarafından sağlanan girdinin yanlış bir şekilde işlenmesi nedeniyle bir web uygulamasının kendisi hala korunmasız olabilir. Bu, şablon mekanizmaları kullanan veya dosyalardan statik metin yükleyen web uygulamalarının ortak bir problemidir. Saldırının varyasyonlarında, orijinal URL parametre değeri web uygulamalarından birinin dinamik komut dizilerinin dosya ismiyle yer değiştirir. Sonuç olarak, dosya yürütülebilir bir komut dosyası yerine metin olarak yorumlanırsa, kaynak kodunun ortaya çıkmasına sebep olabilir. Bu teknikler ek olarak güncel çalışma dizinin listelenmesi için genellikle nokta(".") gibi özel karakterlerini veya basit dosya uzantısı kontrollerini pas geçmek için "%00" NULL karakterlerini kullanır.</desc>
-	<solution>Tüm girdilerin zararlı olduğunu varsay. "Accept known good" (bilinen mal kabulü) giriş onaylama stratejisi kullanın. Spesifikasyonlara kesinlikle uyan kabul edilebilir girdilerden oluşan bir beyaz liste oluşturun. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Sadece zararlı veya kusurlu girdilere güvenmeyin (örn, sadece kara listeye güvenmeyin). Yine de kara liste, olası saldırıları belirlemede veya hangi girdilerin kusurlu olduğunu ve reddedilmesi gerektiğini belirlemede faydalıdır.
+Web sunucusu, URL yolundaki Yol Geçiş girişimlerini düzgün şekilde kısıtlasa bile, kullanıcı tarafından sağlanan girdinin yanlış bir şekilde işlenmesi nedeniyle bir web uygulamasının kendisi hala korunmasız olabilir. Bu, şablon mekanizmaları kullanan veya dosyalardan statik metin yükleyen web uygulamalarının ortak bir problemidir. Saldırının varyasyonlarında, orijinal URL parametre değeri web uygulamalarından birinin dinamik komut dizilerinin dosya ismiyle yer değiştirir. Sonuç olarak, dosya yürütülebilir bir komut dosyası yerine metin olarak yorumlanırsa, kaynak kodunun ortaya çıkmasına sebep olabilir. These techniques often employ additional special characters such as the dot (".") to reveal the listing of the current working directory, or "%00" NULL characters in order to bypass rudimentary file extension checks.</desc>
+	<solution>Tüm girdilerin zararlı olduğunu varsay. Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
-Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. İş kuralı mantığına bir örnek olarak "tekne", yalnızca alfasayısal karakterler içerdiğinden sözdizimsel olarak geçerli olabilir, ancak "kırmızı" veya "mavi" gibi renkler bekliyorsanız geçerli değildir.
+Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Dosya adları için kullanılacak karakter kümesini sınırlayan sıkı beyaz listeler kullanın. Mümkünse, zayıflıklardan kaçınmak için dosya isminde yalnızca tek bir "." karakterine izin verin ve "/" gibi dizin ayırıcılarını dahil etmeyin. İzin verilen dosya uzantılarını temiz listede kullanın.
+For filenames, use stringent allow lists that limit the character set to be used. Mümkünse, zayıflıklardan kaçınmak için dosya isminde yalnızca tek bir "." karakterine izin verin ve "/" gibi dizin ayırıcılarını dahil etmeyin. Use an allow list of allowable file extensions.
 
 Uyarı: eğer verilerinizi temizleme girişiminde bulunursanız, sonucun tehlikeli olabilecek bir formda olmaması için bunu tamamlayın. Bir temizlik mekanizması, bazı işletmeler için gerekli olabilecek, '.' ve ';' gibi karakterleri kaldırabilir. Bir saldırgan, temizlik mekanizmasını kandırarak tehlikeli bir forma "temizleme" yapmaya çalışabilir. Saldıranın dosya isminin içine bir '.' eklediğini (örneğin: "hass.asDosya") ve temizleyici mekanizmanın karakteri silmesiyle geçerli bir dosya ismi,"hassasDosya"yı oluştuğunu varsayalım. Giriş verileri artık güvenli olarak kabul edilirse, dosya tehlikeye düşebilir. 
 
-Girişler doğrulanmadan önce uygulamanın mevcut iç temsiline göre kodlanmalı ve standart hale getirilmelidir. Uygulamanızın aynı girdiyi iki kez deşifre etmediğinden emin olun. Bu tür hatalar kontrol edildikten sonra tehlikeli girdiler girerek beyaz liste düzenlerini atlamak için kullanılabilir.
+Girişler doğrulanmadan önce uygulamanın mevcut iç temsiline göre kodlanmalı ve standart hale getirilmelidir. Uygulamanızın aynı girdiyi iki kez deşifre etmediğinden emin olun. Such errors could be used to bypass allow list schemes by introducing dangerous inputs after they have been checked.
 
 ".." dizilerini ve sembolik bağlarını etkili bir şekilde silen ve hedef yolunun kanonik sürümünü üreten yerleşik bir yol kanonizasyon fonksiyonunu (C'deki realpath() fonksiyonu gibi) kullanın.
 
@@ -829,9 +830,9 @@ Bu pratik bir çözüm olmayabilir ve sadece işletim sistemi üzerindeki etkile
 	<desc>Tahmin edilebilir Kaynak Konumu, gizli web site içeriğini ve fonksiyonlarını açığa çıkarmak için kullanılan bir saldırı tekniğidir. Kaba kuvvetle eğitimli tahminler yaparak, bir saldırgan, halka açık görünüm için tasarlanmamış dosya ve dizin adlarını tahmin edebilir. Dosya adı zorlama müdahaleleri, dosya ve yollar genellikle ortak adlandırma kurallarına sahip olduklarından ve standart konumlarda bulunduklarından dolayı kolaydır. Bunlara geçici dosyalar, yedekleme dosyaları, günlükler, yönetim sitesi bölümleri, yapılandırma dosyaları, demo uygulamaları ve örnek dosyalar dahildir. Bu dosyalar web sayfası hakkında hassas verileri, web uygulama iç yapısını, veritabanı bilgisini, şifreleri, makine isimlerini, diğer hassas alanların dosya yollarını açığa çıkarabilir.
 
 Bu, site güvenlik açıklarına yol açabilecek site bölümlerinin belirlenmesine olanak sağlamakla kalmaz, aynı zamanda yapı veya bu yapının kullanıcısıyla ilgili değerli bilgileri bir saldırgana açık hale getirebilir. Tahmin edilebilir Kaynak Konumu, Zorla Dolaşım, Zoraki Dolaşım, Dosya Dökümü ve Dizin Dökümü olarak da bilinir.</desc>
-	<solution>Tüm kısıtlanmış URL'lere, scriptlere ya da dosyalara her giriş için uygun giriş kontrol yetkilendirmesi uygulayın.
+	<solution>Apply appropriate access control authorizations for each access to all restricted URLs, scripts or files.
 
-Struts gibi MVC tabanlı çalışma alanlarını dikkate alın.</solution>
+Consider using MVC based frameworks such as Struts.</solution>
 	<reference>http://projects.webappsec.org/Predictable-Resource-Location</reference>
 	<reference>http://cwe.mitre.org/data/definitions/425.html</reference>
 </vuln_item_wasc_34>
@@ -860,12 +861,12 @@ If an attacker submits a Server-side Include statement, he may have the ability 
 - HTML varlığı tarafından şifrelenen kullanıcıdan kaynaklı veriler, SSI çalıştırma izinleriyle gönderilmeden önce.
 - Use SUExec to have the page execute as the owner of the file instead of the web server user.</solution>
 	<reference>http://projects.webappsec.org/SSI-Injection</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_36>
 
 <vuln_items>wasc_37</vuln_items>
 <vuln_item_wasc_37>
-	<alert>Oturum Sabitleme</alert>
+	<alert>Oturum Fixation</alert>
 	<desc>Oturum Tespiti, kullanıcının oturum kimliğini belli bir değer olmaya zorlayan bir saldırı tekniğidir. Hedef web sayfasının işlevselliğine bağlı olarak bir takım teknikler oturum kimlik değerini "tamir" için kullanılabilir. Bu teknikler, çapraz site komut çalıştırma kullamı ve web sayfasını daha öncesinde yapılmış HTTP istekler yağmuruna tutma aralığında değişir. Bir kullanıcının oturum kimliği onarıldıktan sonra, saldırgan o kullanıcının oturum açmasını bekler. Once the user does so, the attacker uses the predefined session ID value to assume the same online identity.
 
 Genel olarak kimlik değerlerine söz konusu olduğunda iki tip oturum yönetim sistemi vardır. İlk tür, web tarayıcılarına herhangi bir kimliği belirtmesine izin veren "serbest" sistemlerdir. İkinci tür yalnızca sunucu-yanlı-üretilmiş değerleri kabul eden "katı" sistemlerdir. Serbest sistemlerde, rastgele oturum kimlikleri web sayfasıyla iletişim kurmadan korunur. Strict systems require the attacker to maintain the "trap-session", with periodic web site contact, preventing inactivity timeouts.
@@ -884,19 +885,19 @@ For platforms such as ASP that do not generate new values for sessionid cookies,
 <vuln_item_wasc_38>
 	<alert>URL Yönlendiricisi Suistimali</alert>
 	<desc>URL redirectors represent common functionality employed by web sites to forward an incoming request to an alternate resource. Bu bir çok sebepten dolayı yapılabilir ve genellikle kaynakların dizin yapısından taşınması ve bir önceki yerindeki kaynaklar için istek yollayan kullanıcılar için işlevselliğin bozulmasını önlemek için yapılır. URL redirectors may also be used to implement load balancing, leveraging abbreviated URLs or recording outgoing links. It is this last implementation which is often used in phishing attacks as described in the example below. URL yönlendiricileri, doğrudan bir güvenlik açığını temsil etmez, ancak mağdurları, gerçek hedefin dışındaki bir siteye gideceklerine inandıran sosyal mühendislik yapmaya çalışan saldırganlar tarafından istismar edilebilirler.</desc>
-	<solution>Tüm girdilerin zararlı olduğunu varsay. "Accept known good" (bilinen mal kabulü) giriş onaylama stratejisi kullanın. Spesifikasyonlara kesinlikle uyan kabul edilebilir girdilerden oluşan bir beyaz liste oluşturun. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Sadece zararlı veya kusurlu girdilere güvenmeyin (örn, sadece kara listeye güvenmeyin). Yine de kara liste, olası saldırıları belirlemede veya hangi girdilerin kusurlu olduğunu ve reddedilmesi gerektiğini belirlemede faydalıdır.
+	<solution>Tüm girdilerin zararlı olduğunu varsay. Use an "accept known good" input validation strategy, i.e., use an allow list of acceptable inputs that strictly conform to specifications. Şartlara tam olarak uymayan veya başka şeye dönüştüren girdileri reddedin. Do not rely exclusively on looking for malicious or malformed inputs (i.e., do not rely on a deny list). However, deny lists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.
 
 Giriş doğrulamasını gerçekleştirirken, uzunluğu, girdi türünü, kabul edilebilir değerlerin tümünü, eksik veya fazla girdileri, söz dizimini, ilgili alanlardaki tutarlılık ve iş kurallarına uyum da dahil olmak üzere potansiyel olarak ilgili tüm özellikleri düşünün. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
 
-Use a whitelist of approved URLs or domains to be used for redirection.
+Use an allow list of approved URLs or domains to be used for redirection.
 
 Kullanıcıya sitenizden ayrıldıklarına dair net bir uyarı sağlayan ara bir feragatname sayfası kullanın. Yönlendirme gerçekleşmeden önce uzun bir zamanaşımı geliştirin veya kullanıcıyı linke tıklaması için zorlayın. Feragatname sayfası oluşturulurken XSS sorunlarından kaçınmaya dikkat edin.
 
 Dosya isimleri veya URL'ler gibi kabul edilen nesnelerin dizisi sınırlandığında ya da bilindiğinde, asıl dosya isimleri veya URL'ler için sabit girdi değerleri (sayısal kimlikler gibi) dizisinden oluşturulan bir eşleşme yaratın ve diğer bütün girdileri reddedin.
 
-Örneğin ID 1 "/login.asp" ile, ID 2 ise "http://www.example.com/" ile eşleşebilir. ESAPI AccessReferenceMap gibi özellikler bu kabiliyeti sağlar.
+Örneğin ID 1 "/login.asp" ile, ID 2 ise "http://www.example.com/" ile eşleşebilir. ESAPI AccessReferenceMap/ErişimReferansHaritası gibi özellikler bunu sağlar.
 
-Güvenilir olmayan girdilerin yazılımınıza girebilecek bütün potansiyel alanlarını öğrenin: parametreler veya argümanlar, çerezler, ağdan okunan herşey, ortam değişkenleri, ters DNS aramaları, sorgu sonuçları, istek başlıkları, URL bileşenleri, e-postalar, dosyalar, veri tabanları ve uygulamaya veri getiren tüm harici sistemler. Bu girdilerin API çağrıları yoluyla dolaylı olarak elde edilebileceğini unutmayın.
+Güvenilir olmayan girdilerin yazılımınıza girebilecek bütün potansiyel alanlarını öğrenin: parametreler veya argümanlar, çerezler, ağdan okunan herşey, ortam değişkenleri, ters DNS aramaları, sorgu sonuçları, istek başlıkları, URL bileşenleri, e-postalar, dosyalar, veri tabanları ve uygulamaya veri getiren tüm harici sistemler. Unutmayın ki bunun gibi girdiler API çağrıları sayesinde dolaylı olarak elde edebilirler.
 
 Bir çok yönlendirme sorunu, yazılımcının çerezler ve saklı form alanları gibi bazı girdilerin değiştirilmeyeceğini varsaydığı için ortaya çıkar.</solution>
 	<reference>http://projects.webappsec.org/URL-Redirector-Abuse</reference>
@@ -928,24 +929,24 @@ Doğrulama gerektiren iki tür ana süreç vardır: akış kontrolü ve işletme
 "İşletme mantığı", işletme gereksinimleri tarafından yönetilen süreç uygulamaları kapsamını ifade eder. İşletme mantığı zayıflığının kötüye kullanılması işletme bilgisi gerektirir. Eğer kötüye kullanım için bilgi gerekmiyorsa, o zaman büyük ihtimalle işletme mantık akışı değildir. Bundan dolayı, tarama ve kod değerlendirmeleri gibi güvenlik önlemleri bu zayıflık sınıfını bulamaz. Bir test yaklaşımı, Test Kılavuzunda OWASP tarafından sunulmuştur.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Process-Validation</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_40>
 
 <vuln_items>wasc_41</vuln_items>
 <vuln_item_wasc_41>
 	<alert>XML Özellik Büyültmesi</alert>
-	<desc>XML Özellik Büyültmesi, XML ayrıştırıcılarına karşı hizmet saldırılarının reddedilmesidir. Saldırganlar, aşırı CPU yüküne neden olan savunmasız XML ayrıştırıcılarının oldukça verimsiz olarak işlenmesine neden olacak şekilde zararlı XML sağlarlar. Saldırının özü, aynı XML düğümüne bir çok niteliği dahil etmektir. Savunmasız XML ayrıştırıcıları, özellikleri verimsiz olarak yönetir (örn. yeni özelliklerin dahil edilmesinin O(n) çalışma süresine sahip olan veri içeriği gibi) ve sonuç ise doğrusal olmayan (bu örnekte kuadratik O(n2)) CPU tüketimi ile hizmet durumunu reddetmeye yol açar.</desc>
-	<solution>Sistem mimarisinde kısma mekanizmaları ayarlayın. En iyi koruma, yetkisiz bir kullanıcının harcanmasına neden olabilecek kaynakların miktarını sınırlamaktır. Güçlü bir kimlik doğrulama ve erişim denetimi modeli, bu tür saldırıların önünün açılmasını önlemeye yardımcı olur. Giriş uygulaması DoS saldırılarına karşı mümkün olduğunca korunmalıdır. Sonuç setlerini yakalayarak veri tabanı erişimini kısıtlamak, kaynak harcamasını en aza indirmeye yardımcı olabilir. DoS saldırısı olasılığını daha da sınırlandırmak için kullanıcılardan alınan istek oranlarını izlemeyi ve belirlenen oran eşik değerini aşan istekleri engellemeyi düşünün.
+	<desc>XML Özellik Büyültmesi, XML ayrıştırıcılarına karşı hizmet saldırılarının reddedilmesidir. Saldırganlar, aşırı CPU yüküne neden olan savunmasız XML ayrıştırıcılarının oldukça verimsiz olarak işlenmesine neden olacak şekilde zararlı XML sağlarlar. Saldırının özü, aynı XML düğümüne bir çok niteliği dahil etmektir. Vulnerable XML parsers manage the attributes in an inefficient manner (e.g. in a data container for which insertion of a new attribute has O(n) runtime), resulting in a non-linear (in this example, quadratic, i.e. O(n2)) overall runtime, leading to a denial of service condition via CPU exhaustion.</desc>
+	<solution>Sistem mimarisinde kısma mekanizmaları ayarlayın. En iyi koruma, yetkisiz bir kullanıcının harcanmasına neden olabilecek kaynakların miktarını sınırlamaktır. Güçlü bir kimlik doğrulama ve erişim denetimi modeli, bu tür saldırıların önünün açılmasını önlemeye yardımcı olur. Giriş uygulaması DoS saldırılarına karşı mümkün olduğunca korunmalıdır. Veritabanı erişimini sınırlamak ve sonuç kümelerini önbelleğe almak, harcadıkları kaynakların en aza indirgenmesine yardımcı olabilir. Bir DoS saldırısı olasılığını daha da azaltmak için, kullanıcılardan alınan talep oranını izlemeyi ve tanımlanmış bir oran eşiğini aşan istekleri engellemeyi düşünün.
 
 Kaynak tüketimi saldırılarının azaltılması, sistemin aşağıdakileri uygulamasını gerektirir:
 * saldırıyı tespit ederek ve belirli bir süre için başka bir ek erişimi reddederek,
 * ya da tüm talepleri tekdüze olarak sınırlandırarak, böylece kaynaklar tekrar serbest bırakıldıkları için daha hızlı tüketilmez. 
 
-Bu çözümlerden ilki kendisi içerisine sorundur çünkü saldırganın belirli geçerli bir kullanıcı tarafından sistemi kullanması engellenir. Saldırgan geçerli kullanıcıyı taklit ederse, kullanıcının söz konusu sunucudan erişmesini önleyebilir.
+Bu çözümlerden birincisi, saldırganların, sistemdeki belirli bir geçerli kullanıcının sistemi kullanmasını önleyebileceği için kendi başına bir sorundur. Saldırgan geçerli kullanıcıyı taklit ederse, kullanıcının söz konusu sunucudan erişmesini önleyebilir.
 
-İkinci çözümü etkili bir şekilde uygulamak zordur ve düzgün olarak yapılsa bile tam çözüm sağlamaz. Bu şekilde, saldırının saldırgan tarafından daha fazla kaynak istemesini gerektirir.
+İkinci çözümün ise efektif kurulumu zordur -- ve düzgün bir şekilde uygulansa bile tam bir çözüm sunmaz. Basitçe, saldırgan tarafında saldırı için daha fazla kaynak ihtiyacı gerektirir.
 
-Protokollerin belirli ölçek limitleri olduğundan emin olun.
+Protokollere belirli bir limit ölçeği yerleştirildiğinden emin olun.
 
 Tüm kaynak dağıtımlarında meydana gelen hataların sistemi güvenli bir konumda tuttuğundan emin olun.</solution>
 	<reference>http://projects.webappsec.org/XML-Attribute-Blowup</reference>
@@ -968,7 +969,7 @@ Tüm kaynak dağıtımlarında meydana gelen hataların sistemi güvenli bir kon
 	Saldırganlar aynı zamanda zararlı kodu veya içeriği indirmek için web hizmeti sunucusu olan Harici Varlıkları da kullanabilirler.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/XML-External-Entities</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_43>
 
 <vuln_items>wasc_44</vuln_items>
@@ -992,16 +993,16 @@ XML dosyalarını ilişkili DTD'lerle arıştırmadan önce, tekrar eden varlık
 Çok katmanlı parmak izi, bir öncekine olan TCP/IP Parmak İzine (Nmap gibi bir tarayıcıyla yapılır) benzerdir. Sadece bu, Taşıma Tabakası yerine OSI modeline Uygulama Tabakasına odaklanır. Bu parmak izinin arkasındaki teori, hedefin platformunun, web uygulama yazılımı teknolojisinin, arka uç veritabanı sürümünün, yapılandırmanın ve hatta muhtemelen mimari / topoloji ağının doğru bir profilini oluşturmaktır.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Fingerprinting</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_45>
 
 <vuln_items>wasc_46</vuln_items>
 <vuln_item_wasc_46>
 	<alert>XQuery Enjeksiyonu</alert>
 	<desc>XQuery Enjeksiyonu, XML XQuery dil karşısında klasik SQL enjeksiyonunun bir çeşididir. XQuery Enjeksiyonu, XQuery komutlarından geçirilen uygun olmayan bir şekilde doğrulanmış verileri kullanır. Bu daha sonra XQuery rutinlerinin erişimi olan yerlere saldırgan adına komutları yürütecektir. XQuery enjeksiyonu, kurbanın ortamında, yerel sağlayıcının enjeksiyon komutlarında veya uzak dosya ve veri kaynağı arama uygulamalarında öğelerin sayılması için kullanılabilir. SQL enjeksiyon saldırıları gibi, saldırgan, uygulama giriş noktası ve hedef kaynak erişim tabakası arasında tünel oluşturur.</desc>
-	<solution>Parametrize edilmiş aramalar kullanın. Bu şekilde veri düzlemi ve kontrol düzlemi arasındaki ayrımı korumaya yardımcı olabilirsiniz.
+	<solution>Parametrize edilmiş aramalar kullanın. Bu veri düzlemi ve kontrol düzlemi ayrımına yardımcı olacaktır.
 
-Kullanıcı girdisini doğru bir şekilde doğrulayın. Uygun olan yerlerde verileri reddedin, uygun olan yerlerde filtreleyin ve uygun olan olan yerlerde kaçın. XQL aramalarında kullanılacak girdilerin bu bağlamda güvenli olduğundan emin olun.</solution>
+Kullanıcı girdisini doğru bir şekilde doğrulayın. Uygun olan yerde veriyi reddet, uygun olan yerde filtrele ve uygun olan yerde kaç. XQL aramalarında kullanılacak girdilerin bu bağlamda güvenli olduğundan emin olun.</solution>
 	<reference>http://projects.webappsec.org/XQuery-Injection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/652.html</reference>
 </vuln_item_wasc_46>
@@ -1027,7 +1028,7 @@ Bir Web uygulaması, daha önceden tanımlanan boş bekleme süresi geçtikten s
 	<desc>Güvensiz dizinleme, web sitesinin veri gizliliği için bir tehdittir. Açık olarak erişilebilir olmaması gereken dosyalara erişimi olan internet sitesi içeriği endekslemesinin dosya ve içerik gibi bilgileri sızdırma potansiyeli vardır. Dizinleme işlemi sırasında, bu tür bilgiler, belirlenen bir saldırgan tarafından, genellikle arama motoruna yapılan bir dizi sorgu aracılığıyla daha sonra tekrar alınabilen (hiç de önemsiz olmasa da) dizin oluşturma işlemi tarafından toplanır ve saklanır. Saldırgan, arama moturunun güvenlik modelini bozmaz. Bu sebeple, bu saldırı çok inceliklidir ve algılanması ve tespit edilmesi çok zordur - saldırganın sorgularını mantıklı kullanıcı sorgularından ayırmak kolay değildir.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insecure-Indexing</reference>
-	<reference></reference>
+	<reference/>
 </vuln_item_wasc_48>
 
 <vuln_items>wasc_49</vuln_items>
@@ -1035,7 +1036,7 @@ Bir Web uygulaması, daha önceden tanımlanan boş bekleme süresi geçtikten s
 	<alert>Yetersiz Parola Kurtarma</alert>
 	<desc>Yetersiz Parola Kurtarma, bir web sitesi, saldırgana başka bir kullanıcının parolasını yasa dışı bir şekilde elde etmesine, değiştirmesine veya kurtarmasına izin verdiğinde gerçekleşir. Geleneksel web site kimlik doğrulama metodları, kullanıcının bir parola veya geçiş anahtarı belirlemesi ve onu hatırlamasına dayanır. Kullanıcı parolayı bilen tek kişi olmalıdır ve onu tam olarak hatırlamalıdır. Zaman geçtikçe kullanıcının parolasını hatırlama yeteneği kaybolur. Kullanıcı parola belirlemesini isteyen ortalama 20 siteyi ziyaret ettiğinde durum daha da karmaşıklaşıyor.  (RSA Anketi: http://news.bbc.co.uk/1/hi/technology/3639679.stm) Bunun için parola kurtarma, çevrimiçi kullanıcılara hizmetin önemli bir parçasıdır.
 
-Otomatik parola kurtarma işlemlerine örnek olarak kullanıcıların üyelik aşamasının bir parçası olarak tanımlanan "gizli soru"ya cevap vermeleri gerekmektedir. Bu soru, önceden belirlenmiş sorular listesinden seçilebilir veya kullanıcıdan belirlemesi istenebilir. Kullanılmakta olan bir başka mekanizma ise kullanıcıya kayıt sırasında, parolasını hatırlamasında yardımcı olacak "ipucu" sunmaktır. Diğer mekanizmalar ise kullanıcılardan sosyal güvenlik numarası, ev adresi, posta numarası vb. gibi bazı kişisel bilgiler sağlamasını gerektirir kimliğini kanıtlaması için. Kullanıcı kimliğini kanıtladıktan sonra kurtarma sistemi, yeni bir parola görüntüleyecek veya e-posta gönderecektir.
+Otomatik parola kurtarma işlemlerine örnek olarak kullanıcıların üyelik aşamasının bir parçası olarak tanımlanan "gizli soru"ya cevap vermeleri gerekmektedir. Bu soru, önceden belirlenmiş sorular listesinden seçilebilir veya kullanıcıdan belirlemesi istenebilir. Kullanılmakta olan bir başka mekanizma ise kullanıcıya kayıt sırasında, parolasını hatırlamasında yardımcı olacak "ipucu" sunmaktır. Other mechanisms require the user to provide several pieces of personal data such as their social security number, home address, zip code etc. to validate their identity. Kullanıcı kimliğini kanıtladıktan sonra kurtarma sistemi, yeni bir parola görüntüleyecek veya e-posta gönderecektir.
 
 Saldırgan kullanılan kurtarma mekanizmasını aşabilirse, internet sitesinin Yetersiz Şifre Kurtarma işlevi olduğu varsayılır. Bu -durum kurtarma için- kullanıcı kimliğini doğrulamak için gerekli bilgilerin ya kolay tahmin edilebilir ya da değiştirilebilir olmasından kaynaklanmaktadır. Şifre kurtarma sistemleri kaba kuvvet saldırıları, sistem zayıflıkları veya kolayca tahmin edilen gizli soruların kullanımıyla tehlikeye girebilir.</desc>
 	<solution>Şifre kurtarma mekanizmasına kullanıcı tarafından sağlanan tüm girdilerin detaylı bir şekilde filtrelendiğinden ve doğruluğundan emin olun

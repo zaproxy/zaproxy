@@ -1,5 +1,5 @@
 name: zaproxy
-version: '2.9.0' 
+version: '2.11.1' 
 summary: OWASP ZAP, a tool for finding vulnerabilities in web applications
 description: |
   The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free security tools
@@ -8,23 +8,43 @@ description: |
   while you are developing and testing your applications.
   Its also a great tool for experienced pentesters to use for manual security testing.
 
+base: core20
 grade: stable
 confinement: classic
-icon: zap256x256.png
 
 apps:
   zaproxy:
-    command: bin/desktop-launch $SNAP/wrapper
+    command-chain:
+      - bin/desktop-launch
+    command: zap.sh
+    environment:
+      XDG_DATA_HOME: "$SNAP/usr/share"
+      FONTCONFIG_PATH: "$SNAP/etc/fonts"
+      JAVA_HOME: "$SNAP/usr/lib/jvm/java-11-openjdk-$SNAPCRAFT_TARGET_ARCH"
+      PATH: $JAVA_HOME/bin:$PATH
 
 parts:
   zaproxy:
-    after: [desktop-glib-only]
-    source: https://github.com/zaproxy/zaproxy/releases/download/v2.9.0/ZAP_2.9.0_Linux.tar.gz
+    source: https://github.com/zaproxy/zaproxy/releases/download/v2.11.1/ZAP_2.11.1_Linux.tar.gz
     plugin: dump
-    override-build: |
-      cp -R * $SNAPCRAFT_PART_INSTALL/
-      cp ../../../wrapper $SNAPCRAFT_PART_INSTALL/
+    filesets:
+      pkg-contents: [ ./* ]
+    stage: [ $pkg-contents ]
+  java:
+    plugin: nil
     build-packages:
       - ca-certificates-java
     stage-packages:
-      - openjdk-8-jdk
+      - openjdk-11-jre
+      - ca-certificates-java
+    override-build: |
+      cp /etc/ssl/certs/java/cacerts $SNAPCRAFT_PART_INSTALL/usr/lib/jvm/java-11-openjdk-$SNAPCRAFT_TARGET_ARCH/lib/security/cacerts
+      cp /etc/ssl/certs/java/cacerts $SNAPCRAFT_PART_INSTALL/etc/ssl/certs/java/cacerts
+  desktop-glib-only:
+    build-packages:
+      - libglib2.0-dev
+    plugin: make
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
+    source-subdir: glib-only
+    stage-packages:
+      - libglib2.0-bin

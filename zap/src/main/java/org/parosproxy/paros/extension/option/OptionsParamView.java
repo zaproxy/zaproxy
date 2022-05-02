@@ -46,6 +46,9 @@
 // ZAP: 2020/09/29 Add support for dynamic Look and Feel switching (Issue 6201)
 // ZAP: 2020/10/26 Update pop up menus when changing look and feel.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/09/16 Add support for enabling app integration in containers
+// ZAP: 2022/02/25 Deprecate options no longer in use.
+// ZAP: 2022/02/26 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.extension.option;
 
 import java.awt.Window;
@@ -69,8 +72,6 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WorkbenchPanel;
-import org.zaproxy.zap.extension.httppanel.view.largerequest.LargeRequestUtil;
-import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
 import org.zaproxy.zap.utils.FontUtils;
 
 // ZAP: Added support for selecting the locale
@@ -110,14 +111,18 @@ public class OptionsParamView extends AbstractParam {
             BASE_VIEW_KEY + ".usesystemslocaleformat";
 
     public static final String SPLASHSCREEN_OPTION = "view.splashScreen";
-    public static final String LARGE_REQUEST_SIZE = "view.largeRequest";
-    public static final String LARGE_RESPONSE_SIZE = "view.largeResponse";
+    /** @deprecated (2.12.0) No longer in use. */
+    @Deprecated public static final String LARGE_REQUEST_SIZE = "view.largeRequest";
+    /** @deprecated (2.12.0) No longer in use. */
+    @Deprecated public static final String LARGE_RESPONSE_SIZE = "view.largeResponse";
+
     public static final String FONT_NAME = "view.fontName";
     public static final String FONT_SIZE = "view.fontSize";
     public static final String SCALE_IMAGES = "view.scaleImages";
     public static final String SHOW_DEV_WARNING = "view.showDevWarning";
     public static final String LOOK_AND_FEEL = "view.lookAndFeel";
     public static final String LOOK_AND_FEEL_CLASS = "view.lookAndFeelClass";
+    public static final String ALLOW_APP_INTEGRATION_IN_CONTAINERS = "view.allowAppsInContainers";
 
     /**
      * The default look and feel: Flat Light.
@@ -170,11 +175,10 @@ public class OptionsParamView extends AbstractParam {
     private boolean showLocalConnectRequests;
 
     private boolean showSplashScreen = true;
-    private int largeRequestSize = LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH;
-    private int largeResponseSize = LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH;
     private boolean scaleImages = true;
     private boolean showDevWarning = true;
     private LookAndFeelInfo lookAndFeelInfo = DEFAULT_LOOK_AND_FEEL;
+    private boolean allowAppIntegrationInContainers;
 
     private boolean confirmRemoveProxyExcludeRegex;
     private boolean confirmRemoveScannerExcludeRegex;
@@ -225,9 +229,6 @@ public class OptionsParamView extends AbstractParam {
         showLocalConnectRequests = getBoolean(SHOW_LOCAL_CONNECT_REQUESTS, false);
 
         showSplashScreen = getBoolean(SPLASHSCREEN_OPTION, true);
-        largeRequestSize = getInt(LARGE_REQUEST_SIZE, LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH);
-        largeResponseSize =
-                getInt(LARGE_RESPONSE_SIZE, LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH);
 
         for (FontUtils.FontType fontType : FontUtils.FontType.values()) {
             fontNames.put(fontType, getString(getFontNameConfKey(fontType), ""));
@@ -241,9 +242,7 @@ public class OptionsParamView extends AbstractParam {
                         getString(LOOK_AND_FEEL, DEFAULT_LOOK_AND_FEEL.getName()),
                         getString(LOOK_AND_FEEL_CLASS, DEFAULT_LOOK_AND_FEEL.getClassName()));
 
-        // Special cases - set via static methods
-        LargeRequestUtil.setMinContentLength(largeRequestSize);
-        LargeResponseUtil.setMinContentLength(largeResponseSize);
+        allowAppIntegrationInContainers = getBoolean(ALLOW_APP_INTEGRATION_IN_CONTAINERS, false);
 
         this.confirmRemoveProxyExcludeRegex =
                 getBoolean(CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY, false);
@@ -271,16 +270,6 @@ public class OptionsParamView extends AbstractParam {
     }
 
     /**
-     * @deprecated (2.5.0) Use {@link #isShowMainToolbar()} instead. It will be removed in a future
-     *     release.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public int getShowMainToolbar() {
-        return showMainToolbar;
-    }
-
-    /**
      * Tells whether or not the main tool bar should be shown.
      *
      * @return {@code true} if the main tool bar should be shown, {@code false} otherwise.
@@ -288,16 +277,6 @@ public class OptionsParamView extends AbstractParam {
      */
     public boolean isShowMainToolbar() {
         return showMainToolbar != 0;
-    }
-
-    /**
-     * @deprecated (2.5.0) Use {@link #setShowMainToolbar(boolean)} instead. It will be removed in a
-     *     future release.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void setShowMainToolbar(int showMainToolbar) {
-        setShowMainToolbar(showMainToolbar != 0);
     }
 
     /**
@@ -496,24 +475,36 @@ public class OptionsParamView extends AbstractParam {
         getConfig().setProperty(SPLASHSCREEN_OPTION, showSplashScreen);
     }
 
+    /** @deprecated (2.12.0) No longer in use. */
+    @Deprecated
     public int getLargeRequestSize() {
-        return largeRequestSize;
+        return 100000;
     }
 
-    public void setLargeRequestSize(int largeRequestSize) {
-        this.largeRequestSize = largeRequestSize;
-        LargeRequestUtil.setMinContentLength(largeRequestSize);
-        getConfig().setProperty(LARGE_REQUEST_SIZE, largeRequestSize);
-    }
+    /** @deprecated (2.12.0) No longer in use. */
+    @Deprecated
+    public void setLargeRequestSize(int largeRequestSize) {}
 
+    /** @deprecated (2.12.0) No longer in use. */
+    @Deprecated
     public int getLargeResponseSize() {
-        return largeResponseSize;
+        return 100000;
     }
 
-    public void setLargeResponseSize(int largeResponseSize) {
-        this.largeResponseSize = largeResponseSize;
-        LargeResponseUtil.setMinContentLength(largeResponseSize);
-        getConfig().setProperty(LARGE_RESPONSE_SIZE, largeResponseSize);
+    /** @deprecated (2.12.0) No longer in use. */
+    @Deprecated
+    public void setLargeResponseSize(int largeResponseSize) {}
+
+    /** @since 2.11.0 */
+    public boolean isAllowAppIntegrationInContainers() {
+        return allowAppIntegrationInContainers;
+    }
+
+    /** @since 2.11.0 */
+    public void setAllowAppIntegrationInContainers(boolean allowAppIntegrationInContainers) {
+        this.allowAppIntegrationInContainers = allowAppIntegrationInContainers;
+        getConfig()
+                .setProperty(ALLOW_APP_INTEGRATION_IN_CONTAINERS, allowAppIntegrationInContainers);
     }
 
     /**

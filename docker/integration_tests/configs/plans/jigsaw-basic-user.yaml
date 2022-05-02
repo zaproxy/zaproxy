@@ -1,0 +1,89 @@
+---
+env:
+  contexts:
+  - name: "Jigsaw Basic"
+    urls:
+    - "https://jigsaw.w3.org/HTTP/Basic"
+    includePaths:
+    - "https://jigsaw.w3.org/HTTP/Basic.*"
+    excludePaths: []
+    authentication:
+      method: "http"
+      parameters:
+        realm: "test"
+        hostname: "jigsaw.w3.org"
+        port: 443
+      verification:
+        method: "response"
+        loggedInRegex: "Your browser made it!"
+        loggedOutRegex: ""
+        pollFrequency: 60
+        pollUnits: "requests"
+        pollUrl: ""
+        pollPostData: ""
+    sessionManagement:
+      method: "http"
+      parameters: {}
+    users:
+    - name: "guest"
+      username: "${JIGSAW_USER}"
+      password: "${JIGSAW_PWORD}"
+  parameters:
+    failOnError: false
+    failOnWarning: true
+    progressToStdout: true
+  vars: {}
+jobs:
+- parameters:
+    user: "guest"
+  requests:
+  - url: "https://jigsaw.w3.org/HTTP/Basic/"
+    name: ""
+    method: ""
+    data: ""
+    responseCode: 200
+  - url: "https://jigsaw.w3.org/HTTP/Digest/"
+    name: ""
+    method: ""
+    data: ""
+    responseCode: 200
+  name: "requestor"
+  type: "requestor"
+- parameters:
+    maxDuration: 0
+  name: "passiveScan-wait1"
+  type: "passiveScan-wait"
+  tests:
+  - onFail: "Error"
+    statistic: "stats.auth.state.loggedin"
+    site: "https://jigsaw.w3.org"
+    operator: "=="
+    value: 2
+    type: "stats"
+    name: "wait1 stats.auth.state.loggedin == 2"
+- parameters:
+  requests:
+  - url: "https://jigsaw.w3.org/HTTP/Basic/"
+    name: ""
+    method: ""
+    data: ""
+    responseCode: 401
+  - url: "https://jigsaw.w3.org/HTTP/Digest/"
+    name: ""
+    method: ""
+    data: ""
+    responseCode: 401
+  name: "requestor"
+  type: "requestor"
+- parameters:
+    maxDuration: 0
+  name: "passiveScan-wait2"
+  type: "passiveScan-wait"
+  tests:
+  - onFail: "Error"
+    statistic: "stats.auth.state.loggedin"
+    site: "https://jigsaw.w3.org"
+    operator: "=="
+    value: 2
+    type: "stats"
+    name: "wait2 stats.auth.state.loggedin == 2"

@@ -19,7 +19,9 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
+import java.util.List;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DesktopUtils;
@@ -29,6 +31,7 @@ import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
 public class PopupMenuOpenUrlInBrowser extends PopupMenuItemHttpMessageContainer {
 
     private static final long serialVersionUID = 1L;
+    private boolean disabledToolTipSet = false;
 
     /** @param label */
     public PopupMenuOpenUrlInBrowser(String label) {
@@ -41,6 +44,26 @@ public class PopupMenuOpenUrlInBrowser extends PopupMenuItemHttpMessageContainer
             View.getSingleton()
                     .showWarningDialog(Constant.messages.getString("history.browser.warning"));
         }
+    }
+
+    @Override
+    protected boolean isButtonEnabledForSelectedMessages(List<HttpMessage> httpMessages) {
+        if (Constant.isInContainer()
+                && !Model.getSingleton()
+                        .getOptionsParam()
+                        .getViewParam()
+                        .isAllowAppIntegrationInContainers()) {
+            if (!disabledToolTipSet) {
+                this.setToolTipText(Constant.messages.getString("history.browser.disabled"));
+                disabledToolTipSet = true;
+            }
+            return false;
+        }
+        if (disabledToolTipSet) {
+            this.setToolTipText("");
+            disabledToolTipSet = false;
+        }
+        return super.isButtonEnabledForSelectedMessages(httpMessages);
     }
 
     @Override

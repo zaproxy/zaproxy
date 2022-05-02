@@ -167,6 +167,7 @@ public class JCheckBoxTree extends JTree {
             this.setLayout(new BorderLayout());
             checkBox = new JCheckBox();
             altLabel = new JLabel("");
+            altLabel.setOpaque(true);
             add(checkBox, BorderLayout.CENTER);
             add(altLabel, BorderLayout.EAST);
             setOpaque(false);
@@ -188,6 +189,9 @@ public class JCheckBoxTree extends JTree {
             altLabel.setForeground(
                     UIManager.getColor(
                             selected ? "Tree.selectionForeground" : "Tree.textForeground"));
+            altLabel.setBackground(
+                    UIManager.getColor(
+                            selected ? "Tree.selectionBackground" : "Tree.textBackground"));
             CheckedNode cn = nodesCheckingState.get(tp);
             if (cn == null) {
                 checkBox.setVisible(false);

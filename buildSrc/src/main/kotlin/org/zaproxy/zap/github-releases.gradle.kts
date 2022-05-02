@@ -22,7 +22,6 @@ tasks.register<CreateTagAndGitHubRelease>("createWeeklyRelease") {
     val tagName = dateProvider.map { "w$it" }
 
     user.set(ghUser)
-    authToken.set(System.getenv("GITHUB_TOKEN"))
     repo.set(System.getenv("GITHUB_REPOSITORY"))
     tag.set(tagName)
     tagMessage.set(dateProvider.map { "Weekly release $it" })
@@ -97,13 +96,12 @@ tasks.register<CreateMainRelease>("createMainRelease") {
     val tagName = "v${project.version}"
 
     user.set(ghUser)
-    authToken.set(System.getenv("GITHUB_TOKEN"))
     repo.set(System.getenv("GITHUB_REPOSITORY"))
     tag.set(tagName)
     tagMessage.set("Version ${project.version}")
 
     title.set(tagName)
-    body.set("")
+    body.set("Release notes: https://www.zaproxy.org/docs/desktop/releases/${project.version}/")
     checksumAlgorithm.set("SHA-256")
     draft.set(true)
 

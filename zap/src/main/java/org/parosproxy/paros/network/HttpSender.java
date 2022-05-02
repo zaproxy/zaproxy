@@ -87,15 +87,39 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2020/12/09 Set content encoding to the response body.
 // ZAP: 2021/05/14 Remove redundant type arguments and empty statement.
+// ZAP: 2022/01/04 Add initiator constant OAST_INITIATOR for OAST requests.
+// ZAP: 2022/04/08 Deprecate getSSLConnector() and executeMethod.
+// ZAP: 2022/04/10 Add support for unencoded redirects
+// ZAP: 2022/04/11 Deprecate set/getUserAgent() and remove userAgent/modifyUserAgent().
+// ZAP: 2022/04/11 Prevent null listeners and add JavaDoc to add/removeListener.
+// ZAP: 2022/04/23 Use main connection options directly.
+// ZAP: 2022/04/24 Notify listeners of all redirects followed.
+// ZAP: 2022/04/24 Move network initialisations from ZAP class.
+// ZAP: 2022/04/24 Allow to download to file.
+// ZAP: 2022/04/27 Expose global HTTP state enabled status.
+// ZAP: 2022/04/27 Use latest proxy settings always.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Socket;
+import java.net.SocketAddress;
+import java.nio.channels.Channels;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import javax.net.SocketFactory;
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
@@ -109,19 +133,19 @@ import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.InvalidRedirectLocationException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
-import org.apache.commons.httpclient.ProxyHost;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
@@ -147,6 +171,7 @@ public class HttpSender {
     public static final int WEB_SOCKET_INITIATOR = 13;
     public static final int AUTHENTICATION_HELPER_INITIATOR = 14;
     public static final int AUTHENTICATION_POLL_INITIATOR = 15;
+    public static final int OAST_INITIATOR = 16;
 
     private static Logger log = LogManager.getLogger(HttpSender.class);
 
@@ -171,21 +196,35 @@ public class HttpSender {
                     new Protocol("https", (ProtocolSocketFactory) new SSLConnector(true), 443));
         }
 
+        Protocol.registerProtocol(
+                "http", new Protocol("http", new ProtocolSocketFactoryImpl(), 80));
+
         AuthPolicy.registerAuthScheme(AuthPolicy.NTLM, ZapNTLMScheme.class);
         CookiePolicy.registerCookieSpec(CookiePolicy.DEFAULT, ZapCookieSpec.class);
         CookiePolicy.registerCookieSpec(CookiePolicy.BROWSER_COMPATIBILITY, ZapCookieSpec.class);
     }
 
     private static HttpMethodHelper helper = new HttpMethodHelper();
-    private static String userAgent = "";
     private static final ThreadLocal<Boolean> IN_LISTENER = new ThreadLocal<>();
+    private static final HttpRequestConfig NO_REDIRECTS = HttpRequestConfig.builder().build();
+    private static final HttpRequestConfig FOLLOW_REDIRECTS =
+            HttpRequestConfig.builder().setFollowRedirects(true).build();
+
+    private static final ResponseBodyConsumer DEFAULT_BODY_CONSUMER =
+            (msg, method) -> {
+                if (msg.isEventStream()) {
+                    msg.getResponseBody().setCharset(msg.getResponseHeader().getCharset());
+                    msg.getResponseBody().setLength(0);
+                    return;
+                }
+
+                msg.setResponseBody(method.getResponseBody());
+            };
 
     private HttpClient client = null;
-    private HttpClient clientViaProxy = null;
     private ConnectionParam param = null;
     private MultiThreadedHttpConnectionManager httpConnManager = null;
-    private MultiThreadedHttpConnectionManager httpConnManagerProxy = null;
-    private boolean followRedirect = false;
+    private HttpRequestConfig followRedirect = NO_REDIRECTS;
     private boolean useCookies;
     private boolean useGlobalState;
     private int initiator = -1;
@@ -198,13 +237,6 @@ public class HttpSender {
     /**
      * Constructs an {@code HttpSender}.
      *
-     * <p>If {@code useGlobalState} is {@code true} the HttpSender will use the HTTP state given by
-     * {@code ConnectionParam#getHttpState()} iff {@code ConnectionParam#isHttpStateEnabled()}
-     * returns {@code true} otherwise it doesn't have any state (i.e. cookies are disabled). If
-     * {@code useGlobalState} is {@code false} it uses a non shared HTTP state. The actual state
-     * used is overridden, per message, when {@code HttpMessage#getRequestingUser()} returns non
-     * {@code null}.
-     *
      * <p>The {@code initiator} is used to indicate the component that is sending the messages when
      * the {@code HttpSenderListener}s are notified of messages sent and received.
      *
@@ -215,13 +247,35 @@ public class HttpSender {
      * @see ConnectionParam#getHttpState()
      * @see HttpSenderListener
      * @see HttpMessage#getRequestingUser()
+     * @deprecated (2.12.0) Use {@link #HttpSender(int)} instead, refer also to {@link
+     *     #setUseGlobalState(boolean)}.
      */
+    @Deprecated
     public HttpSender(ConnectionParam connectionParam, boolean useGlobalState, int initiator) {
-        this.param = connectionParam;
+        init(useGlobalState, initiator);
+    }
+
+    /**
+     * Constructs an {@code HttpSender}.
+     *
+     * <p>Refer to {@link #setUseGlobalState(boolean)} to know how the HTTP state is managed.
+     *
+     * <p>The {@code initiator} is used to indicate the component that is sending the messages when
+     * the {@code HttpSenderListener}s are notified of messages sent and received.
+     *
+     * @param initiator the ID of the initiator of the HTTP messages sent
+     * @since 2.12.0
+     * @see HttpSenderListener
+     */
+    public HttpSender(int initiator) {
+        init(true, initiator);
+    }
+
+    private void init(boolean useGlobalState, int initiator) {
+        this.param = Model.getSingleton().getOptionsParam().getConnectionParam();
         this.initiator = initiator;
 
         client = createHttpClient();
-        clientViaProxy = createHttpClientViaProxy();
         setAllowCircularRedirects(true);
 
         // Set how cookie headers are sent no matter of the "allowState", in case a state is forced
@@ -231,17 +285,8 @@ public class HttpSender {
         client.getParams()
                 .setBooleanParameter(
                         HttpMethodParams.SINGLE_COOKIE_HEADER, singleCookieRequestHeader);
-        clientViaProxy
-                .getParams()
-                .setBooleanParameter(
-                        HttpMethodParams.SINGLE_COOKIE_HEADER, singleCookieRequestHeader);
         String defaultUserAgent = param.getDefaultUserAgent();
         client.getParams()
-                .setParameter(
-                        HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS,
-                        defaultUserAgent);
-        clientViaProxy
-                .getParams()
                 .setParameter(
                         HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS,
                         defaultUserAgent);
@@ -252,9 +297,15 @@ public class HttpSender {
 
     private void setClientsCookiePolicy(String policy) {
         client.getParams().setCookiePolicy(policy);
-        clientViaProxy.getParams().setCookiePolicy(policy);
     }
 
+    /**
+     * Gets the {@code SSLConnector} of the client.
+     *
+     * @return the {@code SSLConnector} used by the sender.
+     * @deprecated (2.12.0) It will be removed in a following version.
+     */
+    @Deprecated
     public static SSLConnector getSSLConnector() {
         return (SSLConnector) protocol.getSocketFactory();
     }
@@ -266,8 +317,6 @@ public class HttpSender {
         } else if (useGlobalState) {
             if (param.isHttpStateEnabled()) {
                 client.setState(param.getHttpState());
-                clientViaProxy.setState(param.getHttpState());
-                setProxyAuth(clientViaProxy);
                 setClientsCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
             } else {
                 setClientsCookiePolicy(CookiePolicy.IGNORE_COOKIES);
@@ -281,23 +330,25 @@ public class HttpSender {
 
     private void resetState() {
         HttpState state = new HttpState();
-        HttpState proxyState = new HttpState();
-
         client.setState(state);
-        clientViaProxy.setState(proxyState);
-
-        setProxyAuth(clientViaProxy);
     }
 
     /**
-     * Sets whether or not the global state should be used.
+     * Sets whether or not the global state should be used. Defaults to {@code true}.
      *
-     * <p>Refer to {@link #HttpSender(ConnectionParam, boolean, int)} for details on how the global
-     * state is used.
+     * <p>If {@code enableGlobalState} is {@code true} the {@code HttpSender} will use the HTTP
+     * state given by the connections options iff the HTTP state is enabled there otherwise it
+     * doesn't have any state (i.e. cookies are disabled). If {@code enableGlobalState} is {@code
+     * false} it uses a non shared HTTP state.
+     *
+     * <p><strong>Note:</strong> The actual state used is overridden when {@link
+     * #getUser(HttpMessage)} returns non-{@code null}.
      *
      * @param enableGlobalState {@code true} if the global state should be used, {@code false}
      *     otherwise.
      * @since 2.8.0
+     * @see #isGlobalStateEnabled()
+     * @see #setUseCookies(boolean)
      */
     public void setUseGlobalState(boolean enableGlobalState) {
         this.useGlobalState = enableGlobalState;
@@ -306,10 +357,22 @@ public class HttpSender {
     }
 
     /**
+     * Tells whether or not the global HTTP state is enabled.
+     *
+     * @return {@code true} if the global HTTP state is enabled, {@code false} otherwise.
+     * @since 2.12.0
+     * @see #setUseGlobalState(boolean)
+     */
+    public boolean isGlobalStateEnabled() {
+        return param.isHttpStateEnabled();
+    }
+
+    /**
      * Sets whether or not the requests sent should keep track of cookies.
      *
      * @param shouldUseCookies {@code true} if cookies should be used, {@code false} otherwise.
      * @since 2.9.0
+     * @see #setUseGlobalState(boolean)
      */
     public void setUseCookies(boolean shouldUseCookies) {
         this.useCookies = shouldUseCookies;
@@ -322,28 +385,6 @@ public class HttpSender {
         httpConnManager = new MultiThreadedHttpConnectionManager();
         setCommonManagerParams(httpConnManager);
         return new HttpClient(httpConnManager);
-    }
-
-    private HttpClient createHttpClientViaProxy() {
-
-        if (!param.isUseProxyChain()) {
-            return createHttpClient();
-        }
-
-        httpConnManagerProxy = new MultiThreadedHttpConnectionManager();
-        setCommonManagerParams(httpConnManagerProxy);
-        HttpClient clientProxy = new HttpClient(httpConnManagerProxy);
-        clientProxy
-                .getHostConfiguration()
-                .setProxy(param.getProxyChainName(), param.getProxyChainPort());
-
-        setProxyAuth(clientProxy);
-
-        return clientProxy;
-    }
-
-    private void setProxyAuth(HttpClient client) {
-        setProxyAuth(client.getState());
     }
 
     private void setProxyAuth(HttpState state) {
@@ -359,10 +400,27 @@ public class HttpSender {
                             param.getProxyChainPassword(),
                             "",
                             realm));
+        } else {
+            state.clearProxyCredentials();
         }
     }
 
+    /**
+     * Executes the given method.
+     *
+     * @param method the method.
+     * @param state the state, might be {@code null}.
+     * @return the status code.
+     * @throws IOException if an error occurred while executing the method.
+     * @deprecated (2.12.0) Use one of the {@code sendAndReceive} methods. It will be removed in a
+     *     following version.
+     */
+    @Deprecated
     public int executeMethod(HttpMethod method, HttpState state) throws IOException {
+        return executeMethodImpl(method, state);
+    }
+
+    private int executeMethodImpl(HttpMethod method, HttpState state) throws IOException {
         int responseCode = -1;
 
         String hostName;
@@ -373,14 +431,6 @@ public class HttpSender {
         HttpClient requestClient;
         if (isConnectionUpgrade(method)) {
             requestClient = new HttpClient(new ZapHttpConnectionManager());
-            if (param.isUseProxy(hostName)) {
-                requestClient
-                        .getHostConfiguration()
-                        .setProxy(param.getProxyChainName(), param.getProxyChainPort());
-                setProxyAuth(requestClient);
-            }
-        } else if (param.isUseProxy(hostName)) {
-            requestClient = clientViaProxy;
         } else {
             requestClient = client;
         }
@@ -409,11 +459,6 @@ public class HttpSender {
                     hostName,
                     method.getURI().getPort(),
                     new Protocol("https", (ProtocolSocketFactory) new SSLConnector(false), 443));
-            if (param.isUseProxy(hostName)) {
-                hc.setProxyHost(
-                        new ProxyHost(param.getProxyChainName(), param.getProxyChainPort()));
-                setProxyAuth(requestClient);
-            }
         }
 
         method.getParams()
@@ -426,7 +471,18 @@ public class HttpSender {
             // Make sure cookies are enabled
             method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
             setProxyAuth(state);
+        } else {
+            setProxyAuth(requestClient.getState());
         }
+
+        if (param.isUseProxy(hostName)) {
+            if (hc == null) {
+                hc = new HostConfiguration();
+                hc.setHost(hostName, method.getURI().getPort(), method.getURI().getScheme());
+            }
+            hc.setProxy(param.getProxyChainName(), param.getProxyChainPort());
+        }
+
         responseCode = requestClient.executeMethod(hc, method, state);
 
         return responseCode;
@@ -451,9 +507,47 @@ public class HttpSender {
         if (httpConnManager != null) {
             httpConnManager.shutdown();
         }
-        if (httpConnManagerProxy != null) {
-            httpConnManagerProxy.shutdown();
-        }
+    }
+
+    /**
+     * Downloads the response (body) to the given file.
+     *
+     * <p>The body in the given {@code message} will be empty.
+     *
+     * @param message the message containing the request to send.
+     * @param file the file where to save the response body.
+     * @throws IOException if an error occurred while sending the request or while downloading.
+     * @since 2.12.0
+     * @see #setFollowRedirect(boolean)
+     */
+    public void sendAndReceive(HttpMessage message, Path file) throws IOException {
+        sendAndReceive(
+                message,
+                followRedirect,
+                (msg, method) -> {
+                    if (followRedirect.isFollowRedirects()
+                            && isRedirectionNeeded(msg.getResponseHeader().getStatusCode())) {
+                        DEFAULT_BODY_CONSUMER.accept(message, method);
+                        return;
+                    }
+
+                    HttpResponseHeader header = msg.getResponseHeader();
+                    try (FileChannel channel =
+                                    (FileChannel)
+                                            Files.newByteChannel(
+                                                    file,
+                                                    EnumSet.of(
+                                                            StandardOpenOption.WRITE,
+                                                            StandardOpenOption.CREATE,
+                                                            StandardOpenOption.TRUNCATE_EXISTING));
+                            InputStream is = method.getResponseBodyAsStream()) {
+                        long totalRead = 0;
+                        while ((totalRead +=
+                                        channel.transferFrom(
+                                                Channels.newChannel(is), totalRead, 1 << 24))
+                                < header.getContentLength()) ;
+                    }
+                });
     }
 
     public void sendAndReceive(HttpMessage msg) throws IOException {
@@ -470,68 +564,7 @@ public class HttpSender {
      * @see #sendAndReceive(HttpMessage, HttpRequestConfig)
      */
     public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws IOException {
-
-        log.debug(
-                "sendAndReceive "
-                        + msg.getRequestHeader().getMethod()
-                        + " "
-                        + msg.getRequestHeader().getURI()
-                        + " start");
-        msg.setTimeSentMillis(System.currentTimeMillis());
-
-        try {
-            notifyRequestListeners(msg);
-            if (!isFollowRedirect
-                    || !(msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)
-                            || msg.getRequestHeader()
-                                    .getMethod()
-                                    .equalsIgnoreCase(HttpRequestHeader.PUT))) {
-                // ZAP: Reauthentication when sending a message from the perspective of a User
-                sendAuthenticated(msg, isFollowRedirect);
-                return;
-            }
-
-            // ZAP: Reauthentication when sending a message from the perspective of a User
-            sendAuthenticated(msg, false);
-
-            HttpMessage temp = msg.cloneAll();
-            temp.setRequestingUser(getUser(msg));
-            // POST/PUT method cannot be redirected by library. Need to follow by code
-
-            // loop 1 time only because httpclient can handle redirect itself after first GET.
-            for (int i = 0;
-                    i < 1
-                            && (HttpStatusCode.isRedirection(
-                                            temp.getResponseHeader().getStatusCode())
-                                    && temp.getResponseHeader().getStatusCode()
-                                            != HttpStatusCode.NOT_MODIFIED);
-                    i++) {
-                String location = temp.getResponseHeader().getHeader(HttpHeader.LOCATION);
-                URI baseUri = temp.getRequestHeader().getURI();
-                URI newLocation = new URI(baseUri, location, false);
-                temp.getRequestHeader().setURI(newLocation);
-
-                temp.getRequestHeader().setMethod(HttpRequestHeader.GET);
-                temp.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
-                // ZAP: Reauthentication when sending a message from the perspective of a User
-                sendAuthenticated(temp, true);
-            }
-
-            msg.setResponseHeader(temp.getResponseHeader());
-            msg.setResponseBody(temp.getResponseBody());
-
-        } finally {
-            msg.setTimeElapsedMillis((int) (System.currentTimeMillis() - msg.getTimeSentMillis()));
-            log.debug(
-                    "sendAndReceive "
-                            + msg.getRequestHeader().getMethod()
-                            + " "
-                            + msg.getRequestHeader().getURI()
-                            + " took "
-                            + msg.getTimeElapsedMillis());
-
-            notifyResponseListeners(msg);
-        }
+        sendAndReceive(msg, isFollowRedirect ? FOLLOW_REDIRECTS : NO_REDIRECTS);
     }
 
     private void notifyRequestListeners(HttpMessage msg) {
@@ -572,21 +605,28 @@ public class HttpSender {
         }
     }
 
+    /**
+     * Gets the user set in this {@code HttpSender} if any, otherwise the one in the given {@code
+     * HttpMessage}.
+     *
+     * @param msg usually the message being sent, that might have a user.
+     * @return the user set in the {@code HttpSender} or in the given {@code HttpMessage}. Might be
+     *     {@code null} if no user set.
+     * @throws NullPointerException if the given message is {@code null}.
+     * @since 2.4.1
+     * @see #setUser(User)
+     * @see HttpMessage#getRequestingUser()
+     */
     public User getUser(HttpMessage msg) {
         if (this.user != null) {
-            // If its set for the sender it overrides the message
             return user;
         }
         return msg.getRequestingUser();
     }
 
-    // ZAP: Make sure a message that needs to be authenticated is authenticated
-    private void sendAuthenticated(HttpMessage msg, boolean isFollowRedirect) throws IOException {
-        sendAuthenticated(msg, isFollowRedirect, null);
-    }
-
     private void sendAuthenticated(
-            HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params) throws IOException {
+            HttpMessage msg, HttpMethodParams params, ResponseBodyConsumer responseBodyConsumer)
+            throws IOException {
         // Modify the request message if a 'Requesting User' has been set
         User forceUser = this.getUser(msg);
         if (forceUser != null) {
@@ -599,7 +639,7 @@ public class HttpSender {
 
         log.debug("Sending message to: " + msg.getRequestHeader().getURI().toString());
         // Send the message
-        send(msg, isFollowRedirect, params);
+        send(msg, params, responseBodyConsumer);
 
         // If there's a 'Requesting User', make sure the response corresponds to an authenticated
         // session and, if not, attempt a reauthentication and try again
@@ -614,17 +654,18 @@ public class HttpSender {
                             + ". Authenticating and trying again...");
             forceUser.queueAuthentication(msg);
             forceUser.processMessageToMatchUser(msg);
-            send(msg, isFollowRedirect, params);
+            send(msg, params, responseBodyConsumer);
         } else log.debug("SUCCESSFUL");
     }
 
-    private void send(HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params)
+    private void send(
+            HttpMessage msg, HttpMethodParams params, ResponseBodyConsumer responseBodyConsumer)
             throws IOException {
         HttpMethod method = null;
         HttpResponseHeader resHeader = null;
 
         try {
-            method = runMethod(msg, isFollowRedirect, params);
+            method = runMethod(msg, params);
             // successfully executed;
             resHeader = HttpMethodHelper.getHttpResponseHeader(method);
             resHeader.setHeader(
@@ -633,14 +674,7 @@ public class HttpSender {
             // "");
             msg.setResponseHeader(resHeader);
 
-            // ZAP: Do not read response body for Server-Sent Events stream
-            // ZAP: Moreover do not set content length to zero
-            if (!msg.isEventStream()) {
-                msg.setResponseBody(method.getResponseBody());
-            } else {
-                msg.getResponseBody().setCharset(resHeader.getCharset());
-                msg.getResponseBody().setLength(0);
-            }
+            responseBodyConsumer.accept(msg, method);
             msg.setResponseFromTargetHost(true);
 
             // ZAP: set method to retrieve upgraded channel later
@@ -654,23 +688,18 @@ public class HttpSender {
         }
     }
 
-    private HttpMethod runMethod(HttpMessage msg, boolean isFollowRedirect, HttpMethodParams params)
-            throws IOException {
+    private HttpMethod runMethod(HttpMessage msg, HttpMethodParams params) throws IOException {
         HttpMethod method = null;
         // no more retry
-        modifyUserAgent(msg);
         method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody(), params);
-        if (!(method instanceof EntityEnclosingMethod) || method instanceof ZapGetMethod) {
-            // cant do this for EntityEnclosingMethod methods - it will fail
-            method.setFollowRedirects(isFollowRedirect);
-        }
-        // ZAP: Use custom HttpState if needed
+        method.setFollowRedirects(false);
+
+        HttpState state = null;
         User forceUser = this.getUser(msg);
         if (forceUser != null) {
-            this.executeMethod(method, forceUser.getCorrespondingHttpState());
-        } else {
-            this.executeMethod(method, null);
+            state = forceUser.getCorrespondingHttpState();
         }
+        executeMethodImpl(method, state);
 
         HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);
 
@@ -678,48 +707,26 @@ public class HttpSender {
     }
 
     public void setFollowRedirect(boolean followRedirect) {
-        this.followRedirect = followRedirect;
+        this.followRedirect = followRedirect ? FOLLOW_REDIRECTS : NO_REDIRECTS;
     }
 
-    private void modifyUserAgent(HttpMessage msg) {
-
-        try {
-            // no modification to user agent if empty
-            if (userAgent.equals("") || msg.getRequestHeader().isEmpty()) {
-                return;
-            }
-
-            // append new user agent to existing user agent
-            String currentUserAgent = msg.getRequestHeader().getHeader(HttpHeader.USER_AGENT);
-            if (currentUserAgent == null) {
-                currentUserAgent = "";
-            }
-
-            if (currentUserAgent.indexOf(userAgent) >= 0) {
-                // user agent already in place, exit
-                return;
-            }
-
-            String delimiter = "";
-            if (!currentUserAgent.equals("") && !currentUserAgent.endsWith(" ")) {
-                delimiter = " ";
-            }
-
-            currentUserAgent = currentUserAgent + delimiter + userAgent;
-            msg.getRequestHeader().setHeader(HttpHeader.USER_AGENT, currentUserAgent);
-        } catch (Exception e) {
-        }
-    }
-
-    /** @return Returns the userAgent. */
+    /**
+     * @return Returns the userAgent.
+     * @deprecated (2.12.0) No longer supported, it returns an empty string.
+     * @see #setUserAgent(String)
+     */
+    @Deprecated
     public static String getUserAgent() {
-        return userAgent;
+        return "";
     }
 
-    /** @param userAgent The userAgent to set. */
-    public static void setUserAgent(String userAgent) {
-        HttpSender.userAgent = userAgent;
-    }
+    /**
+     * @param userAgent The userAgent to set.
+     * @deprecated (2.12.0) No longer supported, use a {@link HttpSenderListener} to actually set
+     *     the user agent.
+     */
+    @Deprecated
+    public static void setUserAgent(String userAgent) {}
 
     private void setCommonManagerParams(MultiThreadedHttpConnectionManager mgr) {
         int timeout = (int) TimeUnit.SECONDS.toMillis(this.param.getTimeoutInSecs());
@@ -830,12 +837,31 @@ public class HttpSender {
      * method.releaseConnection(); } } }
      */
 
+    /**
+     * Adds the given listener to be notified of each message sent/received by each {@code
+     * HttpSender}.
+     *
+     * <p>The listener might be notified concurrently.
+     *
+     * @param listener the listener to add.
+     * @since 2.0.0
+     * @throws NullPointerException if the given listener is {@code null}.
+     */
     public static void addListener(HttpSenderListener listener) {
+        Objects.requireNonNull(listener);
         listeners.add(listener);
         Collections.sort(listeners, getListenersComparator());
     }
 
+    /**
+     * Removes the given listener.
+     *
+     * @param listener the listener to remove.
+     * @since 2.0.0
+     * @throws NullPointerException if the given listener is {@code null}.
+     */
     public static void removeListener(HttpSenderListener listener) {
+        Objects.requireNonNull(listener);
         listeners.remove(listener);
     }
 
@@ -909,10 +935,6 @@ public class HttpSender {
         client.getParams()
                 .setBooleanParameter(
                         HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, removeHeaders);
-        clientViaProxy
-                .getParams()
-                .setBooleanParameter(
-                        HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, removeHeaders);
     }
 
     /**
@@ -932,7 +954,6 @@ public class HttpSender {
 
         HttpMethodRetryHandler retryHandler = new DefaultHttpMethodRetryHandler(retries, false);
         client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
-        clientViaProxy.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
     }
 
     /**
@@ -950,7 +971,6 @@ public class HttpSender {
                     "Parameter maxRedirects must be greater or equal to zero.");
         }
         client.getParams().setIntParameter(HttpClientParams.MAX_REDIRECTS, maxRedirects);
-        clientViaProxy.getParams().setIntParameter(HttpClientParams.MAX_REDIRECTS, maxRedirects);
     }
 
     /**
@@ -966,9 +986,6 @@ public class HttpSender {
      */
     public void setAllowCircularRedirects(boolean allow) {
         client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
-        clientViaProxy
-                .getParams()
-                .setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
     }
 
     /**
@@ -984,6 +1001,14 @@ public class HttpSender {
      */
     public void sendAndReceive(HttpMessage message, HttpRequestConfig requestConfig)
             throws IOException {
+        sendAndReceive(message, requestConfig, DEFAULT_BODY_CONSUMER);
+    }
+
+    private void sendAndReceive(
+            HttpMessage message,
+            HttpRequestConfig requestConfig,
+            ResponseBodyConsumer responseBodyConsumer)
+            throws IOException {
         if (message == null) {
             throw new IllegalArgumentException("Parameter message must not be null.");
         }
@@ -991,10 +1016,10 @@ public class HttpSender {
             throw new IllegalArgumentException("Parameter requestConfig must not be null.");
         }
 
-        sendAndReceiveImpl(message, requestConfig);
+        sendAndReceiveImpl(message, requestConfig, responseBodyConsumer);
 
         if (requestConfig.isFollowRedirects()) {
-            followRedirections(message, requestConfig);
+            followRedirections(message, requestConfig, responseBodyConsumer);
         }
     }
 
@@ -1010,7 +1035,10 @@ public class HttpSender {
      * @throws IOException if an error occurred while sending the message or following the
      *     redirections.
      */
-    private void sendAndReceiveImpl(HttpMessage message, HttpRequestConfig requestConfig)
+    private void sendAndReceiveImpl(
+            HttpMessage message,
+            HttpRequestConfig requestConfig,
+            ResponseBodyConsumer responseBodyConsumer)
             throws IOException {
         if (log.isDebugEnabled()) {
             log.debug(
@@ -1031,7 +1059,7 @@ public class HttpSender {
                 params = new HttpMethodParams();
                 params.setSoTimeout(requestConfig.getSoTimeout());
             }
-            sendAuthenticated(message, false, params);
+            sendAuthenticated(message, params, responseBodyConsumer);
 
         } finally {
             message.setTimeElapsedMillis(
@@ -1069,7 +1097,10 @@ public class HttpSender {
      *     redirections
      * @see #isRedirectionNeeded(int)
      */
-    private void followRedirections(HttpMessage message, HttpRequestConfig requestConfig)
+    private void followRedirections(
+            HttpMessage message,
+            HttpRequestConfig requestConfig,
+            ResponseBodyConsumer responseBodyConsumer)
             throws IOException {
         HttpRedirectionValidator validator = requestConfig.getRedirectionValidator();
         validator.notifyMessageReceived(message);
@@ -1098,7 +1129,7 @@ public class HttpSender {
                 redirectMessage.setRequestBody("");
             }
 
-            sendAndReceiveImpl(redirectMessage, requestConfig);
+            sendAndReceiveImpl(redirectMessage, requestConfig, responseBodyConsumer);
             validator.notifyMessageReceived(redirectMessage);
 
             // Update the response of the (original) message
@@ -1176,8 +1207,63 @@ public class HttpSender {
         try {
             return new URI(message.getRequestHeader().getURI(), location, true);
         } catch (URIException ex) {
-            throw new InvalidRedirectLocationException(
-                    "Invalid redirect location: " + location, location, ex);
+            try {
+                // Handle redirect URLs that are unencoded
+                return new URI(message.getRequestHeader().getURI(), location, false);
+            } catch (URIException e) {
+                throw new InvalidRedirectLocationException(
+                        "Invalid redirect location: " + location, location, ex);
+            }
+        }
+    }
+
+    private interface ResponseBodyConsumer {
+
+        void accept(HttpMessage message, HttpMethod method) throws IOException;
+    }
+
+    /**
+     * A {@link ProtocolSocketFactory} for plain sockets.
+     *
+     * <p>Remote hostnames are not resolved if {@link HttpMethodDirector#PARAM_RESOLVE_HOSTNAME} is
+     * {@code false}.
+     */
+    private static class ProtocolSocketFactoryImpl implements ProtocolSocketFactory {
+
+        @Override
+        public Socket createSocket(
+                String host,
+                int port,
+                InetAddress localAddress,
+                int localPort,
+                HttpConnectionParams params)
+                throws IOException {
+            if (params == null) {
+                throw new IllegalArgumentException("Parameters may not be null");
+            }
+            Socket socket = SocketFactory.getDefault().createSocket();
+            socket.bind(new InetSocketAddress(localAddress, localPort));
+            SocketAddress remoteAddress;
+            if (params.getBooleanParameter(HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
+                remoteAddress = new InetSocketAddress(host, port);
+            } else {
+                remoteAddress = InetSocketAddress.createUnresolved(host, port);
+            }
+            socket.connect(remoteAddress, params.getConnectionTimeout());
+            return socket;
+        }
+
+        @Override
+        public Socket createSocket(String host, int port, InetAddress localAddress, int localPort)
+                throws IOException {
+            throw new UnsupportedOperationException(
+                    "Method not supported, not required/called by Commons HttpClient library (version >= 3.0).");
+        }
+
+        @Override
+        public Socket createSocket(String host, int port) throws IOException {
+            throw new UnsupportedOperationException(
+                    "Method not supported, not required/called by Commons HttpClient library (version >= 3.0).");
         }
     }
 }

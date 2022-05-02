@@ -91,13 +91,26 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
         this(displayName, scannerParam, param, scanPolicy, null);
     }
 
+    /**
+     * @deprecated (2.12.0) Use {@link #ActiveScan(String, ScannerParam, ScanPolicy,
+     *     RuleConfigParam)} instead.
+     */
+    @Deprecated
     public ActiveScan(
             String displayName,
             ScannerParam scannerParam,
             ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
-        super(scannerParam, param, scanPolicy, ruleConfigParam);
+        this(displayName, scannerParam, scanPolicy, ruleConfigParam);
+    }
+
+    public ActiveScan(
+            String displayName,
+            ScannerParam scannerParam,
+            ScanPolicy scanPolicy,
+            RuleConfigParam ruleConfigParam) {
+        super(scannerParam, scanPolicy, ruleConfigParam);
         this.displayName = displayName;
         this.maxResultsToList = scannerParam.getMaxResultsToList();
         // Easiest way to get the messages and alerts ;)
@@ -240,15 +253,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     @Override
     public void filteredMessage(HttpMessage msg, String reason) {
         filterMessageTableModel.addResult(msg.getRequestHeader().getURI().toString(), reason);
-    }
-
-    /**
-     * @deprecated (2.5.0) No longer used/needed, the request count is automatically
-     *     updated/maintained by {@link HostProcess}.
-     */
-    @Deprecated
-    public void updatePluginRequestCounts() {
-        // No longer used.
     }
 
     @Override

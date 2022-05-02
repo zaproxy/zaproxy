@@ -15,8 +15,8 @@ tasks.register("testAll") {
     dependsOn(tasks.withType<Test>())
 }
 
-val java: JavaPluginConvention
-    get() = the<JavaPluginConvention>()
+val java: JavaPluginExtension
+    get() = the<JavaPluginExtension>()
 
 fun setupTest(name: String, addToCheck: Boolean = true): TaskProvider<Test> {
     val nameTest = "test$name"
@@ -43,8 +43,8 @@ fun setupTest(name: String, addToCheck: Boolean = true): TaskProvider<Test> {
         shouldRunAfter(tasks.test)
 
         reports {
-            html.destination = file("${html.destination.parent}/$nameLowerCase")
-            junitXml.destination = file("${junitXml.destination.parent}/$nameLowerCase")
+            html.outputLocation.set(file("${html.outputLocation.get().asFile.parent}/$nameLowerCase"))
+            junitXml.outputLocation.set(file("${junitXml.outputLocation.get().asFile.parent}/$nameLowerCase"))
         }
     }
 

@@ -151,25 +151,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         return activeActions;
     }
 
-    /**
-     * @deprecated (2.4.3) Use {@link #addPluginPassiveScanner(PluginPassiveScanner)} instead, the
-     *     status of the scanner is not properly set.
-     * @see PluginPassiveScanner#getStatus()
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public boolean addPassiveScanner(String className) {
-        try {
-            Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
-            this.addPassiveScanner((PluginPassiveScanner) c.newInstance());
-            return true;
-
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
     public boolean removePassiveScanner(String className) {
 
         PassiveScanner scanner = getPassiveScannerList().removeScanner(className);
@@ -286,18 +267,16 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
                 getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
             }
 
-            logger.info("loaded passive scan rule: " + scanner.getName());
+            logger.info("loaded passive scan rule: {}", scanner.getName());
             if (scanner.getPluginId() == -1) {
                 logger.error(
-                        "The passive scan rule \""
-                                + scanner.getName()
-                                + "\" ["
-                                + scanner.getClass().getCanonicalName()
-                                + "] does not have a defined ID.");
+                        "The passive scan rule \"{}\" [{}] does not have a defined ID.",
+                        scanner.getName(),
+                        scanner.getClass().getCanonicalName());
             }
 
         } catch (Exception e) {
-            logger.error("Failed to load passive scanner " + scanner.getName(), e);
+            logger.error("Failed to load passive scan rule {}", scanner.getName(), e);
         }
 
         return added;

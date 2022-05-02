@@ -57,6 +57,7 @@ import org.apache.commons.httpclient.util.EncodingUtil;
  *  - Allow to use underscores in hostnames.
  *  - Use neutral Locale when converting to lower case.
  *  - Allow to create a URI from the authority component.
+ *  - Replace usages of StringBuffer with StringBuilder.
  */
 /**
  * The interface for the URI(Uniform Resource Identifiers) version of RFC 2396.
@@ -322,7 +323,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
                String fragment) throws URIException {
 
         // validate and contruct the URI character sequence
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
         if (scheme != null) {
             buff.append(scheme);
             buff.append(':');
@@ -2288,7 +2289,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
                 }
             }
             // set a server-based naming authority
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             if (_userinfo != null) { // has_userinfo
                 buf.append(_userinfo);
                 buf.append('@');
@@ -2314,7 +2315,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
      */
     protected void setURI() {
         // set _uri
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         // ^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?
         if (_scheme != null) {
             buf.append(_scheme);
@@ -2940,7 +2941,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
         if (_is_net_path || _is_abs_path) {
             _path = encode(path, allowed_abs_path, charset);
         } else if (_is_rel_path) {
-            StringBuffer buff = new StringBuffer(path.length());
+            StringBuilder buff = new StringBuilder(path.length());
             int at = path.indexOf('/');
             if (at == 0) { // never 0
                 throw new URIException(URIException.PARSING,
@@ -2956,7 +2957,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
             }
             _path = buff.toString().toCharArray();
         } else if (_is_opaque_part) {
-            StringBuffer buf = new StringBuffer();
+            StringBuilder buf = new StringBuilder();
             buf.insert(0, encode(path.substring(0, 1), uric_no_slash, charset));
             buf.insert(1, encode(path.substring(1), uric, charset));
             _opaque = buf.toString().toCharArray();
@@ -2991,7 +2992,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
             if (at != -1) {
                 basePath = base.substring(0, at + 1).toCharArray();
             }
-            StringBuffer buff = new StringBuffer(base.length() 
+            StringBuilder buff = new StringBuilder(base.length() 
                 + relPath.length);
             buff.append((at != -1) ? base.substring(0, at + 1) : "/");
             buff.append(relPath);
@@ -3208,7 +3209,7 @@ public class URI implements Cloneable, Comparable<Object>, Serializable {
         if (_path == null && _query == null) {
             return null;
         }
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
         if (_path != null) {
             buff.append(_path);
         }

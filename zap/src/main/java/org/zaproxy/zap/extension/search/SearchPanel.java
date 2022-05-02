@@ -44,8 +44,6 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -54,9 +52,6 @@ import org.zaproxy.zap.view.ZapToggleButton;
 public class SearchPanel extends AbstractPanel implements SearchListenner {
 
     private static final long serialVersionUID = 1L;
-
-    /** @deprecated (2.3.0) Replaced by {@link #HTTP_MESSAGE_CONTAINER_NAME}. */
-    @Deprecated public static final String PANEL_NAME = "search";
 
     /**
      * The name of the search results HTTP messages container.
@@ -89,13 +84,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     private SearchResultsTableModel resultsModel;
 
     private final ViewDelegate view;
-
-    /** @deprecated (2.5.0) Use {@link #SearchPanel(ViewDelegate)} instead. */
-    @Deprecated
-    public SearchPanel() {
-        this(View.getSingleton());
-        initialize();
-    }
 
     public SearchPanel(ViewDelegate view) {
         super();
@@ -457,11 +445,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
                     });
         }
     }
-
-    /** @deprecated (2.5.0) No longer used/needed. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {}
 
     private void doSearch() {
         Pattern pattern;

@@ -73,6 +73,9 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
     @Override
     public void parseContent(String content) {
+        if (content.isEmpty()) {
+            return;
+        }
         sr = new SimpleStringReader(content);
         parseObject();
     }

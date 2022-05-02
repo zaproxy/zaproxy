@@ -30,6 +30,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.nio.file.Path;
 import net.htmlparser.jericho.Source;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
@@ -208,6 +210,33 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    void shouldFindUrlsInAppletElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("AppletElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(8)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.com/applet/src/file.class",
+                        "https://example.com/applet/src/file.class",
+                        "https://example.com/absolute/codebase/",
+                        "http://example.com/sample/relative/applet/codebase/",
+                        "http://example.com/absolute/applet/codebase/",
+                        "http://example.com/test/html/body/applet/archive",
+                        "https://example.com/absolute/archive",
+                        "http://example.com/archive.zip"));
+    }
+
+    @Test
     void shouldFindUrlsInAreaPingElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -380,6 +409,54 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    void shouldFindUrlsInAudioElements() throws Exception {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("AudioElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(3)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.com/sample/relative/src",
+                        "http://example.com/absolute/src",
+                        "https://audio.example.com/external/audio/src"));
+    }
+
+    @Test
+    void shouldFindUrlsInEmbedElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("EmbedElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://embed.example.com/base/scheme",
+                        "http://embed.example.com:8000/b",
+                        "https://embed.example.com/c?a=b",
+                        "http://example.com/sample/embed/relative",
+                        "http://example.com/sample/",
+                        "http://example.com/embed/absolute",
+                        "ftp://embed.example.com/"));
+    }
+
+    @Test
     void shouldFindUrlsInFrameElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -432,6 +509,28 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    void shouldFindUrlsInIsIndexElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("IsIndexElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(3)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.com/sample/relative/action",
+                        "http://example.com/absolute/action",
+                        "https://isindex.example.com/action/target.html"));
+    }
+
+    @Test
     void shouldFindUrlsInLinkElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -455,6 +554,58 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://example.com/sample/",
                         "http://example.com/link/absolute",
                         "ftp://link.example.com/"));
+    }
+
+    @Test
+    void shouldFindUrlsInInputElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("InputElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(3)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.com/sample/relative/src",
+                        "http://example.com/absolute/src",
+                        "https://input.example.com/external/inputsrc"));
+    }
+
+    @Test
+    void shouldFindUrlsInObjectElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("ObjectElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(11)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://object.example.com/base/data",
+                        "http://object.example.com:8000/data",
+                        "https://object.example.com/data?a=b",
+                        "http://example.com/sample/data/relative",
+                        "http://example.com/sample/",
+                        "http://example.com/data/absolute",
+                        "ftp://object.example.com/data",
+                        "http://object.example.com/codebase/scheme",
+                        "https://object.example.com/codebase?a=b",
+                        "http://example.com/sample/codebase/relative",
+                        "http://example.com/codebase/absolute"));
     }
 
     @Test
@@ -496,7 +647,7 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                 htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(11)));
         assertThat(
                 listener.getUrlsFound(),
                 contains(
@@ -506,7 +657,11 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://example.com/sample/img/relative",
                         "http://example.com/sample/",
                         "http://example.com/img/absolute",
-                        "ftp://img.example.com/"));
+                        "ftp://img.example.com/",
+                        "http://example.com/sample/relative/longdesc",
+                        "https://img.example.com/full/longdesc",
+                        "http://example.com/img/lowsrc",
+                        "https://video.example.com/dynsrc/video"));
     }
 
     @Test
@@ -638,6 +793,34 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(0)));
         assertThat(listener.getUrlsFound(), is(empty()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "DocTypeWithFullUrl.html",
+                "DocTypeWithRelativeUrl.html",
+                "ManifestWithFullUrl.html",
+                "ManifestWithRelativeUrl.html",
+                "BackgroundWithFullUrl.html",
+                "BackgroundWithRelativeUrl.html"
+            })
+    void shouldFindUrlInFile(String file) {
+        // Given
+        SpiderParam spiderOptions = createSpiderParamWithConfig();
+        spiderOptions.setParseComments(false);
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(spiderOptions);
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith(file);
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(listener.getUrlsFound(), contains("http://example.com/found"));
     }
 
     private static HttpMessage createMessageWith(String filename) {

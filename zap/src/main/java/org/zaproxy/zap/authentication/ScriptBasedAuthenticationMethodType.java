@@ -55,7 +55,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
@@ -119,11 +118,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
         protected HttpSender getHttpSender() {
             if (this.httpSender == null) {
-                this.httpSender =
-                        new HttpSender(
-                                Model.getSingleton().getOptionsParam().getConnectionParam(),
-                                true,
-                                HttpSender.AUTHENTICATION_INITIATOR);
+                this.httpSender = new HttpSender(HttpSender.AUTHENTICATION_INITIATOR);
             }
             return httpSender;
         }
@@ -275,6 +270,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             if (script == null) {
                 return null;
             }
+            ExtensionScript.recordScriptCalledStats(this.script);
 
             HttpMessage msg = null;
             try {

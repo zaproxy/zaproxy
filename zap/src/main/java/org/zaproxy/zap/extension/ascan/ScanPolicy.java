@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Plugin;
@@ -52,10 +53,8 @@ public class ScanPolicy {
         name = conf.getString("policy", "");
         pluginFactory.loadAllPlugin(conf);
 
-        setDefaultThreshold(
-                getEnumFromConfig("scanner.level", AlertThreshold.class, AlertThreshold.MEDIUM));
-        setDefaultStrength(
-                getEnumFromConfig("scanner.strength", AttackStrength.class, AttackStrength.MEDIUM));
+        setDefaultThreshold(getAlertThresholdFromConfig());
+        setDefaultStrength(getAttackStrengthFromConfig());
     }
 
     public ScanPolicy(FileConfiguration conf) throws ConfigurationException {
@@ -97,6 +96,10 @@ public class ScanPolicy {
     }
 
     public void setDefaultThreshold(AlertThreshold defaultThreshold) {
+        if (defaultThreshold == AlertThreshold.DEFAULT) {
+            throw new IllegalArgumentException(
+                    "Default threshold must be one of OFF, LOW, MEDIUM, or HIGH.");
+        }
         this.defaultThreshold = defaultThreshold;
         for (Plugin plugin : pluginFactory.getAllPlugin()) {
             plugin.setDefaultAlertThreshold(defaultThreshold);
@@ -104,6 +107,10 @@ public class ScanPolicy {
     }
 
     public void setDefaultStrength(AttackStrength defaultStrength) {
+        if (defaultStrength == AttackStrength.DEFAULT) {
+            throw new IllegalArgumentException(
+                    "Default strength must be one of LOW, MEDIUM, HIGH, or INSANE.");
+        }
         this.defaultStrength = defaultStrength;
         for (Plugin plugin : pluginFactory.getAllPlugin()) {
             plugin.setDefaultAttackStrength(defaultStrength);
@@ -114,23 +121,29 @@ public class ScanPolicy {
         this.conf.save();
     }
 
-    private <T extends Enum<T>> T getEnumFromConfig(
-            String confKey, Class<T> enumType, T defaultValue) {
-        String name = conf.getString(confKey, "");
-        if (name.isEmpty()) {
-            return defaultValue;
-        }
-        try {
-            return Enum.valueOf(enumType, name);
-        } catch (IllegalArgumentException e) {
+    private AlertThreshold getAlertThresholdFromConfig() {
+        String alertThreshold = conf.getString("scanner.level", "");
+        if (alertThreshold.isEmpty()
+                || !EnumUtils.isValidEnum(AlertThreshold.class, alertThreshold)
+                || AlertThreshold.DEFAULT.name().equals(alertThreshold)) {
             logger.warn(
-                    "Failed to convert "
-                            + name
-                            + " to enum of "
-                            + enumType
-                            + ", using default instead: "
-                            + defaultValue);
-            return defaultValue;
+                    "Found illegal value {} for alert threshold, using MEDIUM instead.",
+                    alertThreshold);
+            return AlertThreshold.MEDIUM;
         }
+        return AlertThreshold.valueOf(alertThreshold);
+    }
+
+    private AttackStrength getAttackStrengthFromConfig() {
+        String attackStrength = conf.getString("scanner.strength", "");
+        if (attackStrength.isEmpty()
+                || !EnumUtils.isValidEnum(AttackStrength.class, attackStrength)
+                || AttackStrength.DEFAULT.name().equals(attackStrength)) {
+            logger.warn(
+                    "Found illegal value {} for attack strength, using MEDIUM instead.",
+                    attackStrength);
+            return AttackStrength.MEDIUM;
+        }
+        return AttackStrength.valueOf(attackStrength);
     }
 }

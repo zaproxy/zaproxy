@@ -115,12 +115,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
             }
 
             ActiveScan ascan =
-                    new ActiveScan(
-                            name,
-                            extension.getScannerParam(),
-                            extension.getModel().getOptionsParam().getConnectionParam(),
-                            null,
-                            ruleConfigParam) {
+                    new ActiveScan(name, extension.getScannerParam(), null, ruleConfigParam) {
                         @Override
                         public void alertFound(Alert alert) {
                             alert.setSource(Alert.Source.ACTIVE);
@@ -210,7 +205,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
     public ActiveScan getLastScan() {
         activeScansLock.lock();
         try {
-            if (activeScanList.size() == 0) {
+            if (activeScanList.isEmpty()) {
                 return null;
             }
             return activeScanList.get(activeScanList.size() - 1);

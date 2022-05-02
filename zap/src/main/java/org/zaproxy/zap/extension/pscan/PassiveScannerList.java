@@ -64,7 +64,7 @@ public class PassiveScannerList {
 
         for (PassiveScanner scanner : autoTagScanners) {
             if (scannerNames.contains(scanner.getName())) {
-                logger.error("Duplicate passive scanner name: " + scanner.getName());
+                logger.error("Duplicate passive scan rule name: {}", scanner.getName());
             } else {
                 tempScanners.add(scanner);
                 scannerNames.add(scanner.getName());

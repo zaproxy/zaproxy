@@ -59,9 +59,15 @@
 // ZAP: 2020/11/03 Add alertRef field.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/06/22 Moved the ReportGenerator.entityEncode method to this class.
+// ZAP: 2022/02/02 Deleted a deprecated setDetails method.
+// ZAP: 2022/02/03 Removed SUSPICIOUS, WARNING, MSG_RELIABILITY, setRiskReliability(int, int) and
+// getReliability()
+// ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
+import java.util.Collections;
+import java.util.Map;
 import javax.swing.ImageIcon;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.text.StringEscapeUtils;
@@ -163,33 +169,14 @@ public class Alert implements Comparable<Alert> {
 
     // ZAP: Added FALSE_POSITIVE
     public static final int CONFIDENCE_FALSE_POSITIVE = 0;
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #CONFIDENCE_LOW} confidence. SUSPICIOUS reliability
-     *     has been deprecated in favour of using CONFIDENCE_LOW confidence.
-     */
-    @Deprecated public static final int SUSPICIOUS = 1;
 
     public static final int CONFIDENCE_LOW = 1;
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #CONFIDENCE_MEDIUM} confidence. WARNING reliability
-     *     has been deprecated in favour of using CONFIDENCE_MEDIUM confidence.
-     */
-    @Deprecated public static final int WARNING = 2;
 
     public static final int CONFIDENCE_MEDIUM = 2;
     public static final int CONFIDENCE_HIGH = 3;
     public static final int CONFIDENCE_USER_CONFIRMED = 4;
 
     public static final String[] MSG_RISK = {"Informational", "Low", "Medium", "High"};
-    // ZAP: Added "false positive"
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #MSG_CONFIDENCE}. Use of reliability has been
-     *     deprecated in favour of using confidence.
-     */
-    @Deprecated
-    public static final String[] MSG_RELIABILITY = {
-        "False Positive", "Low", "Medium", "High", "Confirmed"
-    };
 
     public static final String[] MSG_CONFIDENCE = {
         "False Positive", "Low", "Medium", "High", "Confirmed"
@@ -223,6 +210,7 @@ public class Alert implements Comparable<Alert> {
     private URI msgUri = null;
     private Source source = Source.UNKNOWN;
     private String alertRef = "";
+    private Map<String, String> tags = Collections.emptyMap();
 
     public Alert(int pluginId) {
         this.pluginId = pluginId;
@@ -292,17 +280,6 @@ public class Alert implements Comparable<Alert> {
 
         init(recordAlert, ref);
     }
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #setRiskConfidence(int, int)}. Use of reliability has
-     *     been deprecated in favour of using confidence
-     * @param risk the new risk
-     * @param confidence the new confidence
-     */
-    @Deprecated
-    public void setRiskReliability(int risk, int confidence) {
-        this.risk = risk;
-        this.confidence = confidence;
-    }
 
     public void setRiskConfidence(int risk, int confidence) {
         setRisk(risk);
@@ -330,15 +307,6 @@ public class Alert implements Comparable<Alert> {
     }
 
     /**
-     * @deprecated (2.5.0) Replaced by {@link #setName}. Use of alert has been deprecated in favour
-     *     of using name.
-     * @param alert the new name
-     */
-    @Deprecated
-    public void setAlert(String alert) {
-        setName(alert);
-    }
-    /**
      * Sets the name of the alert to name
      *
      * @param name the name to set for the alert
@@ -346,34 +314,6 @@ public class Alert implements Comparable<Alert> {
      */
     public void setName(String name) {
         this.name = (name == null) ? "" : name;
-    }
-
-    /**
-     * Sets the details of the alert.
-     *
-     * @param description the description of the alert
-     * @param uri the URI that has the issue
-     * @param param the parameter that has the issue
-     * @param attack the attack that triggers the issue
-     * @param otherInfo other information about the issue
-     * @param solution the solution for the issue
-     * @param reference references about the issue
-     * @param msg the HTTP message that triggers/triggered the issue
-     * @deprecated (2.2.0) Replaced by {@link #setDetail(String, String, String, String, String,
-     *     String, String, String, int, int, HttpMessage)}. It will be removed in a future release.
-     * @see Builder
-     */
-    @Deprecated
-    public void setDetail(
-            String description,
-            String uri,
-            String param,
-            String attack,
-            String otherInfo,
-            String solution,
-            String reference,
-            HttpMessage msg) {
-        setDetail(description, uri, param, attack, otherInfo, solution, reference, "", -1, -1, msg);
     }
 
     /**
@@ -649,6 +589,7 @@ public class Alert implements Comparable<Alert> {
         item.setCweId(this.cweId);
         item.setWascId(this.wascId);
         item.setSource(this.source);
+        item.setTags(this.tags);
         return item;
     }
 
@@ -719,15 +660,7 @@ public class Alert implements Comparable<Alert> {
     public String paragraph(String text) {
         return "<p>" + text.replaceAll("\\r\\n", "</p><p>").replaceAll("\\n", "</p><p>") + "</p>";
     }
-    /**
-     * @deprecated (2.5.0) Replaced by {@link #getName}. Use of alert has been deprecated in favour
-     *     of using name.
-     * @return Returns the alert.
-     */
-    @Deprecated
-    public String getAlert() {
-        return name;
-    }
+
     /**
      * @return Returns the name of the alert.
      * @since 2.5.0
@@ -768,14 +701,6 @@ public class Alert implements Comparable<Alert> {
     /** @return Returns the reference. */
     public String getReference() {
         return reference;
-    }
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #getConfidence()}.
-     * @return the reliability.
-     */
-    @Deprecated
-    public int getReliability() {
-        return confidence;
     }
 
     /** @return Returns the confidence. */
@@ -932,6 +857,18 @@ public class Alert implements Comparable<Alert> {
         this.wascId = wascId;
     }
 
+    /** @since 2.11.0 */
+    public Map<String, String> getTags() {
+        return tags;
+    }
+
+    /** @since 2.11.0 */
+    public void setTags(Map<String, String> tags) {
+        if (tags != null) {
+            this.tags = tags;
+        }
+    }
+
     /**
      * Gets the source of the alert.
      *
@@ -1040,6 +977,7 @@ public class Alert implements Comparable<Alert> {
         private HistoryReference historyRef;
         private Source source = Source.UNKNOWN;
         private String alertRef;
+        private Map<String, String> tags;
 
         protected Builder() {}
 
@@ -1143,6 +1081,12 @@ public class Alert implements Comparable<Alert> {
             return this;
         }
 
+        /** @since 2.11.0 */
+        public Builder setTags(Map<String, String> tags) {
+            this.tags = tags;
+            return this;
+        }
+
         /**
          * Builds the alert from the specified data.
          *
@@ -1183,6 +1127,7 @@ public class Alert implements Comparable<Alert> {
             if (alertRef != null) {
                 alert.setAlertRef(alertRef);
             }
+            alert.setTags(tags);
 
             return alert;
         }

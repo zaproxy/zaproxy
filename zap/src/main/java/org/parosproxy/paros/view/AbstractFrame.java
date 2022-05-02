@@ -27,19 +27,17 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/05 Remove abstract modifier.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/03 Removed deprecated loadIconImages()
 package org.parosproxy.paros.view;
 
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 import javax.swing.JFrame;
@@ -313,16 +311,6 @@ public class AbstractFrame extends JFrame {
             }
         }
         return result;
-    }
-
-    /**
-     * @deprecated (2.4.2) Use {@link DisplayUtils#getZapIconImages()} instead. It will be removed
-     *     in a future release.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    protected List<Image> loadIconImages() {
-        return new ArrayList<>(DisplayUtils.getZapIconImages());
     }
 
     @Override

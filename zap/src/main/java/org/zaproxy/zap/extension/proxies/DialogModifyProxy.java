@@ -22,6 +22,8 @@ package org.zaproxy.zap.extension.proxies;
 import java.awt.Dialog;
 import org.parosproxy.paros.Constant;
 
+/** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+@Deprecated
 class DialogModifyProxy extends DialogAddProxy {
 
     private static final long serialVersionUID = 6675509994290748494L;

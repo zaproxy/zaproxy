@@ -20,9 +20,9 @@
 package org.parosproxy.paros;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.hamcrest.Matchers.not;
 
 import java.io.ByteArrayOutputStream;
@@ -98,7 +98,7 @@ class ConstantUnitTest {
         // Then
         assertHomeFile("config.xml", defaultConfigContents());
         assertHomeFile("log4j2.properties", defaultContents("log4j2-home.properties"));
-        assertHomeFile("zap.log", not(isEmptyString()));
+        assertHomeFile("zap.log", is(not(emptyString())));
         assertHomeDirs();
         assertThat(Files.walk(zapHomeDir).count(), is(equalTo(8L)));
     }

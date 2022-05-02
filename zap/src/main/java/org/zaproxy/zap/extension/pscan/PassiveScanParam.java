@@ -118,7 +118,7 @@ public class PassiveScanParam extends AbstractParam {
                 }
             }
         } catch (ConversionException e) {
-            logger.error("Error while loading the auto tag scanners: " + e.getMessage(), e);
+            logger.error("Error while loading the auto tag scanners: {}", e.getMessage(), e);
         }
 
         this.confirmRemoveAutoTagScanner = getBoolean(CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY, true);

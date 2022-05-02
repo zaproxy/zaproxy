@@ -113,6 +113,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
     private static final String MARKETPLACE_PANEL = "MarketplacePanel";
     private static final double ADD_ON_DETAILS_RESIZE_WEIGHT = 0.7D;
 
+    private static final String ADD_ON_MANDATORY =
+            Constant.messages.getString("cfu.table.mandatory.value.yes");
+    private static final String ADD_ON_NOT_MANDATORY =
+            Constant.messages.getString("cfu.table.mandatory.value.no");
+
     private static final Logger logger = LogManager.getLogger(ManageAddOnsDialog.class);
     private static final long serialVersionUID = 1L;
     private JTabbedPane jTabbed = null;
@@ -1228,6 +1233,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
         private final ZapLabel notFromVersionField;
         private final JLabel fileLabel;
         private final ZapLabel fileField;
+        private final JLabel mandatoryLabel;
+        private final ZapLabel mandatoryField;
 
         private final CardLayout cardLayout;
 
@@ -1304,7 +1311,10 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
             notFromVersionField = createZapLabelField(notFromVersionLabel);
 
             fileLabel = new JLabel(Constant.messages.getString("cfu.table.header.file"));
-            fileField = createZapLabelField(notFromVersionLabel);
+            fileField = createZapLabelField(fileLabel);
+
+            mandatoryLabel = new JLabel(Constant.messages.getString("cfu.table.header.mandatory"));
+            mandatoryField = createZapLabelField(mandatoryLabel);
 
             layout.setHorizontalGroup(
                     layout.createSequentialGroup()
@@ -1322,7 +1332,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                                             .addComponent(dependenciesLabel)
                                             .addComponent(notBeforeVersionLabel)
                                             .addComponent(notFromVersionLabel)
-                                            .addComponent(fileLabel))
+                                            .addComponent(fileLabel)
+                                            .addComponent(mandatoryLabel))
                             .addGroup(
                                     layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                                             .addComponent(
@@ -1389,6 +1400,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                                                     fileField,
                                                     0,
                                                     GroupLayout.DEFAULT_SIZE,
+                                                    Short.MAX_VALUE)
+                                            .addComponent(
+                                                    mandatoryField,
+                                                    0,
+                                                    GroupLayout.DEFAULT_SIZE,
                                                     Short.MAX_VALUE)));
 
             layout.setVerticalGroup(
@@ -1444,7 +1460,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                             .addGroup(
                                     layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                                             .addComponent(fileLabel)
-                                            .addComponent(fileField)));
+                                            .addComponent(fileField))
+                            .addGroup(
+                                    layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                                            .addComponent(mandatoryLabel)
+                                            .addComponent(mandatoryField)));
 
             cardLayout = new CardLayout();
             setLayout(cardLayout);
@@ -1495,10 +1515,19 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                 fileLabel.setVisible(true);
                 fileField.setText(addOn.getFile().toString());
                 fileField.setVisible(true);
+
+                mandatoryLabel.setVisible(true);
+                mandatoryField.setText(
+                        addOn.isMandatory() ? ADD_ON_MANDATORY : ADD_ON_NOT_MANDATORY);
+                mandatoryField.setVisible(true);
             } else {
                 fileLabel.setVisible(false);
                 fileField.setText("");
                 fileField.setVisible(false);
+
+                mandatoryLabel.setVisible(false);
+                mandatoryField.setText(ADD_ON_NOT_MANDATORY);
+                mandatoryField.setVisible(false);
             }
         }
 
@@ -1517,6 +1546,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
             notBeforeVersionField.setText("");
             notFromVersionField.setText("");
             fileField.setText("");
+            mandatoryField.setText(ADD_ON_NOT_MANDATORY);
         }
     }
 

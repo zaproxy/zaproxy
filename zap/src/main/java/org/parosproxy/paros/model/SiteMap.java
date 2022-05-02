@@ -71,6 +71,7 @@
 // ZAP: 2020/11/02 Do not get leaf name if finding branch nodes.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove empty statement and add missing override annotation.
+// ZAP: 2022/02/08 Use isEmpty where applicable.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -153,7 +154,7 @@ public class SiteMap extends SortedTreeModel {
                 return null;
             }
             List<String> path = SessionStructure.getTreePath(model, msg);
-            if (path.size() == 0) {
+            if (path.isEmpty()) {
                 // Its a top level node
                 resultNode = parent;
             }
@@ -219,7 +220,7 @@ public class SiteMap extends SortedTreeModel {
             }
 
             List<String> path = SessionStructure.getTreePath(model, msg);
-            if (path.size() == 0) {
+            if (path.isEmpty()) {
                 // Its a top level node
                 resultNode = parent;
             }

@@ -35,6 +35,7 @@
 // ZAP: 2018/09/12 Make the addition of a query parameter optional.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URLEncoder;
@@ -43,7 +44,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import org.apache.commons.lang.mutable.MutableInt;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -101,19 +101,6 @@ public abstract class VariantAbstractQuery implements Variant {
      * @return the unescaped value
      */
     protected abstract String getUnescapedValue(String value);
-
-    /** @deprecated (2.5.0) use {@link #setParameters(int, List)} instead. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    protected void setParams(int type, Map<String, String> params) {
-        int i = 0;
-        for (Entry<String, String> param : params.entrySet()) {
-            listParam.add(
-                    new NameValuePair(
-                            type, param.getKey(), getUnescapedValue(param.getValue()), i));
-            i++;
-        }
-    }
 
     /**
      * Sets the given {@code parameters} of the given {@code type} as the list of parameters handled

@@ -31,6 +31,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/04/08 Remove boilerplate javadoc.
+// ZAP: 2022/04/07 Put any selected text into the Find dialog text area.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -78,6 +79,12 @@ public class FindDialog extends AbstractDialog {
     /** @param lastInvoker The lastInvoker to set. */
     public void setLastInvoker(JTextComponent lastInvoker) {
         this.lastInvoker = lastInvoker;
+        if (lastInvoker != null) {
+            String selectedText = lastInvoker.getSelectedText();
+            if (selectedText != null) {
+                this.getTxtFind().setText(selectedText);
+            }
+        }
     }
 
     /**

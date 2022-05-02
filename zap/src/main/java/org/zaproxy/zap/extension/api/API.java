@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -44,7 +45,6 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
@@ -56,6 +56,7 @@ import org.parosproxy.paros.view.View;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zaproxy.zap.utils.JsonUtil;
+import org.zaproxy.zap.utils.Stats;
 
 public class API {
     public enum Format {
@@ -105,6 +106,8 @@ public class API {
     private static final String STATUS_BAD_REQUEST = "400 Bad Request";
     private static final String STATUS_INTERNAL_SERVER_ERROR = "500 Internal Server Error";
 
+    private static final String STATS_PREFIX = "stats.api.";
+
     private Map<String, ApiImplementor> implementors = new HashMap<>();
     private static API api = null;
     private WebUI webUI = new WebUI(this);
@@ -126,7 +129,8 @@ public class API {
      *
      * @see #getProxyParam()
      */
-    private ProxyParam proxyParam;
+    @SuppressWarnings("deprecation")
+    private org.parosproxy.paros.core.proxy.ProxyParam proxyParam;
 
     private Random random = new SecureRandom();
     private static final Logger logger = LogManager.getLogger(API.class);
@@ -225,14 +229,16 @@ public class API {
         this.optionsParamApi = optionsParamApi;
     }
 
-    private ProxyParam getProxyParam() {
+    @SuppressWarnings("deprecation")
+    private org.parosproxy.paros.core.proxy.ProxyParam getProxyParam() {
         if (proxyParam == null) {
             proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
         }
         return proxyParam;
     }
 
-    void setProxyParam(ProxyParam proxyParam) {
+    @SuppressWarnings("deprecation")
+    void setProxyParam(org.parosproxy.paros.core.proxy.ProxyParam proxyParam) {
         this.proxyParam = proxyParam;
     }
 
@@ -393,6 +399,7 @@ public class API {
 
                     msg.setResponseHeader(getDefaultResponseHeader(contentType));
                     msg.getResponseHeader().setContentLength(icon.length);
+                    msg.getResponseBody().setBody(icon);
                     httpOut.write(msg.getResponseHeader());
                     httpOut.write(icon);
                     httpOut.flush();
@@ -490,6 +497,8 @@ public class API {
                         throw new ApiException(
                                 ApiException.Type.NO_IMPLEMENTOR, "Implementor was not provided.");
                     }
+                    incStatistic("call", format, component, reqType, name);
+
                     switch (reqType) {
                         case action:
                             if (!getOptionsParamApi().isDisableKey()) {
@@ -571,6 +580,9 @@ public class API {
 
         } catch (Exception e) {
             if (!getOptionsParamApi().isReportPermErrors()) {
+                if (component != null && format != null && reqType != null && name != null) {
+                    incStatistic("error", format, component, reqType, name);
+                }
                 if (e instanceof ApiException) {
                     ApiException exception = (ApiException) e;
                     if (exception.getType().equals(ApiException.Type.DISABLED)
@@ -606,6 +618,21 @@ public class API {
         }
 
         return msg;
+    }
+
+    private void incStatistic(
+            String type, Format format, String component, RequestType reqType, String name) {
+        Stats.incCounter(
+                STATS_PREFIX
+                        + type
+                        + "."
+                        + format.name().toLowerCase(Locale.ROOT)
+                        + "."
+                        + component
+                        + "."
+                        + reqType.name()
+                        + "."
+                        + name);
     }
 
     /**
@@ -731,6 +758,7 @@ public class API {
      * @return the base URL to access the ZAP API.
      * @since 2.7.0
      */
+    @SuppressWarnings("deprecation")
     public String getBaseURL(boolean proxy) {
         if (proxy) {
             return getOptionsParamApi().isSecureOnly() ? API_URL_S : API_URL;

@@ -27,6 +27,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/10 Remove old alert update that split the param/attack.
 // ZAP: 2020/11/03 Add alertRef field.
+// ZAP: 2022/02/03 Removed deprecated getReliability() and setReliability()
 package org.parosproxy.paros.db;
 
 public class RecordAlert {
@@ -154,22 +155,6 @@ public class RecordAlert {
     /** @param reference The reference to set. */
     public void setReference(String reference) {
         this.reference = reference;
-    }
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #getConfidence()}.
-     * @return the reliability.
-     */
-    @Deprecated
-    public int getReliability() {
-        return confidence;
-    }
-    /**
-     * @deprecated (2.4.0) Replaced by {@link #setConfidence(int)}.
-     * @param confidence The reliability to set.
-     */
-    @Deprecated
-    public void setReliability(int confidence) {
-        this.confidence = confidence;
     }
     /** @return the confidence. */
     public int getConfidence() {

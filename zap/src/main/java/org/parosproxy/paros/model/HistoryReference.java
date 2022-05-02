@@ -63,6 +63,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/07/07 Add TYPE_OAST.
+// ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
@@ -170,12 +171,6 @@ public class HistoryReference {
      * @since 2.6.0
      */
     public static final int TYPE_ZEST_SCRIPT = 12;
-
-    /**
-     * @deprecated (2.6.0) Use {@link #TYPE_ZEST_SCRIPT} instead.
-     * @since 2.1.0
-     */
-    @Deprecated public static final int TYPE_RESERVED_11 = TYPE_ZEST_SCRIPT;
 
     /**
      * A (temporary) HTTP message sent by the (active) scanner.

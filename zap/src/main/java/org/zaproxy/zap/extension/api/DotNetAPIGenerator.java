@@ -28,7 +28,6 @@ import java.nio.file.Path;
 import java.time.Year;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -88,18 +87,6 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
 
     public DotNetAPIGenerator(String path, boolean optional, ResourceBundle resourceBundle) {
         super(path, optional, resourceBundle);
-    }
-
-    /**
-     * Generates the API client files of the given API implementors.
-     *
-     * @param implementors the implementors
-     * @throws IOException if an error occurred while generating the APIs.
-     * @deprecated (2.6.0) Use {@link #generateAPIFiles(List)} instead.
-     */
-    @Deprecated
-    public void generateCSharpFiles(List<ApiImplementor> implementors) throws IOException {
-        this.generateAPIFiles(implementors);
     }
 
     private void generateCSharpElement(

@@ -47,6 +47,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/03 Removed deprecated prepareShow method
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -173,7 +174,6 @@ public class MainPopupMenu extends JPopupMenu {
                 handleMenuItem(invoker, (ExtensionPopupMenuItem) menuItem);
             } else if (menuItem instanceof ExtensionPopupMenu) {
                 ExtensionPopupMenu item = (ExtensionPopupMenu) menuItem;
-                prepareShow(item);
                 handleMenu(invoker, item);
             }
         }
@@ -213,19 +213,6 @@ public class MainPopupMenu extends JPopupMenu {
                 }
             }
         }
-    }
-
-    /**
-     * The method {@code ExtensionPopupMenu#prepareShow()} is deprecated but it must still be called
-     * for backward compatibility, so to avoid hiding future deprecations of other methods/classes
-     * this method was added to suppress the deprecation warning locally (instead of the whole
-     * method {@code showImpl(PopupMenuInvokerWrapper, int, int))}).
-     *
-     * @see ExtensionPopupMenu#prepareShow()
-     */
-    @SuppressWarnings({"deprecation", "javadoc"})
-    private static void prepareShow(ExtensionPopupMenu popupMenu) {
-        popupMenu.prepareShow();
     }
 
     private void handleMenuItem(

@@ -35,7 +35,6 @@ import org.zaproxy.zap.extension.brk.BreakAPI;
 import org.zaproxy.zap.extension.forceduser.ForcedUserAPI;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionsAPI;
 import org.zaproxy.zap.extension.params.ParamsAPI;
-import org.zaproxy.zap.extension.proxies.ProxiesAPI;
 import org.zaproxy.zap.extension.pscan.PassiveScanAPI;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigAPI;
 import org.zaproxy.zap.extension.script.ScriptAPI;
@@ -100,8 +99,6 @@ public class ApiGeneratorUtils {
         imps.add(new AuthenticationAPI(null));
 
         imps.add(new AuthorizationAPI());
-
-        imps.add(new ProxiesAPI(null));
 
         imps.add(new RuleConfigAPI(null));
 

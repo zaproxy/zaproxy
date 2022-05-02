@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Form With Button Using Formaction - Spider HTML Form Parser</title>
+</head>
+<body>
+
+<form action="http://example.org/form1" method="%%METHOD%%">
+    <input type="text" name="field1" value="field1" />
+    <input type="text" name="field2" value="field2" />
+    <button formaction="http://example.org/formaction1"></button>
+</form>
+
+<form action="http://example.org/form2" method="%%METHOD%%">
+    <input type="text" name="field1" value="field1" />
+    <input type="text" name="field2" value="field2" />
+    <button>Default Action</button>
+    <button formaction="http://example.org/formaction2">FormAction2</button>
+</form>
+
+<form>
+    <button type="submit" formaction="http://example.org/emptyform"></button>
+</form>
+
+<form id="withchildbutton">
+    <button form="withchildbutton" formaction="http://example.org/withchildbutton"></button>
+</form>
+
+<form id="withoutchildbutton">
+</form>
+<button form="withoutchildbutton" formaction="http://example.org/withoutchildbutton"></button>
+
+<form action="http://actionnoreset.com">
+    <button type="reset" formaction="http://resetbuttonsdonotsubmit.com"></button>
+</form>
+
+<form action="http://actionnobutton.com">
+    <button type="button" formaction="http://formbuttonsdonotsubmit.com"></button>
+</form>
+
+<form id="tobeoverridden" action="http://externaltobeoverridden.com">
+</form>
+
+<form action="http://not.overridden.by.nested.buttons.com">
+    <button formaction="http://i.override.to.be.overridden.com" form="tobeoverridden"></button>
+    <button type="button" formaction="http://i.do.not.override.to.be.overridden.com" form="tobeoverridden"></button>
+</form>
+
+
+
+<!-- Ignored: -->
+<form>
+    <button type="submit" formaction="http:// invalidurl"></button>
+</form>
+
+<form action="http:// invalidurl">
+    <button type="submit" form="invalidformreference" formaction="http://valid.url.com"></button>
+</form>
+
+<form action="http://I_look_legit_but_i_am_not.com">
+    <button type="submit" formaction="http://I_am_also_not_legit.com"></button>
+</form>
+
+<form>
+    <button formaction="http://totally\invalidurl"></button>
+</form>
+
+</body>
+</html>

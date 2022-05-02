@@ -112,6 +112,8 @@ def usage():
     
     The following parameters are currently supported:
     
+    -c config_file
+    -u config_url
     -m mins
     -r report_html
     -w report_md
@@ -123,13 +125,16 @@ def usage():
     -I
     -j
     -s
-    -T
+    -T mins
     -z zap_options
+
+    The following parameters are partially supported. 
+    If you specify the '--auto' flag _before_ using them then the Automation Framework will be used:
+
+    Currently none.
     
     If any of the next set of parameters are used then the existing code will be used instead:
     
-    -c config_file    partially supported so cannot be enabled just yet
-    -u config_url     ditto
     -D secs           need new delay/sleep job
     -i                need to support config files
     -l level          ditto
@@ -173,6 +178,7 @@ def main(argv):
     user = ''
     use_af = True
     af_supported = True
+    af_override = False
 
     pass_count = 0
     warn_count = 0
@@ -200,10 +206,8 @@ def main(argv):
             logging.debug('Target: ' + target)
         elif opt == '-c':
             config_file = arg
-            af_supported = False
         elif opt == '-u':
             config_url = arg
-            af_supported = False
         elif opt == '-g':
             generate = arg
             af_supported = False
@@ -262,6 +266,7 @@ def main(argv):
             af_supported = False
         elif opt == '--auto':
             use_af = True
+            af_override = True
         elif opt == '--autooff':
             use_af = False
 
@@ -350,7 +355,15 @@ def main(argv):
                         target = t2
                         top_levels.append(target)
                
-                yaml.dump(get_af_env(top_levels, debug), yf)
+                yaml.dump(get_af_env(top_levels, out_of_scope_dict, debug), yf)
+                
+                alertFilters = []
+                
+                # Handle id specific alertFilters - rules that apply to all IDs are excluded from the env
+                for id in out_of_scope_dict:
+                    if id != '*':
+                        for regex in out_of_scope_dict[id]:
+                            alertFilters.append({'ruleId': id, 'newRisk': 'False Positive', 'url': regex.pattern, 'urlRegex': True})
                 
                 addons = ['pscanrulesBeta']
                 if zap_alpha:
@@ -358,14 +371,18 @@ def main(argv):
                     
                 jobs = [
                         get_af_addons(addons, []),
-                        get_af_pscan_config(),
-                        get_af_spider(target, mins)                        ]
+                        get_af_pscan_config()]
+
+                if len(alertFilters) > 0:
+                    jobs.append(get_af_alertFilter(alertFilters))
                 
+                jobs.append(get_af_spider(target, mins))
+
                 if ajax:
                     jobs.append(get_af_spiderAjax(target, mins))
                 
                 jobs.append(get_af_pscan_wait(timeout))
-                jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict))
+                jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict, config_msg))
                 
                 if report_html:
                     jobs.append(get_af_report('traditional-html', base_dir, report_html, 'ZAP Scanning Report', ''))
@@ -382,11 +399,18 @@ def main(argv):
                 yaml.dump({'jobs': jobs}, yf)
                 
                 if os.path.exists('/zap/wrk'):
-                    # Write the yaml file to the mapped directory, if there is one
-                    copyfile(yaml_file, '/zap/wrk/zap.yaml')
+                    yaml_copy_file = '/zap/wrk/zap.yaml'
+                    try:
+                        # Write the yaml file to the mapped directory, if there is one
+                        copyfile(yaml_file, yaml_copy_file)
+                    except OSError as err:
+                        logging.warning('Unable to copy yaml file to ' + yaml_copy_file + ' ' + str(err))
  
-            # Run ZAP inline with the yaml file
             try:
+                # Run ZAP inline to update the add-ons
+                run_zap_inline(port, ['-addonupdate', '-silent'])
+                
+                # Run ZAP inline with the yaml file
                 params = ['-autorun', yaml_file]
     
                 add_zap_options(params, zap_options)

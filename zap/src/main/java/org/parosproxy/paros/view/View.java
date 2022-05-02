@@ -89,6 +89,8 @@
 // ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
 // ZAP: 2019/12/13 Update new footer proxy label in postInit (Issue 2016)
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/09 Remove method call no longer needed.
+// ZAP: 2022/02/26 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -156,25 +158,6 @@ import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightEditor;
 import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightRenderer;
 
 public class View implements ViewDelegate {
-
-    /**
-     * @deprecated (2.5.0) Use {@link WorkbenchPanel.Layout#EXPAND_SELECT} instead.
-     * @see #getMainFrame()
-     * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
-     */
-    @Deprecated public static final int DISPLAY_OPTION_LEFT_FULL = 0;
-    /**
-     * @deprecated (2.5.0) Use {@link WorkbenchPanel.Layout#EXPAND_STATUS} instead.
-     * @see #getMainFrame()
-     * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
-     */
-    @Deprecated public static final int DISPLAY_OPTION_BOTTOM_FULL = 1;
-    /**
-     * @deprecated (2.5.0) Use {@link WorkbenchPanel.Layout#FULL} instead.
-     * @see #getMainFrame()
-     * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
-     */
-    @Deprecated public static final int DISPLAY_OPTION_TOP_FULL = 2;
 
     public static final int DISPLAY_OPTION_ICONNAMES = 0;
     public static final int DISPLAY_OPTION_ONLYICONS = 1;
@@ -249,29 +232,6 @@ public class View implements ViewDelegate {
     // public HttpPanel getResponsePanel() {
     //	return responsePanel;
     // }
-
-    /**
-     * @deprecated (2.5.0) Use {@link
-     *     MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)} instead.
-     * @see #getMainFrame()
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public static void setDisplayOption(int displayOption) {
-        View.getSingleton()
-                .getMainFrame()
-                .setWorkbenchLayout(WorkbenchPanel.Layout.getLayout(displayOption));
-    }
-
-    /**
-     * @deprecated (2.5.0) Use {@link MainFrame#getWorkbenchLayout()} instead.
-     * @see #getMainFrame()
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public static int getDisplayOption() {
-        return View.getSingleton().getMainFrame().getWorkbenchLayout().getId();
-    }
 
     //  ZAP: Removed method changeDisplayOption(int)
     public void init() {
@@ -351,22 +311,7 @@ public class View implements ViewDelegate {
                 });
         mainFrame.getMainMenuBar().getMenuView().add(unpinAllMenu);
 
-        mainFrame.getMainFooterPanel().optionsChanged();
         postInitialisation = true;
-    }
-
-    /**
-     * @deprecated (2.5.0) No longer in use/working, use {@link
-     *     MainFrame#setResponsePanelPosition(org.parosproxy.paros.view.WorkbenchPanel.ResponsePanelPosition)}
-     *     instead.
-     * @since 2.1.0
-     * @see #getMainFrame()
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public org.zaproxy.zap.view.MessagePanelsPositionController
-            getMessagePanelsPositionController() {
-        return new org.zaproxy.zap.view.MessagePanelsPositionController(null, null, null, null);
     }
 
     @Override

@@ -61,87 +61,31 @@ class AddOnUnitTest extends AddOnTestUtils {
             getResourcePath("ZapVersions-deps.xml", AddOnUnitTest.class).toFile();
 
     @Test
-    @SuppressWarnings("deprecation")
-    void testIsAddon() throws Exception {
-        assertTrue(AddOn.isAddOn("test-alpha-1.zap"));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void testNotAddonNoState() throws Exception {
-        assertFalse(AddOn.isAddOn("test-1.zap"));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void testNotAddonBadExt() throws Exception {
-        assertFalse(AddOn.isAddOn("test-beta-1.zip"));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void testNotAddonBadStatus() throws Exception {
-        assertFalse(AddOn.isAddOn("test-xxx-1.zap"));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void testNotAddonBadVersion() throws Exception {
-        assertFalse(AddOn.isAddOn("test-beta-A.zap"));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void testId() throws Exception {
-        AddOn addOn = new AddOn("test-alpha-1.zap");
-        assertThat(addOn.getId(), is("test"));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void testStatus() throws Exception {
-        AddOn addOn = new AddOn("test-alpha-1.zap");
-        assertThat(addOn.getStatus().name(), is("alpha"));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
-    void testVersion() throws Exception {
-        AddOn addOn = new AddOn("test-alpha-1.zap");
-        assertThat(addOn.getVersion().toString(), is(equalTo("1.0.0")));
-        assertThat(addOn.getFileVersion(), is(1));
-    }
-
-    @Test
-    @SuppressWarnings("deprecation")
     void testAlpha2UpdatesAlpha1() throws Exception {
-        AddOn addOnA1 = new AddOn("test-alpha-1.zap");
-        AddOn addOnA2 = new AddOn("test-alpha-2.zap");
+        AddOn addOnA1 = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
+        AddOn addOnA2 = new AddOn(createAddOnFile("test-alpha-2.zap", "alpha", "2"));
         assertTrue(addOnA2.isUpdateTo(addOnA1));
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     void testAlpha1DoesNotUpdateAlpha2() throws Exception {
-        AddOn addOnA1 = new AddOn("test-alpha-1.zap");
-        AddOn addOnA2 = new AddOn("test-alpha-2.zap");
+        AddOn addOnA1 = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
+        AddOn addOnA2 = new AddOn(createAddOnFile("test-alpha-2.zap", "alpha", "1"));
         assertFalse(addOnA1.isUpdateTo(addOnA2));
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     void testAlpha2UpdatesBeta1() throws Exception {
-        AddOn addOnB1 = new AddOn("test-beta-1.zap");
-        AddOn addOnA2 = new AddOn("test-alpha-2.zap");
+        AddOn addOnB1 = new AddOn(createAddOnFile("test-beta-1.zap", "beta", "1"));
+        AddOn addOnA2 = new AddOn(createAddOnFile("test-alpha-2.zap", "alpha", "2"));
         assertTrue(addOnA2.isUpdateTo(addOnB1));
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     void testAlpha2DoesNotUpdateTestyAlpha1() throws Exception {
         // Given
-        AddOn addOnA1 = new AddOn("test-alpha-1.zap");
-        AddOn addOnA2 = new AddOn("testy-alpha-2.zap");
+        AddOn addOnA1 = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
+        AddOn addOnA2 = new AddOn(createAddOnFile("testy-alpha-2.zap", "alpha", "1"));
         // When
         IllegalArgumentException e =
                 assertThrows(IllegalArgumentException.class, () -> addOnA2.isUpdateTo(addOnA1));
@@ -236,9 +180,8 @@ class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     void testCanLoadAddOnNotBefore() throws Exception {
-        AddOn ao = new AddOn("test-alpha-1.zap");
+        AddOn ao = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
         ao.setNotBeforeVersion("2.4.0");
         assertTrue(ao.canLoadInVersion("2.4.0"));
 
@@ -250,9 +193,8 @@ class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     void testCanLoadAddOnNotFrom() throws Exception {
-        AddOn ao = new AddOn("test-alpha-1.zap");
+        AddOn ao = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
         ao.setNotBeforeVersion("2.4.0");
         ao.setNotFromVersion("2.8.0");
         assertTrue(ao.canLoadInVersion("2.4.0"));
@@ -264,9 +206,8 @@ class AddOnUnitTest extends AddOnTestUtils {
     }
 
     @Test
-    @SuppressWarnings("deprecation")
     void testCanLoadAddOnNotBeforeNotFrom() throws Exception {
-        AddOn ao = new AddOn("test-alpha-1.zap");
+        AddOn ao = new AddOn(createAddOnFile("test-alpha-1.zap", "alpha", "1"));
         ao.setNotBeforeVersion("2.4.0");
         assertTrue(ao.canLoadInVersion("2.4.0"));
         ao.setNotFromVersion("2.7.0");
@@ -611,6 +552,16 @@ class AddOnUnitTest extends AddOnTestUtils {
         String releaseDate = addOn.getReleaseDate();
         // Then
         assertThat(releaseDate, is(nullValue()));
+    }
+
+    @Test
+    void shouldHaveCorrectSize() throws Exception {
+        // Given
+        AddOn addOn = new AddOn(createAddOnFile("addon.zap"));
+        // When
+        long size = addOn.getSize();
+        // Then
+        assertThat(size, is(equalTo(189L)));
     }
 
     @Test

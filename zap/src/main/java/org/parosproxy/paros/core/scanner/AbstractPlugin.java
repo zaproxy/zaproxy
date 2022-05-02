@@ -69,6 +69,7 @@
 // ZAP: 2020/09/23 Add functionality for custom error pages handling (Issue 9).
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j2 getLogger() and deprecate Log4j1.x.
+// ZAP: 2021/07/20 Correct message updated with the scan rule ID header (Issue 6689).
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -77,6 +78,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.InvalidParameterException;
 import java.util.Date;
+import java.util.Map;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -287,8 +289,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         }
 
         if (this.parent.getScannerParam().isInjectPluginIdInHeader()) {
-            this.msg
-                    .getRequestHeader()
+            message.getRequestHeader()
                     .setHeader(HttpHeader.X_ZAP_SCAN_ID, Integer.toString(getId()));
         }
 
@@ -828,12 +829,21 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     @Override
     public void setAlertThreshold(AlertThreshold level) {
         setProperty("level", level.name());
-        setEnabled(level != AlertThreshold.OFF);
+        setEnabledFromLevel();
     }
 
     @Override
     public void setDefaultAlertThreshold(AlertThreshold level) {
         this.defaultAttackThreshold = level;
+        setEnabledFromLevel();
+    }
+
+    private void setEnabledFromLevel() {
+        AlertThreshold level = getAlertThreshold(true);
+        setEnabled(
+                level != AlertThreshold.OFF
+                        && !(level == AlertThreshold.DEFAULT
+                                && this.defaultAttackThreshold == AlertThreshold.OFF));
     }
 
     /** Override this if you plugin supports other levels. */
@@ -1265,6 +1275,18 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return 0;
     }
 
+    /**
+     * Gets the tags attached to the alerts raised by this plugin. Can be overridden by scan rules
+     * to return the associated alert tags.
+     *
+     * @return the Alert Tags
+     * @since 2.11.0
+     */
+    @Override
+    public Map<String, String> getAlertTags() {
+        return null;
+    }
+
     @Override
     public AddOn.Status getStatus() {
         return status;
@@ -1289,6 +1311,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *   <li>CWE ID - using {@link #getCweId()}
      *   <li>WASC ID - using {@link #getWascId()}
      *   <li>URI - from the alert message
+     *   <li>Alert Tags - using {@link #getAlertTags()}
      * </ul>
      *
      * @return the alert builder.
@@ -1319,6 +1342,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             setReference(plugin.getReference());
             setCweId(plugin.getCweId());
             setWascId(plugin.getWascId());
+            setTags(plugin.getAlertTags());
         }
 
         @Override
@@ -1439,6 +1463,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         @Override
         public AlertBuilder setAlertRef(String alertRef) {
             super.setAlertRef(alertRef);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setTags(Map<String, String> tags) {
+            super.setTags(tags);
             return this;
         }
 

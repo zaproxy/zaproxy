@@ -23,6 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyArray;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.BDDMockito.given;
@@ -32,18 +33,22 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.security.InvalidParameterException;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.custompages.CustomPage;
 import org.zaproxy.zap.model.TechSet;
@@ -185,6 +190,51 @@ class AbstractPluginUnitTest extends PluginTestUtils {
     void shouldBeEnabledByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
+        // Then
+        assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
+    }
+
+    @Test
+    void shouldBeDisabledWhenOffThresholdSet() {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig();
+        // When
+        plugin.setAlertThreshold(AlertThreshold.OFF);
+        // Then
+        assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
+    }
+
+    @Test
+    void shouldBeDisabledWhenDefaultOffThresholdSet() {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig();
+        // When
+        plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
+        // Then
+        assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
+    }
+
+    @Test
+    void shouldBeDisabledWhenOffAndDefaultOffThresholdSet() {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig();
+        // When
+        plugin.setAlertThreshold(AlertThreshold.OFF);
+        plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
+        // Then
+        assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = AlertThreshold.class,
+            names = {"LOW", "MEDIUM", "HIGH"})
+    void shouldBeEnabledWhenThresholdSetButDefaultOff(AlertThreshold threshold) {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig();
+        // When
+        plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
+        plugin.setAlertThreshold(threshold);
         // Then
         assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
     }
@@ -402,7 +452,6 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         pluginA.setDefaultAttackStrength(Plugin.AttackStrength.LOW);
         pluginA.setTechSet(TechSet.getAllTech());
         pluginA.setStatus(AddOn.Status.beta);
-        pluginA.setEnabled(false);
         AbstractPlugin pluginB = createAbstractPluginWithConfig();
         // When
         pluginA.cloneInto(pluginB);
@@ -1902,6 +1951,42 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // Then
         assertThat(result, is(equalTo(false)));
         verify(parent).isCustomPage(message, CustomPage.Type.NOTFOUND_404);
+    }
+
+    @Test
+    void shouldSendMessageWithScanRuleIdHeaderIfEnabled() throws IOException {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        ScannerParam scannerParam = mock(ScannerParam.class);
+        given(scannerParam.isInjectPluginIdInHeader()).willReturn(true);
+        given(parent.getScannerParam()).willReturn(scannerParam);
+        HttpSender httpSender = mock(HttpSender.class);
+        given(parent.getHttpSender()).willReturn(httpSender);
+        plugin.init(message, parent);
+        HttpMessage message = new HttpMessage(new URI("http://example.com/", true));
+        // When
+        plugin.sendAndReceive(message, true, true);
+        // Then
+        assertThat(
+                message.getRequestHeader().getHeader(HttpHeader.X_ZAP_SCAN_ID),
+                is(equalTo("123456789")));
+    }
+
+    @Test
+    void shouldSendMessageWithoutScanRuleIdHeaderIfDisabled() throws IOException {
+        // Given
+        AbstractPlugin plugin = createDefaultPlugin();
+        ScannerParam scannerParam = mock(ScannerParam.class);
+        given(scannerParam.isInjectPluginIdInHeader()).willReturn(false);
+        given(parent.getScannerParam()).willReturn(scannerParam);
+        HttpSender httpSender = mock(HttpSender.class);
+        given(parent.getHttpSender()).willReturn(httpSender);
+        plugin.init(message, parent);
+        HttpMessage message = new HttpMessage(new URI("http://example.com/", true));
+        // When
+        plugin.sendAndReceive(message, true, true);
+        // Then
+        assertThat(message.getRequestHeader().getHeader(HttpHeader.X_ZAP_SCAN_ID), is(nullValue()));
     }
 
     private static HttpMessage createAlertMessage() {

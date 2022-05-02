@@ -19,8 +19,9 @@
  */
 package org.zaproxy.zap.control;
 
-import java.util.Hashtable;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -74,33 +75,21 @@ public class ControlOverrides {
         this.configs = configs;
     }
 
-    /**
-     * Gets the {@code config} command line arguments, in no specific order.
-     *
-     * @return the {@code config} command line arguments.
-     * @deprecated (2.6.0) Use {@link #getOrderedConfigs()} instead.
-     */
-    @Deprecated
-    public Hashtable<String, String> getConfigs() {
-        return new Hashtable<>(configs);
-    }
-
-    /**
-     * Sets the {@code config} command line arguments, in no specific order.
-     *
-     * @param configs the {@code config} command line arguments.
-     * @deprecated (2.6.0) Use {@link #setOrderedConfigs(Map)} instead.
-     */
-    @Deprecated
-    public void setConfigs(Hashtable<String, String> configs) {
-        this.configs = new LinkedHashMap<>(configs);
-    }
-
     public boolean isExperimentalDb() {
         return experimentalDb;
     }
 
     public void setExperimentalDb(boolean experimentalDb) {
         this.experimentalDb = experimentalDb;
+    }
+
+    /**
+     * Gets the IDs of the mandatory add-ons, needed for ZAP to work properly.
+     *
+     * @return a list with the IDs of the mandatory add-ons.
+     * @since 2.12.0
+     */
+    public List<String> getMandatoryAddOns() {
+        return Arrays.asList("callhome", "network");
     }
 }

@@ -65,7 +65,13 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
             throw new RuntimeException(e);
         }
 
-        Control control = initControl();
+        Control control;
+        try {
+            control = initControl();
+        } catch (IllegalStateException e) {
+            System.err.println("Failed to start ZAP. " + e.getMessage());
+            return 1;
+        }
 
         warnAddOnsAndExtensionsNoLongerRunnable();
 
@@ -107,6 +113,9 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
             control.shutdown(
                     Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
             logger.info(Constant.PROGRAM_TITLE + " terminated.");
+        }
+        if (rc == 0) {
+            rc = control.getExitStatus();
         }
 
         return rc;

@@ -35,6 +35,8 @@
 // ZAP: 2019/12/13 Display the primary proxy details (host:port) in the footer (Issue 2016).
 // ZAP: 2020/09/29 Add support for dynamic Look and Feel switching (Issue 6201)
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/09 Remove method call no longer needed.
+// ZAP: 2022/02/26 Remove code deprecated in 2.5.0
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -207,21 +209,6 @@ public class MainFrame extends AbstractFrame {
     private ZapToggleButton panelsResponsePanelPositionButton;
 
     private PopupButton lookAndFeelButton;
-
-    /**
-     * @deprecated (2.5.0) Use {@link #MainFrame(OptionsParam, AbstractPanel, AbstractPanel)}
-     *     instead.
-     */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public MainFrame(int displayOption) {
-        this(
-                Model.getSingleton().getOptionsParam(),
-                View.getSingleton().getRequestPanel(),
-                View.getSingleton().getResponsePanel());
-
-        changeDisplayOption(displayOption);
-    }
 
     /**
      * Constructs a {@code MainFrame} with the given options and request and response panels.
@@ -605,13 +592,6 @@ public class MainFrame extends AbstractFrame {
         return mainFooterPanel;
     }
 
-    /** @deprecated (2.5.0) Use {@link #setWorkbenchLayout(WorkbenchPanel.Layout)} instead. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void changeDisplayOption(int displayOption) {
-        setWorkbenchLayout(WorkbenchPanel.Layout.getLayout(displayOption));
-    }
-
     /**
      * Applies the view options to the main frame components.
      *
@@ -643,7 +623,6 @@ public class MainFrame extends AbstractFrame {
         setResponsePanelPosition(position);
 
         setShowTabNames(options.getViewParam().getShowTabNames());
-        getMainFooterPanel().optionsChanged();
     }
 
     /**

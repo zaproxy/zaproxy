@@ -110,6 +110,12 @@
 // ZAP: 2020/10/07 Changes for Log4j 2 migration.
 // ZAP: 2020/11/02 Do not backup old Log4j config if already present.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/09/15 Added support for detecting containers
+// ZAP: 2021/09/21 Added support for detecting snapcraft
+// ZAP: 2021/10/01 Added support for detecting WebSwing
+// ZAP: 2021/10/06 Update user agent when upgrading from 2.10
+// ZAP: 2022/02/03 Removed deprecated FILE_CONFIG_DEFAULT and VULNS_BASE
+// ZAP: 2022/02/25 Remove options that are no longer needed.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -118,6 +124,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -181,9 +188,11 @@ public final class Constant {
     private static final String VERSION_ELEMENT = "version";
 
     // Accessible for tests
-    static final long VERSION_TAG = 2010000;
+    static final long VERSION_TAG = 20011001;
 
     // Old version numbers - for upgrade
+    private static final long V_2_11_1_TAG = 20011001;
+    private static final long V_2_10_0_TAG = 20010000;
     private static final long V_2_9_0_TAG = 2009000;
     private static final long V_2_8_0_TAG = 2008000;
     private static final long V_2_7_0_TAG = 2007000;
@@ -214,13 +223,6 @@ public final class Constant {
     public static final String SYSTEM_PAROS_USER_LOG = "zap.user.log";
 
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
-
-    /**
-     * @deprecated (2.4.2) The path does not take into account the installation directory, use
-     *     {@link #getPathDefaultConfigFile()} instead.
-     */
-    @Deprecated public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
-
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
     /**
@@ -286,6 +288,14 @@ public final class Constant {
     private static final String USER_CONTEXTS_DIR = "contexts";
     private static final String USER_POLICIES_DIR = "policies";
 
+    private static final String ZAP_CONTAINER_FILE = "/zap/container";
+    private static final String FLATPAK_FILE = "/.flatpak-info";
+    public static final String FLATPAK_NAME = "flatpak";
+    private static final String SNAP_FILE = "meta/snap.yaml";
+    public static final String SNAP_NAME = "snapcraft";
+    private static final String HOME_ENVVAR = "HOME";
+    public static final String WEBSWING_NAME = "webswing";
+
     //
     // Home dir for ZAP, i.e. where the config file is. Can be set on cmdline, otherwise will be set
     // to default loc
@@ -298,6 +308,9 @@ public final class Constant {
     private static String zapInstall = null;
 
     private static Boolean onKali = null;
+    private static Boolean onBackBox = null;
+    private static Boolean inContainer = null;
+    private static String containerName;
     private static Boolean lowMemoryOption = null;
 
     // ZAP: Added i18n
@@ -332,12 +345,6 @@ public final class Constant {
      * @since 2.4.0
      */
     public static final String VULNERABILITIES_PREFIX = "vulnerabilities";
-
-    /**
-     * @deprecated (2.4.0) Use {@link #VULNERABILITIES_PREFIX} instead. It will be removed in a
-     *     following release.
-     */
-    @Deprecated public static String VULNS_BASE = VULNERABILITIES_PREFIX;
 
     /**
      * Extension (with dot) of vulnerabilities.xml files.
@@ -696,6 +703,12 @@ public final class Constant {
                     }
                     if (ver <= V_2_9_0_TAG) {
                         upgradeFrom2_9_0(config);
+                    }
+                    if (ver <= V_2_10_0_TAG) {
+                        upgradeFrom2_10_0(config);
+                    }
+                    if (ver <= V_2_11_1_TAG) {
+                        upgradeFrom2_11_1(config);
                     }
 
                     // Execute always to pick installer choices.
@@ -1132,6 +1145,17 @@ public final class Constant {
                 OptionsParamView.LOOK_AND_FEEL_CLASS, OptionsParamView.DEFAULT_LOOK_AND_FEEL_CLASS);
     }
 
+    private static void upgradeFrom2_10_0(XMLConfiguration config) {
+        // Update to a newer default user agent
+        config.setProperty(
+                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
+    }
+
+    private static void upgradeFrom2_11_1(XMLConfiguration config) {
+        config.setProperty("view.largeRequest", null);
+        config.setProperty("view.largeResponse", null);
+    }
+
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
         String autoTagScannersKey = "pscans.autoTagScanners.scanner";
         List<HierarchicalConfiguration> tagScanners = config.configurationsAt(autoTagScannersKey);
@@ -1542,5 +1566,78 @@ public final class Constant {
             }
         }
         return onKali;
+    }
+
+    public static boolean isBackBox() {
+        if (onBackBox == null) {
+            onBackBox = Boolean.FALSE;
+            File issueFile = new File("/etc/issue");
+            if (isLinux() && !isDailyBuild() && issueFile.exists()) {
+                // Ignore the fact we're on BackBox if this is a daily build - they will only have
+                // been installed manually
+                try {
+                    String content = new String(Files.readAllBytes(issueFile.toPath()));
+                    if (content.startsWith("BackBox")) {
+                        onBackBox = Boolean.TRUE;
+                    }
+                } catch (Exception e) {
+                    // Ignore
+                }
+            }
+        }
+        return onBackBox;
+    }
+
+    /**
+     * Returns true if ZAP is running in a container like Docker or Flatpak
+     *
+     * @see #getContainerName
+     * @since 2.11.0
+     */
+    public static boolean isInContainer() {
+        if (inContainer == null) {
+            // This is created by the Docker files from 2.11
+            File containerFile = new File(ZAP_CONTAINER_FILE);
+            File flatpakFile = new File(FLATPAK_FILE);
+            File snapFile = new File(SNAP_FILE);
+            if (isLinux() && containerFile.exists()) {
+                inContainer = true;
+                String home = System.getenv(HOME_ENVVAR);
+                boolean inWebSwing = home != null && home.contains(WEBSWING_NAME);
+                try {
+                    containerName =
+                            new String(
+                                            Files.readAllBytes(containerFile.toPath()),
+                                            StandardCharsets.UTF_8)
+                                    .trim();
+                    if (inWebSwing) {
+                        // Append the webswing name so we don't loose the docker image name
+                        containerName += "." + WEBSWING_NAME;
+                    }
+                } catch (IOException e) {
+                    // Ignore
+                }
+            } else if (flatpakFile.exists()) {
+                inContainer = true;
+                containerName = FLATPAK_NAME;
+            } else if (snapFile.exists()) {
+                inContainer = true;
+                containerName = SNAP_NAME;
+            } else {
+                inContainer = false;
+            }
+        }
+        return inContainer;
+    }
+
+    /**
+     * Returns the name of the container ZAP is running in (if any) e.g. zap2docker-stable, flatpak
+     * or null if not running in a recognised container
+     *
+     * @since 2.11.0
+     */
+    public static String getContainerName() {
+        isInContainer();
+        return containerName;
     }
 }

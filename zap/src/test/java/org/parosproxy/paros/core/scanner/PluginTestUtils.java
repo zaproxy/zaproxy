@@ -20,6 +20,7 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Date;
+import java.util.Map;
 import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
@@ -434,6 +435,11 @@ class PluginTestUtils {
 
         @Override
         public Status getStatus() {
+            return null;
+        }
+
+        @Override
+        public Map<String, String> getAlertTags() {
             return null;
         }
     }

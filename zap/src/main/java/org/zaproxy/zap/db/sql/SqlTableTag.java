@@ -51,9 +51,6 @@ public class SqlTableTag extends SqlAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#read(long)
-     */
     @Override
     public synchronized RecordTag read(long tagId) throws DatabaseException {
         SqlPreparedStatementWrapper psRead = null;
@@ -71,9 +68,6 @@ public class SqlTableTag extends SqlAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#insert(long, java.lang.String)
-     */
     @Override
     public synchronized RecordTag insert(long historyId, String tag) throws DatabaseException {
         SqlPreparedStatementWrapper psInsertTag = null;
@@ -95,9 +89,6 @@ public class SqlTableTag extends SqlAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#delete(long, java.lang.String)
-     */
     @Override
     public synchronized void delete(long historyId, String tag) throws DatabaseException {
         SqlPreparedStatementWrapper psDeleteTag = null;
@@ -113,9 +104,6 @@ public class SqlTableTag extends SqlAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#getTagsForHistoryID(long)
-     */
     @Override
     public List<RecordTag> getTagsForHistoryID(long historyId) throws DatabaseException {
         SqlPreparedStatementWrapper psGetTagsForHistoryId = null;
@@ -139,9 +127,6 @@ public class SqlTableTag extends SqlAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#getAllTags()
-     */
     @Override
     public List<String> getAllTags() throws DatabaseException {
         SqlPreparedStatementWrapper psGetAllTags = null;
@@ -162,9 +147,6 @@ public class SqlTableTag extends SqlAbstractTable implements TableTag {
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableTag#deleteTagsForHistoryID(long)
-     */
     @Override
     public void deleteTagsForHistoryID(long historyId) throws DatabaseException {
         SqlPreparedStatementWrapper psDeleteTagsForHistoryId = null;

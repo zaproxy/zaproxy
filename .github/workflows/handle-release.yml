@@ -12,6 +12,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         fetch-depth: 0
+        persist-credentials: false
     - name: Setup Java 8
       uses: actions/setup-java@v1
       with:

@@ -34,7 +34,7 @@ class ApiUtilsUnitTest {
     private static final String HOST = "example.com";
 
     @Test
-    void shouldThrowNullPointerExceptionWhenGettingIntFromNullParams() throws Exception {
+    void shouldThrowNullPointerExceptionWhenGettingIntFromNullParams() {
         // Given
         JSONObject params = null;
         // When / Then
@@ -46,13 +46,9 @@ class ApiUtilsUnitTest {
         // Given
         String name = "ParamNotInObject";
         JSONObject params = new JSONObject();
-        try {
-            // When
-            ApiUtils.getIntParam(params, name);
-        } catch (ApiException e) {
-            // Then
-            assertThat(e.getType(), is(equalTo(ApiException.Type.MISSING_PARAMETER)));
-        }
+        // When / Then
+        ApiException e = assertThrows(ApiException.class, () -> ApiUtils.getIntParam(params, name));
+        assertThat(e.getType(), is(equalTo(ApiException.Type.MISSING_PARAMETER)));
     }
 
     @Test
@@ -61,13 +57,9 @@ class ApiUtilsUnitTest {
         String name = "ParamNotInt";
         JSONObject params = new JSONObject();
         params.put(name, "String");
-        try {
-            // When
-            ApiUtils.getIntParam(params, name);
-        } catch (ApiException e) {
-            // Then
-            assertThat(e.getType(), is(equalTo(ApiException.Type.ILLEGAL_PARAMETER)));
-        }
+        // When / Then
+        ApiException e = assertThrows(ApiException.class, () -> ApiUtils.getIntParam(params, name));
+        assertThat(e.getType(), is(equalTo(ApiException.Type.ILLEGAL_PARAMETER)));
     }
 
     @Test
@@ -84,7 +76,7 @@ class ApiUtilsUnitTest {
     }
 
     @Test
-    void shouldThrowNullPointerExceptionWhenGettingBooleanFromNullParams() throws Exception {
+    void shouldThrowNullPointerExceptionWhenGettingBooleanFromNullParams() {
         // Given
         JSONObject params = null;
         // When / Then
@@ -96,13 +88,10 @@ class ApiUtilsUnitTest {
         // Given
         String name = "ParamNotInObject";
         JSONObject params = new JSONObject();
-        try {
-            // When
-            ApiUtils.getBooleanParam(params, name);
-        } catch (ApiException e) {
-            // Then
-            assertThat(e.getType(), is(equalTo(ApiException.Type.MISSING_PARAMETER)));
-        }
+        // When / Then
+        ApiException e =
+                assertThrows(ApiException.class, () -> ApiUtils.getBooleanParam(params, name));
+        assertThat(e.getType(), is(equalTo(ApiException.Type.MISSING_PARAMETER)));
     }
 
     @Test
@@ -111,13 +100,10 @@ class ApiUtilsUnitTest {
         String name = "ParamNotBoolean";
         JSONObject params = new JSONObject();
         params.put(name, "String");
-        try {
-            // When
-            ApiUtils.getBooleanParam(params, name);
-        } catch (ApiException e) {
-            // Then
-            assertThat(e.getType(), is(equalTo(ApiException.Type.ILLEGAL_PARAMETER)));
-        }
+        // When / Then
+        ApiException e =
+                assertThrows(ApiException.class, () -> ApiUtils.getBooleanParam(params, name));
+        assertThat(e.getType(), is(equalTo(ApiException.Type.ILLEGAL_PARAMETER)));
     }
 
     @Test

@@ -1,4 +1,20 @@
 # This dockerfile builds the zap stable release
+FROM openjdk:8-jdk-alpine AS builder
+
+WORKDIR /zap
+
+RUN apk add --no-cache wget xmlstarlet bash
+
+# Download and expand the latest stable release
+RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
+	mv ZAP*/* . && \
+	rm -R ZAP*
+
+# Update add-ons
+RUN ./zap.sh -cmd -silent -addonupdate
+# Copy them to installation directory
+RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
+
 FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
@@ -27,7 +43,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade pip zapcli python-owasp-zap-v2.4 pyyaml
+RUN pip3 install --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3 zapcli
 
 RUN useradd -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
@@ -40,21 +56,20 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV WEBSWING_VERSION 21.1.3
+ENV WEBSWING_VERSION 21.2.8
 
-# Download and expand the latest stable release
-RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget -nv --content-disposition -i - -O - | tar zxv && \
-	cp -R ZAP*/* . &&  \
-	rm -R ZAP* && \
-	# Setup Webswing
-	if [ -z "$WEBSWING_URL" ] ; \
-	then curl -s -L  "https://storage.googleapis.com/builds.webswing.org/releases/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+# Setup Webswing
+RUN if [ -z "$WEBSWING_URL" ] ; \
+	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
 	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
 	mv webswing-* webswing && \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
+
+# Copy stable release
+COPY --from=builder /zap .
 
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
@@ -75,6 +90,8 @@ COPY policies /root/.ZAP/policies/
 # The scan script loads the scripts from dev home dir.
 COPY scripts /home/zap/.ZAP_D/scripts/
 COPY .xinitrc /home/zap/
+
+RUN echo "zap2docker-stable" > /zap/container
 
 #Copy doesn't respect USER directives so we need to chown and to do that we need to be root
 USER root

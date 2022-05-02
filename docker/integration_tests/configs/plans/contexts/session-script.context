@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+    <context>
+        <name>session-script.context</name>
+        <desc/>
+        <inscope>true</inscope>
+        <incregexes>https://www.example.com/.*</incregexes>
+        <excregexes>https://www.example.com/logout</excregexes>
+        <excregexes>https://www.example.com/status/.*</excregexes>
+        <tech>
+            <include>Db</include>
+            <include>Db.CouchDB</include>
+            <include>Db.Firebird</include>
+            <include>Db.HypersonicSQL</include>
+            <include>Db.IBM DB2</include>
+            <include>Db.Microsoft Access</include>
+            <include>Db.Microsoft SQL Server</include>
+            <include>Db.MongoDB</include>
+            <include>Db.MySQL</include>
+            <include>Db.Oracle</include>
+            <include>Db.PostgreSQL</include>
+            <include>Db.SAP MaxDB</include>
+            <include>Db.SQLite</include>
+            <include>Db.Sybase</include>
+            <include>Language</include>
+            <include>Language.ASP</include>
+            <include>Language.C</include>
+            <include>Language.JSP/Servlet</include>
+            <include>Language.Java</include>
+            <include>Language.Java.Spring</include>
+            <include>Language.JavaScript</include>
+            <include>Language.PHP</include>
+            <include>Language.Python</include>
+            <include>Language.Ruby</include>
+            <include>Language.XML</include>
+            <include>OS</include>
+            <include>OS.Linux</include>
+            <include>OS.MacOS</include>
+            <include>OS.Windows</include>
+            <include>SCM</include>
+            <include>SCM.Git</include>
+            <include>SCM.SVN</include>
+            <include>WS</include>
+            <include>WS.Apache</include>
+            <include>WS.IIS</include>
+            <include>WS.Tomcat</include>
+        </tech>
+        <urlparser>
+            <class>org.zaproxy.zap.model.StandardParameterParser</class>
+            <config>{"kvps":"&amp;","kvs":"=","struct":[]}</config>
+        </urlparser>
+        <postparser>
+            <class>org.zaproxy.zap.model.StandardParameterParser</class>
+            <config>{"kvps":"&amp;","kvs":"=","struct":[]}</config>
+        </postparser>
+        <authentication>
+            <type>0</type>
+            <strategy>EACH_RESP</strategy>
+            <pollurl/>
+            <polldata/>
+            <pollfreq>60</pollfreq>
+            <pollunits>REQUESTS</pollunits>
+        </authentication>
+        <forceduser>-1</forceduser>
+        <session>
+            <type>2</type>
+            <script>
+                <name>session-mgmt-script.js</name>
+                <params>YWFh:QUFB&amp;Y2Nj:Q0ND&amp;YmJi:QkJC&amp;ZGRk:RERE&amp;c2NyaXB0RW5naW5l:T3JhY2xlIE5hc2hvcm4=&amp;c2NyaXB0:L3phcC93cmsvY29uZmlncy9zY3JpcHRzL3Nlc3Npb24vc2Vzc2lvbi1tZ210LXNjcmlwdC5qcw==</params>
+            </script>
+        </session>
+        <authorization>
+            <type>0</type>
+            <basic>
+                <header/>
+                <body/>
+                <logic>AND</logic>
+                <code>-1</code>
+            </basic>
+        </authorization>
+    </context>
+</configuration>

@@ -25,7 +25,6 @@ import edu.umass.cs.benchlab.har.HarLog;
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -33,7 +32,6 @@ import java.nio.file.Paths;
 import java.security.KeyManagementException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -55,12 +53,9 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
-import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
@@ -83,7 +78,6 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.AlertAPI;
 import org.zaproxy.zap.extension.alert.AlertParam;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.model.StructuralNode;
@@ -276,7 +270,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] {PARAM_REGEX}));
         this.addApiAction(new ApiAction(ACTION_SET_HOME_DIRECTORY, new String[] {PARAM_DIR}));
         this.addApiAction(new ApiAction(ACTION_SET_MODE, new String[] {PARAM_MODE}));
-        this.addApiAction(new ApiAction(ACTION_GENERATE_ROOT_CA));
+        this.addApiAction(deprecatedNetworkApi(new ApiAction(ACTION_GENERATE_ROOT_CA)));
         this.addApiAction(
                 new ApiAction(
                         ACTION_SEND_REQUEST,
@@ -377,8 +371,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 null,
                                 new String[] {PARAM_BASE_URL, PARAM_RISK}))));
 
-        this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
-        this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
+        this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_PROXY_PAC, false)));
+        this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_ROOT_CERT, false)));
         this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_XML_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_HTML_REPORT)));
@@ -397,12 +391,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         new String[] {PARAM_REQUEST},
                         new String[] {PARAM_FOLLOW_REDIRECTS}));
 
-        this.addApiShortcut(OTHER_PROXY_PAC);
-        // this.addApiShortcut(OTHER_ROOT_CERT);
         this.addApiShortcut(OTHER_SET_PROXY);
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
         addApiOptions(this.connectionParam);
+    }
+
+    private <T extends ApiElement> T deprecatedNetworkApi(T element) {
+        return depreciatedApi(element, Constant.messages.getString("core.api.deprecated.network"));
     }
 
     private <T extends ApiElement> T depreciatedAlertApi(T element) {
@@ -468,7 +464,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                             } catch (Throwable e) {
                                 logger.error("An error occurred while shutting down:", e);
                             } finally {
-                                System.exit(0);
+                                System.exit(Control.getSingleton().getExitStatus());
                             }
                         }
                     };
@@ -662,16 +658,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_MODE);
             }
         } else if (ACTION_GENERATE_ROOT_CA.equals(name)) {
-            ExtensionDynSSL extDyn =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.class);
-            if (extDyn != null) {
-                try {
-                    extDyn.createNewRootCa();
-                } catch (Exception e) {
-                    logger.error("Failed to create the new Root CA cert:", e);
-                    throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-                }
-            }
+            return getNetworkImplementor().handleApiAction("generateRootCaCert", params);
         } else if (ACTION_SEND_REQUEST.equals(name)) {
             HttpMessage request;
             try {
@@ -868,6 +855,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         return ApiResponseElement.OK;
     }
 
+    private static ApiImplementor getNetworkImplementor() throws ApiException {
+        return API.getInstance().getImplementors().get("network");
+    }
+
     @Override
     public ApiResponse handleApiOptionAction(String name, JSONObject params) throws ApiException {
         if (ACTION_OPTION_USE_PROXY_CHAIN.equals(name)) {
@@ -1022,10 +1013,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     private static HttpSender createHttpSender() {
-        return new HttpSender(
-                Model.getSingleton().getOptionsParam().getConnectionParam(),
-                true,
-                HttpSender.MANUAL_REQUEST_INITIATOR);
+        return new HttpSender(HttpSender.MANUAL_REQUEST_INITIATOR);
     }
 
     private static void persistMessage(final HttpMessage message) {
@@ -1306,28 +1294,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             throws ApiException {
 
         if (OTHER_PROXY_PAC.equals(name)) {
-            final ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
-            final int port = proxyParam.getProxyPort();
-            try {
-                String domain = null;
-                if (proxyParam.isProxyIpAnyLocalAddress()) {
-                    String localDomain = msg.getRequestHeader().getHostName();
-                    if (!API.API_DOMAIN.equals(localDomain)) {
-                        domain = localDomain;
-                    }
-                }
-                if (domain == null) {
-                    domain = proxyParam.getProxyIp();
-                }
-                String response = this.getPacFile(domain, port);
-                msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
-
-                msg.setResponseBody(response);
-
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-            return msg;
+            return getNetworkImplementor().handleApiOther(msg, OTHER_PROXY_PAC, params);
         } else if (OTHER_SET_PROXY.equals(name)) {
             /* JSON string:
              *  {"type":1,
@@ -1375,36 +1342,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
             return msg;
         } else if (OTHER_ROOT_CERT.equals(name)) {
-            ExtensionDynSSL extDynSSL =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionDynSSL.class);
-            if (extDynSSL != null) {
-                try {
-                    Certificate rootCA = extDynSSL.getRootCA();
-                    if (rootCA == null) {
-                        throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
-                    }
-                    final StringWriter sw = new StringWriter();
-                    try (final PemWriter pw = new PemWriter(sw)) {
-                        pw.writeObject(new JcaMiscPEMGenerator(rootCA));
-                        pw.flush();
-                    }
-                    String response = sw.toString();
-                    msg.setResponseHeader(
-                            API.getDefaultResponseHeader(
-                                            "application/pkix-cert;", response.length())
-                                    + "Content-Disposition: attachment; filename=\"ZAPCACert.cer\"\r\n");
-
-                    msg.setResponseBody(response);
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                    throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-                }
-
-            } else {
-                throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
-            }
-
-            return msg;
+            return getNetworkImplementor().handleApiOther(msg, "rootCaCert", params);
         } else if (OTHER_XML_REPORT.equals(name)) {
             generateReport(msg, ScanReportType.XML);
             return msg;
@@ -1691,12 +1629,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     @Override
     public HttpMessage handleShortcut(HttpMessage msg) throws ApiException {
         try {
-            if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_PROXY_PAC)) {
-                return this.handleApiOther(msg, OTHER_PROXY_PAC, new JSONObject());
-            } else if (msg.getRequestHeader()
-                    .getURI()
-                    .getPath()
-                    .startsWith("/" + OTHER_SET_PROXY)) {
+            if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SET_PROXY)) {
                 JSONObject params = new JSONObject();
                 params.put(PARAM_PROXY_DETAILS, msg.getRequestBody().toString());
                 return this.handleApiOther(msg, OTHER_SET_PROXY, params);
@@ -1712,16 +1645,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         }
         throw new ApiException(
                 ApiException.Type.URL_NOT_FOUND, msg.getRequestHeader().getURI().toString());
-    }
-
-    private String getPacFile(String host, int port) {
-        // Could put in 'ignore urls'?
-        StringBuilder sb = new StringBuilder(100);
-        sb.append("function FindProxyForURL(url, host) {\n");
-        sb.append("  return \"PROXY ").append(host).append(':').append(port).append("\";\n");
-        sb.append("} // End of function\n");
-
-        return sb.toString();
     }
 
     private static void addUrlsToList(

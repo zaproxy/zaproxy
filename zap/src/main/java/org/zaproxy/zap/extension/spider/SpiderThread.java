@@ -119,24 +119,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
     private final String id;
 
-    /**
-     * Constructs a {@code SpiderThread} with the given data.
-     *
-     * @param extension the extension to obtain configurations and notify the view
-     * @param spiderParams the spider options
-     * @param site the name that identifies the target site
-     * @param listenner the scan listener
-     * @deprecated (2.6.0) Use {@link #SpiderThread(String, ExtensionSpider, SpiderParam, String,
-     *     ScanListenner)}
-     */
-    @Deprecated
-    public SpiderThread(
-            ExtensionSpider extension,
-            SpiderParam spiderParams,
-            String site,
-            ScanListenner listenner) {
-        this("?", extension, spiderParams, site, listenner);
-    }
+    private Date started;
+
+    private long timeTakenInMs;
 
     /**
      * Constructs a {@code SpiderThread} with the given data.
@@ -182,8 +167,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
     private void runScan() {
         // Do the scan
         spiderDone = 0;
-        Date start = new Date();
-        log.info("Starting spidering scan on " + site + " at " + start);
+        started = new Date();
+        log.info("Starting spidering scan on {} at {}", site, started);
         startSpider();
         this.isAlive = true;
     }
@@ -243,14 +228,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
     /** Start spider. */
     private void startSpider() {
 
-        spider =
-                new Spider(
-                        id,
-                        extension,
-                        spiderParams,
-                        extension.getModel().getOptionsParam().getConnectionParam(),
-                        extension.getModel(),
-                        this.scanContext);
+        spider = new Spider(id, extension, spiderParams, extension.getModel(), this.scanContext);
 
         // Register this thread as a Spider Listener, so it gets notified of events and is able
         // to manipulate the UI accordingly
@@ -418,10 +396,29 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
     @Override
     public void spiderComplete(boolean successful) {
-        log.info("Spider scanning complete: " + successful);
+        Date finished = new Date();
+        log.info("Spider scanning complete: {} on {} at {}", successful, site, finished);
+        this.timeTakenInMs = finished.getTime() - started.getTime();
         stopScan = true;
         this.isAlive = false;
         this.listenner.scanFinshed(site);
+    }
+
+    /**
+     * Returns the time taken in milliseconds. This will be total time taken if the scan has
+     * finished or the time taken so far if it is still running.
+     *
+     * @return the time taken in milliseconds
+     * @since 2.11.0
+     */
+    public long getTimeTakenInMs() {
+        if (this.timeTakenInMs > 0) {
+            return this.timeTakenInMs;
+        }
+        if (this.started != null) {
+            return System.currentTimeMillis() - started.getTime();
+        }
+        return 0;
     }
 
     @Override

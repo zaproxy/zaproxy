@@ -100,18 +100,6 @@ public class WikiAPIGenerator extends AbstractAPIGenerator {
         }
     }
 
-    /**
-     * Generates the wiki files of the given API implementors.
-     *
-     * @param implementors the implementors
-     * @throws IOException if an error occurred while generating the APIs.
-     * @deprecated (2.6.0) Use {@link #generateAPIFiles(List)} instead.
-     */
-    @Deprecated
-    public void generateWikiFiles(List<ApiImplementor> implementors) throws IOException {
-        generateAPIFiles(implementors);
-    }
-
     /** Generates the wiki files of the given API implementors. */
     @Override
     public void generateAPIFiles(List<ApiImplementor> implementors) throws IOException {

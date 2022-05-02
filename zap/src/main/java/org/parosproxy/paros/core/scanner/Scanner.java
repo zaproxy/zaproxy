@@ -52,6 +52,7 @@
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/04/23 Use new HttpSender constructor.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -88,8 +89,20 @@ import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.utils.Stats;
 
 public class Scanner implements Runnable {
+
+    public static final String ASCAN_SCAN_STARTED_STATS = "stats.ascan.started";
+    public static final String ASCAN_SCAN_STOPPED_STATS = "stats.ascan.stopped";
+    public static final String ASCAN_SCAN_TIME_STATS = "stats.ascan.time";
+    public static final String ASCAN_URLS_STATS = "stats.ascan.urls";
+    public static final String ASCAN_RULE_PREFIX = "stats.ascan.";
+    public static final String ALERTS_POSTFIX = ".alerts";
+    public static final String SKIPPED_POSTFIX = ".skipped";
+    public static final String STARTED_POSTFIX = ".started";
+    public static final String TIME_POSTFIX = ".time";
+    public static final String URLS_POSTFIX = ".urls";
 
     private static Logger log = LogManager.getLogger(Scanner.class);
     private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
@@ -99,7 +112,6 @@ public class Scanner implements Runnable {
     // ZAP: Added a list of scannerhooks
     private Vector<ScannerHook> hookList = new Vector<>();
     private ScannerParam scannerParam = null;
-    private ConnectionParam connectionParam = null;
     private ScanPolicy scanPolicy;
     private RuleConfigParam ruleConfigParam;
     private boolean isStop = false;
@@ -142,13 +154,27 @@ public class Scanner implements Runnable {
      * @param scanPolicy the scan policy
      * @param ruleConfigParam the rules' configurations, might be {@code null}.
      * @since 2.6.0
+     * @deprecated (2.12.0) Use {@link #Scanner(ScannerParam, ScanPolicy, RuleConfigParam)} instead.
      */
+    @Deprecated
     public Scanner(
             ScannerParam scannerParam,
             ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
-        this.connectionParam = param;
+        this(scannerParam, scanPolicy, ruleConfigParam);
+    }
+
+    /**
+     * Constructs a {@code Scanner}.
+     *
+     * @param scannerParam the scanner parameters
+     * @param scanPolicy the scan policy
+     * @param ruleConfigParam the rules' configurations, might be {@code null}.
+     * @since 2.12.0
+     */
+    public Scanner(
+            ScannerParam scannerParam, ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
         this.scannerParam = scannerParam;
         this.scanPolicy = scanPolicy;
         this.ruleConfigParam = ruleConfigParam;
@@ -174,6 +200,7 @@ public class Scanner implements Runnable {
         thread.start();
         ActiveScanEventPublisher.publishScanEvent(
                 ScanEventPublisher.SCAN_STARTED_EVENT, this.getId(), target, this.user);
+        Stats.incCounter(ASCAN_SCAN_STARTED_STATS);
     }
 
     public void stop() {
@@ -184,6 +211,7 @@ public class Scanner implements Runnable {
 
             ActiveScanEventPublisher.publishScanEvent(
                     ScanEventPublisher.SCAN_STOPPED_EVENT, this.getId());
+            Stats.incCounter(ASCAN_SCAN_STOPPED_STATS);
         }
     }
 
@@ -303,13 +331,7 @@ public class Scanner implements Runnable {
 
     private HostProcess createHostProcess(String hostAndPort, StructuralNode node) {
         HostProcess hostProcess =
-                new HostProcess(
-                        hostAndPort,
-                        this,
-                        scannerParam,
-                        connectionParam,
-                        scanPolicy,
-                        ruleConfigParam);
+                new HostProcess(hostAndPort, this, scannerParam, scanPolicy, ruleConfigParam);
         hostProcess.setStartNode(node);
         hostProcess.setUser(this.user);
         hostProcess.setTechSet(this.techSet);
@@ -379,6 +401,7 @@ public class Scanner implements Runnable {
 
         ActiveScanEventPublisher.publishScanEvent(
                 ScanEventPublisher.SCAN_COMPLETED_EVENT, this.getId());
+        Stats.incCounter(ASCAN_SCAN_TIME_STATS, diffTimeMillis);
 
         for (int i = 0; i < listenerList.size(); i++) {
             // ZAP: Removed unnecessary cast.

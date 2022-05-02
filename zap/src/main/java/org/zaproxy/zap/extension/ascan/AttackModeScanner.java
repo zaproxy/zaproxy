@@ -279,7 +279,6 @@ public class AttackModeScanner implements EventConsumer {
                     new AttackScan(
                             Constant.messages.getString("ascan.attack.scan"),
                             extension.getScannerParam(),
-                            extension.getModel().getOptionsParam().getConnectionParam(),
                             extension.getPolicyManager().getAttackScanPolicy(),
                             ruleConfigParam,
                             this);
@@ -288,7 +287,7 @@ public class AttackModeScanner implements EventConsumer {
                 if (scanStatus != null && scanStatus.getScanCount() != nodeStack.size()) {
                     updateCount();
                 }
-                if (nodeStack.size() == 0 || scanners.size() == scannerCount) {
+                if (nodeStack.isEmpty() || scanners.size() == scannerCount) {
                     if (scanners.size() > 0) {
                         // Check to see if any have finished
                         scannerComplete(-1);
@@ -308,7 +307,6 @@ public class AttackModeScanner implements EventConsumer {
                     Scanner scanner =
                             new Scanner(
                                     extension.getScannerParam(),
-                                    extension.getModel().getOptionsParam().getConnectionParam(),
                                     extension.getPolicyManager().getAttackScanPolicy(),
                                     ruleConfigParam);
                     scanner.setStartNode(node);

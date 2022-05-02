@@ -25,8 +25,6 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.core.proxy.ProxyParam;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 
 /**
@@ -72,7 +70,13 @@ class DaemonBootstrap extends HeadlessBootstrap {
 
                             @Override
                             public void run() {
-                                Control control = initControl();
+                                Control control;
+                                try {
+                                    control = initControl();
+                                } catch (IllegalStateException e) {
+                                    System.err.println("Failed to start ZAP. " + e.getMessage());
+                                    return;
+                                }
 
                                 warnAddOnsAndExtensionsNoLongerRunnable();
 
@@ -86,24 +90,6 @@ class DaemonBootstrap extends HeadlessBootstrap {
                                     control.runCommandLine();
                                 } catch (Exception e) {
                                     logger.error(e.getMessage(), e);
-                                }
-
-                                if (!control.getProxy().startServer()) {
-                                    // Failed to listen on the specified proxy, no point in
-                                    // continuing (an error will already have been shown)
-                                    return;
-                                }
-
-                                ProxyParam proxyParams =
-                                        Model.getSingleton().getOptionsParam().getProxyParam();
-                                String message =
-                                        "ZAP is now listening on "
-                                                + proxyParams.getRawProxyIP()
-                                                + ":"
-                                                + proxyParams.getProxyPort();
-                                logger.info(message);
-                                if (getArgs().isNoStdOutLog()) {
-                                    System.out.println(message);
                                 }
 
                                 HeadlessBootstrap.checkForUpdates();

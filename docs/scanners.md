@@ -36,7 +36,7 @@ Scanners:
 10017   Cross-domain JavaScript source file inclusion
 10018   Untrusted domains in JavaScript source code
 10019   Content-Type header missing
-10020   X-Frame-Options header not set
+10020   Anti-clickjacking Header
 10021   X-Content-Type-Options header missing
 10022   Information disclosure - database error messages [Deprecated]
 10023   Information disclosure - debug error messages
@@ -168,6 +168,10 @@ Scanners:
 40039   Web Cache Deception
 40040	CORS active scan rule
 40041   FileUpload Scanner
+40042   Spring Actuator Test
+40043   Log4Shell (CVE-2021-44228, CVE-2021-45046)
+40044   Exponential Entity Expansion (Billion Laughs Attack)
+40045   Spring4Shell (CVE-2022-22965)
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
@@ -232,6 +236,15 @@ Scanners:
 100022  Upload Form Discovery [Script]
 100023  Information Leak - X-Powered-By Header [Script]
 100024  Unauthenticated Gitlab SSRF (CVE-2021-22214) [Script]
+100025  Cross Site WebSocket Hijacking [Script]
+100026  JWT None Exploit [Script]
+100027  Test Insecure HTTP Verbs [Script]
+100028  User defined attacks [Script]
+100029  File Content Disclosure (CVE-2019-5418) [Script]
+100030  Good Old Files Lite [Script]
+100031  DNS Email Spoofing [Script]
+100032  WordPress Username Enumeration [Script]
+100033  Server Side Template Injection [Script]
 
 110000  Websocket Passive Scan scripts
 110001  Application Error Disclosure [Script]

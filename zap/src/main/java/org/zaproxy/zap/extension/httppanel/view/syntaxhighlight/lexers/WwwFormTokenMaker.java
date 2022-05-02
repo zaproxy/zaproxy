@@ -432,6 +432,7 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
      *
      * @throws java.io.IOException if the reader could not be closed.
      */
+    @Override
     public final void yyclose() throws java.io.IOException {
         // indicate end of file
         zzAtEOF = true;

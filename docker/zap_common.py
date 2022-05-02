@@ -589,12 +589,19 @@ def zap_set_scan_user(zap, username):
             return
     raise UserInputException('ZAP failed to find user: {0}'.format(username))
 
-def get_af_env(targets, debug):
+def get_af_env(targets, out_of_scope_dict, debug):
+    exclude = []
+    # '*' rules apply to all scan rules so can just be added to the context exclusions
+    if '*' in out_of_scope_dict:
+        for rule in out_of_scope_dict['*']:
+            exclude.append(rule.pattern)
+    
     return {
             'env': {
                 'contexts': [{
                     'name': 'baseline',
-                    'urls': targets
+                    'urls': targets,
+                    'excludePaths': exclude
                     }],
                 'parameters': {
                     'failOnError': True,
@@ -651,7 +658,7 @@ def get_af_report(template, dir, file, title, description):
             'reportDescription': description}
         }
 
-def get_af_output_summary(format, summaryFile, config_dict):
+def get_af_output_summary(format, summaryFile, config_dict, config_msg):
     obj = {
         'type': 'outputSummary',
         'parameters': {
@@ -660,6 +667,15 @@ def get_af_output_summary(format, summaryFile, config_dict):
         }
     rules = []
     for id, action in config_dict.items():
-        rules.append({'id': int(id), 'action': action})
+        if id in config_msg:
+            rules.append({'id': int(id), 'action': action, 'customMessage': config_msg[id]})
+        else:
+            rules.append({'id': int(id), 'action': action})
     obj['rules'] = rules
     return obj
+
+def get_af_alertFilter(alertFilters):
+    return {
+        'type': 'alertFilter',
+        'alertFilters': alertFilters
+    }

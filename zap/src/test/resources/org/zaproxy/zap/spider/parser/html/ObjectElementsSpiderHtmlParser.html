@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="http://example.com/sample/">
+    <meta charset="UTF-8">
+    <title>Object Elements - Spider HTML Parser</title>
+</head>
+<body>
+
+<!-- data -->
+<object data="//object.example.com/base/data"></object>
+<object data="http://object.example.com:8000/data"></object>
+<object data="https://object.example.com/data?a=b#fragment"></object>
+<object data="data/relative"></object>
+<object data=""></object>
+<object data="/data/absolute"></object>
+<object data="ftp://object.example.com/data"></object>
+
+<!-- codebase -->
+<object codebase="//object.example.com/codebase/scheme"></object>
+<object codebase="https://object.example.com/codebase?a=b#fragment"></object>
+<object codebase="codebase/relative"></object>
+<object codebase="/codebase/absolute"></object>
+
+<!-- ignored: -->
+<object></object>
+<object data="mailto:object@example.com"></object>
+<object data="javascript:hello();"></object>
+<object data="scheme://object.example.com/invalid"></object>
+
+</body>
+</html>

@@ -1,0 +1,47 @@
+name: Build and Run Integration Tests Docker
+on:
+  workflow_dispatch:
+  schedule:
+    # Every day at the 1am
+    - cron:  '0 1 * * *'
+
+jobs:
+  publish:
+    name: Build, Push and Run Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1 
+        with:
+          username: zapbot
+          password: ${{ secrets.ZAPBOT_DOCKER_TOKEN }}
+      -
+        name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          load: true
+          context: docker
+          file: docker/Dockerfile-tests
+          tags: |
+            owasp/zap2docker-tests:latest
+          build-args: |
+            WEBSWING_URL=${{ secrets.WEBSWING_URL }}
+      - 
+        run: docker push owasp/zap2docker-tests:latest
+      - 
+        name: Run install tests
+        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/install_tests.sh
+      - 
+        name: Run python tests
+        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/python_tests.sh
+      - 
+        name: Run baseline tests
+        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/baseline_tests.sh
+      - 
+        name: Automation Framework context tests
+        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/af_context_tests.sh
+      - 
+        name: Automation Framework plan tests
+        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/af_plan_tests.sh

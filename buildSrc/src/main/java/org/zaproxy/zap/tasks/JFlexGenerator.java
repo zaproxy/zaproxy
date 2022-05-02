@@ -92,14 +92,15 @@ public class JFlexGenerator extends SourceTask {
         ExecResult result =
                 getProject()
                         .javaexec(
-                                spec ->
-                                        spec.setClasspath(classpath)
-                                                .setMain("jflex.Main")
-                                                .args(args)
-                                                .setStandardOutput(System.out)
-                                                .setErrorOutput(System.err)
-                                                .setWorkingDir(
-                                                        getWorkingDir(source.getFile(), relPath)));
+                                spec -> {
+                                    spec.getMainClass().set("jflex.Main");
+                                    spec.setClasspath(classpath)
+                                            .args(args)
+                                            .setStandardOutput(System.out)
+                                            .setErrorOutput(System.err)
+                                            .setWorkingDir(
+                                                    getWorkingDir(source.getFile(), relPath));
+                                });
 
         result.assertNormalExitValue();
     }

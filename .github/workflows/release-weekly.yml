@@ -11,12 +11,12 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
+        persist-credentials: false
     - name: Setup Java
       uses: actions/setup-java@v1
       with:
         java-version: 11
     - name: Build and Release
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
       run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createWeeklyRelease

@@ -97,6 +97,10 @@
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/23 Expose getScannerParam() for tests.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/09/14 No longer force single threading if Anti CSRF handling turned on.
+// ZAP: 2021/09/30 Pass plugin to PluginStats instead of just the name.
+// ZAP: 2022/02/25 Remove code deprecated in 2.5.0
+// ZAP: 2022/04/23 Use new HttpSender constructor.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -249,12 +253,34 @@ public class HostProcess implements Runnable {
      * @param scanPolicy the scan policy
      * @param ruleConfigParam the rules' configurations, might be {@code null}.
      * @since 2.6.0
+     * @deprecated (2.12.0) Use {@link #HostProcess(String, Scanner, ScannerParam, ScanPolicy,
+     *     RuleConfigParam)} instead.
      */
+    @Deprecated
     public HostProcess(
             String hostAndPort,
             Scanner parentScanner,
             ScannerParam scannerParam,
             ConnectionParam connectionParam,
+            ScanPolicy scanPolicy,
+            RuleConfigParam ruleConfigParam) {
+        this(hostAndPort, parentScanner, scannerParam, scanPolicy, ruleConfigParam);
+    }
+
+    /**
+     * Constructs a {@code HostProcess}.
+     *
+     * @param hostAndPort the host:port value of the site that need to be processed
+     * @param parentScanner the scanner instance which instantiated this process
+     * @param scannerParam the session scanner parameters
+     * @param scanPolicy the scan policy
+     * @param ruleConfigParam the rules' configurations, might be {@code null}.
+     * @since 2.12.0
+     */
+    public HostProcess(
+            String hostAndPort,
+            Scanner parentScanner,
+            ScannerParam scannerParam,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
 
@@ -268,21 +294,11 @@ public class HostProcess implements Runnable {
         this.messagesIdsToAppScan = new ArrayList<>();
         this.startNodes = new ArrayList<>();
 
-        httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
+        httpSender = new HttpSender(HttpSender.ACTIVE_SCANNER_INITIATOR);
         httpSender.setUser(this.user);
         httpSender.setRemoveUserDefinedAuthHeaders(true);
 
-        int maxNumberOfThreads;
-        if (scannerParam.getHandleAntiCSRFTokens()) {
-            // Single thread if handling anti CSRF tokens, otherwise token requests might get out of
-            // step
-            maxNumberOfThreads = 1;
-
-        } else {
-            maxNumberOfThreads = scannerParam.getThreadPerHost();
-        }
-
-        threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
+        threadPool = new ThreadPool(scannerParam.getThreadPerHost(), "ZAP-ActiveScanner-");
         this.techSet = TechSet.getAllTech();
     }
 
@@ -327,7 +343,7 @@ public class HostProcess implements Runnable {
             pluginFactory.reset();
             synchronized (mapPluginStats) {
                 for (Plugin plugin : pluginFactory.getPending()) {
-                    mapPluginStats.put(plugin.getId(), new PluginStats(plugin.getName()));
+                    mapPluginStats.put(plugin.getId(), new PluginStats(plugin));
                 }
             }
 
@@ -744,17 +760,6 @@ public class HostProcess implements Runnable {
         return pluginStats.getProgress();
     }
 
-    /**
-     * @deprecated (2.5.0) No longer used/needed, Plugin's progress is automatically
-     *     updated/maintained by {@code HostProcess}.
-     * @param plugin unused
-     * @param value unused
-     */
-    @Deprecated
-    public void setTestCurrentCount(Plugin plugin, int value) {
-        // No longer used.
-    }
-
     /** @return Returns the httpSender. */
     public HttpSender getHttpSender() {
         return httpSender;
@@ -1111,6 +1116,7 @@ public class HostProcess implements Runnable {
             // Plugin was not processed
             return;
         }
+        pluginStats.stopped();
 
         StringBuilder sb = new StringBuilder();
         if (isStop()) {
@@ -1128,9 +1134,7 @@ public class HostProcess implements Runnable {
         }
 
         sb.append(hostAndPort).append(" | ").append(plugin.getCodeName());
-        long startTimeMillis = pluginStats.getStartTime();
-        long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
-        String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0);
+        String diffTimeString = decimalFormat.format(pluginStats.getTotalTime() / 1000.0);
         sb.append(" in ").append(diffTimeString).append('s');
         sb.append(" with ").append(pluginStats.getMessageCount()).append(" message(s) sent");
         sb.append(" and ").append(pluginStats.getAlertCount()).append(" alert(s) raised.");
@@ -1269,17 +1273,6 @@ public class HostProcess implements Runnable {
 
     public String getHostAndPort() {
         return this.hostAndPort;
-    }
-
-    /**
-     * @deprecated (2.5.0) No longer used/needed, Plugin's request count is automatically
-     *     updated/maintained by {@code HostProcess}.
-     * @param pluginId the ID of the plugin
-     * @param reqCount the number of requests sent
-     */
-    @Deprecated
-    public void setPluginRequestCount(int pluginId, int reqCount) {
-        // No longer used.
     }
 
     /**

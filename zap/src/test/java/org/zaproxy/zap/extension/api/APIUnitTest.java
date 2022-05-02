@@ -42,7 +42,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMessage;
@@ -710,8 +709,11 @@ class APIUnitTest {
         return optionsParamApi;
     }
 
-    private static ProxyParam createProxyParam(String proxyAddress, int proxyPort) {
-        ProxyParam proxyParam = new ProxyParam();
+    @SuppressWarnings("deprecation")
+    private static org.parosproxy.paros.core.proxy.ProxyParam createProxyParam(
+            String proxyAddress, int proxyPort) {
+        org.parosproxy.paros.core.proxy.ProxyParam proxyParam =
+                new org.parosproxy.paros.core.proxy.ProxyParam();
         proxyParam.load(new ZapXmlConfiguration());
         proxyParam.setProxyIp(proxyAddress);
         proxyParam.setProxyPort(proxyPort);

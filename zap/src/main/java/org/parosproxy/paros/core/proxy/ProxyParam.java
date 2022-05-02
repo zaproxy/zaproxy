@@ -42,6 +42,9 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/08 Use isEmpty where applicable.
+// ZAP: 2022/02/09 Deprecate the class.
+// ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
@@ -54,7 +57,11 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.SSLConnector;
 
-/** @author simon */
+/**
+ * @author simon
+ * @deprecated (2.12.0) Use the network add-on instead.
+ */
+@Deprecated
 public class ProxyParam extends AbstractParam {
 
     //	private static final String PROXY = "proxy";
@@ -182,8 +189,6 @@ public class ProxyParam extends AbstractParam {
             return;
         }
         this.proxyIp = proxyIp.trim();
-        getConfig().setProperty(PROXY_IP, this.proxyIp);
-        determineProxyIpAnyLocalAddress();
     }
 
     public int getProxyPort() {
@@ -192,7 +197,6 @@ public class ProxyParam extends AbstractParam {
 
     public void setProxyPort(int proxyPort) {
         this.proxyPort = proxyPort;
-        getConfig().setProperty(PROXY_PORT, Integer.toString(this.proxyPort));
     }
 
     public String getReverseProxyIp() {
@@ -238,34 +242,6 @@ public class ProxyParam extends AbstractParam {
 
         useReverseProxy = 0;
         getConfig().setProperty(USE_REVERSE_PROXY, Integer.toString(useReverseProxy));
-    }
-
-    /**
-     * Sets whether the proxy should modify/remove the "Accept-Encoding" request-header field or
-     * not.
-     *
-     * @param modifyAcceptEncodingHeader {@code true} if the proxy should modify/remove the
-     *     "Accept-Encoding" request-header field, {@code false} otherwise
-     * @deprecated (2.6.0) Use {@link #setRemoveUnsupportedEncodings(boolean)} instead.
-     * @since 2.0.0
-     */
-    @Deprecated
-    public void setModifyAcceptEncodingHeader(boolean modifyAcceptEncodingHeader) {
-        setRemoveUnsupportedEncodings(modifyAcceptEncodingHeader);
-    }
-
-    /**
-     * Tells whether the proxy should modify/remove the "Accept-Encoding" request-header field or
-     * not.
-     *
-     * @return {@code true} if the proxy should modify/remove the "Accept-Encoding" request-header
-     *     field, {@code false} otherwise
-     * @deprecated (2.6.0) Use {@link #isRemoveUnsupportedEncodings()} instead.
-     * @since 2.0.0
-     */
-    @Deprecated
-    public boolean isModifyAcceptEncodingHeader() {
-        return isRemoveUnsupportedEncodings();
     }
 
     /**
@@ -366,7 +342,7 @@ public class ProxyParam extends AbstractParam {
 
     private void loadSecurityProtocolsEnabled() {
         List<Object> protocols = getConfig().getList(ALL_SECURITY_PROTOCOLS_ENABLED_KEY);
-        if (protocols.size() != 0) {
+        if (!protocols.isEmpty()) {
             securityProtocolsEnabled = new String[protocols.size()];
             securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
             setServerEnabledProtocols();

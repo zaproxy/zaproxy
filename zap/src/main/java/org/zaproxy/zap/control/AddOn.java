@@ -322,40 +322,13 @@ public class AddOn {
      */
     private HelpSetData helpSetData = HelpSetData.EMPTY_HELP_SET;
 
-    private static final Logger logger = LogManager.getLogger(AddOn.class);
-
     /**
-     * Tells whether or not the given file name matches the name of a ZAP add-on.
-     *
-     * <p>The file name must have the format "{@code <id>-<status>-<version>.zap}". The {@code id}
-     * is a string, the {@code status} must be a value from {@link Status} and the {@code version}
-     * must be an integer.
-     *
-     * @param fileName the name of the file to check
-     * @return {@code true} if the given file name is the name of an add-on, {@code false}
-     *     otherwise.
-     * @deprecated (2.6.0) Use {@link #isAddOnFileName(String)} instead, the checks done in this
-     *     method are more strict than it needs to.
-     * @see #isAddOnFileName(String)
+     * Flag that indicates if the add-on is mandatory, add-ons needed to start ZAP and that can't be
+     * uninstalled.
      */
-    @Deprecated
-    public static boolean isAddOn(String fileName) {
-        if (!isAddOnFileName(fileName)) {
-            return false;
-        }
-        if (fileName.substring(0, fileName.indexOf(".")).split("-").length < 3) {
-            return false;
-        }
-        String[] strArray = fileName.substring(0, fileName.indexOf(".")).split("-");
-        try {
-            Status.valueOf(strArray[1]);
-            Integer.parseInt(strArray[2]);
-        } catch (Exception e) {
-            return false;
-        }
+    private boolean mandatory;
 
-        return true;
-    }
+    private static final Logger logger = LogManager.getLogger(AddOn.class);
 
     /**
      * Tells whether or not the given file name matches the name of a ZAP add-on.
@@ -372,18 +345,6 @@ public class AddOn {
             return false;
         }
         return fileName.toLowerCase(Locale.ROOT).endsWith(FILE_EXTENSION);
-    }
-
-    /**
-     * Tells whether or not the given file is an add-on.
-     *
-     * @param f the file to be checked
-     * @return {@code true} if the given file is an add-on, {@code false} otherwise.
-     * @deprecated (2.6.0) Use {@link #isAddOn(Path)} instead.
-     */
-    @Deprecated
-    public static boolean isAddOn(File f) {
-        return isAddOn(f.toPath());
     }
 
     /**
@@ -494,44 +455,6 @@ public class AddOn {
     }
 
     /**
-     * Constructs an {@code AddOn} with the given file name.
-     *
-     * @param fileName the file name of the add-on
-     * @throws Exception if the file name is not valid.
-     * @deprecated (2.6.0) Use {@link #AddOn(Path)} instead.
-     */
-    @Deprecated
-    public AddOn(String fileName) throws Exception {
-        // Format is <name>-<status>-<version>.zap
-        if (!isAddOn(fileName)) {
-            throw new Exception("Invalid ZAP add-on file " + fileName);
-        }
-        String[] strArray = fileName.substring(0, fileName.indexOf(".")).split("-");
-        this.id = strArray[0];
-        this.name = this.id; // Will be overridden if theres a ZapAddOn.xml file
-        this.status = Status.valueOf(strArray[1]);
-        this.version = new Version(Integer.parseInt(strArray[2]) + ".0.0");
-    }
-
-    /**
-     * Constructs an {@code AddOn} from the given {@code file}.
-     *
-     * <p>The {@value #MANIFEST_FILE_NAME} ZIP file entry is read after validating that the add-on
-     * has a valid add-on file name.
-     *
-     * <p>The installation status of the add-on is 'not installed'.
-     *
-     * @param file the file of the add-on
-     * @throws Exception if the given {@code file} does not exist, does not have a valid add-on file
-     *     name or an error occurred while reading the {@code value #ZAP_ADD_ON_XML} ZIP file entry
-     * @deprecated (2.6.0) Use {@link #AddOn(Path)} instead.
-     */
-    @Deprecated
-    public AddOn(File file) throws Exception {
-        this(file.toPath());
-    }
-
-    /**
      * Constructs an {@code AddOn} from the given {@code file}.
      *
      * <p>The {@value #MANIFEST_FILE_NAME} ZIP file entry is read after validating that the add-on
@@ -553,6 +476,7 @@ public class AddOn {
         }
         this.id = extractAddOnId(file.getFileName().toString());
         this.file = file.toFile();
+        this.size = Files.size(file);
         readZapAddOnXmlFile(result.getManifest());
     }
 
@@ -1230,16 +1154,6 @@ public class AddOn {
     }
 
     /**
-     * @deprecated (2.4.0) Use {@link #calculateRunRequirements(Collection)} instead. Returns {@code
-     *     false}.
-     * @return {@code false} always.
-     */
-    @Deprecated
-    public boolean canLoad() {
-        return false;
-    }
-
-    /**
      * Tells whether or not this add-on can be loaded in the currently running ZAP version, as given
      * by {@code Constant.PROGRAM_VERSION}.
      *
@@ -1806,6 +1720,29 @@ public class AddOn {
      */
     public HelpSetData getHelpSetData() {
         return helpSetData;
+    }
+
+    /**
+     * Sets if this add-on is mandatory.
+     *
+     * <p><strong>Note:</strong> This method should be called only by bootstrap classes.
+     *
+     * @param mandatory {@code true} if the add-on is mandatory, {@code false} otherwise.
+     * @since 2.12.0
+     * @see #isMandatory()
+     */
+    public void setMandatory(boolean mandatory) {
+        this.mandatory = mandatory;
+    }
+
+    /**
+     * Tells whether or not this add-on is mandatory.
+     *
+     * @return {@code true} if the add-on is mandatory, {@code false} otherwise.
+     * @since 2.12.0
+     */
+    public boolean isMandatory() {
+        return mandatory;
     }
 
     /**

@@ -37,6 +37,7 @@ import java.util.Map;
  *
  * @author MaWoKi
  */
+@Deprecated
 public final class CachedSslCertifificateServiceImpl implements SslCertificateService {
 
     private static final SslCertificateService singleton = new CachedSslCertifificateServiceImpl();

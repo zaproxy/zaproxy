@@ -27,7 +27,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 public class GlobalExcludeURLParam extends AbstractParam {
@@ -225,7 +224,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
             this.enabledTokensNames = new ArrayList<>(defaultList.size());
         }
 
-        if (this.tokens.size() == 0) {
+        if (this.tokens.isEmpty()) {
             for (GlobalExcludeURLParamToken geu : defaultList) {
                 this.tokens.add(new GlobalExcludeURLParamToken(geu));
             }
@@ -259,9 +258,6 @@ public class GlobalExcludeURLParam extends AbstractParam {
 
         enabledTokens.trimToSize();
         this.enabledTokensNames = enabledTokens;
-
-        // after saving, force the proxy to refresh the URL lists.
-        Model.getSingleton().getSession().forceGlobalExcludeURLRefresh();
     }
 
     public void addToken(String regex) {

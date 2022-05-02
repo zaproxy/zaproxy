@@ -57,9 +57,6 @@ public class Spider {
     /** The spider parameters. */
     private SpiderParam spiderParam;
 
-    /** The connection parameters. */
-    private ConnectionParam connectionParam;
-
     /** The model. */
     private Model model;
 
@@ -139,28 +136,6 @@ public class Spider {
     private final String id;
 
     /**
-     * Instantiates a new spider.
-     *
-     * @param extension the extension
-     * @param spiderParam the spider param
-     * @param connectionParam the connection param
-     * @param model the model
-     * @param scanContext if a scan context is set, only URIs within the context are fetched and
-     *     processed
-     * @deprecated (2.6.0) Use {@link #Spider(String, ExtensionSpider, SpiderParam, ConnectionParam,
-     *     Model, Context)} instead.
-     */
-    @Deprecated
-    public Spider(
-            ExtensionSpider extension,
-            SpiderParam spiderParam,
-            ConnectionParam connectionParam,
-            Model model,
-            Context scanContext) {
-        this("?", extension, spiderParam, connectionParam, model, scanContext);
-    }
-
-    /**
      * Constructs a {@code Spider} with the given data.
      *
      * @param id the ID of the spider, usually a unique integer
@@ -171,7 +146,10 @@ public class Spider {
      * @param scanContext if a scan context is set, only URIs within the context are fetched and
      *     processed
      * @since 2.6.0
+     * @deprecated (2.12.0) Use {@link #Spider(String, ExtensionSpider, SpiderParam, Model,
+     *     Context)} instead.
      */
+    @Deprecated
     public Spider(
             String id,
             ExtensionSpider extension,
@@ -179,11 +157,30 @@ public class Spider {
             ConnectionParam connectionParam,
             Model model,
             Context scanContext) {
+        this(id, extension, spiderParam, model, scanContext);
+    }
+
+    /**
+     * Constructs a {@code Spider} with the given data.
+     *
+     * @param id the ID of the spider, usually a unique integer
+     * @param extension the extension
+     * @param spiderParam the spider param
+     * @param model the model
+     * @param scanContext if a scan context is set, only URIs within the context are fetched and
+     *     processed
+     * @since 2.12.0
+     */
+    public Spider(
+            String id,
+            ExtensionSpider extension,
+            SpiderParam spiderParam,
+            Model model,
+            Context scanContext) {
         super();
         log.info("Spider initializing...");
         this.id = id;
         this.spiderParam = spiderParam;
-        this.connectionParam = connectionParam;
         this.model = model;
         this.extension = extension;
         this.controller = new SpiderController(this, extension.getCustomParsers());
@@ -536,13 +533,10 @@ public class Spider {
                         new SpiderThreadFactory("ZAP-SpiderThreadPool-" + id + "-thread-"));
 
         // Initialize the HTTP sender
-        httpSender =
-                new HttpSender(
-                        connectionParam,
-                        connectionParam.isHttpStateEnabled()
-                                ? true
-                                : !spiderParam.isAcceptCookies(),
-                        HttpSender.SPIDER_INITIATOR);
+        httpSender = new HttpSender(HttpSender.SPIDER_INITIATOR);
+        httpSender.setUseGlobalState(
+                httpSender.isGlobalStateEnabled() || !spiderParam.isAcceptCookies());
+
         // Do not follow redirections because the request is not updated, the redirections will be
         // handled manually.
         httpSender.setFollowRedirect(false);
@@ -873,8 +867,7 @@ public class Spider {
         public SpiderThreadFactory(String namePrefix) {
             threadNumber = new AtomicInteger(1);
             this.namePrefix = namePrefix;
-            SecurityManager s = System.getSecurityManager();
-            group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+            group = Thread.currentThread().getThreadGroup();
         }
 
         @Override

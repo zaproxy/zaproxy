@@ -98,6 +98,10 @@ public abstract class HttpPanelSyntaxHighlightTextView
         mainPanel.add(scrollPane, BorderLayout.CENTER);
     }
 
+    protected JPanel getMainPanel() {
+        return mainPanel;
+    }
+
     protected abstract HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea();
 
     protected HttpPanelSyntaxHighlightTextArea getHttpPanelTextArea() {
@@ -172,12 +176,16 @@ public abstract class HttpPanelSyntaxHighlightTextView
             httpPanelTextArea.discardAllEdits();
         }
 
-        httpPanelTextArea.setText(model.getData());
+        setModelData(model.getData());
         httpPanelTextArea.setCaretPosition(0);
 
         if (empty || !isEditable) {
             httpPanelTextArea.discardAllEdits();
         }
+    }
+
+    protected void setModelData(String data) {
+        httpPanelTextArea.setText(data);
     }
 
     @Override

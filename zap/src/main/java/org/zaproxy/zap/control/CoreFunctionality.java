@@ -54,7 +54,7 @@ public final class CoreFunctionality {
     private static List<AbstractPlugin> builtInActiveScanRules;
     private static List<PluginPassiveScanner> builtInPassiveScanRules;
 
-    private CoreFunctionality() {
+    static {
         // Register core event bus publishers asap
         ActiveScanEventPublisher.getPublisher();
         AlertEventPublisher.getPublisher();
@@ -87,7 +87,6 @@ public final class CoreFunctionality {
                     new org.parosproxy.paros.extension.manualrequest
                             .ExtensionManualRequestEditor());
             extensions.add(new org.parosproxy.paros.extension.option.ExtensionOption());
-            extensions.add(new org.parosproxy.paros.extension.state.ExtensionState());
             extensions.add(new org.zaproxy.zap.extension.alert.ExtensionAlert());
             extensions.add(new org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF());
             extensions.add(new org.zaproxy.zap.extension.api.ExtensionAPI());
@@ -96,9 +95,7 @@ public final class CoreFunctionality {
             extensions.add(new org.zaproxy.zap.extension.authorization.ExtensionAuthorization());
             extensions.add(new org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate());
             extensions.add(new org.zaproxy.zap.extension.brk.ExtensionBreak());
-            extensions.add(new org.zaproxy.zap.extension.callback.ExtensionCallback());
             extensions.add(new org.zaproxy.zap.extension.compare.ExtensionCompare());
-            extensions.add(new org.zaproxy.zap.extension.dynssl.ExtensionDynSSL());
             extensions.add(new org.zaproxy.zap.extension.ext.ExtensionExtension());
             extensions.add(new org.zaproxy.zap.extension.forceduser.ExtensionForcedUser());
             extensions.add(
@@ -112,12 +109,6 @@ public final class CoreFunctionality {
             extensions.add(
                     new org.zaproxy.zap.extension.httppanel.view.image
                             .ExtensionHttpPanelImageView());
-            extensions.add(
-                    new org.zaproxy.zap.extension.httppanel.view.largerequest
-                            .ExtensionHttpPanelLargeRequestView());
-            extensions.add(
-                    new org.zaproxy.zap.extension.httppanel.view.largeresponse
-                            .ExtensionHttpPanelLargeResponseView());
             extensions.add(
                     new org.zaproxy.zap.extension.httppanel.view.paramtable
                             .ExtensionHttpPanelRequestFormTableView());
@@ -134,7 +125,6 @@ public final class CoreFunctionality {
             extensions.add(new org.zaproxy.zap.extension.keyboard.ExtensionKeyboard());
             extensions.add(new org.zaproxy.zap.extension.log4j.ExtensionLog4j());
             extensions.add(new org.zaproxy.zap.extension.params.ExtensionParams());
-            extensions.add(new org.zaproxy.zap.extension.proxies.ExtensionProxies());
             extensions.add(new org.zaproxy.zap.extension.pscan.ExtensionPassiveScan());
             extensions.add(new org.zaproxy.zap.extension.ruleconfig.ExtensionRuleConfig());
             extensions.add(new org.zaproxy.zap.extension.script.ExtensionScript());

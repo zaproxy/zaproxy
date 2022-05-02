@@ -74,6 +74,7 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
  * @author MaWoKi
  * @see CachedSslCertifificateServiceImpl for a cached SslCertificateService
  */
+@Deprecated
 public final class SslCertificateServiceImpl implements SslCertificateService {
 
     /**

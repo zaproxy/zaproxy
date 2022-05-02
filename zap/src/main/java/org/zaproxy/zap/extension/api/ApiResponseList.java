@@ -60,7 +60,7 @@ public class ApiResponseList extends ApiResponse {
     }
 
     public Class<? extends ApiResponse> getItemsClass() {
-        if (this.list == null || this.list.size() == 0) {
+        if (this.list == null || this.list.isEmpty()) {
             return null;
         }
         return this.list.get(0).getClass();

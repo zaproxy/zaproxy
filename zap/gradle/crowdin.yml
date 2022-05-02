@@ -12,4 +12,9 @@ projects:
         includes:
           - pattern: "Messages.properties"
           - pattern: "vulnerabilities.xml"
+            translatableElements:
+              - "//alert"
+              - "//desc"
+              - "//reference"
+              - "//solution"
 

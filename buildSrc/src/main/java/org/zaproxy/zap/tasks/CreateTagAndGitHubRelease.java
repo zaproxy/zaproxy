@@ -44,9 +44,6 @@ public abstract class CreateTagAndGitHubRelease extends CreateGitHubRelease {
     }
 
     @Input
-    public abstract Property<GitHubUser> getUser();
-
-    @Input
     public abstract Property<String> getTagMessage();
 
     @Override

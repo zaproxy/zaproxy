@@ -24,6 +24,7 @@
 // implementations
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2021/08/24 Remove the "(non-Javadoc)" comments.
 package org.parosproxy.paros.db.paros;
 
 import java.sql.Connection;
@@ -86,9 +87,6 @@ public class ParosTableSession extends ParosAbstractTable implements TableSessio
     }
     */
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSession#insert(long, java.lang.String)
-     */
     @Override
     public synchronized void insert(long sessionId, String sessionName) throws DatabaseException {
         try {
@@ -100,9 +98,6 @@ public class ParosTableSession extends ParosAbstractTable implements TableSessio
         }
     }
 
-    /* (non-Javadoc)
-     * @see org.parosproxy.paros.db.paros.TableSession#update(long, java.lang.String)
-     */
     @Override
     public synchronized void update(long sessionId, String sessionName) throws DatabaseException {
         try {

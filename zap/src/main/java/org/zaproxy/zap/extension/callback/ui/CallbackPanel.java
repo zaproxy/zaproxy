@@ -32,10 +32,11 @@ import javax.swing.JToolBar;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
-import org.zaproxy.zap.extension.callback.ExtensionCallback;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 
+/** @deprecated (2.11.0) Superseded by the OAST add-on. */
+@Deprecated
 public class CallbackPanel extends AbstractPanel {
 
     private static final long serialVersionUID = 1L;
@@ -45,9 +46,9 @@ public class CallbackPanel extends AbstractPanel {
     private JScrollPane scrollPane = null;
     private CallbackTable resultsTable = null;
     private CallbackTableModel model = null;
-    private ExtensionCallback extensionCallback;
+    private org.zaproxy.zap.extension.callback.ExtensionCallback extensionCallback;
 
-    public CallbackPanel(ExtensionCallback extensionCallback) {
+    public CallbackPanel(org.zaproxy.zap.extension.callback.ExtensionCallback extensionCallback) {
         super();
         this.extensionCallback = extensionCallback;
         initialize();

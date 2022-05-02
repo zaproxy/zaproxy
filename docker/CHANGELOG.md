@@ -1,6 +1,40 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2022-04-11
+ - Updated to use Webswing 21.2.8
+
+### 2022-03-28
+ - Added awscli to all of the docker images except 'bare'.
+
+### 2021-12-27
+ - Updated to use Webswing 21.2.5
+
+### 2021-12-16
+ - Updated to use Webswing 21.2.4
+
+### 2021-11-03
+ - Fixed issue with automation updates by install updates in a separate ZAP inline call.
+
+### 2021-10-08
+ - Changed the packaged scans to always update all add-ons on start up to avoid a bug in the automation framework breaking plans
+
+### 2021-10-05
+ - Fixed bug which caused the baseline scan to fail if a read-only mapped drive was used.
+
+### 2021-09-21
+ - Updated the Baseline scan to use the Automation Framework for the "-c config_file" and "-u config_url" options.
+
+### 2021-09-16
+ - Updated to use Webswing 21.1.5
+
+### 2021-09-15
+ - Added /zap/container file to make it easier to detect if we are running in a container like docker.
+
+### 2021-08-11
+ - Changed to enable integration tests, inc enabling the AF for the baseline `-c` option if the `--auto` flag is used before it.
+ - Added Automation Framework support for * OUTOFSCOPE baseline config file option.
+
 ### 2021-07-08
  - Changed to use user's home directory for the Automation Framework files so it will work for any user
 

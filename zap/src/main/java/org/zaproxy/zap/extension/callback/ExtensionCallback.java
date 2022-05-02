@@ -31,7 +31,6 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
-import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -44,17 +43,17 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
-import org.zaproxy.zap.extension.callback.ui.CallbackPanel;
-import org.zaproxy.zap.extension.callback.ui.CallbackRequest;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
+/** @deprecated (2.11.0) Superseded by the OAST add-on. */
+@Deprecated
 public class ExtensionCallback extends ExtensionAdaptor
         implements OptionsChangedListener, SessionChangedListener {
 
     private static final String TEST_PREFIX = "ZapTest";
     private static final String NAME = "ExtensionCallback";
 
-    private ProxyServer proxyServer;
+    private org.parosproxy.paros.core.proxy.ProxyServer proxyServer;
     private CallbackParam callbackParam;
     private OptionsCallbackPanel optionsCallbackPanel;
 
@@ -64,10 +63,10 @@ public class ExtensionCallback extends ExtensionAdaptor
     private int currentConfigPort;
 
     private static final Logger LOGGER = LogManager.getLogger(ExtensionCallback.class);
-    private CallbackPanel callbackPanel;
+    private org.zaproxy.zap.extension.callback.ui.CallbackPanel callbackPanel;
 
     public ExtensionCallback() {
-        proxyServer = new ProxyServer("ZAP-CallbackServer");
+        proxyServer = new org.parosproxy.paros.core.proxy.ProxyServer("ZAP-CallbackServer");
         proxyServer.addOverrideMessageProxyListener(new CallbackProxyListener());
     }
 
@@ -127,9 +126,9 @@ public class ExtensionCallback extends ExtensionAdaptor
         return scheme + "://" + hostname + ":" + actualPort + "/";
     }
 
-    private CallbackPanel getCallbackPanel() {
+    private org.zaproxy.zap.extension.callback.ui.CallbackPanel getCallbackPanel() {
         if (callbackPanel == null) {
-            callbackPanel = new CallbackPanel(this);
+            callbackPanel = new org.zaproxy.zap.extension.callback.ui.CallbackPanel(this);
         }
         return callbackPanel;
     }
@@ -234,7 +233,9 @@ public class ExtensionCallback extends ExtensionAdaptor
 
             for (int historyId : historyIds) {
                 HistoryReference historyReference = new HistoryReference(historyId);
-                CallbackRequest request = CallbackRequest.create(historyReference);
+                org.zaproxy.zap.extension.callback.ui.CallbackRequest request =
+                        org.zaproxy.zap.extension.callback.ui.CallbackRequest.create(
+                                historyReference);
                 getCallbackPanel().addCallbackRequest(request);
             }
         } catch (DatabaseException | HttpMalformedHeaderException e) {
@@ -371,7 +372,9 @@ public class ExtensionCallback extends ExtensionAdaptor
 
     private void callbackReceivedHandler(String handler, HttpMessage httpMessage) {
         try {
-            CallbackRequest request = CallbackRequest.create(handler, httpMessage);
+            org.zaproxy.zap.extension.callback.ui.CallbackRequest request =
+                    org.zaproxy.zap.extension.callback.ui.CallbackRequest.create(
+                            handler, httpMessage);
             getCallbackPanel().addCallbackRequest(request);
         } catch (HttpMalformedHeaderException | DatabaseException e) {
             LOGGER.warn("Failed to persist received callback:", e);

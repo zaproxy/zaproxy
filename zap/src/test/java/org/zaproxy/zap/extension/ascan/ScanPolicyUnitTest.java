@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.ascan;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.core.scanner.Plugin;
@@ -72,6 +73,48 @@ class ScanPolicyUnitTest extends WithConfigsTest {
         // Given
         ZapXmlConfiguration conf = new ZapXmlConfiguration();
         conf.setProperty(DEFAULT_SCANNER_STRENGTH_KEY, "NotValid");
+        // When
+        ScanPolicy scanPolicy = new ScanPolicy(conf);
+        // Then
+        assertThat(scanPolicy.getDefaultStrength(), is(equalTo(Plugin.AttackStrength.MEDIUM)));
+    }
+
+    @Test
+    void shouldThrowIfDefaultScannerLevelIsSetToDefault() throws Exception {
+        // Given
+        ScanPolicy scanPolicy = new ScanPolicy();
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> scanPolicy.setDefaultThreshold(Plugin.AlertThreshold.DEFAULT));
+    }
+
+    @Test
+    void shouldThrowIfDefaultScannerStrengthIsSetToDefault() throws Exception {
+        // Given
+        ScanPolicy scanPolicy = new ScanPolicy();
+        // When / Then
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> scanPolicy.setDefaultStrength(Plugin.AttackStrength.DEFAULT));
+    }
+
+    @Test
+    void shouldUseMediumIfDefaultScannerLevelFromConfigIsDefault() throws Exception {
+        // Given
+        ZapXmlConfiguration conf = new ZapXmlConfiguration();
+        conf.setProperty(DEFAULT_SCANNER_LEVEL_KEY, Plugin.AlertThreshold.DEFAULT.name());
+        // When
+        ScanPolicy scanPolicy = new ScanPolicy(conf);
+        // Then
+        assertThat(scanPolicy.getDefaultThreshold(), is(equalTo(Plugin.AlertThreshold.MEDIUM)));
+    }
+
+    @Test
+    void shouldUseMediumIfDefaultScannerStrengthFromConfigIsDefault() throws Exception {
+        // Given
+        ZapXmlConfiguration conf = new ZapXmlConfiguration();
+        conf.setProperty(DEFAULT_SCANNER_STRENGTH_KEY, Plugin.AttackStrength.DEFAULT.name());
         // When
         ScanPolicy scanPolicy = new ScanPolicy(conf);
         // Then

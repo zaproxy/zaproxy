@@ -49,8 +49,15 @@ import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.utils.Stats;
 
 public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner2 {
+
+    public static final String SPIDER_SCAN_STARTED_STATS = "stats.spider.started";
+    public static final String SPIDER_SCAN_STOPPED_STATS = "stats.spider.stopped";
+    public static final String SPIDER_SCAN_TIME_STATS = "stats.spider.time";
+    public static final String SPIDER_URL_FOUND_STATS = "stats.spider.url.found";
+    public static final String SPIDER_URL_ERROR_STATS = "stats.spider.url.error";
 
     private static enum State {
         NOT_STARTED,
@@ -111,29 +118,6 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
      * @see #addMessageToMessagesTableModel(SpiderTaskResult)
      */
     private SpiderMessagesTableModel messagesTableModel;
-
-    /**
-     * Constructs a {@code SpiderScan} with the given data.
-     *
-     * @param extension the extension to obtain configurations and notify the view
-     * @param spiderParams the spider options
-     * @param target the spider target
-     * @param spiderURI the starting URI, may be {@code null}.
-     * @param scanUser the user to be used in the scan, may be {@code null}.
-     * @param scanId the ID of the scan
-     * @deprecated (2.6.0) Use {@link #SpiderScan(ExtensionSpider, SpiderParam, Target, URI, User,
-     *     int, String)} instead.
-     */
-    @Deprecated
-    public SpiderScan(
-            ExtensionSpider extension,
-            SpiderParam spiderParams,
-            Target target,
-            URI spiderURI,
-            User scanUser,
-            int scanId) {
-        this(extension, spiderParams, target, spiderURI, scanUser, scanId, "SpiderScan" + scanId);
-    }
 
     /**
      * Constructs a {@code SpiderScan} with the given data.
@@ -229,6 +213,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
                 state = State.RUNNING;
                 SpiderEventPublisher.publishScanEvent(
                         ScanEventPublisher.SCAN_STARTED_EVENT, this.scanId, this.target, user);
+                Stats.incCounter(SPIDER_SCAN_STARTED_STATS);
             }
         } finally {
             lock.unlock();
@@ -290,6 +275,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
                 state = State.FINISHED;
                 SpiderEventPublisher.publishScanEvent(
                         ScanEventPublisher.SCAN_STOPPED_EVENT, this.scanId);
+                Stats.incCounter(SPIDER_SCAN_STOPPED_STATS);
             }
         } finally {
             lock.unlock();
@@ -366,8 +352,10 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
         if (msg.isResponseFromTargetHost()) {
             resourcesFound.add(resource);
+            Stats.incCounter(SPIDER_URL_FOUND_STATS);
         } else {
             resourcesIoErrors.add(resource);
+            Stats.incCounter(SPIDER_URL_ERROR_STATS);
         }
 
         if (View.isInitialised()) {
@@ -444,7 +432,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
+        // Nothing to do.
     }
 
     @Override
@@ -499,6 +487,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
     @Override
     public void scanFinshed(String host) {
         this.spiderComplete(true);
+        Stats.incCounter(SPIDER_SCAN_TIME_STATS, this.spiderThread.getTimeTakenInMs());
     }
 
     @Override

@@ -20,46 +20,42 @@
 package org.zaproxy.zap.extension.autoupdate;
 
 import java.io.File;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 
 public class DownloadManager extends Thread {
     private static final Logger logger = LogManager.getLogger(DownloadManager.class);
-    private List<Downloader> currentDownloads = new ArrayList<>();
-    private List<Downloader> completedDownloads = new ArrayList<>();
+    private final int initiator;
+    private Collection<Downloader> currentDownloads = new ConcurrentLinkedQueue<>();
+    private Collection<Downloader> completedDownloads = new ConcurrentLinkedQueue<>();
     private boolean shutdown = false;
     private boolean cancelDownloads = false;
-    private ConnectionParam connectionParam;
 
+    /** @deprecated (2.12.0) */
+    @Deprecated
     public DownloadManager(ConnectionParam connectionParam) {
+        this(HttpSender.CHECK_FOR_UPDATES_INITIATOR);
+    }
+
+    DownloadManager(int initiator) {
         super("ZAP-DownloadManager");
-        this.connectionParam = connectionParam;
         setDaemon(true);
+        this.initiator = initiator;
     }
 
     public Downloader downloadFile(URL url, File targetFile, long size, String hash) {
         logger.debug("Download file " + url + " to " + targetFile.getAbsolutePath());
 
-        Proxy proxy;
-        if (connectionParam.isUseProxy(url.getHost())) {
-            InetSocketAddress socketAddress =
-                    new InetSocketAddress(
-                            connectionParam.getProxyChainName(),
-                            connectionParam.getProxyChainPort());
-            proxy = new Proxy(Proxy.Type.HTTP, socketAddress);
-        } else {
-            proxy = Proxy.NO_PROXY;
-        }
-
-        Downloader dl = new Downloader(url, proxy, targetFile, size, hash);
+        Downloader dl = new Downloader(url, targetFile, size, hash, initiator);
         dl.start();
         this.currentDownloads.add(dl);
         return dl;

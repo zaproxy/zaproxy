@@ -86,6 +86,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2020/12/09 Rely on the content encodings from the body to decode.
+// ZAP: 2022/02/09 Deprecate the class.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.BufferedInputStream;
@@ -121,14 +122,14 @@ import org.parosproxy.paros.network.HttpOutputStream;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.network.HttpUtil;
-import org.parosproxy.paros.security.MissingRootCertificateException;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpRequestConfig;
 
+/** @deprecated No longer used/needed. It will be removed in a future release. */
+@Deprecated
 public class ProxyThread implements Runnable {
 
     //	private static final int		BUFFEREDSTREAM_SIZE = 4096;
@@ -219,13 +220,14 @@ public class ProxyThread implements Runnable {
      * @param targethost the host where you want to connect to
      * @throws IOException if an error occurred while establishing the SSL/TLS connection
      */
+    @SuppressWarnings("deprecation")
     private void beginSSL(String targethost) throws IOException {
         // ZAP: added parameter 'targethost'
         try {
             inSocket = HttpSender.getSSLConnector().createTunnelServerSocket(targethost, inSocket);
-        } catch (MissingRootCertificateException e) {
-            throw new MissingRootCertificateException(
-                    e); // throw again, cause will be catched later.
+        } catch (org.parosproxy.paros.security.MissingRootCertificateException e) {
+            // throw again, cause will be caught later.
+            throw new org.parosproxy.paros.security.MissingRootCertificateException(e);
         } catch (Exception e) {
             StringBuilder strBuilder = new StringBuilder(125);
             strBuilder.append("Error while establishing SSL connection for ");
@@ -275,6 +277,7 @@ public class ProxyThread implements Runnable {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void run() {
         proxyThreadList.add(thread);
         boolean isSecure = false;
@@ -317,7 +320,7 @@ public class ProxyThread implements Runnable {
                     firstHeader = httpIn.readRequestHeader(isSecure);
                     firstHeader.setSenderAddress(inSocket.getInetAddress());
                     processHttp(firstHeader, isSecure);
-                } catch (MissingRootCertificateException e) {
+                } catch (org.parosproxy.paros.security.MissingRootCertificateException e) {
                     // Unluckily Firefox and Internet Explorer will not show this message.
                     // We should find a way to let the browsers display this error message.
                     // May we can redirect to some kind of ZAP custom error page.
@@ -683,7 +686,7 @@ public class ProxyThread implements Runnable {
             }
         }
 
-        HttpUtil.closeSocket(inSocket);
+        org.parosproxy.paros.network.HttpUtil.closeSocket(inSocket);
 
         if (httpSender != null) {
             httpSender.shutdown();

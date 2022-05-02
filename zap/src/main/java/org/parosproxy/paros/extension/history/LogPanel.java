@@ -52,6 +52,8 @@
 // ZAP: 2020/01/02 Allow to set if messages are displayed.
 // ZAP: 2020/07/09 Removed unused variable (and related import) and remove boilerplate javadoc for
 // getScrollLog()
+// ZAP: 2022/02/26 Remove code deprecated in 2.5.0
+// ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -75,8 +77,6 @@ import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.TableExportButton;
 import org.zaproxy.zap.view.DeselectableButtonGroup;
@@ -107,12 +107,6 @@ public class LogPanel extends AbstractPanel {
     private TableExportButton<HistoryReferencesTable> exportButton;
 
     private final ViewDelegate view;
-
-    /** @deprecated (2.5.0) Use {@link #LogPanel(ViewDelegate)} instead. */
-    @Deprecated
-    public LogPanel() {
-        this(View.getSingleton());
-    }
 
     public LogPanel(ViewDelegate view) {
         super();
@@ -388,15 +382,6 @@ public class LogPanel extends AbstractPanel {
     protected void display(final HistoryReference historyRef) {
         getHistoryReferenceTable().selectHistoryReference(historyRef.getHistoryId());
     }
-
-    /** @deprecated (2.6.0) No longer used/needed. */
-    @Deprecated
-    public void clearDisplayQueue() {}
-
-    /** @deprecated (2.5.0) No longer used/needed. */
-    @Deprecated
-    @SuppressWarnings("javadoc")
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {}
 
     public void setFilterStatus(HistoryFilter filter) {
         filterStatus.setText(filter.toShortString());

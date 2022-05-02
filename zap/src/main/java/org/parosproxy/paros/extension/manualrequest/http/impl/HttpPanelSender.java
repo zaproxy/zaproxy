@@ -82,6 +82,7 @@ public class HttpPanelSender implements MessageSender {
         extAntiCSRF =
                 Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
 
+        delegate = new HttpSender(HttpSender.MANUAL_REQUEST_INITIATOR);
         requestPanel.addOptions(
                 getButtonUseTrackingSessionState(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(getButtonUseCookies(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
@@ -93,9 +94,7 @@ public class HttpPanelSender implements MessageSender {
             requestPanel.addOptions(getButtonUseCsrf(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         }
 
-        final boolean isSessionTrackingEnabled =
-                Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
-        getButtonUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
+        updateButtonTrackingSessionState();
     }
 
     @Override
@@ -112,18 +111,17 @@ public class HttpPanelSender implements MessageSender {
             boolean followRedirects = getButtonFollowRedirects().isSelected();
 
             if (extAntiCSRF != null && getButtonUseCsrf().isSelected()) {
-                extAntiCSRF.regenerateAntiCsrfToken(httpMessage, getDelegate()::sendAndReceive);
+                extAntiCSRF.regenerateAntiCsrfToken(httpMessage, delegate::sendAndReceive);
             }
 
             if (followRedirects) {
-                getDelegate()
-                        .sendAndReceive(
-                                httpMessage,
-                                HttpRequestConfig.builder()
-                                        .setRedirectionValidator(redirectionValidator)
-                                        .build());
+                delegate.sendAndReceive(
+                        httpMessage,
+                        HttpRequestConfig.builder()
+                                .setRedirectionValidator(redirectionValidator)
+                                .build());
             } else {
-                getDelegate().sendAndReceive(httpMessage, false);
+                delegate.sendAndReceive(httpMessage, false);
             }
 
             EventQueue.invokeAndWait(
@@ -232,24 +230,7 @@ public class HttpPanelSender implements MessageSender {
     }
 
     @Override
-    public void cleanup() {
-        if (delegate != null) {
-            delegate.shutdown();
-            delegate = null;
-        }
-    }
-
-    private HttpSender getDelegate() {
-        if (delegate == null) {
-            delegate =
-                    new HttpSender(
-                            Model.getSingleton().getOptionsParam().getConnectionParam(),
-                            getButtonUseTrackingSessionState().isSelected(),
-                            HttpSender.MANUAL_REQUEST_INITIATOR);
-            delegate.setUseCookies(getButtonUseCookies().isSelected());
-        }
-        return delegate;
-    }
+    public void cleanup() {}
 
     private JToggleButton getButtonFollowRedirects() {
         if (followRedirect == null) {
@@ -278,7 +259,7 @@ public class HttpPanelSender implements MessageSender {
             useTrackingSessionState.setToolTipText(
                     Constant.messages.getString("manReq.checkBox.useSession"));
             useTrackingSessionState.addItemListener(
-                    e -> setUseTrackingSessionState(e.getStateChange() == ItemEvent.SELECTED));
+                    e -> delegate.setUseGlobalState(e.getStateChange() == ItemEvent.SELECTED));
         }
         return useTrackingSessionState;
     }
@@ -293,7 +274,7 @@ public class HttpPanelSender implements MessageSender {
                             true);
             useCookies.setToolTipText(Constant.messages.getString("manReq.checkBox.useCookies"));
             useCookies.addItemListener(
-                    e -> setUseCookies(e.getStateChange() == ItemEvent.SELECTED));
+                    e -> delegate.setUseCookies(e.getStateChange() == ItemEvent.SELECTED));
         }
         return useCookies;
     }
@@ -395,20 +376,13 @@ public class HttpPanelSender implements MessageSender {
         }
     }
 
-    private void setUseTrackingSessionState(boolean shouldUseTrackingSessionState) {
-        if (delegate != null) {
-            delegate.setUseGlobalState(shouldUseTrackingSessionState);
-        }
-    }
-
-    private void setUseCookies(boolean shouldUseCookies) {
-        if (delegate != null) {
-            delegate.setUseCookies(shouldUseCookies);
-        }
+    void updateButtonTrackingSessionState() {
+        setButtonTrackingSessionStateEnabled(delegate.isGlobalStateEnabled());
     }
 
     public void setButtonTrackingSessionStateEnabled(boolean enabled) {
         getButtonUseTrackingSessionState().setEnabled(enabled);
         getButtonUseTrackingSessionState().setSelected(enabled);
+        delegate.setUseGlobalState(enabled);
     }
 }

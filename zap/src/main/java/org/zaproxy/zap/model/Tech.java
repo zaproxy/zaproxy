@@ -49,6 +49,7 @@ public class Tech implements Comparable<Tech> {
     public static final Tech ASP = new Tech(Lang, "ASP");
     public static final Tech C = new Tech(Lang, "C");
     public static final Tech JAVA = new Tech(Lang, "Java");
+    public static final Tech SPRING = new Tech(JAVA, "Spring");
     public static final Tech JAVASCRIPT = new Tech(Lang, "JavaScript");
     public static final Tech JSP_SERVLET = new Tech(Lang, "JSP/Servlet");
     public static final Tech PHP = new Tech(Lang, "PHP");
@@ -91,6 +92,7 @@ public class Tech implements Comparable<Tech> {
                             ASP,
                             C,
                             JAVA,
+                            SPRING,
                             JAVASCRIPT,
                             JSP_SERVLET,
                             PHP,

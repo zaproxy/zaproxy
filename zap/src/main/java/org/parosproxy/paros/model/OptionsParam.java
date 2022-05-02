@@ -43,6 +43,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/25 Change the default value of userDirectory from null to the user's home directory.
+// ZAP: 2022/02/09 Deprecate methods related to core proxy options.
 package org.parosproxy.paros.model;
 
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
@@ -55,7 +56,6 @@ import org.apache.commons.lang3.SystemUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
@@ -74,7 +74,10 @@ public class OptionsParam extends AbstractParam {
     // ZAP: User directory now stored in the config file
     private static final String USER_DIR = "userDir";
 
-    private ProxyParam proxyParam = new ProxyParam();
+    @SuppressWarnings("deprecation")
+    private org.parosproxy.paros.core.proxy.ProxyParam proxyParam =
+            new org.parosproxy.paros.core.proxy.ProxyParam();
+
     private ConnectionParam connectionParam = new ConnectionParam();
     private OptionsParamView viewParam = new OptionsParamView();
     private OptionsParamCertificate certificateParam = new OptionsParamCertificate();
@@ -103,13 +106,21 @@ public class OptionsParam extends AbstractParam {
         return connectionParam;
     }
 
-    /** @return Returns the proxyParam. */
-    public ProxyParam getProxyParam() {
+    /**
+     * @deprecated (2.12.0) Use the network add-on instead.
+     * @return Returns the proxyParam.
+     */
+    @Deprecated
+    public org.parosproxy.paros.core.proxy.ProxyParam getProxyParam() {
         return proxyParam;
     }
 
-    /** @param proxyParam The proxyParam to set. */
-    public void setProxyParam(ProxyParam proxyParam) {
+    /**
+     * @deprecated (2.12.0) Use the network add-on instead.
+     * @param proxyParam The proxyParam to set.
+     */
+    @Deprecated
+    public void setProxyParam(org.parosproxy.paros.core.proxy.ProxyParam proxyParam) {
         this.proxyParam = proxyParam;
     }
 

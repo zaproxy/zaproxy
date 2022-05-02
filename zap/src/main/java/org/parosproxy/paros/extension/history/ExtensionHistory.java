@@ -93,6 +93,8 @@
 // ZAP: 2019/09/30 Use hasView().
 // ZAP: 2020/01/02 Do not display messages being deleted.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/02/09 Deprecate methods related to core proxy.
+// ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -108,7 +110,6 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -226,10 +227,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return logPanel;
     }
 
-    /** @deprecated (2.6.0) No longer used/needed. */
-    @Deprecated
-    public void clearLogPanelDisplayQueue() {}
-
     public HistoryReference getSelectedHistoryReference() {
         return getLogPanel().getSelectedHistoryReference();
     }
@@ -309,11 +306,15 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return proxyListener;
     }
 
-    public void registerProxy(ProxyServer ps) {
+    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    @Deprecated
+    public void registerProxy(org.parosproxy.paros.core.proxy.ProxyServer ps) {
         ps.addProxyListener(this.getProxyListenerLog());
     }
 
-    public void unregisterProxy(ProxyServer ps) {
+    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    @Deprecated
+    public void unregisterProxy(org.parosproxy.paros.core.proxy.ProxyServer ps) {
         ps.removeProxyListener(this.getProxyListenerLog());
     }
 

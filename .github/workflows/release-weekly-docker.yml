@@ -28,6 +28,6 @@ jobs:
             owasp/zap2docker-weekly:w${{ env.REL_DATE }}
             owasp/zap2docker-weekly:latest
           build-args: |
-            WEBSWING_TOKEN=${{ secrets.WEBSWING_TOKEN }}
+            WEBSWING_URL=${{ secrets.WEBSWING_URL }}
       - run: docker push owasp/zap2docker-weekly:w${{ env.REL_DATE }}
       - run: docker push owasp/zap2docker-weekly:latest

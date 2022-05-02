@@ -20,9 +20,9 @@
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.isEmptyString;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
@@ -76,7 +76,7 @@ public abstract class BodyStringHttpPanelViewModelTest<T1 extends HttpHeader, T2
         // When
         String data = model.getData();
         // Then
-        assertThat(data, isEmptyString());
+        assertThat(data, is(emptyString()));
     }
 
     @Test
