@@ -122,10 +122,13 @@ then
   echo "Setting debug: $JAVADEBUG"
 fi
 
+
 # Start ZAP; it's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
 if [ "$OS" = "Darwin" ]; then
   # It's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
   exec java ${JMEM} ${JAVAGC} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
+elif  compgen -G "$HOME/.ZAP/plugin/browserView*.zap" > /dev/null; then  
+    exec java --module-path /usr/share/openjfx/lib/ --add-modules javafx.swing,javafx.web  ${JMEM} ${JAVAGC} ${JAVADEBUG} -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
 else
   exec java ${JMEM} ${JAVAGC} ${JAVADEBUG} -jar "${BASEDIR}/@zapJar@" "${ARGS[@]}"
 fi
