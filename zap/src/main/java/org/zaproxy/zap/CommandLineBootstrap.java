@@ -100,7 +100,8 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
                     rc = 1;
                 }
             }
-
+        } catch (ShutdownRequestedException e) {
+            rc = 1;
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
             System.out.println(e.getMessage());
