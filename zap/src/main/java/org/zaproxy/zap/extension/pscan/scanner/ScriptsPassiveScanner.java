@@ -84,6 +84,11 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
                 });
     }
 
+    @Override
+    public ScriptsPassiveScanner copy() {
+        return new ScriptsPassiveScanner();
+    }
+
     private boolean appliesToCurrentHistoryType(ScriptWrapper wrapper, PassiveScript ps) {
         try {
             return ps.appliesToHistoryType(currentHistoryType);

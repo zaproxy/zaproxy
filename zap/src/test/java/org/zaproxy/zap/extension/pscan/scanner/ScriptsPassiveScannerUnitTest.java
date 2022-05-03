@@ -35,6 +35,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Locale;
@@ -46,12 +47,13 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PassiveScanData;
+import org.zaproxy.zap.extension.pscan.PassiveScanTaskHelper;
 import org.zaproxy.zap.extension.pscan.PassiveScanTestHelper;
-import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScript;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
@@ -117,17 +119,20 @@ class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
     }
 
     @Test
-    void shouldAddTagsWithParent() {
+    void shouldAddTagsWithTaskHelper() {
         // Given
         String tag = "Tag";
-        PassiveScanThread parent = mock(PassiveScanThread.class);
+        PassiveScanTaskHelper taskHelper = mock(PassiveScanTaskHelper.class);
+        HistoryReference href = mock(HistoryReference.class);
+        when(message.getHistoryRef()).thenReturn(href);
         ScriptsPassiveScanner scriptsPassiveScanner = new ScriptsPassiveScanner();
         PassiveScanTestHelper.init(
-                scriptsPassiveScanner, parent, message, mock(PassiveScanData.class));
+                scriptsPassiveScanner, null, message, mock(PassiveScanData.class));
+        scriptsPassiveScanner.setTaskHelper(taskHelper);
         // When
         scriptsPassiveScanner.addTag(tag);
         // Then
-        verify(parent).addTag(tag);
+        verify(taskHelper).addTag(href, tag);
     }
 
     @Test

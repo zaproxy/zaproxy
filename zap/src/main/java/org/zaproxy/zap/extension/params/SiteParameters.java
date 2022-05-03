@@ -30,6 +30,7 @@ import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
+import org.zaproxy.zap.utils.ThreadUtils;
 
 public class SiteParameters {
     private ExtensionParams extension;
@@ -117,7 +118,8 @@ public class SiteParameters {
         return params;
     }
 
-    public HtmlParameterStats addParam(String site, HtmlParameter param, HttpMessage msg) {
+    public synchronized HtmlParameterStats addParam(
+            String site, HtmlParameter param, HttpMessage msg) {
         Map<String, HtmlParameterStats> params = null;
         HtmlParameterStats p;
 
@@ -169,7 +171,7 @@ public class SiteParameters {
                 params = new HashMap<>();
             }
             params.put(param.getName(), p);
-            model.addHtmlParameterStats(p);
+            ThreadUtils.invokeLater(() -> model.addHtmlParameterStats(p));
         }
         return p;
     }
@@ -188,7 +190,7 @@ public class SiteParameters {
         return set;
     }
 
-    public void addParam(String site2, RecordParam param) {
+    public synchronized void addParam(String site2, RecordParam param) {
         Map<String, HtmlParameterStats> params = null;
 
         HtmlParameter.Type type = HtmlParameter.Type.valueOf(param.getType());
@@ -221,7 +223,7 @@ public class SiteParameters {
                         stringToSet(param.getFlags()));
         if (params != null) {
             params.put(param.getName(), p);
-            model.addHtmlParameterStats(p);
+            ThreadUtils.invokeLater(() -> model.addHtmlParameterStats(p));
         }
     }
 }
