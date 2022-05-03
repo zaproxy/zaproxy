@@ -75,4 +75,23 @@ public class ThreadUtils {
             Thread.currentThread().interrupt();
         }
     }
+
+    /**
+     * Runs a {@code Runnable}, asynchronously, on the event dispatch thread (EDT).
+     *
+     * <p>Behaves exactly like {@link EventQueue#invokeLater(Runnable)}, but can be called from that
+     * thread as well.
+     *
+     * <p>If the {@link View} is not initialised the runnable is executed in the current thread.
+     *
+     * @param runnable the {@code Runnable} to be run in the EDT.
+     * @since 2.12.0
+     */
+    public static void invokeLater(Runnable runnable) {
+        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+            runnable.run();
+        } else {
+            EventQueue.invokeLater(runnable);
+        }
+    }
 }

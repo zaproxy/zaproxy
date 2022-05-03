@@ -99,6 +99,11 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
                 scanner.isEnabled());
     }
 
+    @Override
+    public RegexAutoTagScanner copy() {
+        return new RegexAutoTagScanner(this);
+    }
+
     public Pattern getRequestUrlPattern() {
         return requestUrlPattern;
     }

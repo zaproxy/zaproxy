@@ -57,6 +57,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
+import org.zaproxy.zap.utils.ThreadUtils;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
@@ -339,12 +340,15 @@ public class ExtensionParams extends ExtensionAdaptor
         if (set == null) {
             return "";
         }
-        for (String str : set) {
-            if (sb.length() > 0) {
-                sb.append(',');
+        // Despite the SonarLint warning we do need to sync on the set
+        synchronized (set) {
+            for (String str : set) {
+                if (sb.length() > 0) {
+                    sb.append(',');
+                }
+                // Escape all commas in the values
+                sb.append(str.replace(",", "%2C"));
             }
-            // Escape all commas in the values
-            sb.append(str.replace(",", "%2C"));
         }
         return sb.toString();
     }
@@ -426,7 +430,7 @@ public class ExtensionParams extends ExtensionAdaptor
             HtmlParameter headerParam =
                     new HtmlParameter(
                             HtmlParameter.Type.header, hdrField.getName(), hdrField.getValue());
-            persist(sps.addParam(site, headerParam, msg));
+            ThreadUtils.invokeLater(() -> persist(sps.addParam(site, headerParam, msg)));
         }
 
         // TODO Only do if response URL different to request?

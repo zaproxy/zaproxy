@@ -25,6 +25,7 @@ public final class PassiveScanTestHelper {
 
     private PassiveScanTestHelper() {}
 
+    @SuppressWarnings("deprecation")
     public static void init(
             PluginPassiveScanner rule,
             PassiveScanThread parent,

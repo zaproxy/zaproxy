@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.params;
 
 import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
@@ -32,9 +31,6 @@ public class ParamScanner implements PassiveScanner {
     public ParamScanner(ExtensionParams extParams) {
         this.extParams = extParams;
     }
-
-    @Override
-    public void setParent(PassiveScanThread parent) {}
 
     @Override
     public void scanHttpRequestSend(HttpMessage msg, int id) {
