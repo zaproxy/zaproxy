@@ -68,7 +68,7 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
     public Class<?> getColumnClass(int columnIndex) {
         if (columnIndex == 0) { // Icon
             return Icon.class;
-        } else if (columnIndex == 1) { // Status (Quality)
+        } else if (columnIndex == 1) { // Status
             return StatusUI.class;
         } else if (columnIndex == 5) { // update
             return Boolean.class;

@@ -57,10 +57,10 @@ public class CategoryTableModel extends DefaultTableModel {
         Constant.messages.getString("ascan.policy.table.testname"),
         Constant.messages.getString("ascan.policy.table.threshold"),
         Constant.messages.getString("ascan.policy.table.strength"),
-        Constant.messages.getString("ascan.policy.table.quality")
+        Constant.messages.getString("ascan.policy.table.status")
     };
 
-    private static final int QUALITY_COLUMN_IDX = 3;
+    private static final int STATUS_COLUMN_IDX = 3;
 
     private List<PluginWrapper> listTestCategory;
 
@@ -88,7 +88,7 @@ public class CategoryTableModel extends DefaultTableModel {
 
     @Override
     public Class<?> getColumnClass(int c) {
-        if (c == QUALITY_COLUMN_IDX) {
+        if (c == STATUS_COLUMN_IDX) {
             return StatusUI.class;
         }
         return String.class;
@@ -108,7 +108,7 @@ public class CategoryTableModel extends DefaultTableModel {
                 return true;
             case 2: // Alert
                 return true;
-            case QUALITY_COLUMN_IDX:
+            case STATUS_COLUMN_IDX:
                 return false;
             default:
                 return false;
@@ -240,8 +240,8 @@ public class CategoryTableModel extends DefaultTableModel {
                 return strToI18n(wrapper.getPlugin().getAlertThreshold(true).name());
             case 2:
                 return strToI18n(wrapper.getPlugin().getAttackStrength(true).name());
-            case QUALITY_COLUMN_IDX:
-                return wrapper.getQuality();
+            case STATUS_COLUMN_IDX:
+                return wrapper.getStatus();
             default:
                 return "";
         }
@@ -257,19 +257,19 @@ public class CategoryTableModel extends DefaultTableModel {
     private static class PluginWrapper {
 
         private final Plugin plugin;
-        private final StatusUI quality;
+        private final StatusUI status;
 
-        public PluginWrapper(Plugin plugin, StatusUI quality) {
+        public PluginWrapper(Plugin plugin, StatusUI status) {
             this.plugin = plugin;
-            this.quality = quality;
+            this.status = status;
         }
 
         public Plugin getPlugin() {
             return plugin;
         }
 
-        public StatusUI getQuality() {
-            return quality;
+        public StatusUI getStatus() {
+            return status;
         }
     }
 }
