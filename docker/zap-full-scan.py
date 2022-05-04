@@ -71,12 +71,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 # Hide "Starting new HTTP connection" messages
 logging.getLogger("requests").setLevel(logging.WARNING)
 
-
 DESCRIPTION = 'Usage: zap-api-scan.py -t <target> [options]'
 MORE_INFO = 'For more details see https://www.zaproxy.org/docs/docker/full-scan/'
 
 
 def main():
+    
     parser = argparse.ArgumentParser(description=DESCRIPTION, add_help=False, epilog=MORE_INFO, usage=argparse.SUPPRESS, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-t', "--target", required=True, help='target URL including the protocol, e.g. https://www.example.com')
     parser.add_argument('-h', "--help", action='help', help='shows this help message and exit')
@@ -147,6 +147,7 @@ def main():
     exception_raised = False
 
     logging.debug('Target: ' + target)
+    
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
 
@@ -154,7 +155,8 @@ def main():
 
     load_custom_hooks(hook_file)
     trigger_hook('cli_opts', args)
-
+    
+    # Check target supplied and ok
     if not (target.startswith('http://') or target.startswith('https://')):
         parser.print_help()
         logging.warning('Target must start with \'http://\' or \'https://\'')

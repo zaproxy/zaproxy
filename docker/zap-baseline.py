@@ -72,7 +72,6 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 # Hide "Starting new HTTP connection" messages
 logging.getLogger("requests").setLevel(logging.WARNING)
 
-
 DESCRIPTION = 'Usage: zap-api-scan.py -t <target> [options]'
 MORE_INFO = 'For more details see https://www.zaproxy.org/docs/docker/baseline-scan/'
 
@@ -118,8 +117,8 @@ MORE_INFO = 'For more details see https://www.zaproxy.org/docs/docker/baseline-s
      
 '''
 
-
 def main():
+    
     parser = argparse.ArgumentParser(description=DESCRIPTION, add_help=False, epilog=MORE_INFO, usage=argparse.SUPPRESS, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-t', "--target", required=True, help='target URL including the protocol, e.g. https://www.example.com')
     parser.add_argument('-h', "--help", action='help', help='shows this help message and exit')
@@ -202,12 +201,12 @@ def main():
         progress_file == '',
         info_unspecified == False,
         user == '',
-        hook_file is None
-    ]
+        hook_file is None]
     if False in check_af_supported:
         af_supported = False
 
     logging.debug('Target: ' + target)
+    
     if args.debug:
         logging.getLogger().setLevel(logging.DEBUG)
 

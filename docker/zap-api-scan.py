@@ -82,12 +82,12 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 # Hide "Starting new HTTP connection" messages
 logging.getLogger("requests").setLevel(logging.WARNING)
 
-
 DESCRIPTION = 'Usage: zap-api-scan.py -t <target> -f <format> [options]'
 MORE_INFO = 'For more details see https://www.zaproxy.org/docs/docker/api-scan/\n'
 
 
 def main():
+    
     parser = argparse.ArgumentParser(description=DESCRIPTION, add_help=False, epilog=MORE_INFO, usage=argparse.SUPPRESS, formatter_class=argparse.RawTextHelpFormatter)
     parser.add_argument('-t', "--target", required=True, help='target API definition, OpenAPI or SOAP, local file or URL, e.g. https://www.example.com/openapi.json\n\t or target endpoint URL, GraphQL, e.g. https://www.example.com/graphql')
     parser.add_argument('-f', "--format", required=True, choices=['openapi', 'soap', 'graphql'], help='choose openapi, soap, or graphql')
