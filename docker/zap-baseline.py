@@ -214,7 +214,7 @@ def main():
 
     load_custom_hooks(hook_file)
     trigger_hook('cli_opts', args)
-    
+
     # Check target supplied and ok
     if not (target.startswith('http://') or target.startswith('https://')):
         parser.print_help()
