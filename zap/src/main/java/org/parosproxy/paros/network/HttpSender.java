@@ -99,6 +99,7 @@
 // ZAP: 2022/04/27 Expose global HTTP state enabled status.
 // ZAP: 2022/04/27 Use latest proxy settings always.
 // ZAP: 2022/04/29 Deprecate setAllowCircularRedirects.
+// ZAP: 2022/05/04 Always use single cookie request header.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -280,12 +281,8 @@ public class HttpSender {
         client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, true);
 
         // Set how cookie headers are sent no matter of the "allowState", in case a state is forced
-        // by
-        // other extensions (e.g. Authentication)
-        final boolean singleCookieRequestHeader = param.isSingleCookieRequestHeader();
-        client.getParams()
-                .setBooleanParameter(
-                        HttpMethodParams.SINGLE_COOKIE_HEADER, singleCookieRequestHeader);
+        // by other extensions (e.g. Authentication)
+        client.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
         String defaultUserAgent = param.getDefaultUserAgent();
         client.getParams()
                 .setParameter(

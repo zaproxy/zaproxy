@@ -52,6 +52,7 @@
 // ZAP: 2021/10/06 Updated default user agent
 // ZAP: 2022/02/02 Removed getProxyChainSkipName() and setProxyChainSkipName(String)
 // ZAP: 2022/02/08 Use isEmpty where applicable.
+// ZAP: 2022/05/04 Deprecate single cookie request header option.
 package org.parosproxy.paros.network;
 
 import java.net.PasswordAuthentication;
@@ -560,9 +561,12 @@ public class ConnectionParam extends AbstractParam {
      *
      * @return {@code true} if the cookies should be set on a single request header, {@code false}
      *     otherwise
+     * @deprecated (2.12.0) No longer supported, when managing cookies they will be sent in a single
+     *     header field.
      */
+    @Deprecated
     public boolean isSingleCookieRequestHeader() {
-        return this.singleCookieRequestHeader;
+        return true;
     }
 
     /**
@@ -571,11 +575,11 @@ public class ConnectionParam extends AbstractParam {
      *
      * @param singleCookieRequestHeader {@code true} if the cookies should be set on a single
      *     request header, {@code false} otherwise
+     * @deprecated (2.12.0) No longer supported, when managing cookies they will be sent in a single
+     *     header field.
      */
-    public void setSingleCookieRequestHeader(boolean singleCookieRequestHeader) {
-        this.singleCookieRequestHeader = singleCookieRequestHeader;
-        getConfig().setProperty(SINGLE_COOKIE_REQUEST_HEADER, singleCookieRequestHeader);
-    }
+    @Deprecated
+    public void setSingleCookieRequestHeader(boolean singleCookieRequestHeader) {}
 
     /**
      * Returns the domains excluded from the outgoing proxy.
