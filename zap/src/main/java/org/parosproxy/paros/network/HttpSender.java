@@ -100,6 +100,7 @@
 // ZAP: 2022/04/27 Use latest proxy settings always.
 // ZAP: 2022/04/29 Deprecate setAllowCircularRedirects.
 // ZAP: 2022/05/04 Always use single cookie request header.
+// ZAP: 2022/05/04 Use latest timeout/user-agent always.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -283,11 +284,6 @@ public class HttpSender {
         // Set how cookie headers are sent no matter of the "allowState", in case a state is forced
         // by other extensions (e.g. Authentication)
         client.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER, true);
-        String defaultUserAgent = param.getDefaultUserAgent();
-        client.getParams()
-                .setParameter(
-                        HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS,
-                        defaultUserAgent);
 
         setUseGlobalState(useGlobalState);
         setUseCookies(true);
@@ -463,6 +459,14 @@ public class HttpSender {
                 .setBooleanParameter(
                         HttpMethodDirector.PARAM_RESOLVE_HOSTNAME,
                         param.shouldResolveRemoteHostname(hostName));
+        method.getParams()
+                .setParameter(
+                        HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS,
+                        param.getDefaultUserAgent());
+
+        int timeout = (int) TimeUnit.SECONDS.toMillis(this.param.getTimeoutInSecs());
+        method.getParams().setSoTimeout(timeout);
+        httpConnManager.getParams().setConnectionTimeout(timeout);
 
         // ZAP: Check if a custom state is being used
         if (state != null) {
@@ -727,9 +731,6 @@ public class HttpSender {
     public static void setUserAgent(String userAgent) {}
 
     private void setCommonManagerParams(MultiThreadedHttpConnectionManager mgr) {
-        int timeout = (int) TimeUnit.SECONDS.toMillis(this.param.getTimeoutInSecs());
-        mgr.getParams().setSoTimeout(timeout);
-        mgr.getParams().setConnectionTimeout(timeout);
         mgr.getParams().setStaleCheckingEnabled(true);
 
         // Set to arbitrary large values to prevent locking

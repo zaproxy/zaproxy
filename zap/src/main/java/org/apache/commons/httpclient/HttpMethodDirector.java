@@ -459,8 +459,9 @@ public class HttpMethodDirector {
                         if ((this.conn.isProxied() && (this.conn.isSecure() || upgrade))
                         && !(method instanceof ConnectMethod)) {
                             this.conn.setTunnelRequested(upgrade);
+                            String userAgent = (String) method.getParams().getParameter(PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS);
                             // we need to create a tunnel before we can execute the real method
-                            if (!executeConnect()) {
+                            if (!executeConnect(userAgent)) {
                                 // abort, the connect method failed
                                 return;
                             }
@@ -556,14 +557,13 @@ public class HttpMethodDirector {
      * @throws IOException
      * @throws HttpException
      */
-    private boolean executeConnect() 
+    private boolean executeConnect(String userAgent)
         throws IOException, HttpException {
 
         this.connectMethod = new ConnectMethod(this.hostConfiguration);
         this.connectMethod.getParams().setDefaults(this.hostConfiguration.getParams());
-        String agent = (String) getParams().getParameter(PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS);
-        if (agent != null) {
-            this.connectMethod.setRequestHeader("User-Agent", agent);
+        if (userAgent != null) {
+            this.connectMethod.setRequestHeader("User-Agent", userAgent);
         }
         
         int code;
