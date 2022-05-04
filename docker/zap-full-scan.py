@@ -72,18 +72,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s %(message)s')
 logging.getLogger("requests").setLevel(logging.WARNING)
 
 
-DESCRIPTION = '''                                                                                                                             
-d88888P  d888b8b  ?88,.d88b,  88bd88b d8888b ?88,  88P?88   d8P 
-   d8P' d8P' ?88  `?88'  ?88  88P'  `d8P' ?88 `?8bd8P'd88   88  
- d8P'   88b  ,88b   88b  d8P d88     88b  d88 d8P?8b, ?8(  d88  
-d88888P'`?88P'`88b  888888P'd88'     `?8888P'd8P' `?8b`?88P'?8b 
-                    88P'                                     )88
-                   d88                                      ,d8P
-                   ?8P                                   `?888P'
-
-
-Usage: zap-api-scan.py -t <target> [options]
-'''
+DESCRIPTION = 'Usage: zap-api-scan.py -t <target> [options]'
 MORE_INFO = 'For more details see https://www.zaproxy.org/docs/docker/full-scan/'
 
 
