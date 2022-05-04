@@ -215,10 +215,10 @@ def main():
     if running_in_docker():
         try:
             params = [
-                '-config', 'spider.maxDuration=' + str(mins),
-                '-addonupdate',
-                '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
-                '-addoninstall', 'ascanrulesBeta']
+                      '-config', 'spider.maxDuration=' + str(mins),
+                      '-addonupdate',
+                      '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
+                      '-addoninstall', 'ascanrulesBeta']
 
             if zap_alpha:
                 params.extend(['-addoninstall', 'pscanrulesAlpha'])
@@ -239,10 +239,10 @@ def main():
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
         params = [
-            '-config', 'spider.maxDuration=' + str(mins),
-            '-addonupdate',
-            '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
-            '-addoninstall', 'ascanrulesBeta']
+                  '-config', 'spider.maxDuration=' + str(mins),
+                  '-addonupdate',
+                  '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
+                  '-addoninstall', 'ascanrulesBeta']
 
         if (zap_alpha):
             params.extend(['-addoninstall', 'pscanrulesAlpha'])
@@ -379,19 +379,19 @@ def main():
 
             # print out the ignored rules
             ignore_count, not_used = print_rules(zap, alert_dict, 'IGNORE', config_dict, config_msg, min_level,
-                                                 inc_ignore_rules, True, detailed_output, {})
+                inc_ignore_rules, True, detailed_output, {})
 
             # print out the info rules
             info_count, not_used = print_rules(zap, alert_dict, 'INFO', config_dict, config_msg, min_level,
-                                               inc_info_rules, info_unspecified, detailed_output, in_progress_issues)
+                inc_info_rules, info_unspecified, detailed_output, in_progress_issues)
 
             # print out the warning rules
             warn_count, warn_inprog_count = print_rules(zap, alert_dict, 'WARN', config_dict, config_msg, min_level,
-                                                        inc_warn_rules, not info_unspecified, detailed_output, in_progress_issues)
+                inc_warn_rules, not info_unspecified, detailed_output, in_progress_issues)
 
             # print out the failing rules
             fail_count, fail_inprog_count = print_rules(zap, alert_dict, 'FAIL', config_dict, config_msg, min_level,
-                                                        inc_fail_rules, True, detailed_output, in_progress_issues)
+                inc_fail_rules, True, detailed_output, in_progress_issues)
 
             if report_html:
                 # Save the report
@@ -410,8 +410,8 @@ def main():
                 write_report(base_dir + report_xml, zap.core.xmlreport())
 
             print('FAIL-NEW: ' + str(fail_count) + '\tFAIL-INPROG: ' + str(fail_inprog_count) +
-                  '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +
-                  '\tINFO: ' + str(info_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
+                '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +
+                '\tINFO: ' + str(info_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
 
         trigger_hook('zap_pre_shutdown', zap)
         # Stop ZAP

@@ -279,7 +279,7 @@ def main():
             home_dir = str(Path.home())
             yaml_file = home_dir + '/zap.yaml'
             summary_file = home_dir + '/zap_out.json'
-
+            
             with open(yaml_file, 'w') as yf:
 
                 # Add the top level to the scope for backwards compatibility
@@ -290,50 +290,50 @@ def main():
                     if not t2 == target:
                         target = t2
                         top_levels.append(target)
-
+               
                 yaml.dump(get_af_env(top_levels, out_of_scope_dict, debug), yf)
-
+                
                 alertFilters = []
-
+                
                 # Handle id specific alertFilters - rules that apply to all IDs are excluded from the env
                 for id in out_of_scope_dict:
                     if id != '*':
                         for regex in out_of_scope_dict[id]:
                             alertFilters.append({'ruleId': id, 'newRisk': 'False Positive', 'url': regex.pattern, 'urlRegex': True})
-
+                
                 addons = ['pscanrulesBeta']
                 if zap_alpha:
                     addons.append('pscanrulesAlpha')
-
+                    
                 jobs = [
-                    get_af_addons(addons, []),
-                    get_af_pscan_config()]
+                        get_af_addons(addons, []),
+                        get_af_pscan_config()]
 
                 if len(alertFilters) > 0:
                     jobs.append(get_af_alertFilter(alertFilters))
-
+                
                 jobs.append(get_af_spider(target, mins))
 
                 if ajax:
                     jobs.append(get_af_spiderAjax(target, mins))
-
+                
                 jobs.append(get_af_pscan_wait(timeout))
                 jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict, config_msg))
-
+                
                 if report_html:
                     jobs.append(get_af_report('traditional-html', base_dir, report_html, 'ZAP Scanning Report', ''))
-
+            
                 if report_md:
                     jobs.append(get_af_report('traditional-md', base_dir, report_md, 'ZAP Scanning Report', ''))
-
+            
                 if report_xml:
                     jobs.append(get_af_report('traditional-xml', base_dir, report_xml, 'ZAP Scanning Report', ''))
-
+            
                 if report_json:
                     jobs.append(get_af_report('traditional-json', base_dir, report_json, 'ZAP Scanning Report', ''))
-
+            
                 yaml.dump({'jobs': jobs}, yf)
-
+                
                 if os.path.exists('/zap/wrk'):
                     yaml_copy_file = '/zap/wrk/zap.yaml'
                     try:
@@ -341,39 +341,39 @@ def main():
                         copyfile(yaml_file, yaml_copy_file)
                     except OSError as err:
                         logging.warning('Unable to copy yaml file to ' + yaml_copy_file + ' ' + str(err))
-
+ 
             try:
                 # Run ZAP inline to update the add-ons
                 run_zap_inline(port, ['-addonupdate', '-silent'])
-
+                
                 # Run ZAP inline with the yaml file
                 params = ['-autorun', yaml_file]
-
+    
                 add_zap_options(params, zap_options)
-
+    
                 out = run_zap_inline(port, params)
-
-                ignore_strs = ["Found Java version", "Available memory", "Using JVM args", "Add-on already installed", "[main] INFO",
+                
+                ignore_strs = ["Found Java version", "Available memory", "Using JVM args", "Add-on already installed", "[main] INFO", 
                                "Automation plan succeeded"]
-
+                
                 for line in out.splitlines():
                     if any(x in line for x in ignore_strs):
                         continue
                     print(line)
-
+    
             except OSError:
                 logging.warning('Failed to start ZAP :(')
                 sys.exit(3)
-
+    
             # Read the status file to find out what code we should exit with
-            if not os.path.isfile(summary_file):
+            if not os.path.isfile(summary_file): 
                 logging.warning('Failed to access summary file ' + summary_file)
                 sys.exit(3)
 
             try:
                 with open(summary_file) as f:
                     summary_data = json.load(f)
-
+                    
                     if summary_data['fail'] > 0:
                         sys.exit(1)
                     elif (not ignore_warn) and summary_data['warn'] > 0:
@@ -386,22 +386,22 @@ def main():
                 logging.warning('Failed to read summary file ' + summary_file)
 
             sys.exit(3)
-
+           
         else:
             try:
                 params = [
-                    '-config', 'spider.maxDuration=' + str(mins),
-                    '-addonupdate',
-                    '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
-
+                          '-config', 'spider.maxDuration=' + str(mins),
+                          '-addonupdate',
+                          '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
+    
                 if zap_alpha:
                     params.append('-addoninstall')
                     params.append('pscanrulesAlpha')
-
+    
                 add_zap_options(params, zap_options)
-
+    
                 start_zap(port, params)
-
+    
             except OSError:
                 logging.warning('Failed to start ZAP :(')
                 sys.exit(3)
@@ -413,8 +413,8 @@ def main():
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
         params = [
-            '-config', 'spider.maxDuration=' + str(mins),
-            '-addonupdate']
+                '-config', 'spider.maxDuration=' + str(mins),
+                '-addonupdate']
 
         if (zap_alpha):
             params.extend(['-addoninstall', 'pscanrulesAlpha'])
@@ -512,19 +512,19 @@ def main():
 
             # print out the ignored rules
             ignore_count, not_used = print_rules(zap, alert_dict, 'IGNORE', config_dict, config_msg, min_level,
-                                                 inc_ignore_rules, True, detailed_output, {})
+                inc_ignore_rules, True, detailed_output, {})
 
             # print out the info rules
             info_count, not_used = print_rules(zap, alert_dict, 'INFO', config_dict, config_msg, min_level,
-                                               inc_info_rules, info_unspecified, detailed_output, in_progress_issues)
+                inc_info_rules, info_unspecified, detailed_output, in_progress_issues)
 
             # print out the warning rules
             warn_count, warn_inprog_count = print_rules(zap, alert_dict, 'WARN', config_dict, config_msg, min_level,
-                                                        inc_warn_rules, not info_unspecified, detailed_output, in_progress_issues)
+                inc_warn_rules, not info_unspecified, detailed_output, in_progress_issues)
 
             # print out the failing rules
             fail_count, fail_inprog_count = print_rules(zap, alert_dict, 'FAIL', config_dict, config_msg, min_level,
-                                                        inc_fail_rules, True, detailed_output, in_progress_issues)
+                inc_fail_rules, True, detailed_output, in_progress_issues)
 
             if report_html:
                 # Save the report
@@ -543,8 +543,8 @@ def main():
                 write_report(base_dir + report_xml, zap.core.xmlreport())
 
             print('FAIL-NEW: ' + str(fail_count) + '\tFAIL-INPROG: ' + str(fail_inprog_count) +
-                  '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +
-                  '\tINFO: ' + str(info_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
+                '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +
+                '\tINFO: ' + str(info_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
 
         trigger_hook('zap_pre_shutdown', zap)
         # Stop ZAP
