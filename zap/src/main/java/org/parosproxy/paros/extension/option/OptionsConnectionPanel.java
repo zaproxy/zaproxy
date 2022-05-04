@@ -43,6 +43,7 @@
 // ZAP: 2020/03/25 Remove hardcoded colour in titled borders (Issue 5542).
 // ZAP: 2020/04/20 Add SocksProxyPanel (Issue 29).
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/05/04 Remove single cookie request header option.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -101,7 +102,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     private JCheckBox chkProxyChainPrompt = null;
     private ZapNumberSpinner spinnerTimeoutInSecs;
     private JPanel panelGeneral = null;
-    private JCheckBox checkBoxSingleCookieRequestHeader;
     private JCheckBox checkBoxHttpStateEnabled;
     private JComboBox<String> commonUserAgents = null;
     private ZapTextField defaultUserAgent = null;
@@ -562,8 +562,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
         this.spinnerTimeoutInSecs.setValue(connectionParam.getTimeoutInSecs());
 
-        checkBoxSingleCookieRequestHeader.setSelected(
-                connectionParam.isSingleCookieRequestHeader());
         checkBoxHttpStateEnabled.setSelected(connectionParam.isHttpStateEnabled());
 
         getProxyExcludedDomainsTableModel()
@@ -693,8 +691,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             connectionParam.setProxyChainPassword(new String(txtProxyChainPassword.getPassword()));
         }
         connectionParam.setTimeoutInSecs(spinnerTimeoutInSecs.getValue());
-        connectionParam.setSingleCookieRequestHeader(
-                checkBoxSingleCookieRequestHeader.isSelected());
         connectionParam.setHttpStateEnabled(checkBoxHttpStateEnabled.isSelected());
 
         connectionParam.setUseProxyChain(chkUseProxyChain.isSelected());
@@ -821,13 +817,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             panelGeneral.add(jLabel, gridBagConstraints00);
             panelGeneral.add(getTxtTimeoutInSecs(), gridBagConstraints01);
 
-            java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-            gbc.gridy = 3;
-            gbc.gridwidth = 2;
-            gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gbc.insets = new java.awt.Insets(2, 2, 2, 2);
-            gbc.anchor = java.awt.GridBagConstraints.WEST;
-
             JLabel uaLabel =
                     new JLabel(Constant.messages.getString("conn.options.defaultUserAgent"));
             uaLabel.setLabelFor(this.getDefaultUserAgent());
@@ -839,12 +828,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
                     getDefaultUserAgent(),
                     LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(2, 2, 2, 2)));
 
-            panelGeneral.add(getCheckBoxSingleCookeRequestHeader(), gbc);
             panelGeneral.add(
                     getCheckBoxHttpStateEnabled(),
                     LayoutHelper.getGBC(
                             0,
-                            4,
+                            3,
                             3,
                             1.0D,
                             0,
@@ -868,16 +856,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
                     new ZapNumberSpinner(0, ConnectionParam.DEFAULT_TIMEOUT, Integer.MAX_VALUE);
         }
         return spinnerTimeoutInSecs;
-    }
-
-    private JCheckBox getCheckBoxSingleCookeRequestHeader() {
-
-        if (checkBoxSingleCookieRequestHeader == null) {
-            checkBoxSingleCookieRequestHeader =
-                    new JCheckBox(
-                            Constant.messages.getString("conn.options.singleCookieRequestHeader"));
-        }
-        return checkBoxSingleCookieRequestHeader;
     }
 
     public JCheckBox getCheckBoxHttpStateEnabled() {
