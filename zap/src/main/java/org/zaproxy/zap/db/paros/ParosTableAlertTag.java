@@ -40,6 +40,7 @@ public class ParosTableAlertTag extends ParosAbstractTable implements TableAlert
     private PreparedStatement psInsertOrUpdate;
     private PreparedStatement psGetAllTags;
     private PreparedStatement psGetTagsByAlertId;
+    private PreparedStatement psGetAllRecords;
     private PreparedStatement psDeleteByTagId;
     private PreparedStatement psDeleteByAlertIdTagKey;
     private PreparedStatement psDeleteAllTagsForAlert;
@@ -76,6 +77,8 @@ public class ParosTableAlertTag extends ParosAbstractTable implements TableAlert
                     conn.prepareStatement("SELECT * FROM alert_tag WHERE alert_id = ?");
             psGetAllTags =
                     conn.prepareStatement("SELECT DISTINCT key, value FROM alert_tag ORDER BY key");
+            psGetAllRecords =
+                    conn.prepareStatement("SELECT * FROM alert_tag ORDER BY alert_id ASC");
             psDeleteByTagId = conn.prepareStatement("DELETE FROM alert_tag WHERE tag_id = ?");
             psDeleteByAlertIdTagKey =
                     conn.prepareStatement("DELETE FROM alert_tag WHERE alert_id = ? AND key = ?");
@@ -202,7 +205,7 @@ public class ParosTableAlertTag extends ParosAbstractTable implements TableAlert
     public synchronized List<RecordAlertTag> getAllRecords() throws DatabaseException {
         try {
             List<RecordAlertTag> result = new ArrayList<>();
-            try (ResultSet rs = psGetAllTags.executeQuery()) {
+            try (ResultSet rs = psGetAllRecords.executeQuery()) {
                 RecordAlertTag rat;
                 while ((rat = build(rs)) != null) {
                     result.add(rat);
