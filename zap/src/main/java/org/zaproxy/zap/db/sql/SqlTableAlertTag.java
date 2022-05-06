@@ -46,6 +46,9 @@ public class SqlTableAlertTag extends SqlAbstractTable implements TableAlertTag 
             if (!DbUtils.hasTable(conn, TABLE_NAME)) {
                 DbUtils.execute(conn, DbSQL.getSQL("alerttag.ps.createtable"));
             }
+            if (!DbUtils.hasIndex(conn, "ALERT_TAG", "ALERT_ID_INDEX")) {
+                DbUtils.execute(conn, DbSQL.getSQL("alerttag.ps.indexalertid"));
+            }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
