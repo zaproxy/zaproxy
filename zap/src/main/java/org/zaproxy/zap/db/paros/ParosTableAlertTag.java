@@ -62,6 +62,10 @@ public class ParosTableAlertTag extends ParosAbstractTable implements TableAlert
                                 + ")");
             }
 
+            if (!DbUtils.hasIndex(conn, "ALERT_TAG", "ALERT_ID_INDEX")) {
+                DbUtils.execute(conn, "CREATE INDEX alert_id_index ON alert_tag (alert_id)");
+            }
+
             psReadByTagId = conn.prepareStatement("SELECT * FROM alert_tag WHERE tag_id = ?");
             psReadByAlertIdTagKey =
                     conn.prepareStatement("SELECT * FROM alert_tag WHERE alert_id = ? AND key = ?");
