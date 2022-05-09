@@ -373,7 +373,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
         this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_PROXY_PAC, false)));
         this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_ROOT_CERT, false)));
-        this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
+        this.addApiOthers(
+                deprecatedNetworkApi(
+                        new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS})));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_XML_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_HTML_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_JSON_REPORT)));
@@ -391,7 +393,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         new String[] {PARAM_REQUEST},
                         new String[] {PARAM_FOLLOW_REDIRECTS}));
 
-        this.addApiShortcut(OTHER_SET_PROXY);
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
         addApiOptions(this.connectionParam);
@@ -1296,51 +1297,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         if (OTHER_PROXY_PAC.equals(name)) {
             return getNetworkImplementor().handleApiOther(msg, OTHER_PROXY_PAC, params);
         } else if (OTHER_SET_PROXY.equals(name)) {
-            /* JSON string:
-             *  {"type":1,
-             *  "http":	{"host":"proxy.corp.com","port":80},
-             *  "ssl":	{"host":"proxy.corp.com","port":80},
-             *  "ftp":{"host":"proxy.corp.com","port":80},
-             *  "socks":{"host":"proxy.corp.com","port":80},
-             *  "shareSettings":true,"socksVersion":5,
-             *  "proxyExcludes":"localhost, 127.0.0.1"}
-             */
-            String proxyDetails = params.getString(PARAM_PROXY_DETAILS);
-            String response = "OK";
-
-            try {
-                try {
-                    JSONObject json = JSONObject.fromObject(proxyDetails);
-
-                    if (json.getInt("type") == 1) {
-                        JSONObject httpJson = JSONObject.fromObject(json.get("http"));
-                        String proxyHost = httpJson.getString("host");
-                        int proxyPort = httpJson.getInt("port");
-
-                        if (proxyHost != null && proxyHost.length() > 0 && proxyPort > 0) {
-                            Model.getSingleton()
-                                    .getOptionsParam()
-                                    .getConnectionParam()
-                                    .setProxyChainName(proxyHost);
-                            Model.getSingleton()
-                                    .getOptionsParam()
-                                    .getConnectionParam()
-                                    .setProxyChainPort(proxyPort);
-                        }
-                    }
-                } catch (JSONException e) {
-                    throw new ApiException(
-                            ApiException.Type.ILLEGAL_PARAMETER, PARAM_PROXY_DETAILS);
-                }
-                msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
-
-                msg.setResponseBody(response);
-
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-
-            return msg;
+            return getNetworkImplementor().handleApiOther(msg, "setProxy", params);
         } else if (OTHER_ROOT_CERT.equals(name)) {
             return getNetworkImplementor().handleApiOther(msg, "rootCaCert", params);
         } else if (OTHER_XML_REPORT.equals(name)) {
@@ -1629,14 +1586,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     @Override
     public HttpMessage handleShortcut(HttpMessage msg) throws ApiException {
         try {
-            if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SET_PROXY)) {
-                JSONObject params = new JSONObject();
-                params.put(PARAM_PROXY_DETAILS, msg.getRequestBody().toString());
-                return this.handleApiOther(msg, OTHER_SET_PROXY, params);
-            } else if (msg.getRequestHeader()
-                    .getURI()
-                    .getPath()
-                    .startsWith("/" + OTHER_SCRIPT_JS)) {
+            if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SCRIPT_JS)) {
                 return this.handleApiOther(msg, OTHER_SCRIPT_JS, new JSONObject());
             }
         } catch (URIException e) {
