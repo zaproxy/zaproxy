@@ -146,6 +146,8 @@ public class GuiBootstrap extends ZapBootstrap {
             System.exit(1);
         }
 
+        UIManager.put("PasswordField.showRevealButton", true);
+
         OptionsParam options = Model.getSingleton().getOptionsParam();
         OptionsParamView viewParam = options.getViewParam();
 
