@@ -1,5 +1,6 @@
 # This dockerfile builds the zap stable release
-FROM openjdk:8-jdk-alpine AS builder
+# FROM openjdk:8-jdk-alpine AS builder
+FROM bellsoft/liberica-openjdk-alpine:11 AS builder
 
 WORKDIR /zap
 
@@ -71,7 +72,7 @@ RUN if [ -z "$WEBSWING_URL" ] ; \
 # Copy stable release
 COPY --from=builder /zap .
 
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+# ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 ENV ZAP_PATH /zap/zap.sh
 
