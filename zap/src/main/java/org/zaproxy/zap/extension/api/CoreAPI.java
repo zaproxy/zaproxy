@@ -35,6 +35,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -206,6 +207,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String PARAM_PASSWORD = "password";
     private static final String PARAM_INDEX = "index";
 
+    private static final List<String> PARAMS_STRING = Collections.singletonList("String");
+    private static final List<String> PARAMS_BOOLEAN = Collections.singletonList("Boolean");
+    private static final List<String> PARAMS_INTEGER = Collections.singletonList("Integer");
+
     /* Update the version whenever the script is changed (once per release) */
     protected static final int API_SCRIPT_VERSION = 2;
     private static final String API_SCRIPT =
@@ -239,10 +244,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
     private boolean savingSession = false;
     private static ExtensionHistory extHistory;
-    private ConnectionParam connectionParam;
 
+    /** @deprecated (2.12.0) Use {@link #CoreAPI()} instead. */
+    @Deprecated
     public CoreAPI(ConnectionParam connectionParam) {
-        this.connectionParam = connectionParam;
+        this();
+    }
+
+    public CoreAPI() {
 
         this.addApiAction(
                 new ApiAction(
@@ -394,7 +403,45 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiShortcut(OTHER_SET_PROXY);
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
-        addApiOptions(this.connectionParam);
+        Stream.of(
+                        "optionDefaultUserAgent",
+                        "optionDnsTtlSuccessfulQueries",
+                        "optionHttpState",
+                        "optionHttpStateEnabled",
+                        "optionProxyChainName",
+                        "optionProxyChainPassword",
+                        "optionProxyChainPort",
+                        "optionProxyChainPrompt",
+                        "optionProxyChainRealm",
+                        "optionProxyChainUserName",
+                        "optionSingleCookieRequestHeader",
+                        "optionTimeoutInSecs",
+                        "optionUseProxyChain",
+                        "optionUseProxyChainAuth",
+                        "optionUseSocksProxy")
+                .forEach(name -> addApiView(new ApiView(name)));
+
+        getApiView("optionSingleCookieRequestHeader")
+                .setDeprecatedDescription(
+                        Constant.messages.getString("api.deprecated.option.endpoint"));
+
+        addApiAction(new ApiAction("setOptionDefaultUserAgent", PARAMS_STRING));
+        addApiAction(new ApiAction("setOptionDnsTtlSuccessfulQueries", PARAMS_INTEGER));
+        addApiAction(new ApiAction("setOptionHttpStateEnabled", PARAMS_BOOLEAN));
+        addApiAction(new ApiAction("setOptionProxyChainName", PARAMS_STRING));
+        addApiAction(new ApiAction("setOptionProxyChainPassword", PARAMS_STRING));
+        addApiAction(new ApiAction("setOptionProxyChainPort", PARAMS_INTEGER));
+        addApiAction(new ApiAction("setOptionProxyChainPrompt", PARAMS_BOOLEAN));
+        addApiAction(new ApiAction("setOptionProxyChainRealm", PARAMS_STRING));
+        addApiAction(new ApiAction("setOptionProxyChainUserName", PARAMS_STRING));
+        addApiAction(
+                depreciatedApi(
+                        new ApiAction("setOptionSingleCookieRequestHeader", PARAMS_BOOLEAN),
+                        Constant.messages.getString("api.deprecated.option.endpoint")));
+        addApiAction(new ApiAction("setOptionTimeoutInSecs", PARAMS_INTEGER));
+        addApiAction(new ApiAction(ACTION_OPTION_USE_PROXY_CHAIN, PARAMS_BOOLEAN));
+        addApiAction(new ApiAction("setOptionUseProxyChainAuth", PARAMS_BOOLEAN));
+        addApiAction(new ApiAction("setOptionUseSocksProxy", PARAMS_BOOLEAN));
     }
 
     private <T extends ApiElement> T deprecatedNetworkApi(T element) {
@@ -862,6 +909,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     @Override
     public ApiResponse handleApiOptionAction(String name, JSONObject params) throws ApiException {
         if (ACTION_OPTION_USE_PROXY_CHAIN.equals(name)) {
+            ConnectionParam connectionParam =
+                    Model.getSingleton().getOptionsParam().getConnectionParam();
             boolean enabled = params.getBoolean("Boolean");
             if (enabled
                     && (connectionParam.getProxyChainName() == null

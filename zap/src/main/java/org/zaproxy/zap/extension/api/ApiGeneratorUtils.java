@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.api;
 import java.util.ArrayList;
 import java.util.List;
 import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.alert.AlertAPI;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfAPI;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
@@ -81,7 +80,7 @@ public class ApiGeneratorUtils {
         api.addApiOptions(new SpiderParam());
         imps.add(api);
 
-        api = new CoreAPI(new ConnectionParam());
+        api = new CoreAPI();
         imps.add(api);
 
         imps.add(new ParamsAPI(null));
