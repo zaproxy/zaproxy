@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.api;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.BDDMockito.given;
@@ -35,7 +36,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.utils.I18N;
 
@@ -53,13 +53,20 @@ class CoreAPIUnitTest {
         networkApi = mock(ApiImplementor.class, withSettings().lenient());
         given(networkApi.getPrefix()).willReturn("network");
         API.getInstance().registerApiImplementor(networkApi);
-        coreApi = new CoreAPI(mock(ConnectionParam.class));
+        coreApi = new CoreAPI();
     }
 
     @AfterEach
     void cleanUp() {
         API.getInstance().removeApiImplementor(networkApi);
         Constant.messages = null;
+    }
+
+    @Test
+    void shouldAddApiElements() {
+        assertThat(coreApi.getApiActions(), hasSize(40));
+        assertThat(coreApi.getApiViews(), hasSize(40));
+        assertThat(coreApi.getApiOthers(), hasSize(11));
     }
 
     @Test
