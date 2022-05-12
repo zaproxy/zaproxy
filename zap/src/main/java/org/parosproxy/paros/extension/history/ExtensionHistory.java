@@ -95,6 +95,8 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/09 Deprecate methods related to core proxy.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
+// ZAP: 2022/05/12 Remove URL, messages, and response export menus and functionality, migrated to
+// the exim add-on.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -137,9 +139,6 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.history.ManageTagsDialog;
 import org.zaproxy.zap.extension.history.NotesAddDialog;
-import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
-import org.zaproxy.zap.extension.history.PopupMenuExportSelectedURLs;
-import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
@@ -161,13 +160,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuPurgeHistory popupMenuPurgeHistory = null;
     private ManualRequestEditorDialog resendDialog = null;
 
-    private PopupMenuExportMessage popupMenuExportMessage2 = null;
-    private PopupMenuExportResponse popupMenuExportResponse2 = null;
     private PopupMenuTag popupMenuTag = null;
-    // ZAP: Added Export URLs
-    private PopupMenuExportURLs popupMenuExportURLs = null;
-    private PopupMenuExportSelectedURLs popupMenuExportSelectedURLs = null;
-    private PopupMenuExportContextURLs popupMenuExportContextURLs = null;
+
     // ZAP: Added history notes
     private PopupMenuNote popupMenuNote = null;
     private NotesAddDialog dialogNotesAdd = null;
@@ -267,27 +261,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             // ZAP: Added history notes
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
 
-            //	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportMessage());
-            //          extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuExportResponse());
-
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPurgeHistory());
-
-            // same as PopupMenuExport but for File menu
-            // ZAP: Move 'export' menu items to Report menu
-            extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportMessage2());
-            extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportResponse2());
-            extensionHook
-                    .getHookMenu()
-                    .addReportMenuItem(extensionHook.getHookMenu().getMenuSeparator());
-            extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportURLs());
-            extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportSelectedURLs());
-            extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportContextURLs());
-            extensionHook
-                    .getHookMenu()
-                    .addReportMenuItem(extensionHook.getHookMenu().getMenuSeparator());
-
-            extensionHook.getHookMenu().addPopupMenuItem(createPopupMenuExportURLs());
-            extensionHook.getHookMenu().addPopupMenuItem(createPopupMenuExportSelectedURLs());
 
             ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
         }
@@ -607,32 +581,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return resendDialog;
     }
 
-    /**
-     * This method initializes popupMenuExport1
-     *
-     * @return org.parosproxy.paros.extension.history.PopupMenuExport
-     */
-    private PopupMenuExportMessage getPopupMenuExportMessage2() {
-        if (popupMenuExportMessage2 == null) {
-            popupMenuExportMessage2 = new PopupMenuExportMessage();
-            popupMenuExportMessage2.setExtension(this);
-        }
-        return popupMenuExportMessage2;
-    }
-
-    /**
-     * This method initializes popupMenuExportResponse2
-     *
-     * @return org.parosproxy.paros.extension.history.PopupMenuExportResponse
-     */
-    private PopupMenuExportResponse getPopupMenuExportResponse2() {
-        if (popupMenuExportResponse2 == null) {
-            popupMenuExportResponse2 = new PopupMenuExportResponse();
-            popupMenuExportResponse2.setExtension(this);
-        }
-        return popupMenuExportResponse2;
-    }
-
     private PopupMenuTag getPopupMenuTag() {
         if (popupMenuTag == null) {
             popupMenuTag = new PopupMenuTag(this);
@@ -739,38 +687,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         } else if (!manageTags.isVisible()) {
             populateManageTagsDialogAndSetVisible(ref, tags);
         }
-    }
-
-    private PopupMenuExportURLs getPopupMenuExportURLs() {
-        if (popupMenuExportURLs == null) {
-            popupMenuExportURLs = createPopupMenuExportURLs();
-        }
-        return popupMenuExportURLs;
-    }
-
-    private PopupMenuExportURLs createPopupMenuExportURLs() {
-        return new PopupMenuExportURLs(Constant.messages.getString("exportUrls.popup"), this);
-    }
-
-    private PopupMenuExportSelectedURLs getPopupMenuExportSelectedURLs() {
-        if (popupMenuExportSelectedURLs == null) {
-            popupMenuExportSelectedURLs = createPopupMenuExportSelectedURLs();
-        }
-        return popupMenuExportSelectedURLs;
-    }
-
-    private PopupMenuExportSelectedURLs createPopupMenuExportSelectedURLs() {
-        return new PopupMenuExportSelectedURLs(
-                Constant.messages.getString("exportUrls.popup.selected"), this);
-    }
-
-    private PopupMenuExportContextURLs getPopupMenuExportContextURLs() {
-        if (popupMenuExportContextURLs == null) {
-            popupMenuExportContextURLs =
-                    new PopupMenuExportContextURLs(
-                            Constant.messages.getString("context.export.urls.menu"), this);
-        }
-        return popupMenuExportContextURLs;
     }
 
     public void showInHistory(HistoryReference href) {
