@@ -41,7 +41,6 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
-import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ContextExportDialog;
@@ -68,12 +67,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
     private PopupMenuItemContextSiteInclude popupContextIncludeSiteMenu = null;
     private PopupMenuItemContextExclude popupContextExcludeMenu = null;
     private PopupMenuItemContextDataDriven popupContextDataDrivenMenu = null;
-    private PopupMenuCopyUrls popupMenuCopyUrls = null;
     private PopupContextTreeMenu popupContextTreeMenuInScope = null;
     private PopupContextTreeMenu popupContextTreeMenuOutScope = null;
     private PopupContextTreeMenu popupContextTreeMenuDelete = null;
     private PopupContextTreeMenu popupContextTreeMenuExport;
-    private PopupMenuExportContextURLs popupContextTreeMenuExportUrls;
 
     // Still being developed
     // private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
@@ -161,13 +158,11 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                     .getHookMenu()
                     .addPopupMenuItem(getPopupMenuOpenUrlInBrowser(++indexMenuItem));
             // extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(indexMenuItem));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuCopyUrls(++indexMenuItem));
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuInScope());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuOutScope());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExport());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExportUrls());
         }
     }
 
@@ -229,15 +224,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                     });
         }
         return popupContextTreeMenuOutScope;
-    }
-
-    private PopupMenuExportContextURLs getPopupContextTreeMenuExportUrls() {
-        if (popupContextTreeMenuExportUrls == null) {
-            popupContextTreeMenuExportUrls =
-                    new PopupMenuExportContextURLs(
-                            Constant.messages.getString("context.export.urls.menu"), this);
-        }
-        return popupContextTreeMenuExportUrls;
     }
 
     private PopupContextTreeMenu getPopupContextTreeMenuDelete() {
@@ -374,15 +360,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
             popupMenuOpenUrlInBrowser.setMenuIndex(menuIndex);
         }
         return popupMenuOpenUrlInBrowser;
-    }
-
-    private PopupMenuCopyUrls getPopupMenuCopyUrls(int menuIndex) {
-        if (popupMenuCopyUrls == null) {
-            popupMenuCopyUrls =
-                    new PopupMenuCopyUrls(Constant.messages.getString("stdexts.copyurls.popup"));
-            popupMenuCopyUrls.setMenuIndex(menuIndex);
-        }
-        return popupMenuCopyUrls;
     }
 
     /*
