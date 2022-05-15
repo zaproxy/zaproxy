@@ -434,6 +434,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         addApiAction(new ApiAction("setOptionProxyChainPort", PARAMS_INTEGER));
         addApiAction(new ApiAction("setOptionProxyChainPrompt", PARAMS_BOOLEAN));
         addApiAction(new ApiAction("setOptionProxyChainRealm", PARAMS_STRING));
+        addApiAction(
+                depreciatedApi(
+                        new ApiAction("setOptionProxyChainSkipName", PARAMS_STRING),
+                        Constant.messages.getString("api.deprecated.option.endpoint")));
         addApiAction(new ApiAction("setOptionProxyChainUserName", PARAMS_STRING));
         addApiAction(
                 depreciatedApi(
