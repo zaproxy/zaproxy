@@ -30,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.extension.Extension;
@@ -38,7 +39,10 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.extension.history.ProxyListenerLog;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.CoreFunctionality;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
@@ -51,15 +55,20 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
     public static final String NAME = "ExtensionPassiveScan";
     public static final String SCRIPT_TYPE_PASSIVE = "passive";
+
+    // Should be after the last one that saves the HttpMessage, as this ProxyListener doesn't change
+    // the HttpMessage.
+    public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
+
     private static final Logger logger = LogManager.getLogger(ExtensionPassiveScan.class);
     private PassiveScannerList scannerList;
     private OptionsPassiveScan optionsPassiveScan = null;
     private PolicyPassiveScanPanel policyPanel = null;
-    private PassiveScanThread pst = null;
+    private PassiveScanController psc = null;
     private boolean passiveScanEnabled;
     private PassiveScanParam passiveScanParam;
-    private ScanStatus scanStatus = null;
     private static final List<Class<? extends Extension>> DEPENDENCIES;
+    private ScanStatus scanStatus = null;
 
     static {
         List<Class<? extends Extension>> dep = new ArrayList<>(1);
@@ -72,19 +81,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
     public ExtensionPassiveScan() {
         super();
-        initialize();
-    }
-
-    private void initialize() {
         this.setOrder(26);
         this.setName(NAME);
-    }
-
-    @Override
-    public void init() {
-        super.init();
-
-        passiveScanEnabled = true;
     }
 
     @Override
@@ -98,13 +96,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
         extensionHook.addOptionsParamSet(getPassiveScanParam());
 
-        extensionHook.addProxyListener(getPassiveScanThread());
+        extensionHook.addProxyListener(new PassiveScanProxyListener());
         extensionHook.addSessionListener(this);
         if (getView() != null) {
             extensionHook.getHookView().addOptionPanel(getPassiveScannerOptionsPanel());
-            extensionHook
-                    .getHookView()
-                    .addOptionPanel(getOptionsPassiveScan(getPassiveScanThread()));
+            extensionHook.getHookView().addOptionPanel(getOptionsPassiveScan());
             extensionHook.getHookView().addOptionPanel(getPolicyPanel());
             getView()
                     .getMainFrame()
@@ -137,6 +133,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     @Override
     public void optionsLoaded() {
         getPassiveScannerList().setAutoTagScanners(getPassiveScanParam().getAutoTagScanners());
+        // Start passive scanning
+        passiveScanEnabled = true;
+        getPassiveScanController();
     }
 
     @Override
@@ -248,7 +247,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     private boolean addPassiveScannerImpl(PassiveScanner passiveScanner) {
-        return scannerList.add(passiveScanner);
+        return getPassiveScannerList().add(passiveScanner);
     }
 
     private boolean addPluginPassiveScannerImpl(PluginPassiveScanner scanner) {
@@ -282,7 +281,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         return added;
     }
 
-    private PassiveScannerList getPassiveScannerList() {
+    protected PassiveScannerList getPassiveScannerList() {
         if (scannerList == null) {
             scannerList = new PassiveScannerList();
 
@@ -421,24 +420,25 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
     public int getRecordsToScan() {
         if (passiveScanEnabled) {
-            return this.getPassiveScanThread().getRecordsToScan();
+            return this.getPassiveScanController().getRecordsToScan();
         }
         return 0;
     }
 
-    private PassiveScanThread getPassiveScanThread() {
-        if (pst == null) {
+    private PassiveScanController getPassiveScanController() {
+        if (passiveScanEnabled && psc == null) {
             final ExtensionLoader extensionLoader = Control.getSingleton().getExtensionLoader();
-            final ExtensionHistory extHist = extensionLoader.getExtension(ExtensionHistory.class);
-            final ExtensionAlert extAlert = extensionLoader.getExtension(ExtensionAlert.class);
-
-            pst =
-                    new PassiveScanThread(
-                            getPassiveScannerList(), extHist, extAlert, getPassiveScanParam());
-
-            pst.start();
+            psc =
+                    new PassiveScanController(
+                            this,
+                            extensionLoader.getExtension(ExtensionHistory.class),
+                            extensionLoader.getExtension(ExtensionAlert.class),
+                            getPassiveScanParam(),
+                            getScanStatus());
+            psc.setSession(Model.getSingleton().getSession());
+            psc.start();
         }
-        return pst;
+        return psc;
     }
 
     PassiveScanParam getPassiveScanParam() {
@@ -455,57 +455,101 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         return passiveScannerOptionsPanel;
     }
 
-    private OptionsPassiveScan getOptionsPassiveScan(PassiveScanThread passiveScanThread) {
+    private OptionsPassiveScan getOptionsPassiveScan() {
         if (optionsPassiveScan == null) {
-            optionsPassiveScan = new OptionsPassiveScan(scannerList);
+            optionsPassiveScan = new OptionsPassiveScan(this.getPassiveScannerList());
         }
         return optionsPassiveScan;
     }
 
     @Override
     public void sessionAboutToChange(Session session) {
-        stopPassiveScanThread();
-    }
-
-    private void stopPassiveScanThread() {
-        if (this.pst != null) {
-            getPassiveScanThread().shutdown();
-            this.pst = null;
-        }
+        stopPassiveScanController();
     }
 
     @Override
     public void sessionChanged(Session session) {
-        startPassiveScanThread();
-        if (hasView()) {
-            getScanStatus().setScanCount(0);
+        if (passiveScanEnabled) {
+            this.getPassiveScanController().setSession(session);
         }
     }
 
-    private void startPassiveScanThread() {
-        if (passiveScanEnabled && pst == null) {
-            // Will create a new thread if one doesn't exist
-            getPassiveScanThread();
+    private void stopPassiveScanController() {
+        if (this.psc != null) {
+            this.psc.shutdown();
+            this.psc = null;
         }
     }
 
+    /**
+     * @deprecated (2.12.0) use #getOldestRunningTask()
+     * @return the oldest rule name running
+     */
+    @Deprecated
     public String getCurrentRuleName() {
-        return this.getPassiveScanThread().getCurrentRuleName();
+        if (passiveScanEnabled) {
+            PassiveScanTask task = this.getPassiveScanController().getOldestRunningTask();
+            if (task != null) {
+                return task.getCurrentScanner().getName();
+            }
+        }
+        return null;
     }
 
+    /**
+     * @deprecated (2.12.0) use #getOldestRunningTask()
+     * @return the oldest URL being scanned
+     */
+    @Deprecated
     public String getCurrentUrl() {
-        return this.getPassiveScanThread().getCurrentUrl();
+        if (passiveScanEnabled) {
+            PassiveScanTask task = this.getPassiveScanController().getOldestRunningTask();
+            if (task != null) {
+                return task.getURI().toString();
+            }
+        }
+        return null;
     }
 
+    /**
+     * @deprecated (2.12.0) use #getOldestRunningTask()
+     * @return the start time of oldest rule running
+     */
+    @Deprecated
     public long getCurrentRuleStartTime() {
-        return this.getPassiveScanThread().getCurrentRuleStartTime();
+        if (passiveScanEnabled) {
+            PassiveScanTask task = this.getPassiveScanController().getOldestRunningTask();
+            if (task != null) {
+                return task.getStartTime();
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Returns the oldest running task (if any).
+     *
+     * @since 2.12.0
+     * @return the oldest running task
+     */
+    public PassiveScanTask getOldestRunningTask() {
+        if (passiveScanEnabled) {
+            return this.getPassiveScanController().getOldestRunningTask();
+        }
+        return null;
+    }
+
+    public List<PassiveScanTask> getRunningTasks() {
+        if (passiveScanEnabled) {
+            return this.getPassiveScanController().getRunningTasks();
+        }
+        return null;
     }
 
     @Override
     public void destroy() {
         super.destroy();
-
-        stopPassiveScanThread();
+        stopPassiveScanController();
     }
 
     @Override
@@ -514,7 +558,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     @Override
-    public void sessionScopeChanged(Session session) {}
+    public void sessionScopeChanged(Session session) {
+        // Ignore
+    }
 
     @Override
     public String getAuthor() {
@@ -535,9 +581,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         if (passiveScanEnabled != enabled) {
             passiveScanEnabled = enabled;
             if (enabled) {
-                startPassiveScanThread();
+                getPassiveScanController();
             } else {
-                stopPassiveScanThread();
+                stopPassiveScanController();
             }
         }
     }
@@ -581,5 +627,29 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     @Override
     public boolean supportsDb(String type) {
         return true;
+    }
+
+    private class PassiveScanProxyListener implements ProxyListener {
+
+        @Override
+        public int getArrangeableListenerOrder() {
+            return PROXY_LISTENER_ORDER;
+        }
+
+        @Override
+        public boolean onHttpRequestSend(HttpMessage msg) {
+            if (psc != null) {
+                psc.onHttpRequestSend(msg);
+            }
+            return true;
+        }
+
+        @Override
+        public boolean onHttpResponseReceive(HttpMessage msg) {
+            if (psc != null) {
+                psc.onHttpResponseReceive(msg);
+            }
+            return true;
+        }
     }
 }

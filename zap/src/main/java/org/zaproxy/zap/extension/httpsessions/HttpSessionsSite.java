@@ -37,6 +37,7 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.session.CookieBasedSessionManagementHelper;
+import org.zaproxy.zap.utils.ThreadUtils;
 
 /**
  * The Class SiteHttpSessions stores all the information regarding the sessions for a particular
@@ -89,7 +90,7 @@ public class HttpSessionsSite {
         synchronized (this.sessions) {
             this.sessions.add(session);
         }
-        this.model.addHttpSession(session);
+        ThreadUtils.invokeLater(() -> this.model.addHttpSession(session));
     }
 
     /**
@@ -104,7 +105,7 @@ public class HttpSessionsSite {
         synchronized (this.sessions) {
             this.sessions.remove(session);
         }
-        this.model.removeHttpSession(session);
+        ThreadUtils.invokeLater(() -> this.model.removeHttpSession(session));
         session.invalidate();
     }
 
@@ -579,7 +580,7 @@ public class HttpSessionsSite {
                 // Remove all sessions
                 this.sessions.clear();
                 this.activeSession = null;
-                this.model.removeAllElements();
+                ThreadUtils.invokeLater(() -> this.model.removeAllElements());
                 return;
             }
 
@@ -626,7 +627,7 @@ public class HttpSessionsSite {
                 HttpSession ses = it.next();
                 ses.invalidate();
                 sessions.remove(ses);
-                model.removeHttpSession(ses);
+                ThreadUtils.invokeLater(() -> model.removeHttpSession(ses));
             }
         }
     }
