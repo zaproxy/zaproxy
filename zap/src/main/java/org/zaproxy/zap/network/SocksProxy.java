@@ -29,7 +29,9 @@ import org.apache.logging.log4j.Logger;
  * <p>Contains the host, port, version, and if names should be resolved by the proxy.
  *
  * @since 2.10.0
+ * @deprecated (2.12.0) No longer in use.
  */
+@Deprecated
 public class SocksProxy {
 
     private static final Logger logger = LogManager.getLogger(SocksProxy.class);
