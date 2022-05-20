@@ -87,6 +87,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2020/12/09 Rely on the content encodings from the body to decode.
 // ZAP: 2022/02/09 Deprecate the class.
+// ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.BufferedInputStream;
@@ -112,7 +113,6 @@ import org.ice4j.ice.harvest.AwsCandidateHarvester;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
@@ -149,7 +149,7 @@ public class ProxyThread implements Runnable {
 
     protected ProxyServer parentServer = null;
     protected ProxyParam proxyParam = null;
-    protected ConnectionParam connectionParam = null;
+    protected org.parosproxy.paros.network.ConnectionParam connectionParam = null;
     protected Thread thread = null;
     protected Socket inSocket = null;
     protected Socket outSocket = null;

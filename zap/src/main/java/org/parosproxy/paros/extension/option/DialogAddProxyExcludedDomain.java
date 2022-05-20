@@ -33,6 +33,8 @@ import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 class DialogAddProxyExcludedDomain extends AbstractFormDialog {
 
     private static final long serialVersionUID = -7356390753317082681L;

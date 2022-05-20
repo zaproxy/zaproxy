@@ -24,7 +24,6 @@ import java.net.PasswordAuthentication;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.ConnectionParam;
 
 /**
  * ZAP's {@link Authenticator}.
@@ -41,7 +40,7 @@ public class ZapAuthenticator extends Authenticator {
 
     private static final Logger logger = LogManager.getLogger(ZapAuthenticator.class);
 
-    private static ConnectionParam connectionOptions;
+    private static org.parosproxy.paros.network.ConnectionParam connectionOptions;
 
     private ZapAuthenticator() {}
 
@@ -126,7 +125,7 @@ public class ZapAuthenticator extends Authenticator {
                 && getConnectionOptions().getProxyChainName().equals(getRequestingHost());
     }
 
-    private static ConnectionParam getConnectionOptions() {
+    private static org.parosproxy.paros.network.ConnectionParam getConnectionOptions() {
         if (connectionOptions == null) {
             connectionOptions = Model.getSingleton().getOptionsParam().getConnectionParam();
         }

@@ -32,13 +32,16 @@ import javax.swing.JPasswordField;
 import javax.swing.JRadioButton;
 import javax.swing.border.TitledBorder;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.ConnectionParam;
-import org.zaproxy.zap.network.SocksProxy;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 
-/** A panel for SOCKS proxy configuration. */
+/**
+ * A panel for SOCKS proxy configuration.
+ *
+ * @deprecated (2.12.0) No longer in use.
+ */
+@Deprecated
 public class SocksProxyPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
@@ -66,11 +69,14 @@ public class SocksProxyPanel extends JPanel {
         layout.setAutoCreateGaps(true);
 
         hostTextField = new ZapTextField();
-        hostTextField.setText(ConnectionParam.DEFAULT_SOCKS_PROXY.getHost());
+        hostTextField.setText(
+                org.parosproxy.paros.network.ConnectionParam.DEFAULT_SOCKS_PROXY.getHost());
         JLabel hostLabel = new JLabel(Constant.messages.getString("conn.options.socks.host"));
         hostLabel.setLabelFor(hostTextField);
 
-        portNumberSpinner = new ZapPortNumberSpinner(ConnectionParam.DEFAULT_SOCKS_PROXY.getPort());
+        portNumberSpinner =
+                new ZapPortNumberSpinner(
+                        org.parosproxy.paros.network.ConnectionParam.DEFAULT_SOCKS_PROXY.getPort());
         JLabel portLabel = new JLabel(Constant.messages.getString("conn.options.socks.port"));
         portLabel.setLabelFor(portNumberSpinner);
 
@@ -118,7 +124,8 @@ public class SocksProxyPanel extends JPanel {
                         useSocksDnsCheckBox.setEnabled(
                                 e.getStateChange() == ItemEvent.SELECTED
                                         && useSocksCheckBox.isSelected()));
-        setSelectedVersion(ConnectionParam.DEFAULT_SOCKS_PROXY.getVersion());
+        setSelectedVersion(
+                org.parosproxy.paros.network.ConnectionParam.DEFAULT_SOCKS_PROXY.getVersion());
 
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
@@ -176,7 +183,7 @@ public class SocksProxyPanel extends JPanel {
                                         .addComponent(passwordField)));
     }
 
-    private void setSelectedVersion(SocksProxy.Version version) {
+    private void setSelectedVersion(org.zaproxy.zap.network.SocksProxy.Version version) {
         switch (version) {
             case SOCKS4a:
                 version4RadioButton.setSelected(true);
@@ -187,17 +194,17 @@ public class SocksProxyPanel extends JPanel {
         }
     }
 
-    private SocksProxy.Version getSelectedVersion() {
+    private org.zaproxy.zap.network.SocksProxy.Version getSelectedVersion() {
         if (version4RadioButton.isSelected()) {
-            return SocksProxy.Version.SOCKS4a;
+            return org.zaproxy.zap.network.SocksProxy.Version.SOCKS4a;
         }
-        return SocksProxy.Version.SOCKS5;
+        return org.zaproxy.zap.network.SocksProxy.Version.SOCKS5;
     }
 
-    public void initParam(ConnectionParam options) {
+    public void initParam(org.parosproxy.paros.network.ConnectionParam options) {
         useSocksCheckBox.setSelected(options.isUseSocksProxy());
 
-        SocksProxy socksProxy = options.getSocksProxy();
+        org.zaproxy.zap.network.SocksProxy socksProxy = options.getSocksProxy();
         hostTextField.setText(socksProxy.getHost());
         hostTextField.discardAllEdits();
         portNumberSpinner.setValue(socksProxy.getPort());
@@ -217,16 +224,16 @@ public class SocksProxyPanel extends JPanel {
         }
     }
 
-    public void saveParam(ConnectionParam options) {
+    public void saveParam(org.parosproxy.paros.network.ConnectionParam options) {
         options.setUseSocksProxy(useSocksCheckBox.isSelected());
 
-        SocksProxy oldSocksProxy = options.getSocksProxy();
+        org.zaproxy.zap.network.SocksProxy oldSocksProxy = options.getSocksProxy();
         if (!oldSocksProxy.getHost().equals(hostTextField.getText())
                 || oldSocksProxy.getPort() != portNumberSpinner.getValue()
                 || oldSocksProxy.getVersion() != getSelectedVersion()
                 || oldSocksProxy.isUseDns() != useSocksDnsCheckBox.isSelected()) {
             options.setSocksProxy(
-                    new SocksProxy(
+                    new org.zaproxy.zap.network.SocksProxy(
                             hostTextField.getText(),
                             portNumberSpinner.getValue(),
                             getSelectedVersion(),

@@ -42,7 +42,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
 import org.zaproxy.zap.extension.ascan.filters.FilterResult;
@@ -67,6 +66,7 @@ class HostProcessUnitTest {
     private HostProcess hostProcess;
 
     @BeforeEach
+    @SuppressWarnings("deprecation")
     void setup() {
         Constant.messages = new I18N(Locale.ENGLISH);
 
@@ -83,7 +83,8 @@ class HostProcessUnitTest {
         Model.setSingletonForTesting(model);
         OptionsParam optionsParam = mock(OptionsParam.class);
         given(model.getOptionsParam()).willReturn(optionsParam);
-        given(optionsParam.getConnectionParam()).willReturn(mock(ConnectionParam.class));
+        given(optionsParam.getConnectionParam())
+                .willReturn(mock(org.parosproxy.paros.network.ConnectionParam.class));
 
         pluginFactory = mock(PluginFactory.class);
         given(pluginFactory.clone()).willReturn(pluginFactory);

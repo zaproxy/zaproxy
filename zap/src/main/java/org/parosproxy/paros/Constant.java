@@ -116,6 +116,7 @@
 // ZAP: 2021/10/06 Update user agent when upgrading from 2.10
 // ZAP: 2022/02/03 Removed deprecated FILE_CONFIG_DEFAULT and VULNS_BASE
 // ZAP: 2022/02/25 Remove options that are no longer needed.
+// ZAP: 2022/05/20 Remove usage of ConnectionParam.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -156,7 +157,6 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.control.ControlOverrides;
@@ -192,7 +192,6 @@ public final class Constant {
 
     // Old version numbers - for upgrade
     private static final long V_2_11_1_TAG = 20011001;
-    private static final long V_2_10_0_TAG = 20010000;
     private static final long V_2_9_0_TAG = 2009000;
     private static final long V_2_8_0_TAG = 2008000;
     private static final long V_2_7_0_TAG = 2007000;
@@ -704,9 +703,6 @@ public final class Constant {
                     if (ver <= V_2_9_0_TAG) {
                         upgradeFrom2_9_0(config);
                     }
-                    if (ver <= V_2_10_0_TAG) {
-                        upgradeFrom2_10_0(config);
-                    }
                     if (ver <= V_2_11_1_TAG) {
                         upgradeFrom2_11_1(config);
                     }
@@ -1116,9 +1112,6 @@ public final class Constant {
     }
 
     private static void upgradeFrom2_8_0(XMLConfiguration config) {
-        // Update to a newer default user agent
-        config.setProperty(
-                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
         updatePscanTagMailtoPattern(config);
     }
 
@@ -1135,20 +1128,11 @@ public final class Constant {
                                 config.clearProperty(key);
                             }
                         });
-        // Update to a newer default user agent
-        config.setProperty(
-                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
         // Use new Look and Feel
         config.setProperty(
                 OptionsParamView.LOOK_AND_FEEL, OptionsParamView.DEFAULT_LOOK_AND_FEEL_NAME);
         config.setProperty(
                 OptionsParamView.LOOK_AND_FEEL_CLASS, OptionsParamView.DEFAULT_LOOK_AND_FEEL_CLASS);
-    }
-
-    private static void upgradeFrom2_10_0(XMLConfiguration config) {
-        // Update to a newer default user agent
-        config.setProperty(
-                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
     }
 
     private static void upgradeFrom2_11_1(XMLConfiguration config) {

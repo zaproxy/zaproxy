@@ -23,6 +23,8 @@ import java.awt.Dialog;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.network.DomainMatcher;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 class DialogModifyProxyExcludedDomain extends DialogAddProxyExcludedDomain {
 
     private static final long serialVersionUID = -4031122965844883255L;

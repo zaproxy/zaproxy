@@ -28,7 +28,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 
@@ -42,7 +41,7 @@ public class DownloadManager extends Thread {
 
     /** @deprecated (2.12.0) */
     @Deprecated
-    public DownloadManager(ConnectionParam connectionParam) {
+    public DownloadManager(org.parosproxy.paros.network.ConnectionParam connectionParam) {
         this(HttpSender.CHECK_FOR_UPDATES_INITIATOR);
     }
 
