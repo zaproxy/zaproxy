@@ -54,6 +54,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link HttpSender}. */
+@SuppressWarnings("deprecation")
 class HttpSenderUnitTest {
 
     private static final String PROXY_RESPONSE = "Proxy Response";
@@ -78,7 +79,7 @@ class HttpSenderUnitTest {
                                         .withStatusMessage("OK")
                                         .withBody(SERVER_RESPONSE)));
 
-        options = new ConnectionParam();
+        options = new org.parosproxy.paros.network.ConnectionParam();
         options.load(new ZapXmlConfiguration());
         Model model = mock(Model.class);
         Model.setSingletonForTesting(model);

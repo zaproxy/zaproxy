@@ -25,6 +25,8 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class ProxyExcludedDomainsTableModel
         extends AbstractMultipleOptionsTableModel<DomainMatcher> {
 

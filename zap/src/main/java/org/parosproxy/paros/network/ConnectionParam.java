@@ -53,6 +53,7 @@
 // ZAP: 2022/02/02 Removed getProxyChainSkipName() and setProxyChainSkipName(String)
 // ZAP: 2022/02/08 Use isEmpty where applicable.
 // ZAP: 2022/05/04 Deprecate single cookie request header option.
+// ZAP: 2022/05/20 Deprecate the class.
 package org.parosproxy.paros.network;
 
 import java.net.PasswordAuthentication;
@@ -70,8 +71,9 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 import org.zaproxy.zap.network.DomainMatcher;
-import org.zaproxy.zap.network.SocksProxy;
 
+/** @deprecated (2.12.0) Use the network add-on instead. */
+@Deprecated
 public class ConnectionParam extends AbstractParam {
 
     // ZAP: Added logger
@@ -152,7 +154,8 @@ public class ConnectionParam extends AbstractParam {
      *
      * @since 2.10.0
      */
-    public static final SocksProxy DEFAULT_SOCKS_PROXY = new SocksProxy("localhost", 1080);
+    public static final org.zaproxy.zap.network.SocksProxy DEFAULT_SOCKS_PROXY =
+            new org.zaproxy.zap.network.SocksProxy("localhost", 1080);
 
     /**
      * Pattern with loopback names and addresses that should be always resolved (when creating the
@@ -175,7 +178,7 @@ public class ConnectionParam extends AbstractParam {
     private String proxyChainPassword = "";
 
     private boolean useSocksProxy;
-    private SocksProxy socksProxy = DEFAULT_SOCKS_PROXY;
+    private org.zaproxy.zap.network.SocksProxy socksProxy = DEFAULT_SOCKS_PROXY;
     private PasswordAuthentication socksProxyPasswordAuth =
             new PasswordAuthentication("", new char[0]);
 
@@ -864,7 +867,12 @@ public class ConnectionParam extends AbstractParam {
             useSocksProxy = getBoolean(USE_SOCKS_PROXY_KEY, false);
         }
 
-        socksProxy = new SocksProxy(host, port, SocksProxy.Version.from(version), useDns);
+        socksProxy =
+                new org.zaproxy.zap.network.SocksProxy(
+                        host,
+                        port,
+                        org.zaproxy.zap.network.SocksProxy.Version.from(version),
+                        useDns);
         if (useSocksProxy) {
             apply(socksProxy);
         }
@@ -904,7 +912,7 @@ public class ConnectionParam extends AbstractParam {
      *
      * @param socksProxy the SOCKS proxy to apply.
      */
-    private void apply(SocksProxy socksProxy) {
+    private void apply(org.zaproxy.zap.network.SocksProxy socksProxy) {
         String host = "";
         String port = "";
         String version = "";
@@ -934,7 +942,7 @@ public class ConnectionParam extends AbstractParam {
     public boolean shouldResolveRemoteHostname(String hostname) {
         if (!useSocksProxy
                 || !socksProxy.isUseDns()
-                || socksProxy.getVersion() != SocksProxy.Version.SOCKS5) {
+                || socksProxy.getVersion() != org.zaproxy.zap.network.SocksProxy.Version.SOCKS5) {
             return true;
         }
         return LOOPBACK_PATTERN.matcher(hostname).matches();
@@ -982,7 +990,7 @@ public class ConnectionParam extends AbstractParam {
      * @see #setSocksProxy(SocksProxy)
      */
     @ZapApiIgnore
-    public SocksProxy getSocksProxy() {
+    public org.zaproxy.zap.network.SocksProxy getSocksProxy() {
         return socksProxy;
     }
 
@@ -995,7 +1003,7 @@ public class ConnectionParam extends AbstractParam {
      * @see #getSocksProxy()
      * @see #setUseSocksProxy(boolean)
      */
-    public void setSocksProxy(SocksProxy socksProxy) {
+    public void setSocksProxy(org.zaproxy.zap.network.SocksProxy socksProxy) {
         if (this.socksProxy.equals(socksProxy)) {
             return;
         }

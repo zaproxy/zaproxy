@@ -37,7 +37,6 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
@@ -154,7 +153,7 @@ public class Spider {
             String id,
             ExtensionSpider extension,
             SpiderParam spiderParam,
-            ConnectionParam connectionParam,
+            org.parosproxy.paros.network.ConnectionParam connectionParam,
             Model model,
             Context scanContext) {
         this(id, extension, spiderParam, model, scanContext);

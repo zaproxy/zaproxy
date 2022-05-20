@@ -53,6 +53,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
 // ZAP: 2022/04/23 Use new HttpSender constructor.
+// ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -76,7 +77,6 @@ import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ActiveScanEventPublisher;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
@@ -138,11 +138,14 @@ public class Scanner implements Runnable {
      * @param scannerParam the scanner parameters
      * @param param the connection parameters
      * @param scanPolicy the scan policy
-     * @deprecated Use {@link #Scanner(ScannerParam, ConnectionParam, ScanPolicy, RuleConfigParam)}
-     *     instead. It will be removed in a future version.
+     * @deprecated Use {@link #Scanner(ScannerParam, ScanPolicy, RuleConfigParam)} instead. It will
+     *     be removed in a future version.
      */
     @Deprecated
-    public Scanner(ScannerParam scannerParam, ConnectionParam param, ScanPolicy scanPolicy) {
+    public Scanner(
+            ScannerParam scannerParam,
+            org.parosproxy.paros.network.ConnectionParam param,
+            ScanPolicy scanPolicy) {
         this(scannerParam, param, scanPolicy, null);
     }
 
@@ -159,7 +162,7 @@ public class Scanner implements Runnable {
     @Deprecated
     public Scanner(
             ScannerParam scannerParam,
-            ConnectionParam param,
+            org.parosproxy.paros.network.ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
         this(scannerParam, scanPolicy, ruleConfigParam);

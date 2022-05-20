@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.ascan;
 
 import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.ascan.AttackModeScanner.AttackModeScannerThread;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.Target;
@@ -34,10 +33,11 @@ public class AttackScan extends ActiveScan {
 
     private final AttackModeScannerThread attackModeScannerThread;
 
+    @SuppressWarnings("deprecation")
     public AttackScan(
             String displayName,
             ScannerParam scannerParam,
-            ConnectionParam param,
+            org.parosproxy.paros.network.ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
         this(displayName, scannerParam, scanPolicy, ruleConfigParam, null);

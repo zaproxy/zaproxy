@@ -913,9 +913,8 @@ public class SpiderParam extends AbstractParam {
      * <ul>
      *   <li>This option has low priority, the Spider will respect other (global) options related to
      *       the HTTP state. This option is ignored if, for example, a {@link
-     *       org.zaproxy.zap.users.User User} was set or the option {@link
-     *       org.parosproxy.paros.network.ConnectionParam#isHttpStateEnabled() Session Tracking
-     *       (Cookie)} is enabled.
+     *       org.zaproxy.zap.users.User User} was set or the option Enable (Global) HTTP State is
+     *       enabled.
      *   <li>The cookies are not shared between spider processes, each process has its own cookie
      *       jar.
      * </ul>

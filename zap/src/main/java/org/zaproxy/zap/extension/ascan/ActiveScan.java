@@ -40,7 +40,6 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -86,7 +85,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     public ActiveScan(
             String displayName,
             ScannerParam scannerParam,
-            ConnectionParam param,
+            org.parosproxy.paros.network.ConnectionParam param,
             ScanPolicy scanPolicy) {
         this(displayName, scannerParam, param, scanPolicy, null);
     }
@@ -99,7 +98,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     public ActiveScan(
             String displayName,
             ScannerParam scannerParam,
-            ConnectionParam param,
+            org.parosproxy.paros.network.ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
         this(displayName, scannerParam, scanPolicy, ruleConfigParam);

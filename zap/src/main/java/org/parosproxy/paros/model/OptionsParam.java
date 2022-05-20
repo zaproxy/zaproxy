@@ -44,6 +44,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/25 Change the default value of userDirectory from null to the user's home directory.
 // ZAP: 2022/02/09 Deprecate methods related to core proxy options.
+// ZAP: 2022/05/20 Deprecate methods related to core connection options.
 package org.parosproxy.paros.model;
 
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
@@ -59,7 +60,6 @@ import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
@@ -78,7 +78,10 @@ public class OptionsParam extends AbstractParam {
     private org.parosproxy.paros.core.proxy.ProxyParam proxyParam =
             new org.parosproxy.paros.core.proxy.ProxyParam();
 
-    private ConnectionParam connectionParam = new ConnectionParam();
+    @SuppressWarnings("deprecation")
+    private org.parosproxy.paros.network.ConnectionParam connectionParam =
+            new org.parosproxy.paros.network.ConnectionParam();
+
     private OptionsParamView viewParam = new OptionsParamView();
     private OptionsParamCertificate certificateParam = new OptionsParamCertificate();
     // ZAP: Added many instance variables for new functionality.
@@ -101,8 +104,12 @@ public class OptionsParam extends AbstractParam {
 
     public OptionsParam() {}
 
-    /** @return Returns the connectionParam. */
-    public ConnectionParam getConnectionParam() {
+    /**
+     * @return Returns the connectionParam.
+     * @deprecated (2.12.0) Use the network add-on instead.
+     */
+    @Deprecated
+    public org.parosproxy.paros.network.ConnectionParam getConnectionParam() {
         return connectionParam;
     }
 
@@ -124,8 +131,12 @@ public class OptionsParam extends AbstractParam {
         this.proxyParam = proxyParam;
     }
 
-    /** @param connectionParam The connectionParam to set. */
-    public void setConnectionParam(ConnectionParam connectionParam) {
+    /**
+     * @param connectionParam The connectionParam to set.
+     * @deprecated (2.12.0)
+     */
+    @Deprecated
+    public void setConnectionParam(org.parosproxy.paros.network.ConnectionParam connectionParam) {
         this.connectionParam = connectionParam;
     }
 
@@ -179,8 +190,6 @@ public class OptionsParam extends AbstractParam {
 
     @Override
     protected void parse() {
-        getConnectionParam().load(getConfig());
-        getProxyParam().load(getConfig());
         getCertificateParam().load(getConfig());
         getViewParam().load(getConfig());
         getCheckForUpdatesParam().load(getConfig());

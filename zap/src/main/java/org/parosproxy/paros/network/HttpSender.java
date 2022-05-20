@@ -101,6 +101,7 @@
 // ZAP: 2022/04/29 Deprecate setAllowCircularRedirects.
 // ZAP: 2022/05/04 Always use single cookie request header.
 // ZAP: 2022/05/04 Use latest timeout/user-agent always.
+// ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -225,7 +226,10 @@ public class HttpSender {
             };
 
     private HttpClient client = null;
+
+    @SuppressWarnings("deprecation")
     private ConnectionParam param = null;
+
     private MultiThreadedHttpConnectionManager httpConnManager = null;
     private HttpRequestConfig followRedirect = NO_REDIRECTS;
     private boolean useCookies;
@@ -274,6 +278,7 @@ public class HttpSender {
         init(true, initiator);
     }
 
+    @SuppressWarnings("deprecation")
     private void init(boolean useGlobalState, int initiator) {
         this.param = Model.getSingleton().getOptionsParam().getConnectionParam();
         this.initiator = initiator;
@@ -304,6 +309,7 @@ public class HttpSender {
         return (SSLConnector) protocol.getSocketFactory();
     }
 
+    @SuppressWarnings("deprecation")
     private void checkState() {
         if (!useCookies) {
             resetState();
@@ -357,6 +363,7 @@ public class HttpSender {
      * @since 2.12.0
      * @see #setUseGlobalState(boolean)
      */
+    @SuppressWarnings("deprecation")
     public boolean isGlobalStateEnabled() {
         return param.isHttpStateEnabled();
     }
@@ -381,6 +388,7 @@ public class HttpSender {
         return new HttpClient(httpConnManager);
     }
 
+    @SuppressWarnings("deprecation")
     private void setProxyAuth(HttpState state) {
         if (param.isUseProxyChain() && param.isUseProxyChainAuth()) {
             String realm = param.getProxyChainRealm();
@@ -414,6 +422,7 @@ public class HttpSender {
         return executeMethodImpl(method, state);
     }
 
+    @SuppressWarnings("deprecation")
     private int executeMethodImpl(HttpMethod method, HttpState state) throws IOException {
         int responseCode = -1;
 
@@ -730,6 +739,7 @@ public class HttpSender {
     @Deprecated
     public static void setUserAgent(String userAgent) {}
 
+    @SuppressWarnings("deprecation")
     private void setCommonManagerParams(MultiThreadedHttpConnectionManager mgr) {
         mgr.getParams().setStaleCheckingEnabled(true);
 
