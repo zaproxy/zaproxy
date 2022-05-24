@@ -40,6 +40,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/05/21 Remove unsafe SSL/TLS renegotiation option.
 package org.parosproxy.paros.extension.option;
 
 // TODO: Buttons should be gray
@@ -115,7 +116,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
     private javax.swing.JLabel textLabel;
     private javax.swing.JCheckBox useClientCertificateCheckBox;
     private javax.swing.JCheckBox usePkcs11ExperimentalSliSupportCheckBox;
-    private javax.swing.JCheckBox enableUnsafeSSLRenegotiationCheckBox;
 
     private SSLContextManager contextManager;
     private DefaultListModel<String> keyStoreListModel;
@@ -220,7 +220,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
             addPkcs11Button = new javax.swing.JButton();
             pkcs11PasswordField = new javax.swing.JPasswordField();
             useClientCertificateCheckBox = new javax.swing.JCheckBox();
-            enableUnsafeSSLRenegotiationCheckBox = new javax.swing.JCheckBox();
             textLabel = new javax.swing.JLabel();
             certificateLabel = new javax.swing.JLabel();
             certificateTextField = new ZapTextField();
@@ -668,19 +667,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                         }
                     });
 
-            enableUnsafeSSLRenegotiationCheckBox.setText(
-                    Constant.messages.getString("options.cert.label.enableunsafesslrenegotiation"));
-            enableUnsafeSSLRenegotiationCheckBox.setBorder(
-                    javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-            enableUnsafeSSLRenegotiationCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-            enableUnsafeSSLRenegotiationCheckBox.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            enableUnsafeSSLRenegotiationCheckBoxActionPerformed(evt);
-                        }
-                    });
-
             textLabel.setText(Constant.messages.getString("options.cert.label.addkeystore"));
 
             certificateLabel.setText(Constant.messages.getString("options.cert.label.activecerts"));
@@ -749,8 +735,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                                                                                                                             .Alignment
                                                                                                                             .LEADING)
                                                                                                             .addComponent(
-                                                                                                                    enableUnsafeSSLRenegotiationCheckBox)
-                                                                                                            .addComponent(
                                                                                                                     useClientCertificateCheckBox)
                                                                                                             .addComponent(
                                                                                                                     certificateLabel)
@@ -797,7 +781,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                                             .addPreferredGap(
                                                     javax.swing.LayoutStyle.ComponentPlacement
                                                             .UNRELATED)
-                                            .addComponent(enableUnsafeSSLRenegotiationCheckBox)
                                             .addComponent(useClientCertificateCheckBox)
                                             .addPreferredGap(
                                                     javax.swing.LayoutStyle.ComponentPlacement
@@ -1335,24 +1318,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
         showActiveCertificateButton.setEnabled(useClientCertificateCheckBox.isSelected());
     } // GEN-LAST:event_useClientCertificateCheckBoxActionPerformed
 
-    // Issue 90: Add GUI support for unsecure (unsafe) SSL/TLS renegotiation
-    private void enableUnsafeSSLRenegotiationCheckBoxActionPerformed(
-            java.awt.event.ActionEvent evt) {
-
-        boolean enabled = enableUnsafeSSLRenegotiationCheckBox.isSelected();
-
-        if (enabled) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    new String[] {
-                        Constant.messages.getString(
-                                "options.cert.label.enableunsafesslrenegotiationwarning")
-                    },
-                    Constant.messages.getString("options.cert.label.enableunsafesslrenegotiation"),
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
     private void usePkcs11ExperimentalSliSupportCheckBoxActionPerformed(
             java.awt.event.ActionEvent evt) {
         Model.getSingleton()
@@ -1389,7 +1354,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 
         // getBtnLocation().setEnabled(getChkUseClientCertificate().isSelected());
         // getTxtLocation().setText(options.getCertificateParam().getClientCertLocation());
-        enableUnsafeSSLRenegotiationCheckBox.setSelected(certParam.isAllowUnsafeSslRenegotiation());
     }
 
     @Override
@@ -1397,8 +1361,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
         OptionsParam options = (OptionsParam) obj;
         OptionsParamCertificate certParam = options.getCertificateParam();
         certParam.setEnableCertificate(useClientCertificateCheckBox.isSelected());
-
-        certParam.setAllowUnsafeSslRenegotiation(enableUnsafeSSLRenegotiationCheckBox.isSelected());
     }
 
     @Override

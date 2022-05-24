@@ -29,6 +29,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/05/21 Disable unsafe SSL/TLS renegotiation option.
 package org.parosproxy.paros.extension.option;
 
 import ch.csnc.extension.httpclient.SSLContextManager;
@@ -57,15 +58,10 @@ public class OptionsParamCertificate extends AbstractParam {
     private static final String CLIENT_CERT_PASSWORD = CERTIFICATE_BASE_KEY + ".pkcs12.password";
     private static final String CLIENT_CERT_INDEX = CERTIFICATE_BASE_KEY + ".pkcs12.index";
 
-    private static final String ALLOW_UNSAFE_SSL_RENEGOTIATION =
-            CERTIFICATE_BASE_KEY + ".allowUnsafeSslRenegotiation";
-
     private boolean useClientCert = false;
     private String clientCertLocation = "";
     private String clientCertPassword = "";
     private int clientCertIndex = 0;
-
-    private boolean allowUnsafeSslRenegotiation = false;
 
     public OptionsParamCertificate() {}
 
@@ -74,9 +70,6 @@ public class OptionsParamCertificate extends AbstractParam {
 
         clientCertCheck();
         saveClientCertSettings();
-
-        allowUnsafeSslRenegotiation = getBoolean(ALLOW_UNSAFE_SSL_RENEGOTIATION, false);
-        setAllowUnsafeSslRenegotiationSystemProperty(allowUnsafeSslRenegotiation);
     }
 
     /**
@@ -221,7 +214,7 @@ public class OptionsParamCertificate extends AbstractParam {
      * @see #setAllowUnsafeSslRenegotiation(boolean)
      */
     public boolean isAllowUnsafeSslRenegotiation() {
-        return allowUnsafeSslRenegotiation;
+        return false;
     }
 
     /**
@@ -236,38 +229,6 @@ public class OptionsParamCertificate extends AbstractParam {
      * @param allow {@code true} if the unsafe SSL renegotiation should be enabled, {@code false}
      *     otherwise.
      * @see #isAllowUnsafeSslRenegotiation()
-     * @see #setAllowUnsafeSslRenegotiationSystemProperty(boolean)
      */
-    public void setAllowUnsafeSslRenegotiation(boolean allow) {
-        if (allowUnsafeSslRenegotiation != allow) {
-            allowUnsafeSslRenegotiation = allow;
-
-            setAllowUnsafeSslRenegotiationSystemProperty(allowUnsafeSslRenegotiation);
-            getConfig().setProperty(ALLOW_UNSAFE_SSL_RENEGOTIATION, allowUnsafeSslRenegotiation);
-        }
-    }
-
-    /**
-     * Sets the given value to system property "sun.security.ssl.allowUnsafeRenegotiation" and sets
-     * the appropriate value to system property "com.ibm.jsse2.renegotiate", which enables or not
-     * the unsafe SSL renegotiation.
-     *
-     * <p>It must be set before establishing any SSL connection. Further changes after establishing
-     * a SSL connection will have no effect.
-     *
-     * @param allow the value to set to the property
-     * @see #setAllowUnsafeSslRenegotiation(boolean)
-     */
-    private static void setAllowUnsafeSslRenegotiationSystemProperty(boolean allow) {
-        String ibmSystemPropertyValue;
-        if (allow) {
-            logger.info("Unsafe SSL renegotiation enabled.");
-            ibmSystemPropertyValue = "ALL";
-        } else {
-            logger.info("Unsafe SSL renegotiation disabled.");
-            ibmSystemPropertyValue = "NONE";
-        }
-        System.setProperty("com.ibm.jsse2.renegotiate", ibmSystemPropertyValue);
-        System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", String.valueOf(allow));
-    }
+    public void setAllowUnsafeSslRenegotiation(boolean allow) {}
 }
