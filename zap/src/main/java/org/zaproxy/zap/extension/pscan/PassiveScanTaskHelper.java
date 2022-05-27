@@ -169,7 +169,7 @@ public class PassiveScanTaskHelper {
      *
      * @param tag the name of the tag.
      */
-    public void addTag(HistoryReference href, String tag) {
+    public void addHistoryTag(HistoryReference href, String tag) {
         if (shutDown) {
             return;
         }

@@ -101,7 +101,7 @@ public abstract class PluginPassiveScanner extends Enableable
     /**
      * <strong>Note:</strong> This method should no longer need to be overridden, the functionality
      * provided by the {@code parent} can be obtained directly with {@link #newAlert()} and {@link
-     * #addTag(String)}.
+     * #addHistoryTag(String)}.
      */
     @Override
     @SuppressWarnings("deprecation")
@@ -410,9 +410,21 @@ public abstract class PluginPassiveScanner extends Enableable
      *
      * @param tag the name of the tag.
      * @since 2.11.0
+     * @deprecated (2.12.0) Replaced by {@link #addHistoryTag(String)}.
      */
+    @Deprecated
     protected void addTag(String tag) {
-        this.taskHelper.addTag(this.message.getHistoryRef(), tag);
+        addHistoryTag(tag);
+    }
+
+    /**
+     * Adds the given tag to the message being passive scanned.
+     *
+     * @param tag the name of the tag.
+     * @since 2.12.0
+     */
+    protected void addHistoryTag(String tag) {
+        this.taskHelper.addHistoryTag(this.message.getHistoryRef(), tag);
     }
 
     /**
@@ -620,6 +632,30 @@ public abstract class PluginPassiveScanner extends Enableable
         @Override
         public AlertBuilder setTags(Map<String, String> tags) {
             super.setTags(tags);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder addTag(String tag) {
+            super.addTag(tag, "");
+            return this;
+        }
+
+        @Override
+        public AlertBuilder addTag(String tag, String value) {
+            super.addTag(tag, value);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder removeTag(String tag) {
+            super.removeTag(tag);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder removeTag(String tag, String value) {
+            super.removeTag(tag, value);
             return this;
         }
 
