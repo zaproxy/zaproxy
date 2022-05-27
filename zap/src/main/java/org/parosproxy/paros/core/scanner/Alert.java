@@ -63,10 +63,12 @@
 // ZAP: 2022/02/03 Removed SUSPICIOUS, WARNING, MSG_RELIABILITY, setRiskReliability(int, int) and
 // getReliability()
 // ZAP: 2022/02/25 Remove code deprecated in 2.5.0
+// ZAP: 2022/05/26 Add addTag and removeTag methods
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import javax.swing.ImageIcon;
 import org.apache.commons.httpclient.URI;
@@ -1084,6 +1086,59 @@ public class Alert implements Comparable<Alert> {
         /** @since 2.11.0 */
         public Builder setTags(Map<String, String> tags) {
             this.tags = tags;
+            return this;
+        }
+
+        /**
+         * Adds an Alert tag with the given key (tag/name) to the existing collection for this
+         * Alert/Builder.
+         *
+         * @since 2.12.0
+         */
+        public Builder addTag(String tag) {
+            addTag(tag, "");
+            return this;
+        }
+
+        /**
+         * Adds an Alert tag with the given key (tag/name) and value to the existing collection for
+         * this Alert/Builder.
+         *
+         * @since 2.12.0
+         */
+        public Builder addTag(String tag, String value) {
+            if (this.tags == null) {
+                this.tags = new HashMap<>();
+            }
+            this.tags.put(tag, value);
+            return this;
+        }
+
+        /**
+         * Removes an Alert tag with the given key (tag/name) from the existing collection for this
+         * Alert/Builder.
+         *
+         * @since 2.12.0
+         */
+        public Builder removeTag(String tag) {
+            if (this.tags == null) {
+                return this;
+            }
+            this.tags.remove(tag);
+            return this;
+        }
+
+        /**
+         * Removes an Alert tag with the given key (tag/name) and value from the existing collection
+         * for this Alert/Builder.
+         *
+         * @since 2.12.0
+         */
+        public Builder removeTag(String tag, String value) {
+            if (this.tags == null) {
+                return this;
+            }
+            this.tags.remove(tag, value);
             return this;
         }
 

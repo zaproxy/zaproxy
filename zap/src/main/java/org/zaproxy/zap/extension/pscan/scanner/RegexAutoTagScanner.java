@@ -330,7 +330,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
             if (matcher.groupCount() > 0) {
                 tag = matcher.pattern().matcher(matcher.group()).replaceFirst(tag);
             }
-            addTag(tag);
+            addHistoryTag(tag);
         }
 
         try {

@@ -1472,6 +1472,30 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             return this;
         }
 
+        @Override
+        public AlertBuilder addTag(String tag) {
+            super.addTag(tag);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder addTag(String tag, String value) {
+            super.addTag(tag, value);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder removeTag(String tag) {
+            super.removeTag(tag);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder removeTag(String tag, String value) {
+            super.removeTag(tag, value);
+            return this;
+        }
+
         /**
          * Raises the alert with specified data.
          *

@@ -24,7 +24,10 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.HashMap;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.core.scanner.Alert.Builder;
 
 class AlertUnitTest {
 
@@ -97,5 +100,61 @@ class AlertUnitTest {
         int cmp = alertA.compareTo(alertB);
         // Then
         assertThat(cmp, is(equalTo(-1)));
+    }
+
+    @Test
+    void shouldBuildAlertWithOneTag() {
+        // Given
+        Builder builder = new Alert.Builder();
+        // When
+        builder.addTag("Test");
+        Alert alert = builder.build();
+        int tagCount = alert.getTags().size();
+        // Then
+        assertThat(tagCount, is(equalTo(1)));
+    }
+
+    @Test
+    void shouldBuildAlertWithTwoTagsWhenOneSetAndOneAdded() {
+        // Given
+        Builder builder = new Alert.Builder();
+        // When
+        Map<String, String> tags = new HashMap<>();
+        tags.put("Test1", "Test");
+        builder.setTags(tags);
+        builder.addTag("Test2");
+        Alert alert = builder.build();
+        int tagCount = alert.getTags().size();
+        // Then
+        assertThat(tagCount, is(equalTo(2)));
+    }
+
+    @Test
+    void shouldBuildAlertWithOneTagWhenOneSetAndOneAddedOneRemoved() {
+        // Given
+        Builder builder = new Alert.Builder();
+        // When
+        Map<String, String> tags = new HashMap<>();
+        tags.put("Test1", "Test");
+        builder.setTags(tags);
+        builder.addTag("Test2");
+        builder.removeTag("Test1");
+        Alert alert = builder.build();
+        int tagCount = alert.getTags().size();
+        // Then
+        assertThat(tagCount, is(equalTo(1)));
+        assertThat(alert.getTags().get("Test2"), is(equalTo("")));
+    }
+
+    @Test
+    void shouldBuildAlertWithNoTagsWhenOneRemoved() {
+        // Given
+        Builder builder = new Alert.Builder();
+        // When
+        builder.removeTag("Test");
+        Alert alert = builder.build();
+        int tagCount = alert.getTags().size();
+        // Then
+        assertThat(tagCount, is(equalTo(0)));
     }
 }
