@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import ch.csnc.extension.httpclient.SSLContextManager;
 import edu.umass.cs.benchlab.har.HarEntries;
 import edu.umass.cs.benchlab.har.HarLog;
 import java.awt.EventQueue;
@@ -29,10 +28,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,7 +56,6 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -325,11 +319,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         null,
                         new String[] {PARAM_FILE_PATH}));
         this.addApiAction(
-                new ApiAction(
-                        ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE,
-                        new String[] {PARAM_FILE_PATH, PARAM_PASSWORD},
-                        new String[] {PARAM_INDEX}));
-        this.addApiAction(new ApiAction(ACTION_DISABLE_CLIENT_CERTIFICATE));
+                deprecatedNetworkApi(
+                        new ApiAction(
+                                ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE,
+                                new String[] {PARAM_FILE_PATH, PARAM_PASSWORD},
+                                new String[] {PARAM_INDEX})));
+        this.addApiAction(deprecatedNetworkApi(new ApiAction(ACTION_DISABLE_CLIENT_CERTIFICATE)));
 
         // Deprecated actions
         this.addApiAction(depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALL_ALERTS)));
@@ -865,50 +860,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILE_PATH);
             }
         } else if (ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE.equals(name)) {
-            String filePath = getParam(params, PARAM_FILE_PATH, "");
-            if (!filePath.isEmpty()) {
-                File file = new File(filePath);
-                if (!file.isFile() || !file.canRead()) {
-                    throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILE_PATH);
-                }
-            }
-            String password = getParam(params, PARAM_PASSWORD, "");
-            if (password.isEmpty()) {
-                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_PASSWORD);
-            }
-            int certIndex = getParam(params, PARAM_INDEX, 0);
-            if (certIndex < 0) {
-                certIndex = 0;
-            }
-
-            OptionsParamCertificate certParams =
-                    Model.getSingleton().getOptionsParam().getCertificateParam();
-            try {
-                SSLContextManager contextManager = certParams.getSSLContextManager();
-                int ksIndex = contextManager.loadPKCS12Certificate(filePath, password);
-                contextManager.unlockKey(ksIndex, certIndex, password);
-                contextManager.setDefaultKey(ksIndex, certIndex);
-                certParams.setActiveCertificate();
-                certParams.setEnableCertificate(true);
-                logger.info("Client Certificate enabled from API");
-            } catch (IOException
-                    | CertificateException
-                    | NoSuchAlgorithmException
-                    | KeyStoreException
-                    | KeyManagementException ex) {
-                logger.error("The certificate could not be enabled due to an error", ex);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR, ex);
-            }
-            return ApiResponseElement.OK;
-
+            return getNetworkImplementor().handleApiAction("addPkcs12ClientCertificate", params);
         } else if (ACTION_DISABLE_CLIENT_CERTIFICATE.equals(name)) {
-            Model.getSingleton()
-                    .getOptionsParam()
-                    .getCertificateParam()
-                    .setEnableCertificate(false);
-            logger.info("Client Certificate disabled from API");
-
-            return ApiResponseElement.OK;
+            JSONObject newParams = new JSONObject();
+            params.put("use", false);
+            return getNetworkImplementor().handleApiAction("setUseClientCertificate", newParams);
         } else {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }

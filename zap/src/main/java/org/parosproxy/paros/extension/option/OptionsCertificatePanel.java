@@ -41,16 +41,10 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/05/21 Remove unsafe SSL/TLS renegotiation option.
+// ZAP: 2022/05/29 Deprecate the class.
 package org.parosproxy.paros.extension.option;
 
 // TODO: Buttons should be gray
-import ch.csnc.extension.httpclient.PKCS11Configuration;
-import ch.csnc.extension.httpclient.PKCS11Configuration.PCKS11ConfigurationBuilder;
-import ch.csnc.extension.httpclient.SSLContextManager;
-import ch.csnc.extension.ui.AliasTableModel;
-import ch.csnc.extension.ui.CertificateView;
-import ch.csnc.extension.ui.DriversView;
-import ch.csnc.extension.util.DriverConfiguration;
 import java.awt.CardLayout;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -79,6 +73,8 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapTextField;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class OptionsCertificatePanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 4350957038174673492L;
@@ -117,10 +113,10 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
     private javax.swing.JCheckBox useClientCertificateCheckBox;
     private javax.swing.JCheckBox usePkcs11ExperimentalSliSupportCheckBox;
 
-    private SSLContextManager contextManager;
+    private ch.csnc.extension.httpclient.SSLContextManager contextManager;
     private DefaultListModel<String> keyStoreListModel;
-    private AliasTableModel aliasTableModel;
-    private DriverConfiguration driverConfig;
+    private ch.csnc.extension.ui.AliasTableModel aliasTableModel;
+    private ch.csnc.extension.util.DriverConfiguration driverConfig;
 
     // Issue 182
     private boolean retry = true;
@@ -144,7 +140,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                 Model.getSingleton().getOptionsParam().getCertificateParam().getSSLContextManager();
 
         keyStoreListModel = new DefaultListModel<>();
-        aliasTableModel = new AliasTableModel(contextManager);
+        aliasTableModel = new ch.csnc.extension.ui.AliasTableModel(contextManager);
 
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("options.cert.title"));
@@ -166,13 +162,13 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
         }
     }
 
-    private static DriverConfiguration createDriverConfiguration() {
+    private static ch.csnc.extension.util.DriverConfiguration createDriverConfiguration() {
         String fileName = "drivers.xml";
         Path path = Paths.get(Constant.getZapInstall(), "xml", fileName);
         if (Files.exists(path)) {
-            return new DriverConfiguration(path.toFile());
+            return new ch.csnc.extension.util.DriverConfiguration(path.toFile());
         }
-        return new DriverConfiguration(
+        return new ch.csnc.extension.util.DriverConfiguration(
                 OptionsCertificatePanel.class.getResource(
                         "/org/zaproxy/zap/resources/" + fileName));
     }
@@ -911,7 +907,8 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                 kspass = null;
             }
 
-            PCKS11ConfigurationBuilder confBuilder = PKCS11Configuration.builder();
+            ch.csnc.extension.httpclient.PKCS11Configuration.PCKS11ConfigurationBuilder
+                    confBuilder = ch.csnc.extension.httpclient.PKCS11Configuration.builder();
             confBuilder.setName(name).setLibrary(library);
             if (usePkcs11ExperimentalSliSupportCheckBox.isSelected()) {
                 confBuilder.setSlotListIndex(slotListIndex);
@@ -924,9 +921,11 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
             if (ksIndex == -1) {
                 logger.error(
                         "The required PKCS#11 provider is not available ("
-                                + SSLContextManager.SUN_PKCS11_CANONICAL_CLASS_NAME
+                                + ch.csnc.extension.httpclient.SSLContextManager
+                                        .SUN_PKCS11_CANONICAL_CLASS_NAME
                                 + " or "
-                                + SSLContextManager.IBM_PKCS11_CANONICAL_CLASS_NAME
+                                + ch.csnc.extension.httpclient.SSLContextManager
+                                        .IBM_PKCS11_CANONICAL_CLASS_NAME
                                 + ").");
                 showErrorMessageSunPkcs11ProviderNotAvailable();
                 return;
@@ -1121,7 +1120,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 
     private void driverButtonActionPerformed(
             java.awt.event.ActionEvent evt) { // GEN-FIRST:event_driverButtonActionPerformed
-        new JDialog(new DriversView(driverConfig), true);
+        new JDialog(new ch.csnc.extension.ui.DriversView(driverConfig), true);
     } // GEN-LAST:event_driverButtonActionPerformed
 
     private void addPkcs12ButtonActionPerformed(
@@ -1193,7 +1192,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
     @SuppressWarnings("unused")
     private void showCertificate(Certificate cert) {
         if (cert != null) {
-            new CertificateView(cert.toString());
+            new ch.csnc.extension.ui.CertificateView(cert.toString());
         }
     }
 

@@ -55,7 +55,9 @@ import org.apache.commons.lang.StringUtils;
  * @see <a
  *     href="http://pic.dhe.ibm.com/infocenter/java7sdk/v7r0/index.jsp?topic=%2Fcom.ibm.java.security.component.71.doc%2Fsecurity-component%2Fpkcs11implDocs%2Fconfigfile.html">IBM
  *     PKCS#11 Configuration</a>
+ * @deprecated (2.12.0) No longer in use.
  */
+@Deprecated
 public class PKCS11Configuration {
 
     private final String name;
