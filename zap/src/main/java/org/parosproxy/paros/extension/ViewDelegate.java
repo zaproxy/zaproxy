@@ -29,12 +29,14 @@
 // ZAP: 2018/07/17 Allow to obtain a KeyStroke with menu shortcut key mask.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/05/29 Allow to obtain the OptionsDialog.
 package org.parosproxy.paros.extension;
 
 import java.awt.Toolkit;
 import javax.swing.KeyStroke;
 import org.parosproxy.paros.view.MainFrame;
 import org.parosproxy.paros.view.MainPopupMenu;
+import org.parosproxy.paros.view.OptionsDialog;
 import org.parosproxy.paros.view.OutputPanel;
 import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.SiteMapPanel;
@@ -51,6 +53,14 @@ public interface ViewDelegate {
     SiteMapPanel getSiteTreePanel();
 
     OutputPanel getOutputPanel();
+
+    /**
+     * Gets the Options dialogue.
+     *
+     * @return the Options dialogue.
+     * @since 2.12.0
+     */
+    OptionsDialog getOptionsDialog();
 
     // ZAP: expose dialog
     SessionDialog getSessionDialog();
