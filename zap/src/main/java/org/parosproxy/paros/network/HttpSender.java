@@ -102,6 +102,7 @@
 // ZAP: 2022/05/04 Always use single cookie request header.
 // ZAP: 2022/05/04 Use latest timeout/user-agent always.
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
+// ZAP: 2022/05/29 Remove redundant checks and create SSLConnector always.
 // ZAP: 2022/05/30 Use shared connection pool.
 package org.parosproxy.paros.network;
 
@@ -180,8 +181,7 @@ public class HttpSender {
 
     private static Logger log = LogManager.getLogger(HttpSender.class);
 
-    private static ProtocolSocketFactory sslFactory = null;
-    private static Protocol protocol = null;
+    private static SSLConnector sslConnector;
 
     private static List<HttpSenderListener> listeners = new ArrayList<>();
     private static Comparator<HttpSenderListener> listenersComparator = null;
@@ -189,17 +189,10 @@ public class HttpSender {
     private User user = null;
 
     static {
-        try {
-            protocol = Protocol.getProtocol("https");
-            sslFactory = protocol.getSocketFactory();
-        } catch (Exception e) {
-        }
-        // avoid init again if already initialized
-        if (sslFactory == null || !(sslFactory instanceof SSLConnector)) {
-            Protocol.registerProtocol(
-                    "https",
-                    new Protocol("https", (ProtocolSocketFactory) new SSLConnector(true), 443));
-        }
+        sslConnector = new SSLConnector(true);
+
+        Protocol.registerProtocol(
+                "https", new Protocol("https", (ProtocolSocketFactory) sslConnector, 443));
 
         Protocol.registerProtocol(
                 "http", new Protocol("http", new ProtocolSocketFactoryImpl(), 80));
@@ -324,7 +317,7 @@ public class HttpSender {
      */
     @Deprecated
     public static SSLConnector getSSLConnector() {
-        return (SSLConnector) protocol.getSocketFactory();
+        return sslConnector;
     }
 
     @SuppressWarnings("deprecation")

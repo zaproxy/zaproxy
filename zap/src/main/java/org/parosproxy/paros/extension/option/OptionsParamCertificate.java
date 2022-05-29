@@ -30,9 +30,9 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/05/21 Disable unsafe SSL/TLS renegotiation option.
+// ZAP: 2022/05/29 Deprecate the class.
 package org.parosproxy.paros.extension.option;
 
-import ch.csnc.extension.httpclient.SSLContextManager;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -46,6 +46,8 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.SSLConnector;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class OptionsParamCertificate extends AbstractParam {
 
     private static final Logger logger = LogManager.getLogger(OptionsParamCertificate.class);
@@ -108,7 +110,8 @@ public class OptionsParamCertificate extends AbstractParam {
         if (enableClientCert && !certPath.isEmpty() && !certPass.isEmpty()) {
             try {
 
-                SSLContextManager contextManager = getSSLContextManager();
+                ch.csnc.extension.httpclient.SSLContextManager contextManager =
+                        getSSLContextManager();
                 int ksIndex = contextManager.loadPKCS12Certificate(certPath, certPass);
                 contextManager.unlockKey(ksIndex, certIndex, certPass);
                 contextManager.setDefaultKey(ksIndex, certIndex);
@@ -196,7 +199,7 @@ public class OptionsParamCertificate extends AbstractParam {
         }
     }
 
-    public SSLContextManager getSSLContextManager() {
+    public ch.csnc.extension.httpclient.SSLContextManager getSSLContextManager() {
 
         ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
         if (sslFactory instanceof SSLConnector) {

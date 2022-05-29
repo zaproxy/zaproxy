@@ -45,9 +45,9 @@
 // ZAP: 2021/05/25 Change the default value of userDirectory from null to the user's home directory.
 // ZAP: 2022/02/09 Deprecate methods related to core proxy options.
 // ZAP: 2022/05/20 Deprecate methods related to core connection options.
+// ZAP: 2022/05/29 Deprecate methods related to core client certificates.
 package org.parosproxy.paros.model;
 
-import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,7 +58,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.extension.option.DatabaseParam;
-import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
@@ -83,13 +82,18 @@ public class OptionsParam extends AbstractParam {
             new org.parosproxy.paros.network.ConnectionParam();
 
     private OptionsParamView viewParam = new OptionsParamView();
-    private OptionsParamCertificate certificateParam = new OptionsParamCertificate();
+
+    @SuppressWarnings("deprecation")
+    private org.parosproxy.paros.extension.option.OptionsParamCertificate certificateParam =
+            new org.parosproxy.paros.extension.option.OptionsParamCertificate();
     // ZAP: Added many instance variables for new functionality.
     private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
     private OptionsParamApi apiParam = new OptionsParamApi();
     private GlobalExcludeURLParam globalExcludeURLParam = new GlobalExcludeURLParam();
-    private OptionsParamExperimentalSliSupport experimentalFeaturesParam =
-            new OptionsParamExperimentalSliSupport();
+
+    @SuppressWarnings("deprecation")
+    private ch.csnc.extension.util.OptionsParamExperimentalSliSupport experimentalFeaturesParam =
+            new ch.csnc.extension.util.OptionsParamExperimentalSliSupport();
 
     /** The database configurations. */
     // ZAP: Added the instance variable.
@@ -155,13 +159,22 @@ public class OptionsParam extends AbstractParam {
         return checkForUpdatesParam;
     }
 
-    /** @param certificateParam The certificateParam to set. */
-    public void setCertificateParam(OptionsParamCertificate certificateParam) {
+    /**
+     * @param certificateParam The certificateParam to set.
+     * @deprecated (2.12.0)
+     */
+    @Deprecated
+    public void setCertificateParam(
+            org.parosproxy.paros.extension.option.OptionsParamCertificate certificateParam) {
         this.certificateParam = certificateParam;
     }
 
-    /** @return Returns the certificateParam. */
-    public OptionsParamCertificate getCertificateParam() {
+    /**
+     * @return Returns the certificateParam.
+     * @deprecated (2.12.0)
+     */
+    @Deprecated
+    public org.parosproxy.paros.extension.option.OptionsParamCertificate getCertificateParam() {
         return certificateParam;
     }
 
@@ -190,12 +203,10 @@ public class OptionsParam extends AbstractParam {
 
     @Override
     protected void parse() {
-        getCertificateParam().load(getConfig());
         getViewParam().load(getConfig());
         getCheckForUpdatesParam().load(getConfig());
         getApiParam().load(getConfig());
         getGlobalExcludeURLParam().load(getConfig());
-        getExperimentalFeaturesParam().load(getConfig());
         getDatabaseParam().load(getConfig());
         getExtensionParam().load(getConfig());
 
@@ -277,7 +288,10 @@ public class OptionsParam extends AbstractParam {
         return apiParam;
     }
 
-    public OptionsParamExperimentalSliSupport getExperimentalFeaturesParam() {
+    /** @deprecated (2.12.0) */
+    @Deprecated
+    public ch.csnc.extension.util.OptionsParamExperimentalSliSupport
+            getExperimentalFeaturesParam() {
         return experimentalFeaturesParam;
     }
 

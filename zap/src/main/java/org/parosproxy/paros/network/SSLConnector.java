@@ -43,9 +43,9 @@
 // ZAP: 2020/10/30 Add SNI hostname when using SOCKS with unresolved addresses.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/11/23 Allow to set certificates service.
+// ZAP: 2022/05/29 Address deprecations related to client certificates.
 package org.parosproxy.paros.network;
 
-import ch.csnc.extension.httpclient.SSLContextManager;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -189,7 +189,8 @@ public class SSLConnector implements SecureProtocolSocketFactory {
     @SuppressWarnings("deprecation")
     private static org.parosproxy.paros.security.SslCertificateService sslCertificateService;
 
-    private static SSLContextManager sslContextManager = null;
+    @SuppressWarnings("deprecation")
+    private static ch.csnc.extension.httpclient.SSLContextManager sslContextManager = null;
 
     /*
      * If relaxedTrust then we ignore all of the 'usual' https checks.
@@ -202,6 +203,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
         this(true);
     }
 
+    @SuppressWarnings("deprecation")
     public SSLConnector(boolean relaxedTrust) {
         this.relaxedTrust = relaxedTrust;
         if (clientSSLSockFactory == null) {
@@ -213,14 +215,16 @@ public class SSLConnector implements SecureProtocolSocketFactory {
         }
         // ZAP: removed ServerSocketFaktory
         if (sslContextManager == null) {
-            sslContextManager = new SSLContextManager();
+            sslContextManager = new ch.csnc.extension.httpclient.SSLContextManager();
         }
     }
 
-    public SSLContextManager getSSLContextManager() {
+    @SuppressWarnings("deprecation")
+    public ch.csnc.extension.httpclient.SSLContextManager getSSLContextManager() {
         return sslContextManager;
     }
 
+    @SuppressWarnings("deprecation")
     public void setEnableClientCert(boolean enabled) {
         if (enabled) {
             if (clientSSLSockCertFactory == null) {
@@ -235,6 +239,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
         }
     }
 
+    @SuppressWarnings("deprecation")
     public void setActiveCertificate() {
 
         SSLContext sslcont = sslContextManager.getSSLContext(sslContextManager.getDefaultKey());

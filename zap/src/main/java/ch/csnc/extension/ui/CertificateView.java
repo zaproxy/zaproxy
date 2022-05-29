@@ -33,6 +33,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.zaproxy.zap.utils.ZapTextArea;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class CertificateView extends AbstractFrame {
 
     private static final long serialVersionUID = -7284926693579230812L;
