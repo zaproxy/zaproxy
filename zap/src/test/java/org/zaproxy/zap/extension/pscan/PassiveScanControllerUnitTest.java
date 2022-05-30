@@ -44,8 +44,8 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.I18N;
 
-/** Unit test for {@link PassiveScannerController}. */
-class PassiveScannerControllerUnitTest extends TestUtils {
+/** Unit test for {@link PassiveScanController}. */
+class PassiveScanControllerUnitTest extends TestUtils {
 
     private static final String EXAMPLE_URL = "https://www.example.com";
     private PassiveScanController psc;
