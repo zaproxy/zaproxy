@@ -1045,33 +1045,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static void sendRequest(
             HttpMessage request, boolean followRedirects, Processor<HttpMessage> processor)
             throws IOException, ApiException {
-        HttpSender sender = null;
-        try {
-            sender = createHttpSender();
+        HttpSender sender = new HttpSender(HttpSender.MANUAL_REQUEST_INITIATOR);
 
-            if (followRedirects) {
-                ModeRedirectionValidator redirector = new ModeRedirectionValidator(processor);
-                sender.sendAndReceive(
-                        request,
-                        HttpRequestConfig.builder().setRedirectionValidator(redirector).build());
+        if (followRedirects) {
+            ModeRedirectionValidator redirector = new ModeRedirectionValidator(processor);
+            sender.sendAndReceive(
+                    request,
+                    HttpRequestConfig.builder().setRedirectionValidator(redirector).build());
 
-                if (!redirector.isRequestValid()) {
-                    throw new ApiException(ApiException.Type.MODE_VIOLATION);
-                }
-            } else {
-                sender.sendAndReceive(request, false);
-                persistMessage(request);
-                processor.process(request);
+            if (!redirector.isRequestValid()) {
+                throw new ApiException(ApiException.Type.MODE_VIOLATION);
             }
-        } finally {
-            if (sender != null) {
-                sender.shutdown();
-            }
+        } else {
+            sender.sendAndReceive(request, false);
+            persistMessage(request);
+            processor.process(request);
         }
-    }
-
-    private static HttpSender createHttpSender() {
-        return new HttpSender(HttpSender.MANUAL_REQUEST_INITIATOR);
     }
 
     private static void persistMessage(final HttpMessage message) {

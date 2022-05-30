@@ -102,6 +102,7 @@
 // ZAP: 2022/05/04 Always use single cookie request header.
 // ZAP: 2022/05/04 Use latest timeout/user-agent always.
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
+// ZAP: 2022/05/30 Use shared connection pool.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -230,7 +231,7 @@ public class HttpSender {
     @SuppressWarnings("deprecation")
     private ConnectionParam param = null;
 
-    private MultiThreadedHttpConnectionManager httpConnManager = null;
+    private static MultiThreadedHttpConnectionManager httpConnManager;
     private HttpRequestConfig followRedirect = NO_REDIRECTS;
     private boolean useCookies;
     private boolean useGlobalState;
@@ -283,7 +284,7 @@ public class HttpSender {
         this.param = Model.getSingleton().getOptionsParam().getConnectionParam();
         this.initiator = initiator;
 
-        client = createHttpClient();
+        client = new HttpClient(getConnectionManager());
         client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, true);
 
         // Set how cookie headers are sent no matter of the "allowState", in case a state is forced
@@ -292,6 +293,23 @@ public class HttpSender {
 
         setUseGlobalState(useGlobalState);
         setUseCookies(true);
+    }
+
+    private static MultiThreadedHttpConnectionManager getConnectionManager() {
+        if (httpConnManager == null) {
+            createConnectionManager();
+        }
+        return httpConnManager;
+    }
+
+    private static synchronized void createConnectionManager() {
+        if (httpConnManager == null) {
+            httpConnManager = new MultiThreadedHttpConnectionManager();
+            httpConnManager.getParams().setStaleCheckingEnabled(true);
+            // Set to arbitrary large values to prevent locking
+            httpConnManager.getParams().setDefaultMaxConnectionsPerHost(10000);
+            httpConnManager.getParams().setMaxTotalConnections(200000);
+        }
     }
 
     private void setClientsCookiePolicy(String policy) {
@@ -379,13 +397,6 @@ public class HttpSender {
         this.useCookies = shouldUseCookies;
 
         checkState();
-    }
-
-    private HttpClient createHttpClient() {
-
-        httpConnManager = new MultiThreadedHttpConnectionManager();
-        setCommonManagerParams(httpConnManager);
-        return new HttpClient(httpConnManager);
     }
 
     @SuppressWarnings("deprecation")
@@ -514,11 +525,9 @@ public class HttpSender {
         return connectionHeader.getValue().toLowerCase(Locale.ROOT).contains("upgrade");
     }
 
-    public void shutdown() {
-        if (httpConnManager != null) {
-            httpConnManager.shutdown();
-        }
-    }
+    /** @deprecated (2.12.0) No longer needed. */
+    @Deprecated
+    public void shutdown() {}
 
     /**
      * Downloads the response (body) to the given file.
@@ -738,24 +747,6 @@ public class HttpSender {
      */
     @Deprecated
     public static void setUserAgent(String userAgent) {}
-
-    @SuppressWarnings("deprecation")
-    private void setCommonManagerParams(MultiThreadedHttpConnectionManager mgr) {
-        mgr.getParams().setStaleCheckingEnabled(true);
-
-        // Set to arbitrary large values to prevent locking
-        mgr.getParams().setDefaultMaxConnectionsPerHost(10000);
-        mgr.getParams().setMaxTotalConnections(200000);
-
-        // to use for HttpClient 3.0.1
-        // mgr.getParams().setDefaultMaxConnectionsPerHost((Constant.MAX_HOST_CONNECTION > 5) ? 15 :
-        // 3*Constant.MAX_HOST_CONNECTION);
-
-        // mgr.getParams().setMaxTotalConnections(mgr.getParams().getDefaultMaxConnectionsPerHost()*10);
-
-        // mgr.getParams().setConnectionTimeout(60000); // use default
-
-    }
 
     /*
      * Send and receive a HttpMessage.
