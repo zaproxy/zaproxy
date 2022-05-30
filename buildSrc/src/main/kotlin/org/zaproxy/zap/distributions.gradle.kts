@@ -54,7 +54,7 @@ val distFiles by tasks.registering(Sync::class) {
         into("xml")
     }
     from(bundledResourcesPath) {
-        include("config.xml", "drivers.xml", "log4j.properties")
+        include("config.xml", "log4j.properties")
         into("xml")
     }
     from(bundledResourcesPath) {
