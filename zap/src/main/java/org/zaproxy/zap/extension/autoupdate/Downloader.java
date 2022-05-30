@@ -93,18 +93,13 @@ public class Downloader extends Thread {
     }
 
     private void downloadFile() {
-        HttpSender sender = null;
         try {
-            sender = new HttpSender(initiator);
+            HttpSender sender = new HttpSender(initiator);
             sender.setFollowRedirect(true);
             HttpMessage message = new HttpMessage(new URI(url.toString(), true));
             sender.sendAndReceive(message, targetFile.toPath());
         } catch (Exception e) {
             this.exception = e;
-        } finally {
-            if (sender != null) {
-                sender.shutdown();
-            }
         }
     }
 
