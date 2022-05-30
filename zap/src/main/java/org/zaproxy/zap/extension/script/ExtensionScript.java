@@ -56,6 +56,7 @@ import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
@@ -1495,6 +1496,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
         // Set the script name as a context attribute - this is used for script level variables
         se.getContext().setAttribute(SCRIPT_NAME_ATT, script.getName(), ScriptContext.ENGINE_SCOPE);
+
+        se.put("control", Control.getSingleton());
+        se.put("model", getModel());
+        se.put("view", getView());
+
         reloadIfChangedOnDisk(script);
         recordScriptCalledStats(script);
 
