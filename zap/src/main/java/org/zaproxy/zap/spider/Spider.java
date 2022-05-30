@@ -606,10 +606,7 @@ public class Spider {
         } catch (InterruptedException ignore) {
             log.warn("Interrupted while awaiting for all spider threads to stop...");
         }
-        if (httpSender != null) {
-            this.getHttpSender().shutdown();
-            httpSender = null;
-        }
+        httpSender = null;
 
         // Notify the controller to clean up memory
         controller.reset();
@@ -627,10 +624,7 @@ public class Spider {
 
         log.info("Spidering process is complete. Shutting down...");
         this.stopped = true;
-        if (httpSender != null) {
-            this.getHttpSender().shutdown();
-            httpSender = null;
-        }
+        httpSender = null;
 
         // Notify the controller to clean up memory
         controller.reset();

@@ -102,6 +102,7 @@
 // ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 // ZAP: 2022/04/23 Use new HttpSender constructor.
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
+// ZAP: 2022/05/30 Remove deprecation usage.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -404,7 +405,6 @@ public class HostProcess implements Runnable {
         } finally {
             notifyHostProgress(null);
             notifyHostComplete();
-            getHttpSender().shutdown();
         }
     }
 
