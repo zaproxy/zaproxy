@@ -66,7 +66,7 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
         for (AntiCsrfToken token : list) {
             if (this.registerToken(msg.getHistoryRef().getHistoryType())) {
                 if (helper != null) {
-                    helper.addTag(msg.getHistoryRef(), ExtensionAntiCSRF.TAG);
+                    helper.addHistoryTag(msg.getHistoryRef(), ExtensionAntiCSRF.TAG);
                 }
                 extAntiCSRF.registerAntiCsrfToken(token);
             }

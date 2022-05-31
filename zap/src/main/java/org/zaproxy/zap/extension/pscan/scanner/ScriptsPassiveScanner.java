@@ -193,9 +193,16 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
                 .raise();
     }
 
+    /** @deprecated 2.12.0 Replaced by {@link #addHistoryTag(String)} */
     @Override
+    @Deprecated
     public void addTag(String tag) {
-        super.addTag(tag);
+        super.addHistoryTag(tag);
+    }
+
+    @Override
+    public void addHistoryTag(String tag) {
+        super.addHistoryTag(tag);
     }
 
     @Override
