@@ -169,7 +169,7 @@ public class User extends Enableable {
             if (this.requiresAuthentication()) {
                 this.authenticate();
                 if (this.requiresAuthentication()) {
-                    log.info("Authentication failed for user: " + name);
+                    log.debug("Authentication failed for user: " + name);
                     return;
                 }
             }
@@ -184,9 +184,11 @@ public class User extends Enableable {
      * @param message the message
      */
     public void processMessageToMatchAuthenticatedSession(HttpMessage message) {
-        getContext()
-                .getSessionManagementMethod()
-                .processMessageToMatchSession(message, authenticatedSession);
+        if (getContext().getSessionManagementMethod() != null) {
+            getContext()
+                    .getSessionManagementMethod()
+                    .processMessageToMatchSession(message, authenticatedSession);
+        }
     }
 
     /**
@@ -262,7 +264,14 @@ public class User extends Enableable {
      * @see Context
      */
     public void authenticate() {
-        log.info("Authenticating user: " + this.name);
+        if (getContext().getSessionManagementMethod() == null) {
+            log.debug(
+                    "Cannot authenticating user: "
+                            + this.name
+                            + " - no session management method set");
+            return;
+        }
+        log.debug("Authenticating user: " + this.name);
         WebSession result = null;
         try {
             result =
