@@ -104,6 +104,7 @@
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
 // ZAP: 2022/05/29 Remove redundant checks and create SSLConnector always.
 // ZAP: 2022/05/30 Use shared connection pool.
+// ZAP: 2022/06/03 Remove commented code and make listeners comparator final.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -184,7 +185,8 @@ public class HttpSender {
     private static SSLConnector sslConnector;
 
     private static List<HttpSenderListener> listeners = new ArrayList<>();
-    private static Comparator<HttpSenderListener> listenersComparator = null;
+    private static final Comparator<HttpSenderListener> LISTENERS_COMPARATOR =
+            (o1, o2) -> Integer.compare(o1.getListenerOrder(), o2.getListenerOrder());
 
     private User user = null;
 
@@ -229,11 +231,6 @@ public class HttpSender {
     private boolean useCookies;
     private boolean useGlobalState;
     private int initiator = -1;
-
-    /*
-     * public HttpSender(ConnectionParam connectionParam, boolean allowState) { this
-     * (connectionParam, allowState, -1); }
-     */
 
     /**
      * Constructs an {@code HttpSender}.
@@ -681,10 +678,7 @@ public class HttpSender {
             method = runMethod(msg, params);
             // successfully executed;
             resHeader = HttpMethodHelper.getHttpResponseHeader(method);
-            resHeader.setHeader(
-                    HttpHeader.TRANSFER_ENCODING,
-                    null); // replaceAll("Transfer-Encoding: chunked\r\n",
-            // "");
+            resHeader.setHeader(HttpHeader.TRANSFER_ENCODING, null);
             msg.setResponseHeader(resHeader);
 
             responseBodyConsumer.accept(msg, method);
@@ -741,95 +735,6 @@ public class HttpSender {
     @Deprecated
     public static void setUserAgent(String userAgent) {}
 
-    /*
-     * Send and receive a HttpMessage.
-     *
-     * @param msg
-     *
-     * @param isFollowRedirect
-     *
-     * @throws HttpException
-     *
-     * @throws IOException
-     */
-    /*
-     * private void sendAndReceive(HttpMessage msg, boolean isFollowRedirect, HttpOutputStream pipe,
-     * byte[] buf) throws HttpException, IOException { log.debug("sendAndReceive " +
-     * msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " start");
-     * msg.setTimeSentMillis(System.currentTimeMillis());
-     *
-     * try { if (!isFollowRedirect || !
-     * (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST) ||
-     * msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.PUT)) ) { send(msg,
-     * isFollowRedirect, pipe, buf); return; } else { send(msg, false, pipe, buf); }
-     *
-     * HttpMessage temp = msg.cloneAll(); // POST/PUT method cannot be redirected by library. Need
-     * to follow by code
-     *
-     * // loop 1 time only because httpclient can handle redirect itself after first GET. for (int
-     * i=0; i<1 && (HttpStatusCode.isRedirection(temp.getResponseHeader().getStatusCode()) &&
-     * temp.getResponseHeader().getStatusCode() != HttpStatusCode.NOT_MODIFIED); i++) { String
-     * location = temp.getResponseHeader().getHeader(HttpHeader.LOCATION); URI baseUri =
-     * temp.getRequestHeader().getURI(); URI newLocation = new URI(baseUri, location, false);
-     * temp.getRequestHeader().setURI(newLocation);
-     *
-     * temp.getRequestHeader().setMethod(HttpRequestHeader.GET);
-     * temp.getRequestHeader().setContentLength(0); send(temp, true, pipe, buf); }
-     *
-     * msg.setResponseHeader(temp.getResponseHeader()); msg.setResponseBody(temp.getResponseBody());
-     *
-     * } finally { msg.setTimeElapsedMillis((int)
-     * (System.currentTimeMillis()-msg.getTimeSentMillis())); log.debug("sendAndReceive " +
-     * msg.getRequestHeader().getMethod() + " " + msg.getRequestHeader().getURI() + " took " +
-     * msg.getTimeElapsedMillis()); } }
-     */
-
-    /*
-     * Do not use this unless sure what is doing. This method works but proxy may skip the pipe
-     * without properly handle the filter.
-     *
-     * @param msg
-     *
-     * @param isFollowRedirect
-     *
-     * @param pipe
-     *
-     * @param buf
-     *
-     * @throws HttpException
-     *
-     * @throws IOException
-     */
-    /*
-     * private void send(HttpMessage msg, boolean isFollowRedirect, HttpOutputStream pipe, byte[]
-     * buf) throws HttpException, IOException { HttpMethod method = null; HttpResponseHeader
-     * resHeader = null;
-     *
-     * try { method = runMethod(msg, isFollowRedirect); // successfully executed; resHeader =
-     * HttpMethodHelper.getHttpResponseHeader(method);
-     * resHeader.setHeader(HttpHeader.TRANSFER_ENCODING, null); //
-     * replaceAll("Transfer-Encoding: chunked\r\n", ""); msg.setResponseHeader(resHeader);
-     * msg.getResponseBody().setCharset(resHeader.getCharset()); msg.getResponseBody().setLength(0);
-     *
-     * // process response for each listener
-     *
-     * pipe.write(msg.getResponseHeader()); pipe.flush();
-     *
-     * if (msg.getResponseHeader().getContentLength() >= 0 &&
-     * msg.getResponseHeader().getContentLength() < 20480) { // save time expanding buffer in
-     * HttpBody if (msg.getResponseHeader().getContentLength() > 0) {
-     * msg.getResponseBody().setBody(method.getResponseBody()); pipe.write(msg.getResponseBody());
-     * pipe.flush();
-     *
-     * } } else { //byte[] buf = new byte[4096]; InputStream in = method.getResponseBodyAsStream();
-     *
-     * int len = 0; while (in != null && (len = in.read(buf)) > 0) { pipe.write(buf, 0, len);
-     * pipe.flush();
-     *
-     * msg.getResponseBody().append(buf, len); } } } finally { if (method != null) {
-     * method.releaseConnection(); } } }
-     */
-
     /**
      * Adds the given listener to be notified of each message sent/received by each {@code
      * HttpSender}.
@@ -843,7 +748,7 @@ public class HttpSender {
     public static void addListener(HttpSenderListener listener) {
         Objects.requireNonNull(listener);
         listeners.add(listener);
-        Collections.sort(listeners, getListenersComparator());
+        Collections.sort(listeners, LISTENERS_COMPARATOR);
     }
 
     /**
@@ -856,36 +761,6 @@ public class HttpSender {
     public static void removeListener(HttpSenderListener listener) {
         Objects.requireNonNull(listener);
         listeners.remove(listener);
-    }
-
-    private static Comparator<HttpSenderListener> getListenersComparator() {
-        if (listenersComparator == null) {
-            createListenersComparator();
-        }
-
-        return listenersComparator;
-    }
-
-    private static synchronized void createListenersComparator() {
-        if (listenersComparator == null) {
-            listenersComparator =
-                    new Comparator<HttpSenderListener>() {
-
-                        @Override
-                        public int compare(HttpSenderListener o1, HttpSenderListener o2) {
-                            int order1 = o1.getListenerOrder();
-                            int order2 = o2.getListenerOrder();
-
-                            if (order1 < order2) {
-                                return -1;
-                            } else if (order1 > order2) {
-                                return 1;
-                            }
-
-                            return 0;
-                        }
-                    };
-        }
     }
 
     /**
