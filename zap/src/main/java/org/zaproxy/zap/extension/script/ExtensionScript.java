@@ -1499,7 +1499,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
         se.put("control", Control.getSingleton());
         se.put("model", getModel());
-        se.put("view", getView());
+
+        if (hasView()) {
+            se.put("view", getView());
+        }
 
         reloadIfChangedOnDisk(script);
         recordScriptCalledStats(script);
