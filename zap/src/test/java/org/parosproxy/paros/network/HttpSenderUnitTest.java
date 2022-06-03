@@ -86,6 +86,8 @@ class HttpSenderUnitTest {
         OptionsParam optionsParam = mock(OptionsParam.class);
         given(optionsParam.getConnectionParam()).willReturn(options);
         given(model.getOptionsParam()).willReturn(optionsParam);
+
+        HttpSender.setImpl(new HttpSenderParos());
     }
 
     @AfterEach
