@@ -63,8 +63,6 @@ import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.ViewDelegate;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
@@ -1494,20 +1492,14 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     private Invocable invokeScriptImpl(ScriptWrapper script) {
         ScriptEngine se = script.getEngine().getEngine();
         Writer writer = getWriters(script);
-        Model model = getModel();
-        ViewDelegate view = getView();
-
         se.getContext().setWriter(writer);
+
         // Set the script name as a context attribute - this is used for script level variables
         se.getContext().setAttribute(SCRIPT_NAME_ATT, script.getName(), ScriptContext.ENGINE_SCOPE);
 
         se.put("control", Control.getSingleton());
-        if (model != null) {
-            se.put("model", model);
-        }
-        if (view != null) {
-            se.put("view", view);
-        }
+        se.put("model", getModel());
+        se.put("view", getView());
 
         reloadIfChangedOnDisk(script);
         recordScriptCalledStats(script);
