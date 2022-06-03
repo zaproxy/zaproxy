@@ -131,7 +131,7 @@ def main(argv):
     delay = 0
     timeout = 0
     ignore_warn = False
-    hook_file = None
+    hook_file = ''
     user = ''
 
     pass_count = 0
@@ -246,11 +246,12 @@ def main(argv):
 
     if config_file:
         # load config file from filestore
-        with open(base_dir + config_file) as f:
+        config_file = os.path.join(base_dir, config_file)
+        with open(config_file) as f:
             try:
                 load_config(f, config_dict, config_msg, out_of_scope_dict)
             except ValueError as e:
-                logging.warning("Failed to load config file " + base_dir + config_file + " " + str(e))
+                logging.warning("Failed to load config file " + config_file + " " + str(e))
                 sys.exit(3)
     elif config_url:
         # load config file from url
@@ -266,7 +267,7 @@ def main(argv):
 
     if progress_file:
         # load progress file from filestore
-        with open(base_dir + progress_file) as f:
+        with open(os.path.join(base_dir, progress_file)) as f:
             progress = json.load(f)
             # parse into something more useful...
             # in_prog_issues = map of vulnid -> {object with everything in}
@@ -332,7 +333,7 @@ def main(argv):
 
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
-            zap_import_context(zap, '/zap/wrk/' + os.path.basename(context_file))
+            zap_import_context(zap, os.path.join('/zap/wrk/', context_file))
             if (user):
                 zap_set_scan_user(zap, user)
 
@@ -400,7 +401,7 @@ def main(argv):
 
             if generate:
                 # Create the config file
-                with open(base_dir + generate, 'w') as f:
+                with open(os.path.join(base_dir, generate), 'w') as f:
                     f.write('# zap-full-scan rule configuration file\n')
                     f.write('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
                     f.write('# Active scan rules set to IGNORE will not be run which will speed up the scan\n')
@@ -457,19 +458,19 @@ def main(argv):
 
             if report_html:
                 # Save the report
-                write_report(base_dir + report_html, zap.core.htmlreport())
+                write_report(os.path.join(base_dir, report_html), zap.core.htmlreport())
 
             if report_json:
                 # Save the report
-                write_report(base_dir + report_json, zap.core.jsonreport())
+                write_report(os.path.join(base_dir, report_json), zap.core.jsonreport())
 
             if report_md:
                 # Save the report
-                write_report(base_dir + report_md, zap.core.mdreport())
+                write_report(os.path.join(base_dir, report_md), zap.core.mdreport())
 
             if report_xml:
                 # Save the report
-                write_report(base_dir + report_xml, zap.core.xmlreport())
+                write_report(os.path.join(base_dir, report_xml), zap.core.xmlreport())
 
             print('FAIL-NEW: ' + str(fail_count) + '\tFAIL-INPROG: ' + str(fail_inprog_count) +
                 '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +
