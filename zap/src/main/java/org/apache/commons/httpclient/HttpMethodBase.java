@@ -119,6 +119,7 @@ import org.parosproxy.paros.network.HttpHeader;
  *
  * @version $Revision: 775455 $ $Date: 2009-05-16 13:28:40 +0100 (Sat, 16 May 2009) $
  */
+@SuppressWarnings("deprecation")
 public abstract class HttpMethodBase implements HttpMethod {
 
     private static final String HOST_HEADER = "Host";
