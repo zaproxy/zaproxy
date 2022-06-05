@@ -88,6 +88,7 @@
 // ZAP: 2020/12/09 Rely on the content encodings from the body to decode.
 // ZAP: 2022/02/09 Deprecate the class.
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
+// ZAP: 2022/06/05 Address deprecation warnings with HttpException.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.BufferedInputStream;
@@ -104,7 +105,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import javax.net.ssl.SSLException;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -353,7 +353,7 @@ public class ProxyThread implements Runnable {
             }
         } catch (HttpMalformedHeaderException e) {
             log.warn("Malformed Header: ", e);
-        } catch (HttpException e) {
+        } catch (org.apache.commons.httpclient.HttpException e) {
             log.error(e.getMessage(), e);
         } catch (IOException e) {
             log.debug("IOException: ", e);
@@ -578,7 +578,7 @@ public class ProxyThread implements Runnable {
                     }
 
                     //			        notifyWrittenToForwardProxy();
-                } catch (HttpException e) {
+                } catch (org.apache.commons.httpclient.HttpException e) {
                     //			    	System.out.println("HttpException");
                     throw e;
                 } catch (SocketTimeoutException e) {
