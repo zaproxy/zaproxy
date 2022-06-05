@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -243,19 +242,18 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     }
 
     @Override
-    public void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
+    public void sendAndReceive(HttpMessage msg) throws IOException {
         super.sendAndReceive(msg);
     }
 
     @Override
-    public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect)
-            throws HttpException, IOException {
+    public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws IOException {
         super.sendAndReceive(msg, isFollowRedirect);
     }
 
     @Override
     public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect, boolean handleAntiCSRF)
-            throws HttpException, IOException {
+            throws IOException {
         super.sendAndReceive(msg, isFollowRedirect, handleAntiCSRF);
     }
 

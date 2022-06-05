@@ -43,6 +43,7 @@ package org.apache.commons.httpclient;
  * @author <a href="mailto:oleg@ural.ru">Oleg Kalnichevski</a>
  * @version Revision: 608014 Date: 2002/03/14 15:14:01
  */
+@SuppressWarnings("deprecation")
 public class URIException extends HttpException {
 
     private static final long serialVersionUID = 1L;

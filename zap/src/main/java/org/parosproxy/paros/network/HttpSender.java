@@ -105,6 +105,7 @@
 // ZAP: 2022/05/29 Remove redundant checks and create SSLConnector always.
 // ZAP: 2022/05/30 Use shared connection pool.
 // ZAP: 2022/06/03 Remove commented code and make listeners comparator final.
+// ZAP: 2022/06/05 Remove usage of HttpException.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -131,7 +132,6 @@ import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpHost;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpMethodDirector;
@@ -569,7 +569,6 @@ public class HttpSender {
      *
      * @param msg
      * @param isFollowRedirect
-     * @throws HttpException
      * @throws IOException
      * @see #sendAndReceive(HttpMessage, HttpRequestConfig)
      */

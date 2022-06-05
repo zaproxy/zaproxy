@@ -70,6 +70,7 @@
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j2 getLogger() and deprecate Log4j1.x.
 // ZAP: 2021/07/20 Correct message updated with the scan rule ID header (Issue 6689).
+// ZAP: 2022/06/05 Remove usage of HttpException.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -83,7 +84,6 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.Configuration;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
@@ -209,7 +209,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * </ul>
      *
      * @param message the message to be sent and received
-     * @throws HttpException if a HTTP error occurred
      * @throws IOException if an I/O error occurred (for example, read time out)
      * @see #sendAndReceive(HttpMessage, boolean)
      * @see #sendAndReceive(HttpMessage, boolean, boolean)
@@ -236,7 +235,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param message the message to be sent and received
      * @param isFollowRedirect {@code true} if redirections should be followed, {@code false}
      *     otherwise
-     * @throws HttpException if a HTTP error occurred
      * @throws IOException if an I/O error occurred (for example, read time out)
      * @see #sendAndReceive(HttpMessage)
      * @see #sendAndReceive(HttpMessage, boolean, boolean)
@@ -266,7 +264,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *     otherwise
      * @param handleAntiCSRF {@code true} if the anti-CSRF token present in the request should be
      *     handled/regenerated, {@code false} otherwise
-     * @throws HttpException if a HTTP error occurred
      * @throws IOException if an I/O error occurred (for example, read time out)
      * @see #sendAndReceive(HttpMessage)
      * @see #sendAndReceive(HttpMessage, boolean)
