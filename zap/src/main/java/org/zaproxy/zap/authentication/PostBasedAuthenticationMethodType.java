@@ -273,25 +273,31 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 requestMessage =
                         loginSiteNode.getHistoryReference().getHttpMessage().cloneRequest();
                 requestMessage.getRequestHeader().setURI(requestURI);
-                if (requestBody != null) {
-                    requestMessage.getRequestBody().setBody(requestBody);
-                    requestMessage.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
-                }
+                setRequestBody(requestMessage, requestBody);
             } else {
                 String method =
                         (requestBody != null) ? HttpRequestHeader.POST : HttpRequestHeader.GET;
                 requestMessage = new HttpMessage();
                 requestMessage.setRequestHeader(
                         new HttpRequestHeader(method, requestURI, HttpHeader.HTTP10));
-                if (requestBody != null) {
+                if (setRequestBody(requestMessage, requestBody)) {
                     requestMessage
                             .getRequestHeader()
                             .setHeader(HttpHeader.CONTENT_TYPE, contentType);
-                    requestMessage.getRequestBody().setBody(requestBody);
                 }
             }
 
             return requestMessage;
+        }
+
+        private boolean setRequestBody(HttpMessage message, String body) {
+            if (body == null) {
+                return false;
+            }
+
+            message.getRequestBody().setBody(body);
+            message.getRequestHeader().setContentLength(message.getRequestBody().length());
+            return true;
         }
 
         @Override
