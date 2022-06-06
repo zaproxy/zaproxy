@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2022-06-06
+ - Updated to use Webswing 22.1.2
+
 ### 2022-06-03
  - Add support for absolute file path in all scan options which require a file.
 
