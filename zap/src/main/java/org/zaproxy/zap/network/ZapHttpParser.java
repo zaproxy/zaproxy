@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,8 +45,7 @@ public class ZapHttpParser {
      * malformed HTTP header lines.
      */
     @SuppressWarnings({"rawtypes", "unchecked", "null"})
-    public static Header[] parseHeaders(InputStream is, String charset)
-            throws IOException, HttpException {
+    public static Header[] parseHeaders(InputStream is, String charset) throws IOException {
         ArrayList headers = new ArrayList();
         String name = null;
         StringBuffer value = null;

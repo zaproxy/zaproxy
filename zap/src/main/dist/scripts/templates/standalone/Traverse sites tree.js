@@ -11,8 +11,7 @@ function listChildren(node, level) {
     }
 }
 
-root = org.parosproxy.paros.model.Model.getSingleton().
-        getSession().getSiteTree().getRoot();
+root = model.getSession().getSiteTree().getRoot();
 
 listChildren(root, 0);
 

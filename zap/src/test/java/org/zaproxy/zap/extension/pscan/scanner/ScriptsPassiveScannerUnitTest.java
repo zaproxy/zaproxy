@@ -130,9 +130,9 @@ class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
                 scriptsPassiveScanner, null, message, mock(PassiveScanData.class));
         scriptsPassiveScanner.setTaskHelper(taskHelper);
         // When
-        scriptsPassiveScanner.addTag(tag);
+        scriptsPassiveScanner.addHistoryTag(tag);
         // Then
-        verify(taskHelper).addTag(href, tag);
+        verify(taskHelper).addHistoryTag(href, tag);
     }
 
     @Test
@@ -141,7 +141,7 @@ class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
         String tag = "Tag";
         ScriptsPassiveScanner scriptsPassiveScanner = new ScriptsPassiveScanner();
         // When / Then
-        assertThrows(NullPointerException.class, () -> scriptsPassiveScanner.addTag(tag));
+        assertThrows(NullPointerException.class, () -> scriptsPassiveScanner.addHistoryTag(tag));
     }
 
     @ParameterizedTest

@@ -25,7 +25,6 @@
  */
 package ch.csnc.extension.ui;
 
-import ch.csnc.extension.util.DriverConfiguration;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,6 +42,8 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.zaproxy.zap.utils.ZapTextField;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class DriversView extends AbstractFrame {
 
     private static final long serialVersionUID = -7502331281272992501L;
@@ -74,7 +75,7 @@ public class DriversView extends AbstractFrame {
      *
      * @param driverConfig
      */
-    public DriversView(DriverConfiguration driverConfig) {
+    public DriversView(ch.csnc.extension.util.DriverConfiguration driverConfig) {
         this.driverTableModel = new DriverTableModel(driverConfig);
         initComponents();
         setVisible(true);

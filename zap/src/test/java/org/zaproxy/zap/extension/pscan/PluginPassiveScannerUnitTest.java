@@ -505,9 +505,9 @@ class PluginPassiveScannerUnitTest {
         scanner.init(null, msg, mock(PassiveScanData.class));
         scanner.setTaskHelper(taskHelper);
         // When
-        scanner.addTag(tag);
+        scanner.addHistoryTag(tag);
         // Then
-        verify(taskHelper).addTag(href, tag);
+        verify(taskHelper).addHistoryTag(href, tag);
     }
 
     private static class TestPluginPassiveScanner extends PluginPassiveScanner {

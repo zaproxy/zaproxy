@@ -42,7 +42,9 @@ import javax.net.ssl.X509KeyManager;
  * "best" alias for the circumstances
  *
  * @author rdawes
+ * @deprecated (2.12.0) No longer in use.
  */
+@Deprecated
 public class AliasKeyManager implements X509KeyManager {
 
     private KeyStore _ks;

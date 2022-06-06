@@ -44,7 +44,9 @@ import java.io.IOException;
  * @author Laura Werner
  *
  * @version Revision: 608014 $ $Date: 2008-01-02 05:48:53 +0000 (Wed, 02 Jan 2008)
+ * @deprecated (2.12.0)
  */
+@Deprecated
 public class HttpException extends IOException {
 
     private static final long serialVersionUID = 1L;

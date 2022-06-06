@@ -1,12 +1,12 @@
-ZAP Scanners
-============
-The registry of scanners' (passive, active, custom...) IDs.
+ZAP Scan Rules
+==============
+The registry of scan rules' (passive, active, custom...) IDs.
 
 Format: `<ID> <NAME>`
 
-If the scanner is no longer in use: `<ID> <NAME> [Deprecated]`
+If the scan rule is no longer in use: `<ID> <NAME> [Deprecated]`
 
-Scanners:
+Scan rules:
 ```
 0       Directory browsing
 1       Potential File Path Manipulation

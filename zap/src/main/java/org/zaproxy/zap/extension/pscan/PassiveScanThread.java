@@ -84,7 +84,7 @@ public class PassiveScanThread extends Thread {
      * @since 2.11.0
      */
     public void addTag(String tag) {
-        helper.addTag(href, tag);
+        helper.addHistoryTag(href, tag);
     }
     /**
      * Add the History Type ({@code int}) to the set of applicable history types.
