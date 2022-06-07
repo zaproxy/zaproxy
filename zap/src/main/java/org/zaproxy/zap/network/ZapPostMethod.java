@@ -21,7 +21,6 @@ package org.zaproxy.zap.network;
 
 import java.io.IOException;
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.methods.PostMethod;
 
@@ -29,7 +28,9 @@ import org.apache.commons.httpclient.methods.PostMethod;
  * An HTTP POST method implementation that ignores malformed HTTP response header lines.
  *
  * @see PostMethod
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class ZapPostMethod extends PostMethod {
 
     public ZapPostMethod() {
@@ -51,7 +52,8 @@ public class ZapPostMethod extends PostMethod {
      * header parser (ZapHttpParser#parseHeaders(InputStream, String)).
      */
     @Override
-    protected void readResponseHeaders(HttpState state, HttpConnection conn) throws IOException {
+    protected void readResponseHeaders(
+            HttpState state, org.apache.commons.httpclient.HttpConnection conn) throws IOException {
         getResponseHeaderGroup().clear();
 
         Header[] headers =

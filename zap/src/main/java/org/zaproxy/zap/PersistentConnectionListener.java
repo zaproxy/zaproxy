@@ -37,5 +37,8 @@ public interface PersistentConnectionListener extends ArrangeableProxyListener {
      * @param method May contain TCP connection to server.
      * @return True if connection is took over, false if not interested.
      */
-    boolean onHandshakeResponse(HttpMessage httpMessage, Socket inSocket, ZapGetMethod method);
+    boolean onHandshakeResponse(
+            HttpMessage httpMessage,
+            Socket inSocket,
+            @SuppressWarnings("deprecation") ZapGetMethod method);
 }

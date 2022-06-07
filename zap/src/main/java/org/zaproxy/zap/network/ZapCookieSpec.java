@@ -27,7 +27,9 @@ import org.apache.commons.httpclient.cookie.MalformedCookieException;
  * A {@link CookieSpecBase} that does not do any path validation.
  *
  * @since 2.7.0
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class ZapCookieSpec extends CookieSpecBase {
 
     // ZAP: Same implementation as base class but without the path validation.

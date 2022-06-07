@@ -33,7 +33,10 @@ import org.apache.logging.log4j.Logger;
  * <p>Used to override the {@code HttpClient} behaviour to accept HTTP responses which contain
  * malformed HTTP header lines. <strong>Note:</strong> Malformed HTTP header lines are ignored
  * (instead of throwing an exception).
+ *
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class ZapHttpParser {
 
     private static final Logger logger = LogManager.getLogger(ZapHttpParser.class);

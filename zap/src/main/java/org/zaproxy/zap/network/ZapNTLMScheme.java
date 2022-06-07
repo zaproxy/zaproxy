@@ -65,8 +65,9 @@ import org.apache.commons.httpclient.auth.MalformedChallengeException;
  * NTLM is a proprietary authentication scheme developed by Microsoft
  * and optimized for Windows platforms.
  *
- * @since 4.0
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class ZapNTLMScheme implements AuthScheme {
 
     enum State {

@@ -28,7 +28,6 @@ import java.util.Map.Entry;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.network.SSLConnector;
 import org.zaproxy.zap.utils.FontUtils;
 
 /**
@@ -69,7 +68,8 @@ public class SecurityProtocolsPanel extends JPanel {
                         Constant.messages.getString(
                                 "generic.options.panel.security.protocols.ssl2hello.label"));
         checkBox.setEnabled(false);
-        checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_SSL_V2_HELLO, checkBox);
+        checkBoxesSslTlsProtocols.put(
+                org.parosproxy.paros.network.SSLConnector.SECURITY_PROTOCOL_SSL_V2_HELLO, checkBox);
         add(checkBox, gbc);
 
         checkBox =
@@ -77,7 +77,8 @@ public class SecurityProtocolsPanel extends JPanel {
                         Constant.messages.getString(
                                 "generic.options.panel.security.protocols.ssl3.label"));
         checkBox.setEnabled(false);
-        checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_SSL_V3, checkBox);
+        checkBoxesSslTlsProtocols.put(
+                org.parosproxy.paros.network.SSLConnector.SECURITY_PROTOCOL_SSL_V3, checkBox);
         add(checkBox, gbc);
 
         checkBox =
@@ -85,7 +86,8 @@ public class SecurityProtocolsPanel extends JPanel {
                         Constant.messages.getString(
                                 "generic.options.panel.security.protocols.tlsv1.label"));
         checkBox.setEnabled(false);
-        checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_TLS_V1, checkBox);
+        checkBoxesSslTlsProtocols.put(
+                org.parosproxy.paros.network.SSLConnector.SECURITY_PROTOCOL_TLS_V1, checkBox);
         add(checkBox, gbc);
 
         checkBox =
@@ -93,7 +95,8 @@ public class SecurityProtocolsPanel extends JPanel {
                         Constant.messages.getString(
                                 "generic.options.panel.security.protocols.tlsv1.1.label"));
         checkBox.setEnabled(false);
-        checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_TLS_V1_1, checkBox);
+        checkBoxesSslTlsProtocols.put(
+                org.parosproxy.paros.network.SSLConnector.SECURITY_PROTOCOL_TLS_V1_1, checkBox);
         add(checkBox, gbc);
 
         checkBox =
@@ -101,7 +104,8 @@ public class SecurityProtocolsPanel extends JPanel {
                         Constant.messages.getString(
                                 "generic.options.panel.security.protocols.tlsv1.2.label"));
         checkBox.setEnabled(false);
-        checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_TLS_V1_2, checkBox);
+        checkBoxesSslTlsProtocols.put(
+                org.parosproxy.paros.network.SSLConnector.SECURITY_PROTOCOL_TLS_V1_2, checkBox);
         add(checkBox, gbc);
 
         checkBox =
@@ -109,13 +113,14 @@ public class SecurityProtocolsPanel extends JPanel {
                         Constant.messages.getString(
                                 "generic.options.panel.security.protocols.tlsv1.3.label"));
         checkBox.setEnabled(false);
-        checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_TLS_V1_3, checkBox);
+        checkBoxesSslTlsProtocols.put(
+                org.parosproxy.paros.network.SSLConnector.SECURITY_PROTOCOL_TLS_V1_3, checkBox);
         add(checkBox, gbc);
     }
 
     public void setSecurityProtocolsEnabled(String[] selectedProtocols) {
         if (!supportedSecurityProtocolsInitialised) {
-            String[] protocols = SSLConnector.getSupportedProtocols();
+            String[] protocols = org.parosproxy.paros.network.SSLConnector.getSupportedProtocols();
             for (String protocol : protocols) {
                 JCheckBox checkBox = checkBoxesSslTlsProtocols.get(protocol);
                 if (checkBox != null) {
@@ -178,7 +183,9 @@ public class SecurityProtocolsPanel extends JPanel {
 
             if (protocolsSelected == 1
                     && checkBoxesSslTlsProtocols
-                            .get(SSLConnector.SECURITY_PROTOCOL_SSL_V2_HELLO)
+                            .get(
+                                    org.parosproxy.paros.network.SSLConnector
+                                            .SECURITY_PROTOCOL_SSL_V2_HELLO)
                             .isSelected()) {
                 checkBoxEnabledProtocol.requestFocusInWindow();
                 throw new IllegalArgumentException(
