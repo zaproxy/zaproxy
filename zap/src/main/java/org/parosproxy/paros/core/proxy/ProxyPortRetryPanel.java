@@ -26,6 +26,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 
+/** @deprecated (2.12.0) */
+@Deprecated
 class ProxyPortRetryPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;

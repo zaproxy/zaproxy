@@ -27,6 +27,7 @@
 //
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/06/07 Address deprecation warnings with SSLConnector.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -35,12 +36,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.network.SSLConnector;
 
 @Deprecated
 public class ProxyServerSSL extends ProxyServer {
 
-    private static SSLConnector ssl = HttpSender.getSSLConnector();
+    private static org.parosproxy.paros.network.SSLConnector ssl = HttpSender.getSSLConnector();
 
     public ProxyServerSSL() {
         super();

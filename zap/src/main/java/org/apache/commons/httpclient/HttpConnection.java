@@ -43,7 +43,6 @@ import java.net.SocketException;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
-import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.commons.httpclient.util.EncodingUtil;
 import org.apache.commons.httpclient.util.ExceptionUtil;
 import org.apache.commons.logging.Log;
@@ -102,7 +101,8 @@ import org.apache.commons.logging.LogFactory;
  * @author Laura Werner
  * 
  * @version   $Revision: 832758 $ $Date: 2009-11-04 14:28:27 +0000 (Wed, 04 Nov 2009) $
- */
+* @deprecated (2.12.0) Implementation details, do not use. */
+@Deprecated
 public class HttpConnection {
 
     // ----------------------------------------------------------- Constructors
@@ -798,8 +798,8 @@ public class HttpConnection {
         }
         
         if (isSecure()) {
-            SecureProtocolSocketFactory socketFactory =
-                (SecureProtocolSocketFactory) protocolInUse.getSocketFactory();
+        	org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory socketFactory =
+                (org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory) protocolInUse.getSocketFactory();
 
             socket = socketFactory.createSocket(socket, hostName, portNumber, true, params);
         }

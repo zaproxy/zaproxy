@@ -21,7 +21,6 @@ package org.parosproxy.paros.network;
 
 import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.commons.httpclient.HttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -30,12 +29,13 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.zaproxy.zap.network.HttpSenderContext;
 import org.zaproxy.zap.users.User;
 
+/** @deprecated (2.12.0) Implementation details, do not use. */
+@Deprecated
 public class HttpSenderContextParos implements HttpSenderContext {
 
     private final HttpSender parent;
     private final int initiator;
 
-    @SuppressWarnings("deprecation")
     private final ConnectionParam param;
 
     private final HttpClient client;
@@ -45,7 +45,6 @@ public class HttpSenderContextParos implements HttpSenderContext {
     private boolean useCookies;
     private boolean useGlobalState;
 
-    @SuppressWarnings("deprecation")
     HttpSenderContextParos(
             HttpSender parent, int initiator, ConnectionParam param, HttpClient client) {
         this.parent = parent;
@@ -111,7 +110,9 @@ public class HttpSenderContextParos implements HttpSenderContext {
     public void setRemoveUserDefinedAuthHeaders(boolean remove) {
         client.getParams()
                 .setBooleanParameter(
-                        HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, remove);
+                        org.apache.commons.httpclient.HttpMethodDirector
+                                .PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS,
+                        remove);
     }
 
     @Override
@@ -127,7 +128,6 @@ public class HttpSenderContextParos implements HttpSenderContext {
         return msg.getRequestingUser();
     }
 
-    @SuppressWarnings("deprecation")
     private void checkState() {
         if (!useCookies) {
             resetState();
