@@ -77,9 +77,9 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Handles the process of executing a method including authentication, redirection and retries.
  * 
- * @since 3.0
- */
-@SuppressWarnings("deprecation")
+ *
+ * @deprecated (2.12.0) Implementation details, do not use. */
+@Deprecated
 public class HttpMethodDirector {
 
     /**

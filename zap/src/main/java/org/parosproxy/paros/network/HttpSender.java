@@ -107,6 +107,7 @@
 // ZAP: 2022/06/03 Remove commented code and make listeners comparator final.
 // ZAP: 2022/06/03 Move implementation to HttpSenderParos.
 // ZAP: 2022/06/05 Remove usage of HttpException.
+// ZAP: 2022/06/07 Address deprecation warnings with HttpSenderParos.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -143,6 +144,7 @@ public class HttpSender {
     private static final HttpRequestConfig FOLLOW_REDIRECTS =
             HttpRequestConfig.builder().setFollowRedirects(true).build();
 
+    @SuppressWarnings("deprecation")
     private static final HttpSenderParos PAROS_IMPL = new HttpSenderParos();
 
     @SuppressWarnings("rawtypes")

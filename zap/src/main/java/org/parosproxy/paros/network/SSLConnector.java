@@ -44,6 +44,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/11/23 Allow to set certificates service.
 // ZAP: 2022/05/29 Address deprecations related to client certificates.
+// ZAP: 2022/06/07 Deprecate the class.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -89,14 +90,15 @@ import javax.net.ssl.X509KeyManager;
 import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.httpclient.ConnectTimeoutException;
-import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
-import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class SSLConnector implements SecureProtocolSocketFactory {
+/** @deprecated (2.12.0) Implementation details, do not use. */
+@Deprecated
+public class SSLConnector
+        implements org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory {
 
     private static final String SSL = "SSL";
 
@@ -448,7 +450,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
             } catch (SSLException e) {
                 if (!e.getMessage().contains(CONTENTS_UNRECOGNIZED_NAME_EXCEPTION)
                         || !params.getBooleanParameter(
-                                HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
+                                org.apache.commons.httpclient.HttpMethodDirector
+                                        .PARAM_RESOLVE_HOSTNAME,
+                                true)) {
                     throw e;
                 }
 
@@ -471,7 +475,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
     private static InetSocketAddress createRemoteAddr(
             HttpConnectionParams params, String host, int port) {
         if (params == null
-                || params.getBooleanParameter(HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
+                || params.getBooleanParameter(
+                        org.apache.commons.httpclient.HttpMethodDirector.PARAM_RESOLVE_HOSTNAME,
+                        true)) {
             return new InetSocketAddress(host, port);
         }
         return InetSocketAddress.createUnresolved(host, port);
@@ -633,7 +639,8 @@ public class SSLConnector implements SecureProtocolSocketFactory {
         } catch (SSLException e) {
             if (e.getMessage().contains(CONTENTS_UNRECOGNIZED_NAME_EXCEPTION)
                     && params.getBooleanParameter(
-                            HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
+                            org.apache.commons.httpclient.HttpMethodDirector.PARAM_RESOLVE_HOSTNAME,
+                            true)) {
                 cacheMisconfiguredHost(host, port, InetAddress.getByName(host));
             }
             // Throw the exception anyway because the socket might no longer be usable (e.g.

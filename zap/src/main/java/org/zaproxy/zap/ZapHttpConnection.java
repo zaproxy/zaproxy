@@ -21,10 +21,14 @@ package org.zaproxy.zap;
 
 import java.net.Socket;
 import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpConnection;
 
-/** Custom {@link HttpConnection} that exposes its socket and avoids closing. */
-public class ZapHttpConnection extends HttpConnection {
+/**
+ * Custom {@link HttpConnection} that exposes its socket and avoids closing.
+ *
+ * @deprecated (2.12.0) Implementation details, do not use.
+ */
+@Deprecated
+public class ZapHttpConnection extends org.apache.commons.httpclient.HttpConnection {
 
     /**
      * Creates a new HTTP connection for the given host configuration.

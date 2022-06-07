@@ -32,7 +32,9 @@ import javax.net.ssl.SSLSocketFactory;
  *
  * @see SSLSocketFactory
  * @see SslSocketDecorator
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class DecoratedSocketsSslSocketFactory extends SSLSocketFactory {
 
     private final SSLSocketFactory delegate;

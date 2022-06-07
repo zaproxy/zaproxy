@@ -46,7 +46,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
-import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -147,7 +146,9 @@ public class HttpPanelSender implements MessageSender {
                         }
                     });
 
-            ZapGetMethod method = (ZapGetMethod) httpMessage.getUserObject();
+            @SuppressWarnings("deprecation")
+            org.zaproxy.zap.ZapGetMethod method =
+                    (org.zaproxy.zap.ZapGetMethod) httpMessage.getUserObject();
             notifyPersistentConnectionListener(httpMessage, null, method);
 
         } catch (final HttpMalformedHeaderException mhe) {
@@ -198,7 +199,9 @@ public class HttpPanelSender implements MessageSender {
      * @return Boolean to indicate if socket should be kept open.
      */
     private boolean notifyPersistentConnectionListener(
-            HttpMessage httpMessage, Socket inSocket, ZapGetMethod method) {
+            HttpMessage httpMessage,
+            Socket inSocket,
+            @SuppressWarnings("deprecation") org.zaproxy.zap.ZapGetMethod method) {
         boolean keepSocketOpen = false;
         PersistentConnectionListener listener = null;
         synchronized (persistentConnectionListener) {

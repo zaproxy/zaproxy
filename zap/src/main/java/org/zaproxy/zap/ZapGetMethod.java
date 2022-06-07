@@ -24,13 +24,11 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.util.Locale;
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.zaproxy.zap.network.ZapHttpParser;
 
 /**
  * Do not ignore HTTP status code of 101 and keep {@link Socket} &amp; {@link InputStream} open, as
@@ -39,7 +37,10 @@ import org.zaproxy.zap.network.ZapHttpParser;
  * <p>Is essential for the WebSockets extension.
  *
  * <p>Malformed HTTP response header lines are ignored.
+ *
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class ZapGetMethod extends EntityEnclosingMethod {
     private static final Log LOG = LogFactory.getLog(ZapGetMethod.class);
 
@@ -86,8 +87,8 @@ public class ZapGetMethod extends EntityEnclosingMethod {
     }
 
     @Override
-    protected void addContentLengthRequestHeader(HttpState state, HttpConnection conn)
-            throws IOException {
+    protected void addContentLengthRequestHeader(
+            HttpState state, org.apache.commons.httpclient.HttpConnection conn) throws IOException {
         if (getRequestContentLength() == 0) {
             // Don't add the header with 0 length, not everything accepts it.
             return;
@@ -101,7 +102,8 @@ public class ZapGetMethod extends EntityEnclosingMethod {
      * @see GetMethod#readResponse(HttpState, HttpConnection)
      */
     @Override
-    protected void readResponse(HttpState state, HttpConnection conn) throws IOException {
+    protected void readResponse(HttpState state, org.apache.commons.httpclient.HttpConnection conn)
+            throws IOException {
         LOG.trace("enter HttpMethodBase.readResponse(HttpState, HttpConnection)");
 
         boolean isUpgrade = false;
@@ -216,11 +218,12 @@ public class ZapGetMethod extends EntityEnclosingMethod {
      * header parser (ZapHttpParser#parseHeaders(InputStream, String)).
      */
     @Override
-    protected void readResponseHeaders(HttpState state, HttpConnection conn) throws IOException {
+    protected void readResponseHeaders(
+            HttpState state, org.apache.commons.httpclient.HttpConnection conn) throws IOException {
         getResponseHeaderGroup().clear();
 
         Header[] headers =
-                ZapHttpParser.parseHeaders(
+                org.zaproxy.zap.network.ZapHttpParser.parseHeaders(
                         conn.getResponseInputStream(), getParams().getHttpElementCharset());
         // Wire logging moved to HttpParser
         getResponseHeaderGroup().setHeaders(headers);

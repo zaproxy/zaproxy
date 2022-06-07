@@ -124,6 +124,7 @@ class ZapCookieSpecUnitTest {
         assertDoesNotThrow(() -> cookieSpec.validate(HOST, PORT, PATH, SECURE, cookie));
     }
 
+    @SuppressWarnings("deprecation")
     private static CookieSpec createCookieSpec() {
         return new ZapCookieSpec();
     }
