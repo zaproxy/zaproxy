@@ -34,6 +34,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -68,6 +69,23 @@ class SessionStructureUnitTest {
     @AfterEach
     void cleanUp() {
         Constant.messages = null;
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "example.com,http://example.com",
+        "example.com:80,http://example.com",
+        "example.com:443,https://example.com",
+        "example.com:8080,http://example.com:8080"
+    })
+    void shouldReturnHostNameFromAuthority(String authority, String expectedHostName)
+            throws Exception {
+        // Given
+        URI uri = URI.fromAuthority(authority);
+        // When
+        String hostName = SessionStructure.getHostName(uri);
+        // Then
+        assertThat(hostName, is(equalTo(expectedHostName)));
     }
 
     static Stream<String> methodProvider() {
