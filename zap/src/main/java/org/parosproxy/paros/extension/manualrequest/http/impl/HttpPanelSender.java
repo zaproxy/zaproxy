@@ -97,6 +97,7 @@ public class HttpPanelSender implements MessageSender {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void handleSendMessage(Message aMessage) throws IllegalArgumentException, IOException {
         final HttpMessage httpMessage = (HttpMessage) aMessage;
         // Reset the user before sending (e.g. Forced User mode sets the user, if needed).
@@ -146,9 +147,17 @@ public class HttpPanelSender implements MessageSender {
                         }
                     });
 
-            @SuppressWarnings("deprecation")
-            org.zaproxy.zap.ZapGetMethod method =
-                    (org.zaproxy.zap.ZapGetMethod) httpMessage.getUserObject();
+            Object userObject = httpMessage.getUserObject();
+            if (userObject instanceof Socket) {
+                closeSilently((Socket) userObject);
+                return;
+            }
+
+            if (!(userObject instanceof org.zaproxy.zap.ZapGetMethod)) {
+                return;
+            }
+
+            org.zaproxy.zap.ZapGetMethod method = (org.zaproxy.zap.ZapGetMethod) userObject;
             notifyPersistentConnectionListener(httpMessage, null, method);
 
         } catch (final HttpMalformedHeaderException mhe) {
@@ -166,6 +175,14 @@ public class HttpPanelSender implements MessageSender {
 
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    private static void closeSilently(Socket socket) {
+        try {
+            socket.close();
+        } catch (IOException ignore) {
+            // Nothing to do.
         }
     }
 
