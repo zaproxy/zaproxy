@@ -103,6 +103,14 @@ public class DisplayUtils {
                 (int) (width * FontUtils.getScale()), (int) (height * FontUtils.getScale()));
     }
 
+    public static int getScaledInteger(int i) {
+        if (FontUtils.getScale() == 1) {
+            // don't need to scale
+            return i;
+        }
+        return (int) (i * FontUtils.getScale());
+    }
+
     public static int getScaledSize(int size) {
         return (int) (size * FontUtils.getScale());
     }

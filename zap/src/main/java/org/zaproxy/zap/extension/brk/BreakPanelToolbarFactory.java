@@ -35,6 +35,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.view.TabbedPanel2;
 import org.zaproxy.zap.view.ZapToggleButton;
@@ -175,15 +176,17 @@ public class BreakPanelToolbarFactory {
             if (active) {
                 parent.setIconAt(
                         parent.indexOfComponent(breakPanel),
-                        new ImageIcon(
-                                BreakPanelToolbarFactory.class.getResource(
-                                        "/resource/icon/16/101.png"))); // Red X
+                        DisplayUtils.getScaledIcon(
+                                new ImageIcon(
+                                        BreakPanelToolbarFactory.class.getResource(
+                                                "/resource/icon/16/101.png")))); // Red X
             } else {
                 parent.setIconAt(
                         parent.indexOfComponent(breakPanel),
-                        new ImageIcon(
-                                BreakPanelToolbarFactory.class.getResource(
-                                        "/resource/icon/16/101grey.png"))); // Grey X
+                        DisplayUtils.getScaledIcon(
+                                new ImageIcon(
+                                        BreakPanelToolbarFactory.class.getResource(
+                                                "/resource/icon/16/101grey.png")))); // Grey X
             }
             if (parent instanceof TabbedPanel2) {
                 // If possible lock the tab while it is active so it cant be closed
@@ -264,8 +267,10 @@ public class BreakPanelToolbarFactory {
 
         btnBreakRequest = new ZapToggleButton(breakRequestsButtonAction);
         btnBreakRequest.setSelectedIcon(
-                new ImageIcon(
-                        BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105r.png")));
+                DisplayUtils.getScaledIcon(
+                        new ImageIcon(
+                                BreakPanelToolbarFactory.class.getResource(
+                                        "/resource/icon/16/105r.png"))));
         btnBreakRequest.setSelectedToolTipText(
                 Constant.messages.getString("brk.toolbar.button.request.unset"));
 
@@ -277,8 +282,10 @@ public class BreakPanelToolbarFactory {
 
         btnBreakResponse = new ZapToggleButton(breakResponsesButtonAction);
         btnBreakResponse.setSelectedIcon(
-                new ImageIcon(
-                        BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106r.png")));
+                DisplayUtils.getScaledIcon(
+                        new ImageIcon(
+                                BreakPanelToolbarFactory.class.getResource(
+                                        "/resource/icon/16/106r.png"))));
         btnBreakResponse.setSelectedToolTipText(
                 Constant.messages.getString("brk.toolbar.button.response.unset"));
 
@@ -290,8 +297,10 @@ public class BreakPanelToolbarFactory {
 
         btnBreakAll = new ZapToggleButton(breakAllButtonAction);
         btnBreakAll.setSelectedIcon(
-                new ImageIcon(
-                        BreakPanelToolbarFactory.class.getResource("/resource/icon/16/151.png")));
+                DisplayUtils.getScaledIcon(
+                        new ImageIcon(
+                                BreakPanelToolbarFactory.class.getResource(
+                                        "/resource/icon/16/151.png"))));
         btnBreakAll.setSelectedToolTipText(
                 Constant.messages.getString("brk.toolbar.button.all.unset"));
 
@@ -303,9 +312,10 @@ public class BreakPanelToolbarFactory {
 
         btnBreakOnJavaScript = new ZapToggleButton(setBreakOnJavaScriptAction);
         btnBreakOnJavaScript.setSelectedIcon(
-                new ImageIcon(
-                        BreakPanelToolbarFactory.class.getResource(
-                                "/resource/icon/breakTypes/javascriptNotBreaking.png")));
+                DisplayUtils.getScaledIcon(
+                        new ImageIcon(
+                                BreakPanelToolbarFactory.class.getResource(
+                                        "/resource/icon/breakTypes/javascriptNotBreaking.png"))));
         btnBreakOnJavaScript.setSelectedToolTipText(
                 Constant.messages.getString("brk.toolbar.button.brkjavascript.set"));
 
@@ -317,9 +327,10 @@ public class BreakPanelToolbarFactory {
 
         btnBreakOnCssAndFonts = new ZapToggleButton(setBreakOnCssAndFontsAction);
         btnBreakOnCssAndFonts.setSelectedIcon(
-                new ImageIcon(
-                        BreakPanelToolbarFactory.class.getResource(
-                                "/resource/icon/breakTypes/cssAndFontsNotBreaking.png")));
+                DisplayUtils.getScaledIcon(
+                        new ImageIcon(
+                                BreakPanelToolbarFactory.class.getResource(
+                                        "/resource/icon/breakTypes/cssAndFontsNotBreaking.png"))));
         btnBreakOnCssAndFonts.setSelectedToolTipText(
                 Constant.messages.getString("brk.toolbar.button.brkcssfonts.set"));
 
@@ -331,9 +342,10 @@ public class BreakPanelToolbarFactory {
 
         btnBreakOnMultimedia = new ZapToggleButton(setBreakOnMultimediaAction);
         btnBreakOnMultimedia.setSelectedIcon(
-                new ImageIcon(
-                        BreakPanelToolbarFactory.class.getResource(
-                                "/resource/icon/breakTypes/multimediaNotBreaking.png")));
+                DisplayUtils.getScaledIcon(
+                        new ImageIcon(
+                                BreakPanelToolbarFactory.class.getResource(
+                                        "/resource/icon/breakTypes/multimediaNotBreaking.png"))));
         btnBreakOnMultimedia.setSelectedToolTipText(
                 Constant.messages.getString("brk.toolbar.button.brkmultimedia.set"));
 
@@ -345,9 +357,10 @@ public class BreakPanelToolbarFactory {
 
         btnOnlyBreakOnScope = new ZapToggleButton(setOnlyBreakOnScopeAction);
         btnOnlyBreakOnScope.setSelectedIcon(
-                new ImageIcon(
-                        BreakPanelToolbarFactory.class.getResource(
-                                "/resource/icon/fugue/target.png")));
+                DisplayUtils.getScaledIcon(
+                        new ImageIcon(
+                                BreakPanelToolbarFactory.class.getResource(
+                                        "/resource/icon/fugue/target.png"))));
         btnOnlyBreakOnScope.setSelectedToolTipText(
                 Constant.messages.getString("brk.toolbar.button.brkOnlyOnScope.unset"));
 
@@ -632,9 +645,10 @@ public class BreakPanelToolbarFactory {
         public ContinueButtonAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/16/131.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/16/131.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.cont"));
@@ -662,9 +676,10 @@ public class BreakPanelToolbarFactory {
         public StepButtonAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/16/143.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/16/143.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.step"));
@@ -696,9 +711,10 @@ public class BreakPanelToolbarFactory {
         public DropButtonAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/16/150.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/16/150.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.bin"));
@@ -719,9 +735,10 @@ public class BreakPanelToolbarFactory {
         public AddBreakpointButtonAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/16/break_add.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/16/break_add.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.brkpoint"));
@@ -740,9 +757,10 @@ public class BreakPanelToolbarFactory {
         public BreakRequestsButtonAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/16/105.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/16/105.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.request.set"));
@@ -761,9 +779,10 @@ public class BreakPanelToolbarFactory {
         public BreakResponsesButtonAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/16/106.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/16/106.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.response.set"));
@@ -782,9 +801,10 @@ public class BreakPanelToolbarFactory {
         public BreakAllButtonAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/16/152.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/16/152.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.all.set"));
@@ -803,9 +823,10 @@ public class BreakPanelToolbarFactory {
         public SetBreakOnJavaScriptAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/breakTypes/javascript.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/breakTypes/javascript.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.brkjavascript.unset"));
@@ -824,9 +845,10 @@ public class BreakPanelToolbarFactory {
         public SetBreakOnCssAndFontsAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/breakTypes/cssAndFonts.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/breakTypes/cssAndFonts.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.brkcssfonts.unset"));
@@ -845,9 +867,10 @@ public class BreakPanelToolbarFactory {
         public SetBreakOnMultimediaAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/breakTypes/multimedia.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/breakTypes/multimedia.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.brkmultimedia.unset"));
@@ -866,9 +889,10 @@ public class BreakPanelToolbarFactory {
         public SetBreakOnlyOnScopeAction() {
             super(
                     null,
-                    new ImageIcon(
-                            BreakPanelToolbarFactory.class.getResource(
-                                    "/resource/icon/fugue/target-grey.png")));
+                    DisplayUtils.getScaledIcon(
+                            new ImageIcon(
+                                    BreakPanelToolbarFactory.class.getResource(
+                                            "/resource/icon/fugue/target-grey.png"))));
             putValue(
                     Action.SHORT_DESCRIPTION,
                     Constant.messages.getString("brk.toolbar.button.brkOnlyOnScope.set"));

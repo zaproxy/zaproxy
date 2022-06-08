@@ -39,6 +39,7 @@
 // ZAP: 2021/11/19 Remove empty parent nodes.
 // ZAP: 2022/02/12 Show child panel if parent has none.
 // ZAP: 2022/05/11 Use a unique ID to identify the panels instead of their name (Issue 5637).
+// ZAP: 2022/06/08 Fix resizing issues.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -156,8 +157,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
         this.setContinuousLayout(true);
         this.setRightComponent(getJPanel1());
         // ZAP: added more space for readability (was 175)
-        this.setDividerLocation(200);
-        this.setDividerSize(3);
+        this.setDividerLocation(DisplayUtils.getScaledInteger(200));
+        this.setDividerSize(DisplayUtils.getScaledInteger(3));
         this.setResizeWeight(0.3D);
         this.setBorder(
                 javax.swing.BorderFactory.createEtchedBorder(
