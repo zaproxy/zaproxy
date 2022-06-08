@@ -20,7 +20,6 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -31,6 +30,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 
 public class AboutPanel extends JPanel {
@@ -80,7 +80,7 @@ public class AboutPanel extends JPanel {
         GridBagConstraints gbcLogo = new GridBagConstraints();
 
         Color backgroundColor = new Color(UIManager.getColor("TextField.background").getRGB());
-        this.setPreferredSize(new Dimension(420, 460));
+        this.setPreferredSize(DisplayUtils.getScaledDimension(420, 460));
         this.setBackground(backgroundColor);
         this.setBorder(BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 
