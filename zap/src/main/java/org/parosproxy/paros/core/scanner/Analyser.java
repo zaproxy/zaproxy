@@ -44,6 +44,7 @@
 // ZAP: 2019/07/26 Remove null check in sendAndReceive(HttpMessage). (LGTM Issue)
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/06/05 Remove usage of HttpException.
+// ZAP: 2022/06/09 Quote the query component used in the regular expression.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -283,7 +284,7 @@ public class Analyser {
         return resultSuffix;
     }
 
-    private String getPathRegex(URI uri) throws URIException {
+    static String getPathRegex(URI uri) throws URIException {
         URI newUri;
         // ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
         try {
@@ -302,7 +303,7 @@ public class Analyser {
 
         sb.append(newUri.toString().replaceAll("\\.", "\\."));
         if (query != null) {
-            String queryPattern = "(\\?" + query + ")?";
+            String queryPattern = "(\\?" + Pattern.quote(query) + ")?";
             sb.append(queryPattern);
         }
 
