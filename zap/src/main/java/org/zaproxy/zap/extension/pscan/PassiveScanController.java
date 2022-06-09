@@ -67,6 +67,7 @@ public class PassiveScanController extends Thread implements ProxyListener {
             ExtensionAlert extAlert,
             PassiveScanParam passiveScanParam,
             ScanStatus scanStatus) {
+        setName("ZAP-PassiveScanController");
         this.extHist = extHistory;
         this.pscanOptions = passiveScanParam;
         this.scanStatus = scanStatus;
