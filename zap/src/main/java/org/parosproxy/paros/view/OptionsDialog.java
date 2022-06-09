@@ -23,6 +23,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/06/08 Fix resizing issues.
 package org.parosproxy.paros.view;
 
 import java.awt.Frame;
@@ -37,6 +38,7 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public class OptionsDialog extends AbstractParamDialog {
 
@@ -61,10 +63,7 @@ public class OptionsDialog extends AbstractParamDialog {
     /** This method initializes this */
     private void initialize() {
 
-        // ZAP: Increase width and height of options dialog
-        // if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-        this.setSize(750, 584);
-        // }
+        this.setSize(DisplayUtils.getScaledDimension(750, 584));
     }
 
     @Override
