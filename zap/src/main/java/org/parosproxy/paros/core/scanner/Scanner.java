@@ -54,6 +54,7 @@
 // ZAP: 2021/05/14 Remove redundant type arguments.
 // ZAP: 2022/04/23 Use new HttpSender constructor.
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
+// ZAP: 2022/06/09 Name the threads.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -181,7 +182,7 @@ public class Scanner implements Runnable {
         this.scannerParam = scannerParam;
         this.scanPolicy = scanPolicy;
         this.ruleConfigParam = ruleConfigParam;
-        pool = new ThreadPool(scannerParam.getHostPerScan());
+        pool = new ThreadPool(scannerParam.getHostPerScan(), "ZAP-Scanner-");
 
         // ZAP: Load all scanner hooks from extensionloader.
         Control.getSingleton().getExtensionLoader().hookScannerHook(this);
