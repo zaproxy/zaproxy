@@ -1,9 +1,30 @@
 # This dockerfile builds the zap weekly release
+FROM ubuntu:20.04 AS builder
+
+RUN apt-get update && apt-get install -q -y --fix-missing \
+	wget \
+	curl \
+	unzip && \
+	apt-get clean
+
+WORKDIR /zap
+
+# Setup Webswing
+ENV WEBSWING_VERSION 22.1.2
+ARG WEBSWING_URL=""
+RUN if [ -z "$WEBSWING_URL" ] ; \
+	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
+	unzip webswing.zip && \
+	rm webswing.zip && \
+	mv webswing-* webswing && \
+	# Remove Webswing bundled examples
+	rm -Rf webswing/apps/
+
 FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG WEBSWING_URL=""
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -40,22 +61,11 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV WEBSWING_VERSION 21.2.8
-
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i weekly | wget --content-disposition -i - && \
 	unzip *.zip && \
 	rm *.zip && \
 	cp -R ZAP*/* . &&  \
-	rm -R ZAP* && \
-	# Setup Webswing
-	if [ -z "$WEBSWING_URL" ] ; \
-	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
-	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
-	unzip webswing.zip && \
-	rm webswing.zip && \
-	mv webswing-* webswing && \
-	# Remove Webswing bundled examples
-	rm -Rf webswing/apps/
+	rm -R ZAP*
 
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
@@ -69,6 +79,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 COPY zap* CHANGELOG.md /zap/
+COPY --from=builder /zap/webswing /zap/webswing
 COPY webswing.config /zap/webswing/
 COPY webswing.properties /zap/webswing/
 COPY policies /home/zap/.ZAP_D/policies/

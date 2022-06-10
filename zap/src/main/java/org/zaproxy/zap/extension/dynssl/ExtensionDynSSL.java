@@ -50,12 +50,12 @@ import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.network.SSLConnector;
 
 /**
  * Extension enables configuration for Root CA certificate
  *
  * @author MaWoKi
+ * @deprecated (2.12.0)
  */
 @Deprecated
 public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineListener {
@@ -98,7 +98,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
         try {
             startImpl();
         } finally {
-            SSLConnector.setSslCertificateService(
+            org.parosproxy.paros.network.SSLConnector.setSslCertificateService(
                     org.parosproxy.paros.security.CachedSslCertifificateServiceImpl.getService());
         }
     }

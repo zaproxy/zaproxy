@@ -46,7 +46,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
-import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -98,6 +97,7 @@ public class HttpPanelSender implements MessageSender {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void handleSendMessage(Message aMessage) throws IllegalArgumentException, IOException {
         final HttpMessage httpMessage = (HttpMessage) aMessage;
         // Reset the user before sending (e.g. Forced User mode sets the user, if needed).
@@ -147,7 +147,17 @@ public class HttpPanelSender implements MessageSender {
                         }
                     });
 
-            ZapGetMethod method = (ZapGetMethod) httpMessage.getUserObject();
+            Object userObject = httpMessage.getUserObject();
+            if (userObject instanceof Socket) {
+                closeSilently((Socket) userObject);
+                return;
+            }
+
+            if (!(userObject instanceof org.zaproxy.zap.ZapGetMethod)) {
+                return;
+            }
+
+            org.zaproxy.zap.ZapGetMethod method = (org.zaproxy.zap.ZapGetMethod) userObject;
             notifyPersistentConnectionListener(httpMessage, null, method);
 
         } catch (final HttpMalformedHeaderException mhe) {
@@ -165,6 +175,14 @@ public class HttpPanelSender implements MessageSender {
 
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    private static void closeSilently(Socket socket) {
+        try {
+            socket.close();
+        } catch (IOException ignore) {
+            // Nothing to do.
         }
     }
 
@@ -198,7 +216,9 @@ public class HttpPanelSender implements MessageSender {
      * @return Boolean to indicate if socket should be kept open.
      */
     private boolean notifyPersistentConnectionListener(
-            HttpMessage httpMessage, Socket inSocket, ZapGetMethod method) {
+            HttpMessage httpMessage,
+            Socket inSocket,
+            @SuppressWarnings("deprecation") org.zaproxy.zap.ZapGetMethod method) {
         boolean keepSocketOpen = false;
         PersistentConnectionListener listener = null;
         synchronized (persistentConnectionListener) {

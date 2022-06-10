@@ -31,6 +31,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/05/21 Disable unsafe SSL/TLS renegotiation option.
 // ZAP: 2022/05/29 Deprecate the class.
+// ZAP: 2022/06/07 Address deprecation warnings with SSLConnector.
 package org.parosproxy.paros.extension.option;
 
 import java.io.File;
@@ -44,7 +45,6 @@ import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.network.SSLConnector;
 
 /** @deprecated (2.12.0) No longer in use. */
 @Deprecated
@@ -181,8 +181,9 @@ public class OptionsParamCertificate extends AbstractParam {
     public void setEnableCertificate(boolean enabled) {
         ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
 
-        if (sslFactory instanceof SSLConnector) {
-            SSLConnector ssl = (SSLConnector) sslFactory;
+        if (sslFactory instanceof org.parosproxy.paros.network.SSLConnector) {
+            org.parosproxy.paros.network.SSLConnector ssl =
+                    (org.parosproxy.paros.network.SSLConnector) sslFactory;
             ssl.setEnableClientCert(enabled);
 
             setUseClientCert(enabled);
@@ -193,8 +194,9 @@ public class OptionsParamCertificate extends AbstractParam {
 
         ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
 
-        if (sslFactory instanceof SSLConnector) {
-            SSLConnector ssl = (SSLConnector) sslFactory;
+        if (sslFactory instanceof org.parosproxy.paros.network.SSLConnector) {
+            org.parosproxy.paros.network.SSLConnector ssl =
+                    (org.parosproxy.paros.network.SSLConnector) sslFactory;
             ssl.setActiveCertificate();
         }
     }
@@ -202,8 +204,9 @@ public class OptionsParamCertificate extends AbstractParam {
     public ch.csnc.extension.httpclient.SSLContextManager getSSLContextManager() {
 
         ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
-        if (sslFactory instanceof SSLConnector) {
-            SSLConnector ssl = (SSLConnector) sslFactory;
+        if (sslFactory instanceof org.parosproxy.paros.network.SSLConnector) {
+            org.parosproxy.paros.network.SSLConnector ssl =
+                    (org.parosproxy.paros.network.SSLConnector) sslFactory;
 
             return ssl.getSSLContextManager();
         }

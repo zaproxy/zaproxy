@@ -21,6 +21,7 @@ package org.zaproxy.zap.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -673,7 +674,7 @@ public class SessionStructure {
     public static String getHostName(URI uri) throws URIException {
         StringBuilder host = new StringBuilder();
 
-        String scheme = uri.getScheme().toLowerCase();
+        String scheme = getScheme(uri);
         host.append(scheme).append("://").append(uri.getHost());
 
         int port = uri.getPort();
@@ -685,6 +686,14 @@ public class SessionStructure {
         }
 
         return host.toString();
+    }
+
+    private static String getScheme(URI uri) {
+        String scheme = uri.getScheme();
+        if (scheme == null) {
+            return uri.getPort() == 443 ? "https" : "http";
+        }
+        return scheme.toLowerCase(Locale.ROOT);
     }
 
     /**

@@ -35,6 +35,7 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public class AlertAddDialog extends AbstractDialog {
 
@@ -97,7 +98,7 @@ public class AlertAddDialog extends AbstractDialog {
         this.setTitle(Constant.messages.getString("alert.add.title"));
         this.setContentPane(getJPanel());
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-            this.setSize(407, 657);
+            this.setSize(DisplayUtils.getScaledDimension(407, 657));
         }
         this.addWindowListener(
                 new java.awt.event.WindowAdapter() {

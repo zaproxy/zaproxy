@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2022/06/03 Move implementation from HttpSender.
+// ZAP: 2022/06/07 Deprecate the class.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -46,7 +47,6 @@ import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpHost;
 import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.InvalidRedirectLocationException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
@@ -64,17 +64,15 @@ import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.Model;
-import org.zaproxy.zap.ZapGetMethod;
-import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.network.HttpSenderImpl;
 import org.zaproxy.zap.network.HttpSenderListener;
-import org.zaproxy.zap.network.ZapCookieSpec;
-import org.zaproxy.zap.network.ZapNTLMScheme;
 import org.zaproxy.zap.users.User;
 
-class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
+/** @deprecated (2.12.0) Implementation details, do not use. */
+@Deprecated
+public class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
 
     private static final Logger log = LogManager.getLogger(HttpSenderParos.class);
 
@@ -93,9 +91,11 @@ class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
         Protocol.registerProtocol(
                 "http", new Protocol("http", new ProtocolSocketFactoryImpl(), 80));
 
-        AuthPolicy.registerAuthScheme(AuthPolicy.NTLM, ZapNTLMScheme.class);
-        CookiePolicy.registerCookieSpec(CookiePolicy.DEFAULT, ZapCookieSpec.class);
-        CookiePolicy.registerCookieSpec(CookiePolicy.BROWSER_COMPATIBILITY, ZapCookieSpec.class);
+        AuthPolicy.registerAuthScheme(AuthPolicy.NTLM, org.zaproxy.zap.network.ZapNTLMScheme.class);
+        CookiePolicy.registerCookieSpec(
+                CookiePolicy.DEFAULT, org.zaproxy.zap.network.ZapCookieSpec.class);
+        CookiePolicy.registerCookieSpec(
+                CookiePolicy.BROWSER_COMPATIBILITY, org.zaproxy.zap.network.ZapCookieSpec.class);
     }
 
     private static HttpMethodHelper helper = new HttpMethodHelper();
@@ -115,12 +115,10 @@ class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
                 msg.setResponseBody(method.getResponseBody());
             };
 
-    @SuppressWarnings("deprecation")
     private ConnectionParam param = null;
 
     private static MultiThreadedHttpConnectionManager httpConnManager;
 
-    @SuppressWarnings("deprecation")
     private ConnectionParam getParam() {
         if (param == null) {
             param = Model.getSingleton().getOptionsParam().getConnectionParam();
@@ -129,7 +127,6 @@ class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public boolean isGlobalStateEnabled() {
         return getParam().isHttpStateEnabled();
     }
@@ -159,7 +156,6 @@ class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
         return new HttpClient(getConnectionManager());
     }
 
-    @SuppressWarnings("deprecation")
     private void setProxyAuth(HttpState state) {
         if (getParam().isUseProxyChain() && getParam().isUseProxyChainAuth()) {
             String realm = getParam().getProxyChainRealm();
@@ -179,7 +175,6 @@ class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public HttpSenderContextParos createContext(HttpSender parent, int initiator) {
         HttpClient client = new HttpClient(getConnectionManager());
         client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, true);
@@ -190,7 +185,6 @@ class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
         return new HttpSenderContextParos(parent, initiator, getParam(), client);
     }
 
-    @SuppressWarnings("deprecation")
     int executeMethodImpl(HttpSenderContextParos ctx, HttpMethod method, HttpState state)
             throws IOException {
         int responseCode = -1;
@@ -202,7 +196,7 @@ class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
 
         HttpClient requestClient;
         if (isConnectionUpgrade(method)) {
-            requestClient = new HttpClient(new ZapHttpConnectionManager());
+            requestClient = new HttpClient(new org.zaproxy.zap.ZapHttpConnectionManager());
         } else {
             requestClient = ctx.getHttpClient();
         }
@@ -235,11 +229,12 @@ class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
 
         method.getParams()
                 .setBooleanParameter(
-                        HttpMethodDirector.PARAM_RESOLVE_HOSTNAME,
+                        org.apache.commons.httpclient.HttpMethodDirector.PARAM_RESOLVE_HOSTNAME,
                         getParam().shouldResolveRemoteHostname(hostName));
         method.getParams()
                 .setParameter(
-                        HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS,
+                        org.apache.commons.httpclient.HttpMethodDirector
+                                .PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS,
                         getParam().getDefaultUserAgent());
 
         int timeout = (int) TimeUnit.SECONDS.toMillis(getParam().getTimeoutInSecs());
@@ -427,7 +422,7 @@ class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
             msg.setResponseFromTargetHost(true);
 
             // ZAP: set method to retrieve upgraded channel later
-            if (method instanceof ZapGetMethod) {
+            if (method instanceof org.zaproxy.zap.ZapGetMethod) {
                 msg.setUserObject(method);
             }
         } finally {
@@ -715,7 +710,9 @@ class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
             Socket socket = SocketFactory.getDefault().createSocket();
             socket.bind(new InetSocketAddress(localAddress, localPort));
             SocketAddress remoteAddress;
-            if (params.getBooleanParameter(HttpMethodDirector.PARAM_RESOLVE_HOSTNAME, true)) {
+            if (params.getBooleanParameter(
+                    org.apache.commons.httpclient.HttpMethodDirector.PARAM_RESOLVE_HOSTNAME,
+                    true)) {
                 remoteAddress = new InetSocketAddress(host, port);
             } else {
                 remoteAddress = InetSocketAddress.createUnresolved(host, port);
