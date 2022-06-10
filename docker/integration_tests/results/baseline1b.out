@@ -1,6 +1,6 @@
 Using the Automation Framework
 Total of 4 URLs
-PASS: Vulnerable JS Library [10003]
+PASS: Vulnerable JS Library (Powered by Retire.js) [10003]
 PASS: Cookie No HttpOnly Flag [10010]
 PASS: Cookie Without Secure Flag [10011]
 PASS: Cross-Domain JavaScript Source File Inclusion [10017]
