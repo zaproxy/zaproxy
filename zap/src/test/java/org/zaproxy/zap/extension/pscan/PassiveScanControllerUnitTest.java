@@ -28,8 +28,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,14 +40,15 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.I18N;
 
-/** Unit test for {@link PassiveScannerController}. */
-class PassiveScannerControllerUnitTest extends TestUtils {
+/** Unit test for {@link PassiveScanController}. */
+class PassiveScanControllerUnitTest extends TestUtils {
 
     private static final String EXAMPLE_URL = "https://www.example.com";
     private PassiveScanController psc;
@@ -68,6 +71,10 @@ class PassiveScannerControllerUnitTest extends TestUtils {
         passiveScanParam = mock(PassiveScanParam.class);
         session = mock(Session.class);
 
+        Model model = mock(Model.class);
+        Model.setSingletonForTesting(model);
+        given(model.getSession()).willReturn(session);
+
         given(extPscan.getPassiveScannerList()).willReturn(passiveScannerList);
         given(passiveScanParam.getPassiveScanThreads()).willReturn(2);
 
@@ -75,7 +82,7 @@ class PassiveScannerControllerUnitTest extends TestUtils {
         psc.setSession(session);
     }
 
-    private void sleep(int msecs) {
+    private static void sleep(int msecs) {
         try {
             Thread.sleep(msecs);
         } catch (InterruptedException e) {
@@ -94,21 +101,21 @@ class PassiveScannerControllerUnitTest extends TestUtils {
         given(extHistory.getLastHistoryId()).willReturn(1);
         given(extHistory.getHistoryReference(1)).willReturn(href);
 
-        TestPassiveScanner scanner = new TestPassiveScanner(true);
-        List<PassiveScanner> pscanList = new ArrayList<>();
-        pscanList.add(scanner);
-        given(passiveScannerList.list()).willReturn(pscanList);
+        ScanState scanState = new ScanState(1);
+        TestPassiveScanner scanner = new TestPassiveScanner(true, scanState);
+        given(passiveScannerList.list()).willReturn(Collections.singletonList(scanner));
 
         // When
         psc.start();
         psc.onHttpResponseReceive(null);
-        sleep(500);
+        scanState.waitScanFinished();
         psc.shutdown();
+        sleep(500);
 
         // Then
         assertThat(psc.getRecordsToScan(), is(equalTo(0)));
-        assertThat(scanner.isScannedRequest(), is(equalTo(true)));
-        assertThat(scanner.isScannedResponse(), is(equalTo(true)));
+        assertThat(scanState.isScannedRequest(), is(equalTo(true)));
+        assertThat(scanState.isScannedResponse(), is(equalTo(true)));
     }
 
     @Test
@@ -125,21 +132,21 @@ class PassiveScannerControllerUnitTest extends TestUtils {
         // Key config
         given(session.isInScope(href)).willReturn(false);
 
-        TestPassiveScanner scanner = new TestPassiveScanner(true);
-        List<PassiveScanner> pscanList = new ArrayList<>();
-        pscanList.add(scanner);
-        given(passiveScannerList.list()).willReturn(pscanList);
+        ScanState scanState = new ScanState(1);
+        TestPassiveScanner scanner = new TestPassiveScanner(true, scanState);
+        given(passiveScannerList.list()).willReturn(Collections.singletonList(scanner));
 
         // When
         psc.start();
         psc.onHttpResponseReceive(null);
-        sleep(500);
+        scanState.waitScanFinished();
         psc.shutdown();
+        sleep(500);
 
         // Then
         assertThat(psc.getRecordsToScan(), is(equalTo(0)));
-        assertThat(scanner.isScannedRequest(), is(equalTo(true)));
-        assertThat(scanner.isScannedResponse(), is(equalTo(true)));
+        assertThat(scanState.isScannedRequest(), is(equalTo(true)));
+        assertThat(scanState.isScannedResponse(), is(equalTo(true)));
     }
 
     @Test
@@ -157,21 +164,20 @@ class PassiveScannerControllerUnitTest extends TestUtils {
         given(session.isInScope(href)).willReturn(false);
         given(passiveScanParam.isScanOnlyInScope()).willReturn(true);
 
-        TestPassiveScanner scanner = new TestPassiveScanner(true);
-        List<PassiveScanner> pscanList = new ArrayList<>();
-        pscanList.add(scanner);
-        given(passiveScannerList.list()).willReturn(pscanList);
+        ScanState scanState = new ScanState(0);
+        TestPassiveScanner scanner = new TestPassiveScanner(true, scanState);
+        given(passiveScannerList.list()).willReturn(Collections.singletonList(scanner));
 
         // When
         psc.start();
         psc.onHttpResponseReceive(null);
-        sleep(500);
         psc.shutdown();
+        sleep(500);
 
         // Then
         assertThat(psc.getRecordsToScan(), is(equalTo(0)));
-        assertThat(scanner.isScannedRequest(), is(equalTo(false)));
-        assertThat(scanner.isScannedResponse(), is(equalTo(false)));
+        assertThat(scanState.isScannedRequest(), is(equalTo(false)));
+        assertThat(scanState.isScannedResponse(), is(equalTo(false)));
     }
 
     @Test
@@ -192,27 +198,27 @@ class PassiveScannerControllerUnitTest extends TestUtils {
         given(href2.getHttpMessage()).willReturn(msg2);
         given(href1.getURI()).willReturn(new URI(exampleUrl1, true));
         given(href2.getURI()).willReturn(new URI(exampleUrl2, true));
-        when(extHistory.getLastHistoryId()).thenReturn(1).thenReturn(2);
+        when(extHistory.getLastHistoryId()).thenReturn(1, 2);
         given(extHistory.getHistoryReference(1)).willReturn(href1);
         given(extHistory.getHistoryReference(2)).willReturn(href2);
 
-        TestPassiveScanner scanner = new TestPassiveScanner("TPS", true, true);
-        List<PassiveScanner> pscanList = new ArrayList<>();
-        pscanList.add(scanner);
-        given(passiveScannerList.list()).willReturn(pscanList);
+        ScanState scanState = new ScanState(true, 2);
+        TestPassiveScanner scanner = new TestPassiveScanner("TPS", true, scanState);
+        given(passiveScannerList.list()).willReturn(Collections.singletonList(scanner));
 
         // When
         psc.start();
-        psc.onHttpResponseReceive(null);
         long testStartTime = System.currentTimeMillis();
-        sleep(500);
+        psc.onHttpResponseReceive(null);
+        scanState.waitScanStarted();
         PassiveScanTask oldestTask = psc.getOldestRunningTask();
         List<PassiveScanTask> tasks = psc.getRunningTasks();
         int recordsToScan = psc.getRecordsToScan();
-        scanner.setBlock(false);
-        sleep(500);
+        scanState.continueScan();
+        scanState.waitScanFinished();
         psc.shutdown();
         long testEndTime = System.currentTimeMillis();
+        sleep(500);
 
         // Then
         assertThat(psc.getRecordsToScan(), is(equalTo(0)));
@@ -231,50 +237,31 @@ class PassiveScannerControllerUnitTest extends TestUtils {
         assertThat(tasks.get(1).getURI().toString(), is(equalTo(exampleUrl2)));
     }
 
-    class TestPassiveScanner implements PassiveScanner {
+    static class TestPassiveScanner implements PassiveScanner {
 
+        private final ScanState scanState;
         private boolean enabled;
-        private boolean block = false;
-        private boolean scannedRequest = false;
-        private boolean scannedResponse = false;
         private String name;
 
-        public TestPassiveScanner(boolean enabled) {
-            this.enabled = enabled;
+        TestPassiveScanner(boolean enabled, ScanState scanState) {
+            this("", enabled, scanState);
         }
 
-        public TestPassiveScanner(String name, boolean enabled, boolean block) {
+        TestPassiveScanner(String name, boolean enabled, ScanState scanState) {
             this.name = name;
             this.enabled = enabled;
-            this.block = block;
-        }
-
-        public void setBlock(boolean block) {
-            this.block = block;
+            this.scanState = scanState;
         }
 
         @Override
         public void scanHttpRequestSend(HttpMessage msg, int id) {
-            while (block) {
-                sleep(100);
-            }
-            scannedRequest = true;
+            scanState.scanStarted();
+            scanState.holdScan();
         }
 
         @Override
         public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-            while (block) {
-                sleep(100);
-            }
-            scannedResponse = true;
-        }
-
-        public boolean isScannedRequest() {
-            return scannedRequest;
-        }
-
-        public boolean isScannedResponse() {
-            return scannedResponse;
+            scanState.scanFinished();
         }
 
         @Override
@@ -293,6 +280,71 @@ class PassiveScannerControllerUnitTest extends TestUtils {
         @Override
         public boolean appliesToHistoryType(int historyType) {
             return true;
+        }
+    }
+
+    private static class ScanState {
+
+        private CountDownLatch holdScan;
+        private CountDownLatch scanStarted;
+        private CountDownLatch scanFinished;
+
+        private volatile boolean scannedRequest;
+        private volatile boolean scannedResponse;
+
+        ScanState(int messagesToScan) {
+            this(false, messagesToScan);
+        }
+
+        ScanState(boolean holdScan, int messagesToScan) {
+            this.holdScan = new CountDownLatch(holdScan ? 1 : 0);
+            scanStarted = new CountDownLatch(messagesToScan);
+            scanFinished = new CountDownLatch(messagesToScan);
+        }
+
+        void holdScan() {
+            await(holdScan);
+        }
+
+        void continueScan() {
+            holdScan.countDown();
+        }
+
+        void scanStarted() {
+            scannedRequest = true;
+            scanStarted.countDown();
+        }
+
+        void scanFinished() {
+            scannedResponse = true;
+            scanFinished.countDown();
+        }
+
+        void waitScanStarted() {
+            await(scanStarted);
+        }
+
+        void waitScanFinished() {
+            await(scanFinished);
+        }
+
+        boolean isScannedRequest() {
+            return scannedRequest;
+        }
+
+        boolean isScannedResponse() {
+            return scannedResponse;
+        }
+
+        private static void await(CountDownLatch cdl) {
+            try {
+                if (!cdl.await(5, TimeUnit.SECONDS)) {
+                    throw new RuntimeException("Await condition failed.");
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException(e);
+            }
         }
     }
 }
