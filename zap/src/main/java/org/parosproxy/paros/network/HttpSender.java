@@ -108,6 +108,7 @@
 // ZAP: 2022/06/03 Move implementation to HttpSenderParos.
 // ZAP: 2022/06/05 Remove usage of HttpException.
 // ZAP: 2022/06/07 Address deprecation warnings with HttpSenderParos.
+// ZAP: 2022/06/13 Added param miner initiator.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -139,6 +140,7 @@ public class HttpSender {
     public static final int AUTHENTICATION_HELPER_INITIATOR = 14;
     public static final int AUTHENTICATION_POLL_INITIATOR = 15;
     public static final int OAST_INITIATOR = 16;
+    public static final int PARAM_MINER_INITIATOR = 17;
 
     private static final HttpRequestConfig NO_REDIRECTS = HttpRequestConfig.builder().build();
     private static final HttpRequestConfig FOLLOW_REDIRECTS =
