@@ -223,7 +223,7 @@ public abstract class AbstractHistoryReferencesTableEntry implements HistoryRefe
             case HREF_TYPE:
                 return Integer.toString(0);
             case HREF_TYPE_INFO:
-                return HrefTypeInfo.getFromType(HistoryReference.TYPE_ZAP_USER);
+                return "Manual";
             case METHOD:
                 return "GET";
             case URL:
