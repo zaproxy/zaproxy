@@ -95,6 +95,7 @@
 // ZAP: 2022/02/09 Deprecate code related to core proxy, remove code no longer needed.
 // ZAP: 2022/04/17 Log extension name prior to description when loading.
 // ZAP: 2022/04/17 Address various SAST (SonarLint) issues.
+// ZAP: 2022/06/13 Hook HrefTypeInfo.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -148,6 +149,7 @@ import org.zaproxy.zap.extension.httppanel.DisplayedMessageChangedListener;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ContextPanelFactory;
+import org.zaproxy.zap.view.HrefTypeInfo;
 import org.zaproxy.zap.view.MainToolbarPanel;
 import org.zaproxy.zap.view.SiteMapListener;
 
@@ -800,6 +802,7 @@ public class ExtensionLoader {
             hookApiImplementors(ext, extHook);
             hookHttpSenderListeners(ext, extHook);
             hookVariant(ext, extHook);
+            hookHrefTypeInfo(ext, extHook);
 
             if (hasView()) {
                 // no need to hook view if no GUI
@@ -873,6 +876,7 @@ public class ExtensionLoader {
                 hookApiImplementors(ext, extHook);
                 hookHttpSenderListeners(ext, extHook);
                 hookVariant(ext, extHook);
+                hookHrefTypeInfo(ext, extHook);
 
                 if (hasView()) {
                     EventQueue.invokeAndWait(
@@ -978,6 +982,19 @@ public class ExtensionLoader {
             } catch (Exception e) {
                 logger.error(
                         "Error while adding a Variant from {}",
+                        extension.getClass().getCanonicalName(),
+                        e);
+            }
+        }
+    }
+
+    private void hookHrefTypeInfo(Extension extension, ExtensionHook extHook) {
+        for (HrefTypeInfo hrefTypeInfo : extHook.getHrefsTypeInfo()) {
+            try {
+                HrefTypeInfo.addType(hrefTypeInfo);
+            } catch (Exception e) {
+                logger.error(
+                        "Error while adding a HrefTypeInfo from {}",
                         extension.getClass().getCanonicalName(),
                         e);
             }
@@ -1505,6 +1522,17 @@ public class ExtensionLoader {
             } catch (Exception e) {
                 logger.error(
                         "Error while removing a Variant from {}",
+                        extension.getClass().getCanonicalName(),
+                        e);
+            }
+        }
+
+        for (HrefTypeInfo hrefTypeInfo : hook.getHrefsTypeInfo()) {
+            try {
+                HrefTypeInfo.removeType(hrefTypeInfo);
+            } catch (Exception e) {
+                logger.error(
+                        "Error while removing a HrefTypeInfo from {}",
                         extension.getClass().getCanonicalName(),
                         e);
             }
