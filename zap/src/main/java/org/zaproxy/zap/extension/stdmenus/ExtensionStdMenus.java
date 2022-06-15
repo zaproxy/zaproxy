@@ -38,7 +38,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.model.Context;
@@ -59,7 +58,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
     private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
     private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
     private PopupExcludeFromSpiderMenu popupExcludeFromSpiderMenu = null;
-    private PopupMenuResendMessage popupMenuResendMessage = null;
     private PopupMenuShowInHistory popupMenuShowInHistory = null;
     private PopupMenuShowInSites popupMenuShowInSites = null;
     private PopupMenuOpenUrlInBrowser popupMenuOpenUrlInBrowser = null;
@@ -138,12 +136,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                         .addPopupMenuItem(getPopupMenuActiveScanCustom(++indexMenuItem));
             }
 
-            if (isExtensionHistoryEnabled) {
-                extensionHook
-                        .getHookMenu()
-                        .addPopupMenuItem(getPopupMenuResendMessage(++indexMenuItem));
-            }
-            indexMenuItem += 2;
+            indexMenuItem += 1;
             if (isExtensionHistoryEnabled) {
                 extensionHook
                         .getHookMenu()
@@ -391,20 +384,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
             popupExcludeFromSpiderMenu.setMenuIndex(menuIndex);
         }
         return popupExcludeFromSpiderMenu;
-    }
-
-    private PopupMenuResendMessage getPopupMenuResendMessage(int menuIndex) {
-        if (popupMenuResendMessage == null) {
-            popupMenuResendMessage =
-                    new PopupMenuResendMessage(
-                            Constant.messages.getString("history.resend.popup"),
-                            Control.getSingleton()
-                                    .getExtensionLoader()
-                                    .getExtension(ExtensionHistory.class));
-            popupMenuResendMessage.setMenuIndex(menuIndex);
-            popupMenuResendMessage.setIcon(ExtensionManualRequestEditor.getIcon());
-        }
-        return popupMenuResendMessage;
     }
 
     private PopupMenuShowInSites getPopupMenuShowInSites(int menuIndex) {

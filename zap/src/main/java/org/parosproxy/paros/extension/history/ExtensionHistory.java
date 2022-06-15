@@ -97,6 +97,7 @@
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 // ZAP: 2022/05/12 Remove URL, messages, and response export menus and functionality, migrated to
 // the exim add-on.
+// ZAP: 2022/06/12 Deprecate getResendDialog().
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -117,7 +118,6 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
-import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
@@ -158,7 +158,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private HistoryFilterPlusDialog filterPlusDialog = null;
 
     private PopupMenuPurgeHistory popupMenuPurgeHistory = null;
-    private ManualRequestEditorDialog resendDialog = null;
 
     private PopupMenuTag popupMenuTag = null;
 
@@ -255,7 +254,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         if (hasView()) {
             ExtensionHookView pv = extensionHook.getHookView();
             pv.addStatusPanel(getLogPanel());
-            extensionHook.addOptionsChangedListener((OptionsChangedListener) getResendDialog());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuTag());
             // ZAP: Added history notes
@@ -572,12 +570,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      * This method initializes resendDialog
      *
      * @return org.parosproxy.paros.extension.history.ResendDialog
+     * @deprecated (2.12.0) Replaced by Requester add-on.
      */
+    @Deprecated
     public ManualRequestEditorDialog getResendDialog() {
-        if (resendDialog == null) {
-            resendDialog = new ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.manreq");
-            resendDialog.setTitle(Constant.messages.getString("manReq.dialog.title")); // ZAP: i18n
-        }
+        ManualRequestEditorDialog resendDialog =
+                new ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.manreq");
+        resendDialog.setTitle(Constant.messages.getString("manReq.dialog.title")); // ZAP: i18n
         return resendDialog;
     }
 
