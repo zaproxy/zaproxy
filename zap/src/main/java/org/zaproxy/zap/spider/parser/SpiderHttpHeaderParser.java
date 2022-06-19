@@ -66,7 +66,6 @@ public class SpiderHttpHeaderParser extends SpiderParser {
                 processURL(message, depth, link.substring(i + 1, j), baseURL);
                 offset = j;
             }
-            processURL(message, depth, location, baseURL);
         }
         // We do not consider the message fully parsed
         return false;
