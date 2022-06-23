@@ -58,9 +58,8 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelComponent;
-import org.zaproxy.zap.extension.tab.Tab;
 
-public abstract class HttpPanel extends AbstractPanel implements Tab {
+public abstract class HttpPanel extends AbstractPanel {
 
     public enum OptionsLocation {
         BEGIN,
