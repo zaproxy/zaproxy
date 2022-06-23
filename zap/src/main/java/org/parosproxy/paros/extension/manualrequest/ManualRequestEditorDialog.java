@@ -42,6 +42,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/02/12 Add shortcut key to Send button (Issue 6448).
 // ZAP: 2022/06/08 Fix resizing issues.
+// ZAP: 2022/06/23 Do not implement Tab.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
@@ -67,12 +68,11 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.tab.Tab;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 /** Send custom crafted messages via HTTP or other TCP based protocols. */
-public abstract class ManualRequestEditorDialog extends AbstractFrame implements Tab {
+public abstract class ManualRequestEditorDialog extends AbstractFrame {
     private static final long serialVersionUID = 1L;
 
     private static final Logger logger = LogManager.getLogger(ManualRequestEditorDialog.class);
