@@ -98,6 +98,7 @@
 // ZAP: 2022/05/12 Remove URL, messages, and response export menus and functionality, migrated to
 // the exim add-on.
 // ZAP: 2022/06/12 Deprecate getResendDialog().
+// ZAP: 2022/06/27 Make delete more consistent and protective (Issue 7336).
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -105,8 +106,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import org.apache.commons.collections.map.ReferenceMap;
+import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.httpclient.URIException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -149,6 +152,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     public static final String NAME = "ExtensionHistory";
 
     private static final HistoryTableModel EMPTY_MODEL = new HistoryTableModel();
+    private static final String REMOVE_CONFIRMATION_KEY = "view.deleteconfirmation.history";
 
     private LogPanel logPanel = null; //  @jve:decl-index=0:visual-constraint="161,134"
     private ProxyListenerLog proxyListener = null;
@@ -881,13 +885,43 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      * @since 2.7.0
      */
     public void purgeHistory(List<HistoryReference> hrefs) {
-        if (hasView() && hrefs.size() > 1) {
-            int result =
-                    getView()
-                            .showConfirmDialog(
-                                    Constant.messages.getString("history.purge.warning"));
-            if (result != JOptionPane.YES_OPTION) {
-                return;
+        if (hrefs.isEmpty()) {
+            return;
+        }
+        if (hasView()) {
+            FileConfiguration config = Model.getSingleton().getOptionsParam().getConfig();
+            boolean confirmRemoval = config.getBoolean(REMOVE_CONFIRMATION_KEY, false);
+
+            if (confirmRemoval) {
+                JCheckBox removeWithoutConfirmationCheckBox =
+                        new JCheckBox(Constant.messages.getString("history.purge.confirm.message"));
+                Object[] messages = {
+                    Constant.messages.getString("history.purge.warning"),
+                    " ",
+                    removeWithoutConfirmationCheckBox
+                };
+                int result =
+                        JOptionPane.showOptionDialog(
+                                View.getSingleton().getMainFrame(),
+                                messages,
+                                Constant.messages.getString("history.purge.title"),
+                                JOptionPane.OK_CANCEL_OPTION,
+                                JOptionPane.QUESTION_MESSAGE,
+                                null,
+                                new String[] {
+                                    Constant.messages.getString("history.purge.confirm"),
+                                    Constant.messages.getString("history.purge.cancel")
+                                },
+                                null);
+                if (result != JOptionPane.YES_OPTION) {
+                    return;
+                }
+                Model.getSingleton()
+                        .getOptionsParam()
+                        .getConfig()
+                        .setProperty(
+                                REMOVE_CONFIRMATION_KEY,
+                                removeWithoutConfirmationCheckBox.isSelected());
             }
         }
         synchronized (this) {
