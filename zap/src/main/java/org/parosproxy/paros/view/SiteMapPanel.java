@@ -53,6 +53,7 @@
 // ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
 // ZAP: 2019/09/09 Issue 3491: Add support for selecting multiple contexts
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/07/04 Make delete more consistent and protective (Issue 7336).
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -71,6 +72,7 @@ import java.util.stream.Stream;
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -85,6 +87,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+import org.apache.commons.configuration.FileConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -118,6 +121,7 @@ import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesCon
 public class SiteMapPanel extends AbstractPanel {
 
     public static final String CONTEXT_TREE_COMPONENT_NAME = "ContextTree";
+    private static final String REMOVE_CONFIRMATION_KEY = "view.deleteconfirmation.sites";
 
     private static final long serialVersionUID = -3161729504065679088L;
 
@@ -447,13 +451,47 @@ public class SiteMapPanel extends AbstractPanel {
                                         return;
                                     }
 
-                                    int result =
-                                            View.getSingleton()
-                                                    .showConfirmDialog(
+                                    FileConfiguration config =
+                                            Model.getSingleton().getOptionsParam().getConfig();
+                                    boolean confirmRemoval =
+                                            config.getBoolean(REMOVE_CONFIRMATION_KEY, false);
+
+                                    if (confirmRemoval) {
+                                        JCheckBox removeWithoutConfirmationCheckBox =
+                                                new JCheckBox(
+                                                        Constant.messages.getString(
+                                                                "sites.purge.confirm.message"));
+                                        Object[] messages = {
+                                            Constant.messages.getString("sites.purge.warning"),
+                                            " ",
+                                            removeWithoutConfirmationCheckBox
+                                        };
+                                        int result =
+                                                JOptionPane.showOptionDialog(
+                                                        View.getSingleton().getMainFrame(),
+                                                        messages,
+                                                        Constant.messages.getString(
+                                                                "sites.purge.title"),
+                                                        JOptionPane.OK_CANCEL_OPTION,
+                                                        JOptionPane.QUESTION_MESSAGE,
+                                                        null,
+                                                        new String[] {
                                                             Constant.messages.getString(
-                                                                    "sites.purge.warning"));
-                                    if (result != JOptionPane.YES_OPTION) {
-                                        return;
+                                                                    "sites.purge.confirm"),
+                                                            Constant.messages.getString(
+                                                                    "sites.purge.cancel")
+                                                        },
+                                                        null);
+                                        if (result != JOptionPane.YES_OPTION) {
+                                            return;
+                                        }
+                                        Model.getSingleton()
+                                                .getOptionsParam()
+                                                .getConfig()
+                                                .setProperty(
+                                                        REMOVE_CONFIRMATION_KEY,
+                                                        removeWithoutConfirmationCheckBox
+                                                                .isSelected());
                                     }
 
                                     SiteMap siteMap =
