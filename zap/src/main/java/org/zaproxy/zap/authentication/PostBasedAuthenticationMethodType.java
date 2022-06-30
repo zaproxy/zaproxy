@@ -279,7 +279,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                         (requestBody != null) ? HttpRequestHeader.POST : HttpRequestHeader.GET;
                 requestMessage = new HttpMessage();
                 requestMessage.setRequestHeader(
-                        new HttpRequestHeader(method, requestURI, HttpHeader.HTTP10));
+                        new HttpRequestHeader(method, requestURI, HttpHeader.HTTP11));
                 if (setRequestBody(requestMessage, requestBody)) {
                     requestMessage
                             .getRequestHeader()
@@ -296,7 +296,6 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             }
 
             message.getRequestBody().setBody(body);
-            message.getRequestHeader().setContentLength(message.getRequestBody().length());
             return true;
         }
 
@@ -364,6 +363,10 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                     LOGGER.debug("Authentication request body: \n" + msg.getRequestBody());
             }
 
+            if (!msg.getRequestHeader().getMethod().equals(HttpRequestHeader.GET)) {
+                msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+            }
+
             // Send the authentication message
             try {
                 getHttpSender().sendAndReceive(msg);
@@ -377,8 +380,12 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             // Add message to history
             AuthenticationHelper.addAuthMessageToHistory(msg);
 
-            user.getAuthenticationState()
-                    .setLastAuthRequestHistoryId(msg.getHistoryRef().getHistoryId());
+            try {
+                user.getAuthenticationState()
+                        .setLastAuthRequestHistoryId(msg.getHistoryRef().getHistoryId());
+            } catch (Exception e) {
+                LOGGER.warn("Unable to set last auth request history id: {}", e.getMessage(), e);
+            }
 
             // Update the session as it may have changed
             WebSession session = sessionManagementMethod.extractWebSession(msg);
