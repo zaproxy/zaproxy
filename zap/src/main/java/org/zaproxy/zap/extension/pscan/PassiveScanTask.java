@@ -23,8 +23,12 @@ import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.utils.Stats;
 
@@ -203,16 +207,20 @@ public class PassiveScanTask implements Runnable {
                             "Temporary record {} no longer available:", href.getHistoryId(), e);
                 }
             } else {
+                RecordHistory rec = null;
+                try {
+                    rec = Model.getSingleton().getDb().getTableHistory().read(href.getHistoryId());
+                } catch (HttpMalformedHeaderException | DatabaseException e2) {
+                    // Ignore
+                }
+                if (rec == null) {
+                    return;
+                }
                 logger.error(
                         "Parser failed on record {} from History table", href.getHistoryId(), e);
                 HttpMessage msg;
                 try {
                     msg = href.getHttpMessage();
-                    logger.error(
-                            "Parser failed on record {} from History table, msg {}",
-                            href.getHistoryId(),
-                            msg,
-                            e);
                     logger.error("Req Header {}", msg.getRequestHeader(), e);
                 } catch (Exception e1) {
                     // Ignore
