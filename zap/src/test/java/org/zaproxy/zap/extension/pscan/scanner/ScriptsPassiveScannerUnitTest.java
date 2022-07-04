@@ -198,6 +198,24 @@ class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
     }
 
     @Test
+    void shouldScanWithCopy() throws Exception {
+        // Given
+        PassiveScript script = mock(TARGET_INTERFACE);
+        given(script.appliesToHistoryType(anyInt())).willReturn(true);
+        ScriptsCache<PassiveScript> scriptsCache = createScriptsCache(createCachedScript(script));
+        given(extensionScript.<PassiveScript>createScriptsCache(any())).willReturn(scriptsCache);
+        int historyType = 5;
+        ScriptsPassiveScanner scriptsPassiveScanner = new ScriptsPassiveScanner();
+        scriptsPassiveScanner.appliesToHistoryType(historyType);
+        // When
+        ScriptsPassiveScanner copy = scriptsPassiveScanner.copy();
+        copy.scanHttpResponseReceive(message, id, source);
+        // Then
+        verify(script, times(1)).appliesToHistoryType(historyType);
+        verify(script, times(1)).scan(any(), any(), any());
+    }
+
+    @Test
     void shouldNotCallScanIfScriptDoesNotApplyToHistoryType() throws Exception {
         // Given
         PassiveScript script = mock(TARGET_INTERFACE);
