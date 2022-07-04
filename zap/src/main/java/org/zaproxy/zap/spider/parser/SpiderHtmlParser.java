@@ -39,7 +39,7 @@ import org.zaproxy.zap.spider.URLCanonicalizer;
  */
 public class SpiderHtmlParser extends SpiderParser {
 
-    /** The Constant URL_PATTERN defining the pattern for a meta url. */
+    /** The Constant URL_PATTERN defining the pattern for a meta URL. */
     static final Pattern URL_PATTERN =
             Pattern.compile("url\\s*=\\s*[\"']?([^;'\"]+)", Pattern.CASE_INSENSITIVE);
 
@@ -47,6 +47,17 @@ public class SpiderHtmlParser extends SpiderParser {
             Pattern.compile(
                     "(?:http(?:s?):)?//[^\\x00-\\x1f\"'\\s<>#()\\[\\]{}]+",
                     Pattern.CASE_INSENSITIVE);
+
+    private static final Pattern SRCSET_PATTERN =
+            Pattern.compile("[^\"'=\\s,]+\\.[^\\s,]+", Pattern.CASE_INSENSITIVE);
+    /**
+     * Functional interface that allows custom handling of URLs retrieved in attributes, to be
+     * manipulated before the URL is sent to a {@link SpiderParser#processURL} call.
+     */
+    @FunctionalInterface
+    private interface CustomUrlProcessor {
+        void process(HttpMessage message, int depth, String localURL, String baseURL);
+    }
 
     /** The params. */
     private SpiderParam params;
@@ -74,7 +85,7 @@ public class SpiderHtmlParser extends SpiderParser {
             source = new Source(message.getResponseBody().toString());
         }
 
-        // Get the context (base url)
+        // Get the context (base URL)
         String baseURL = message.getRequestHeader().getURI().toString();
 
         // Try to see if there's any BASE tag that could change the base URL
@@ -120,12 +131,27 @@ public class SpiderHtmlParser extends SpiderParser {
     }
 
     /**
+     * Implements the CustomUrlProcessor to handle the special format of a srcset attribute element,
+     * see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img#attr-srcset the srcset
+     * attribute contains one or more strings separated by commas, indicating possible image sources
+     * for the user agent to use.
+     */
+    private void srcSetProcessor(HttpMessage message, int depth, String localURL, String baseURL) {
+        Matcher results = SRCSET_PATTERN.matcher(localURL);
+        while (results.find()) {
+            if (!results.group().isEmpty()) {
+                processURL(message, depth, results.group(), baseURL);
+            }
+        }
+    }
+
+    /**
      * Parses the HTML Jericho source for the elements that contain references to other resources.
      *
      * @param message the message
      * @param source the source
      * @param depth the depth
-     * @param baseURL the base url
+     * @param baseURL the base URL
      * @return {@code true} if at least one URL was found, {@code false} otherwise.
      */
     private boolean parseSource(HttpMessage message, Source source, int depth, String baseURL) {
@@ -208,6 +234,30 @@ public class SpiderHtmlParser extends SpiderParser {
             resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
         }
 
+        // Process Table elements
+        elements = source.getAllElements(HTMLElementName.TABLE);
+        for (Element el : elements) {
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "background");
+        }
+
+        // Process TD elements
+        elements = source.getAllElements(HTMLElementName.TD);
+        for (Element src : elements) {
+            resourcesfound |= processAttributeElement(message, depth, baseURL, src, "background");
+        }
+
+        // Process Video elements
+        elements = source.getAllElements(HTMLElementName.VIDEO);
+        for (Element el : elements) {
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
+            List<Element> videoSourceElements = el.getAllElements(HTMLElementName.SOURCE);
+            for (Element sourceElement : videoSourceElements) {
+                resourcesfound |=
+                        processAttributeElement(message, depth, baseURL, sourceElement, "src");
+            }
+            resourcesfound |= processAttributeElement(message, depth, baseURL, el, "poster");
+        }
+
         // Process Img elements
         elements = source.getAllElements(HTMLElementName.IMG);
         for (Element el : elements) {
@@ -215,6 +265,9 @@ public class SpiderHtmlParser extends SpiderParser {
             resourcesfound |= processAttributeElement(message, depth, baseURL, el, "longdesc");
             resourcesfound |= processAttributeElement(message, depth, baseURL, el, "lowsrc");
             resourcesfound |= processAttributeElement(message, depth, baseURL, el, "dynsrc");
+            resourcesfound |=
+                    processAttributeElement(
+                            message, depth, baseURL, el, "srcset", this::srcSetProcessor);
         }
 
         // Process META elements
@@ -260,20 +313,44 @@ public class SpiderHtmlParser extends SpiderParser {
      *
      * @param message the message
      * @param depth the depth
-     * @param baseURL the base url
+     * @param baseURL the base URL
      * @param element the element
      * @param attributeName the attribute name
      * @return {@code true} if a URL was processed, {@code false} otherwise.
      */
     private boolean processAttributeElement(
             HttpMessage message, int depth, String baseURL, Element element, String attributeName) {
+        return processAttributeElement(message, depth, baseURL, element, attributeName, null);
+    }
+
+    /**
+     * Processes the attribute with the given name of a Jericho element, for an URL. If an URL is
+     * found, notifies the listeners.
+     *
+     * @param message the message
+     * @param depth the depth
+     * @param baseURL the base URL
+     * @param element the element
+     * @param attributeName the attribute name
+     * @param customUrlProcessor functional interface for custom manipulation of urls
+     * @return {@code true} if a URL was processed, {@code false} otherwise.
+     */
+    private boolean processAttributeElement(
+            HttpMessage message,
+            int depth,
+            String baseURL,
+            Element element,
+            String attributeName,
+            CustomUrlProcessor customUrlProcessor) {
         // The URL as written in the attribute (can be relative or absolute)
         String localURL = element.getAttributeValue(attributeName);
         if (localURL == null) {
             return false;
         }
 
-        if (!attributeName.equalsIgnoreCase("ping")) {
+        if (customUrlProcessor != null) {
+            customUrlProcessor.process(message, depth, localURL, baseURL);
+        } else if (!attributeName.equalsIgnoreCase("ping")) {
             processURL(message, depth, localURL, baseURL);
         } else {
             for (String pingURL : localURL.split("\\s")) {

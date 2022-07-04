@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <base href="http://example.com/sample/">
+    <meta charset="UTF-8">
+    <title>Table Elements - Spider HTML Parser</title>
+</head>
+<body>
+
+<!--  Simple Table Background: -->
+<table background="http://table.background.example.com/base/scheme"></table>
+<table background="http://table.background.example.com:8000/b"></table>
+<table background="https://table.background.example.com/c?a=b#fragment"></table>
+<table background="background/relative"></table>
+<table background=""></table>
+<table background="/background/absolute"></table>
+<table background="ftp://background.example.com/"></table>
+
+<!--  Column Background: -->
+<table>
+<tr>
+<td background="/background/td_absolute1"></td>
+<td background="/background/td_absolute2"></td>
+<td background="background/td_relative1"></td>
+</tr>
+</table>
+
+<td background="http://td.background.example.com"></td>
+
+<!--  Ignored: -->
+<table></table>
+<table>
+    <tr>
+        <td></td>
+    </tr>
+</table>
+<table background="mailto:background@example.com"></table>
+
+</body>
+</html>
