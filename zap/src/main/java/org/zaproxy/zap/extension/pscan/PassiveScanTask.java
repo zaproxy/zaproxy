@@ -132,6 +132,7 @@ public class PassiveScanTask implements Runnable {
                                 "Running scan rule, URL {} plugin {}",
                                 msg.getRequestHeader().getURI(),
                                 scanner.getName());
+                        long scanRuleStartTime = System.currentTimeMillis();
 
                         if (maxBodySize <= 0 || msg.getRequestBody().length() < maxBodySize) {
                             scanner.scanHttpRequestSend(msg, href.getHistoryId());
@@ -162,7 +163,7 @@ public class PassiveScanTask implements Runnable {
                             }
                         }
                         if (scanned) {
-                            long timeTaken = System.currentTimeMillis() - startTime;
+                            long timeTaken = System.currentTimeMillis() - scanRuleStartTime;
                             if (scanner instanceof PluginPassiveScanner) {
                                 PluginPassiveScanner pps = (PluginPassiveScanner) scanner;
                                 Stats.incCounter(
