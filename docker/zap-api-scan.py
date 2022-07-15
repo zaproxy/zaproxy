@@ -144,21 +144,12 @@ def main():
     info_unspecified = args.info_unspecified
     base_dir = ''
     zap_ip = 'localhost'
-<<<<<<< HEAD
     zap_options = args.zap_options
     delay = args.delay
     timeout = args.timeout
     ignore_warn = args.ignore_warn
     hook_file = args.hook
     schema = args.schema
-=======
-    zap_options = ''
-    delay = 0
-    timeout = 0
-    ignore_warn = False
-    hook_file = ''
-    schema = ''
->>>>>>> fe3aefcc938a86ccb003d8d7f0ed54b88026221c
     schema_url = ''
     user = args.user
     min_level = zap_conf_lvls.index(args.level)
@@ -209,17 +200,12 @@ def main():
     else:
         # assume its a file
         target_file = os.path.join(base_dir, target)
-<<<<<<< HEAD
+
         if not os.path.exists(base_dir + target):
             parser.print_help()
             logging.warning('Target must either start with \'http://\' or \'https://\' or be a local file')
             logging.warning('File does not exist: ' + base_dir + target)
-=======
-        if not os.path.exists(target_file):
-            logging.warning('Target must either start with \'http://\' or \'https://\' or be a local file')
-            logging.warning('File does not exist: ' + target_file)
-            usage()
->>>>>>> fe3aefcc938a86ccb003d8d7f0ed54b88026221c
+
             sys.exit(3)
 
     schema_file = ''
@@ -229,19 +215,12 @@ def main():
         else:
             # assume its a file
             schema_file = os.path.join(base_dir, schema)
-<<<<<<< HEAD
             
             if not os.path.exists(base_dir + schema):
                 parser.print_help()
                 logging.warning('GraphQL schema must either start with \'http://\' or \'https://\' or be a local file')
                 logging.warning('File does not exist: ' + base_dir + schema)
-=======
 
-            if not os.path.exists(schema_file):
-                logging.warning('GraphQL schema must either start with \'http://\' or \'https://\' or be a local file')
-                logging.warning('File does not exist: ' + schema_file)
-                usage()
->>>>>>> fe3aefcc938a86ccb003d8d7f0ed54b88026221c
                 sys.exit(3)
 
     # Choose a random 'ephemeral' port and check its available if it wasn't specified with -P option

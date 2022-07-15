@@ -173,7 +173,6 @@ def main():
     ajax = args.ajax_spider
     base_dir = ''
     zap_ip = 'localhost'
-<<<<<<< HEAD
     zap_options = args.zap_options
     delay = args.delay
     timeout = args.timeout
@@ -181,15 +180,7 @@ def main():
     hook_file = args.hook
     user = args.user
     use_af = args.autooff and args.auto
-=======
-    zap_options = ''
-    delay = 0
-    timeout = 0
-    ignore_warn = False
-    hook_file = ''
-    user = ''
-    use_af = True
->>>>>>> fe3aefcc938a86ccb003d8d7f0ed54b88026221c
+
     af_supported = True
     af_override = False if args.autooff == '' else True  # * This value not used
     min_level = zap_conf_lvls.index(args.level)
