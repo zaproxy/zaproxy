@@ -45,6 +45,7 @@
 // ZAP: 2022/02/08 Use isEmpty where applicable.
 // ZAP: 2022/02/09 Deprecate the class.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
+// ZAP: 2022/06/07 Address deprecation warnings with SSLConnector.
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
@@ -55,7 +56,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.network.SSLConnector;
 
 /**
  * @author simon
@@ -347,23 +347,29 @@ public class ProxyParam extends AbstractParam {
             securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
             setServerEnabledProtocols();
         } else {
-            setSecurityProtocolsEnabled(SSLConnector.getServerEnabledProtocols());
+            setSecurityProtocolsEnabled(
+                    org.parosproxy.paros.network.SSLConnector.getServerEnabledProtocols());
         }
     }
 
     private void setServerEnabledProtocols() {
         try {
-            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
+            org.parosproxy.paros.network.SSLConnector.setServerEnabledProtocols(
+                    securityProtocolsEnabled);
         } catch (IllegalArgumentException e) {
             logger.warn(
                     "Failed to set persisted protocols "
                             + Arrays.toString(securityProtocolsEnabled)
                             + " falling back to "
-                            + Arrays.toString(SSLConnector.getFailSafeProtocols())
+                            + Arrays.toString(
+                                    org.parosproxy.paros.network.SSLConnector
+                                            .getFailSafeProtocols())
                             + " caused by: "
                             + e.getMessage());
-            securityProtocolsEnabled = SSLConnector.getFailSafeProtocols();
-            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
+            securityProtocolsEnabled =
+                    org.parosproxy.paros.network.SSLConnector.getFailSafeProtocols();
+            org.parosproxy.paros.network.SSLConnector.setServerEnabledProtocols(
+                    securityProtocolsEnabled);
         }
     }
 

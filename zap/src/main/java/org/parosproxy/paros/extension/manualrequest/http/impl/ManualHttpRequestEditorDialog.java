@@ -33,6 +33,7 @@
 // ZAP: 2020/11/20 Support Send button in response panel in tab mode
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/02/12 Add shortcut key to Send button (Issue 6448).
+// ZAP: 2022/04/28 Call the new message sender method.
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
@@ -693,8 +694,6 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
 
     @Override
     public void optionsChanged(OptionsParam optionsParam) {
-        getMessageSender()
-                .setButtonTrackingSessionStateEnabled(
-                        optionsParam.getConnectionParam().isHttpStateEnabled());
+        getMessageSender().updateButtonTrackingSessionState();
     }
 }

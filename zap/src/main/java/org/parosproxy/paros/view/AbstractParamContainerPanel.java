@@ -38,6 +38,8 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/11/19 Remove empty parent nodes.
 // ZAP: 2022/02/12 Show child panel if parent has none.
+// ZAP: 2022/05/11 Use a unique ID to identify the panels instead of their name (Issue 5637).
+// ZAP: 2022/06/08 Fix resizing issues.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -56,7 +58,9 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -98,7 +102,9 @@ public class AbstractParamContainerPanel extends JSplitPane {
     private static final long serialVersionUID = -5223178126156052670L;
     protected Object paramObject = null;
 
-    private Hashtable<String, AbstractParamPanel> tablePanel = new Hashtable<>();
+    private int panelIdCounter;
+    private List<AbstractParamPanel> panels = new ArrayList<>();
+    private Map<AbstractParamPanel, ParamTreeNode> panelsToTreeNodes = new HashMap<>();
 
     private JButton btnHelp = null;
     private JPanel jPanel = null;
@@ -108,8 +114,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
     private JPanel panelHeadline = null;
     private ZapTextField txtHeadline = null;
     private DefaultTreeModel treeModel = null; //  @jve:decl-index=0:parse,visual-constraint="14,12"
-    private DefaultMutableTreeNode rootNode =
-            null; //  @jve:decl-index=0:parse,visual-constraint="10,50"
+    private ParamTreeNode rootNode;
     private JScrollPane jScrollPane = null;
     private JScrollPane jScrollPane1 = null;
 
@@ -121,7 +126,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
     private SearchAndHighlight searchAndHighlight;
 
     // ZAP: show the last selected panel
-    private String nameLastSelectedPanel = null;
+    private ParamTreeNode nodeLastSelectedPanel;
     private AbstractParamPanel currentShownPanel;
     private ShowHelpAction showHelpAction = null;
 
@@ -152,8 +157,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
         this.setContinuousLayout(true);
         this.setRightComponent(getJPanel1());
         // ZAP: added more space for readability (was 175)
-        this.setDividerLocation(200);
-        this.setDividerSize(3);
+        this.setDividerLocation(DisplayUtils.getScaledSize(200));
+        this.setDividerSize(DisplayUtils.getScaledSize(3));
         this.setResizeWeight(0.3D);
         this.setBorder(
                 javax.swing.BorderFactory.createEtchedBorder(
@@ -228,23 +233,18 @@ public class AbstractParamContainerPanel extends JSplitPane {
                         @Override
                         public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
 
-                            DefaultMutableTreeNode node =
-                                    (DefaultMutableTreeNode)
-                                            getTreeParam().getLastSelectedPathComponent();
+                            ParamTreeNode node =
+                                    (ParamTreeNode) getTreeParam().getLastSelectedPathComponent();
                             if (node == null) {
                                 return;
                             }
-                            String name = (String) node.getUserObject();
-                            if (getParamPanel(name) == null) {
+                            if (node.getParamPanel() == null) {
                                 if (node.getChildCount() == 0) {
                                     return;
                                 }
-                                name =
-                                        (String)
-                                                ((DefaultMutableTreeNode) node.getFirstChild())
-                                                        .getUserObject();
+                                node = (ParamTreeNode) node.getFirstChild();
                             }
-                            showParamPanel(name);
+                            showParamPanel(node);
                         }
                     });
 
@@ -366,23 +366,23 @@ public class AbstractParamContainerPanel extends JSplitPane {
      */
     protected DefaultMutableTreeNode getRootNode() {
         if (rootNode == null) {
-            rootNode = new DefaultMutableTreeNode(DEFAULT_ROOT_NODE_NAME);
+            rootNode = new ParamTreeNode(panelIdCounter++, DEFAULT_ROOT_NODE_NAME);
         }
 
         return rootNode;
     }
 
-    private DefaultMutableTreeNode addParamNode(String[] paramSeq, boolean sort) {
+    private ParamTreeNode addParamNode(String[] paramSeq, boolean sort) {
         String param = null;
-        DefaultMutableTreeNode parent = getRootNode();
-        DefaultMutableTreeNode child = null;
-        DefaultMutableTreeNode result = null;
+        ParamTreeNode parent = (ParamTreeNode) getRootNode();
+        ParamTreeNode child = null;
+        ParamTreeNode result = null;
 
         for (int i = 0; i < paramSeq.length; i++) {
             param = paramSeq[i];
             result = null;
             for (int j = 0; j < parent.getChildCount(); j++) {
-                child = (DefaultMutableTreeNode) parent.getChildAt(j);
+                child = (ParamTreeNode) parent.getChildAt(j);
                 if (child.toString().equalsIgnoreCase(param)) {
                     result = child;
                     break;
@@ -390,7 +390,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
             }
 
             if (result == null) {
-                result = new DefaultMutableTreeNode(param);
+                result = new ParamTreeNode(panelIdCounter++, param);
                 addNewNode(parent, result, sort);
             }
 
@@ -400,8 +400,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
         return parent;
     }
 
-    private void addNewNode(
-            DefaultMutableTreeNode parent, DefaultMutableTreeNode node, boolean sort) {
+    private void addNewNode(ParamTreeNode parent, ParamTreeNode node, boolean sort) {
         if (!sort) {
             getTreeModel().insertNodeInto(node, parent, parent.getChildCount());
             return;
@@ -432,16 +431,20 @@ public class AbstractParamContainerPanel extends JSplitPane {
     // ZAP: Added sort option
     public void addParamPanel(
             String[] parentParams, String name, AbstractParamPanel panel, boolean sort) {
+        ParamTreeNode node;
         if (parentParams != null) {
-            addNewNode(addParamNode(parentParams, sort), new DefaultMutableTreeNode(name), sort);
+            node = new ParamTreeNode(panelIdCounter++, name, panel);
+            addNewNode(addParamNode(parentParams, sort), node, sort);
 
         } else {
-            // No need to create node.  This is the root panel.
+            node = (ParamTreeNode) getRootNode();
+            node.setParamPanel(panel);
         }
 
         panel.setName(name);
-        getPanelParam().add(panel, name);
-        tablePanel.put(name, panel);
+        getPanelParam().add(panel, node.getPanelId());
+        panels.add(panel);
+        panelsToTreeNodes.put(node.getParamPanel(), node);
         registerSearchAndHighlightComponents(panel);
     }
 
@@ -479,9 +482,9 @@ public class AbstractParamContainerPanel extends JSplitPane {
     public void removeParamPanel(AbstractParamPanel panel) {
         if (currentShownPanel == panel) {
             currentShownPanel = null;
-            nameLastSelectedPanel = null;
+            nodeLastSelectedPanel = null;
             if (isShowing()) {
-                if (tablePanel.isEmpty()) {
+                if (panels.isEmpty()) {
                     getTxtHeadline().setText("");
                     getHelpButton().setVisible(false);
                 } else {
@@ -491,14 +494,14 @@ public class AbstractParamContainerPanel extends JSplitPane {
             }
         }
 
-        DefaultMutableTreeNode node = this.getTreeNodeFromPanelName(panel.getName(), true);
+        ParamTreeNode node = panelsToTreeNodes.remove(panel);
         if (node != null) {
             removeNode(node);
         }
 
         removeSearchAndHighlightComponents(panel);
         getPanelParam().remove(panel);
-        tablePanel.remove(panel.getName());
+        panels.remove(panel);
     }
 
     /**
@@ -506,8 +509,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
      *
      * @param node the (main) node to remove.
      */
-    private void removeNode(DefaultMutableTreeNode node) {
-        DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+    private void removeNode(ParamTreeNode node) {
+        ParamTreeNode parent = (ParamTreeNode) node.getParent();
         getTreeModel().removeNodeFromParent(node);
         if (!parent.isRoot()
                 && parent.getChildCount() == 0
@@ -527,12 +530,11 @@ public class AbstractParamContainerPanel extends JSplitPane {
         searchAndHighlight.clearHighlight();
     }
 
-    private DefaultMutableTreeNode getFirstAvailableNode() {
-        if (((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildCount() > 0) {
-            return (DefaultMutableTreeNode)
-                    ((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildAt(0);
+    private ParamTreeNode getFirstAvailableNode() {
+        if (((ParamTreeNode) getTreeModel().getRoot()).getChildCount() > 0) {
+            return (ParamTreeNode) ((ParamTreeNode) getTreeModel().getRoot()).getChildAt(0);
         }
-        return getTreeNodeFromPanelName(tablePanel.keys().nextElement());
+        return panelsToTreeNodes.get(panels.get(0));
     }
 
     // ZAP: Made public so that other classes can specify which panel is displayed
@@ -541,12 +543,12 @@ public class AbstractParamContainerPanel extends JSplitPane {
             return;
         }
 
-        AbstractParamPanel panel = tablePanel.get(parent);
+        AbstractParamPanel panel = getParamPanel(parent);
         if (panel == null) {
             return;
         }
 
-        showParamPanel(panel, parent);
+        showParamPanel(panel);
     }
 
     /**
@@ -570,11 +572,11 @@ public class AbstractParamContainerPanel extends JSplitPane {
             return;
         }
 
-        showParamPanel(panel, name);
+        showParamPanel(panel);
     }
 
     private AbstractParamPanel getParamPanel(String name) {
-        return tablePanel.get(name);
+        return panels.stream().filter(e -> name.equals(e.getName())).findFirst().orElse(null);
     }
 
     /**
@@ -588,6 +590,19 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * @see AbstractParamPanel#onShow()
      */
     public void showParamPanel(AbstractParamPanel panel, String name) {
+        showParamPanel(panel);
+    }
+
+    private void showParamPanel(AbstractParamPanel panel) {
+        showParamPanel(panelsToTreeNodes.get(panel));
+    }
+
+    private void showParamPanel(ParamTreeNode node) {
+        if (node == null) {
+            return;
+        }
+
+        AbstractParamPanel panel = node.getParamPanel();
         if (currentShownPanel == panel) {
             return;
         }
@@ -597,20 +612,20 @@ public class AbstractParamContainerPanel extends JSplitPane {
             currentShownPanel.onHide();
         }
 
-        nameLastSelectedPanel = name;
+        nodeLastSelectedPanel = node;
         currentShownPanel = panel;
 
-        TreePath nodePath = new TreePath(getTreeNodeFromPanelName(name).getPath());
+        TreePath nodePath = new TreePath(node.getPath());
         getTreeParam().setSelectionPath(nodePath);
         ensureNodeVisible(nodePath);
 
         getPanelHeadline();
-        getTxtHeadline().setText(name);
+        getTxtHeadline().setText(panel.getName());
         getHelpButton().setVisible(panel.getHelpIndex() != null);
         getShowHelpAction().setHelpIndex(panel.getHelpIndex());
 
         CardLayout card = (CardLayout) getPanelParam().getLayout();
-        card.show(getPanelParam(), name);
+        card.show(getPanelParam(), node.getPanelId());
         // ZAP: Notify the new panel that it is now shown
         panel.onShow();
     }
@@ -640,12 +655,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
      */
     public void initParam(Object obj) {
         paramObject = obj;
-        Enumeration<AbstractParamPanel> en = tablePanel.elements();
-        AbstractParamPanel panel = null;
-        while (en.hasMoreElements()) {
-            panel = en.nextElement();
-            panel.initParam(obj);
-        }
+        panels.forEach(e -> e.initParam(obj));
     }
 
     /**
@@ -659,17 +669,14 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * @see #saveParam()
      */
     public void validateParam() throws Exception {
-        Enumeration<AbstractParamPanel> en = tablePanel.elements();
-        AbstractParamPanel panel = null;
-        while (en.hasMoreElements()) {
-            panel = en.nextElement();
+        for (AbstractParamPanel panel : panels) {
             try {
                 panel.validateParam(paramObject);
             } catch (NullPointerException e) {
                 log.error("Failed to validate the panel: ", e);
                 showInternalError(e);
             } catch (Exception e) {
-                showParamPanel(panel, panel.getName());
+                showParamPanel(panel);
                 throw e;
             }
         }
@@ -699,10 +706,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * @see #validateParam()
      */
     public void saveParam() throws Exception {
-        Enumeration<AbstractParamPanel> en = tablePanel.elements();
-        AbstractParamPanel panel = null;
-        while (en.hasMoreElements()) {
-            panel = en.nextElement();
+        for (AbstractParamPanel panel : panels) {
             try {
                 panel.saveParam(paramObject);
             } catch (NullPointerException e) {
@@ -724,7 +728,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * @since 2.8.0
      */
     public void expandParamPanelNode(String panelName) {
-        DefaultMutableTreeNode node = getTreeNodeFromPanelName(panelName);
+        ParamTreeNode node = getTreeNodeFromPanelName(panelName);
         if (node != null) {
             getTreeParam().expandPath(new TreePath(node.getPath()));
         }
@@ -740,7 +744,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * @see #isParamPanelOrChildSelected(String)
      */
     public boolean isParamPanelSelected(String panelName) {
-        DefaultMutableTreeNode node = getTreeNodeFromPanelName(panelName);
+        ParamTreeNode node = getTreeNodeFromPanelName(panelName);
         if (node != null) {
             return getTreeParam().isPathSelected(new TreePath(node.getPath()));
         }
@@ -757,7 +761,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * @see #isParamPanelSelected(String)
      */
     public boolean isParamPanelOrChildSelected(String panelName) {
-        DefaultMutableTreeNode node = getTreeNodeFromPanelName(panelName);
+        ParamTreeNode node = getTreeNodeFromPanelName(panelName);
         if (node != null) {
             TreePath panelPath = new TreePath(node.getPath());
             if (getTreeParam().isPathSelected(panelPath)) {
@@ -779,29 +783,25 @@ public class AbstractParamContainerPanel extends JSplitPane {
         expandRoot();
 
         try {
-            DefaultMutableTreeNode node = null;
+            ParamTreeNode node = null;
             if (panel != null) {
                 node = getTreeNodeFromPanelName(panel);
             }
 
             if (node == null) {
-                if (nameLastSelectedPanel != null) {
-                    node = getTreeNodeFromPanelName(nameLastSelectedPanel);
+                if (nodeLastSelectedPanel != null) {
+                    node = nodeLastSelectedPanel;
 
                 } else if (showRoot) {
-                    node = (DefaultMutableTreeNode) getTreeModel().getRoot();
+                    node = (ParamTreeNode) getRootNode();
 
-                } else if (((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildCount()
-                        > 0) {
-                    node =
-                            (DefaultMutableTreeNode)
-                                    ((DefaultMutableTreeNode) getTreeModel().getRoot())
-                                            .getChildAt(0);
+                } else if (((ParamTreeNode) getRootNode()).getChildCount() > 0) {
+                    node = (ParamTreeNode) ((ParamTreeNode) getRootNode()).getChildAt(0);
                 }
             }
 
             if (node != null) {
-                showParamPanel(node.toString());
+                showParamPanel(node);
             }
 
         } catch (Exception e) {
@@ -817,40 +817,34 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * @return the panels
      */
     protected Collection<AbstractParamPanel> getPanels() {
-        return tablePanel.values();
+        return panels;
     }
 
     // ZAP: show the last selected panel
-    private DefaultMutableTreeNode getTreeNodeFromPanelName(String panel) {
-        return this.getTreeNodeFromPanelName(panel, true);
+    private ParamTreeNode getTreeNodeFromPanelName(String panel) {
+        return getTreeNodeFromPanelName(((ParamTreeNode) getTreeModel().getRoot()), panel);
     }
 
-    private DefaultMutableTreeNode getTreeNodeFromPanelName(String panel, boolean recurse) {
-        return this.getTreeNodeFromPanelName(
-                ((DefaultMutableTreeNode) getTreeModel().getRoot()), panel, recurse);
-    }
-
-    private DefaultMutableTreeNode getTreeNodeFromPanelName(
-            DefaultMutableTreeNode parent, String panel, boolean recurse) {
+    private ParamTreeNode getTreeNodeFromPanelName(ParamTreeNode parent, String panel) {
         if (panel.equals(parent.toString())) {
             return parent;
         }
 
-        DefaultMutableTreeNode node = null;
+        ParamTreeNode node = null;
 
         // ZAP: Added @SuppressWarnings annotation.
         @SuppressWarnings("unchecked")
         Enumeration<TreeNode> children = parent.children();
         while (children.hasMoreElements()) {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
+            ParamTreeNode child = (ParamTreeNode) children.nextElement();
             if (panel.equals(child.toString())) {
                 node = child;
                 break;
-            } else if (recurse) {
-                node = this.getTreeNodeFromPanelName(child, panel, true);
-                if (node != null) {
-                    break;
-                }
+            }
+
+            node = this.getTreeNodeFromPanelName(child, panel);
+            if (node != null) {
+                break;
             }
         }
 
@@ -859,17 +853,17 @@ public class AbstractParamContainerPanel extends JSplitPane {
 
     // Useful method for debugging panel issues ;)
     public void printTree() {
-        this.printTree(((DefaultMutableTreeNode) getTreeModel().getRoot()), 0);
+        this.printTree(((ParamTreeNode) getTreeModel().getRoot()), 0);
     }
 
-    private void printTree(DefaultMutableTreeNode parent, int level) {
+    private void printTree(ParamTreeNode parent, int level) {
         for (int i = 0; i < level; i++) {
             System.out.print(" ");
         }
 
         System.out.print(parent.toString());
 
-        AbstractParamPanel panel = tablePanel.get(parent.toString());
+        AbstractParamPanel panel = parent.getParamPanel();
         if (panel != null) {
             System.out.print(" (" + panel.hashCode() + ")");
         }
@@ -879,36 +873,19 @@ public class AbstractParamContainerPanel extends JSplitPane {
         @SuppressWarnings("unchecked")
         Enumeration<TreeNode> children = parent.children();
         while (children.hasMoreElements()) {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode) children.nextElement();
+            ParamTreeNode child = (ParamTreeNode) children.nextElement();
             this.printTree(child, level + 1);
         }
     }
 
     public void renamePanel(AbstractParamPanel panel, String newPanelName) {
-        DefaultMutableTreeNode node = getTreeNodeFromPanelName(panel.getName(), true);
-        DefaultMutableTreeNode newNode = getTreeNodeFromPanelName(newPanelName, true);
+        ParamTreeNode node = panelsToTreeNodes.get(panel);
+        ParamTreeNode newNode = getTreeNodeFromPanelName(newPanelName);
         if (node != null && newNode == null) {
-            // TODO work out which of these lines are really necessary ;)
-            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
             node.setUserObject(newPanelName);
-            tablePanel.remove(panel.getName());
-            int index = parent.getIndex(node);
-            getTreeModel().removeNodeFromParent(node);
-            getTreeModel().insertNodeInto(node, parent, index);
-
-            if (panel == currentShownPanel) {
-                this.nameLastSelectedPanel = newPanelName;
-                this.currentShownPanel = null;
-            }
-
-            this.getPanelParam().remove(panel);
-
             panel.setName(newPanelName);
-            tablePanel.put(newPanelName, panel);
-            this.getPanelParam().add(newPanelName, panel);
 
             getTreeModel().nodeChanged(node);
-            getTreeModel().nodeChanged(node.getParent());
         }
     }
 
@@ -1100,6 +1077,36 @@ public class AbstractParamContainerPanel extends JSplitPane {
          */
         public void setHelpIndex(String helpIndex) {
             this.helpIndex = helpIndex;
+        }
+    }
+
+    private static class ParamTreeNode extends DefaultMutableTreeNode {
+
+        private static final long serialVersionUID = 1L;
+
+        private final String panelId;
+        private AbstractParamPanel paramPanel;
+
+        ParamTreeNode(int panelId, String name) {
+            this(panelId, name, null);
+        }
+
+        ParamTreeNode(int panelId, String name, AbstractParamPanel paramPanel) {
+            this.panelId = String.valueOf(panelId);
+            setUserObject(name);
+            setParamPanel(paramPanel);
+        }
+
+        void setParamPanel(AbstractParamPanel paramPanel) {
+            this.paramPanel = paramPanel;
+        }
+
+        String getPanelId() {
+            return panelId;
+        }
+
+        AbstractParamPanel getParamPanel() {
+            return paramPanel;
         }
     }
 

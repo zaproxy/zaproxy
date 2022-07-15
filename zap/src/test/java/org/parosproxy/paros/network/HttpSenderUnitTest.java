@@ -32,6 +32,8 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.VerificationException;
@@ -47,9 +49,12 @@ import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link HttpSender}. */
+@SuppressWarnings("deprecation")
 class HttpSenderUnitTest {
 
     private static final String PROXY_RESPONSE = "Proxy Response";
@@ -59,6 +64,8 @@ class HttpSenderUnitTest {
             new WireMockSequence(defaultOptions().enableBrowserProxying(true));
 
     private WireMockSequence server = new WireMockSequence(defaultOptions());
+
+    private ConnectionParam options;
 
     @BeforeEach
     void setup() {
@@ -71,6 +78,16 @@ class HttpSenderUnitTest {
                                         .withStatus(200)
                                         .withStatusMessage("OK")
                                         .withBody(SERVER_RESPONSE)));
+
+        options = new org.parosproxy.paros.network.ConnectionParam();
+        options.load(new ZapXmlConfiguration());
+        Model model = mock(Model.class);
+        Model.setSingletonForTesting(model);
+        OptionsParam optionsParam = mock(OptionsParam.class);
+        given(optionsParam.getConnectionParam()).willReturn(options);
+        given(model.getOptionsParam()).willReturn(optionsParam);
+
+        HttpSender.setImpl(new HttpSenderParos());
     }
 
     @AfterEach
@@ -82,10 +99,10 @@ class HttpSenderUnitTest {
     @Test
     void shouldProxyIfEnabled() throws Exception {
         // Given
-        ConnectionParam options = createOptionsWithProxy("localhost", proxy.port());
+        setupOptionsWithProxy("localhost", proxy.port());
         options.setUseProxyChain(true);
         HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = new HttpSender(options, false, -1);
+        HttpSender httpSender = createHttpSender();
         // When
         httpSender.sendAndReceive(message);
         // Then
@@ -101,10 +118,10 @@ class HttpSenderUnitTest {
     @Test
     void shouldNotProxyIfDisabled() throws Exception {
         // Given
-        ConnectionParam options = createOptionsWithProxy("localhost", proxy.port());
+        setupOptionsWithProxy("localhost", proxy.port());
         options.setUseProxyChain(false);
         HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = new HttpSender(options, false, -1);
+        HttpSender httpSender = createHttpSender();
         // When
         httpSender.sendAndReceive(message);
         // Then
@@ -125,11 +142,11 @@ class HttpSenderUnitTest {
                                         .withStatus(407)
                                         .withHeader("Proxy-Authenticate", "Basic realm=\"\"")
                                         .withBody(PROXY_RESPONSE)));
-        ConnectionParam options = createOptionsWithProxy("localhost", proxy.port());
+        setupOptionsWithProxy("localhost", proxy.port());
         options.setUseProxyChain(true);
         options.setUseProxyChainAuth(false);
         HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = new HttpSender(options, false, -1);
+        HttpSender httpSender = createHttpSender();
         // When
         httpSender.sendAndReceive(message);
         // Then
@@ -157,12 +174,12 @@ class HttpSenderUnitTest {
                                                 "Basic realm=\"" + authRealm + "\""))
                         .willSetStateTo("Challenged"));
 
-        ConnectionParam options = createOptionsWithProxy("localhost", proxy.port());
+        setupOptionsWithProxy("localhost", proxy.port());
         options.setUseProxyChain(true);
         options.setUseProxyChainAuth(true);
         options.setProxyChainRealm(authRealm);
         HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = new HttpSender(options, false, -1);
+        HttpSender httpSender = createHttpSender();
         // When
         httpSender.sendAndReceive(message);
         // Then
@@ -191,12 +208,12 @@ class HttpSenderUnitTest {
                                         .withHeader(
                                                 "Proxy-Authenticate", "Basic realm=\"SomeRealm\"")
                                         .withBody(PROXY_RESPONSE)));
-        ConnectionParam options = createOptionsWithProxy("localhost", proxy.port());
+        setupOptionsWithProxy("localhost", proxy.port());
         options.setUseProxyChain(true);
         options.setUseProxyChainAuth(true);
         options.setProxyChainRealm("NotSomeRealm");
         HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = new HttpSender(options, false, -1);
+        HttpSender httpSender = createHttpSender();
         // When
         httpSender.sendAndReceive(message);
         // Then
@@ -217,7 +234,7 @@ class HttpSenderUnitTest {
                                 aResponse()
                                         .withHeader(HttpHeader.CONTENT_ENCODING, HttpHeader.GZIP)));
         HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = new HttpSender(createOptions(), false, -1);
+        HttpSender httpSender = createHttpSender();
         // When
         httpSender.sendAndReceive(message);
         // Then
@@ -231,7 +248,7 @@ class HttpSenderUnitTest {
     void shouldNotSetContentEncodingsToResponseIfNoneInHeader() throws Exception {
         // Given
         HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = new HttpSender(createOptions(), false, -1);
+        HttpSender httpSender = createHttpSender();
         // When
         httpSender.sendAndReceive(message);
         // Then
@@ -241,25 +258,21 @@ class HttpSenderUnitTest {
         assertThat(message.getResponseBody().getContentEncodings(), is(empty()));
     }
 
+    private static HttpSender createHttpSender() {
+        return new HttpSender(-1);
+    }
+
     private HttpMessage createMessage(String method, String path) throws Exception {
         URI uri = new URI("http://localhost:" + server.port() + path, true);
         HttpRequestHeader requestHeader = new HttpRequestHeader(method, uri, "HTTP/1.1");
         return new HttpMessage(requestHeader);
     }
 
-    private static ConnectionParam createOptionsWithProxy(String address, int port) {
-        ConnectionParam options = createOptions();
+    private void setupOptionsWithProxy(String address, int port) {
         options.setProxyChainName(address);
         options.setProxyChainPort(port);
         options.setProxyChainUserName("username");
         options.setProxyChainPassword("password");
-        return options;
-    }
-
-    private static ConnectionParam createOptions() {
-        ConnectionParam options = new ConnectionParam();
-        options.load(new ZapXmlConfiguration());
-        return options;
     }
 
     private static WireMockConfiguration defaultOptions() {

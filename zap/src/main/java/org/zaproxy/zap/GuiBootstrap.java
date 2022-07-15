@@ -54,7 +54,6 @@ import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.LocaleDialog;
-import org.zaproxy.zap.view.ProxyDialog;
 
 /**
  * The bootstrap process for GUI mode.
@@ -147,6 +146,8 @@ public class GuiBootstrap extends ZapBootstrap {
             System.exit(1);
         }
 
+        UIManager.put("PasswordField.showRevealButton", true);
+
         OptionsParam options = Model.getSingleton().getOptionsParam();
         OptionsParamView viewParam = options.getViewParam();
 
@@ -162,8 +163,6 @@ public class GuiBootstrap extends ZapBootstrap {
         }
 
         View.getSingleton().showSplashScreen();
-
-        promptForProxyDetailsIfNeeded(options);
 
         Thread bootstrap =
                 new Thread(
@@ -504,14 +503,6 @@ public class GuiBootstrap extends ZapBootstrap {
         }
 
         return localeBuilder.build();
-    }
-
-    private static void promptForProxyDetailsIfNeeded(OptionsParam options) {
-        if (options.getConnectionParam().isProxyChainPrompt()) {
-            final ProxyDialog dialog = new ProxyDialog(null, true);
-            dialog.init(options);
-            dialog.setVisible(true);
-        }
     }
 
     /**

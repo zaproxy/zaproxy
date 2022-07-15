@@ -53,8 +53,9 @@ import org.apache.commons.httpclient.params.HttpConnectionParams;
  *
  * @author Michael Becke
  * @author <a href="mailto:mbowler@GargoyleSoftware.com">Mike Bowler</a>
- * @since 2.0
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public interface SecureProtocolSocketFactory extends ProtocolSocketFactory {
 
     /**

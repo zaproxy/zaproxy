@@ -29,7 +29,8 @@ public interface PassiveScanner {
 
     default void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {}
 
-    void setParent(PassiveScanThread parent);
+    @SuppressWarnings("deprecation")
+    default void setParent(PassiveScanThread parent) {}
 
     String getName();
 
@@ -65,4 +66,10 @@ public interface PassiveScanner {
     default void setLevel(AlertThreshold level) {}
 
     boolean appliesToHistoryType(int historyType);
+
+    default void setTaskHelper(PassiveScanTaskHelper helper) {}
+
+    default PassiveScanTaskHelper getTaskHelper() {
+        return null;
+    }
 }

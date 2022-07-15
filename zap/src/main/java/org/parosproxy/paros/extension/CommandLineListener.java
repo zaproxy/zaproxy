@@ -24,16 +24,19 @@
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/05/02 Document usage of ShutdownRequestedException.
 package org.parosproxy.paros.extension;
 
 import java.io.File;
 import java.util.List;
+import org.zaproxy.zap.ShutdownRequestedException;
 
 public interface CommandLineListener {
     /**
      * execute the command line using the argument provided.
      *
      * @param args the command line arguments
+     * @throws ShutdownRequestedException (since 2.12.0) if ZAP should shutdown immediately.
      */
     void execute(CommandLineArgument[] args);
 

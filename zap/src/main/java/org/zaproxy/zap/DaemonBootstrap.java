@@ -88,6 +88,10 @@ class DaemonBootstrap extends HeadlessBootstrap {
                                     // Allow extensions to pick up command line args in daemon mode
                                     control.getExtensionLoader().hookCommandLineListener(getArgs());
                                     control.runCommandLine();
+                                } catch (ShutdownRequestedException e) {
+                                    control.shutdown(false);
+                                    logger.info("{} terminated.", Constant.PROGRAM_TITLE);
+                                    return;
                                 } catch (Exception e) {
                                     logger.error(e.getMessage(), e);
                                 }

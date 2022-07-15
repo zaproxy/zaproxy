@@ -47,6 +47,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/04 Add dialog/menu icon.
+// ZAP: 2022/06/13 Add HrefTypeInfo on hook.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.EventQueue;
@@ -63,8 +64,10 @@ import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.view.HrefTypeInfo;
 
 public class ExtensionManualRequestEditor extends ExtensionAdaptor
         implements SessionChangedListener {
@@ -136,6 +139,13 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
+
+        extensionHook.addHrefType(
+                new HrefTypeInfo(
+                        HistoryReference.TYPE_ZAP_USER,
+                        Constant.messages.getString("view.href.type.name.manual"),
+                        hasView() ? ExtensionManualRequestEditor.getIcon() : null));
+
         if (getView() != null) {
             for (Entry<Class<? extends Message>, ManualRequestEditorDialog> dialogue :
                     dialogues.entrySet()) {

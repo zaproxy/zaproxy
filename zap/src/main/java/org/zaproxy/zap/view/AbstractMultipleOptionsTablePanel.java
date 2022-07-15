@@ -82,7 +82,7 @@ public abstract class AbstractMultipleOptionsTablePanel<E extends EnableableInte
                                 if (TableModelEvent.ALL_COLUMNS == e.getColumn()
                                         || TableModelEvent.INSERT == e.getType()
                                         || TableModelEvent.DELETE == e.getType()) {
-                                    boolean enabled = getModel().getRowCount() > 0;
+                                    boolean enabled = isEnabled() && getModel().getRowCount() > 0;
 
                                     enableAllButton.setEnabled(enabled);
                                     disableAllButton.setEnabled(enabled);

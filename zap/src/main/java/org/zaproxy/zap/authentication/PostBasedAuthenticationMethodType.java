@@ -231,11 +231,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
         protected HttpSender getHttpSender() {
             if (this.httpSender == null) {
-                this.httpSender =
-                        new HttpSender(
-                                Model.getSingleton().getOptionsParam().getConnectionParam(),
-                                true,
-                                HttpSender.AUTHENTICATION_INITIATOR);
+                this.httpSender = new HttpSender(HttpSender.AUTHENTICATION_INITIATOR);
             }
             return httpSender;
         }
@@ -277,25 +273,30 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                 requestMessage =
                         loginSiteNode.getHistoryReference().getHttpMessage().cloneRequest();
                 requestMessage.getRequestHeader().setURI(requestURI);
-                if (requestBody != null) {
-                    requestMessage.getRequestBody().setBody(requestBody);
-                    requestMessage.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
-                }
+                setRequestBody(requestMessage, requestBody);
             } else {
                 String method =
                         (requestBody != null) ? HttpRequestHeader.POST : HttpRequestHeader.GET;
                 requestMessage = new HttpMessage();
                 requestMessage.setRequestHeader(
-                        new HttpRequestHeader(method, requestURI, HttpHeader.HTTP10));
-                if (requestBody != null) {
+                        new HttpRequestHeader(method, requestURI, HttpHeader.HTTP11));
+                if (setRequestBody(requestMessage, requestBody)) {
                     requestMessage
                             .getRequestHeader()
                             .setHeader(HttpHeader.CONTENT_TYPE, contentType);
-                    requestMessage.getRequestBody().setBody(requestBody);
                 }
             }
 
             return requestMessage;
+        }
+
+        private boolean setRequestBody(HttpMessage message, String body) {
+            if (body == null) {
+                return false;
+            }
+
+            message.getRequestBody().setBody(body);
+            return true;
         }
 
         @Override
@@ -362,6 +363,10 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                     LOGGER.debug("Authentication request body: \n" + msg.getRequestBody());
             }
 
+            if (!msg.getRequestHeader().getMethod().equals(HttpRequestHeader.GET)) {
+                msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
+            }
+
             // Send the authentication message
             try {
                 getHttpSender().sendAndReceive(msg);
@@ -375,8 +380,12 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             // Add message to history
             AuthenticationHelper.addAuthMessageToHistory(msg);
 
-            user.getAuthenticationState()
-                    .setLastAuthRequestHistoryId(msg.getHistoryRef().getHistoryId());
+            try {
+                user.getAuthenticationState()
+                        .setLastAuthRequestHistoryId(msg.getHistoryRef().getHistoryId());
+            } catch (Exception e) {
+                LOGGER.warn("Unable to set last auth request history id: {}", e.getMessage(), e);
+            }
 
             // Update the session as it may have changed
             WebSession session = sessionManagementMethod.extractWebSession(msg);

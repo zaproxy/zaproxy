@@ -20,18 +20,20 @@
 package org.zaproxy.zap;
 
 import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.SimpleHttpConnectionManager;
 
 /**
  * Custom {@link SimpleHttpConnectionManager} that uses {@link ZapHttpConnection} for connection
  * creation. Needed to expose the underlying socket.
+ *
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class ZapHttpConnectionManager extends SimpleHttpConnectionManager {
 
     /** Use custom {@link ZapHttpConnection} to allow for socket exposure. */
     @Override
-    public HttpConnection getConnectionWithTimeout(
+    public org.apache.commons.httpclient.HttpConnection getConnectionWithTimeout(
             HostConfiguration hostConfiguration, long timeout) {
 
         if (httpConnection == null) {

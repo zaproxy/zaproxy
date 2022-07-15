@@ -119,7 +119,7 @@ public class ParamsTableModel extends AbstractTableModel {
         return paramStats.get(row);
     }
 
-    public void addHtmlParameterStats(HtmlParameterStats param) {
+    public synchronized void addHtmlParameterStats(HtmlParameterStats param) {
         lastAddedRow = -1;
 
         for (int i = 0; i < paramStats.size(); i++) {

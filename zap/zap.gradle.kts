@@ -92,7 +92,7 @@ dependencies {
     implementation("org.jitsi:ice4j:3.0-24-g34c2ce5") {
         setTransitive(false)
     }
-    implementation("com.formdev:flatlaf:2.1")
+    implementation("com.formdev:flatlaf:2.4")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
@@ -179,13 +179,20 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.parosproxy.paros.extension.history.BrowserDialog",
         "org.parosproxy.paros.extension.history.PopupMenuResend",
         "org.parosproxy.paros.extension.history.PopupMenuResendSites",
+        "org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog",
+        "org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog",
         "org.parosproxy.paros.model.HistoryList",
         "org.parosproxy.paros.model.HttpMessageList",
         "org.parosproxy.paros.network.ByteVector",
         "org.parosproxy.paros.network.ProxyExcludedDomainMatcher",
         "org.zaproxy.zap.extension.brk.BreakpointMessageHandler",
+        "org.zaproxy.zap.extension.brk.BreakPanel",
         "org.zaproxy.zap.extension.brk.ExtensionBreak\$DialogType",
         "org.zaproxy.zap.extension.history.PopupMenuShowInHistory",
+        "org.zaproxy.zap.extension.httppanel.HttpPanel",
+        "org.zaproxy.zap.extension.httppanel.HttpPanelRequest",
+        "org.zaproxy.zap.extension.httppanel.HttpPanelResponse",
+        "org.zaproxy.zap.extension.pscan.PassiveScanThread",
         "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderContext",
         "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderContextAsUser",
         "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderDialog",
@@ -196,6 +203,7 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderURLAsUser",
         "org.zaproxy.zap.httputils.RequestUtils",
         "org.zaproxy.zap.view.HistoryReferenceTableModel",
+        "org.zaproxy.zap.view.messagelocation.SelectMessageLocationsPanel",
         "org.zaproxy.zap.view.MessagePanelsPositionController",
         "org.zaproxy.zap.view.PopupMenuHistoryReference",
         "org.zaproxy.zap.view.PopupMenuHttpMessage",
@@ -276,6 +284,9 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.zaproxy.zap.extension.brk.ExtensionBreak#getBreakPanel()",
         "org.zaproxy.zap.extension.ExtensionPopupMenu#prepareShow()",
         "org.zaproxy.zap.extension.history.PopupMenuPurgeSites#purge(org.parosproxy.paros.model.SiteMap,org.parosproxy.paros.model.SiteNode)",
+        "org.zaproxy.zap.extension.params.ParamScanner#setParent(org.zaproxy.zap.extension.pscan.PassiveScanThread)",
+        "org.zaproxy.zap.extension.pscan.PassiveScanner#getTaskHelper()",
+        "org.zaproxy.zap.extension.pscan.PassiveScanner#setTaskHelper(org.zaproxy.zap.extension.pscan.PassiveScanTaskHelper)",
         "org.zaproxy.zap.extension.pscan.ExtensionPassiveScan#addPassiveScanner(java.lang.String)",
         "org.zaproxy.zap.extension.pscan.PassiveScanThread#PassiveScanThread( org.zaproxy.zap.extension.pscan.PassiveScannerList, org.parosproxy.paros.extension.history.ExtensionHistory, org.zaproxy.zap.extension.alert.ExtensionAlert)",
         "org.zaproxy.zap.extension.search.SearchPanel#SearchPanel()",

@@ -354,7 +354,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      */
     private JComboBox<String> createStatusComboBox() {
         JComboBox<String> comboBox = new JComboBox<>();
-        comboBox.addItem(Constant.messages.getString("ascan.policy.table.quality.all"));
+        comboBox.addItem(Constant.messages.getString("ascan.policy.table.status.all"));
         View view = View.getSingleton();
         comboBox.addItem(view.getStatusUI(AddOn.Status.release).toString());
         comboBox.addItem(view.getStatusUI(AddOn.Status.beta).toString());
@@ -381,7 +381,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      * @see Plugin#getStatus()
      */
     private boolean hasSameStatus(Plugin scanner, String status) {
-        if (status.equals(Constant.messages.getString("ascan.policy.table.quality.all"))) {
+        if (status.equals(Constant.messages.getString("ascan.policy.table.status.all"))) {
             return true;
         }
         return status.equals(View.getSingleton().getStatusUI(scanner.getStatus()).toString());

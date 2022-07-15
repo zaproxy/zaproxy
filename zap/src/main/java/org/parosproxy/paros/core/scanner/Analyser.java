@@ -43,6 +43,8 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/26 Remove null check in sendAndReceive(HttpMessage). (LGTM Issue)
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/06/05 Remove usage of HttpException.
+// ZAP: 2022/06/09 Quote the query component used in the regular expression.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -51,7 +53,6 @@ import java.util.Random;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.time.StopWatch;
@@ -283,7 +284,7 @@ public class Analyser {
         return resultSuffix;
     }
 
-    private String getPathRegex(URI uri) throws URIException {
+    static String getPathRegex(URI uri) throws URIException {
         URI newUri;
         // ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
         try {
@@ -302,7 +303,7 @@ public class Analyser {
 
         sb.append(newUri.toString().replaceAll("\\.", "\\."));
         if (query != null) {
-            String queryPattern = "(\\?" + query + ")?";
+            String queryPattern = "(\\?" + Pattern.quote(query) + ")?";
             sb.append(queryPattern);
         }
 
@@ -507,7 +508,7 @@ public class Analyser {
         return true;
     }
 
-    private void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
+    private void sendAndReceive(HttpMessage msg) throws IOException {
         if (this.getDelayInMs() > 0) {
             try {
                 Thread.sleep(this.getDelayInMs());

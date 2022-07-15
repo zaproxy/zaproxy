@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 import net.htmlparser.jericho.Attribute;
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.FormControl;
@@ -40,6 +41,7 @@ import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Segment;
 import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.lang3.StringUtils;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.model.ValueGenerator;
@@ -51,6 +53,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
     private static final String ENCODING_TYPE = "UTF-8";
     private static final String DEFAULT_EMPTY_VALUE = "";
+    private static final String METHOD_GET = "GET";
     private static final String METHOD_POST = "POST";
     private URI uri;
     private String url;
@@ -132,70 +135,187 @@ public class SpiderHtmlFormParser extends SpiderParser {
                 envAttributes.put(att.getKey(), att.getValue());
             }
             // Get method and action
-            String method = form.getAttributeValue("method");
-            String action = form.getAttributeValue("action");
-            getLogger().debug("Found new form with method: '" + method + "' and action: " + action);
+            String formMethod = form.getAttributeValue("method");
 
-            // If no action, skip the form
-            if (action == null) {
-                getLogger().debug("No form 'action' defined. Using base URL: " + baseURL);
-                action = baseURL;
-            }
+            // A single form can have multiple actions associated to it
+            List<FormAction> formActions = processFormActions(form, formMethod, baseURL, source);
 
-            // If POSTing forms is not enabled, skip processing of forms with POST method
-            if (!param.isPostForm()
-                    && method != null
-                    && method.trim().equalsIgnoreCase(METHOD_POST)) {
-                getLogger().debug("Skipping form with POST method because of user settings.");
-                continue;
-            }
+            for (FormAction fAction : formActions) {
+                String action = fAction.action;
+                String method = fAction.method;
+                getLogger()
+                        .debug(
+                                "Found new form with method: '"
+                                        + method
+                                        + "' and action: "
+                                        + action);
 
-            // Clear the fragment, if any, as it does not have any relevance for the server
-            if (action.contains("#")) {
-                int fs = action.lastIndexOf("#");
-                action = action.substring(0, fs);
-            }
-
-            url = URLCanonicalizer.getCanonicalURL(action, baseURL);
-            FormData formData = prepareFormDataSet(source, form);
-
-            // Process the case of a POST method
-            if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
-                // Build the absolute canonical URL
-                String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
-                if (fullURL == null) {
-                    return false;
-                }
-                getLogger().debug("Canonical URL constructed using '" + action + "': " + fullURL);
-
-                /*
-                 * Ignore encoding, as we will not POST files anyway, so using
-                 * "application/x-www-form-urlencoded" is adequate
-                 */
-                // String encoding = form.getAttributeValue("enctype");
-                // if (encoding != null && encoding.equals("multipart/form-data"))
-
-                for (String submitData : formData) {
-                    notifyPostResourceFound(message, depth, fullURL, submitData);
+                // If POSTing forms is not enabled, skip processing of forms with POST method
+                if (!param.isPostForm()
+                        && method != null
+                        && method.trim().equalsIgnoreCase(METHOD_POST)) {
+                    getLogger().debug("Skipping form with POST method because of user settings.");
+                    continue;
                 }
 
-            } // Process anything else as a GET method
-            else {
+                // Clear the fragment, if any, as it does not have any relevance for the server
+                if (action.contains("#")) {
+                    int fs = action.lastIndexOf("#");
+                    action = action.substring(0, fs);
+                }
 
-                // Process the final URL
-                if (action.contains("?")) {
-                    if (action.endsWith("?")) {
-                        processGetForm(message, depth, action, baseURL, formData);
-                    } else {
-                        processGetForm(message, depth, action + "&", baseURL, formData);
+                url = URLCanonicalizer.getCanonicalURL(action, baseURL);
+                FormData formData = prepareFormDataSet(source, form);
+
+                // Process the case of a POST method
+                if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
+                    // Build the absolute canonical URL
+                    String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
+                    if (fullURL == null) {
+                        return false;
                     }
-                } else {
-                    processGetForm(message, depth, action + "?", baseURL, formData);
+                    getLogger()
+                            .debug("Canonical URL constructed using '" + action + "': " + fullURL);
+
+                    /*
+                     * Ignore encoding, as we will not POST files anyway, so using
+                     * "application/x-www-form-urlencoded" is adequate
+                     */
+                    // String encoding = form.getAttributeValue("enctype");
+                    // if (encoding != null && encoding.equals("multipart/form-data"))
+
+                    for (String submitData : formData) {
+                        notifyPostResourceFound(message, depth, fullURL, submitData);
+                    }
+
+                } // Process anything else as a GET method
+                else {
+
+                    // Process the final URL
+                    if (action.contains("?")) {
+                        if (action.endsWith("?")) {
+                            processGetForm(message, depth, action, baseURL, formData);
+                        } else {
+                            processGetForm(message, depth, action + "&", baseURL, formData);
+                        }
+                    } else {
+                        processGetForm(message, depth, action + "?", baseURL, formData);
+                    }
                 }
             }
         }
 
         return false;
+    }
+
+    private static class FormAction {
+        final String action;
+        final String method;
+
+        FormAction(String action, String method) {
+            this.action = action;
+            this.method = method;
+        }
+    }
+
+    /**
+     * Processes the given form element into, possibly, several URLs.
+     *
+     * <p>For each button present in the form, we are returning the corresponding action or
+     * formaction attribute defining the URL that should handle the form submission
+     *
+     * @param form the form to inspect
+     * @param baseURL the base URL
+     * @return a list of FormAction objects containing the action and associated method
+     */
+    private List<FormAction> processFormActions(
+            Element form, String originalMethod, String baseURL, Source source) {
+        List<FormAction> formActions = new ArrayList<>();
+
+        String action = form.getAttributeValue("action");
+        // If no action, use the base url
+        if (action == null) {
+            getLogger().debug("No form 'action' defined. Using base URL: " + baseURL);
+            action = baseURL;
+        }
+
+        // Check for possible formaction attributes in child elements with button tag.
+        // formaction attributes override the action of the parent form
+
+        // Find direct child of the form element first
+        List<Element> formButtonElements =
+                form.getChildElements().stream()
+                        .filter(this::allowedButtonType)
+                        .filter(element -> StringUtils.isEmpty(element.getAttributeValue("form")))
+                        .collect(Collectors.toList());
+
+        // The form has an id, identify possible associated buttons anywhere in the document
+        if (StringUtils.isNotEmpty(form.getAttributeValue("id"))) {
+            String targetId = form.getAttributeValue("id");
+            formButtonElements.addAll(
+                    source.getAllElements(HTMLElementName.BUTTON).stream()
+                            .filter(this::allowedButtonType)
+                            .filter(
+                                    element ->
+                                            StringUtils.equals(
+                                                    element.getAttributeValue("form"), targetId))
+                            .collect(Collectors.toList()));
+        }
+
+        if (!formButtonElements.isEmpty()) {
+            final String defaultAction = action;
+            formButtonElements.forEach(
+                    button -> {
+                        // A button without a formaction submits to the default action for the form
+                        if (StringUtils.isEmpty(button.getAttributeValue("formaction"))) {
+                            formActions.add(
+                                    new FormAction(
+                                            defaultAction,
+                                            processFormMethodWithButton(button, originalMethod)));
+                        } else {
+                            formActions.add(
+                                    new FormAction(
+                                            button.getAttributeValue("formaction"),
+                                            processFormMethodWithButton(button, originalMethod)));
+                        }
+                    });
+        } else {
+            // If no buttons, return just the default action for the form
+            formActions.add(new FormAction(action, originalMethod));
+        }
+
+        return formActions;
+    }
+
+    /**
+     * Function that defines the allowed button types that should be considered in a form, reset and
+     * button type buttons do not trigger any action so should be ignored
+     *
+     * @param element an Element of type button
+     * @return true if the button should be processed
+     */
+    private boolean allowedButtonType(Element element) {
+        String type = element.getAttributeValue("type");
+        return element.getStartTag().getName().equals(HTMLElementName.BUTTON)
+                && !StringUtils.equalsIgnoreCase(type, "button")
+                && !StringUtils.equalsIgnoreCase(type, "reset");
+    }
+
+    /**
+     * Defines the correct form method to use in case a button belongs to a form. Valid form methods
+     * are GET and POST, if a button has no valid form method the original form method is returned
+     *
+     * @param button an Element of type button
+     * @param defaultMethod the default method of the parent form
+     * @return the form method to be used
+     */
+    private String processFormMethodWithButton(Element button, String defaultMethod) {
+        String buttonMethod = button.getAttributeValue("formmethod");
+        return StringUtils.isEmpty(buttonMethod)
+                        || (!buttonMethod.equalsIgnoreCase(METHOD_GET)
+                                && !buttonMethod.equalsIgnoreCase(METHOD_POST))
+                ? defaultMethod
+                : buttonMethod;
     }
 
     /**

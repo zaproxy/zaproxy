@@ -19,13 +19,14 @@
  */
 package org.zaproxy.zap.view;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.view.View;
 
@@ -41,36 +42,27 @@ import org.parosproxy.paros.view.View;
  */
 public class HrefTypeInfo implements Comparable<HrefTypeInfo> {
 
-    private static final Map<Integer, HrefTypeInfo> values;
+    private static final Logger LOGGER = LogManager.getLogger(HrefTypeInfo.class);
+
+    static final Map<Integer, HrefTypeInfo> values;
 
     static {
-        Map<Integer, HrefTypeInfo> temp = new HashMap<>();
+        values = new HashMap<>();
 
-        HrefTypeInfo hrefTypeInfo =
+        addTypeImpl(
                 new HrefTypeInfo(
                         HistoryReference.TYPE_PROXIED,
-                        Constant.messages.getString("view.href.type.name.proxy"));
-        temp.put(hrefTypeInfo.getType(), hrefTypeInfo);
+                        Constant.messages.getString("view.href.type.name.proxy")));
 
-        hrefTypeInfo =
+        addTypeImpl(
                 new HrefTypeInfo(
                         HistoryReference.TYPE_PROXY_CONNECT,
-                        Constant.messages.getString("view.href.type.name.proxy"));
-        temp.put(hrefTypeInfo.getType(), hrefTypeInfo);
+                        Constant.messages.getString("view.href.type.name.proxy")));
 
-        hrefTypeInfo =
-                new HrefTypeInfo(
-                        HistoryReference.TYPE_ZAP_USER,
-                        Constant.messages.getString("view.href.type.name.manual"));
-        temp.put(hrefTypeInfo.getType(), hrefTypeInfo);
-
-        hrefTypeInfo =
+        addTypeImpl(
                 new HrefTypeInfo(
                         HistoryReference.TYPE_AUTHENTICATION,
-                        Constant.messages.getString("view.href.type.name.auth"));
-        temp.put(hrefTypeInfo.getType(), hrefTypeInfo);
-
-        values = Collections.unmodifiableMap(temp);
+                        Constant.messages.getString("view.href.type.name.auth")));
     }
 
     /**
@@ -123,8 +115,6 @@ public class HrefTypeInfo implements Comparable<HrefTypeInfo> {
             case HistoryReference.TYPE_PROXY_CONNECT:
                 return new ImageIcon(
                         HrefTypeInfo.class.getResource("/resource/icon/16/doublearrow.png"));
-            case HistoryReference.TYPE_ZAP_USER:
-                return ExtensionManualRequestEditor.getIcon();
             case HistoryReference.TYPE_AUTHENTICATION:
                 return new ImageIcon(
                         HrefTypeInfo.class.getResource(
@@ -189,5 +179,52 @@ public class HrefTypeInfo implements Comparable<HrefTypeInfo> {
             return UNDEFINED_TYPE;
         }
         return hrefTypeInfo;
+    }
+
+    /**
+     * Adds the given type info.
+     *
+     * <p>The type info is not added if a type info with the same type was already added.
+     *
+     * <p><strong>Note:</strong> Use of the {@link
+     * org.parosproxy.paros.extension.ExtensionHook#addHrefType(HrefTypeInfo)} method is preferred.
+     *
+     * @param typeInfo the type info to add, must not be {@code null}.
+     * @throws NullPointerException if the given type info is {@code null}.
+     * @since 2.12.0
+     */
+    public static void addType(HrefTypeInfo typeInfo) {
+        Objects.requireNonNull(typeInfo);
+
+        int type = typeInfo.getType();
+
+        if (type == NO_TYPE.source || type == UNDEFINED_TYPE.source) {
+            LOGGER.warn("Attempting to override logic type: {}", type);
+            return;
+        }
+
+        if (values.containsKey(type)) {
+            LOGGER.warn("Attempting to add an existing type: {}", type);
+            return;
+        }
+
+        addTypeImpl(typeInfo);
+    }
+
+    private static void addTypeImpl(HrefTypeInfo typeInfo) {
+        values.put(typeInfo.getType(), typeInfo);
+    }
+
+    /**
+     * Removes the given type info.
+     *
+     * @param typeInfo the type info to remove, must not be {@code null}.
+     * @since 2.12.0
+     * @throws NullPointerException if the given type info is {@code null}.
+     */
+    public static void removeType(HrefTypeInfo typeInfo) {
+        Objects.requireNonNull(typeInfo);
+
+        values.remove(typeInfo.getType());
     }
 }

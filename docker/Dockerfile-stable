@@ -3,7 +3,7 @@ FROM openjdk:8-jdk-alpine AS builder
 
 WORKDIR /zap
 
-RUN apk add --no-cache wget xmlstarlet bash
+RUN apk add --no-cache curl wget xmlstarlet bash
 
 # Download and expand the latest stable release
 RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
@@ -15,11 +15,22 @@ RUN ./zap.sh -cmd -silent -addonupdate
 # Copy them to installation directory
 RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
+# Setup Webswing
+ENV WEBSWING_VERSION 22.1.2
+ARG WEBSWING_URL=""
+RUN if [ -z "$WEBSWING_URL" ] ; \
+	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
+	unzip webswing.zip && \
+	rm webswing.zip && \
+	mv webswing-* webswing && \
+	# Remove Webswing bundled examples
+	rm -Rf webswing/apps/
+
 FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG WEBSWING_URL=""
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -56,20 +67,10 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV WEBSWING_VERSION 21.2.8
-
-# Setup Webswing
-RUN if [ -z "$WEBSWING_URL" ] ; \
-	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
-	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
-	unzip webswing.zip && \
-	rm webswing.zip && \
-	mv webswing-* webswing && \
-	# Remove Webswing bundled examples
-	rm -Rf webswing/apps/
-
 # Copy stable release
 COPY --from=builder /zap .
+
+COPY --from=builder /zap/webswing /zap/webswing
 
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH

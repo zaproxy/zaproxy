@@ -38,6 +38,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class DriverConfiguration {
     private File file = null;
     private URL url;

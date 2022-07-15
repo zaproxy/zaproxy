@@ -29,8 +29,6 @@ import java.util.Iterator;
 import java.util.Vector;
 
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpConnection;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.ByteArrayRequestEntity;
@@ -39,11 +37,13 @@ import org.apache.commons.httpclient.methods.RequestEntity;
 import org.apache.commons.httpclient.util.EncodingUtil;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.zaproxy.zap.network.ZapHttpParser;
 
 /**
  * This class is basing on the HttpClient under Apache licence 2.0
+ *
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class GenericMethod extends EntityEnclosingMethod {
     
     /** Log object for this class. */
@@ -381,10 +381,10 @@ public class GenericMethod extends EntityEnclosingMethod {
      * header parser (ZapHttpParser#parseHeaders(InputStream, String)).
      */
     @Override
-    protected void readResponseHeaders(HttpState state, HttpConnection conn) throws IOException, HttpException {
+    protected void readResponseHeaders(HttpState state, org.apache.commons.httpclient.HttpConnection conn) throws IOException {
         getResponseHeaderGroup().clear();
 
-        Header[] headers = ZapHttpParser.parseHeaders(conn.getResponseInputStream(), getParams().getHttpElementCharset());
+        Header[] headers = org.zaproxy.zap.network.ZapHttpParser.parseHeaders(conn.getResponseInputStream(), getParams().getHttpElementCharset());
         // Wire logging moved to HttpParser
         getResponseHeaderGroup().setHeaders(headers);
     }

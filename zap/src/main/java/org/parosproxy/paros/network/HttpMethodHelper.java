@@ -33,6 +33,7 @@
 // ZAP: 2017/06/19 Allow to create a method with custom parameters.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/06/07 Deprecate the class.
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
@@ -46,14 +47,9 @@ import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.zaproxy.zap.ZapGetMethod;
-import org.zaproxy.zap.network.ZapDeleteMethod;
-import org.zaproxy.zap.network.ZapHeadMethod;
-import org.zaproxy.zap.network.ZapOptionsMethod;
-import org.zaproxy.zap.network.ZapPostMethod;
-import org.zaproxy.zap.network.ZapPutMethod;
-import org.zaproxy.zap.network.ZapTraceMethod;
 
+/** @deprecated (2.12.0) Implementation details, do not use. */
+@Deprecated
 public class HttpMethodHelper {
 
     private static final Logger logger = LogManager.getLogger(HttpMethodHelper.class);
@@ -155,19 +151,19 @@ public class HttpMethodHelper {
 
         if (method.equalsIgnoreCase(GET)) {
             // ZAP: avoid discarding HTTP status code 101 that is used for WebSocket upgrade
-            httpMethod = new ZapGetMethod();
+            httpMethod = new org.zaproxy.zap.ZapGetMethod();
         } else if (method.equalsIgnoreCase(POST)) {
-            httpMethod = new ZapPostMethod();
+            httpMethod = new org.zaproxy.zap.network.ZapPostMethod();
         } else if (method.equalsIgnoreCase(DELETE)) {
-            httpMethod = new ZapDeleteMethod();
+            httpMethod = new org.zaproxy.zap.network.ZapDeleteMethod();
         } else if (method.equalsIgnoreCase(PUT)) {
-            httpMethod = new ZapPutMethod();
+            httpMethod = new org.zaproxy.zap.network.ZapPutMethod();
         } else if (method.equalsIgnoreCase(HEAD)) {
-            httpMethod = new ZapHeadMethod();
+            httpMethod = new org.zaproxy.zap.network.ZapHeadMethod();
         } else if (method.equalsIgnoreCase(OPTIONS)) {
-            httpMethod = new ZapOptionsMethod();
+            httpMethod = new org.zaproxy.zap.network.ZapOptionsMethod();
         } else if (method.equalsIgnoreCase(TRACE)) {
-            httpMethod = new ZapTraceMethod(uri.toString());
+            httpMethod = new org.zaproxy.zap.network.ZapTraceMethod(uri.toString());
         } else {
             httpMethod = new GenericMethod(method);
         }

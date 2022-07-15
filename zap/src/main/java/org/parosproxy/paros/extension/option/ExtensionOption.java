@@ -33,6 +33,8 @@
 // ZAP: 2017/11/06 Moved options panel to new proxies extension (Issue 3983)
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/05/20 Remove Connection panel.
+// ZAP: 2022/05/29 Remove Client Certificate panel.
 package org.parosproxy.paros.extension.option;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -47,8 +49,6 @@ public class ExtensionOption extends ExtensionAdaptor {
     private static final String NAME = "ExtensionViewOption";
 
     private JCheckBoxMenuItem menuViewImage = null;
-    private OptionsConnectionPanel optionsConnectionPanel = null;
-    private OptionsCertificatePanel optionsCertificatePanel = null;
     private OptionsViewPanel optionsViewPanel = null;
     private OptionsCheckForUpdatesPanel optionsCheckForUpdatesPanel = null;
     private OptionsLangPanel optionsLangPanel = null;
@@ -76,8 +76,6 @@ public class ExtensionOption extends ExtensionAdaptor {
         if (getView() != null) {
             extensionHook.getHookMenu().addViewMenuItem(getMenuViewImage());
 
-            extensionHook.getHookView().addOptionPanel(getOptionsConnectionPanel());
-            extensionHook.getHookView().addOptionPanel(getOptionsCertificatePanel());
             extensionHook.getHookView().addOptionPanel(getOptionsViewPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsCheckForUpdatesPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsLangPanel());
@@ -104,20 +102,6 @@ public class ExtensionOption extends ExtensionAdaptor {
                     });
         }
         return menuViewImage;
-    }
-
-    private OptionsConnectionPanel getOptionsConnectionPanel() {
-        if (optionsConnectionPanel == null) {
-            optionsConnectionPanel = new OptionsConnectionPanel();
-        }
-        return optionsConnectionPanel;
-    }
-
-    private OptionsCertificatePanel getOptionsCertificatePanel() {
-        if (optionsCertificatePanel == null) {
-            optionsCertificatePanel = new OptionsCertificatePanel();
-        }
-        return optionsCertificatePanel;
     }
 
     private OptionsViewPanel getOptionsViewPanel() {

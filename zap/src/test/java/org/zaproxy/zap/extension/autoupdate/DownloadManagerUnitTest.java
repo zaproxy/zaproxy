@@ -26,7 +26,6 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.mock;
 
 import fi.iki.elonen.NanoHTTPD.IHTTPSession;
 import fi.iki.elonen.NanoHTTPD.Response;
@@ -35,36 +34,31 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.junit.jupiter.api.io.TempDir;
-import org.parosproxy.paros.network.ConnectionParam;
+import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.testutils.NanoServerHandler;
-import org.zaproxy.zap.testutils.TestUtils;
 
 /** Unit test for {@link DownloadManager}. */
-class DownloadManagerUnitTest extends TestUtils {
+class DownloadManagerUnitTest extends WithConfigsTest {
 
     private static final String HASH =
             "SHA-256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-
-    @TempDir static Path tempDir;
 
     private DownloadManager downloadManager;
 
     @BeforeEach
     void setUp() throws Exception {
-        downloadManager = new DownloadManager(mock(ConnectionParam.class));
+        downloadManager = new DownloadManager(-1);
 
         startServer();
     }
 
     @AfterEach
-    void cleanUp() {
+    void tearDown() {
         downloadManager.shutdown(true);
 
         stopServer();
@@ -105,6 +99,7 @@ class DownloadManagerUnitTest extends TestUtils {
         assertThat(progress, hasSize(numberOfDownloads));
         progress.forEach(
                 download -> {
+                    assertThat(download.getException(), is(nullValue()));
                     assertThat(download.getFinished(), is(not(nullValue())));
                 });
     }

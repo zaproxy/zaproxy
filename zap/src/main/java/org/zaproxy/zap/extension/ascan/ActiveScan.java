@@ -40,7 +40,6 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -86,18 +85,31 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     public ActiveScan(
             String displayName,
             ScannerParam scannerParam,
-            ConnectionParam param,
+            org.parosproxy.paros.network.ConnectionParam param,
             ScanPolicy scanPolicy) {
         this(displayName, scannerParam, param, scanPolicy, null);
+    }
+
+    /**
+     * @deprecated (2.12.0) Use {@link #ActiveScan(String, ScannerParam, ScanPolicy,
+     *     RuleConfigParam)} instead.
+     */
+    @Deprecated
+    public ActiveScan(
+            String displayName,
+            ScannerParam scannerParam,
+            org.parosproxy.paros.network.ConnectionParam param,
+            ScanPolicy scanPolicy,
+            RuleConfigParam ruleConfigParam) {
+        this(displayName, scannerParam, scanPolicy, ruleConfigParam);
     }
 
     public ActiveScan(
             String displayName,
             ScannerParam scannerParam,
-            ConnectionParam param,
             ScanPolicy scanPolicy,
             RuleConfigParam ruleConfigParam) {
-        super(scannerParam, param, scanPolicy, ruleConfigParam);
+        super(scannerParam, scanPolicy, ruleConfigParam);
         this.displayName = displayName;
         this.maxResultsToList = scannerParam.getMaxResultsToList();
         // Easiest way to get the messages and alerts ;)

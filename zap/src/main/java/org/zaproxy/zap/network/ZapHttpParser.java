@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpParser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -34,7 +33,10 @@ import org.apache.logging.log4j.Logger;
  * <p>Used to override the {@code HttpClient} behaviour to accept HTTP responses which contain
  * malformed HTTP header lines. <strong>Note:</strong> Malformed HTTP header lines are ignored
  * (instead of throwing an exception).
+ *
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class ZapHttpParser {
 
     private static final Logger logger = LogManager.getLogger(ZapHttpParser.class);
@@ -46,8 +48,7 @@ public class ZapHttpParser {
      * malformed HTTP header lines.
      */
     @SuppressWarnings({"rawtypes", "unchecked", "null"})
-    public static Header[] parseHeaders(InputStream is, String charset)
-            throws IOException, HttpException {
+    public static Header[] parseHeaders(InputStream is, String charset) throws IOException {
         ArrayList headers = new ArrayList();
         String name = null;
         StringBuffer value = null;

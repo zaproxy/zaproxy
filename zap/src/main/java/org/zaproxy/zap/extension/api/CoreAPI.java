@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import ch.csnc.extension.httpclient.SSLContextManager;
 import edu.umass.cs.benchlab.har.HarEntries;
 import edu.umass.cs.benchlab.har.HarLog;
 import java.awt.EventQueue;
@@ -29,12 +28,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -60,14 +56,12 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -132,7 +126,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String ACTION_OPTION_MERGE_RELATED_ALERTS = "setOptionMergeRelatedAlerts";
     private static final String ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH =
             "setOptionAlertOverridesFilePath";
-    private static final String ACTION_OPTION_USE_PROXY_CHAIN = "setOptionUseProxyChain";
     private static final String ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE =
             "enablePKCS12ClientCertificate";
     private static final String ACTION_DISABLE_CLIENT_CERTIFICATE = "disableClientCertificate";
@@ -206,6 +199,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String PARAM_PASSWORD = "password";
     private static final String PARAM_INDEX = "index";
 
+    private static final List<String> PARAMS_STRING = Collections.singletonList("String");
+    private static final List<String> PARAMS_BOOLEAN = Collections.singletonList("Boolean");
+    private static final List<String> PARAMS_INTEGER = Collections.singletonList("Integer");
+
     /* Update the version whenever the script is changed (once per release) */
     protected static final int API_SCRIPT_VERSION = 2;
     private static final String API_SCRIPT =
@@ -239,10 +236,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
     private boolean savingSession = false;
     private static ExtensionHistory extHistory;
-    private ConnectionParam connectionParam;
 
-    public CoreAPI(ConnectionParam connectionParam) {
-        this.connectionParam = connectionParam;
+    /** @deprecated (2.12.0) Use {@link #CoreAPI()} instead. */
+    @Deprecated
+    public CoreAPI(org.parosproxy.paros.network.ConnectionParam connectionParam) {
+        this();
+    }
+
+    public CoreAPI() {
 
         this.addApiAction(
                 new ApiAction(
@@ -283,19 +284,28 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         new String[] {PARAM_URL},
                         new String[] {PARAM_METHOD, PARAM_POST_DATA}));
         this.addApiAction(
-                new ApiAction(
-                        ACTION_ADD_PROXY_CHAIN_EXCLUDED_DOMAIN,
-                        new String[] {PARAM_VALUE},
-                        new String[] {PARAM_IS_REGEX, PARAM_IS_ENABLED}));
+                deprecatedNetworkApi(
+                        new ApiAction(
+                                ACTION_ADD_PROXY_CHAIN_EXCLUDED_DOMAIN,
+                                new String[] {PARAM_VALUE},
+                                new String[] {PARAM_IS_REGEX, PARAM_IS_ENABLED})));
         this.addApiAction(
-                new ApiAction(
-                        ACTION_MODIFY_PROXY_CHAIN_EXCLUDED_DOMAIN,
-                        new String[] {PARAM_IDX},
-                        new String[] {PARAM_VALUE, PARAM_IS_REGEX, PARAM_IS_ENABLED}));
+                deprecatedNetworkApi(
+                        new ApiAction(
+                                ACTION_MODIFY_PROXY_CHAIN_EXCLUDED_DOMAIN,
+                                new String[] {PARAM_IDX},
+                                new String[] {PARAM_VALUE, PARAM_IS_REGEX, PARAM_IS_ENABLED})));
         this.addApiAction(
-                new ApiAction(ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN, new String[] {PARAM_IDX}));
-        this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS));
-        this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS));
+                deprecatedNetworkApi(
+                        new ApiAction(
+                                ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN,
+                                new String[] {PARAM_IDX})));
+        this.addApiAction(
+                deprecatedNetworkApi(
+                        new ApiAction(ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS)));
+        this.addApiAction(
+                deprecatedNetworkApi(
+                        new ApiAction(ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS)));
 
         this.addApiAction(
                 new ApiAction(
@@ -309,11 +319,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         null,
                         new String[] {PARAM_FILE_PATH}));
         this.addApiAction(
-                new ApiAction(
-                        ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE,
-                        new String[] {PARAM_FILE_PATH, PARAM_PASSWORD},
-                        new String[] {PARAM_INDEX}));
-        this.addApiAction(new ApiAction(ACTION_DISABLE_CLIENT_CERTIFICATE));
+                deprecatedNetworkApi(
+                        new ApiAction(
+                                ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE,
+                                new String[] {PARAM_FILE_PATH, PARAM_PASSWORD},
+                                new String[] {PARAM_INDEX})));
+        this.addApiAction(deprecatedNetworkApi(new ApiAction(ACTION_DISABLE_CLIENT_CERTIFICATE)));
 
         // Deprecated actions
         this.addApiAction(depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALL_ALERTS)));
@@ -336,7 +347,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiView(new ApiView(VIEW_VERSION));
         this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
         this.addApiView(new ApiView(VIEW_SESSION_LOCATION));
-        this.addApiView(new ApiView(VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS));
+        this.addApiView(deprecatedNetworkApi(new ApiView(VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS)));
         this.addApiView(new ApiView(VIEW_ZAP_HOME_PATH));
 
         this.addApiView(new ApiView(VIEW_OPTION_MAXIMUM_ALERT_INSTANCES));
@@ -371,9 +382,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 null,
                                 new String[] {PARAM_BASE_URL, PARAM_RISK}))));
 
-        this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
+        this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_PROXY_PAC, false)));
         this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_ROOT_CERT, false)));
-        this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
+        this.addApiOthers(
+                deprecatedNetworkApi(
+                        new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS})));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_XML_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_HTML_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_JSON_REPORT)));
@@ -391,12 +404,61 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         new String[] {PARAM_REQUEST},
                         new String[] {PARAM_FOLLOW_REDIRECTS}));
 
-        this.addApiShortcut(OTHER_PROXY_PAC);
-        // this.addApiShortcut(OTHER_ROOT_CERT);
-        this.addApiShortcut(OTHER_SET_PROXY);
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
-        addApiOptions(this.connectionParam);
+        Stream.of(
+                        "optionDefaultUserAgent",
+                        "optionDnsTtlSuccessfulQueries",
+                        "optionHttpState",
+                        "optionHttpStateEnabled",
+                        "optionProxyChainName",
+                        "optionProxyChainPassword",
+                        "optionProxyChainPort",
+                        "optionProxyChainPrompt",
+                        "optionProxyChainRealm",
+                        "optionProxyChainUserName",
+                        "optionSingleCookieRequestHeader",
+                        "optionTimeoutInSecs",
+                        "optionUseProxyChain",
+                        "optionUseProxyChainAuth",
+                        "optionUseSocksProxy")
+                .forEach(name -> addApiView(deprecatedNetworkApi(new ApiView(name))));
+
+        getApiView("optionSingleCookieRequestHeader")
+                .setDeprecatedDescription(
+                        Constant.messages.getString("api.deprecated.option.endpoint"));
+
+        addApiAction(
+                deprecatedNetworkApi(new ApiAction("setOptionDefaultUserAgent", PARAMS_STRING)));
+        addApiAction(
+                deprecatedNetworkApi(
+                        new ApiAction("setOptionDnsTtlSuccessfulQueries", PARAMS_INTEGER)));
+        addApiAction(
+                deprecatedNetworkApi(new ApiAction("setOptionHttpStateEnabled", PARAMS_BOOLEAN)));
+        addApiAction(deprecatedNetworkApi(new ApiAction("setOptionProxyChainName", PARAMS_STRING)));
+        addApiAction(
+                deprecatedNetworkApi(new ApiAction("setOptionProxyChainPassword", PARAMS_STRING)));
+        addApiAction(
+                deprecatedNetworkApi(new ApiAction("setOptionProxyChainPort", PARAMS_INTEGER)));
+        addApiAction(
+                deprecatedNetworkApi(new ApiAction("setOptionProxyChainPrompt", PARAMS_BOOLEAN)));
+        addApiAction(
+                deprecatedNetworkApi(new ApiAction("setOptionProxyChainRealm", PARAMS_STRING)));
+        addApiAction(
+                depreciatedApi(
+                        new ApiAction("setOptionProxyChainSkipName", PARAMS_STRING),
+                        Constant.messages.getString("api.deprecated.option.endpoint")));
+        addApiAction(
+                deprecatedNetworkApi(new ApiAction("setOptionProxyChainUserName", PARAMS_STRING)));
+        addApiAction(
+                depreciatedApi(
+                        new ApiAction("setOptionSingleCookieRequestHeader", PARAMS_BOOLEAN),
+                        Constant.messages.getString("api.deprecated.option.endpoint")));
+        addApiAction(deprecatedNetworkApi(new ApiAction("setOptionTimeoutInSecs", PARAMS_INTEGER)));
+        addApiAction(deprecatedNetworkApi(new ApiAction("setOptionUseProxyChain", PARAMS_BOOLEAN)));
+        addApiAction(
+                deprecatedNetworkApi(new ApiAction("setOptionUseProxyChainAuth", PARAMS_BOOLEAN)));
+        addApiAction(deprecatedNetworkApi(new ApiAction("setOptionUseSocksProxy", PARAMS_BOOLEAN)));
     }
 
     private <T extends ApiElement> T deprecatedNetworkApi(T element) {
@@ -704,8 +766,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             }
         } else if (ACTION_ADD_PROXY_CHAIN_EXCLUDED_DOMAIN.equals(name)) {
             try {
-                ConnectionParam connectionParam =
-                        Model.getSingleton().getOptionsParam().getConnectionParam();
+                List<DomainMatcher> domains = getProxyExcludedDomains();
                 String value = params.getString(PARAM_VALUE);
                 DomainMatcher domain;
                 if (getParam(params, PARAM_IS_REGEX, false)) {
@@ -715,23 +776,20 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 }
                 domain.setEnabled(getParam(params, PARAM_IS_ENABLED, true));
 
-                List<DomainMatcher> domains =
-                        new ArrayList<>(connectionParam.getProxyExcludedDomains());
                 domains.add(domain);
-                connectionParam.setProxyExcludedDomains(domains);
+                setProxyExcludedDomains(domains);
             } catch (IllegalArgumentException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_VALUE, e);
             }
         } else if (ACTION_MODIFY_PROXY_CHAIN_EXCLUDED_DOMAIN.equals(name)) {
             try {
-                ConnectionParam connectionParam =
-                        Model.getSingleton().getOptionsParam().getConnectionParam();
+                List<DomainMatcher> domains = getProxyExcludedDomains();
                 int idx = params.getInt(PARAM_IDX);
-                if (idx < 0 || idx >= connectionParam.getProxyExcludedDomains().size()) {
+                if (idx < 0 || idx >= domains.size()) {
                     throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX);
                 }
 
-                DomainMatcher oldDomain = connectionParam.getProxyExcludedDomains().get(idx);
+                DomainMatcher oldDomain = domains.get(idx);
                 String value = getParam(params, PARAM_VALUE, oldDomain.getValue());
                 if (value.isEmpty()) {
                     value = oldDomain.getValue();
@@ -746,10 +804,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 newDomain.setEnabled(getParam(params, PARAM_IS_ENABLED, oldDomain.isEnabled()));
 
                 if (!oldDomain.equals(newDomain)) {
-                    List<DomainMatcher> domains =
-                            new ArrayList<>(connectionParam.getProxyExcludedDomains());
                     domains.set(idx, newDomain);
-                    connectionParam.setProxyExcludedDomains(domains);
+                    setProxyExcludedDomains(domains);
                 }
             } catch (JSONException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX, e);
@@ -758,17 +814,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             }
         } else if (ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN.equals(name)) {
             try {
-                ConnectionParam connectionParam =
-                        Model.getSingleton().getOptionsParam().getConnectionParam();
+                List<DomainMatcher> domains = getProxyExcludedDomains();
                 int idx = params.getInt(PARAM_IDX);
-                if (idx < 0 || idx >= connectionParam.getProxyExcludedDomains().size()) {
+                if (idx < 0 || idx >= domains.size()) {
                     throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX);
                 }
 
-                List<DomainMatcher> domains =
-                        new ArrayList<>(connectionParam.getProxyExcludedDomains());
                 domains.remove(idx);
-                connectionParam.setProxyExcludedDomains(domains);
+                setProxyExcludedDomains(domains);
             } catch (JSONException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX, e);
             }
@@ -807,50 +860,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILE_PATH);
             }
         } else if (ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE.equals(name)) {
-            String filePath = getParam(params, PARAM_FILE_PATH, "");
-            if (!filePath.isEmpty()) {
-                File file = new File(filePath);
-                if (!file.isFile() || !file.canRead()) {
-                    throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILE_PATH);
-                }
-            }
-            String password = getParam(params, PARAM_PASSWORD, "");
-            if (password.isEmpty()) {
-                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_PASSWORD);
-            }
-            int certIndex = getParam(params, PARAM_INDEX, 0);
-            if (certIndex < 0) {
-                certIndex = 0;
-            }
-
-            OptionsParamCertificate certParams =
-                    Model.getSingleton().getOptionsParam().getCertificateParam();
-            try {
-                SSLContextManager contextManager = certParams.getSSLContextManager();
-                int ksIndex = contextManager.loadPKCS12Certificate(filePath, password);
-                contextManager.unlockKey(ksIndex, certIndex, password);
-                contextManager.setDefaultKey(ksIndex, certIndex);
-                certParams.setActiveCertificate();
-                certParams.setEnableCertificate(true);
-                logger.info("Client Certificate enabled from API");
-            } catch (IOException
-                    | CertificateException
-                    | NoSuchAlgorithmException
-                    | KeyStoreException
-                    | KeyManagementException ex) {
-                logger.error("The certificate could not be enabled due to an error", ex);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR, ex);
-            }
-            return ApiResponseElement.OK;
-
+            return getNetworkImplementor().handleApiAction("addPkcs12ClientCertificate", params);
         } else if (ACTION_DISABLE_CLIENT_CERTIFICATE.equals(name)) {
-            Model.getSingleton()
-                    .getOptionsParam()
-                    .getCertificateParam()
-                    .setEnableCertificate(false);
-            logger.info("Client Certificate disabled from API");
-
-            return ApiResponseElement.OK;
+            JSONObject newParams = new JSONObject();
+            params.put("use", false);
+            return getNetworkImplementor().handleApiAction("setUseClientCertificate", newParams);
         } else {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }
@@ -861,30 +875,28 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         return API.getInstance().getImplementors().get("network");
     }
 
-    @Override
-    public ApiResponse handleApiOptionAction(String name, JSONObject params) throws ApiException {
-        if (ACTION_OPTION_USE_PROXY_CHAIN.equals(name)) {
-            boolean enabled = params.getBoolean("Boolean");
-            if (enabled
-                    && (connectionParam.getProxyChainName() == null
-                            || connectionParam.getProxyChainName().isEmpty())) {
-                return ApiResponseElement.FAIL;
-            }
-
-            connectionParam.setUseProxyChain(enabled);
-            return ApiResponseElement.OK;
-        }
-        return super.handleApiOptionAction(name, params);
-    }
-
     private void setProxyChainExcludedDomainsEnabled(boolean enabled) {
-        ConnectionParam connectionParam =
-                Model.getSingleton().getOptionsParam().getConnectionParam();
-        List<DomainMatcher> domains = connectionParam.getProxyExcludedDomains();
+        List<DomainMatcher> domains = getProxyExcludedDomains();
         for (DomainMatcher domain : domains) {
             domain.setEnabled(enabled);
         }
-        connectionParam.setProxyExcludedDomains(domains);
+        setProxyExcludedDomains(domains);
+    }
+
+    @SuppressWarnings("deprecation")
+    private static List<DomainMatcher> getProxyExcludedDomains() {
+        return Model.getSingleton()
+                .getOptionsParam()
+                .getConnectionParam()
+                .getProxyExcludedDomains();
+    }
+
+    @SuppressWarnings("deprecation")
+    private static void setProxyExcludedDomains(List<DomainMatcher> domains) {
+        Model.getSingleton()
+                .getOptionsParam()
+                .getConnectionParam()
+                .setProxyExcludedDomains(domains);
     }
 
     private AlertParam getAlertParam(ApiException.Type type) throws ApiException {
@@ -989,36 +1001,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static void sendRequest(
             HttpMessage request, boolean followRedirects, Processor<HttpMessage> processor)
             throws IOException, ApiException {
-        HttpSender sender = null;
-        try {
-            sender = createHttpSender();
+        HttpSender sender = new HttpSender(HttpSender.MANUAL_REQUEST_INITIATOR);
 
-            if (followRedirects) {
-                ModeRedirectionValidator redirector = new ModeRedirectionValidator(processor);
-                sender.sendAndReceive(
-                        request,
-                        HttpRequestConfig.builder().setRedirectionValidator(redirector).build());
+        if (followRedirects) {
+            ModeRedirectionValidator redirector = new ModeRedirectionValidator(processor);
+            sender.sendAndReceive(
+                    request,
+                    HttpRequestConfig.builder().setRedirectionValidator(redirector).build());
 
-                if (!redirector.isRequestValid()) {
-                    throw new ApiException(ApiException.Type.MODE_VIOLATION);
-                }
-            } else {
-                sender.sendAndReceive(request, false);
-                persistMessage(request);
-                processor.process(request);
+            if (!redirector.isRequestValid()) {
+                throw new ApiException(ApiException.Type.MODE_VIOLATION);
             }
-        } finally {
-            if (sender != null) {
-                sender.shutdown();
-            }
+        } else {
+            sender.sendAndReceive(request, false);
+            persistMessage(request);
+            processor.process(request);
         }
-    }
-
-    private static HttpSender createHttpSender() {
-        return new HttpSender(
-                Model.getSingleton().getOptionsParam().getConnectionParam(),
-                true,
-                HttpSender.MANUAL_REQUEST_INITIATOR);
     }
 
     private static void persistMessage(final HttpMessage message) {
@@ -1207,24 +1205,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             result = new ApiResponseElement(name, session.getFileName());
         } else if (VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS.equals(name)
                 || VIEW_OPTION_PROXY_EXCLUDED_DOMAINS.equals(name)
-                || VIEW_OPTION_PROXY_CHAIN_SKIP_NAME.equals(name)) {
+                || VIEW_OPTION_PROXY_CHAIN_SKIP_NAME.equals(name)
+                || VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED.equals(name)) {
             result =
                     proxyChainExcludedDomainsToApiResponseList(
-                            name,
-                            Model.getSingleton()
-                                    .getOptionsParam()
-                                    .getConnectionParam()
-                                    .getProxyExcludedDomains(),
-                            false);
-        } else if (VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED.equals(name)) {
-            result =
-                    proxyChainExcludedDomainsToApiResponseList(
-                            name,
-                            Model.getSingleton()
-                                    .getOptionsParam()
-                                    .getConnectionParam()
-                                    .getProxyExcludedDomains(),
-                            true);
+                            name, VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED.equals(name));
         } else if (VIEW_ZAP_HOME_PATH.equals(name)) {
             result = new ApiResponseElement(name, Constant.getZapHome());
         } else if (VIEW_OPTION_MAXIMUM_ALERT_INSTANCES.equals(name)) {
@@ -1277,7 +1262,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     private ApiResponse proxyChainExcludedDomainsToApiResponseList(
-            String name, List<DomainMatcher> domains, boolean excludeDisabled) {
+            String name, boolean excludeDisabled) {
+        List<DomainMatcher> domains = getProxyExcludedDomains();
         ApiResponseList apiResponse = new ApiResponseList(name);
         for (int i = 0; i < domains.size(); i++) {
             DomainMatcher domain = domains.get(i);
@@ -1299,76 +1285,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             throws ApiException {
 
         if (OTHER_PROXY_PAC.equals(name)) {
-            @SuppressWarnings("deprecation")
-            final org.parosproxy.paros.core.proxy.ProxyParam proxyParam =
-                    Model.getSingleton().getOptionsParam().getProxyParam();
-            final int port = proxyParam.getProxyPort();
-            try {
-                String domain = null;
-                if (proxyParam.isProxyIpAnyLocalAddress()) {
-                    String localDomain = msg.getRequestHeader().getHostName();
-                    if (!API.API_DOMAIN.equals(localDomain)) {
-                        domain = localDomain;
-                    }
-                }
-                if (domain == null) {
-                    domain = proxyParam.getProxyIp();
-                }
-                String response = this.getPacFile(domain, port);
-                msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
-
-                msg.setResponseBody(response);
-
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-            return msg;
+            return getNetworkImplementor().handleApiOther(msg, OTHER_PROXY_PAC, params);
         } else if (OTHER_SET_PROXY.equals(name)) {
-            /* JSON string:
-             *  {"type":1,
-             *  "http":	{"host":"proxy.corp.com","port":80},
-             *  "ssl":	{"host":"proxy.corp.com","port":80},
-             *  "ftp":{"host":"proxy.corp.com","port":80},
-             *  "socks":{"host":"proxy.corp.com","port":80},
-             *  "shareSettings":true,"socksVersion":5,
-             *  "proxyExcludes":"localhost, 127.0.0.1"}
-             */
-            String proxyDetails = params.getString(PARAM_PROXY_DETAILS);
-            String response = "OK";
-
-            try {
-                try {
-                    JSONObject json = JSONObject.fromObject(proxyDetails);
-
-                    if (json.getInt("type") == 1) {
-                        JSONObject httpJson = JSONObject.fromObject(json.get("http"));
-                        String proxyHost = httpJson.getString("host");
-                        int proxyPort = httpJson.getInt("port");
-
-                        if (proxyHost != null && proxyHost.length() > 0 && proxyPort > 0) {
-                            Model.getSingleton()
-                                    .getOptionsParam()
-                                    .getConnectionParam()
-                                    .setProxyChainName(proxyHost);
-                            Model.getSingleton()
-                                    .getOptionsParam()
-                                    .getConnectionParam()
-                                    .setProxyChainPort(proxyPort);
-                        }
-                    }
-                } catch (JSONException e) {
-                    throw new ApiException(
-                            ApiException.Type.ILLEGAL_PARAMETER, PARAM_PROXY_DETAILS);
-                }
-                msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
-
-                msg.setResponseBody(response);
-
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-
-            return msg;
+            return getNetworkImplementor().handleApiOther(msg, "setProxy", params);
         } else if (OTHER_ROOT_CERT.equals(name)) {
             return getNetworkImplementor().handleApiOther(msg, "rootCaCert", params);
         } else if (OTHER_XML_REPORT.equals(name)) {
@@ -1657,19 +1576,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     @Override
     public HttpMessage handleShortcut(HttpMessage msg) throws ApiException {
         try {
-            if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_PROXY_PAC)) {
-                return this.handleApiOther(msg, OTHER_PROXY_PAC, new JSONObject());
-            } else if (msg.getRequestHeader()
-                    .getURI()
-                    .getPath()
-                    .startsWith("/" + OTHER_SET_PROXY)) {
-                JSONObject params = new JSONObject();
-                params.put(PARAM_PROXY_DETAILS, msg.getRequestBody().toString());
-                return this.handleApiOther(msg, OTHER_SET_PROXY, params);
-            } else if (msg.getRequestHeader()
-                    .getURI()
-                    .getPath()
-                    .startsWith("/" + OTHER_SCRIPT_JS)) {
+            if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SCRIPT_JS)) {
                 return this.handleApiOther(msg, OTHER_SCRIPT_JS, new JSONObject());
             }
         } catch (URIException e) {
@@ -1678,16 +1585,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         }
         throw new ApiException(
                 ApiException.Type.URL_NOT_FOUND, msg.getRequestHeader().getURI().toString());
-    }
-
-    private String getPacFile(String host, int port) {
-        // Could put in 'ignore urls'?
-        StringBuilder sb = new StringBuilder(100);
-        sb.append("function FindProxyForURL(url, host) {\n");
-        sb.append("  return \"PROXY ").append(host).append(':').append(port).append("\";\n");
-        sb.append("} // End of function\n");
-
-        return sb.toString();
     }
 
     private static void addUrlsToList(

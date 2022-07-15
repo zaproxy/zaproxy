@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,6 +40,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.SingleColumnTableModel;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
@@ -63,7 +63,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
     private static final Logger logger = LogManager.getLogger(PolicyManagerDialog.class);
 
     public PolicyManagerDialog(Frame owner) {
-        super(owner, "ascan.policymgr.title", new Dimension(512, 400));
+        super(owner, "ascan.policymgr.title", DisplayUtils.getScaledDimension(512, 400));
     }
 
     public void init(ExtensionActiveScan extension) {

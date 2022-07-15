@@ -87,6 +87,9 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2020/12/09 Rely on the content encodings from the body to decode.
 // ZAP: 2022/02/09 Deprecate the class.
+// ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
+// ZAP: 2022/06/05 Address deprecation warnings with HttpException.
+// ZAP: 2022/06/07 Address deprecation warnings with ZapGetMethod.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.BufferedInputStream;
@@ -103,7 +106,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import javax.net.ssl.SSLException;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -112,7 +114,6 @@ import org.ice4j.ice.harvest.AwsCandidateHarvester;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpBody;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
@@ -123,7 +124,6 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.PersistentConnectionListener;
-import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpRequestConfig;
@@ -149,7 +149,7 @@ public class ProxyThread implements Runnable {
 
     protected ProxyServer parentServer = null;
     protected ProxyParam proxyParam = null;
-    protected ConnectionParam connectionParam = null;
+    protected org.parosproxy.paros.network.ConnectionParam connectionParam = null;
     protected Thread thread = null;
     protected Socket inSocket = null;
     protected Socket outSocket = null;
@@ -353,7 +353,7 @@ public class ProxyThread implements Runnable {
             }
         } catch (HttpMalformedHeaderException e) {
             log.warn("Malformed Header: ", e);
-        } catch (HttpException e) {
+        } catch (org.apache.commons.httpclient.HttpException e) {
             log.error(e.getMessage(), e);
         } catch (IOException e) {
             log.debug("IOException: ", e);
@@ -503,7 +503,7 @@ public class ProxyThread implements Runnable {
                     if (msg.getRequestHeader().isEmpty()) {
                         return;
                     }
-                    ZapGetMethod method = new ZapGetMethod();
+                    org.zaproxy.zap.ZapGetMethod method = new org.zaproxy.zap.ZapGetMethod();
                     method.setUpgradedSocket(inSocket);
                     method.setUpgradedInputStream(httpIn);
                     keepSocketOpen = notifyPersistentConnectionListener(msg, inSocket, method);
@@ -578,7 +578,7 @@ public class ProxyThread implements Runnable {
                     }
 
                     //			        notifyWrittenToForwardProxy();
-                } catch (HttpException e) {
+                } catch (org.apache.commons.httpclient.HttpException e) {
                     //			    	System.out.println("HttpException");
                     throw e;
                 } catch (SocketTimeoutException e) {
@@ -616,7 +616,8 @@ public class ProxyThread implements Runnable {
                 }
             } // release semaphore
 
-            ZapGetMethod method = (ZapGetMethod) msg.getUserObject();
+            org.zaproxy.zap.ZapGetMethod method =
+                    (org.zaproxy.zap.ZapGetMethod) msg.getUserObject();
             keepSocketOpen = notifyPersistentConnectionListener(msg, inSocket, method);
             if (keepSocketOpen) {
                 // do not wait for close
@@ -781,7 +782,7 @@ public class ProxyThread implements Runnable {
      * @return Boolean to indicate if socket should be kept open.
      */
     private boolean notifyPersistentConnectionListener(
-            HttpMessage httpMessage, Socket inSocket, ZapGetMethod method) {
+            HttpMessage httpMessage, Socket inSocket, org.zaproxy.zap.ZapGetMethod method) {
         boolean keepSocketOpen = false;
         PersistentConnectionListener listener = null;
         List<PersistentConnectionListener> listenerList =

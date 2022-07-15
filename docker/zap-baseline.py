@@ -173,6 +173,7 @@ def main():
     ajax = args.ajax_spider
     base_dir = ''
     zap_ip = 'localhost'
+<<<<<<< HEAD
     zap_options = args.zap_options
     delay = args.delay
     timeout = args.timeout
@@ -180,6 +181,15 @@ def main():
     hook_file = args.hook
     user = args.user
     use_af = args.autooff and args.auto
+=======
+    zap_options = ''
+    delay = 0
+    timeout = 0
+    ignore_warn = False
+    hook_file = ''
+    user = ''
+    use_af = True
+>>>>>>> fe3aefcc938a86ccb003d8d7f0ed54b88026221c
     af_supported = True
     af_override = False if args.autooff == '' else True  # * This value not used
     min_level = zap_conf_lvls.index(args.level)
@@ -243,11 +253,12 @@ def main():
 
     if config_file:
         # load config file from filestore
-        with open(base_dir + config_file) as f:
+        config_file = os.path.join(base_dir, config_file)
+        with open(config_file) as f:
             try:
                 load_config(f, config_dict, config_msg, out_of_scope_dict)
             except ValueError as e:
-                logging.warning("Failed to load config file " + base_dir + config_file + " " + str(e))
+                logging.warning("Failed to load config file " + config_file + " " + str(e))
                 sys.exit(3)
     elif config_url:
         # load config file from url
@@ -263,7 +274,7 @@ def main():
 
     if progress_file:
         # load progress file from filestore
-        with open(base_dir + progress_file) as f:
+        with open(os.path.join(base_dir, progress_file)) as f:
             progress = json.load(f)
             # parse into something more useful...
             # in_prog_issues = map of vulnid -> {object with everything in}
@@ -277,8 +288,8 @@ def main():
 
             # Generate the yaml file
             home_dir = str(Path.home())
-            yaml_file = home_dir + '/zap.yaml'
-            summary_file = home_dir + '/zap_out.json'
+            yaml_file = os.path.join(home_dir, 'zap.yaml')
+            summary_file = os.path.join(home_dir, 'zap_out.json')
             
             with open(yaml_file, 'w') as yf:
 
@@ -441,7 +452,7 @@ def main():
 
         if context_file:
             # handle the context file, cant use base_dir as it might not have been set up
-            zap_import_context(zap, '/zap/wrk/' + os.path.basename(context_file))
+            zap_import_context(zap, os.path.join('/zap/wrk/', context_file))
             if (user):
                 zap_set_scan_user(zap, user)
 
@@ -487,7 +498,7 @@ def main():
 
             if generate:
                 # Create the config file
-                with open(base_dir + generate, 'w') as f:
+                with open(os.path.join(base_dir, generate), 'w') as f:
                     f.write('# zap-baseline rule configuration file\n')
                     f.write('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
                     f.write('# Only the rule identifiers are used - the names are just for info\n')
@@ -528,19 +539,19 @@ def main():
 
             if report_html:
                 # Save the report
-                write_report(base_dir + report_html, zap.core.htmlreport())
+                write_report(os.path.join(base_dir, report_html), zap.core.htmlreport())
 
             if report_json:
                 # Save the report
-                write_report(base_dir + report_json, zap.core.jsonreport())
+                write_report(os.path.join(base_dir, report_json), zap.core.jsonreport())
 
             if report_md:
                 # Save the report
-                write_report(base_dir + report_md, zap.core.mdreport())
+                write_report(os.path.join(base_dir, report_md), zap.core.mdreport())
 
             if report_xml:
                 # Save the report
-                write_report(base_dir + report_xml, zap.core.xmlreport())
+                write_report(os.path.join(base_dir, report_xml), zap.core.xmlreport())
 
             print('FAIL-NEW: ' + str(fail_count) + '\tFAIL-INPROG: ' + str(fail_inprog_count) +
                 '\tWARN-NEW: ' + str(warn_count) + '\tWARN-INPROG: ' + str(warn_inprog_count) +

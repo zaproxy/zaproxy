@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.pscan;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -82,7 +83,6 @@ public abstract class PluginPassiveScanner extends Enableable
     private Configuration config = null;
     private AddOn.Status status = AddOn.Status.unknown;
 
-    private PassiveScanThread parent;
     private HttpMessage message;
     private PassiveScanData passiveScanData;
 
@@ -90,8 +90,8 @@ public abstract class PluginPassiveScanner extends Enableable
         super(true);
     }
 
+    @SuppressWarnings("deprecation")
     void init(PassiveScanThread parent, HttpMessage message, PassiveScanData psd) {
-        this.parent = parent;
         this.message = message;
         this.passiveScanData = psd;
 
@@ -101,15 +101,15 @@ public abstract class PluginPassiveScanner extends Enableable
     /**
      * <strong>Note:</strong> This method should no longer need to be overridden, the functionality
      * provided by the {@code parent} can be obtained directly with {@link #newAlert()} and {@link
-     * #addTag(String)}.
+     * #addHistoryTag(String)}.
      */
     @Override
+    @SuppressWarnings("deprecation")
     public void setParent(PassiveScanThread parent) {
         // Nothing to do.
     }
 
     void clean() {
-        parent = null;
         message = null;
         passiveScanData = null;
     }
@@ -393,14 +393,38 @@ public abstract class PluginPassiveScanner extends Enableable
         return passiveScanData;
     }
 
+    private PassiveScanTaskHelper taskHelper;
+
+    @Override
+    public void setTaskHelper(PassiveScanTaskHelper helper) {
+        this.taskHelper = helper;
+    }
+
+    @Override
+    public PassiveScanTaskHelper getTaskHelper() {
+        return this.taskHelper;
+    }
+
     /**
      * Adds the given tag to the message being passive scanned.
      *
      * @param tag the name of the tag.
      * @since 2.11.0
+     * @deprecated (2.12.0) Replaced by {@link #addHistoryTag(String)}.
      */
+    @Deprecated
     protected void addTag(String tag) {
-        parent.addTag(tag);
+        addHistoryTag(tag);
+    }
+
+    /**
+     * Adds the given tag to the message being passive scanned.
+     *
+     * @param tag the name of the tag.
+     * @since 2.12.0
+     */
+    protected void addHistoryTag(String tag) {
+        this.taskHelper.addHistoryTag(this.message.getHistoryRef(), tag);
     }
 
     /**
@@ -412,6 +436,35 @@ public abstract class PluginPassiveScanner extends Enableable
      */
     public Map<String, String> getAlertTags() {
         return null;
+    }
+
+    /**
+     * Make a copy of this instance including all of the configuration.
+     *
+     * @return a copy of this instance
+     * @throws SecurityException
+     * @throws NoSuchMethodException
+     * @throws InvocationTargetException
+     * @throws IllegalArgumentException
+     * @throws IllegalAccessException
+     * @throws InstantiationException
+     * @since 2.12.0
+     */
+    public PluginPassiveScanner copy()
+            throws InstantiationException, IllegalAccessException, IllegalArgumentException,
+                    InvocationTargetException, NoSuchMethodException, SecurityException {
+        PluginPassiveScanner pps = this.getClass().getConstructor().newInstance();
+        Configuration conf = this.getConfig();
+        if (conf == null) {
+            throw new IllegalArgumentException(
+                    "Cannot copy "
+                            + this.getClass().getCanonicalName()
+                            + " : "
+                            + this.getName()
+                            + " as the configuration is null");
+        }
+        pps.setConfig(conf);
+        return pps;
     }
 
     /**
@@ -582,9 +635,33 @@ public abstract class PluginPassiveScanner extends Enableable
             return this;
         }
 
+        @Override
+        public AlertBuilder addTag(String tag) {
+            super.addTag(tag, "");
+            return this;
+        }
+
+        @Override
+        public AlertBuilder addTag(String tag, String value) {
+            super.addTag(tag, value);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder removeTag(String tag) {
+            super.removeTag(tag);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder removeTag(String tag, String value) {
+            super.removeTag(tag, value);
+            return this;
+        }
+
         /** Raises the alert with specified data. */
         public void raise() {
-            plugin.parent.raiseAlert(message.getHistoryRef().getHistoryId(), build());
+            plugin.taskHelper.raiseAlert(message.getHistoryRef(), build());
             Stats.incCounter("stats.pscan." + plugin.getPluginId() + ".alerts");
         }
     }

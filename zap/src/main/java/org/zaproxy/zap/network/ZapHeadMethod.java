@@ -21,9 +21,6 @@ package org.zaproxy.zap.network;
 
 import java.io.IOException;
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpConnection;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.ProtocolException;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
@@ -36,7 +33,9 @@ import org.apache.commons.logging.LogFactory;
  * An HTTP HEAD method implementation that ignores malformed HTTP response header lines.
  *
  * @see HeadMethod
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class ZapHeadMethod extends EntityEnclosingMethod {
 
     /** Log object for this class. */
@@ -63,16 +62,14 @@ public class ZapHeadMethod extends EntityEnclosingMethod {
      * @param conn the {@link HttpConnection connection} used to execute this HTTP method
      * @throws IOException if an I/O (transport) error occurs. Some transport exceptions can be
      *     recovered from.
-     * @throws HttpException if a protocol exception occurs. Usually protocol exceptions cannot be
-     *     recovered from.
      * @see #readResponse
      * @see #processResponseBody
      * @since 2.0
      */
     // Implementation copied from HeadMethod.
     @Override
-    protected void readResponseBody(HttpState state, HttpConnection conn)
-            throws HttpException, IOException {
+    protected void readResponseBody(
+            HttpState state, org.apache.commons.httpclient.HttpConnection conn) throws IOException {
         LOG.trace("enter HeadMethod.readResponseBody(HttpState, HttpConnection)");
 
         int bodyCheckTimeout =
@@ -120,8 +117,8 @@ public class ZapHeadMethod extends EntityEnclosingMethod {
      * header parser (ZapHttpParser#parseHeaders(InputStream, String)).
      */
     @Override
-    protected void readResponseHeaders(HttpState state, HttpConnection conn)
-            throws IOException, HttpException {
+    protected void readResponseHeaders(
+            HttpState state, org.apache.commons.httpclient.HttpConnection conn) throws IOException {
         getResponseHeaderGroup().clear();
 
         Header[] headers =

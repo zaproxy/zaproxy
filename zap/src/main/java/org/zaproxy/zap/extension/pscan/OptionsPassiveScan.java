@@ -35,7 +35,7 @@ import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 public class OptionsPassiveScan extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
-    private PassiveScannerList passiveScanners = null;
+    private PassiveScannerList passiveScanners;
 
     private ScannersMultipleOptionsPanel scannersOptionsPanel;
 
@@ -43,7 +43,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 
     public OptionsPassiveScan(PassiveScannerList scannerList) {
         super();
-        this.passiveScanners = scannerList;
+        passiveScanners = scannerList;
         initialize();
     }
 
@@ -64,20 +64,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
 
         gbc.weighty = 1.0;
         this.add(scannersOptionsPanel, gbc);
-
-        // gbc.weighty = 0.0;
     }
-
-    //	private List<RegexAutoTagScanner> getRegexAutoTags(List<PassiveScanner> scannerList) {
-    //		List<RegexAutoTagScanner> ratsList = new ArrayList<>();
-    //		for (PassiveScanner scanner : scannerList) {
-    //			if (scanner instanceof RegexAutoTagScanner) {
-    //				ratsList.add((RegexAutoTagScanner)scanner);
-    //			}
-    //		}
-    //
-    //		return ratsList;
-    //	}
 
     @Override
     public void initParam(Object obj) {
@@ -95,7 +82,6 @@ public class OptionsPassiveScan extends AbstractParamPanel {
         passiveScanParam.setAutoTagScanners(getTableModel().getElements());
         passiveScanParam.setConfirmRemoveAutoTagScanner(
                 !scannersOptionsPanel.isRemoveWithoutConfirmation());
-
         passiveScanners.setAutoTagScanners(passiveScanParam.getAutoTagScanners());
     }
 

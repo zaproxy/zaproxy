@@ -33,6 +33,7 @@
       ":addOns:quickstart",
       ":addOns:replacer",
       ":addOns:reports",
+      ":addOns:requester",
       ":addOns:retest",
       ":addOns:retire",
       ":addOns:reveal",

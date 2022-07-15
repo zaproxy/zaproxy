@@ -2,8 +2,11 @@
 // By default it will raise 'Info' level alerts for Client Errors (4xx) (apart from 404s) and 'Low' Level alerts for Server Errors (5xx)
 // But it can be easily changed.
 
+var control, model
+if (!control) control = Java.type("org.parosproxy.paros.control.Control").getSingleton()
+if (!model) model = Java.type("org.parosproxy.paros.model.Model").getSingleton()
+
 var Pattern = Java.type("java.util.regex.Pattern")
-var model = Java.type("org.parosproxy.paros.model.Model").getSingleton()
 
 pluginid = 100000	// https://github.com/zaproxy/zaproxy/blob/main/docs/scanners.md
 
@@ -17,8 +20,7 @@ function responseReceived(msg, initiator, helper) {
 		return
 	}
 
-	var extensionAlert = org.parosproxy.paros.control.Control.getSingleton().getExtensionLoader().getExtension(
-		org.zaproxy.zap.extension.alert.ExtensionAlert.NAME)
+	var extensionAlert = control.getExtensionLoader().getExtension(org.zaproxy.zap.extension.alert.ExtensionAlert.NAME)
 	if (extensionAlert != null) {
 		var code = msg.getResponseHeader().getStatusCode()
 		if (code < 400 || code >= 600) {
@@ -71,8 +73,7 @@ function responseReceived(msg, initiator, helper) {
 						type = 15 // User - fallback
 						break
 				}
-				ref = new org.parosproxy.paros.model.HistoryReference(
-					org.parosproxy.paros.model.Model.getSingleton().getSession(), type, msg)
+				ref = new org.parosproxy.paros.model.HistoryReference(model.getSession(), type, msg)
 			}
 			alert.setMessage(msg)
 			alert.setUri(msg.getRequestHeader().getURI().toString())

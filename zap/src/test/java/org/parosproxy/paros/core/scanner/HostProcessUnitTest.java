@@ -40,7 +40,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.ConnectionParam;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
 import org.zaproxy.zap.extension.ascan.filters.FilterResult;
@@ -59,13 +60,13 @@ class HostProcessUnitTest {
     private String hostAndPort;
     private Scanner scanner;
     private ScannerParam scannerParam;
-    private ConnectionParam connectionParam;
     private PluginFactory pluginFactory;
     private RuleConfigParam ruleConfigParam;
 
     private HostProcess hostProcess;
 
     @BeforeEach
+    @SuppressWarnings("deprecation")
     void setup() {
         Constant.messages = new I18N(Locale.ENGLISH);
 
@@ -78,7 +79,12 @@ class HostProcessUnitTest {
         given(scanner.isInScope(any())).willReturn(true);
 
         scannerParam = mock(ScannerParam.class);
-        connectionParam = mock(ConnectionParam.class);
+        Model model = mock(Model.class);
+        Model.setSingletonForTesting(model);
+        OptionsParam optionsParam = mock(OptionsParam.class);
+        given(model.getOptionsParam()).willReturn(optionsParam);
+        given(optionsParam.getConnectionParam())
+                .willReturn(mock(org.parosproxy.paros.network.ConnectionParam.class));
 
         pluginFactory = mock(PluginFactory.class);
         given(pluginFactory.clone()).willReturn(pluginFactory);
@@ -86,13 +92,7 @@ class HostProcessUnitTest {
         given(scanPolicy.getPluginFactory()).willReturn(pluginFactory);
 
         hostProcess =
-                new HostProcess(
-                        hostAndPort,
-                        scanner,
-                        scannerParam,
-                        connectionParam,
-                        scanPolicy,
-                        ruleConfigParam);
+                new HostProcess(hostAndPort, scanner, scannerParam, scanPolicy, ruleConfigParam);
     }
 
     @Test

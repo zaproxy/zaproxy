@@ -26,11 +26,13 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.apache.commons.configuration.Configuration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -492,16 +494,20 @@ class PluginPassiveScannerUnitTest {
     }
 
     @Test
-    void shouldCallParentWithTagAdded() {
+    void shouldCallTaskHelperWithTagAdded() {
         // Given
         String tag = "tag";
-        PassiveScanThread parent = mock(PassiveScanThread.class);
+        PassiveScanTaskHelper taskHelper = mock(PassiveScanTaskHelper.class);
         TestPluginPassiveScanner scanner = new TestPluginPassiveScanner();
-        scanner.init(parent, mock(HttpMessage.class), mock(PassiveScanData.class));
+        HttpMessage msg = mock(HttpMessage.class);
+        HistoryReference href = mock(HistoryReference.class);
+        when(msg.getHistoryRef()).thenReturn(href);
+        scanner.init(null, msg, mock(PassiveScanData.class));
+        scanner.setTaskHelper(taskHelper);
         // When
-        scanner.addTag(tag);
+        scanner.addHistoryTag(tag);
         // Then
-        verify(parent).addTag(tag);
+        verify(taskHelper).addHistoryTag(href, tag);
     }
 
     private static class TestPluginPassiveScanner extends PluginPassiveScanner {

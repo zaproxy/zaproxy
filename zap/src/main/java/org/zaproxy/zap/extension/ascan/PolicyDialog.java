@@ -32,6 +32,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.view.AbstractParamDialog;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public class PolicyDialog extends AbstractParamDialog {
 
@@ -58,7 +59,7 @@ public class PolicyDialog extends AbstractParamDialog {
 
     private void initialize() {
         this.setTitle(POLICY);
-        this.setSize(750, 420);
+        this.setSize(DisplayUtils.getScaledDimension(750, 420));
         addParamPanel(null, getPolicyAllCategoryPanel(), false);
 
         for (int i = 0; i < Category.getAllNames().length; i++) {

@@ -1,9 +1,30 @@
 # This dockerfile builds a 'live' zap docker image using the latest files in the repos
+FROM ubuntu:20.04 AS builder
+
+RUN apt-get update && apt-get install -q -y --fix-missing \
+	wget \
+	curl \
+	unzip && \
+	apt-get clean
+
+WORKDIR /zap
+
+# Setup Webswing
+ENV WEBSWING_VERSION 22.1.2
+ARG WEBSWING_URL=""
+RUN if [ -z "$WEBSWING_URL" ] ; \
+	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
+	unzip webswing.zip && \
+	rm webswing.zip && \
+	mv webswing-* webswing && \
+	# Remove Webswing bundled examples
+	rm -Rf webswing/apps/
+
 FROM ubuntu:20.04
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG WEBSWING_URL=""
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -39,8 +60,6 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 
 RUN pip3 install --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3 zapcli
 
-WORKDIR /zap-src
-
 #Change to the zap user so things get done as the right person (apart from copy)
 USER zap
 
@@ -49,7 +68,7 @@ RUN mkdir /home/zap/.vnc
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
-ENV WEBSWING_VERSION 21.2.8
+WORKDIR /zap-src
 
 # Pull the ZAP repo
 RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
@@ -57,17 +76,7 @@ RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 	cd zaproxy && \
 	ZAP_WEEKLY_ADDONS_NO_TEST=true ./gradlew :zap:prepareDistWeekly && \
 	cp -R /zap-src/zaproxy/zap/build/distFilesWeekly/* /zap/ && \
-	rm -rf /zap-src/* && \
-	cd /zap/ && \
-	# Setup Webswing
-	if [ -z "$WEBSWING_URL" ] ; \
-	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
-	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
-	unzip webswing.zip && \
-	rm webswing.zip && \
-	mv webswing-* webswing && \
-	# Remove Webswing bundled examples
-	rm -Rf webswing/apps/
+	rm -rf /zap-src/*
 
 ENV ZAP_PATH /zap/zap.sh
 # Default port for use with zapcli
@@ -78,6 +87,7 @@ ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
 COPY zap* CHANGELOG.md /zap/
+COPY --from=builder /zap/webswing /zap/webswing
 COPY webswing.config /zap/webswing/
 COPY webswing.properties /zap/webswing/
 COPY policies /home/zap/.ZAP_D/policies/

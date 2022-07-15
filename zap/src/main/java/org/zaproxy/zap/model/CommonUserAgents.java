@@ -19,60 +19,21 @@
  */
 package org.zaproxy.zap.model;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.Constant;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class CommonUserAgents {
 
     private static Map<String, String> nameToString = null;
     private static Map<String, String> stringToName = null;
 
-    private static final Logger logger = LogManager.getLogger(CommonUserAgents.class);
-
     static {
         nameToString = new HashMap<>();
         stringToName = new HashMap<>();
-
-        String fileName =
-                Constant.getZapInstall()
-                        + File.separator
-                        + "xml"
-                        + File.separator
-                        + "common-user-agents.txt";
-        File f = new File(fileName);
-        if (f.exists()) {
-            try {
-                for (String line : Files.readAllLines(f.toPath(), Charset.forName("US-ASCII"))) {
-                    if (line.trim().length() == 0 || line.startsWith("#")) {
-                        // Skip blank lines or ones that start with a #
-                        continue;
-                    }
-                    String[] array = line.split("\t");
-                    if (array.length != 3) {
-                        logger.error("Unexpected line in " + f.getAbsolutePath() + " : " + line);
-                    } else {
-                        nameToString.put(array[2], array[1]);
-                        stringToName.put(array[1], array[2]);
-                    }
-                }
-
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-            }
-        } else {
-            logger.info(
-                    "No common user agents will be suggested, file does not exist: "
-                            + f.getAbsolutePath());
-        }
     }
 
     public static String getStringFromName(String name) {

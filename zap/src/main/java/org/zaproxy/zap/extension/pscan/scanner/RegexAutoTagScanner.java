@@ -99,6 +99,11 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
                 scanner.isEnabled());
     }
 
+    @Override
+    public RegexAutoTagScanner copy() {
+        return new RegexAutoTagScanner(this);
+    }
+
     public Pattern getRequestUrlPattern() {
         return requestUrlPattern;
     }
@@ -325,7 +330,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
             if (matcher.groupCount() > 0) {
                 tag = matcher.pattern().matcher(matcher.group()).replaceFirst(tag);
             }
-            addTag(tag);
+            addHistoryTag(tag);
         }
 
         try {

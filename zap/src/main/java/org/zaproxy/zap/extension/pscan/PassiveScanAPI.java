@@ -25,6 +25,7 @@ import java.util.Map;
 import net.sf.json.JSONObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -46,6 +47,7 @@ public class PassiveScanAPI extends ApiImplementor {
     private static final String VIEW_RECORDS_TO_SCAN = "recordsToScan";
     private static final String VIEW_SCANNERS = "scanners";
     private static final String VIEW_CURRENT_RULE = "currentRule";
+    private static final String VIEW_CURRENT_TASKS = "currentTasks";
     private static final String VIEW_MAX_ALERTS_PER_RULE = "maxAlertsPerRule";
 
     private static final String ACTION_SET_ENABLED = "setEnabled";
@@ -90,7 +92,12 @@ public class PassiveScanAPI extends ApiImplementor {
         this.addApiView(new ApiView(VIEW_SCAN_ONLY_IN_SCOPE));
         this.addApiView(new ApiView(VIEW_RECORDS_TO_SCAN));
         this.addApiView(new ApiView(VIEW_SCANNERS));
-        this.addApiView(new ApiView(VIEW_CURRENT_RULE));
+        ApiView currentRule = new ApiView(VIEW_CURRENT_RULE);
+        currentRule.setDeprecated(true);
+        currentRule.setDeprecatedDescription(
+                Constant.messages.getString("pscan.api.view.currentRule.deprecated"));
+        this.addApiView(currentRule);
+        this.addApiView(new ApiView(VIEW_CURRENT_TASKS));
         this.addApiView(new ApiView(VIEW_MAX_ALERTS_PER_RULE));
     }
 
@@ -218,21 +225,20 @@ public class PassiveScanAPI extends ApiImplementor {
                     map.put("enabled", String.valueOf(scanner.isEnabled()));
                     map.put("alertThreshold", scanner.getAlertThreshold(true).name());
                     map.put("quality", scanner.getStatus().toString());
+                    map.put("status", scanner.getStatus().toString());
                     resultList.addItem(new ApiResponseSet<>("scanner", map));
                 }
 
                 result = resultList;
                 break;
             case VIEW_CURRENT_RULE:
-                Map<String, String> map = new HashMap<>();
-                map.put("name", extension.getCurrentRuleName());
-                map.put("url", extension.getCurrentUrl());
-                long time = extension.getCurrentRuleStartTime();
-                if (time > 0) {
-                    time = System.currentTimeMillis() - time;
-                }
-                map.put("time", String.valueOf(time));
-                result = new ApiResponseSet<>(name, map);
+                result = getResponseForTask(extension.getOldestRunningTask(), name);
+                break;
+            case VIEW_CURRENT_TASKS:
+                ApiResponseList taskList = new ApiResponseList(name);
+                extension.getRunningTasks().stream()
+                        .forEach(t -> taskList.addItem(getResponseForTask(t, name)));
+                result = taskList;
                 break;
             case VIEW_MAX_ALERTS_PER_RULE:
                 result =
@@ -245,5 +251,18 @@ public class PassiveScanAPI extends ApiImplementor {
                 throw new ApiException(ApiException.Type.BAD_VIEW);
         }
         return result;
+    }
+
+    private ApiResponseSet<String> getResponseForTask(PassiveScanTask task, String name) {
+        Map<String, String> map = new HashMap<>();
+        PassiveScanner scanner = task.getCurrentScanner();
+        map.put("name", scanner == null ? "" : scanner.getName());
+        map.put("url", task.getURI().toString());
+        long time = task.getStartTime();
+        if (time > 0) {
+            time = System.currentTimeMillis() - time;
+        }
+        map.put("time", String.valueOf(time));
+        return new ApiResponseSet<>(name, map);
     }
 }

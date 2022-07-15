@@ -23,7 +23,7 @@ import java.util.List;
 import net.htmlparser.jericho.Source;
 import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.pscan.PassiveScanThread;
+import org.zaproxy.zap.extension.pscan.PassiveScanTaskHelper;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.model.SessionStructure;
@@ -43,17 +43,16 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 
     public static final String ACSRF_STATS_PREFIX = "stats.acsrf.";
 
-    private PassiveScanThread parent = null;
-
     private final ExtensionAntiCSRF extAntiCSRF;
+    private PassiveScanTaskHelper helper;
 
     public AntiCsrfDetectScanner(ExtensionAntiCSRF extAntiCSRF) {
         this.extAntiCSRF = extAntiCSRF;
     }
 
     @Override
-    public void setParent(PassiveScanThread parent) {
-        this.parent = parent;
+    public void setTaskHelper(PassiveScanTaskHelper helper) {
+        this.helper = helper;
     }
 
     @Override
@@ -66,8 +65,8 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
         List<AntiCsrfToken> list = extAntiCSRF.getTokensFromResponse(msg, source);
         for (AntiCsrfToken token : list) {
             if (this.registerToken(msg.getHistoryRef().getHistoryType())) {
-                if (parent != null) {
-                    parent.addTag(ExtensionAntiCSRF.TAG);
+                if (helper != null) {
+                    helper.addHistoryTag(msg.getHistoryRef(), ExtensionAntiCSRF.TAG);
                 }
                 extAntiCSRF.registerAntiCsrfToken(token);
             }

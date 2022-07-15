@@ -492,7 +492,25 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
      * @since 2.7.0
      */
     public String generateForm(HttpMessage msg) throws UnsupportedEncodingException {
+        return generateForm(msg, "");
+    }
+
+    /**
+     * Generates a HTML form from the given message, replacing the action with the specified action
+     * URL.
+     *
+     * @param msg the message used to generate the HTML form, must not be {@code null}.
+     * @param actionUrl optional parameter
+     * @return a string containing the HTML form, never {@code null}.
+     * @throws UnsupportedEncodingException if an error occurred while encoding the values of the
+     *     form.
+     */
+    String generateForm(HttpMessage msg, String actionUrl) throws UnsupportedEncodingException {
+
         String requestUri = msg.getRequestHeader().getURI().toString();
+        if (!actionUrl.isEmpty()) {
+            requestUri = actionUrl;
+        }
         StringBuilder sb = new StringBuilder(300);
         sb.append("<html>\n");
         sb.append("<body>\n");
