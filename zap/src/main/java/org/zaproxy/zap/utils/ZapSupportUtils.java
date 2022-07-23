@@ -79,6 +79,18 @@ public final class ZapSupportUtils {
                 + System.getProperty("os.name");
     }
 
+    /**
+     * Gets the architecture (preceded with the corresponding label).
+     *
+     * @return the architecture.
+     * @since 2.12.0
+     */
+    public static String getArch() {
+        return Constant.messages.getString("support.arch.label")
+                + " "
+                + System.getProperty("os.arch");
+    }
+
     public static String getJavaVersionVendor() {
         String javaVersion = System.getProperty("java.version");
         String javaVendor = System.getProperty("java.vendor");
@@ -162,6 +174,7 @@ public final class ZapSupportUtils {
         supportDetailsBuilder.append(getVersion()).append(NEWLINE);
         supportDetailsBuilder.append(installedAddons);
         supportDetailsBuilder.append(getOperatingSystem()).append(NEWLINE);
+        supportDetailsBuilder.append(getArch()).append(NEWLINE);
         supportDetailsBuilder.append(getJavaVersionVendor()).append(NEWLINE);
         supportDetailsBuilder.append(getLocaleSystem()).append(NEWLINE);
         supportDetailsBuilder.append(getLocaleDisplay()).append(NEWLINE);
