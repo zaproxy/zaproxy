@@ -21,6 +21,7 @@ package org.parosproxy.paros.core.scanner;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.httpclient.URI;
@@ -46,17 +47,29 @@ public class VariantDdnPath implements Variant {
     @Override
     public void setMessage(HttpMessage msg) {
         try {
-            List<String> treePaths = SessionStructure.getTreePath(Model.getSingleton(), msg);
-            int position = 1;
-            for (String path : treePaths) {
-                if (path.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {
-                    stringParam.add(
-                            new NameValuePair(NameValuePair.TYPE_URL_PATH, path, path, position));
-                }
-                position++;
-            }
+            List<String> treePath = SessionStructure.getTreePath(Model.getSingleton(), msg);
+            String actualPath = msg.getRequestHeader().getURI().getPath();
+            addParamsFromTreePath(treePath, actualPath);
         } catch (URIException e) {
             // Ignore
+        }
+    }
+
+    void addParamsFromTreePath(List<String> treePath, String actualPath) {
+        int position = 0;
+        boolean useActualValue = false;
+        String[] actualPathParts = null;
+        for (String nodeName : treePath) {
+            if (nodeName.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {
+                if (actualPathParts == null && actualPath != null) {
+                    actualPathParts = actualPath.split("/");
+                    useActualValue = treePath.size() == actualPathParts.length;
+                }
+                String value = useActualValue ? actualPathParts[position] : nodeName;
+                stringParam.add(
+                        new NameValuePair(NameValuePair.TYPE_URL_PATH, nodeName, value, position));
+            }
+            position++;
         }
     }
 
@@ -86,7 +99,7 @@ public class VariantDdnPath implements Variant {
     private String getEscapedValue(String value) {
         if (value != null) {
             try {
-                return URLEncoder.encode(value, "UTF-8");
+                return URLEncoder.encode(value, StandardCharsets.UTF_8.name());
             } catch (UnsupportedEncodingException ex) {
             }
         }

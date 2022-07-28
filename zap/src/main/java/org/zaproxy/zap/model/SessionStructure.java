@@ -213,7 +213,7 @@ public class SessionStructure {
             return new StructuralSiteNode(node);
         }
 
-        String nodeName = getNodeName(model, uri, method, postData);
+        String nodeName = getNodeName(model, uri, method, postData, null);
         RecordStructure rs = model.getDb().getTableStructure().find(sessionId, nodeName, method);
         if (rs == null) {
             return null;
@@ -244,7 +244,7 @@ public class SessionStructure {
             return new StructuralSiteNode(node);
         }
 
-        String nodeName = getNodeName(model, uri, method, postData);
+        String nodeName = getNodeName(model, uri, method, postData, null);
         RecordStructure rs =
                 model.getDb().getTableStructure().find(session.getSessionId(), nodeName, method);
         if (rs == null) {
@@ -253,7 +253,8 @@ public class SessionStructure {
         return new StructuralTableNode(rs);
     }
 
-    private static String getNodeName(Model model, URI uri, String method, String postData)
+    private static String getNodeName(
+            Model model, URI uri, String method, String postData, String contentType)
             throws URIException {
 
         Session session = model.getSession();
@@ -262,11 +263,9 @@ public class SessionStructure {
         String host = getHostName(uri);
         String nodeUrl = pathsToUrl(host, paths, paths.size());
 
-        if (postData != null) {
-            String params = getParams(session, uri, postData);
-            if (params.length() > 0) {
-                nodeUrl = nodeUrl + " " + params;
-            }
+        String params = getParams(session, uri, postData, contentType);
+        if (params.length() > 0) {
+            nodeUrl += " " + params;
         }
         return nodeUrl;
     }
@@ -312,7 +311,8 @@ public class SessionStructure {
                 model,
                 msg.getRequestHeader().getURI(),
                 msg.getRequestHeader().getMethod(),
-                msg.getRequestBody().toString());
+                msg.getRequestBody().toString(),
+                msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE));
     }
 
     public static String getLeafName(Model model, String nodeName, HttpMessage msg) {
@@ -735,48 +735,27 @@ public class SessionStructure {
     }
 
     private static String getParams(Session session, HttpMessage msg) throws URIException {
-        String postData = null;
-        if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-            String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-            if (contentType != null && contentType.startsWith(MULTIPART_FORM_DATA)) {
-                postData = MULTIPART_FORM_DATA_DISPLAY;
-            } else {
-                postData = msg.getRequestBody().toString();
-            }
-        }
-
-        return getParams(session, msg.getRequestHeader().getURI(), postData);
+        return getParams(
+                session,
+                msg.getRequestHeader().getURI(),
+                msg.getRequestBody().toString(),
+                msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE));
     }
 
-    private static String getParams(Session session, URI uri, String postData) throws URIException {
-        String leafName = "";
-        String query = "";
-        boolean hasPostData = postData != null && postData.length() > 0;
-
-        try {
-            query = uri.getQuery();
-        } catch (URIException e) {
-            log.error(e.getMessage(), e);
-        }
-        if (query == null) {
-            query = "";
-        }
-        leafName = leafName + getQueryParamString(session.getUrlParameters(uri), hasPostData);
-
-        // also handle POST method query in body
-        query = "";
-        if (hasPostData) {
-            if (postData.equals(MULTIPART_FORM_DATA)) {
-                leafName = leafName + MULTIPART_FORM_DATA_DISPLAY;
-            } else {
-                leafName =
-                        leafName
-                                + getQueryParamString(
-                                        session.getFormParameters(uri, postData), false);
-            }
+    private static String getParams(
+            Session session, URI uri, String requestBody, String contentType) throws URIException {
+        boolean hasReqBody = contentType != null && requestBody != null && !requestBody.isEmpty();
+        String leafParams = getQueryParamString(session.getUrlParameters(uri), hasReqBody);
+        if (!hasReqBody) {
+            return leafParams;
         }
 
-        return leafName;
+        if (contentType.startsWith(MULTIPART_FORM_DATA)) {
+            leafParams += MULTIPART_FORM_DATA_DISPLAY;
+        } else if (contentType.startsWith("application/x-www-form-urlencoded")) {
+            leafParams += getQueryParamString(session.getFormParameters(uri, requestBody), false);
+        }
+        return leafParams;
     }
 
     private static String getQueryParamString(List<NameValuePair> list, boolean isUrlWithPostData) {

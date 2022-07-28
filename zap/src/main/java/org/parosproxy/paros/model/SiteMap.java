@@ -72,6 +72,8 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove empty statement and add missing override annotation.
 // ZAP: 2022/02/08 Use isEmpty where applicable.
+// ZAP: 2022/07/27 Use hrefMap to return early from addPath and findAndAddChild. Remove getHostName
+// and use SessionStructure#getHostName in its place.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -146,7 +148,7 @@ public class SiteMap extends SortedTreeModel {
         String folder;
 
         try {
-            String host = getHostName(uri);
+            String host = SessionStructure.getHostName(uri);
 
             // no host yet
             parent = findChild(parent, host);
@@ -210,8 +212,7 @@ public class SiteMap extends SortedTreeModel {
         String folder = "";
 
         try {
-
-            String host = getHostName(uri);
+            String host = SessionStructure.getHostName(uri);
 
             // no host yet
             parent = findChild(parent, host);
@@ -267,7 +268,7 @@ public class SiteMap extends SortedTreeModel {
         String folder = "";
 
         try {
-            String host = getHostName(uri);
+            String host = SessionStructure.getHostName(uri);
 
             // no host yet
             resultNode = findChild(getRoot(), host);
@@ -321,7 +322,7 @@ public class SiteMap extends SortedTreeModel {
         String folder = "";
 
         try {
-            String host = getHostName(uri);
+            String host = SessionStructure.getHostName(uri);
 
             // no host yet
             parent = findChild(parent, host);
@@ -362,6 +363,10 @@ public class SiteMap extends SortedTreeModel {
         if (Constant.isLowMemoryOptionSet()) {
             throw new InvalidParameterException(
                     "SiteMap should not be accessed when the low memory option is set");
+        }
+
+        if (isReferenceCached(ref)) {
+            return hrefMap.get(ref.getHistoryId());
         }
 
         HttpMessage msg = null;
@@ -413,6 +418,10 @@ public class SiteMap extends SortedTreeModel {
                     new Exception());
         }
 
+        if (isReferenceCached(ref)) {
+            return hrefMap.get(ref.getHistoryId());
+        }
+
         URI uri = msg.getRequestHeader().getURI();
         log.debug("addPath " + uri.toString());
 
@@ -423,7 +432,7 @@ public class SiteMap extends SortedTreeModel {
 
         try {
 
-            String host = getHostName(uri);
+            String host = SessionStructure.getHostName(uri);
 
             // add host
             parent = findAndAddChild(parent, host, ref, msg);
@@ -458,9 +467,7 @@ public class SiteMap extends SortedTreeModel {
             log.error("Exception adding " + uri.toString() + " " + e.getMessage(), e);
         }
 
-        if (hrefMap.get(ref.getHistoryId()) == null) {
-            hrefMap.put(ref.getHistoryId(), leaf);
-        }
+        hrefMap.putIfAbsent(ref.getHistoryId(), leaf);
 
         if (!newOnly || isNew) {
             return leaf;
@@ -468,11 +475,19 @@ public class SiteMap extends SortedTreeModel {
         return null;
     }
 
+    private boolean isReferenceCached(HistoryReference ref) {
+        return ref.getHistoryType() != HistoryReference.TYPE_TEMPORARY
+                && hrefMap.containsKey(ref.getHistoryId());
+    }
+
     private SiteNode findAndAddChild(
             SiteNode parent, String nodeName, HistoryReference baseRef, HttpMessage baseMsg)
             throws URIException, HttpMalformedHeaderException, NullPointerException,
                     DatabaseException {
         log.debug("findAndAddChild " + parent.getNodeName() + " / " + nodeName);
+        if (isReferenceCached(baseRef)) {
+            return hrefMap.get(baseRef.getHistoryId());
+        }
         SiteNode result = findChild(parent, nodeName);
         if (result == null) {
             SiteNode newNode = null;
@@ -659,29 +674,6 @@ public class SiteMap extends SortedTreeModel {
 
     public void removeHistoryReference(int historyId) {
         hrefMap.remove(historyId);
-    }
-
-    // returns a representation of the host name in the site map
-    private String getHostName(URI uri) throws URIException {
-        StringBuilder host = new StringBuilder();
-
-        String scheme = uri.getScheme();
-        if (scheme == null) {
-            scheme = "http";
-        } else {
-            scheme = scheme.toLowerCase();
-        }
-        host.append(scheme).append("://").append(uri.getHost());
-
-        int port = uri.getPort();
-        if (port != -1
-                && ((port == 80 && !"http".equals(scheme))
-                        || (port == 443 && !"https".equals(scheme)
-                                || (port != 80 && port != 443)))) {
-            host.append(":").append(port);
-        }
-
-        return host.toString();
     }
 
     /**
