@@ -26,9 +26,12 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -60,9 +63,11 @@ class SiteMapUnitTest {
     private SiteMap siteMap;
     private VariantFactory factory;
 
+    private Session session;
+
     @BeforeEach
     void setup() throws Exception {
-        Session session = mock(Session.class);
+        session = mock(Session.class);
         StandardParameterParser spp = new StandardParameterParser();
         given(session.getUrlParamParser(any(String.class))).willReturn(spp);
         sessionId = 1234L;
@@ -230,6 +235,38 @@ class SiteMapUnitTest {
         assertThat(branchNode.getHierarchicNodeName(), is(equalTo(branchUri)));
         assertThat(leafNode.getHierarchicNodeName(), is(equalTo(leafUri)));
         assertThat(leafNode.getParent(), is(equalTo(branchNode)));
+    }
+
+    @Test
+    void shouldReturnCachedHistoryReference() throws Exception {
+        // Given
+        String uri = "http://example.com";
+        HistoryReference href = createHistoryReference(uri);
+        given(href.getHistoryType()).willReturn(HistoryReference.TYPE_ZAP_USER);
+        given(href.getHistoryId()).willReturn(100);
+        // When
+        siteMap.addPath(href);
+        siteMap.addPath(href);
+        siteMap.addPath(href, href.getHttpMessage(), false);
+        // Then
+        verify(session).getUrlParamParser(anyString());
+    }
+
+    @Test
+    void shouldNotUseCacheForDifferentHistoryReference() throws Exception {
+        // Given
+        String uri = "http://example.com";
+        HistoryReference href1 = createHistoryReference(uri);
+        HistoryReference href2 = createHistoryReference(uri);
+        given(href1.getHistoryType()).willReturn(HistoryReference.TYPE_ZAP_USER);
+        given(href2.getHistoryType()).willReturn(HistoryReference.TYPE_ZAP_USER);
+        given(href1.getHistoryId()).willReturn(101);
+        given(href2.getHistoryId()).willReturn(102);
+        // When
+        siteMap.addPath(href1);
+        siteMap.addPath(href2);
+        // Then
+        verify(session, times(2)).getUrlParamParser(anyString());
     }
 
     private void siteMapWithNodes(String... uris) {
