@@ -16,7 +16,7 @@ RUN ./zap.sh -cmd -silent -addonupdate
 RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
 # Setup Webswing
-ENV WEBSWING_VERSION 22.1.2
+ENV WEBSWING_VERSION 22.1.3
 ARG WEBSWING_URL=""
 RUN if [ -z "$WEBSWING_URL" ] ; \
 	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
