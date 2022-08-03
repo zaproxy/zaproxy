@@ -127,7 +127,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
             // folder / file icons with scope 'target' if relevant
             if (node.isRoot()) {
-                component.add(wrap(ROOT_ICON)); // 'World' icon
+                component.add(wrap(DisplayUtils.getScaledIcon(ROOT_ICON))); // 'World' icon
             } else {
                 OverlayIcon icon;
                 if (node.isDataDriven()) {
