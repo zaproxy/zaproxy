@@ -71,6 +71,7 @@
 // ZAP: 2020/11/26 Use Log4j2 getLogger() and deprecate Log4j1.x.
 // ZAP: 2021/07/20 Correct message updated with the scan rule ID header (Issue 6689).
 // ZAP: 2022/06/05 Remove usage of HttpException.
+// ZAP: 2022/08/03 Keep enabled state when setting default alert threshold (Issue 7400).
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -831,8 +832,13 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     @Override
     public void setDefaultAlertThreshold(AlertThreshold level) {
+        AlertThreshold oldDefaultAlertThreshold = defaultAttackThreshold;
         this.defaultAttackThreshold = level;
-        setEnabledFromLevel();
+        if ((defaultAttackThreshold == AlertThreshold.OFF
+                        || oldDefaultAlertThreshold == AlertThreshold.OFF)
+                && getAlertThreshold(true) == AlertThreshold.DEFAULT) {
+            setEnabled(defaultAttackThreshold != AlertThreshold.OFF);
+        }
     }
 
     private void setEnabledFromLevel() {
