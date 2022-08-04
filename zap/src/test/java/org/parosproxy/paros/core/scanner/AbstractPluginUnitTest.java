@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.params.provider.Arguments.arguments;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -35,12 +36,15 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.util.stream.Stream;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.parosproxy.paros.Constant;
@@ -214,6 +218,25 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         assertThat(plugin.isEnabled(), is(equalTo(Boolean.FALSE)));
     }
 
+    private static Stream<Arguments> alertThresholdsAndEnabledState() {
+        return Stream.of(AlertThreshold.values())
+                .flatMap(e -> Stream.of(arguments(e, true), arguments(e, false)));
+    }
+
+    @ParameterizedTest
+    @MethodSource("alertThresholdsAndEnabledState")
+    void shouldNotChangeEnabledStateIfNotUsingDefaultThresholdWhenDefaultSet(
+            AlertThreshold defaultThreshold, boolean enabled) {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig();
+        plugin.setAlertThreshold(AlertThreshold.MEDIUM);
+        plugin.setEnabled(enabled);
+        // When
+        plugin.setDefaultAlertThreshold(defaultThreshold);
+        // Then
+        assertThat(plugin.isEnabled(), is(equalTo(enabled)));
+    }
+
     @Test
     void shouldBeDisabledWhenOffAndDefaultOffThresholdSet() {
         // Given
@@ -235,6 +258,21 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         // When
         plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
         plugin.setAlertThreshold(threshold);
+        // Then
+        assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = AlertThreshold.class,
+            names = {"LOW", "MEDIUM", "HIGH"})
+    void shouldBeReEnabledWhenDefaultThresholdSetFromOff(AlertThreshold threshold) {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig();
+        plugin.setAlertThreshold(AlertThreshold.DEFAULT);
+        plugin.setDefaultAlertThreshold(AlertThreshold.OFF);
+        // When
+        plugin.setDefaultAlertThreshold(threshold);
         // Then
         assertThat(plugin.isEnabled(), is(equalTo(Boolean.TRUE)));
     }
