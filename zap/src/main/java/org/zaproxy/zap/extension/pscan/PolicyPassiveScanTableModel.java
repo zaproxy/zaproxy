@@ -250,7 +250,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         }
 
         public String getName() {
-            return scanner.getName();
+            return scanner.getDisplayName();
         }
 
         public AlertThreshold getThreshold() {
