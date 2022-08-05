@@ -68,6 +68,7 @@ import org.zaproxy.zap.view.table.decorator.NoteTableCellItemIconHighlighter;
  * A table specialised in showing data from {@code HistoryReference}s obtained from {@code
  * HistoryReferencesTableModel}s.
  */
+@SuppressWarnings("serial")
 public class HistoryReferencesTable extends ZapTable {
 
     private static final long serialVersionUID = -6988769961088738602L;

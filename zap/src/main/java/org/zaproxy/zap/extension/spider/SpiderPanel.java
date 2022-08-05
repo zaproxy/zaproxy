@@ -61,6 +61,7 @@ import org.zaproxy.zap.view.table.decorator.AbstractTableCellItemIconHighlighter
  * The Class SpiderPanel implements the Panel that is shown to the users when selecting the Spider
  * Scan Tab.
  */
+@SuppressWarnings("serial")
 public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderScan>>
         implements ScanListenner2 {
 

@@ -24,6 +24,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 import org.zaproxy.zap.utils.ByteBuilder;
 
+@SuppressWarnings("serial")
 public class HttpPanelHexModel extends AbstractTableModel {
 
     private static final String[] hexSymbols = {

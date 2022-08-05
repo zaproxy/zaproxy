@@ -55,6 +55,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/08/05 Address warns with Java 18.
 package org.parosproxy.paros.control;
 
 import java.awt.EventQueue;
@@ -629,6 +630,7 @@ public class MenuFileControl implements SessionListener {
         exportDialog.setVisible(true);
     }
 
+    @SuppressWarnings("serial")
     private static class SessionFileChooser extends WritableFileChooser {
 
         public static final FileFilter SESSION_FILE_FILTER =

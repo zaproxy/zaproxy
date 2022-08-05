@@ -58,6 +58,7 @@ import org.apache.logging.log4j.Logger;
  * @see javax.swing.JTable
  * @see javax.swing.JScrollPane
  */
+@SuppressWarnings("serial")
 public abstract class PagingTableModel<T> extends AbstractTableModel {
     private static final long serialVersionUID = -6353414328926478100L;
 

@@ -34,6 +34,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/02/12 Add shortcut key to Send button (Issue 6448).
 // ZAP: 2022/04/28 Call the new message sender method.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
@@ -75,6 +76,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.view.ZapMenuItem;
 
+@SuppressWarnings("serial")
 public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
         implements OptionsChangedListener {
 

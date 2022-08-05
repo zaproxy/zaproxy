@@ -74,6 +74,7 @@
 // ZAP: 2022/02/08 Use isEmpty where applicable.
 // ZAP: 2022/07/27 Use hrefMap to return early from addPath and findAndAddChild. Remove getHostName
 // and use SessionStructure#getHostName in its place.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -103,6 +104,7 @@ import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.view.SiteTreeFilter;
 
+@SuppressWarnings("serial")
 public class SiteMap extends SortedTreeModel {
 
     private static final long serialVersionUID = 2311091007687218751L;
@@ -804,6 +806,7 @@ public class SiteMap extends SortedTreeModel {
  * href="http://www.java2s.com/Code/Java/Swing-JFC/AtreemodelusingtheSortTreeModelwithaFilehierarchyasinput.htm">Sorted
  * Tree Example</a>
  */
+@SuppressWarnings("serial")
 class SortedTreeModel extends DefaultTreeModel {
 
     private static final long serialVersionUID = 4130060741120936997L;

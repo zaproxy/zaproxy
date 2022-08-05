@@ -42,6 +42,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/05/21 Remove unsafe SSL/TLS renegotiation option.
 // ZAP: 2022/05/29 Deprecate the class.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.extension.option;
 
 // TODO: Buttons should be gray
@@ -75,6 +76,7 @@ import org.zaproxy.zap.utils.ZapTextField;
 
 /** @deprecated (2.12.0) No longer in use. */
 @Deprecated
+@SuppressWarnings("serial")
 public class OptionsCertificatePanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 4350957038174673492L;

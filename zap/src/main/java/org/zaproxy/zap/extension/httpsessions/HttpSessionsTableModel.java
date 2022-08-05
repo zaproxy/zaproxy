@@ -26,6 +26,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 
 /** The Class HttpSessionsTableModel that is used as a TableModel for the Http Sessions Panel. */
+@SuppressWarnings("serial")
 public class HttpSessionsTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -6380136823410869457L;

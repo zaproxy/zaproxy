@@ -47,6 +47,7 @@ import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTablePanel;
  * @see MessageLocationTableEntry
  * @see MessageLocationsTableModel
  */
+@SuppressWarnings("serial")
 public abstract class AbstractMessageLocationsPanel<
                 T extends MessageLocationTableEntry, S extends MessageLocationsTableModel<T>>
         extends AbstractMultipleOptionsBaseTablePanel<T> {

@@ -28,6 +28,7 @@
 // ZAP: 2018/02/22 Focus the tab of ancestor AbstractPanel.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -39,6 +40,7 @@ import javax.swing.SwingUtilities;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.view.TabbedPanel2;
 
+@SuppressWarnings("serial")
 public class AbstractPanel extends JPanel {
 
     private static final long serialVersionUID = 4076608955743534659L;

@@ -28,6 +28,7 @@ import org.parosproxy.paros.Constant;
  * @since 2.2.0
  * @see ScriptTreeModel
  */
+@SuppressWarnings("serial")
 public class ScriptNode extends DefaultMutableTreeNode {
     private static final long serialVersionUID = 1L;
     private String nodeName = null;

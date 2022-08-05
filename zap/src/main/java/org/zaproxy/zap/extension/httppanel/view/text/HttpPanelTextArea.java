@@ -38,6 +38,7 @@ import org.zaproxy.zap.view.HighlighterManager;
 /* ZAP Text Area
  * Which enhanced functionality. Used to display HTTP Message request / response, or parts of it.
  */
+@SuppressWarnings("serial")
 public abstract class HttpPanelTextArea extends ZapTextArea {
 
     private static final long serialVersionUID = 1L;

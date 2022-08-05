@@ -61,6 +61,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 @Deprecated
+@SuppressWarnings("serial")
 public class DynamicSSLPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

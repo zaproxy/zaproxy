@@ -47,6 +47,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  *
  * @author psiinon
  */
+@SuppressWarnings("serial")
 public class NodeSelectDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;

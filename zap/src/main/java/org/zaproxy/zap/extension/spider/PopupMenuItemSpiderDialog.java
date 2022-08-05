@@ -30,6 +30,7 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
  *
  * @see org.zaproxy.zap.extension.spider.ExtensionSpider#showSpiderDialog(SiteNode)
  */
+@SuppressWarnings("serial")
 public class PopupMenuItemSpiderDialog extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 1L;

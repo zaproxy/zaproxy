@@ -30,6 +30,7 @@ import org.parosproxy.paros.extension.Extension;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.ExtensionFactory;
 
+@SuppressWarnings("serial")
 public class OptionsExtensionTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;

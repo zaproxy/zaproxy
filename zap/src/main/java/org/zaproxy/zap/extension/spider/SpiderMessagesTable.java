@@ -39,6 +39,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.extension.spider.SpiderMessagesTableModel.ProcessedCellItem;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
+@SuppressWarnings("serial")
 class SpiderMessagesTable extends HistoryReferencesTable {
 
     private static final long serialVersionUID = -1910120966638329368L;

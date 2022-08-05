@@ -41,6 +41,7 @@ import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.PositiveValuesSlider;
 
+@SuppressWarnings("serial")
 public class OptionsScannerPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

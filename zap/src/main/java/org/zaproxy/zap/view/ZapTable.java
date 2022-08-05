@@ -63,6 +63,7 @@ import org.zaproxy.zap.utils.TableExportAction;
  * @see #setComponentPopupMenu(JPopupMenu)
  * @see #setAutoScrollOnNewValues(boolean)
  */
+@SuppressWarnings("serial")
 public class ZapTable extends JXTable {
 
     private static final long serialVersionUID = 8303870012122236918L;
@@ -315,6 +316,7 @@ public class ZapTable extends JXTable {
         return new ZapColumnControlButton(this);
     }
 
+    @SuppressWarnings("serial")
     protected static class ZapColumnControlButton extends ColumnControlButton {
 
         private static final long serialVersionUID = -2888568545235496369L;

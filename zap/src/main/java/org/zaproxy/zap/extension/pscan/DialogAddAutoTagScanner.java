@@ -34,6 +34,7 @@ import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
+@SuppressWarnings("serial")
 class DialogAddAutoTagScanner extends AbstractFormDialog {
 
     private static final long serialVersionUID = -5209887319253495735L;

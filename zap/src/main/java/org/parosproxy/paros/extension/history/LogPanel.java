@@ -54,6 +54,7 @@
 // getScrollLog()
 // ZAP: 2022/02/26 Remove code deprecated in 2.5.0
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -85,6 +86,7 @@ import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel;
 
+@SuppressWarnings("serial")
 public class LogPanel extends AbstractPanel {
     private static final long serialVersionUID = 1L;
     private javax.swing.JScrollPane scrollLog = null;

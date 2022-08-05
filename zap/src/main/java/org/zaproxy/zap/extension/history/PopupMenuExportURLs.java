@@ -40,6 +40,7 @@ import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 /** @deprecated (2.12.0) see the exim add-on */
 @Deprecated
+@SuppressWarnings("serial")
 public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;

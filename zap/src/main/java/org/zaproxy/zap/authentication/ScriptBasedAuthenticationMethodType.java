@@ -352,6 +352,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         }
     }
 
+    @SuppressWarnings("serial")
     public class ScriptBasedAuthenticationMethodOptionsPanel
             extends AbstractAuthenticationMethodOptionsPanel {
 

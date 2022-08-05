@@ -33,6 +33,7 @@ import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.view.ComponentMaximiser;
 import org.zaproxy.zap.view.ComponentMaximiserMouseListener;
 
+@SuppressWarnings("serial")
 public class TabbedPanel extends JTabbedPane {
 
     private static final long serialVersionUID = 8927990541854169615L;

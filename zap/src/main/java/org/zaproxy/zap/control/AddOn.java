@@ -2375,6 +2375,7 @@ public class AddOn {
      * @since 2.8.0
      * @see #getValidationResult()
      */
+    @SuppressWarnings("serial")
     public static class InvalidAddOnException extends IOException {
 
         private static final long serialVersionUID = 1L;

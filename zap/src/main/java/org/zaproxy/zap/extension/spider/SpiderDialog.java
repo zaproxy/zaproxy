@@ -44,6 +44,7 @@ import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
+@SuppressWarnings("serial")
 public class SpiderDialog extends StandardFieldsDialog {
 
     private static final String FIELD_START = "spider.custom.label.start";

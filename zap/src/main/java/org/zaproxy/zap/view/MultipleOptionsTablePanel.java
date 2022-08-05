@@ -34,6 +34,7 @@ import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.VerticalLayout;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 
+@SuppressWarnings("serial")
 public class MultipleOptionsTablePanel extends JPanel {
 
     private static final long serialVersionUID = 5282581470011033565L;

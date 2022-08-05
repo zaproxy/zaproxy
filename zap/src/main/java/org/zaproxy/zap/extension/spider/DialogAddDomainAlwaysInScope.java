@@ -33,6 +33,7 @@ import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
+@SuppressWarnings("serial")
 class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
 
     private static final long serialVersionUID = -7356390753317082681L;

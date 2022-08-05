@@ -965,6 +965,7 @@ class AddOnDependencyChecker {
         }
     }
 
+    @SuppressWarnings("serial")
     private static class AddOnTableModel extends AbstractTableModel {
 
         private static final long serialVersionUID = 5446781970087315105L;
@@ -1113,6 +1114,7 @@ class AddOnDependencyChecker {
         }
     }
 
+    @SuppressWarnings("serial")
     private static class ExtensionsTableModel extends AbstractTableModel {
 
         private static final long serialVersionUID = 5446781970087315105L;

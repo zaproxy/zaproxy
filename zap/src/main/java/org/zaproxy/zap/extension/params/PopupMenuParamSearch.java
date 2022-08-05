@@ -23,6 +23,7 @@ import java.awt.Component;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
+@SuppressWarnings("serial")
 public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;

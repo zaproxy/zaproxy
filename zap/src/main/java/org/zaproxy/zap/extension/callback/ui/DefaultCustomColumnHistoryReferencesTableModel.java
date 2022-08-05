@@ -27,6 +27,7 @@ import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableModel;
 
 /** @deprecated (2.11.0) Superseded by the OAST add-on. */
 @Deprecated
+@SuppressWarnings("serial")
 public class DefaultCustomColumnHistoryReferencesTableModel<
                 T extends DefaultHistoryReferencesTableEntry>
         extends DefaultHistoryReferencesTableModel {

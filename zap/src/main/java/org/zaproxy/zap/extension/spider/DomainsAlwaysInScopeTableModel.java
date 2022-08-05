@@ -25,6 +25,7 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
+@SuppressWarnings("serial")
 class DomainsAlwaysInScopeTableModel
         extends AbstractMultipleOptionsTableModel<DomainAlwaysInScopeMatcher> {
 

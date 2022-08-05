@@ -39,6 +39,7 @@ import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.control.AddOnRunIssuesUtils;
 
 /** An {@code AbstractTableModel} for add-ons. */
+@SuppressWarnings("serial")
 public abstract class AddOnsTableModel extends AbstractTableModel {
 
     /** The column in the table model that allows to get the {@code AddOnWrapper} of a given row. */

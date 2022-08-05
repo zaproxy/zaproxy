@@ -40,6 +40,7 @@ import org.zaproxy.zap.view.popup.ExtensionPopupMenuMessageContainer;
  * Depending on the initialization, it can be shown by itself containing the Popup Menus for each
  * User or it can just place the Popup Menus in its parent.
  */
+@SuppressWarnings("serial")
 public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageContainer {
 
     /** The Constant serialVersionUID. */

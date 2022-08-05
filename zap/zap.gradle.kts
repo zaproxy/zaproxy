@@ -49,6 +49,10 @@ crowdin {
     }
 }
 
+jacoco {
+    toolVersion = "0.8.8"
+}
+
 tasks.named<JacocoReport>("jacocoTestReport") {
     reports {
         xml.required.set(true)

@@ -26,6 +26,7 @@ import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 /** The PopupMenu corresponding to a User valid in a Context. */
+@SuppressWarnings("serial")
 public abstract class PopupUserMenu extends PopupMenuItemSiteNodeContainer {
 
     /** The Constant serialVersionUID. */

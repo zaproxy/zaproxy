@@ -37,6 +37,7 @@ import org.zaproxy.zap.utils.FontUtils;
  * @deprecated (2.12.0) No longer in use.
  */
 @Deprecated
+@SuppressWarnings("serial")
 public class SecurityProtocolsPanel extends JPanel {
 
     private static final long serialVersionUID = 5096843444189699353L;

@@ -60,6 +60,7 @@ import org.zaproxy.zap.view.ZapToggleButton;
  * @see BaseScannerThreadManager
  * @see ScanStartOptions
  */
+@SuppressWarnings("serial")
 public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSelectToolbarStatusPanel
         implements ScanListener {
 

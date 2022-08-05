@@ -39,6 +39,7 @@ import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.MultipleOptionsTablePanel;
 import org.zaproxy.zap.view.panels.TableFilterPanel;
 
+@SuppressWarnings("serial")
 public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

@@ -47,6 +47,7 @@ import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.StatusUI;
 
+@SuppressWarnings("serial")
 public class CategoryTableModel extends DefaultTableModel {
 
     private static final long serialVersionUID = 1L;

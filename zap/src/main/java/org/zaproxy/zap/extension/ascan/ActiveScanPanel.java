@@ -50,6 +50,7 @@ import org.zaproxy.zap.view.ScanPanel2;
 import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
+@SuppressWarnings("serial")
 public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<ActiveScan>>
         implements ScanListenner2, ScannerListener {
 

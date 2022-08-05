@@ -76,6 +76,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  *
  * @author yhawke (2014)
  */
+@SuppressWarnings("serial")
 public class ScanProgressDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;

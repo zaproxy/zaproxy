@@ -88,6 +88,7 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
         return (HttpRequestHeaderPanelSyntaxHighlightTextArea) super.getHttpPanelTextArea();
     }
 
+    @SuppressWarnings("serial")
     private static class HttpRequestHeaderPanelSyntaxHighlightTextArea
             extends HttpPanelSyntaxHighlightTextArea {
 

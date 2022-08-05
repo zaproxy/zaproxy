@@ -25,6 +25,7 @@ import javax.swing.table.AbstractTableModel;
 import org.parosproxy.paros.Constant;
 
 /** The Class HttpSessionsTableModel that is used as a TableModel for the Http Sessions Panel. */
+@SuppressWarnings("serial")
 public class SpiderPanelTableModel extends AbstractTableModel {
 
     /** The Constant serialVersionUID. */

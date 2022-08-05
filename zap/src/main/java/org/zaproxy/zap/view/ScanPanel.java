@@ -62,6 +62,7 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
+@SuppressWarnings("serial")
 public abstract class ScanPanel extends AbstractPanel {
     private static final long serialVersionUID = 1L;
 

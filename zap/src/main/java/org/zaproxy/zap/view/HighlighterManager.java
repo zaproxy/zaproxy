@@ -130,6 +130,7 @@ public class HighlighterManager {
         void highlighterChanged(HighlighterManagerEvent e);
     }
 
+    @SuppressWarnings("serial")
     public static final class HighlighterManagerEvent extends EventObject {
 
         private static final long serialVersionUID = 1L;

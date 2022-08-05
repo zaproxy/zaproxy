@@ -40,6 +40,7 @@
 // ZAP: 2022/02/12 Show child panel if parent has none.
 // ZAP: 2022/05/11 Use a unique ID to identify the panels instead of their name (Issue 5637).
 // ZAP: 2022/06/08 Fix resizing issues.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -90,6 +91,7 @@ import org.zaproxy.zap.view.panelsearch.items.AbstractComponentSearch;
 import org.zaproxy.zap.view.panelsearch.items.TreeNodeElement;
 import org.zaproxy.zap.view.panelsearch.items.TreeUtils;
 
+@SuppressWarnings("serial")
 public class AbstractParamContainerPanel extends JSplitPane {
 
     /**

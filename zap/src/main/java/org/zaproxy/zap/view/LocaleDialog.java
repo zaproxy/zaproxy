@@ -33,6 +33,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.extension.option.OptionsLocalePanel;
 
+@SuppressWarnings("serial")
 public class LocaleDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;

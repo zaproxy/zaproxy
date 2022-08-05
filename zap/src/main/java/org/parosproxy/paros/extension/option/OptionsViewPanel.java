@@ -40,6 +40,7 @@
 // ZAP: 2021/05/14 Remove redundant type arguments and empty statement.
 // ZAP: 2021/09/16 Add support for enabling app integration in containers
 // ZAP: 2022/02/25 Remove options no longer in use.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -82,6 +83,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 // ZAP: 2011: added more configuration options
 
+@SuppressWarnings("serial")
 public class OptionsViewPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

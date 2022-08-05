@@ -92,6 +92,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.panels.TableFilterPanel;
 
+@SuppressWarnings("serial")
 public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateCallback {
 
     protected enum State {

@@ -26,6 +26,7 @@ import org.parosproxy.paros.core.scanner.ScannerParamFilter;
 import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTableModel;
 
 /** @author yhawke (2014) */
+@SuppressWarnings("serial")
 public class ExcludedParameterTableModel
         extends AbstractMultipleOptionsBaseTableModel<ScannerParamFilter> {
 
