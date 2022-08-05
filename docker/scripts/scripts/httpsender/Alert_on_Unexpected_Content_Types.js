@@ -24,7 +24,8 @@ var expectedTypes = [
 		"application/x-yaml",
 		"text/x-json",
 		"text/json",
-		"text/yaml"
+		"text/yaml",
+		"text/plain"
 	]
 
 function sendingRequest(msg, initiator, helper) {
