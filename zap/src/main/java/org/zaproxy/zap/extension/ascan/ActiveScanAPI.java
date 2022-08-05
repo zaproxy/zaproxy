@@ -775,15 +775,28 @@ public class ActiveScanAPI extends ApiImplementor {
 
     private void setScannersEnabled(ScanPolicy policy, String[] ids, boolean enabled)
             throws ApiException {
+        List<String> unknownIds = null;
         try {
             for (String idString : ids) {
-                int id = Integer.parseInt(idString.trim());
-                Plugin scanner = getScannerFromId(policy, id, idString.trim());
-                scanner.setEnabled(enabled);
+                String idTrimmed = idString.trim();
+                int id = Integer.parseInt(idTrimmed);
+                Plugin scanner = policy.getPluginFactory().getPlugin(id);
+                if (scanner != null) {
+                    scanner.setEnabled(enabled);
+                } else {
+                    if (unknownIds == null) {
+                        unknownIds = new ArrayList<>();
+                    }
+                    unknownIds.add(idTrimmed);
+                }
             }
         } catch (NumberFormatException e) {
             log.warn("Failed to parse scanner ID: ", e);
             throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
+        }
+
+        if (unknownIds != null) {
+            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, "IDs: " + unknownIds);
         }
     }
 
