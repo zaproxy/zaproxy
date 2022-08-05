@@ -55,6 +55,7 @@ import org.zaproxy.zap.view.table.decorator.AbstractTableCellItemIconHighlighter
  * The HttpSessionsPanel used as a display panel for the {@link ExtensionHttpSessions}, allowing the
  * user to view and control the http sessions.
  */
+@SuppressWarnings("serial")
 public class HttpSessionsPanel extends AbstractPanel {
 
     /** The Constant serialVersionUID. */

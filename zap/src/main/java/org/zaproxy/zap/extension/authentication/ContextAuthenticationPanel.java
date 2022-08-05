@@ -70,6 +70,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.NodeSelectDialog;
 
 /** The Context Panel shown for configuring a Context's authentication methods. */
+@SuppressWarnings("serial")
 public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
     private static final Logger log = LogManager.getLogger(ContextAuthenticationPanel.class);

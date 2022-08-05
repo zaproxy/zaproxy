@@ -32,6 +32,7 @@ import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.widgets.ContextPanelUsersSelectComboBox;
 
+@SuppressWarnings("serial")
 public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 
     private static final long serialVersionUID = -6668491574669367809L;

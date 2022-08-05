@@ -58,6 +58,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -80,6 +81,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.model.SessionStructure;
 
+@SuppressWarnings("serial")
 public class SiteNode extends DefaultMutableTreeNode {
 
     private static final long serialVersionUID = 7987615016786179150L;

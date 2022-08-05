@@ -34,6 +34,7 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTablePanel;
 
+@SuppressWarnings("serial")
 public class OptionsScriptPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

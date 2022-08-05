@@ -76,6 +76,7 @@ import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ZapTable;
 
+@SuppressWarnings("serial")
 public class AlertViewPanel extends AbstractPanel {
 
     private static final long serialVersionUID = 1L;

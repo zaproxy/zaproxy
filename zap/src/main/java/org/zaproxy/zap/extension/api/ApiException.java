@@ -108,7 +108,7 @@ public class ApiException extends Exception {
     private final Type type;
     private final String detail;
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    private static final Logger logger = LogManager.getLogger(ApiException.class);
 
     public ApiException(Type type) {
         this(type, null, null);

@@ -29,6 +29,7 @@ import java.util.TreeMap;
  *
  * @param <T> the type of table model entries
  */
+@SuppressWarnings("serial")
 public abstract class AbstractCustomColumnHistoryReferencesTableModel<
                 T extends HistoryReferencesTableEntry>
         extends AbstractHistoryReferencesTableModel<T> {

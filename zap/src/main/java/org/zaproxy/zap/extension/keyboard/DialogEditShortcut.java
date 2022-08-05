@@ -32,6 +32,7 @@ import javax.swing.KeyStroke;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
+@SuppressWarnings("serial")
 public class DialogEditShortcut extends StandardFieldsDialog {
 
     private static final String FIELD_ACTION = "keyboard.dialog.label.action";

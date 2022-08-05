@@ -27,6 +27,7 @@ import java.util.Map;
 import javax.swing.table.AbstractTableModel;
 import org.parosproxy.paros.Constant;
 
+@SuppressWarnings("serial")
 public class BreakpointsTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -8160051343126299124L;

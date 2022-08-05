@@ -26,6 +26,7 @@ import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 import org.parosproxy.paros.Constant;
 
+@SuppressWarnings("serial")
 public class ParamsTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;

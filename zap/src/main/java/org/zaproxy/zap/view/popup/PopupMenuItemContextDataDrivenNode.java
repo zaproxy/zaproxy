@@ -31,6 +31,7 @@ import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.view.ContextStructurePanel;
 
 /** @since 2.4.3 */
+@SuppressWarnings("serial")
 public class PopupMenuItemContextDataDrivenNode extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 990419495607725846L;

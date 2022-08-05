@@ -38,6 +38,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
 
+@SuppressWarnings("serial")
 public class BreakpointsPanel extends AbstractPanel {
 
     private static final long serialVersionUID = 1L;

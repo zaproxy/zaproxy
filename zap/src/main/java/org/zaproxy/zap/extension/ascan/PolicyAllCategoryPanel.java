@@ -66,6 +66,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 
+@SuppressWarnings("serial")
 public class PolicyAllCategoryPanel extends AbstractParamPanel {
 
     // private static final String ILLEGAL_CHRS = "/`?*\\<>|\":\t\n\r";

@@ -35,6 +35,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.MultipleOptionsTablePanel;
 
+@SuppressWarnings("serial")
 public class OptionsRuleConfigPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

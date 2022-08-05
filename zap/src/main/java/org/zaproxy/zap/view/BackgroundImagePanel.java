@@ -32,6 +32,7 @@ import javax.swing.JPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
 
 /** @author yhawke (2014) */
+@SuppressWarnings("serial")
 public class BackgroundImagePanel extends JPanel {
 
     private static final long serialVersionUID = 1L;

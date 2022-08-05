@@ -27,6 +27,7 @@ import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
 /** @deprecated (2.12.0) No longer in use. */
 @Deprecated
+@SuppressWarnings("serial")
 public class ProxyExcludedDomainsTableModel
         extends AbstractMultipleOptionsTableModel<DomainMatcher> {
 

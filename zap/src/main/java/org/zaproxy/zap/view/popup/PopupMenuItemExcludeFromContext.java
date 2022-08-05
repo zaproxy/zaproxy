@@ -32,6 +32,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.ContextExcludePanel;
 
 /** @since 2.3.0 */
+@SuppressWarnings("serial")
 public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 2766535157899537709L;

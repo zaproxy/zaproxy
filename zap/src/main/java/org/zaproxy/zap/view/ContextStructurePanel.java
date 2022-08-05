@@ -43,6 +43,7 @@ import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.utils.ZapTextField;
 
+@SuppressWarnings("serial")
 public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 
     private static final String PANEL_NAME = Constant.messages.getString("context.struct.title");

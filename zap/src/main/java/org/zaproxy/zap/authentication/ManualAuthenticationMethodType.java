@@ -63,6 +63,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * The implementation for an {@link AuthenticationMethodType} where the user manually authenticates
  * and then just selects an already authenticated {@link WebSession}.
  */
+@SuppressWarnings("serial")
 public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
     private static final int METHOD_IDENTIFIER = 0;

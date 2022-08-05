@@ -38,6 +38,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
 @Deprecated
+@SuppressWarnings("serial")
 public class OptionsProxiesPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

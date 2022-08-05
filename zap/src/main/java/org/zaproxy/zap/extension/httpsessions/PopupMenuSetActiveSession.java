@@ -27,6 +27,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
  * The PopupMenuSetActiveSession is used to set the active http session for the {@link
  * ExtensionHttpSessions}.
  */
+@SuppressWarnings("serial")
 public class PopupMenuSetActiveSession extends ExtensionPopupMenuItem {
 
     /** The Constant serialVersionUID. */

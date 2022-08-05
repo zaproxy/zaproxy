@@ -30,6 +30,7 @@ import javax.swing.ImageIcon;
  *
  * @author psiinon
  */
+@SuppressWarnings("serial")
 public class OverlayIcon extends ImageIcon {
     private static final long serialVersionUID = 1L;
     private ImageIcon base;

@@ -29,6 +29,7 @@ import javax.swing.JPanel;
  *
  * @param <T> the authenticator type
  */
+@SuppressWarnings("serial")
 public abstract class AbstractCredentialsOptionsPanel<T extends AuthenticationCredentials>
         extends JPanel {
 

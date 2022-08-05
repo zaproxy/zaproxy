@@ -51,6 +51,7 @@ import org.zaproxy.zap.view.widgets.WritableFileChooser;
  *
  * @since 2.5.0
  */
+@SuppressWarnings("serial")
 public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTablePanel<String> {
 
     private static final long serialVersionUID = 1041782873016590998L;

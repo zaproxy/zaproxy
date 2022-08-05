@@ -40,6 +40,7 @@ import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
 
+@SuppressWarnings("serial")
 public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFactory {
 
     private static final Logger log =
@@ -96,6 +97,7 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
         return extensionUsers;
     }
 
+    @SuppressWarnings("serial")
     protected class PopupMenuAddUserFromSession extends ExtensionPopupMenuItem {
 
         /** The Constant serialVersionUID. */

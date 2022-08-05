@@ -39,6 +39,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 /** @deprecated (2.11.0) Superseded by the OAST add-on. */
 @Deprecated
+@SuppressWarnings("serial")
 public class OptionsCallbackPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

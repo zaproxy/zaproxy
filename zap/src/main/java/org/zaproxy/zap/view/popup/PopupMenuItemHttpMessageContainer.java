@@ -47,6 +47,7 @@ import org.zaproxy.zap.view.messagecontainer.http.SingleHttpMessageContainer;
  * @see HttpMessageContainer
  * @see #isEnableForMessageContainer(MessageContainer)
  */
+@SuppressWarnings("serial")
 public abstract class PopupMenuItemHttpMessageContainer
         extends ExtensionPopupMenuItemMessageContainer {
 

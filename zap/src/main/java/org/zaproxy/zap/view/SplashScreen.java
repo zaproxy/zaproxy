@@ -61,6 +61,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 
+@SuppressWarnings("serial")
 public class SplashScreen extends JFrame {
 
     private static final String TIPS_PREFIX = "tips";

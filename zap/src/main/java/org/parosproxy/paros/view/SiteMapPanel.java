@@ -54,6 +54,7 @@
 // ZAP: 2019/09/09 Issue 3491: Add support for selecting multiple contexts
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/07/04 Make delete more consistent and protective (Issue 7336).
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -118,6 +119,7 @@ import org.zaproxy.zap.view.ZapToggleButton;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 
+@SuppressWarnings("serial")
 public class SiteMapPanel extends AbstractPanel {
 
     public static final String CONTEXT_TREE_COMPONENT_NAME = "ContextTree";

@@ -197,6 +197,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
     }
 
     /** The Options Panel used for configuring a {@link HttpAuthenticationMethod}. */
+    @SuppressWarnings("serial")
     private static class HttpAuthenticationMethodOptionsPanel
             extends AbstractAuthenticationMethodOptionsPanel {
 

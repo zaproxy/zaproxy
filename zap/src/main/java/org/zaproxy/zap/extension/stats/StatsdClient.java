@@ -107,7 +107,7 @@ public class StatsdClient extends TimerTask {
 	}
 
     @Override
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "removal"})
     // XXX Deprecated in Java 9, use Cleaner instead?
     protected void finalize() {
             flush();

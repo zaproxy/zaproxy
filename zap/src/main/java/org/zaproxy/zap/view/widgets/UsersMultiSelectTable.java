@@ -36,6 +36,7 @@ import org.zaproxy.zap.users.User;
  * <p><strong>NOTE:</strong> Does not automatically refresh when the Users have changed. For this,
  * make sure you manually call {@link #reloadUsers(int)}.
  */
+@SuppressWarnings("serial")
 public class UsersMultiSelectTable extends JTable {
 
     private static final long serialVersionUID = 7473652413044348214L;

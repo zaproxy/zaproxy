@@ -696,6 +696,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
     }
 
     /** The Options Panel used for configuring a {@link PostBasedAuthenticationMethod}. */
+    @SuppressWarnings("serial")
     protected abstract class PostBasedAuthenticationMethodOptionsPanel
             extends AbstractAuthenticationMethodOptionsPanel {
 
