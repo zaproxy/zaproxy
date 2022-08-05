@@ -397,4 +397,12 @@ public interface Plugin extends Runnable, ExampleAlertProvider {
     default List<Alert> getExampleAlerts() {
         return null;
     }
+
+    /**
+     * Gets the name of the scan rule, falling back to the simple name of the class as last resort.
+     *
+     * @return a name representing the scan rule.
+     * @since 2.12.0
+     */
+    String getDisplayName();
 }

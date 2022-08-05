@@ -226,6 +226,7 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.parosproxy.paros.core.scanner.Alert#setRiskReliability(int,int)",
         "org.parosproxy.paros.core.scanner.HostProcess#setPluginRequestCount(int,int)",
         "org.parosproxy.paros.core.scanner.HostProcess#setTestCurrentCount(org.parosproxy.paros.core.scanner.Plugin,int)",
+        "org.parosproxy.paros.core.scanner.Plugin#getDisplayName()",
         "org.parosproxy.paros.core.scanner.PluginFactory#loadedPlugin(java.lang.String)",
         "org.parosproxy.paros.core.scanner.PluginFactory#unloadedPlugin(java.lang.String)",
         "org.parosproxy.paros.core.scanner.VariantAbstractQuery#setParams(int,java.util.Map)",

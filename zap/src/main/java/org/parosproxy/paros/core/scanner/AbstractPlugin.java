@@ -85,6 +85,7 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.control.Control;
@@ -1297,6 +1298,19 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     public void setStatus(AddOn.Status status) {
         this.status = status;
+    }
+
+    /**
+     * Gets the name of the scan rule, falling back to the simple name of the class as last resort.
+     *
+     * @return a name representing the scan rule.
+     * @since 2.12.0
+     */
+    @Override
+    public final String getDisplayName() {
+        return StringUtils.isBlank(this.getName())
+                ? this.getClass().getSimpleName()
+                : this.getName();
     }
 
     /**

@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Alert.Source;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
@@ -436,6 +437,18 @@ public abstract class PluginPassiveScanner extends Enableable
      */
     public Map<String, String> getAlertTags() {
         return null;
+    }
+
+    /**
+     * Gets the name of the scan rule, falling back to the simple name of the class as last resort.
+     *
+     * @return a name representing the scan rule.
+     * @since 2.12.0
+     */
+    public final String getDisplayName() {
+        return StringUtils.isBlank(this.getName())
+                ? this.getClass().getSimpleName()
+                : this.getName();
     }
 
     /**
