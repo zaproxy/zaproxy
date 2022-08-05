@@ -29,6 +29,7 @@ import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.addins.ParamAddinInterface;
 
+@SuppressWarnings("serial")
 public abstract class HttpPanelParamTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 8714941615215038148L;

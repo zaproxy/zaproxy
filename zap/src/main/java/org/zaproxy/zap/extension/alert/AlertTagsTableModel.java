@@ -28,6 +28,7 @@ import javax.swing.table.AbstractTableModel;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.parosproxy.paros.Constant;
 
+@SuppressWarnings("serial")
 class AlertTagsTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;

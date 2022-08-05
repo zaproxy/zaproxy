@@ -28,6 +28,7 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
+@SuppressWarnings("serial")
 public class DialogEditRuleConfig extends StandardFieldsDialog {
 
     private static final String FIELD_KEY = "ruleconfig.dialog.label.key";

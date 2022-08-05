@@ -59,6 +59,7 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelComponent;
 
+@SuppressWarnings("serial")
 public abstract class HttpPanel extends AbstractPanel {
 
     public enum OptionsLocation {

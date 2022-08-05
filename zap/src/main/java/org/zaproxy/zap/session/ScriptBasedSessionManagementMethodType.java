@@ -263,6 +263,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
         return method instanceof ScriptBasedSessionManagementMethod;
     }
 
+    @SuppressWarnings("serial")
     public static class ScriptBasedSessionManagementMethodOptionsPanel
             extends AbstractSessionManagementMethodOptionsPanel {
 

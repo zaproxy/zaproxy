@@ -34,6 +34,7 @@ import org.parosproxy.paros.view.AbstractParamDialog;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
 
+@SuppressWarnings("serial")
 public class PolicyDialog extends AbstractParamDialog {
 
     private static final long serialVersionUID = 1L;

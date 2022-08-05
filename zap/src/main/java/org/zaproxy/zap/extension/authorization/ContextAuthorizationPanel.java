@@ -40,6 +40,7 @@ import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
+@SuppressWarnings("serial")
 public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
 
     private static final long serialVersionUID = 2416553589170267959L;

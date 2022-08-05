@@ -27,6 +27,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
+@SuppressWarnings("serial")
 public class PopupMenuAlert extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = 1L;

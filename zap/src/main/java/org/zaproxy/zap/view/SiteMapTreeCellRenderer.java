@@ -42,6 +42,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  * you have to enable them via: <code>ToolTipManager.sharedInstance().registerComponent(tree);
  * </code>
  */
+@SuppressWarnings("serial")
 public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
     private static final ImageIcon ROOT_ICON =

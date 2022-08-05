@@ -27,6 +27,7 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.ZAP;
 
 /** Clickable helper class for actions */
+@SuppressWarnings("serial")
 public class ScanProgressActionIcon extends JLabel {
 
     private static final long serialVersionUID = 1L;

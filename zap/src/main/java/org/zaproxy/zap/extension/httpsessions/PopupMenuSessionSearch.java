@@ -26,6 +26,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
 
+@SuppressWarnings("serial")
 public class PopupMenuSessionSearch extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;

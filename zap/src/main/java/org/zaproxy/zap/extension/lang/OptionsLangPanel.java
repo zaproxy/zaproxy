@@ -46,6 +46,7 @@ import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.ViewLocale;
 
+@SuppressWarnings("serial")
 public class OptionsLangPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

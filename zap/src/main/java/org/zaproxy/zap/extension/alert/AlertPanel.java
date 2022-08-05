@@ -72,6 +72,7 @@ import org.zaproxy.zap.view.ZapToggleButton;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 
+@SuppressWarnings("serial")
 public class AlertPanel extends AbstractPanel {
 
     public static final String ALERT_TREE_PANEL_NAME = "treeAlert";

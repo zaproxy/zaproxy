@@ -52,6 +52,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 
+@SuppressWarnings("serial")
 public class HistoryFilterPlusDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;

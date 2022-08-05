@@ -51,6 +51,7 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewMo
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ZapToggleButton;
 
+@SuppressWarnings("serial")
 public class BreakPanel extends AbstractPanel implements BreakpointManagementInterface {
 
     private static final long serialVersionUID = 1L;

@@ -80,6 +80,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 import org.zaproxy.zap.view.TechnologyTreePanel;
 
+@SuppressWarnings("serial")
 public class CustomScanDialog extends StandardFieldsDialog {
 
     protected static final String[] STD_TAB_LABELS = {

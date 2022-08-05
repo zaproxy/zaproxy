@@ -43,6 +43,7 @@ import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /** The Context Panel shown for configuring a Context's session management method. */
+@SuppressWarnings("serial")
 public class ContextSessionManagementPanel extends AbstractContextPropertiesPanel {
 
     /** The Constant PANEL NAME. */

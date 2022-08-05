@@ -38,6 +38,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.utils.SortedListModel;
 
+@SuppressWarnings("serial")
 public class ManageTagsDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;

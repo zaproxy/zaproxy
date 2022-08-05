@@ -34,6 +34,7 @@ import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
+@SuppressWarnings("serial")
 public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
     private UsersMultipleOptionsPanel usersOptionsPanel;
@@ -78,6 +79,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
         return "ui.dialogs.contexts";
     }
 
+    @SuppressWarnings("serial")
     public static class UsersMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<User> {
 
         private static final long serialVersionUID = -7216673905642941770L;

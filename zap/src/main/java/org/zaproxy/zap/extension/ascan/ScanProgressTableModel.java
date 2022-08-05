@@ -27,6 +27,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 
+@SuppressWarnings("serial")
 public class ScanProgressTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;

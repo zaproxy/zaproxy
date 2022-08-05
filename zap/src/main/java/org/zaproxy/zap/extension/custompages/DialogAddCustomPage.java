@@ -44,6 +44,7 @@ import org.zaproxy.zap.view.AbstractFormDialog;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /** The Dialog for adding and configuring a new {@link DefaultCustomPage}. */
+@SuppressWarnings("serial")
 class DialogAddCustomPage extends AbstractFormDialog {
 
     /** The Constant serialVersionUID. */

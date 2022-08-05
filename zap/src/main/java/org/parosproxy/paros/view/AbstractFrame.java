@@ -28,6 +28,7 @@
 // ZAP: 2020/11/05 Remove abstract modifier.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/03 Removed deprecated loadIconImages()
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.view;
 
 import java.awt.Dimension;
@@ -62,6 +63,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  * #setPreferredSize(Dimension)} instead. Also, don't use {@link #setLocation(Point)}. This abstract
  * class will automatically take care of size and position.
  */
+@SuppressWarnings("serial")
 public class AbstractFrame extends JFrame {
 
     private static final long serialVersionUID = 6751593232255236597L;
@@ -77,7 +79,7 @@ public class AbstractFrame extends JFrame {
     private final Preferences preferences;
 
     private final String prefnzPrefix = this.getClass().getSimpleName() + ".";
-    private final Logger logger = LogManager.getLogger(AbstractFrame.class);
+    private static final Logger logger = LogManager.getLogger(AbstractFrame.class);
 
     /** This is the default constructor */
     public AbstractFrame() {

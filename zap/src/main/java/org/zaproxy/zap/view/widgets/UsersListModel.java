@@ -27,6 +27,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.zaproxy.zap.extension.users.UsersTableModel;
 import org.zaproxy.zap.users.User;
 
+@SuppressWarnings("serial")
 class UsersListModel extends AbstractListModel<User> implements ComboBoxModel<User> {
 
     private static final long serialVersionUID = 5648260449088479312L;

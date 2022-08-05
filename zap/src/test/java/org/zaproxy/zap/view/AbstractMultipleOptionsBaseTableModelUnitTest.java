@@ -136,6 +136,7 @@ class AbstractMultipleOptionsBaseTableModelUnitTest extends TableModelTestUtils 
         assertThat(listener.isDataChanged(), is(equalTo(true)));
     }
 
+    @SuppressWarnings("serial")
     private static class MultipleOptionsBaseTableModelImpl
             extends AbstractMultipleOptionsBaseTableModel<Object> {
 

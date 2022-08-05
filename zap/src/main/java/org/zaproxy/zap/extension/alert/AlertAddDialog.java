@@ -36,6 +36,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 
+@SuppressWarnings("serial")
 public class AlertAddDialog extends AbstractDialog {
 
     private static final Logger logger = LogManager.getLogger(AlertAddDialog.class);

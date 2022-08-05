@@ -25,6 +25,7 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
+@SuppressWarnings("serial")
 public class PermittedAddressesTableModel extends AbstractMultipleOptionsTableModel<DomainMatcher> {
 
     private static final long serialVersionUID = -5411351965957264957L;

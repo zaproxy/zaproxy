@@ -56,6 +56,7 @@ import org.zaproxy.zap.utils.FontUtils.FontType;
 import org.zaproxy.zap.view.HighlightSearchEntry;
 import org.zaproxy.zap.view.HighlighterManager;
 
+@SuppressWarnings("serial")
 public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
 
     private static final long serialVersionUID = -9082089105656842054L;

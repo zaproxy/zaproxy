@@ -80,6 +80,7 @@ import org.zaproxy.zap.view.widgets.ContextSelectComboBox;
  *
  * @author psiinon
  */
+@SuppressWarnings("serial")
 public abstract class StandardFieldsDialog extends AbstractDialog {
 
     private static final Logger logger = LogManager.getLogger(StandardFieldsDialog.class);

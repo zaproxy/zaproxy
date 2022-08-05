@@ -26,6 +26,7 @@ import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 import org.parosproxy.paros.core.scanner.Alert;
 
+@SuppressWarnings("serial")
 public class AlertNode extends DefaultMutableTreeNode {
     private static final long serialVersionUID = 1L;
 

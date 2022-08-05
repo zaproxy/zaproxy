@@ -50,6 +50,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  *
  * @since 2.2.0
  */
+@SuppressWarnings("serial")
 public class TabbedPanel2 extends TabbedPanel {
 
     private static final long serialVersionUID = 1L;

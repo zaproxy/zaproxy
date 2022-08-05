@@ -40,6 +40,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * @see MessageLocationProducer
  * @see MessageLocationHighlighter
  */
+@SuppressWarnings("serial")
 public class SelectMessageLocationsPanel extends HttpPanel
         implements MessageLocationProducer, MessageLocationHighlighter {
 

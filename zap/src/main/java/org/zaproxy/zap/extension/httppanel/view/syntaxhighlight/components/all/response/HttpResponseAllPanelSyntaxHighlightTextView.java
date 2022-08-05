@@ -37,6 +37,7 @@ import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxH
 import org.zaproxy.zap.extension.httppanel.view.util.HttpTextViewUtils;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
+@SuppressWarnings("serial")
 public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
 
     private static final String CSS =

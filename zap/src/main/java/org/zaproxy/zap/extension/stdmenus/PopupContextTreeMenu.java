@@ -31,6 +31,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.zaproxy.zap.model.Target;
 
+@SuppressWarnings("serial")
 public class PopupContextTreeMenu extends ExtensionPopupMenuItem {
     private static final long serialVersionUID = 1L;
 

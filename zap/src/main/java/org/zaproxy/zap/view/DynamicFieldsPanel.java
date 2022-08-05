@@ -30,6 +30,7 @@ import javax.swing.JPanel;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapTextField;
 
+@SuppressWarnings("serial")
 public class DynamicFieldsPanel extends JPanel {
 
     private static final String[] NO_FIELDS = new String[0];

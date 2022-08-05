@@ -25,6 +25,7 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
+@SuppressWarnings("serial")
 public class OptionsPassiveScanTableModel
         extends AbstractMultipleOptionsTableModel<RegexAutoTagScanner> {
 

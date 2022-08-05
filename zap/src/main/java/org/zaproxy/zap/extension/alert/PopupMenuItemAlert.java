@@ -39,6 +39,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
  * @since 2.6.0
  * @see #performAction(Alert)
  */
+@SuppressWarnings("serial")
 public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;

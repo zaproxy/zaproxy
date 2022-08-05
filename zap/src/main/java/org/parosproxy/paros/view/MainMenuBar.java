@@ -43,6 +43,7 @@
 // ZAP: 2021/05/14 Remove redundant type arguments.
 // ZAP: 2021/12/30 Disable snapshot menu item if session not already persisted, add tooltip to
 // disabled menu item (Issue 6938).
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.view;
 
 import java.awt.event.ActionEvent;
@@ -69,6 +70,7 @@ import org.zaproxy.zap.view.AboutDialog;
 import org.zaproxy.zap.view.ZapMenuItem;
 import org.zaproxy.zap.view.ZapSupportDialog;
 
+@SuppressWarnings("serial")
 public class MainMenuBar extends JMenuBar {
 
     private static final long serialVersionUID = 8580116506279095244L;

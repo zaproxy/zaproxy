@@ -29,6 +29,7 @@ import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
+@SuppressWarnings("serial")
 public class PopupMenuAddBreakHistory extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = -1984801437717248474L;

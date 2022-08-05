@@ -30,6 +30,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 
 /** @since 2.3.0 */
+@SuppressWarnings("serial")
 public abstract class PopupMenuItemSiteNodeContextMenuFactory
         extends PopupMenuItemSiteNodeContainer {
 

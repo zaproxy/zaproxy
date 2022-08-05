@@ -32,6 +32,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
+@SuppressWarnings("serial")
 public class OptionsPassiveScan extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

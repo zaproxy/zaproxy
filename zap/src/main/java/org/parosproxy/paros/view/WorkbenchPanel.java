@@ -75,6 +75,7 @@ import org.zaproxy.zap.view.TabbedPanel2;
  *
  * @since 1.0.0
  */
+@SuppressWarnings("serial")
 public class WorkbenchPanel extends JPanel {
 
     /**

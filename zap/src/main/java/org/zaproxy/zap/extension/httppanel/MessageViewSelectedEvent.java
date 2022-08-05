@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.httppanel;
 import java.util.EventObject;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 
+@SuppressWarnings("serial")
 public class MessageViewSelectedEvent extends EventObject {
 
     private static final long serialVersionUID = 6491765319312775225L;

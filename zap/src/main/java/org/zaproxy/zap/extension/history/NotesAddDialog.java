@@ -34,6 +34,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.ZapTextArea;
 
+@SuppressWarnings("serial")
 public class NotesAddDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;

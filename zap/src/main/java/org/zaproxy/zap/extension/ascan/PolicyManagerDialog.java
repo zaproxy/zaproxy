@@ -45,6 +45,7 @@ import org.zaproxy.zap.view.SingleColumnTableModel;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
+@SuppressWarnings("serial")
 public class PolicyManagerDialog extends StandardFieldsDialog {
 
     private static final long serialVersionUID = 1L;

@@ -48,6 +48,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/03 Removed deprecated prepareShow method
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -76,6 +77,7 @@ import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
 import org.zaproxy.zap.view.popup.PopupMenuUtils;
 import org.zaproxy.zap.view.popup.PopupMenuUtils.PopupMenuInvokerWrapper;
 
+@SuppressWarnings("serial")
 public class MainPopupMenu extends JPopupMenu {
 
     private static final long serialVersionUID = -3021348328961418293L;
@@ -85,7 +87,7 @@ public class MainPopupMenu extends JPopupMenu {
     // ZAP: Added support for submenus
     Map<String, JMenu> superMenus = new HashMap<>();
     View view = null;
-    private static Logger log = LogManager.getLogger(MainPopupMenu.class);
+    private static final Logger log = LogManager.getLogger(MainPopupMenu.class);
 
     /**
      * The change listener responsible for updating the {@code pathSelectedMenu} when the path to

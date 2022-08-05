@@ -27,6 +27,7 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
 /** A table model for holding a set of Users, for a {@link Context}. */
+@SuppressWarnings("serial")
 public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 
     /** The Constant defining the table column names. */
