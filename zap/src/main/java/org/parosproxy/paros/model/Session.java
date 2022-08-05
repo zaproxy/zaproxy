@@ -89,6 +89,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/09 Remove code no longer needed and deprecate a method.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
+// ZAP: 2022/08/05 Notify extensions about the opening the session DB.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -298,6 +299,7 @@ public class Session {
         }
         model.getDb().close(false, isCleanUpRequired());
         model.getDb().open(fileName);
+        Control.getSingleton().getExtensionLoader().databaseOpen(model.getDb());
         this.fileName = fileName;
 
         // historyList.removeAllElements();

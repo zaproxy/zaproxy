@@ -88,6 +88,7 @@
 // ZAP: 2021/11/08 Validate if mandatory add-ons are present.
 // ZAP: 2022/02/09 No longer manage the proxy, deprecate related code.
 // ZAP: 2022/02/24 Remove code deprecated in 2.5.0
+// ZAP: 2022/08/05 Notify extensions about opening the session DB in the Session class.
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -482,7 +483,6 @@ public class Control extends AbstractControl implements SessionListener {
         Session session = Model.getSingleton().getSession();
         Model.getSingleton().openSession(fileName);
         log.info("Session file opened");
-        control.getExtensionLoader().databaseOpen(model.getDb());
         control.getExtensionLoader().sessionChangedAllPlugin(session);
     }
 
@@ -625,7 +625,6 @@ public class Control extends AbstractControl implements SessionListener {
      */
     private void notifyExtensionsSessionChanged(Exception exception) {
         if (exception == null) {
-            getExtensionLoader().databaseOpen(model.getDb());
             getExtensionLoader().sessionChangedAllPlugin(model.getSession());
         }
     }
