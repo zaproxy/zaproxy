@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2022-08-10
+ - The packaged scans will no longer warn if the default hooks file is not found.
+
 ### 2022-08-05
  - Alert_on_Unexpected_Content_Types.js > Added Content-Type text/plain to the list of expected types.
  
