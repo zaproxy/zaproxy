@@ -307,7 +307,9 @@ public class SpiderHtmlParser extends SpiderParser {
         for (String tag : elementsWithText) {
             elements = source.getAllElements(tag);
             for (Element el : elements) {
-                Matcher matcher = INLINE_CONTENT_URL_PATTERN.matcher(el.getContent().toString());
+                Matcher matcher =
+                        INLINE_CONTENT_URL_PATTERN.matcher(
+                                el.getContent().getRenderer().setMaxLineLength(0).toString());
                 while (matcher.find()) {
                     String foundMatch = matcher.group().trim();
                     if (baseTagSet) {
