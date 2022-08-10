@@ -65,6 +65,9 @@ def load_custom_hooks(hooks_file=None):
     """ Loads a custom python module which modifies zap scripts behaviour
     hooks_file - a python file which defines custom hooks
     """
+
+    provided_hooks = True if hooks_file or os.environ.get('ZAP_HOOKS') else False
+
     global zap_hooks
     hooks_file = hooks_file if hooks_file else os.environ.get('ZAP_HOOKS', '~/.zap_hooks.py')
     hooks_file = os.path.expanduser(hooks_file)
@@ -76,7 +79,8 @@ def load_custom_hooks(hooks_file=None):
             hooks_file = hooks_file2
         
     if not os.path.exists(hooks_file):
-        logging.warning('Could not find custom hooks file at %s ' % os.path.abspath(hooks_file))
+        if provided_hooks:
+            logging.warning('Could not find custom hooks file at %s ' % os.path.abspath(hooks_file))
         return
 
     loader = SourceFileLoader("zap_hooks", hooks_file)
