@@ -237,6 +237,30 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    void shouldFindUrlsInImportElements() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("ImportElementsSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(5)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.com/import/namespace/implementation",
+                        "https://import.example.com:9000/namespace/implementation",
+                        "http://import.example.com/namespace/implementation",
+                        "http://example.com/sample/import/namespace/implementation",
+                        "ftp://import.example.com/namespace/implementation"));
+    }
+
+    @Test
     void shouldFindUrlsInAreaPingElements() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -753,7 +777,7 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                 htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(12)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(22)));
         assertThat(
                 listener.getUrlsFound(),
                 contains(
@@ -768,7 +792,39 @@ class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "https://meta.example.com/location",
                         "http://example.com/sample/meta/location/relative",
                         "http://example.com/meta/location/absolute",
-                        "ftp://meta.example.com/location"));
+                        "ftp://meta.example.com/location",
+                        "http://example.com/meta/csp",
+                        "http://meta.example.com:4444/meta/base/csp/scheme",
+                        "https://meta.example.com/meta/csp",
+                        "http://example.com/sample/meta/csp/refresh/relative",
+                        "ftp://meta.example.com/meta/csp/",
+                        "http://example.com/meta/msapplication",
+                        "http://meta.example.com:1337/meta/msapplication",
+                        "https://meta.example.com/meta/msapplication",
+                        "http://example.com/sample/meta/msapplication/refresh/relative",
+                        "ftp://meta.example.com/meta/msapplication/refresh"));
+    }
+
+    @Test
+    void shouldFindUrlsInString() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("StringSpiderHtmlParser.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed =
+                htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(3)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example2.com/test/p/string/fullUrl",
+                        "http://example.com/sample/with/base/tag",
+                        "http://meta.example.com:8443/inline/string/scheme"));
     }
 
     @Test

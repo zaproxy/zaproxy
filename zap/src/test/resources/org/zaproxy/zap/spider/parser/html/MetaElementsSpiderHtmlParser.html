@@ -19,6 +19,18 @@
 <meta http-equiv="location" content="url=/meta/location/absolute">
 <meta http-equiv="location" content="url=ftp://meta.example.com/location">
 
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; report-uri /meta/csp">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; report-uri //meta.example.com:4444/meta/base/csp/scheme">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; report-uri https://meta.example.com/meta/csp">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; report-uri meta/csp/refresh/relative">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self'; report-uri ftp://meta.example.com/meta/csp/">
+
+<meta name="msapplication-config" content="/meta/msapplication">
+<meta name="msapplication-config" content="//meta.example.com:1337/meta/msapplication">
+<meta name="msapplication-config" content="https://meta.example.com/meta/msapplication">
+<meta name="msapplication-config" content="meta/msapplication/refresh/relative">
+<meta name="msapplication-config" content="ftp://meta.example.com/meta/msapplication/refresh">
+
 <!-- Ignored: -->
 <meta http-equiv="refresh" content="0;URL=scheme://meta.example.com/refresh/ignored">
 <meta http-equiv="refresh" content="0;URL=">
@@ -32,6 +44,13 @@
 
 <meta http-equiv="ignored" content="0;URL=http://meta.example.com/ignored/1">
 <meta http-equiv="ignored" content="url=http://meta.example.com/ignored/2">
+
+
+<meta name="" content="ftp://meta.example.com/meta/msapplication/name/empty">
+<meta name="not-msapplication" content="http://meta.example.com/meta/notmsapplication">
+<meta name="msapplication-config" content="">
+<meta name="msapplication-config">
+<meta name="msapplication-config" content=none>
 
 </head>
 <body>

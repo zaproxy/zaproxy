@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.spider.parser;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -41,15 +42,34 @@ public class SpiderHtmlParser extends SpiderParser {
 
     /** The Constant URL_PATTERN defining the pattern for a meta URL. */
     static final Pattern URL_PATTERN =
-            Pattern.compile("url\\s*=\\s*[\"']?([^;'\"]+)", Pattern.CASE_INSENSITIVE);
+            Pattern.compile(
+                    "(?:url\\s*=|report-uri)\\s*[\"']?([^;'\"]+)", Pattern.CASE_INSENSITIVE);
 
     private static final Pattern PLAIN_COMMENTS_URL_PATTERN =
             Pattern.compile(
                     "(?:http(?:s?):)?//[^\\x00-\\x1f\"'\\s<>#()\\[\\]{}]+",
                     Pattern.CASE_INSENSITIVE);
 
+    private static final Pattern INLINE_CONTENT_URL_PATTERN =
+            Pattern.compile(
+                    "(?:http(?:s?)://|(?:\\s|\\B)//?)[^\\x00-\\x1f\"'\\s<>#()\\[\\]{}]+",
+                    Pattern.CASE_INSENSITIVE);
+
     private static final Pattern SRCSET_PATTERN =
             Pattern.compile("[^\"'=\\s,]+\\.[^\\s,]+", Pattern.CASE_INSENSITIVE);
+
+    private static final List<String> elementsWithText =
+            Arrays.asList(
+                    HTMLElementName.P,
+                    HTMLElementName.TITLE,
+                    HTMLElementName.H1,
+                    HTMLElementName.H2,
+                    HTMLElementName.H3,
+                    HTMLElementName.H4,
+                    HTMLElementName.H5,
+                    HTMLElementName.H6,
+                    HTMLElementName.LI,
+                    HTMLElementName.BLOCKQUOTE);
     /**
      * Functional interface that allows custom handling of URLs retrieved in attributes, to be
      * manipulated before the URL is sent to a {@link SpiderParser#processURL} call.
@@ -58,6 +78,10 @@ public class SpiderHtmlParser extends SpiderParser {
     private interface CustomUrlProcessor {
         void process(HttpMessage message, int depth, String localURL, String baseURL);
     }
+
+    private static final String IMPORT_TAG = "IMPORT";
+
+    private boolean baseTagSet;
 
     /** The params. */
     private SpiderParam params;
@@ -97,6 +121,7 @@ public class SpiderHtmlParser extends SpiderParser {
             String href = base.getAttributeValue("href");
             if (href != null && !href.isEmpty()) {
                 baseURL = URLCanonicalizer.getCanonicalURL(href, baseURL);
+                baseTagSet = true;
             }
         }
 
@@ -270,18 +295,50 @@ public class SpiderHtmlParser extends SpiderParser {
                             message, depth, baseURL, el, "srcset", this::srcSetProcessor);
         }
 
+        // Process IMPORT elements
+        elements = source.getAllElements(IMPORT_TAG);
+        for (Element el : elements) {
+            resourcesfound |=
+                    processAttributeElement(message, depth, baseURL, el, "implementation");
+        }
+
+        // Process content of container tags which hold text
+        String baseUrlForText = baseURL;
+        for (String tag : elementsWithText) {
+            elements = source.getAllElements(tag);
+            for (Element el : elements) {
+                Matcher matcher = INLINE_CONTENT_URL_PATTERN.matcher(el.getContent().toString());
+                while (matcher.find()) {
+                    String foundMatch = matcher.group().trim();
+                    if (baseTagSet) {
+                        if (!baseUrlForText.endsWith("/")) {
+                            baseUrlForText += "/";
+                        }
+                        if (foundMatch.charAt(0) == '/' && foundMatch.indexOf("//") != 0) {
+                            foundMatch = foundMatch.substring(1);
+                        }
+                    }
+                    processURL(message, depth, foundMatch, baseUrlForText);
+                    resourcesfound = true;
+                }
+            }
+        }
+
         // Process META elements
         elements = source.getAllElements(HTMLElementName.META);
         for (Element el : elements) {
             // If we have http-equiv attribute, then urls can be found.
             String equiv = el.getAttributeValue("http-equiv");
+            String name = el.getAttributeValue("name");
             String content = el.getAttributeValue("content");
             if (equiv != null && content != null) {
 
                 // For the following cases:
                 // http-equiv="refresh" content="0;URL=http://foo.bar/..."
                 // http-equiv="location" content="url=http://foo.bar/..."
-                if (equiv.equalsIgnoreCase("refresh") || equiv.equalsIgnoreCase("location")) {
+                if (equiv.equalsIgnoreCase("refresh")
+                        || equiv.equalsIgnoreCase("location")
+                        || equiv.equalsIgnoreCase("content-security-policy")) {
                     Matcher matcher = URL_PATTERN.matcher(content);
                     if (matcher.find()) {
                         String url = matcher.group(1);
@@ -289,6 +346,12 @@ public class SpiderHtmlParser extends SpiderParser {
                         resourcesfound = true;
                     }
                 }
+            } else if ("msapplication-config".equalsIgnoreCase(name)
+                    && content != null
+                    && !content.equals("")
+                    && !content.equalsIgnoreCase("none")) {
+                processURL(message, depth, content, baseURL);
+                resourcesfound = true;
             }
         }
 
