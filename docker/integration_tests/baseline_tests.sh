@@ -15,11 +15,11 @@ check_results() {
     code=$2
     expected=$3
     
-	if [ $expected -ne $code ] 
-	then
-    	echo "ERROR: exited with $? instead of $code"
-		RES=1
-	else
+    if [ $expected -ne $code ] 
+    then
+        echo "ERROR: exited with $? instead of $code"
+        RES=1
+    else
         files=`ls /zap/wrk/results/$base-*`
         pass=false
         for f in $files
@@ -40,6 +40,7 @@ check_results() {
             echo ">>>>>"
             cat /zap/wrk/output/$base.out
             echo ">>>>>"
+            RES=1
         fi
     fi
     # Dont carry over any configs
