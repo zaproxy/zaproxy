@@ -36,7 +36,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
@@ -589,13 +588,7 @@ public class Context {
             restructureSiteTreeEventHandler();
         } else {
             try {
-                EventQueue.invokeLater(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                restructureSiteTreeEventHandler();
-                            }
-                        });
+                EventQueue.invokeLater(() -> restructureSiteTreeEventHandler());
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
@@ -604,59 +597,30 @@ public class Context {
 
     private void restructureSiteTreeEventHandler() {
         log.debug("Restructure site tree for context: " + this.getName());
+        // long time = System.nanoTime();
         List<SiteNode> nodes = this.getTopNodesInContextFromSiteTree();
         for (SiteNode sn : nodes) {
-            checkNode(sn);
+            updateNode(sn);
         }
+        // log.debug("restructuring took {} nanoseconds", System.nanoTime() - time);
     }
 
-    private boolean checkNode(SiteNode sn) {
-        // Loop backwards through the children TODO change for lowmem!
-        // log.debug("checkNode " + sn.getHierarchicNodeName());		// Useful for debugging
-        int origChildren = sn.getChildCount();
-        int movedChildren = 0;
-        for (SiteNode childNode : getChildren(sn)) {
-            if (checkNode(childNode)) {
-                movedChildren++;
-            }
-        }
-
+    private void updateNode(SiteNode sn) {
         if (this.isInContext(sn)) {
             SiteMap sitesTree = this.session.getSiteTree();
-            HistoryReference href = sn.getHistoryReference();
-
             try {
-                SiteNode sn2;
-                if (HttpRequestHeader.POST.equals(href.getMethod())) {
-                    // Have to go to the db as POST data can be used in the name
-                    sn2 = sitesTree.findNode(href.getHttpMessage());
+                if (sn.getHistoryReference().getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
+                    deleteNode(sitesTree, sn);
                 } else {
-                    // This is better as it doesn't require a db read
-                    sn2 = sitesTree.findNode(href.getURI());
+                    moveNode(sitesTree, sn);
                 }
-
-                if (sn2 == null
-                        || !sn.getHierarchicNodeName().equals(sn2.getHierarchicNodeName())) {
-                    if (!sn.isDataDriven()) {
-                        moveNode(sitesTree, sn);
-                        return true;
-                    }
-                }
-                if (movedChildren > 0 && movedChildren == origChildren && sn.getChildCount() == 0) {
-                    if (href.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
-                        // Remove temp old node, no need to add new one in -
-                        // that will happen when moving child nodes (if required)
-                        deleteNode(sitesTree, sn);
-                        return true;
-                    }
-                }
-                // log.debug("Didn't need to move " + sn.getHierarchicNodeName());	// Useful for
-                // debugging
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
             }
         }
-        return false;
+        for (SiteNode childNode : getChildren(sn)) {
+            updateNode(childNode);
+        }
     }
 
     /**

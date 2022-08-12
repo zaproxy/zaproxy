@@ -89,6 +89,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/09 Remove code no longer needed and deprecate a method.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
+// ZAP: 2022/08/12 Use SiteMap#createTree to create a new Sites Tree when loading a session.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -309,8 +310,7 @@ public class Session {
         }
 
         if (!Constant.isLowMemoryOptionSet()) {
-            SiteNode newRoot = new SiteNode(siteTree, -1, Constant.messages.getString("tab.sites"));
-            siteTree.setRoot(newRoot);
+            siteTree = SiteMap.createTree(model);
         }
 
         // update history reference

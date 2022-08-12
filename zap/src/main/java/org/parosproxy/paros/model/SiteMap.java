@@ -75,6 +75,7 @@
 // ZAP: 2022/07/27 Use hrefMap to return early from addPath and findAndAddChild. Remove getHostName
 // and use SessionStructure#getHostName in its place.
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2022/08/12 Make hrefMap an instance variable.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -114,7 +115,7 @@ public class SiteMap extends SortedTreeModel {
         REMOVE
     }
 
-    private static Map<Integer, SiteNode> hrefMap = new HashMap<>();
+    private final Map<Integer, SiteNode> hrefMap;
 
     private Model model = null;
 
@@ -127,13 +128,13 @@ public class SiteMap extends SortedTreeModel {
         SiteMap siteMap = new SiteMap(null, model);
         SiteNode root = new SiteNode(siteMap, -1, Constant.messages.getString("tab.sites"));
         siteMap.setRoot(root);
-        hrefMap = new HashMap<>();
         return siteMap;
     }
 
     public SiteMap(SiteNode root, Model model) {
         super(root);
         this.model = model;
+        this.hrefMap = new HashMap<>();
     }
 
     /**
