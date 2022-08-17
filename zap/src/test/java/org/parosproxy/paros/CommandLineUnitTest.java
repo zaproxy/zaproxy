@@ -253,6 +253,19 @@ class CommandLineUnitTest {
     }
 
     @Test
+    void shouldNotFailIfGivenUnsupportedArgumentAndNotReportUnsupported() throws Exception {
+        // Given
+        cmdLine = new CommandLine(new String[] {"-unsupported"});
+        // When / Then
+        assertDoesNotThrow(
+                () ->
+                        cmdLine.parse(
+                                NO_EXTENSIONS_CUSTOM_ARGUMENTS,
+                                NO_SUPPORTED_FILE_EXTENSIONS,
+                                false));
+    }
+
+    @Test
     void claWithoutArgs() throws Exception {
         cmdLine = new CommandLine(new String[] {"-a", "-b"});
         Vector<CommandLineArgument[]> customArguments = new Vector<>();

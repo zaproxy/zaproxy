@@ -51,6 +51,7 @@
 // ZAP: 2022/02/09 No longer parse host/port and deprecate related code.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 // ZAP: 2022/04/11 Remove -nouseragent option.
+// ZAP: 2022/08/18 Support parameters supplied to newly installed or updated add-ons.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -68,6 +69,7 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 
 public class CommandLine {
 
@@ -126,6 +128,7 @@ public class CommandLine {
     private boolean experimentalDb = false;
     private boolean silent = false;
     private String[] args;
+    private String[] argsBackup;
     private final Map<String, String> configs = new LinkedHashMap<>();
     private final Hashtable<String, String> keywords = new Hashtable<>();
     private List<CommandLineArgument[]> commandList = null;
@@ -141,6 +144,9 @@ public class CommandLine {
 
     public CommandLine(String[] args) throws Exception {
         this.args = args == null ? new String[0] : args;
+        this.argsBackup = new String[this.args.length];
+        System.arraycopy(this.args, 0, argsBackup, 0, this.args.length);
+
         parseFirst(this.args);
 
         if (isEnabled(CommandLine.CMD) && isEnabled(CommandLine.DAEMON)) {
@@ -204,10 +210,28 @@ public class CommandLine {
     public void parse(
             List<CommandLineArgument[]> commandList, Map<String, CommandLineListener> extMap)
             throws Exception {
+        this.parse(commandList, extMap, true);
+    }
+
+    /**
+     * Parse the command line arguments
+     *
+     * @param commandList the list of commands
+     * @param extMap a map of the extensions which support command line args
+     * @param reportUnsupported if true will report unsupported args
+     * @throws Exception
+     * @since 2.12.0
+     */
+    public void parse(
+            List<CommandLineArgument[]> commandList,
+            Map<String, CommandLineListener> extMap,
+            boolean reportUnsupported)
+            throws Exception {
         this.commandList = commandList;
         CommandLineArgument lastArg = null;
         boolean found = false;
         int remainingValueCount = 0;
+        boolean installingAddons = false;
 
         for (int i = 0; i < args.length; i++) {
             if (args[i] == null) {
@@ -231,6 +255,12 @@ public class CommandLine {
                         lastArg = extArg[k];
                         lastArg.setEnabled(true);
                         found = true;
+
+                        if (ExtensionAutoUpdate.ADDON_INSTALL.equals(args[i])
+                                || ExtensionAutoUpdate.ADDON_INSTALL_ALL.equals(args[i])) {
+                            installingAddons = true;
+                        }
+
                         args[i] = null;
                         remainingValueCount = lastArg.getNumOfArguments();
                     }
@@ -292,27 +322,30 @@ public class CommandLine {
             }
         }
 
-        // check if there is some unknown keywords or parameters
-        for (String arg : args) {
-            if (arg != null) {
-                if (arg.startsWith("-")) {
-                    throw new Exception(Constant.messages.getString("start.cmdline.badparam", arg));
-
-                } else {
-                    // Assume they were trying to specify a file
-                    File f = new File(arg);
-                    if (!f.exists()) {
+        if (reportUnsupported && !installingAddons) {
+            // check if there is some unknown keywords or parameters
+            for (String arg : args) {
+                if (arg != null) {
+                    if (arg.startsWith("-")) {
                         throw new Exception(
-                                Constant.messages.getString("start.cmdline.nofile", arg));
-
-                    } else if (!f.canRead()) {
-                        throw new Exception(
-                                Constant.messages.getString("start.cmdline.noread", arg));
+                                Constant.messages.getString("start.cmdline.badparam", arg));
 
                     } else {
-                        // We probably dont handle this sort of file
-                        throw new Exception(
-                                Constant.messages.getString("start.cmdline.badfile", arg));
+                        // Assume they were trying to specify a file
+                        File f = new File(arg);
+                        if (!f.exists()) {
+                            throw new Exception(
+                                    Constant.messages.getString("start.cmdline.nofile", arg));
+
+                        } else if (!f.canRead()) {
+                            throw new Exception(
+                                    Constant.messages.getString("start.cmdline.noread", arg));
+
+                        } else {
+                            // We probably dont handle this sort of file
+                            throw new Exception(
+                                    Constant.messages.getString("start.cmdline.badfile", arg));
+                        }
                     }
                 }
             }
@@ -568,6 +601,15 @@ public class CommandLine {
     public boolean isEnabled(String keyword) {
         Object obj = keywords.get(keyword);
         return (obj != null) && (obj instanceof String);
+    }
+
+    /**
+     * Reset the arguments so that they can be parsed again (e.g. after an add-on is installed)
+     *
+     * @since 2.12.0
+     */
+    public void resetArgs() {
+        System.arraycopy(argsBackup, 0, args, 0, argsBackup.length);
     }
 
     /**

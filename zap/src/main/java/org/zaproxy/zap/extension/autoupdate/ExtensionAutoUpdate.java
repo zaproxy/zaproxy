@@ -67,6 +67,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.ZAP.ProcessType;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOnCollection;
@@ -88,6 +89,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         implements CheckForUpdateCallback, CommandLineListener {
 
     private static final String NAME = "ExtensionAutoUpdate";
+
+    public static final String ADDON_INSTALL = "-addoninstall";
+    public static final String ADDON_INSTALL_ALL = "-addoninstallall";
 
     private static final String VERSION_FILE_NAME = "ZapVersions.xml";
 
@@ -791,8 +795,28 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
             return;
         }
 
-        // Handle the response in a callback
-        this.getLatestVersionInfo(this, false);
+        if (ProcessType.desktop.equals(ZAP.getProcessType())) {
+            // Handle the response in a callback for the GUI
+            this.getLatestVersionInfo(this, false);
+        } else {
+            // In automation always do this inline so that add-ons are updated before cmdline args
+            // are applied
+            AddOnCollection aoc = this.getLatestVersionInfo(null, false);
+            if (aoc != null) {
+                this.updateAddOnsInline(aoc);
+            }
+        }
+    }
+
+    private void updateAddOnsInline(AddOnCollection aoc) {
+        // Create some temporary options with the settings we need
+        OptionsParamCheckForUpdates options = new OptionsParamCheckForUpdates();
+        options.load(new XMLPropertiesConfiguration());
+        options.setCheckOnStart(true);
+        options.setCheckAddonUpdates(true);
+        options.setInstallAddonUpdates(true);
+        checkForAddOnUpdates(aoc, options);
+        waitForDownloadInstalls();
     }
 
     private void warnIfOutOfDate() {
@@ -1753,7 +1777,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     private CommandLineArgument[] getCommandLineArguments() {
         arguments[ARG_CFU_INSTALL_IDX] =
                 new CommandLineArgument(
-                        "-addoninstall",
+                        ADDON_INSTALL,
                         1,
                         null,
                         "",
@@ -1761,7 +1785,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                                 + Constant.messages.getString("cfu.cmdline.install.help"));
         arguments[ARG_CFU_INSTALL_ALL_IDX] =
                 new CommandLineArgument(
-                        "-addoninstallall",
+                        ADDON_INSTALL_ALL,
                         0,
                         null,
                         "",
@@ -1937,20 +1961,17 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
     @Override
     public void execute(CommandLineArgument[] args) {
+        // Do nothing - everything is done in preExecute
+    }
+
+    @Override
+    public void preExecute(CommandLineArgument[] args) {
         if (arguments[ARG_CFU_UPDATE_IDX].isEnabled()) {
             AddOnCollection aoc = getLatestVersionInfo();
             if (aoc == null) {
                 CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
             } else {
-                // Create some temporary options with the settings we need
-                OptionsParamCheckForUpdates options = new OptionsParamCheckForUpdates();
-                options.load(new XMLPropertiesConfiguration());
-                options.setCheckOnStart(true);
-                options.setCheckAddonUpdates(true);
-                options.setInstallAddonUpdates(true);
-                checkForAddOnUpdates(aoc, options);
-
-                waitForDownloadInstalls();
+                this.updateAddOnsInline(aoc);
                 CommandLine.info(Constant.messages.getString("cfu.cmdline.updated"));
             }
         }
