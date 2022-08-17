@@ -25,6 +25,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2022/05/02 Document usage of ShutdownRequestedException.
+// ZAP: 2022/08/17 Added preExecute.
 package org.parosproxy.paros.extension;
 
 import java.io.File;
@@ -33,12 +34,22 @@ import org.zaproxy.zap.ShutdownRequestedException;
 
 public interface CommandLineListener {
     /**
-     * execute the command line using the argument provided.
+     * Execute the command line using the argument provided.
      *
      * @param args the command line arguments
      * @throws ShutdownRequestedException (since 2.12.0) if ZAP should shutdown immediately.
      */
     void execute(CommandLineArgument[] args);
+
+    /**
+     * Execute any command line args that need to be run before the others. This should typically
+     * only be done by specific core add-ons, such as ExtensionAutoUpdate.
+     *
+     * @since 2.12.0
+     * @param args the command line arguments
+     * @throws ShutdownRequestedException if ZAP should shutdown immediately.
+     */
+    default void preExecute(CommandLineArgument[] args) {}
 
     /**
      * Handle the specified file (in whatever way is appropriate). This will only be called for
