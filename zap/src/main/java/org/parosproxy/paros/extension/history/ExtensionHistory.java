@@ -992,6 +992,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     @Override
     public void destroy() {
         super.destroy();
-        this.getHistoryReferencesTable().persistColumnConfiguration();
+        if (hasView()) {
+            this.getHistoryReferencesTable().persistColumnConfiguration();
+        }
     }
 }

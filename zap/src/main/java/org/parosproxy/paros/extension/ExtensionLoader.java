@@ -96,6 +96,7 @@
 // ZAP: 2022/04/17 Log extension name prior to description when loading.
 // ZAP: 2022/04/17 Address various SAST (SonarLint) issues.
 // ZAP: 2022/06/13 Hook HrefTypeInfo.
+// ZAP: 2022/08/17 Install updates before running other cmdline args.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -161,6 +162,7 @@ public class ExtensionLoader {
     private Model model = null;
 
     private View view = null;
+    private CommandLine cmdLine;
     private static final Logger logger = LogManager.getLogger(ExtensionLoader.class);
 
     @SuppressWarnings("deprecation")
@@ -523,6 +525,13 @@ public class ExtensionLoader {
             ext = getExtension(i);
             if (ext instanceof CommandLineListener) {
                 CommandLineListener listener = (CommandLineListener) ext;
+                listener.preExecute(extensionHooks.get(ext).getCommandLineArgument());
+            }
+        }
+        for (int i = 0; i < getExtensionCount(); i++) {
+            ext = getExtension(i);
+            if (ext instanceof CommandLineListener) {
+                CommandLineListener listener = (CommandLineListener) ext;
                 listener.execute(extensionHooks.get(ext).getCommandLineArgument());
             }
         }
@@ -773,6 +782,9 @@ public class ExtensionLoader {
         hookAllExtension(75.0);
         // Step 8: start all extensions(quick)
         startAllExtension(10.0);
+
+        // Clear so that manually updated add-ons dont get called with cmdline args again
+        this.cmdLine = null;
     }
 
     /**
@@ -797,6 +809,28 @@ public class ExtensionLoader {
         extensionHooks.put(ext, extHook);
         try {
             ext.hook(extHook);
+
+            if (cmdLine != null) {
+                // This extension has been added or updated via the commandline args, so
+                // re-apply any args
+                CommandLineArgument[] arg = extHook.getCommandLineArgument();
+
+                if (arg.length > 0 && ext instanceof CommandLineListener) {
+                    List<CommandLineArgument[]> allCommandLineList = new ArrayList<>();
+                    Map<String, CommandLineListener> extMap = new HashMap<>();
+                    allCommandLineList.add(arg);
+
+                    CommandLineListener cli = (CommandLineListener) ext;
+                    List<String> extensions = cli.getHandledExtensions();
+                    if (extensions != null) {
+                        for (String extension : extensions) {
+                            extMap.put(extension, cli);
+                        }
+                    }
+                    cmdLine.resetArgs();
+                    cmdLine.parse(allCommandLineList, extMap, false);
+                }
+            }
 
             hookContextDataFactories(ext, extHook);
             hookApiImplementors(ext, extHook);
@@ -1008,6 +1042,8 @@ public class ExtensionLoader {
      * @throws java.lang.Exception
      */
     public void hookCommandLineListener(CommandLine cmdLine) throws Exception {
+        // Save the CommandLine in case add-ons are added or replaced
+        this.cmdLine = cmdLine;
         List<CommandLineArgument[]> allCommandLineList = new ArrayList<>();
         Map<String, CommandLineListener> extMap = new HashMap<>();
         for (Map.Entry<Extension, ExtensionHook> entry : extensionHooks.entrySet()) {

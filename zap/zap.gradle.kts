@@ -235,6 +235,7 @@ val japicmp by tasks.registering(JapicmpTask::class) {
         "org.parosproxy.paros.db.paros.ParosTableHistory#unsetHistoryTypeAsTemporary(int)",
         "org.parosproxy.paros.db.RecordAlert#getReliability()",
         "org.parosproxy.paros.db.RecordAlert#setReliability(int)",
+        "org.parosproxy.paros.extension.CommandLineListener#preExecute(org.parosproxy.paros.extension.CommandLineArgument[])",
         "org.parosproxy.paros.extension.ExtensionPopupMenuItem#isSuperMenu()",
         "org.parosproxy.paros.extension.history.ExtensionHistory#clearLogPanelDisplayQueue()",
         "org.parosproxy.paros.extension.history.LogPanel#clearDisplayQueue()",
