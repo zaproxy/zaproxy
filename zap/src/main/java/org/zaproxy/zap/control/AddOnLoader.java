@@ -574,9 +574,11 @@ public class AddOnLoader extends URLClassLoader {
                         Extension ext =
                                 loadAddOnExtension(
                                         runningAddOn, extReqs.getClassname(), extAddOnClassLoader);
-                        AddOnInstaller.installAddOnExtension(runningAddOn, ext);
-                        runnableAddOns.get(runningAddOn).add(extReqs.getClassname());
-                        changed = true;
+                        if (ext != null) {
+                            AddOnInstaller.installAddOnExtension(runningAddOn, ext);
+                            runnableAddOns.get(runningAddOn).add(extReqs.getClassname());
+                            changed = true;
+                        }
                     }
                 }
             }
