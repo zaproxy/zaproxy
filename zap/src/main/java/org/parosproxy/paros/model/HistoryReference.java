@@ -64,7 +64,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/07/07 Add TYPE_OAST.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
-// ZAP: 2022/06/27 Add TYPE_PARAM_MINER.
+// ZAP: 2022/06/27 Add TYPE_PARAM_DIGGER.
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
@@ -276,11 +276,11 @@ public class HistoryReference {
     public static final int TYPE_OAST = 22;
 
     /**
-     * An HTTP message sent by the param miner.
+     * An HTTP message sent by the param digger.
      *
      * @since 2.12.0
      */
-    public static final int TYPE_PARAM_MINER = 23;
+    public static final int TYPE_PARAM_DIGGER = 23;
 
     private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
     private static TableHistory staticTableHistory = null;
