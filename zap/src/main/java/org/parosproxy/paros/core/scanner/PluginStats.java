@@ -45,7 +45,7 @@ public class PluginStats {
      * @see #start()
      */
     PluginStats(Plugin plugin) {
-        this.pluginName = plugin.getName() == null ? "" : plugin.getName();
+        this.pluginName = plugin.getDisplayName();
         this.pluginId = plugin.getId();
     }
 

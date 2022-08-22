@@ -52,6 +52,8 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -931,7 +933,24 @@ public class AddOnLoader extends URLClassLoader {
             }
         }
         list.trimToSize();
+        validateNames(list);
         return Collections.unmodifiableList(list);
+    }
+
+    private void validateNames(List<?> scanRules) {
+        scanRules.forEach(
+                rule -> {
+                    String name =
+                            rule instanceof AbstractPlugin
+                                    ? ((AbstractPlugin) rule).getName()
+                                    : ((PluginPassiveScanner) rule).getName();
+                    if (StringUtils.isBlank(name)) {
+                        logger.log(
+                                Constant.isDevBuild() ? Level.ERROR : Level.WARN,
+                                "Scan rule {} does not have a name.",
+                                rule.getClass().getCanonicalName());
+                    }
+                });
     }
 
     /**
@@ -953,6 +972,7 @@ public class AddOnLoader extends URLClassLoader {
             }
         }
         list.trimToSize();
+        validateNames(list);
         return Collections.unmodifiableList(list);
     }
 
