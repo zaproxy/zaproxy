@@ -40,17 +40,15 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
-import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.spider.filters.DefaultFetchFilter;
-import org.zaproxy.zap.spider.filters.DefaultParseFilter;
-import org.zaproxy.zap.spider.filters.FetchFilter;
-import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
-import org.zaproxy.zap.spider.filters.ParseFilter;
-import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 
-/** The Class Spider. */
+/**
+ * The Class Spider.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
+@Deprecated
 public class Spider {
 
     /** The spider parameters. */
@@ -84,13 +82,13 @@ public class Spider {
     private ExecutorService threadPool;
 
     /** The default fetch filter. */
-    private DefaultFetchFilter defaultFetchFilter;
+    private org.zaproxy.zap.spider.filters.DefaultFetchFilter defaultFetchFilter;
 
     /** The seed list. */
     private LinkedHashSet<URI> seedList;
 
     /** The extension. */
-    private ExtensionSpider extension;
+    private org.zaproxy.zap.extension.spider.ExtensionSpider extension;
 
     /** The Constant log. */
     private static final Logger log = LogManager.getLogger(Spider.class);
@@ -151,7 +149,7 @@ public class Spider {
     @Deprecated
     public Spider(
             String id,
-            ExtensionSpider extension,
+            org.zaproxy.zap.extension.spider.ExtensionSpider extension,
             SpiderParam spiderParam,
             org.parosproxy.paros.network.ConnectionParam connectionParam,
             Model model,
@@ -172,7 +170,7 @@ public class Spider {
      */
     public Spider(
             String id,
-            ExtensionSpider extension,
+            org.zaproxy.zap.extension.spider.ExtensionSpider extension,
             SpiderParam spiderParam,
             Model model,
             Context scanContext) {
@@ -199,17 +197,20 @@ public class Spider {
         this.initialized = false;
 
         // Add a default fetch filter and any custom ones
-        defaultFetchFilter = new DefaultFetchFilter();
+        defaultFetchFilter = new org.zaproxy.zap.spider.filters.DefaultFetchFilter();
         this.addFetchFilter(defaultFetchFilter);
 
-        for (FetchFilter filter : extension.getCustomFetchFilters()) {
+        for (org.zaproxy.zap.spider.filters.FetchFilter filter :
+                extension.getCustomFetchFilters()) {
             this.addFetchFilter(filter);
         }
 
         // Add a default parse filter and any custom ones
         controller.setDefaultParseFilter(
-                new DefaultParseFilter(spiderParam, extension.getMessages()));
-        for (ParseFilter filter : extension.getCustomParseFilters()) this.addParseFilter(filter);
+                new org.zaproxy.zap.spider.filters.DefaultParseFilter(
+                        spiderParam, extension.getMessages()));
+        for (org.zaproxy.zap.spider.filters.ParseFilter filter : extension.getCustomParseFilters())
+            this.addParseFilter(filter);
 
         // Add the scan context, if any
         defaultFetchFilter.setScanContext(this.scanContext);
@@ -406,7 +407,7 @@ public class Spider {
      *
      * @param filter the filter
      */
-    public void addFetchFilter(FetchFilter filter) {
+    public void addFetchFilter(org.zaproxy.zap.spider.filters.FetchFilter filter) {
         controller.addFetchFilter(filter);
     }
 
@@ -415,7 +416,7 @@ public class Spider {
      *
      * @param filter the filter
      */
-    public void addParseFilter(ParseFilter filter) {
+    public void addParseFilter(org.zaproxy.zap.spider.filters.ParseFilter filter) {
         controller.addParseFilter(filter);
     }
 
@@ -492,7 +493,7 @@ public class Spider {
      *
      * @return the extension
      */
-    protected ExtensionSpider getExtensionSpider() {
+    protected org.zaproxy.zap.extension.spider.ExtensionSpider getExtensionSpider() {
         return this.extension;
     }
 
@@ -567,9 +568,10 @@ public class Spider {
 
         for (Iterator<URI> it = seedList.iterator(); it.hasNext(); ) {
             URI seed = it.next();
-            for (FetchFilter filter : controller.getFetchFilters()) {
-                FetchStatus filterReason = filter.checkFilter(seed);
-                if (filterReason != FetchStatus.VALID) {
+            for (org.zaproxy.zap.spider.filters.FetchFilter filter : controller.getFetchFilters()) {
+                org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterReason =
+                        filter.checkFilter(seed);
+                if (filterReason != org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID) {
                     if (log.isDebugEnabled()) {
                         log.debug("Seed: " + seed + " was filtered with reason: " + filterReason);
                     }
@@ -818,7 +820,9 @@ public class Spider {
      *     stating the reason of the filtering
      */
     protected synchronized void notifyListenersFoundURI(
-            String uri, String method, FetchStatus status) {
+            String uri,
+            String method,
+            org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status) {
         for (SpiderListener l : listeners) {
             l.foundURI(uri, method, status);
         }
@@ -847,7 +851,7 @@ public class Spider {
         }
     }
 
-    public void addCustomParser(SpiderParser sp) {
+    public void addCustomParser(org.zaproxy.zap.spider.parser.SpiderParser sp) {
         this.controller.addSpiderParser(sp);
     }
 

@@ -23,13 +23,14 @@ import java.util.Objects;
 import java.util.StringTokenizer;
 import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * The Class SpiderRobotstxtParser used for parsing Robots.txt files.
  *
  * @since 2.0.0
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderRobotstxtParser extends SpiderParser {
 
     private static final String COMMENT_TOKEN = "#";
@@ -41,7 +42,7 @@ public class SpiderRobotstxtParser extends SpiderParser {
     private static final int PATTERNS_ALLOW_LENGTH = 6;
 
     /** The params. */
-    private SpiderParam params;
+    private org.zaproxy.zap.spider.SpiderParam params;
 
     /**
      * Instantiates a new spider robotstxt parser.
@@ -49,7 +50,7 @@ public class SpiderRobotstxtParser extends SpiderParser {
      * @param params the params
      * @throws NullPointerException if {@code params} is null.
      */
-    public SpiderRobotstxtParser(SpiderParam params) {
+    public SpiderRobotstxtParser(org.zaproxy.zap.spider.SpiderParam params) {
         super();
         this.params = Objects.requireNonNull(params, "Parameter params must not be null.");
     }

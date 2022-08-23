@@ -35,20 +35,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
-import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 
 /** Unit test for {@link DefaultFetchFilter}. */
+@SuppressWarnings("deprecation")
 @ExtendWith(MockitoExtension.class)
 class DefaultFetchFilterUnitTest {
 
     @Mock Context context;
 
-    private DefaultFetchFilter filter;
+    private org.zaproxy.zap.spider.filters.DefaultFetchFilter filter;
 
     @BeforeEach
     void setUp() {
-        filter = new DefaultFetchFilter();
+        filter = new org.zaproxy.zap.spider.filters.DefaultFetchFilter();
     }
 
     @Test
@@ -56,9 +55,14 @@ class DefaultFetchFilterUnitTest {
         // Given
         URI uri = createUri("example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.ILLEGAL_PROTOCOL)));
+        assertThat(
+                status,
+                is(
+                        equalTo(
+                                org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus
+                                        .ILLEGAL_PROTOCOL)));
     }
 
     @Test
@@ -66,9 +70,14 @@ class DefaultFetchFilterUnitTest {
         // Given
         URI uri = createUri("ftp://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.ILLEGAL_PROTOCOL)));
+        assertThat(
+                status,
+                is(
+                        equalTo(
+                                org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus
+                                        .ILLEGAL_PROTOCOL)));
     }
 
     @Test
@@ -76,9 +85,11 @@ class DefaultFetchFilterUnitTest {
         // Given
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                status,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
@@ -86,9 +97,11 @@ class DefaultFetchFilterUnitTest {
         // Given
         URI uri = createUri("https://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                status,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
@@ -97,9 +110,11 @@ class DefaultFetchFilterUnitTest {
         filter.addScopeRegex("scope.example.com");
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                status,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
@@ -108,9 +123,10 @@ class DefaultFetchFilterUnitTest {
         filter.addScopeRegex("example.com");
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.VALID)));
+        assertThat(
+                status, is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID)));
     }
 
     @Test
@@ -119,9 +135,11 @@ class DefaultFetchFilterUnitTest {
         filter.setDomainsAlwaysInScope(domainsAlwaysInScope("scope.example.com"));
         URI uri = createUri("https://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.OUT_OF_SCOPE)));
+        assertThat(
+                status,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_SCOPE)));
     }
 
     @Test
@@ -130,9 +148,10 @@ class DefaultFetchFilterUnitTest {
         filter.setDomainsAlwaysInScope(domainsAlwaysInScope("example.com"));
         URI uri = createUri("https://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.VALID)));
+        assertThat(
+                status, is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID)));
     }
 
     @Test
@@ -142,9 +161,11 @@ class DefaultFetchFilterUnitTest {
         filter.setExcludeRegexes(excludeRegexes(".*example\\.com.*"));
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.USER_RULES)));
+        assertThat(
+                status,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.USER_RULES)));
     }
 
     @Test
@@ -154,9 +175,11 @@ class DefaultFetchFilterUnitTest {
         filter.setExcludeRegexes(excludeRegexes(".*example\\.com.*"));
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.USER_RULES)));
+        assertThat(
+                status,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.USER_RULES)));
     }
 
     @Test
@@ -166,9 +189,10 @@ class DefaultFetchFilterUnitTest {
         filter.setExcludeRegexes(excludeRegexes("subdomain\\.example\\.com.*"));
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.VALID)));
+        assertThat(
+                status, is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID)));
     }
 
     @Test
@@ -178,9 +202,10 @@ class DefaultFetchFilterUnitTest {
         filter.setExcludeRegexes(excludeRegexes("subdomain\\.example\\.com.*"));
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.VALID)));
+        assertThat(
+                status, is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID)));
     }
 
     @Test
@@ -189,9 +214,11 @@ class DefaultFetchFilterUnitTest {
         filter.setScanContext(contextInScope(false));
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.OUT_OF_CONTEXT)));
+        assertThat(
+                status,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.OUT_OF_CONTEXT)));
     }
 
     @Test
@@ -200,9 +227,10 @@ class DefaultFetchFilterUnitTest {
         filter.setScanContext(contextInScope(true));
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.VALID)));
+        assertThat(
+                status, is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID)));
     }
 
     @Test
@@ -212,9 +240,11 @@ class DefaultFetchFilterUnitTest {
         filter.setExcludeRegexes(excludeRegexes(".*example\\.com.*"));
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.USER_RULES)));
+        assertThat(
+                status,
+                is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.USER_RULES)));
     }
 
     @Test
@@ -224,9 +254,10 @@ class DefaultFetchFilterUnitTest {
         filter.setExcludeRegexes(excludeRegexes("subdomain\\.example\\.com.*"));
         URI uri = createUri("http://example.com");
         // When
-        FetchStatus status = filter.checkFilter(uri);
+        org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status = filter.checkFilter(uri);
         // Then
-        assertThat(status, is(equalTo(FetchStatus.VALID)));
+        assertThat(
+                status, is(equalTo(org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID)));
     }
 
     private static URI createUri(String uri) {
@@ -237,14 +268,16 @@ class DefaultFetchFilterUnitTest {
         }
     }
 
-    private static List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope(String... domains) {
+    private static List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domainsAlwaysInScope(
+            String... domains) {
         if (domains == null || domains.length == 0) {
             return Collections.emptyList();
         }
 
-        List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = new ArrayList<>(1);
+        List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domainsAlwaysInScope =
+                new ArrayList<>(1);
         for (String domain : domains) {
-            domainsAlwaysInScope.add(new DomainAlwaysInScopeMatcher(domain));
+            domainsAlwaysInScope.add(new org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher(domain));
         }
         return domainsAlwaysInScope;
     }

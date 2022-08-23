@@ -27,7 +27,6 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.search.SearchPanel;
-import org.zaproxy.zap.extension.spider.SpiderPanel;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHttpMessagesContainer;
@@ -351,6 +350,7 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
      * @return the invoker or {@code Invoker#UNKNOWN} if the message container was not identified.
      * @see Invoker
      */
+    @SuppressWarnings("deprecation")
     protected static final Invoker getInvoker(HttpMessageContainer httpMessageContainer) {
         Invoker invoker;
         switch (httpMessageContainer.getName()) {
@@ -366,7 +366,7 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
             case SearchPanel.HTTP_MESSAGE_CONTAINER_NAME:
                 invoker = Invoker.SEARCH_PANEL;
                 break;
-            case SpiderPanel.HTTP_MESSAGE_CONTAINER_NAME:
+            case org.zaproxy.zap.extension.spider.SpiderPanel.HTTP_MESSAGE_CONTAINER_NAME:
                 invoker = Invoker.SPIDER_PANEL;
                 break;
             case ActiveScanPanel.MESSAGE_CONTAINER_NAME:

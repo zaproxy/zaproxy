@@ -24,6 +24,8 @@ import org.zaproxy.zap.model.ScanEventPublisher;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.users.User;
 
+/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+@Deprecated
 public class SpiderEventPublisher extends ScanEventPublisher {
 
     private static SpiderEventPublisher publisher = null;

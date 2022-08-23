@@ -41,6 +41,7 @@
       ":addOns:scripts",
       ":addOns:selenium",
       ":addOns:soap",
+      ":addOns:spider",
       ":addOns:spiderAjax",
       ":addOns:tips",
       ":addOns:webdrivers:webdriverlinux",

@@ -31,7 +31,6 @@ import org.zaproxy.zap.extension.alert.AlertEventPublisher;
 import org.zaproxy.zap.extension.ascan.ActiveScanEventPublisher;
 import org.zaproxy.zap.extension.brk.BreakEventPublisher;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
-import org.zaproxy.zap.extension.spider.SpiderEventPublisher;
 
 /**
  * Class that contains/provides all built-in (core) components (i.e. extensions and active/passive
@@ -62,7 +61,6 @@ public final class CoreFunctionality {
         HistoryReferenceEventPublisher.getPublisher();
         ProxyListenerLogEventPublisher.getPublisher();
         SiteMapEventPublisher.getPublisher();
-        SpiderEventPublisher.getPublisher();
     }
 
     /**
@@ -131,7 +129,6 @@ public final class CoreFunctionality {
             extensions.add(new org.zaproxy.zap.extension.search.ExtensionSearch());
             extensions.add(new org.zaproxy.zap.extension.sessions.ExtensionSessionManagement());
             extensions.add(new org.zaproxy.zap.extension.siterefresh.ExtensionSitesRefresh());
-            extensions.add(new org.zaproxy.zap.extension.spider.ExtensionSpider());
             extensions.add(new org.zaproxy.zap.extension.stats.ExtensionStats());
             extensions.add(new org.zaproxy.zap.extension.stdmenus.ExtensionStdMenus());
             extensions.add(new org.zaproxy.zap.extension.uiutils.ExtensionUiUtils());
