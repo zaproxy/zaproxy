@@ -479,8 +479,10 @@ public class SiteMap extends SortedTreeModel {
     }
 
     private boolean isReferenceCached(HistoryReference ref) {
-        return ref.getHistoryType() != HistoryReference.TYPE_TEMPORARY
-                && hrefMap.containsKey(ref.getHistoryId());
+        // FIXME Use of cache leads to missing alerts in the tree nodes.
+        // return ref.getHistoryType() != HistoryReference.TYPE_TEMPORARY
+        //        && hrefMap.containsKey(ref.getHistoryId());
+        return false;
     }
 
     private SiteNode findAndAddChild(
