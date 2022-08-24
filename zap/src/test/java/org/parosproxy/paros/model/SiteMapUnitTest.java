@@ -238,7 +238,7 @@ class SiteMapUnitTest {
     }
 
     @Test
-    void shouldReturnCachedHistoryReference() throws Exception {
+    void shouldNotReturnCachedHistoryReference() throws Exception {
         // Given
         String uri = "http://example.com";
         HistoryReference href = createHistoryReference(uri);
@@ -249,7 +249,7 @@ class SiteMapUnitTest {
         siteMap.addPath(href);
         siteMap.addPath(href, href.getHttpMessage(), false);
         // Then
-        verify(session).getUrlParamParser(anyString());
+        verify(session, times(3)).getUrlParamParser(anyString());
     }
 
     @Test
