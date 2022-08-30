@@ -116,7 +116,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             // ZAP: Removed unnecessary cast.
             originalPair = nameValuePairs.get(i);
 
-            if (!isToExclude(originalPair)) {
+            if (!isFiltered(originalPair)) {
 
                 // We need to use a fresh copy of the original message
                 // for further analysis inside all plugins
@@ -137,19 +137,17 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      * @param param the param object
      * @return true if it need to be excluded
      */
-    private boolean isToExclude(NameValuePair param) {
-        List<ScannerParamFilter> excludedParameters = getParameterExclusionFilters(param);
+    private boolean isFiltered(NameValuePair param) {
+        List<? extends ScannerParamFilterRule> excludedParameters =
+                getParameterExclusionFilters(param);
+        ScannerParamFilterRules filterRules = new ScannerParamFilterRules();
+        filterRules.addParamFilters(excludedParameters);
+        filterRules.addParamFilter(this.getParent().getScannerParam().getWhitelistingValueFilter());
 
         // We can use the base one, we don't do anything with it
         HttpMessage msg = getBaseMsg();
 
-        for (ScannerParamFilter filter : excludedParameters) {
-            if (filter.isToExclude(msg, param)) {
-                return true;
-            }
-        }
-
-        return false;
+        return filterRules.filter(msg, param);
     }
 
     private List<ScannerParamFilter> getParameterExclusionFilters(NameValuePair parameter) {

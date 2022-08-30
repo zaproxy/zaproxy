@@ -46,6 +46,7 @@
 // ZAP: 2017/09/26 Use helper methods to read the configurations.
 // ZAP: 2018/02/14 Remove unnecessary boxing / unboxing
 // ZAP: 2018/09/12 Make the addition of a query parameter optional.
+// ZAP: 2018/10/22 Added regular expression to ignore parameters by value on Active Scanning
 // ZAP: 2019/05/10 Enable custom (script) input vectors by default.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
@@ -119,6 +120,9 @@ public class ScannerParam extends AbstractParam {
      */
     private static final String SCAN_ADD_QUERY_PARAM = ACTIVE_SCAN_BASE_KEY + ".addQueryParam";
 
+    private static final String SCAN_VALUE_WHITELISTING_EXPRESSION =
+            ACTIVE_SCAN_BASE_KEY + ".scanOnlyWhitelistedValues";
+
     /**
      * Configuration key to write/read the {@link #scanNullJsonValues} flag.
      *
@@ -171,6 +175,8 @@ public class ScannerParam extends AbstractParam {
     private int targetParamsInjectable = TARGET_INJECTABLE_DEFAULT;
     private int targetParamsEnabledRPC = TARGET_ENABLED_RPC_DEFAULT;
 
+    private String whitelistingValueExpression = null;
+
     /**
      * Flag that indicates if the HTTP Headers of all requests should be scanned, not just requests
      * that send parameters, through the query or request body.
@@ -194,6 +200,8 @@ public class ScannerParam extends AbstractParam {
      * @see #setAddQueryParam(boolean)
      */
     private boolean addQueryParam;
+
+    private ScannerParamValueFilterRule whitelistingValueFilter;
 
     /**
      * Flag that indicates if the active scanner should scan null JSON values.
@@ -260,6 +268,8 @@ public class ScannerParam extends AbstractParam {
         this.scanHeadersAllRequests = getBoolean(SCAN_HEADERS_ALL_REQUESTS, false);
 
         this.addQueryParam = getBoolean(SCAN_ADD_QUERY_PARAM, false);
+
+        this.whitelistingValueExpression = getString(SCAN_VALUE_WHITELISTING_EXPRESSION, null);
 
         this.scanNullJsonValues = getBoolean(SCAN_NULL_JSON_VALUES, false);
 
@@ -608,6 +618,21 @@ public class ScannerParam extends AbstractParam {
     public void setAddQueryParam(boolean addQueryParam) {
         this.addQueryParam = addQueryParam;
         getConfig().setProperty(SCAN_ADD_QUERY_PARAM, this.addQueryParam);
+    }
+
+    public void setWhitelistedValuesExpression(String expression) {
+        this.whitelistingValueExpression = expression;
+        getConfig()
+                .setProperty(SCAN_VALUE_WHITELISTING_EXPRESSION, this.whitelistingValueExpression);
+        whitelistingValueFilter = new ScannerParamValueFilterRule(this.whitelistingValueExpression);
+    }
+
+    public String getWhitelistingValueExpression() {
+        return this.whitelistingValueExpression;
+    }
+
+    public ScannerParamValueFilterRule getWhitelistingValueFilter() {
+        return this.whitelistingValueFilter;
     }
 
     /**

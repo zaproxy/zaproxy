@@ -641,7 +641,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor
                             tabs,
                             this.customScanPanels,
                             getView().getMainFrame(),
-                            new Dimension(700, 500));
+                            new Dimension(700, 550));
         }
         if (customScanDialog.isVisible()) {
             customScanDialog.requestFocus();
