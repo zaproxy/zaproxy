@@ -391,18 +391,23 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_HTML_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_JSON_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_MD_REPORT)));
-        this.addApiOthers(new ApiOther(OTHER_MESSAGE_HAR, new String[] {PARAM_ID}));
         this.addApiOthers(
-                new ApiOther(
-                        OTHER_MESSAGES_HAR,
-                        null,
-                        new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
-        this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR_BY_ID, new String[] {PARAM_IDS}));
+                depreciatedEximApi(new ApiOther(OTHER_MESSAGE_HAR, new String[] {PARAM_ID})));
         this.addApiOthers(
-                new ApiOther(
-                        OTHER_SEND_HAR_REQUEST,
-                        new String[] {PARAM_REQUEST},
-                        new String[] {PARAM_FOLLOW_REDIRECTS}));
+                depreciatedEximApi(
+                        new ApiOther(
+                                OTHER_MESSAGES_HAR,
+                                null,
+                                new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT})));
+        this.addApiOthers(
+                depreciatedEximApi(
+                        new ApiOther(OTHER_MESSAGES_HAR_BY_ID, new String[] {PARAM_IDS})));
+        this.addApiOthers(
+                depreciatedEximApi(
+                        new ApiOther(
+                                OTHER_SEND_HAR_REQUEST,
+                                new String[] {PARAM_REQUEST},
+                                new String[] {PARAM_FOLLOW_REDIRECTS})));
 
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
@@ -471,6 +476,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
     private <T extends ApiElement> T depreciatedReportApi(T element) {
         return depreciatedApi(element, Constant.messages.getString("core.api.depreciated.report"));
+    }
+
+    private <T extends ApiElement> T depreciatedEximApi(T element) {
+        return depreciatedApi(element, Constant.messages.getString("core.api.deprecated.exim"));
     }
 
     private <T extends ApiElement> T depreciatedApi(T element, String description) {
