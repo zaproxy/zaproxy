@@ -64,9 +64,6 @@ public class SpiderHtmlFormParser extends SpiderParser {
     /** The form attributes */
     private Map<String, String> envAttributes = new HashMap<>();
 
-    /** The spider parameters. */
-    private final org.zaproxy.zap.spider.SpiderParam param;
-
     /** Create new Value Generator field */
     private final ValueGenerator valueGenerator;
 
@@ -85,18 +82,15 @@ public class SpiderHtmlFormParser extends SpiderParser {
      *
      * @param param the parameters for the spider
      * @param valueGenerator the ValueGenerator
-     * @throws IllegalArgumentException if {@code param} or {@code valueGenerator} is null.
+     * @throws IllegalArgumentException if {@code valueGenerator} is null.
+     * @throws NullPointerException if {@code param} is null.
      */
     public SpiderHtmlFormParser(
             org.zaproxy.zap.spider.SpiderParam param, ValueGenerator valueGenerator) {
-        super();
-        if (param == null) {
-            throw new IllegalArgumentException("Parameter param must not be null.");
-        }
+        super(param);
         if (valueGenerator == null) {
             throw new IllegalArgumentException("Parameter valueGenerator must not be null.");
         }
-        this.param = param;
         this.valueGenerator = valueGenerator;
     }
 
@@ -104,7 +98,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
     public boolean parseResource(HttpMessage message, Source source, int depth) {
         getLogger().debug("Parsing an HTML message for forms...");
         // If form processing is disabled, don't parse anything
-        if (!param.isProcessForm()) {
+        if (!getSpiderParam().isProcessForm()) {
             return false;
         }
 
@@ -125,7 +119,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
             }
             String href = base.getAttributeValue("href");
             if (href != null && !href.isEmpty()) {
-                baseURL = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(href, baseURL);
+                baseURL = getCanonicalURL(href, baseURL);
             }
         }
 
@@ -155,7 +149,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
                                         + action);
 
                 // If POSTing forms is not enabled, skip processing of forms with POST method
-                if (!param.isPostForm()
+                if (!getSpiderParam().isPostForm()
                         && method != null
                         && method.trim().equalsIgnoreCase(METHOD_POST)) {
                     getLogger().debug("Skipping form with POST method because of user settings.");
@@ -168,15 +162,13 @@ public class SpiderHtmlFormParser extends SpiderParser {
                     action = action.substring(0, fs);
                 }
 
-                url = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(action, baseURL);
+                url = getCanonicalURL(action, baseURL);
                 FormData formData = prepareFormDataSet(source, form);
 
                 // Process the case of a POST method
                 if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
                     // Build the absolute canonical URL
-                    String fullURL =
-                            org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(
-                                    action, baseURL);
+                    String fullURL = getCanonicalURL(action, baseURL);
                     if (fullURL == null) {
                         return false;
                     }

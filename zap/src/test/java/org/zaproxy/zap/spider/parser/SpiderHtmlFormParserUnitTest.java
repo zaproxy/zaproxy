@@ -63,7 +63,7 @@ class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         org.zaproxy.zap.spider.SpiderParam undefinedSpiderOptions = null;
         // When / Then
         assertThrows(
-                IllegalArgumentException.class,
+                NullPointerException.class,
                 () ->
                         new org.zaproxy.zap.spider.parser.SpiderHtmlFormParser(
                                 undefinedSpiderOptions, new DefaultValueGenerator()));

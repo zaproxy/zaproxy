@@ -56,9 +56,6 @@ public class SpiderSitemapXMLParser extends SpiderParser {
             Pattern.compile(
                     "^<\\?xml\\s+version\\s*=\\s*\"[0-9.]+\"\\s+encoding\\s*=\\s*\"[^\"]+\"\\s*\\?>");
 
-    /** The Spider parameters. */
-    private org.zaproxy.zap.spider.SpiderParam params;
-
     /** used to parse the XML based file format */
     private static DocumentBuilder dBuilder;
 
@@ -80,14 +77,10 @@ public class SpiderSitemapXMLParser extends SpiderParser {
      * Instantiates a new sitemap.xml parser.
      *
      * @param params the params
-     * @throws IllegalArgumentException if {@code params} is null.
+     * @throws NullPointerException if {@code params} is null.
      */
     public SpiderSitemapXMLParser(org.zaproxy.zap.spider.SpiderParam params) {
-        super();
-        if (params == null) {
-            throw new IllegalArgumentException("Parameter params must not be null.");
-        }
-        this.params = params;
+        super(params);
     }
 
     @Override
@@ -96,7 +89,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
         if (getLogger().isDebugEnabled()) getLogger().debug("Parsing a sitemap.xml resource...");
 
         if (message == null
-                || !params.isParseSitemapXml()
+                || !getSpiderParam().isParseSitemapXml()
                 || !message.getResponseHeader().isXml()
                 || HttpStatusCode.isClientError(message.getResponseHeader().getStatusCode())
                 || HttpStatusCode.isServerError(message.getResponseHeader().getStatusCode())) {

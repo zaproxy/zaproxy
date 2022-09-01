@@ -46,7 +46,7 @@ class SpiderSitemapXMLParserUnitTest extends SpiderParserTestUtils {
         org.zaproxy.zap.spider.SpiderParam undefinedSpiderOptions = null;
         // When / Then
         assertThrows(
-                IllegalArgumentException.class,
+                NullPointerException.class,
                 () ->
                         new org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser(
                                 undefinedSpiderOptions));

@@ -25,8 +25,10 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import net.htmlparser.jericho.Source;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -38,12 +40,19 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
+    private SpiderTextParser spiderParser;
+
+    @BeforeEach
+    void setup() {
+        org.zaproxy.zap.spider.SpiderParam undefinedSpiderOptions =
+                mock(org.zaproxy.zap.spider.SpiderParam.class);
+        spiderParser = new org.zaproxy.zap.spider.parser.SpiderTextParser(undefinedSpiderOptions);
+    }
+
     @Test
     void shouldFailToEvaluateAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        org.zaproxy.zap.spider.parser.SpiderTextParser spiderParser =
-                new org.zaproxy.zap.spider.parser.SpiderTextParser();
         // When / Then
         assertThrows(
                 NullPointerException.class,
@@ -53,8 +62,6 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseMessageIfAlreadyParsed() {
         // Given
-        org.zaproxy.zap.spider.parser.SpiderTextParser spiderParser =
-                new org.zaproxy.zap.spider.parser.SpiderTextParser();
         boolean parsed = true;
         // When
         boolean canParse = spiderParser.canParseResource(new HttpMessage(), ROOT_PATH, parsed);
@@ -66,7 +73,6 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     void shouldNotParseNonTextResponse() {
         // Given
         HttpMessage message = createMessageWith("application/xyz", EMPTY_BODY);
-        SpiderTextParser spiderParser = new SpiderTextParser();
         boolean parsed = false;
         // When
         boolean canParse = spiderParser.canParseResource(message, ROOT_PATH, parsed);
@@ -78,7 +84,6 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     void shouldNotParseTextHtmlResponse() {
         // Given
         HttpMessage message = createMessageWith("text/html", EMPTY_BODY);
-        SpiderTextParser spiderParser = new SpiderTextParser();
         boolean parsed = false;
         // When
         boolean canParse = spiderParser.canParseResource(message, ROOT_PATH, parsed);
@@ -89,7 +94,6 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParseTextResponse() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
         HttpMessage messageHtmlResponse = createMessageWith(EMPTY_BODY);
         boolean parsed = false;
         // When
@@ -101,7 +105,6 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldParseTextResponseEvenIfProvidedPathIsNull() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
         HttpMessage messageHtmlResponse = createMessageWith(EMPTY_BODY);
         boolean parsed = false;
         // When
@@ -113,7 +116,6 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotParseTextResponseIfAlreadyParsed() {
         // Given
-        SpiderTextParser spiderParser = new SpiderTextParser();
         HttpMessage messageHtmlResponse = createMessageWith(EMPTY_BODY);
         boolean parsed = true;
         // When
@@ -126,7 +128,6 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        SpiderTextParser spiderParser = new SpiderTextParser();
         Source source = createSource(createMessageWith(EMPTY_BODY));
         // When / Then
         assertThrows(
@@ -137,8 +138,6 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNeverConsiderCompletelyParsed() {
         // Given
-        org.zaproxy.zap.spider.parser.SpiderTextParser spiderParser =
-                new org.zaproxy.zap.spider.parser.SpiderTextParser();
         HttpMessage message = createMessageWith("Non Empty Body...");
         Source source = createSource(message);
         // When
@@ -150,8 +149,6 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldNotFindUrlsIfThereIsNone() {
         // Given
-        org.zaproxy.zap.spider.parser.SpiderTextParser spiderParser =
-                new org.zaproxy.zap.spider.parser.SpiderTextParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage message =
@@ -173,8 +170,6 @@ class SpiderTextParserUnitTest extends SpiderParserTestUtils {
     @Test
     void shouldFindUrlsInCommentsWithoutElements() {
         // Given
-        org.zaproxy.zap.spider.parser.SpiderTextParser spiderParser =
-                new org.zaproxy.zap.spider.parser.SpiderTextParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         spiderParser.addSpiderParserListener(listener);
         HttpMessage messageHtmlResponse =

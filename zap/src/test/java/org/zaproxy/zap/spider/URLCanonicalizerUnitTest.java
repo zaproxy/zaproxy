@@ -23,6 +23,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import java.util.Arrays;
+import java.util.function.Predicate;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.Test;
@@ -560,5 +562,63 @@ class URLCanonicalizerUnitTest {
                 org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(title,year)/Author"));
+    }
+
+    @Test
+    void shouldSkipIrrelevantQueryParametersWhenCanonicalizing() throws URIException {
+        // Given
+        String uri =
+                new URI("http://example.com/?name1=value1&name2=value2&name3=value3", true)
+                        .toString();
+
+        Predicate<String> irrelevantParameters = Arrays.asList("name1", "name3")::contains;
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri, null, irrelevantParameters);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("http://example.com/?name2=value2")));
+    }
+
+    @Test
+    void shouldSkipSessionTokensWhenCanonicalizing() throws URIException {
+        // Given
+        String uri =
+                new URI("http://example.com/?jsessionid=id1&phpsessid=id2&aspsessionid=id3", true)
+                        .toString();
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri, null);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("http://example.com/")));
+    }
+
+    @Test
+    void shouldSkipIrrelevantQueryParametersWhenCleaningParametersIn_IGNORE_VALUE_mode()
+            throws URIException {
+        // Given
+        URI uri = new URI("http://example.com/?name1=value1&name2=value2&name3=value3", true);
+        Predicate<String> irrelevantParameters = Arrays.asList("name1", "name3")::contains;
+        // When
+        String cleanedUri =
+                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE,
+                        false,
+                        irrelevantParameters);
+        // Then
+        assertThat(cleanedUri, is(equalTo("http://example.com/?name2")));
+    }
+
+    @Test
+    void shouldSkipSessionTokensWhenCleaningParametersIn_IGNORE_VALUE_mode() throws URIException {
+        // Given
+        URI uri =
+                new URI("http://example.com/?jsessionid=id1&phpsessid=id2&aspsessionid=id3", true);
+        // When
+        String cleanedUri =
+                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE,
+                        false);
+        // Then
+        assertThat(cleanedUri, is(equalTo("http://example.com/")));
     }
 }

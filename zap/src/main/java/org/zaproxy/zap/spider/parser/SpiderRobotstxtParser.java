@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.spider.parser;
 
-import java.util.Objects;
 import java.util.StringTokenizer;
 import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpMessage;
@@ -41,9 +40,6 @@ public class SpiderRobotstxtParser extends SpiderParser {
     private static final int PATTERNS_DISALLOW_LENGTH = 9;
     private static final int PATTERNS_ALLOW_LENGTH = 6;
 
-    /** The params. */
-    private org.zaproxy.zap.spider.SpiderParam params;
-
     /**
      * Instantiates a new spider robotstxt parser.
      *
@@ -51,14 +47,13 @@ public class SpiderRobotstxtParser extends SpiderParser {
      * @throws NullPointerException if {@code params} is null.
      */
     public SpiderRobotstxtParser(org.zaproxy.zap.spider.SpiderParam params) {
-        super();
-        this.params = Objects.requireNonNull(params, "Parameter params must not be null.");
+        super(params);
     }
 
     /** @throws NullPointerException if {@code message} is null. */
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
-        if (!params.isParseRobotsTxt()) {
+        if (!getSpiderParam().isParseRobotsTxt()) {
             return false;
         }
         getLogger().debug("Parsing a robots.txt resource...");
