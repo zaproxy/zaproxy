@@ -1494,8 +1494,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         Writer writer = getWriters(script);
         se.getContext().setWriter(writer);
 
+        String scriptName = script.getName();
+        se.getContext().setAttribute(ScriptEngine.FILENAME, scriptName, ScriptContext.ENGINE_SCOPE);
         // Set the script name as a context attribute - this is used for script level variables
-        se.getContext().setAttribute(SCRIPT_NAME_ATT, script.getName(), ScriptContext.ENGINE_SCOPE);
+        se.getContext().setAttribute(SCRIPT_NAME_ATT, scriptName, ScriptContext.ENGINE_SCOPE);
 
         se.put("control", Control.getSingleton());
         se.put("model", getModel());
