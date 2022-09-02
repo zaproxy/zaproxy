@@ -51,6 +51,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.tree.TreeNode;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
@@ -1879,7 +1880,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     public void setError(ScriptWrapper script, Exception e) {
         script.setLastException(e);
-        setError(script, e.getMessage());
+        String message = e.getMessage();
+        setError(script, message != null ? message : ExceptionUtils.getRootCauseMessage(e));
     }
 
     public void addListener(ScriptEventListener listener) {
