@@ -70,6 +70,7 @@
 // ZAP: 2020/11/17 Use new TechSet#getAllTech().
 // ZAP: 2020/11/26 Use Log4j2 getLogger() and deprecate Log4j1.x.
 // ZAP: 2021/07/20 Correct message updated with the scan rule ID header (Issue 6689).
+// ZAP: 2022/06/11 Add functionality for custom pages AUTHN/AUTHZ handling.
 // ZAP: 2022/06/05 Remove usage of HttpException.
 // ZAP: 2022/08/03 Keep enabled state when setting default alert threshold (Issue 7400).
 package org.parosproxy.paros.core.scanner;
@@ -678,6 +679,22 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      */
     protected boolean isPageOther(HttpMessage msg) {
         return isCustomPage(msg, CustomPage.Type.OTHER);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPage.Type.AUTH_4XX} definitions. Checks
+     * if the message matches {@code CustomPage.Type.OK_200} first, in case the user is trying to
+     * override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.12.0
+     */
+    protected boolean isPageAuthIssue(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)) {
+            return false;
+        }
+        return isCustomPage(msg, CustomPage.Type.AUTH_4XX);
     }
 
     /**

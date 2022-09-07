@@ -81,7 +81,7 @@ class DefaultCustomPageUnitTest {
     void shouldDecodeCustomPageWithDefaultTypeIfTypeIdInvalid() {
         // Given/When
         DefaultCustomPage actual =
-                DefaultCustomPage.decode(0, BASE64_TEST_PATTERN + ";1;true;5;true;");
+                DefaultCustomPage.decode(0, BASE64_TEST_PATTERN + ";1;true;15;true;");
         DefaultCustomPage expected =
                 new DefaultCustomPage(
                         0,
