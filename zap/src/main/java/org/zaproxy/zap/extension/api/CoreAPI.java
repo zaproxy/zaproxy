@@ -545,7 +545,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
         } else if (ACTION_SAVE_SESSION.equalsIgnoreCase(
                 name)) { // Ignore case for backwards compatibility
-            Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
+            Path sessionPath = getSessionPath(params.getString(PARAM_SESSION));
             String filename = sessionPath.toAbsolutePath().toString();
 
             final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
@@ -608,7 +608,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 }
                 fileName += "-" + dateFormat.format(new Date()) + ".session";
             } else {
-                Path sessionPath = SessionUtils.getSessionPath(fileName);
+                Path sessionPath = getSessionPath(fileName);
                 fileName = sessionPath.toAbsolutePath().toString();
 
                 if (Files.exists(sessionPath)) {
@@ -649,7 +649,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
         } else if (ACTION_LOAD_SESSION.equalsIgnoreCase(
                 name)) { // Ignore case for backwards compatibility
-            Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
+            Path sessionPath = getSessionPath(params.getString(PARAM_SESSION));
             String filename = sessionPath.toAbsolutePath().toString();
 
             if (!Files.exists(sessionPath)) {
@@ -680,7 +680,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                     throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                 }
             } else {
-                Path sessionPath = SessionUtils.getSessionPath(sessionName);
+                Path sessionPath = getSessionPath(sessionName);
                 String filename = sessionPath.toAbsolutePath().toString();
 
                 final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
@@ -878,6 +878,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }
         return ApiResponseElement.OK;
+    }
+
+    private static Path getSessionPath(String path) throws ApiException {
+        try {
+            return SessionUtils.getSessionPath(path);
+        } catch (IllegalArgumentException e) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_SESSION, e);
+        }
     }
 
     private static ApiImplementor getNetworkImplementor() throws ApiException {
