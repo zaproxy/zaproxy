@@ -249,10 +249,20 @@ public class GuiBootstrap extends ZapBootstrap {
                                             Constant.getZapHome()));
 
                         } else if (getArgs().isEnabled(CommandLine.SESSION)) {
-                            Path sessionPath =
-                                    SessionUtils.getSessionPath(
-                                            getArgs().getArgument(CommandLine.SESSION));
-                            if (!Files.exists(sessionPath)) {
+                            String path = getArgs().getArgument(CommandLine.SESSION);
+                            Path sessionPath = null;
+                            try {
+                                sessionPath = SessionUtils.getSessionPath(path);
+                            } catch (IllegalArgumentException e) {
+                                logger.warn(
+                                        "An error occurred while resolving the session path:", e);
+                            }
+
+                            if (sessionPath == null) {
+                                view.showWarningDialog(
+                                        Constant.messages.getString(
+                                                "start.gui.cmdline.session.path.invalid", path));
+                            } else if (!Files.exists(sessionPath)) {
                                 view.showWarningDialog(
                                         Constant.messages.getString(
                                                 "start.gui.cmdline.session.does.not.exist",
@@ -266,10 +276,20 @@ public class GuiBootstrap extends ZapBootstrap {
                             }
 
                         } else if (getArgs().isEnabled(CommandLine.NEW_SESSION)) {
-                            Path sessionPath =
-                                    SessionUtils.getSessionPath(
-                                            getArgs().getArgument(CommandLine.NEW_SESSION));
-                            if (Files.exists(sessionPath)) {
+                            String path = getArgs().getArgument(CommandLine.NEW_SESSION);
+                            Path sessionPath = null;
+                            try {
+                                sessionPath = SessionUtils.getSessionPath(path);
+                            } catch (IllegalArgumentException e) {
+                                logger.warn(
+                                        "An error occurred while resolving the session path:", e);
+                            }
+
+                            if (sessionPath == null) {
+                                view.showWarningDialog(
+                                        Constant.messages.getString(
+                                                "start.gui.cmdline.session.path.invalid", path));
+                            } else if (Files.exists(sessionPath)) {
                                 view.showWarningDialog(
                                         Constant.messages.getString(
                                                 "start.gui.cmdline.newsession.already.exist",
