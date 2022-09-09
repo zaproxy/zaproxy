@@ -49,8 +49,10 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -130,7 +132,7 @@ public class Analyser {
         }
 
         try {
-            inOrderAnalyse(node);
+            inOrderAnalyse(new HashSet<>(), node);
         } finally {
             stopWatch.suspend();
         }
@@ -357,19 +359,21 @@ public class Analyser {
     /**
      * Analyse node (should be a folder unless it is host level) in-order.
      *
+     * @param traversedNodes the nodes that were traversed during the analysis.
      * @param node the node to analyse
      * @return the number of nodes available at this layer
      */
-    private int inOrderAnalyse(StructuralNode node) {
+    private int inOrderAnalyse(Set<StructuralNode> traversedNodes, StructuralNode node) {
         if (isStop || node == null) {
             return 0;
         }
 
         int subtreeNodes = 0;
 
-        if (mapVisited.containsKey(node.getURI().toString())) {
+        if (traversedNodes.contains(node)) {
             return 0;
         }
+        traversedNodes.add(node);
 
         try {
             if (!node.isRoot()) {
@@ -379,7 +383,7 @@ public class Analyser {
                     analyse(node);
                 } else if (node.isLeaf() && !node.getParent().isRoot()) {
                     logger.debug("Node being analysed is a leaf whose parent is not root");
-                    inOrderAnalyse(node.getParent());
+                    inOrderAnalyse(traversedNodes, node.getParent());
                 } else {
                     // ZAP: it's a Leaf then no children are available
                     return 1;
@@ -392,7 +396,7 @@ public class Analyser {
         Iterator<StructuralNode> iter = node.getChildIterator();
         logger.debug("Iterating children of {} with URI {}", node.getName(), node.getURI());
         while (iter.hasNext()) {
-            subtreeNodes += inOrderAnalyse(iter.next());
+            subtreeNodes += inOrderAnalyse(traversedNodes, iter.next());
         }
 
         return subtreeNodes + 1;
