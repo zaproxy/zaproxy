@@ -29,6 +29,5 @@ jobs:
       run: ./gradlew test jacocoTestReport -Dorg.gradle.jvmargs=-Xmx4096m
     - name: Sonarcloud Scan
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.ZAPBOT_SONARCLOUD_TOKEN }}
       run: ./gradlew -Dorg.gradle.jvmargs=-Xmx4g sonarqube --stacktrace
