@@ -115,4 +115,21 @@ public class StructuralSiteNode implements StructuralNode {
     public boolean isDataDriven() {
         return this.node.isDataDriven();
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(node);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof StructuralSiteNode)) {
+            return false;
+        }
+        StructuralSiteNode other = (StructuralSiteNode) obj;
+        return Objects.equals(node, other.node);
+    }
 }
