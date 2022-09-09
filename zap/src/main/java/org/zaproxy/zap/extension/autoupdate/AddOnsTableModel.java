@@ -225,9 +225,7 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
                         rows.add(idx);
                     }
                 } catch (Exception e) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Error on " + url, e);
-                    }
+                    logger.debug("Error on {}", url, e);
                     setFailed(aow, addOn);
                     try {
                         final int row = idx;
@@ -258,9 +256,7 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
                             }
                         });
             } catch (InvocationTargetException | InterruptedException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Failed to update all the progresses: ", e);
-                }
+                logger.debug("Failed to update all the progresses: ", e);
             }
         }
     }

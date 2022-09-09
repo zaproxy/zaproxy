@@ -200,9 +200,7 @@ public abstract class BaseZapAddOnXmlData {
         try {
             version = new Version(v);
         } catch (IllegalArgumentException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Falling back to integer version [" + v + "] for add-on " + name);
-            }
+            LOGGER.debug("Falling back to integer version [{}] for add-on {}", v, name);
             version = new Version(Integer.parseInt(v) + ".0.0");
         }
 
@@ -210,9 +208,8 @@ public abstract class BaseZapAddOnXmlData {
         if (status == null) {
             LOGGER.log(
                     Constant.isDevMode() ? Level.ERROR : Level.WARN,
-                    "No status specified for "
-                            + name
-                            + ", defaulting to \"alpha\". Add-ons should declare its status in the manifest.");
+                    "No status specified for {}, defaulting to \"alpha\". Add-ons should declare its status in the manifest.",
+                    name);
             status = "alpha";
         } else if (!ADDON_STATUSES.contains(status)) {
             throw new IllegalArgumentException(
@@ -354,8 +351,7 @@ public abstract class BaseZapAddOnXmlData {
             if (!field.isEmpty()) {
                 strings.add(field);
             } else {
-                LOGGER.warn(
-                        "Ignoring empty \"" + elementName + "\" entry in add-on \"" + name + "\".");
+                LOGGER.warn("Ignoring empty \"{}\" entry in add-on \"{}\".", elementName, name);
             }
         }
 

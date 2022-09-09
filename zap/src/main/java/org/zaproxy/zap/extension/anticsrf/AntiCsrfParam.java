@@ -93,7 +93,7 @@ public class AntiCsrfParam extends AbstractParam {
                 }
             }
         } catch (ConversionException e) {
-            logger.error("Error while loading anti CSRF tokens: " + e.getMessage(), e);
+            logger.error("Error while loading anti CSRF tokens: {}", e.getMessage(), e);
             this.tokens = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
             this.enabledTokensNames = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
         }

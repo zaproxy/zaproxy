@@ -73,6 +73,7 @@
 // ZAP: 2022/06/11 Add functionality for custom pages AUTHN/AUTHZ handling.
 // ZAP: 2022/06/05 Remove usage of HttpException.
 // ZAP: 2022/08/03 Keep enabled state when setting default alert threshold (Issue 7400).
+// ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -1542,15 +1543,11 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
             }
 
             Alert alert = build();
-            if (plugin.logger.isDebugEnabled()) {
-                plugin.logger.debug(
-                        "New alert pluginid="
-                                + alert.getPluginId()
-                                + " "
-                                + alert.getName()
-                                + " uri="
-                                + alert.getUri());
-            }
+            plugin.logger.debug(
+                    "New alert pluginid={} {} uri={}",
+                    alert.getPluginId(),
+                    alert.getName(),
+                    alert.getUri());
             plugin.parent.alertFound(alert);
         }
     }

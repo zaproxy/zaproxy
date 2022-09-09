@@ -415,12 +415,11 @@ public class AddOn {
                         e -> {
                             ZipEntry libEntry = zip.getEntry(e);
                             if (libEntry == null) {
-                                logger.warn("The add-on " + file + " does not have the lib: " + e);
+                                logger.warn("The add-on {} does not have the lib: {}", file, e);
                                 return true;
                             }
                             if (libEntry.isDirectory()) {
-                                logger.warn(
-                                        "The add-on " + file + " does not have a file lib: " + e);
+                                logger.warn("The add-on {} does not have a file lib: {}", file, e);
                                 return true;
                             }
                             return false;
@@ -446,10 +445,10 @@ public class AddOn {
             if (logger.isDebugEnabled() || Constant.isDevMode()) {
                 logger.warn(logMessage, e);
             } else {
-                logger.warn(logMessage + " " + e.getMessage());
+                logger.warn("{} {}", logMessage, e.getMessage());
             }
         } catch (Exception e) {
-            logger.error("Failed to create an add-on from: " + file.toString(), e);
+            logger.error("Failed to create an add-on from: {}", file, e);
         }
         return Optional.empty();
     }
@@ -588,7 +587,7 @@ public class AddOn {
             try {
                 return new URL(url);
             } catch (Exception e) {
-                logger.warn("Invalid URL for add-on \"" + id + "\": " + url, e);
+                logger.warn("Invalid URL for add-on \"{}\": {}", id, url, e);
             }
         }
         return null;
@@ -781,15 +780,8 @@ public class AddOn {
                 try {
                     this.loadManifestFile();
                 } catch (IOException e) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(
-                                "Failed to read the "
-                                        + AddOn.MANIFEST_FILE_NAME
-                                        + " file of "
-                                        + id
-                                        + ":",
-                                e);
-                    }
+                    logger.debug(
+                            "Failed to read the {} file of {}:", AddOn.MANIFEST_FILE_NAME, id, e);
                 }
             }
         }
@@ -1273,18 +1265,15 @@ public class AddOn {
         if (installedVersion != null && !addOn.equals(installedVersion)) {
             requirements.setIssue(
                     BaseRunRequirements.DependencyIssue.OLDER_VERSION, installedVersion);
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                        "Add-on "
-                                + addOn
-                                + " not runnable, old version still installed: "
-                                + installedVersion);
-            }
+            logger.debug(
+                    "Add-on {} not runnable, old version still installed: {}",
+                    addOn,
+                    installedVersion);
             return;
         }
 
         if (!requirements.addDependency(parent, addOn)) {
-            logger.warn("Cyclic dependency detected with: " + requirements.getDependencies());
+            logger.warn("Cyclic dependency detected with: {}", requirements.getDependencies());
             requirements.setIssue(
                     BaseRunRequirements.DependencyIssue.CYCLIC, requirements.getDependencies());
             return;

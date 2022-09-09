@@ -331,7 +331,7 @@ public abstract class AuthenticationMethod {
                     HttpMessage pollMsg = pollAsUser(user);
                     msgToTest = pollMsg;
                 } catch (Exception e1) {
-                    LOGGER.warn("Failed sending poll request to " + this.getPollUrl(), e1);
+                    LOGGER.warn("Failed sending poll request to {}", this.getPollUrl(), e1);
                     return false;
                 }
                 break;
@@ -417,10 +417,9 @@ public abstract class AuthenticationMethod {
                             .addHeader(headerValue[0].trim(), headerValue[1].trim());
                 } else {
                     LOGGER.error(
-                            "Invalid header '"
-                                    + header
-                                    + "' for poll request to "
-                                    + this.getPollUrl());
+                            "Invalid header '{}' for poll request to {}",
+                            header,
+                            this.getPollUrl());
                 }
             }
         }

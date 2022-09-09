@@ -41,6 +41,7 @@
 // ZAP: 2020/08/27 Moved variants into VariantFactory
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/06/16 Add support for updating multiple parameters in HttpMessage.
+// ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -87,8 +88,8 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
                 this.scan(this.variant.getParamList());
             } catch (Exception e) {
                 logger.error(
-                        "Error occurred while scanning with variant "
-                                + variant.getClass().getCanonicalName(),
+                        "Error occurred while scanning with variant {}",
+                        variant.getClass().getCanonicalName(),
                         e);
             }
 
