@@ -21,6 +21,7 @@ package org.zaproxy.zap.model;
 
 import java.security.InvalidParameterException;
 import java.util.Iterator;
+import java.util.Objects;
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -154,5 +155,22 @@ public class StructuralTableNode implements StructuralNode {
             name = name.substring(slashIndex + 1);
         }
         return name.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rs);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof StructuralTableNode)) {
+            return false;
+        }
+        StructuralTableNode other = (StructuralTableNode) obj;
+        return Objects.equals(rs, other.rs);
     }
 }
