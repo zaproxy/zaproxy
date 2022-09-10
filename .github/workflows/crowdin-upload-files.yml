@@ -3,6 +3,9 @@ name: Crowdin Upload Files
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   upload:
     name: Upload Files

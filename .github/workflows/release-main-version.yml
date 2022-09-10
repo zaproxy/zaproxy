@@ -8,6 +8,9 @@ on:
     paths:
       - 'zap/zap.gradle.kts'
 
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Build and Release

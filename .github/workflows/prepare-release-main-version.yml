@@ -3,6 +3,9 @@ name: Prepare Release Main Version
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   prepare-release:
     name: Prepare Release

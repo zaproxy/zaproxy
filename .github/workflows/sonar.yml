@@ -5,6 +5,9 @@ on:
     - cron: '30 15 * * SAT'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   sonar:
     runs-on: [ubuntu-latest]

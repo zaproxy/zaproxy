@@ -4,6 +4,9 @@ on:
   repository_dispatch:
     types: 'release-weekly-docker'
 
+permissions:
+  contents: read
+
 jobs:
   publish:
     name: Build and Push Docker Image

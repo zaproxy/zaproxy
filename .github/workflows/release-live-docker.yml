@@ -5,6 +5,9 @@ on:
     # Every day at the start of the day
     - cron:  '0 0 * * *'
 
+permissions:
+  contents: read
+
 jobs:
   publish:
     name: Build and Push Docker Image

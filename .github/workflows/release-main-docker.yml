@@ -5,6 +5,9 @@ on:
   repository_dispatch:
     types: 'release-main-docker'
 
+permissions:
+  contents: read
+
 jobs:
   publish:
     name: Build and Push Docker Images

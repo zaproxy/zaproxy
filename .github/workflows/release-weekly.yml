@@ -3,6 +3,9 @@ name: Release Weekly
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   release:
     name: Build and Release
