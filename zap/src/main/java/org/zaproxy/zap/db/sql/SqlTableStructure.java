@@ -31,15 +31,15 @@ import org.parosproxy.paros.db.TableStructure;
 
 public class SqlTableStructure extends SqlAbstractTable implements TableStructure {
 
-    private static final String TABLE_NAME = "STRUCTURE";
+    private static final String TABLE_NAME = DbSQL.getSQL("structure.table_name");
 
-    private static final String STRUCTUREID = "STRUCTUREID";
-    private static final String SESSIONID = "SESSIONID";
-    private static final String PARENTID = "PARENTID";
-    private static final String HISTORYID = "HISTORYID";
-    private static final String NAME = "NAME";
-    private static final String URL = "URL";
-    private static final String METHOD = "METHOD";
+    private static final String STRUCTUREID = DbSQL.getSQL("structure.field.structureid");
+    private static final String SESSIONID = DbSQL.getSQL("structure.field.sessionid");
+    private static final String PARENTID = DbSQL.getSQL("structure.field.parentid");
+    private static final String HISTORYID = DbSQL.getSQL("structure.field.historyid");
+    private static final String NAME = DbSQL.getSQL("structure.field.name");
+    private static final String URL = DbSQL.getSQL("structure.field.url");
+    private static final String METHOD = DbSQL.getSQL("structure.field.method");
 
     public SqlTableStructure() {}
 
