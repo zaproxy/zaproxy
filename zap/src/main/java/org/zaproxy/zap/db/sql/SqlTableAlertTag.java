@@ -99,7 +99,7 @@ public class SqlTableAlertTag extends SqlAbstractTable implements TableAlertTag 
             psInsertOrUpdate.getPs().setLong(1, alertId);
             psInsertOrUpdate.getPs().setString(2, key);
             psInsertOrUpdate.getPs().setString(3, value);
-            if(psInsertOrUpdate.getPs().getParameterMetaData().getParameterCount() > 3) {
+            if (psInsertOrUpdate.getPs().getParameterMetaData().getParameterCount() > 3) {
                 psInsertOrUpdate.getPs().setString(4, value);
             }
             psInsertOrUpdate.getPs().executeUpdate();
