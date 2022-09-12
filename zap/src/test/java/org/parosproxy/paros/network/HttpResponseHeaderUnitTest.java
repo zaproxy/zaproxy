@@ -65,6 +65,26 @@ class HttpResponseHeaderUnitTest {
         assertThat(empty, is(equalTo(false)));
     }
 
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "HTTP/0.9",
+                "HTTP/1.0",
+                "HTTP/1.1",
+                "HTTP/1.2",
+                "HTTP/2",
+                "HTTP/3.0",
+                "HTTP/4.5"
+            })
+    void shouldParseWithArbitraryHttpVersions(String version) throws Exception {
+        // Given
+        HttpResponseHeader header = new HttpResponseHeader(version + " 200 OK\r\n\r\n");
+        // When
+        String parsedVersion = header.getVersion();
+        // Then
+        assertThat(parsedVersion, is(equalTo(version)));
+    }
+
     @Test
     void shouldSetValidStatusCode() throws Exception {
         // Given

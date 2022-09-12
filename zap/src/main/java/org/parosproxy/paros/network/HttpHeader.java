@@ -44,6 +44,7 @@
 // ZAP: 2019/12/09 Added getHeaderValues(String) method (returning List) and deprecated
 // getHeaders(String) method (returning Vector).
 // ZAP: 2022/03/11 Added headers: Content-Location, Link, Refresh
+// ZAP: 2022/09/12 Allow only major HTTP version.
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
@@ -121,7 +122,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     // protected static final String p_URI			= "(\\S+)";
     // allow space in URI for encoding to %20
     protected static final String p_URI = "([^\\r\\n]+)";
-    protected static final String p_VERSION = "(HTTP/\\d+\\.\\d+)";
+    protected static final String p_VERSION = "(HTTP/\\d+(?:\\.\\d+)?)";
     protected static final String p_STATUS_CODE = "(\\d{3})";
     protected static final String p_REASON_PHRASE = "(" + p_TEXT + ")";
     protected String mStartLine;
