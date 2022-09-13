@@ -62,6 +62,7 @@
 // ZAP: 2021/05/10 Use authority for CONNECT requests.
 // ZAP: 2021/07/16 Issue 6691: Do not add zero Content-Length by default in GET requests
 // ZAP: 2021/07/19 Include SVG in isImage().
+// ZAP: 2022/09/12 Allow arbitrary HTTP versions.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -454,13 +455,6 @@ public class HttpRequestHeader extends HttpHeader {
         mMethod = matcher.group(1);
         String sUri = matcher.group(2);
         mVersion = matcher.group(3);
-
-        if (!mVersion.equalsIgnoreCase(HTTP09)
-                && !mVersion.equalsIgnoreCase(HTTP10)
-                && !mVersion.equalsIgnoreCase(HTTP11)) {
-            mMalformedHeader = true;
-            throw new HttpMalformedHeaderException("Unexpected version: " + mVersion);
-        }
 
         if (mMethod.equalsIgnoreCase(CONNECT)) {
             parseHostName(sUri);

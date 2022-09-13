@@ -38,6 +38,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /** Unit test for {@link HttpRequestHeader}. */
 class HttpRequestHeaderUnitTest {
@@ -72,6 +73,27 @@ class HttpRequestHeaderUnitTest {
         boolean empty = header.isEmpty();
         // Then
         assertThat(empty, is(equalTo(false)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "HTTP/0.9",
+                "HTTP/1.0",
+                "HTTP/1.1",
+                "HTTP/1.2",
+                "HTTP/2",
+                "HTTP/3.0",
+                "HTTP/4.5"
+            })
+    void shouldParseWithArbitraryHttpVersions(String version) throws Exception {
+        // Given
+        HttpRequestHeader header =
+                new HttpRequestHeader("GET http://example.com/ " + version + "\r\n\r\n");
+        // When
+        String parsedVersion = header.getVersion();
+        // Then
+        assertThat(parsedVersion, is(equalTo(version)));
     }
 
     @Test
