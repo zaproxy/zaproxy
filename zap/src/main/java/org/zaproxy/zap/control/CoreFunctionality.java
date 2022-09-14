@@ -81,9 +81,6 @@ public final class CoreFunctionality {
             ArrayList<Extension> extensions = new ArrayList<>();
             extensions.add(new org.parosproxy.paros.extension.edit.ExtensionEdit());
             extensions.add(new org.parosproxy.paros.extension.history.ExtensionHistory());
-            extensions.add(
-                    new org.parosproxy.paros.extension.manualrequest
-                            .ExtensionManualRequestEditor());
             extensions.add(new org.parosproxy.paros.extension.option.ExtensionOption());
             extensions.add(new org.zaproxy.zap.extension.alert.ExtensionAlert());
             extensions.add(new org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF());

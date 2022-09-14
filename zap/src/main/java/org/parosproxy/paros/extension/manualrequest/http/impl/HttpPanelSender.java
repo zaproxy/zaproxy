@@ -37,7 +37,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.manualrequest.MessageSender;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -56,8 +55,13 @@ import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
 
-/** Knows how to send {@link HttpMessage} objects. */
-public class HttpPanelSender implements MessageSender {
+/**
+ * Knows how to send {@link HttpMessage} objects.
+ *
+ * @deprecated (2.12.0) Replaced by Requester add-on.
+ */
+@Deprecated
+public class HttpPanelSender implements org.parosproxy.paros.extension.manualrequest.MessageSender {
 
     private static final Logger logger = LogManager.getLogger(HttpPanelSender.class);
 

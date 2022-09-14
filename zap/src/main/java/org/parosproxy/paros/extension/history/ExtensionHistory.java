@@ -99,6 +99,7 @@
 // the exim add-on.
 // ZAP: 2022/06/12 Deprecate getResendDialog().
 // ZAP: 2022/06/27 Make delete more consistent and protective (Issue 7336).
+// ZAP: 2022/09/14 Address deprecation warnings.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -122,8 +123,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
-import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
 import org.parosproxy.paros.model.Model;
@@ -577,9 +576,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      * @deprecated (2.12.0) Replaced by Requester add-on.
      */
     @Deprecated
-    public ManualRequestEditorDialog getResendDialog() {
-        ManualRequestEditorDialog resendDialog =
-                new ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.manreq");
+    public org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog
+            getResendDialog() {
+        org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog resendDialog =
+                new org.parosproxy.paros.extension.manualrequest.http.impl
+                        .ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.manreq");
         resendDialog.setTitle(Constant.messages.getString("manReq.dialog.title")); // ZAP: i18n
         return resendDialog;
     }

@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
 
@@ -40,7 +39,8 @@ public class PopupMenuResendMessage extends PopupMenuItemHttpMessageContainer {
 
     @Override
     public void performAction(HttpMessage msg) {
-        ManualRequestEditorDialog dialog = extension.getResendDialog();
+        org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog dialog =
+                extension.getResendDialog();
 
         dialog.setMessage(msg.cloneRequest());
         dialog.setVisible(true);
