@@ -366,10 +366,6 @@ def main(argv):
                         for regex in out_of_scope_dict[id]:
                             alertFilters.append({'ruleId': id, 'newRisk': 'False Positive', 'url': regex.pattern, 'urlRegex': True})
                 
-                addons = ['pscanrulesBeta']
-                if zap_alpha:
-                    addons.append('pscanrulesAlpha')
-                    
                 jobs = [get_af_pscan_config()]
 
                 if len(alertFilters) > 0:
@@ -407,7 +403,12 @@ def main(argv):
  
             try:
                 # Run ZAP inline to update the add-ons
-                run_zap_inline(port, ['-addonupdate', '-silent'])
+                install_opts = ['-addonupdate', '-addoninstall', 'pscanrulesBeta']
+                if zap_alpha:
+                    install_opts.append('-addoninstall')
+                    install_opts.append('pscanrulesAlpha')
+            
+                run_zap_inline(port, install_opts)
                 
                 # Run ZAP inline with the yaml file
                 params = ['-autorun', yaml_file]
