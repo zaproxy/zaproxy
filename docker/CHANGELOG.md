@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2022-09-15
+ - No longer include depreciated addOns job.
+
 ### 2022-08-10
  - The packaged scans will no longer warn if the default hooks file is not found.
 

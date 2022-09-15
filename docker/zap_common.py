@@ -613,13 +613,6 @@ def get_af_env(targets, out_of_scope_dict, debug):
                 }
         }
 
-def get_af_addons(addons_install, addons_uninstall):
-    return {
-        'type': 'addOns',
-        'install': addons_install,
-        'uninstall': addons_uninstall
-        }
-
 def get_af_pscan_config(max_alerts=10):
     return {
         'type': 'passiveScan-config',

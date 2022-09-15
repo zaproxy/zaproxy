@@ -370,9 +370,7 @@ def main(argv):
                 if zap_alpha:
                     addons.append('pscanrulesAlpha')
                     
-                jobs = [
-                        get_af_addons(addons, []),
-                        get_af_pscan_config()]
+                jobs = [get_af_pscan_config()]
 
                 if len(alertFilters) > 0:
                     jobs.append(get_af_alertFilter(alertFilters))
