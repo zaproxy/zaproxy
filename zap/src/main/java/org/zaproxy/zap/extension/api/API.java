@@ -314,6 +314,17 @@ public class API {
                 }
             }
             if (callbackImpl == null) {
+                for (Entry<String, String> entry :
+                        this.getOptionsParamApi().getPersistentCallBacks().entrySet()) {
+                    if (url.startsWith(entry.getKey())) {
+                        callbackImpl = this.getImplementors().get(entry.getValue());
+                        if (callbackImpl != null) {
+                            break;
+                        }
+                    }
+                }
+            }
+            if (callbackImpl == null) {
                 logger.warn(
                         "Request to callback URL "
                                 + requestHeader.getURI().toString()
@@ -927,6 +938,38 @@ public class API {
         }
         logger.debug("All callbacks removed for " + impl.getClass().getCanonicalName());
         this.callBacks.values().removeIf(impl::equals);
+    }
+
+    /**
+     * Get a callback which persists over ZAP restarts - will create one if it doesn't exist
+     *
+     * @param impl the ApiImplementor requesting the callback URL
+     * @param site the site the callback will be on
+     * @return a callback URL
+     * @since 2.12.0
+     */
+    public String getPersistentCallBackUrl(ApiImplementor impl, String site) {
+        for (Entry<String, String> entry :
+                this.getOptionsParamApi().getPersistentCallBacks().entrySet()) {
+            String url = entry.getKey();
+            if (url.startsWith(site) && entry.getValue().equals(impl.getPrefix())) {
+                return url;
+            }
+        }
+        String url = site + CALL_BACK_URL + random.nextLong();
+        this.getOptionsParamApi().addPersistantCallBack(url, impl.getPrefix());
+        return url;
+    }
+
+    /**
+     * Remove a callback which would otherwise persist over ZAP restarts
+     *
+     * @param url the persistent callback URL
+     * @return true if the callback was deleted - false means the callback URL was not found
+     * @since 2.12.0
+     */
+    public boolean removePersistentCallBackUrl(String url) {
+        return this.getOptionsParamApi().removePersistantCallBack(url) != null;
     }
 
     /**
