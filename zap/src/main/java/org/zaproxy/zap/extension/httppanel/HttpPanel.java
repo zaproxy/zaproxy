@@ -601,6 +601,11 @@ public abstract class HttpPanel extends AbstractPanel {
             while (it.hasNext()) {
                 it.next().loadConfig(fileConfiguration);
             }
+
+            if (savedLastSelectedComponentName != null
+                    && components.containsKey(savedLastSelectedComponentName)) {
+                switchComponent(savedLastSelectedComponentName);
+            }
         }
     }
 

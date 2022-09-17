@@ -488,6 +488,10 @@ public class HttpPanelComponentViewsManager implements ItemListener, MessageLoca
         while (it.hasNext()) {
             it.next().loadConfiguration(fileConfiguration);
         }
+
+        if (savedSelectedViewName != null && views.containsKey(savedSelectedViewName)) {
+            switchView(savedSelectedViewName);
+        }
     }
 
     public void saveConfig(FileConfiguration fileConfiguration) {
