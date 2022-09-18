@@ -142,9 +142,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             }
             if (script == null) {
                 log.warn(
-                        "The script "
-                                + scriptW.getName()
-                                + " does not properly implement the Authentication Script interface.");
+                        "The script {} does not properly implement the Authentication Script interface.",
+                        scriptW.getName());
                 throw new IllegalArgumentException(
                         Constant.messages.getString(
                                 "authentication.method.script.dialog.error.text.interface",
@@ -162,12 +161,10 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 this.credentialsParamNames = script.getCredentialsParamsNames();
                 if (log.isDebugEnabled()) {
                     log.debug(
-                            "Loaded authentication script - required parameters: "
-                                    + Arrays.toString(requiredParams)
-                                    + " - optional parameters: "
-                                    + Arrays.toString(optionalParams));
+                            "Loaded authentication script - required parameters: {} - optional parameters: {}",
+                            Arrays.toString(requiredParams),
+                            Arrays.toString(optionalParams));
                 }
-
                 // If there's an already loaded script, make sure we save its values and _try_
                 // to use them
                 Map<String, String> oldValues =
@@ -181,7 +178,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                     this.paramValues.put(param, oldValues.get(param));
 
                 this.script = scriptW;
-                log.info("Successfully loaded new script for ScriptBasedAuthentication: " + this);
+                log.info("Successfully loaded new script for ScriptBasedAuthentication: {}", this);
             } catch (Exception e) {
                 log.error("Error while loading authentication script", e);
                 getScriptsExtension().handleScriptException(this.script, e);
@@ -295,8 +292,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                         .setLastAuthFailure(
                                 "Error running authentication script " + e.getMessage());
                 log.error(
-                        "An error occurred while trying to authenticate using the Authentication Script: "
-                                + this.script.getName(),
+                        "An error occurred while trying to authenticate using the Authentication Script: {}",
+                        this.script.getName(),
                         e);
                 getScriptsExtension().handleScriptException(this.script, e);
                 return null;
@@ -482,9 +479,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
             if (script == null) {
                 log.warn(
-                        "The script "
-                                + scriptW.getName()
-                                + " does not properly implement the Authentication Script interface.");
+                        "The script {} does not properly implement the Authentication Script interface.",
+                        scriptW.getName());
                 warnAndResetPanel(
                         Constant.messages.getString(
                                 "authentication.method.script.dialog.error.text.interface",
@@ -520,17 +516,16 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 this.loadedCredentialParams = script.getCredentialsParamsNames();
                 if (log.isDebugEnabled()) {
                     log.debug(
-                            "Loaded authentication script - required parameters: "
-                                    + Arrays.toString(requiredParams)
-                                    + " - optional parameters: "
-                                    + Arrays.toString(optionalParams));
+                            "Loaded authentication script - required parameters: {} - optional parameters: {}",
+                            Arrays.toString(requiredParams),
+                            Arrays.toString(optionalParams));
                 }
                 // If there's an already loaded script, make sure we save its values and _try_
                 // to place them in the new panel
                 Map<String, String> oldValues = null;
                 if (adaptOldValues && dynamicFieldsPanel != null) {
                     oldValues = dynamicFieldsPanel.getFieldValues();
-                    if (log.isDebugEnabled()) log.debug("Trying to adapt old values: " + oldValues);
+                    log.debug("Trying to adapt old values: {}", oldValues);
                 }
 
                 this.dynamicFieldsPanel = new DynamicFieldsPanel(requiredParams, optionalParams);
@@ -685,8 +680,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             ScriptWrapper script = getScriptsExtension().getScript(scriptName);
             if (script == null) {
                 log.error(
-                        "Unable to find script while loading Script Based Authentication Method for name: "
-                                + scriptName);
+                        "Unable to find script while loading Script Based Authentication Method for name: {}",
+                        scriptName);
                 if (View.isInitialised()) {
                     View.getSingleton()
                             .showMessageDialog(
@@ -696,7 +691,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 }
                 return;
             }
-            log.info("Loaded script:" + script.getName());
+            log.info("Loaded script:{}", script.getName());
             method.script = script;
 
             // Check script interface and make sure we load the credentials parameter names
@@ -706,9 +701,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             }
             if (s == null) {
                 log.error(
-                        "Unable to load Script Based Authentication method. The script "
-                                + scriptName
-                                + " does not properly implement the Authentication Script interface.");
+                        "Unable to load Script Based Authentication method. The script {} does not properly implement the Authentication Script interface.",
+                        scriptName);
                 return;
             }
 
@@ -732,8 +726,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         } else {
             method.paramValues = new HashMap<>();
             log.error(
-                    "Unable to load script parameter values loading Script Based Authentication Method for name: "
-                            + scriptName);
+                    "Unable to load script parameter values loading Script Based Authentication Method for name: {}",
+                    scriptName);
         }
     }
 
@@ -810,13 +804,10 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             return authScript;
         } catch (Exception ignore) {
             // The interface is optional, the AuthenticationScript will be checked after this one.
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Script '"
-                                + script.getName()
-                                + "' is not a AuthenticationScriptV2 interface!",
-                        ignore);
-            }
+            log.debug(
+                    "Script '{}' is not a AuthenticationScriptV2 interface!",
+                    script.getName(),
+                    ignore);
         }
         return null;
     }
@@ -895,10 +886,10 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 ScriptWrapper script = getScriptsExtension().getScript(scriptName);
                 if (script == null) {
                     log.error(
-                            "Unable to find script while loading Script Based Authentication Method for name: "
-                                    + scriptName);
+                            "Unable to find script while loading Script Based Authentication Method for name: {}",
+                            scriptName);
                     throw new ApiException(ApiException.Type.SCRIPT_NOT_FOUND, scriptName);
-                } else log.info("Loaded script for API:" + script.getName());
+                } else log.info("Loaded script for API:{}", script.getName());
                 method.script = script;
 
                 // Check script interface and make sure we load the credentials parameter names
@@ -908,9 +899,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 }
                 if (s == null) {
                     log.error(
-                            "Unable to load Script Based Authentication method. The script "
-                                    + script.getName()
-                                    + " does not properly implement the Authentication Script interface.");
+                            "Unable to load Script Based Authentication method. The script {} does not properly implement the Authentication Script interface.",
+                            script.getName());
                     throw new ApiException(
                             ApiException.Type.BAD_SCRIPT_FORMAT,
                             "Does not follow Authentication script interface");
@@ -929,12 +919,10 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                     String[] optionalParams = s.getOptionalParamsNames();
                     if (log.isDebugEnabled()) {
                         log.debug(
-                                "Loaded authentication script - required parameters: "
-                                        + Arrays.toString(requiredParams)
-                                        + " - optional parameters: "
-                                        + Arrays.toString(optionalParams));
+                                "Loaded authentication script - required parameters: {} - optional parameters: {}",
+                                Arrays.toString(requiredParams),
+                                Arrays.toString(optionalParams));
                     }
-
                     Map<String, String> paramValues = new HashMap<>();
                     for (String rp : requiredParams) {
                         // If one of the required parameters is not present, it will throw
@@ -946,17 +934,15 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                     for (String op : optionalParams)
                         paramValues.put(op, ApiUtils.getOptionalStringParam(params, op));
                     method.paramValues = paramValues;
-                    if (log.isDebugEnabled())
-                        log.debug("Loaded authentication script parameters:" + paramValues);
+                    log.debug("Loaded authentication script parameters: {}", paramValues);
 
                 } catch (ApiException e) {
                     throw e;
                 } catch (Exception e) {
                     getScriptsExtension().handleScriptException(script, e);
                     log.error(
-                            "Unable to load Script Based Authentication method. The script "
-                                    + script.getName()
-                                    + " contains errors.");
+                            "Unable to load Script Based Authentication method. The script {} contains errors.",
+                            script.getName());
                     throw new ApiException(ApiException.Type.BAD_SCRIPT_FORMAT, e.getMessage());
                 }
 

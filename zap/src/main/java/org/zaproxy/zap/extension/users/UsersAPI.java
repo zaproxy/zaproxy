@@ -193,7 +193,7 @@ public class UsersAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiView " + name + " " + params.toString());
+        log.debug("handleApiView {} {}", name, params);
 
         switch (name) {
             case VIEW_USERS_LIST:
@@ -242,7 +242,7 @@ public class UsersAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction " + name + " " + params.toString());
+        log.debug("handleApiAction {} {}", name, params);
 
         User user;
         Context context;
@@ -332,7 +332,7 @@ public class UsersAPI extends ApiImplementor {
                                                             user.getAuthenticationState())));
                             return responseSet;
                         } catch (Exception e) {
-                            log.error("Failed to read auth request from db " + hId2, e);
+                            log.error("Failed to read auth request from db {}", hId2, e);
                             throw new ApiException(Type.INTERNAL_ERROR, e);
                         }
                     }

@@ -28,6 +28,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.httpclient.URIException;
@@ -82,7 +83,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
             msg.getRequestHeader().getURI().setEscapedQuery(query);
 
         } catch (URIException e) {
-            LOG.error(e.getMessage() + query, e);
+            LOG.error("{} {}", e.getMessage(), query, e);
         }
     }
 }

@@ -55,6 +55,7 @@
 // ZAP: 2022/04/23 Use new HttpSender constructor.
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
 // ZAP: 2022/06/09 Name the threads.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -400,7 +401,7 @@ public class Scanner implements Runnable {
     void notifyScannerComplete() {
         long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
         String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
-        log.info("scanner completed in " + diffTimeString);
+        log.info("scanner completed in {}", diffTimeString);
         isStop = true;
 
         ActiveScanEventPublisher.publishScanEvent(
@@ -420,8 +421,8 @@ public class Scanner implements Runnable {
                 hook.scannerComplete();
             } catch (Exception e) {
                 log.info(
-                        "An exception occurred while notifying a ScannerHook about scanner completion: "
-                                + e.getMessage(),
+                        "An exception occurred while notifying a ScannerHook about scanner completion: {}",
+                        e.getMessage(),
                         e);
             }
         }
@@ -501,9 +502,7 @@ public class Scanner implements Runnable {
         if (excludeUrls != null) {
             for (Pattern p : excludeUrls) {
                 if (p.matcher(nodeName).matches()) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("URL excluded: " + nodeName + " Regex: " + p.pattern());
-                    }
+                    log.debug("URL excluded: {} Regex: {}", nodeName, p.pattern());
                     // Explicitly excluded
                     return false;
                 }

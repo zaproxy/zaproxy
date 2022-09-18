@@ -78,7 +78,7 @@ public class SummaryAndConfigPanel extends JPanel {
      * @param content the new summary content
      */
     public void setSummaryContent(String content) {
-        LogManager.getRootLogger().info("New summary: " + content);
+        LogManager.getRootLogger().info("New summary: {}", content);
         summaryArea.setText(
                 "<html><b>" + summaryTitleText + "</b><br/><br/>" + content + "</html>");
     }

@@ -234,10 +234,9 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
     public void registerAntiCsrfToken(AntiCsrfToken token) {
         log.debug(
-                "registerAntiCsrfToken "
-                        + token.getMsg().getRequestHeader().getURI().toString()
-                        + " "
-                        + token.getValue());
+                "registerAntiCsrfToken {} {}",
+                token.getMsg().getRequestHeader().getURI(),
+                token.getValue());
         synchronized (valueToToken) {
             try {
                 HistoryReference hRef = token.getMsg().getHistoryRef();
@@ -352,7 +351,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
         if (formElements != null && formElements.size() > 0) {
             // Loop through all of the FORM tags
-            log.debug("Found " + formElements.size() + " forms");
+            log.debug("Found {} forms", formElements.size());
             int formIndex = 0;
 
             for (Element formElement : formElements) {
@@ -360,7 +359,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
                 if (inputElements != null && inputElements.size() > 0) {
                     // Loop through all of the INPUT elements
-                    log.debug("Found " + inputElements.size() + " inputs");
+                    log.debug("Found {} inputs", inputElements.size());
                     for (Element inputElement : inputElements) {
                         String value = inputElement.getAttributeValue("VALUE");
                         if (value == null) {
@@ -594,11 +593,12 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
         if (tokenValue != null) {
             // Replace token value - only supported in the body right now
-            log.debug(
-                    "regenerateAntiCsrfToken replacing "
-                            + antiCsrfToken.getValue()
-                            + " with "
-                            + getURLEncode(tokenValue));
+            if (log.isDebugEnabled()) {
+                log.debug(
+                        "regenerateAntiCsrfToken replacing {} with {}",
+                        antiCsrfToken.getValue(),
+                        getURLEncode(tokenValue));
+            }
             String replaced = message.getRequestBody().toString();
             replaced =
                     replaced.replace(

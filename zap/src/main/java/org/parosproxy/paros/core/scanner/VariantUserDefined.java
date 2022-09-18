@@ -70,8 +70,8 @@ public class VariantUserDefined implements Variant {
                     list.add(new NameValuePair(NameValuePair.TYPE_UNDEFINED, "", "", i));
                 } else {
                     LOGGER.warn(
-                            "Invalid injection point: "
-                                    + java.util.Arrays.toString(this.injectionPoints[i]));
+                            "Invalid injection point: {}",
+                            java.util.Arrays.toString(this.injectionPoints[i]));
                 }
             }
         }

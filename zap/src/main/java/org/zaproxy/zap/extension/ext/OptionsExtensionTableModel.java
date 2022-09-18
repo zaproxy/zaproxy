@@ -81,7 +81,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
                         return ext.getUIName();
                 }
             } catch (Exception e) {
-                log.error("Failed on extension " + ext.getName(), e);
+                log.error("Failed on extension {}", ext.getName(), e);
             }
         }
         return null;

@@ -76,7 +76,7 @@ public class SpiderRobotstxtParser extends SpiderParser {
             if (line.isEmpty()) {
                 continue;
             }
-            getLogger().debug("Processing robots.txt line: " + line);
+            getLogger().debug("Processing robots.txt line: {}", line);
 
             if (line.matches(PATTERNS_DISALLOW)) {
                 processPath(message, depth, line.substring(PATTERNS_DISALLOW_LENGTH), baseURL);

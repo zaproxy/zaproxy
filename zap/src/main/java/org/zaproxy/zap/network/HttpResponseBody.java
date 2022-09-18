@@ -95,8 +95,8 @@ public class HttpResponseBody extends HttpBody {
                 return Charset.forName(matcher.group(1));
             } catch (IllegalArgumentException e) {
                 log.warn(
-                        "Unable to determine (valid) charset with the (X)HTML meta charset: "
-                                + e.getMessage());
+                        "Unable to determine (valid) charset with the (X)HTML meta charset: {}",
+                        e.getMessage());
             }
         } else if (isUtf8String(contents)) {
             return StandardCharsets.UTF_8;
@@ -140,8 +140,8 @@ public class HttpResponseBody extends HttpBody {
                 }
             }
         } catch (UnsupportedEncodingException e) {
-            log.error("Unable to encode with the (X)HTML meta charset: " + e.getMessage());
-            log.warn("Using default charset: " + DEFAULT_CHARSET);
+            log.error("Unable to encode with the (X)HTML meta charset: {}", e.getMessage());
+            log.warn("Using default charset: {}", DEFAULT_CHARSET);
 
             result = resultDefaultCharset;
         }

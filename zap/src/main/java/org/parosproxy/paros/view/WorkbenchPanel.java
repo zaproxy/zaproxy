@@ -40,6 +40,7 @@
 // ZAP: 2020/11/02 Add OneTouchExapandable control to Sites Tree/Request&Response panels
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/26 Remove deprecated methods in 2.5.0
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -1285,15 +1286,12 @@ public class WorkbenchPanel extends JPanel {
      */
     private void saveDividerLocation(String prefix, int location) {
         if (location > 0) {
-            if (logger.isDebugEnabled())
-                logger.debug(
-                        "Saving preference "
-                                + prefnzPrefix
-                                + prefix
-                                + "."
-                                + PREF_DIVIDER_LOCATION
-                                + "="
-                                + location);
+            logger.debug(
+                    "Saving preference {}{}.{}={}",
+                    prefnzPrefix,
+                    prefix,
+                    PREF_DIVIDER_LOCATION,
+                    location);
             this.preferences.put(
                     prefnzPrefix + prefix + "." + PREF_DIVIDER_LOCATION,
                     Integer.toString(location));
@@ -1324,15 +1322,12 @@ public class WorkbenchPanel extends JPanel {
             }
             if (location > 0) {
                 result = location;
-                if (logger.isDebugEnabled())
-                    logger.debug(
-                            "Restoring preference "
-                                    + prefnzPrefix
-                                    + prefix
-                                    + "."
-                                    + PREF_DIVIDER_LOCATION
-                                    + "="
-                                    + location);
+                logger.debug(
+                        "Restoring preference {}{}.{}={}",
+                        prefnzPrefix,
+                        prefix,
+                        PREF_DIVIDER_LOCATION,
+                        location);
             }
         }
         return result;
@@ -1356,14 +1351,8 @@ public class WorkbenchPanel extends JPanel {
         public void propertyChange(PropertyChangeEvent evt) {
             JSplitPane component = (JSplitPane) evt.getSource();
             if (component != null) {
-                if (logger.isDebugEnabled())
-                    logger.debug(
-                            prefnzPrefix
-                                    + prefix
-                                    + "."
-                                    + "location"
-                                    + "="
-                                    + component.getDividerLocation());
+                logger.debug(
+                        "{}{}.location={}", prefnzPrefix, prefix, component.getDividerLocation());
                 saveDividerLocation(prefix, component.getDividerLocation());
             }
         }

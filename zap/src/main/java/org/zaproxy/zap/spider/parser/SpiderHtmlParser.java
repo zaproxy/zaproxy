@@ -109,9 +109,7 @@ public class SpiderHtmlParser extends SpiderParser {
         // Try to see if there's any BASE tag that could change the base URL
         Element base = source.getFirstElement(HTMLElementName.BASE);
         if (base != null) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Base tag was found in HTML: " + base.getDebugInfo());
-            }
+            getLogger().debug("Base tag was found in HTML: {}", base.getDebugInfo());
             String href = base.getAttributeValue("href");
             if (href != null && !href.isEmpty()) {
                 baseURL = getCanonicalURL(href, baseURL);

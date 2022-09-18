@@ -103,6 +103,7 @@
 // ZAP: 2022/04/23 Use new HttpSender constructor.
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
 // ZAP: 2022/05/30 Remove deprecation usage.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -465,14 +466,11 @@ public class HostProcess implements Runnable {
         }
 
         log.info(
-                "start host "
-                        + hostAndPort
-                        + " | "
-                        + plugin.getCodeName()
-                        + " strength "
-                        + plugin.getAttackStrength()
-                        + " threshold "
-                        + plugin.getAlertThreshold());
+                "start host {} | {} strength {} threshold {}",
+                hostAndPort,
+                plugin.getCodeName(),
+                plugin.getAttackStrength(),
+                plugin.getAlertThreshold());
 
         if (plugin instanceof AbstractHostPlugin) {
             checkPause();
@@ -527,7 +525,7 @@ public class HostProcess implements Runnable {
                         if (!node.isSameAs(sibling)
                                 && nodeName.equals(
                                         SessionStructure.getCleanRelativeName(sibling, false))) {
-                            log.debug("traverse: including related sibling " + sibling.getName());
+                            log.debug("traverse: including related sibling {}", sibling.getName());
                             parentNodes.add(sibling);
                         }
                     }
@@ -567,18 +565,15 @@ public class HostProcess implements Runnable {
                         parentScanner.notifyFilteredMessage(msg, filterResult.getReason());
                     } catch (HttpMalformedHeaderException | DatabaseException e) {
                         log.warn(
-                                "Error while getting httpmessage from history reference: "
-                                        + e.getMessage(),
+                                "Error while getting httpmessage from history reference: {}",
+                                e.getMessage(),
                                 e);
                     }
 
-                    if (log.isDebugEnabled()) {
-                        log.debug(
-                                "Ignoring filtered node: "
-                                        + node.getName()
-                                        + " Reason: "
-                                        + filterResult.getReason());
-                    }
+                    log.debug(
+                            "Ignoring filtered node: {} Reason: {}",
+                            node.getName(),
+                            filterResult.getReason());
                     return true;
                 }
             } catch (Exception ex) {
@@ -606,8 +601,7 @@ public class HostProcess implements Runnable {
             historyReference = new HistoryReference(messageId, true);
             msg = historyReference.getHttpMessage();
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            log.warn(
-                    "Failed to read message with ID [" + messageId + "], cause: " + e.getMessage());
+            log.warn("Failed to read message with ID [{}], cause: {}", messageId, e.getMessage());
             return false;
         }
 
@@ -622,13 +616,10 @@ public class HostProcess implements Runnable {
                 }
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "scanSingleNode node plugin="
-                                + plugin.getName()
-                                + " node="
-                                + historyReference.getURI().toString());
-            }
+            log.debug(
+                    "scanSingleNode node plugin={} node={}",
+                    plugin.getName(),
+                    historyReference.getURI());
 
             test = plugin.getClass().getDeclaredConstructor().newInstance();
             test.setConfig(plugin.getConfig());
@@ -647,7 +638,7 @@ public class HostProcess implements Runnable {
                     plugin.getName() + ": " + msg.getRequestHeader().getURI().toString());
 
         } catch (Exception e) {
-            log.error(e.getMessage() + " " + historyReference.getURI().toString(), e);
+            log.error("{} {}", e.getMessage(), historyReference.getURI(), e);
             return false;
         }
 
@@ -675,14 +666,11 @@ public class HostProcess implements Runnable {
             return true;
         } catch (IOException e) {
             log.warn(
-                    "Failed to obtain the HTTP response for href [id="
-                            + hRef.getHistoryId()
-                            + ", type="
-                            + hRef.getHistoryType()
-                            + ", URL="
-                            + hRef.getURI()
-                            + "]: "
-                            + e.getMessage());
+                    "Failed to obtain the HTTP response for href [id={}, type={}, URL={}]: {}",
+                    hRef.getHistoryId(),
+                    hRef.getHistoryType(),
+                    hRef.getURI(),
+                    e.getMessage());
             return false;
         }
     }
@@ -697,36 +685,26 @@ public class HostProcess implements Runnable {
      */
     private boolean canScanNode(StructuralNode node) {
         if (node == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Ignoring null node");
-            }
+            log.debug("Ignoring null node");
             return false;
         }
 
         HistoryReference hRef = node.getHistoryReference();
         if (hRef == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("Ignoring null history reference for node: " + node.getName());
-            }
+            log.debug("Ignoring null history reference for node: {}", node.getName());
             return false;
         }
 
         if (HistoryReference.TYPE_SCANNER == hRef.getHistoryType()) {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Ignoring \"scanner\" type href [id="
-                                + hRef.getHistoryId()
-                                + ", URL="
-                                + hRef.getURI()
-                                + "]");
-            }
+            log.debug(
+                    "Ignoring \"scanner\" type href [id={}, URL={}]",
+                    hRef.getHistoryId(),
+                    hRef.getURI());
             return false;
         }
 
         if (!nodeInScope(node.getName())) {
-            if (log.isDebugEnabled()) {
-                log.debug("Ignoring node not in scope: " + node.getName());
-            }
+            log.debug("Ignoring node not in scope: {}", node.getName());
             return false;
         }
 
@@ -834,13 +812,10 @@ public class HostProcess implements Runnable {
         long diffTimeMillis = System.currentTimeMillis() - hostProcessStartTime;
         String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
         log.info(
-                "completed host "
-                        + hostAndPort
-                        + " in "
-                        + diffTimeString
-                        + " with "
-                        + getAlertCount()
-                        + " alert(s) raised.");
+                "completed host {} in {} with {} alert(s) raised.",
+                hostAndPort,
+                diffTimeString,
+                getAlertCount());
         parentScanner.notifyHostComplete(hostAndPort);
     }
 
@@ -966,10 +941,7 @@ public class HostProcess implements Runnable {
             redirectionValidator =
                     redirection -> {
                         if (!nodeInScope(redirection.getEscapedURI())) {
-                            if (log.isDebugEnabled()) {
-                                log.debug(
-                                        "Skipping redirection out of scan's scope: " + redirection);
-                            }
+                            log.debug("Skipping redirection out of scan's scope: {}", redirection);
                             return false;
                         }
                         return true;
@@ -1238,8 +1210,8 @@ public class HostProcess implements Runnable {
                     hook.beforeScan(msg, plugin, this.parentScanner);
                 } catch (Exception e) {
                     log.info(
-                            "An exception occurred while trying to call beforeScan(msg, plugin) for one of the ScannerHooks: "
-                                    + e.getMessage(),
+                            "An exception occurred while trying to call beforeScan(msg, plugin) for one of the ScannerHooks: {}",
+                            e.getMessage(),
                             e);
                 }
             }
@@ -1263,8 +1235,8 @@ public class HostProcess implements Runnable {
                     hook.afterScan(msg, plugin, this.parentScanner);
                 } catch (Exception e) {
                     log.info(
-                            "An exception occurred while trying to call afterScan(msg, plugin) for one of the ScannerHooks: "
-                                    + e.getMessage(),
+                            "An exception occurred while trying to call afterScan(msg, plugin) for one of the ScannerHooks: {}",
+                            e.getMessage(),
                             e);
                 }
             }

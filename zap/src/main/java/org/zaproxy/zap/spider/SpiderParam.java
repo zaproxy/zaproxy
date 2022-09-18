@@ -365,7 +365,7 @@ public class SpiderParam extends AbstractParam {
                         Pattern pattern = Pattern.compile(domain, Pattern.CASE_INSENSITIVE);
                         domainsInScope.add(new DomainAlwaysInScopeMatcher(pattern));
                     } catch (IllegalArgumentException e) {
-                        log.error("Failed to migrate a domain always in scope, name: " + name, e);
+                        log.error("Failed to migrate a domain always in scope, name: {}", name, e);
                     }
                 } else {
                     domainsInScope.add(new DomainAlwaysInScopeMatcher(domain));
@@ -800,7 +800,8 @@ public class SpiderParam extends AbstractParam {
                     excludedDomain = new DomainAlwaysInScopeMatcher(pattern);
                 } catch (IllegalArgumentException e) {
                     log.error(
-                            "Failed to read an spider domain in scope entry with regex: " + value,
+                            "Failed to read an spider domain in scope entry with regex: {}",
+                            value,
                             e);
                 }
             } else {

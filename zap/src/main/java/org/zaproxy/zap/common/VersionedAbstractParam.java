@@ -128,7 +128,7 @@ public abstract class VersionedAbstractParam extends AbstractParam {
             return getConfig().getInt(getConfigVersionKey(), NO_CONFIG_VERSION);
         } catch (ConversionException e) {
             logger.error(
-                    "Error while getting the version of the configurations: " + e.getMessage(), e);
+                    "Error while getting the version of the configurations: {}", e.getMessage(), e);
             return ERROR_READING_CONFIG_VERSION;
         }
     }
@@ -218,15 +218,13 @@ public abstract class VersionedAbstractParam extends AbstractParam {
         if (fileVersion != NO_CONFIG_VERSION) {
             if (fileVersion > getCurrentVersion()) {
                 logger.warn(
-                        "Configurations will not be updated, file version (v"
-                                + fileVersion
-                                + ") is greater than the version of running code (v"
-                                + getCurrentVersion()
-                                + "), errors might happen...");
+                        "Configurations will not be updated, file version (v{}) is greater than the version of running code (v{}), errors might happen...",
+                        fileVersion,
+                        getCurrentVersion());
                 return;
             }
             logger.info(
-                    "Updating configurations from v" + fileVersion + " to v" + getCurrentVersion());
+                    "Updating configurations from v{} to v{}", fileVersion, getCurrentVersion());
         }
 
         updateConfigsImpl(fileVersion);

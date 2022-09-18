@@ -28,6 +28,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/09/21 Remove unnecessary debug level checking.
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
@@ -92,9 +93,7 @@ public class ParosDatabaseServer implements DatabaseServer {
                         propsStream.close();
                     }
                 } catch (IOException e) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(e.getMessage(), e);
-                    }
+                    logger.debug(e.getMessage(), e);
                 }
             }
             String version = (String) dbProps.get("version");
@@ -159,7 +158,7 @@ public class ParosDatabaseServer implements DatabaseServer {
                     throw e;
                 }
                 // ZAP: Changed to log the message.
-                logger.warn("Recovering " + i + " times.");
+                logger.warn("Recovering {} times.", i);
             }
 
             try {
@@ -167,9 +166,7 @@ public class ParosDatabaseServer implements DatabaseServer {
                 // ZAP: Changed to catch the InterruptedException.
             } catch (InterruptedException e) {
                 // ZAP: Added the log.
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                logger.debug(e.getMessage(), e);
             }
         }
         return conn;

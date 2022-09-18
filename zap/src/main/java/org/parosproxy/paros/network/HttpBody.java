@@ -28,6 +28,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2020/12/09 Add content encoding.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -565,7 +566,7 @@ public abstract class HttpBody {
                 setCharsetImpl(newCharset);
             }
         } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-            log.error("Failed to set charset: " + charsetName, e);
+            log.error("Failed to set charset: {}", charsetName, e);
         }
     }
 

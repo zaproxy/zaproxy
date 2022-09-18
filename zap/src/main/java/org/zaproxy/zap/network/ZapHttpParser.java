@@ -81,7 +81,7 @@ public class ZapHttpParser {
                 if (colon < 0) {
                     // Do not thrown the exception ignore it instead
                     // throw new ProtocolException("Unable to parse header: " + line);
-                    logger.warn("Ignoring malformed HTTP header line: \"" + line + "\"");
+                    logger.warn("Ignoring malformed HTTP header line: \"{}\"", line);
                     name = null;
                     value = null;
                 } else {

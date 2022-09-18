@@ -77,8 +77,7 @@ public class CookieBasedSessionManagementHelper {
             // If the cookie is a token
             if (tokensSet.isSessionToken(cookieName)) {
                 String tokenValue = session.getTokenValue(cookieName);
-                if (log.isDebugEnabled())
-                    log.debug("Changing value of token '" + cookieName + "' to: " + tokenValue);
+                log.debug("Changing value of token '{}' to: {}", cookieName, tokenValue);
 
                 // Change it's value to the one in the active session, if any
                 if (tokenValue != null) {
@@ -100,8 +99,7 @@ public class CookieBasedSessionManagementHelper {
             String tokenValue = session.getTokenValue(token);
             // Change it's value to the one in the active session, if any
             if (tokenValue != null) {
-                if (log.isDebugEnabled())
-                    log.debug("Adding token '" + token + " with value: " + tokenValue);
+                log.debug("Adding token '{}' with value: {}", token, tokenValue);
                 HttpCookie cookie = new HttpCookie(token, tokenValue);
                 requestCookies.add(cookie);
             }

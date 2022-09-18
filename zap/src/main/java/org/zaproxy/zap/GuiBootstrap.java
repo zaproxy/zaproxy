@@ -122,7 +122,7 @@ public class GuiBootstrap extends ZapBootstrap {
                 awtAppClassName.setAccessible(true);
                 awtAppClassName.set(null, Constant.PROGRAM_NAME);
             } catch (Exception e) {
-                logger.warn("Failed to set awt app class name: " + e.getMessage());
+                logger.warn("Failed to set awt app class name: {}", e.getMessage());
             }
         }
     }
@@ -141,7 +141,7 @@ public class GuiBootstrap extends ZapBootstrap {
                         Constant.messages.getString("start.title.error"),
                         JOptionPane.ERROR_MESSAGE);
             }
-            logger.fatal("Failed to initialise: " + e.getMessage(), e);
+            logger.fatal("Failed to initialise: {}", e.getMessage(), e);
             System.err.println(e.getMessage());
             System.exit(1);
         }
@@ -406,7 +406,7 @@ public class GuiBootstrap extends ZapBootstrap {
                     | ClassNotFoundException
                     | InstantiationException
                     | IllegalAccessException e) {
-                logger.warn("Failed to set the look and feel: " + e.getMessage());
+                logger.warn("Failed to set the look and feel: {}", e.getMessage());
             }
         }
         return false;

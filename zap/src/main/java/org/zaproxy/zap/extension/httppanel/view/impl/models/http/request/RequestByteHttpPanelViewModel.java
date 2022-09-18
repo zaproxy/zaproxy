@@ -58,7 +58,9 @@ public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelView
         int pos = HttpPanelViewModelUtils.findHeaderLimit(data);
 
         if (pos == -1) {
-            logger.warn("Could not Save Header, limit not found. Header: " + new String(data));
+            if (logger.isWarnEnabled()) {
+                logger.warn("Could not Save Header, limit not found. Header: {}", new String(data));
+            }
             throw new InvalidMessageDataException(
                     Constant.messages.getString("http.panel.model.header.warn.notfound"));
         }
@@ -66,7 +68,9 @@ public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelView
         try {
             httpMessage.setRequestHeader(new String(data, 0, pos));
         } catch (HttpMalformedHeaderException e) {
-            logger.warn("Could not Save Header: " + new String(data, 0, pos), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Could not Save Header: {}", new String(data, 0, pos), e);
+            }
             throw new InvalidMessageDataException(
                     Constant.messages.getString("http.panel.model.header.warn.malformed"), e);
         }

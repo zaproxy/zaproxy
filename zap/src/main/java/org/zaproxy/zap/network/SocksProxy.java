@@ -85,7 +85,7 @@ public class SocksProxy {
             try {
                 number = Integer.parseInt(value);
             } catch (NumberFormatException e) {
-                logger.warn("Failed to parse the version: " + value, e);
+                logger.warn("Failed to parse the version: {}", value, e);
                 return SOCKS5;
             }
 
@@ -96,7 +96,7 @@ public class SocksProxy {
                 return SOCKS5;
             }
 
-            logger.warn("Unknown version: " + value);
+            logger.warn("Unknown version: {}", value);
             return SOCKS5;
         }
     }

@@ -89,7 +89,7 @@ public class I18N {
             try {
                 return new URLClassLoader(new URL[] {langDir.toUri().toURL()});
             } catch (MalformedURLException e) {
-                logger.warn("Failed to convert path " + langDir, e);
+                logger.warn("Failed to convert path {}", langDir, e);
             }
         }
         return null;
@@ -106,9 +106,9 @@ public class I18N {
     }
 
     public void addMessageBundle(String prefix, ResourceBundle bundle) {
-        logger.debug("Adding message bundle with prefix: " + prefix);
+        logger.debug("Adding message bundle with prefix: {}", prefix);
         if (addonMessages.containsKey(prefix)) {
-            logger.error("Adding message bundle with duplicate prefix: " + prefix);
+            logger.error("Adding message bundle with duplicate prefix: {}", prefix);
         }
         addonMessages.put(prefix, bundle);
     }
@@ -116,11 +116,11 @@ public class I18N {
     public void removeMessageBundle(String prefix) {
         missingKeys.removeIf(k -> k.startsWith(prefix));
 
-        logger.debug("Removing message bundle with prefix: " + prefix);
+        logger.debug("Removing message bundle with prefix: {}", prefix);
         if (addonMessages.containsKey(prefix)) {
             addonMessages.remove(prefix);
         } else {
-            logger.debug("Message bundle not found, prefix: " + prefix);
+            logger.debug("Message bundle not found, prefix: {}", prefix);
         }
     }
 

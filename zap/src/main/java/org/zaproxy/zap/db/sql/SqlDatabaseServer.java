@@ -67,15 +67,13 @@ public class SqlDatabaseServer implements DatabaseServer {
                 if (i == 4) {
                     throw e;
                 }
-                logger.warn("Recovering " + i + " times.");
+                logger.warn("Recovering {} times", i);
             }
 
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                logger.debug(e.getMessage(), e);
             }
         }
         return conn;

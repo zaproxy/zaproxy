@@ -131,9 +131,7 @@ public class JsonBasedAuthenticationMethodType extends PostBasedAuthenticationMe
                 jsonObject = JSONObject.fromObject(postData);
                 extractJsonStrings(jsonObject, "", params);
             } catch (JSONException e) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Unable to parse as JSON: " + postData, e);
-                }
+                LOGGER.debug("Unable to parse as JSON: {}", postData, e);
                 jsonObject = null;
                 return Collections.emptyList();
             }

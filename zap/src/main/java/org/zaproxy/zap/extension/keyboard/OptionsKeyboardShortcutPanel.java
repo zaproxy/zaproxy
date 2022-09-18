@@ -196,10 +196,9 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
             }
             if (setShortcut) {
                 logger.debug(
-                        "Setting keyboard shortcut for "
-                                + ks.getIdentifier()
-                                + " to "
-                                + ks.getKeyStroke());
+                        "Setting keyboard shortcut for {} to {}",
+                        ks.getIdentifier(),
+                        ks.getKeyStroke());
                 extension.setShortcut(ks.getIdentifier(), ks.getKeyStroke());
             }
         }

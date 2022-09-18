@@ -43,6 +43,7 @@
 // ZAP: 2021/02/12 Add shortcut key to Send button (Issue 6448).
 // ZAP: 2022/06/08 Fix resizing issues.
 // ZAP: 2022/06/23 Do not implement Tab.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
@@ -279,17 +280,13 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame {
                                                     "network.ssl.error.help",
                                                     Constant.messages.getString(
                                                             "network.ssl.error.help.url")));
-                                    if (logger.isDebugEnabled()) {
-                                        logger.debug(sslEx, sslEx);
-                                    }
+                                    logger.debug(sslEx, sslEx);
                                     View.getSingleton()
                                             .showWarningDialog(
                                                     ManualRequestEditorDialog.this,
                                                     strBuilder.toString());
                                 } catch (Exception e) {
-                                    if (logger.isDebugEnabled()) {
-                                        logger.debug(e.getMessage(), e);
-                                    }
+                                    logger.debug(e.getMessage(), e);
                                     View.getSingleton()
                                             .showWarningDialog(
                                                     ManualRequestEditorDialog.this, e.getMessage());

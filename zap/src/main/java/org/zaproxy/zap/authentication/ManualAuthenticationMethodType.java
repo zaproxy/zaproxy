@@ -294,8 +294,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
                                 .getExtension(ExtensionHttpSessions.class);
                 List<HttpSession> sessions =
                         extensionHttpSessions.getHttpSessionsForContext(uiSharedContext);
-                if (log.isDebugEnabled())
-                    log.debug("Found sessions for Manual Authentication Config: " + sessions);
+                log.debug("Found sessions for Manual Authentication Config: {}", sessions);
                 sessionsComboBox =
                         new JComboBox<>(sessions.toArray(new HttpSession[sessions.size()]));
                 sessionsComboBox.setSelectedItem(this.getCredentials().getSelectedSession());
@@ -312,8 +311,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
         @Override
         public void saveCredentials() {
             log.info(
-                    "Saving Manual Authentication Method: "
-                            + getSessionsComboBox().getSelectedItem());
+                    "Saving Manual Authentication Method: {}",
+                    getSessionsComboBox().getSelectedItem());
             getCredentials()
                     .setSelectedSession((HttpSession) getSessionsComboBox().getSelectedItem());
         }

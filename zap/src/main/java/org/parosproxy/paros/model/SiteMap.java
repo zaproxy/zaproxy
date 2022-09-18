@@ -76,6 +76,7 @@
 // and use SessionStructure#getHostName in its place.
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 // ZAP: 2022/08/23 Make hrefMap an instance variable.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -417,7 +418,8 @@ public class SiteMap extends SortedTreeModel {
             // In developer mode log an error if we're not on the EDT
             // Adding to the site tree on GUI ('initial') threads causes problems
             log.error(
-                    "SiteMap.addPath not on EDT " + Thread.currentThread().getName(),
+                    "SiteMap.addPath not on EDT {}",
+                    Thread.currentThread().getName(),
                     new Exception());
         }
 
@@ -426,7 +428,7 @@ public class SiteMap extends SortedTreeModel {
         }
 
         URI uri = msg.getRequestHeader().getURI();
-        log.debug("addPath " + uri.toString());
+        log.debug("addPath {}", uri);
 
         SiteNode parent = getRoot();
         SiteNode leaf = null;
@@ -467,7 +469,7 @@ public class SiteMap extends SortedTreeModel {
 
         } catch (Exception e) {
             // ZAP: Added error
-            log.error("Exception adding " + uri.toString() + " " + e.getMessage(), e);
+            log.error("Exception adding {} {}", uri, e.getMessage(), e);
         }
 
         hrefMap.putIfAbsent(ref.getHistoryId(), leaf);
@@ -489,7 +491,7 @@ public class SiteMap extends SortedTreeModel {
             SiteNode parent, String nodeName, HistoryReference baseRef, HttpMessage baseMsg)
             throws URIException, HttpMalformedHeaderException, NullPointerException,
                     DatabaseException {
-        log.debug("findAndAddChild " + parent.getNodeName() + " / " + nodeName);
+        log.debug("findAndAddChild {} / {}", parent.getNodeName(), nodeName);
         if (isReferenceCached(baseRef)) {
             return hrefMap.get(baseRef.getHistoryId());
         }
@@ -543,7 +545,7 @@ public class SiteMap extends SortedTreeModel {
 
     private SiteNode findChild(SiteNode parent, String nodeName) {
         // ZAP: Added debug
-        log.debug("findChild " + parent.getNodeName() + " / " + nodeName);
+        log.debug("findChild {} / {}", parent.getNodeName(), nodeName);
 
         for (int i = 0; i < parent.getChildCount(); i++) {
             SiteNode child = (SiteNode) parent.getChildAt(i);
@@ -557,7 +559,7 @@ public class SiteMap extends SortedTreeModel {
     private SiteNode findAndAddLeaf(
             SiteNode parent, String nodeName, HistoryReference ref, HttpMessage msg) {
         // ZAP: Added debug
-        log.debug("findAndAddLeaf " + parent.getNodeName() + " / " + nodeName);
+        log.debug("findAndAddLeaf {} / {}", parent.getNodeName(), nodeName);
 
         String leafName = SessionStructure.getLeafName(model, nodeName, msg);
         SiteNode node = findChild(parent, leafName);
@@ -636,16 +638,14 @@ public class SiteMap extends SortedTreeModel {
             if (((SiteNode) path[i]).isDataDriven()) {
                 // Retrieve original name..
                 if (origPath.length > i - 1) {
-                    log.debug(
-                            "Replace Data Driven element " + nodeName + " with " + origPath[i - 1]);
+                    log.debug("Replace Data Driven element {} with {}", nodeName, origPath[i - 1]);
                     sb.append(origPath[i - 1]);
                 } else {
                     log.error(
-                            "Failed to determine original node name for element "
-                                    + i
-                                    + nodeName
-                                    + " original request: "
-                                    + baseRef.getURI().toString());
+                            "Failed to determine original node name for element {} {} original request: {}",
+                            i,
+                            nodeName,
+                            baseRef.getURI());
                     sb.append(nodeName);
                 }
             } else {

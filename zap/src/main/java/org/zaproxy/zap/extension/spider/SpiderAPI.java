@@ -213,7 +213,7 @@ public class SpiderAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("Request for handleApiAction: " + name + " (params: " + params.toString() + ")");
+        log.debug("Request for handleApiAction: {} (params: {})", name, params);
         SpiderScan scan;
         int maxChildren = -1;
         Context context = null;
@@ -486,7 +486,7 @@ public class SpiderAPI extends ApiImplementor {
             Context context,
             boolean subtreeOnly)
             throws ApiException {
-        log.debug("API Spider scanning url: " + url);
+        log.debug("API Spider scanning url: {}", url);
 
         boolean useUrl = true;
         if (url == null || url.isEmpty()) {

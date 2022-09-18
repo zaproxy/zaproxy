@@ -290,7 +290,7 @@ public class HttpPrefixFetchFilter extends FetchFilter {
         try {
             return host.equals(normalisedHost(uri));
         } catch (URIException e) {
-            LOGGER.warn("Failed to normalise host: " + Arrays.toString(uri.getRawHost()), e);
+            LOGGER.warn("Failed to normalise host: {}", Arrays.toString(uri.getRawHost()), e);
         }
         return false;
     }

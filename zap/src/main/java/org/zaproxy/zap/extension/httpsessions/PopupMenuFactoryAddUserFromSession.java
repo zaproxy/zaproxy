@@ -254,10 +254,9 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
             HttpSessionsPanel panel = extension.getHttpSessionsPanel();
             HttpSession session = panel.getSelectedSession();
             log.info(
-                    "Creating user from HttpSession "
-                            + session.getName()
-                            + " for Context "
-                            + uiSharedContext.getName());
+                    "Creating user from HttpSession {} for Context {}",
+                    session.getName(),
+                    uiSharedContext.getName());
 
             pendingUsersClearing = false;
 
@@ -266,8 +265,8 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
             if (!(uiSharedContext.getAuthenticationMethod()
                     instanceof ManualAuthenticationMethod)) {
                 log.info(
-                        "Creating new Manual Authentication instance for Context "
-                                + uiSharedContext.getName());
+                        "Creating new Manual Authentication instance for Context {}",
+                        uiSharedContext.getName());
                 ManualAuthenticationMethod method =
                         new ManualAuthenticationMethodType()
                                 .createAuthenticationMethod(context.getId());
@@ -287,7 +286,7 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
                 log.debug("Cancelled creation of user from HttpSession.");
                 return;
             }
-            log.info("Created user: " + newUser.toString());
+            log.info("Created user: {}", newUser);
 
             // Show the session dialog without recreating UI Shared contexts
             // NOTE: First init the panels of the dialog so old users data gets loaded and just then

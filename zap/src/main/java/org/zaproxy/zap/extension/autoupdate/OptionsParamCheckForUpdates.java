@@ -88,11 +88,11 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
         for (Object dir : getConfig().getList(ADDON_DIRS)) {
             File f = new File(dir.toString());
             if (!f.exists()) {
-                log.error("Add-on directory does not exist: " + f.getAbsolutePath());
+                log.error("Add-on directory does not exist: {}", f.getAbsolutePath());
             } else if (!f.isDirectory()) {
-                log.error("Add-on directory is not a directory: " + f.getAbsolutePath());
+                log.error("Add-on directory is not a directory: {}", f.getAbsolutePath());
             } else if (!f.canRead()) {
-                log.error("Add-on directory not readable: " + f.getAbsolutePath());
+                log.error("Add-on directory not readable: {}", f.getAbsolutePath());
             } else {
                 this.addonDirectories.add(f);
             }

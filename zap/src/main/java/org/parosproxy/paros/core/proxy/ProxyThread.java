@@ -90,6 +90,7 @@
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
 // ZAP: 2022/06/05 Address deprecation warnings with HttpException.
 // ZAP: 2022/06/07 Address deprecation warnings with ZapGetMethod.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/09/26 Remove usage of org.ice4j classes.
 package org.parosproxy.paros.core.proxy;
 
@@ -246,13 +247,10 @@ public class ProxyThread implements Runnable {
         }
 
         if (bytesRead < 3) {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Failed to check if SSL/TLS handshake, got just "
-                                + bytesRead
-                                + " bytes: "
-                                + Arrays.toString(bytes));
-            }
+            log.debug(
+                    "Failed to check if SSL/TLS handshake, got just {} bytes: {}",
+                    bytesRead,
+                    Arrays.toString(bytes));
             return false;
         }
         // Check if ContentType is handshake(22)
@@ -329,16 +327,14 @@ public class ProxyThread implements Runnable {
             if (firstHeader != null) {
                 if (HttpRequestHeader.CONNECT.equalsIgnoreCase(firstHeader.getMethod())) {
                     log.warn(
-                            "Timeout reading (client) message after CONNECT to "
-                                    + firstHeader.getURI());
+                            "Timeout reading (client) message after CONNECT to {}",
+                            firstHeader.getURI());
                 } else {
-                    log.warn("Timeout accessing " + firstHeader.getURI());
+                    log.warn("Timeout accessing {}", firstHeader.getURI());
                 }
             } else {
                 log.warn("Socket timeout while reading first message.");
-                if (log.isDebugEnabled()) {
-                    log.debug(e, e);
-                }
+                log.debug(e, e);
             }
         } catch (HttpMalformedHeaderException e) {
             log.warn("Malformed Header: ", e);
@@ -477,9 +473,7 @@ public class ProxyThread implements Runnable {
 
                 } catch (SocketTimeoutException e) {
                     // ZAP: Log the exception
-                    if (log.isDebugEnabled()) {
-                        log.debug("Timed out while reading a new HTTP request.");
-                    }
+                    log.debug("Timed out while reading a new HTTP request.");
                     return;
                 }
             }
@@ -661,9 +655,7 @@ public class ProxyThread implements Runnable {
                 httpIn.close();
             }
         } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
-            }
+            log.debug(e.getMessage(), e);
         }
 
         try {
@@ -671,9 +663,7 @@ public class ProxyThread implements Runnable {
                 httpOut.close();
             }
         } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
-            }
+            log.debug(e.getMessage(), e);
         }
 
         org.parosproxy.paros.network.HttpUtil.closeSocket(inSocket);

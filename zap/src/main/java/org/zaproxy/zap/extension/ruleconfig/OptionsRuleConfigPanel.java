@@ -111,7 +111,7 @@ public class OptionsRuleConfigPanel extends AbstractParamPanel {
     public void saveParam(Object obj) throws Exception {
         for (RuleConfig rc : getRuleConfigModel().getElements()) {
             if (rc.isChanged()) {
-                logger.debug("Setting rule config " + rc.getKey() + " to " + rc.getValue());
+                logger.debug("Setting rule config {} to {}", rc.getKey(), rc.getValue());
                 extension.setRuleConfigValue(rc.getKey(), rc.getValue());
             }
         }

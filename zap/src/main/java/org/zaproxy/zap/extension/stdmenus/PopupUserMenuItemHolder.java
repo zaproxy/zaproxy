@@ -80,8 +80,8 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageC
         if (extensionUserAuth == null || !extensionUserAuth.isEnabled()) {
             LogManager.getLogger(PopupUserMenuItemHolder.class)
                     .warn(
-                            ExtensionUserManagement.class
-                                    + " is not enabled but is required for getting info about Users.");
+                            "{} is not enabled but is required for getting info about Users.",
+                            ExtensionUserManagement.class);
             extensionUserAuth = null;
         }
     }

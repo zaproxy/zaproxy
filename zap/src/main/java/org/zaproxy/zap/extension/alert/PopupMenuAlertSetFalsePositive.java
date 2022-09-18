@@ -49,7 +49,7 @@ public class PopupMenuAlertSetFalsePositive extends PopupMenuItemAlert {
         try {
             getExtensionAlert().updateAlert(newAlert);
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            LOGGER.error("Unable to update confidence for alert: " + alert.getAlertId(), e);
+            LOGGER.error("Unable to update confidence for alert: {}", alert.getAlertId(), e);
         }
     }
 

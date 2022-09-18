@@ -50,7 +50,9 @@ public class RequestHeaderByteHttpPanelViewModel extends AbstractHttpByteHttpPan
         try {
             httpMessage.setRequestHeader(new String(data));
         } catch (HttpMalformedHeaderException e) {
-            logger.warn("Could not Save Header: " + Arrays.toString(data), e);
+            if (logger.isWarnEnabled()) {
+                logger.warn("Could not Save Header: {}", Arrays.toString(data), e);
+            }
             throw new InvalidMessageDataException(
                     Constant.messages.getString("http.panel.model.header.warn.malformed"), e);
         }

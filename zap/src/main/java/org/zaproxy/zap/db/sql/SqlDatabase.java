@@ -107,7 +107,7 @@ public class SqlDatabase extends AbstractDatabase {
     @Override
     public final void open(String path) throws Exception {
         // ZAP: Added log statement.
-        getLogger().debug("open " + path);
+        getLogger().debug("open {}", path);
         setDatabaseServer(createDatabaseServer(path));
         notifyListenersDatabaseOpen(internalDatabaseListeners, getDatabaseServer());
         notifyListenersDatabaseOpen(getDatabaseServer());
@@ -131,7 +131,7 @@ public class SqlDatabase extends AbstractDatabase {
 
     @Override
     public void deleteSession(String sessionName) {
-        getLogger().debug("deleteSession " + sessionName);
+        getLogger().debug("deleteSession {}", sessionName);
         if (databaseServer == null) {
             return;
         }

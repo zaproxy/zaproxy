@@ -324,7 +324,7 @@ public class ExtensionCompare extends ExtensionAdaptor
                             try (InputStream is =
                                     ExtensionCompare.class.getResourceAsStream(path)) {
                                 if (is == null) {
-                                    log.error("Bundled file not found: " + path);
+                                    log.error("Bundled file not found: {}", path);
                                     return;
                                 }
                                 stringToHtml(
@@ -335,7 +335,7 @@ public class ExtensionCompare extends ExtensionAdaptor
                         }
 
                         if (Files.notExists(outputFile.toPath())) {
-                            log.info("Not opening report, does not exist: " + outputFile);
+                            log.info("Not opening report, does not exist: {}", outputFile);
                             return;
                         }
 

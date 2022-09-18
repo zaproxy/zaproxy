@@ -79,9 +79,7 @@ public class ClassLoaderUtil {
         URL[] urls = sysLoader.getURLs();
         for (int i = 0; i < urls.length; i++) {
             if (StringUtils.equalsIgnoreCase(urls[i].toString(), u.toString())) {
-                if (log.isDebugEnabled()) {
-                    log.debug("URL " + u + " is already in the CLASSPATH");
-                }
+                log.debug("URL {} is already in the CLASSPATH", u);
                 return;
             }
         }

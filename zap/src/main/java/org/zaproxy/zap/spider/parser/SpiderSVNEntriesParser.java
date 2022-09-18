@@ -147,8 +147,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                             // efficient manner.
                             int svnFormat = 0;
                             while (rsSVNWCFormat.next()) {
-                                if (getLogger().isDebugEnabled())
-                                    getLogger().debug("Got a row from 'pragma USER_VERSION'");
+                                getLogger().debug("Got a row from 'pragma USER_VERSION'");
                                 svnFormat = rsSVNWCFormat.getInt(1);
                                 break;
                             }
@@ -163,17 +162,14 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                                                 + svnFormat
                                                 + " is not supported at this time.  We support up to and including format 31 (~ SVN 1.8.5)");
                             }
-                            if (getLogger().isDebugEnabled()) {
-                                getLogger()
-                                        .debug(
-                                                "Internal SVN Working Copy Format for "
-                                                        + tempSqliteFile
-                                                        + " is "
-                                                        + svnFormat);
-                                getLogger()
-                                        .debug(
-                                                "Refer to http://svn.apache.org/repos/asf/subversion/trunk/subversion/libsvn_wc/wc.h for more details!");
-                            }
+                            getLogger()
+                                    .debug(
+                                            "Internal SVN Working Copy Format for {} is {}",
+                                            tempSqliteFile,
+                                            svnFormat);
+                            getLogger()
+                                    .debug(
+                                            "Refer to http://svn.apache.org/repos/asf/subversion/trunk/subversion/libsvn_wc/wc.h for more details!");
 
                             // allow future changes to be easily handled
                             switch (svnFormat) {
@@ -195,12 +191,10 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                             // now get the list of files stored in the SVN repo (or this folder of
                             // the repo, depending the SVN working copy format in use)
                             while (rsNodes.next()) {
-                                if (getLogger().isDebugEnabled())
-                                    getLogger()
-                                            .debug(
-                                                    "Got a Node from the SVN wc.db file (format "
-                                                            + svnFormat
-                                                            + ")");
+                                getLogger()
+                                        .debug(
+                                                "Got a Node from the SVN wc.db file (format {})",
+                                                svnFormat);
                                 String kind = rsNodes.getString(1);
                                 String filename = rsNodes.getString(2);
                                 String svn_filename = rsNodes.getString(3);
@@ -241,12 +235,10 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                             rsRepo = stmt.executeQuery("select root from REPOSITORY order by id");
                             // get additional information on where the SVN repository is located
                             while (rsRepo.next()) {
-                                if (getLogger().isDebugEnabled())
-                                    getLogger()
-                                            .debug(
-                                                    "Got a potential Repository from the SVN wc.db file (format "
-                                                            + svnFormat
-                                                            + ")");
+                                getLogger()
+                                        .debug(
+                                                "Got a potential Repository from the SVN wc.db file (format {})",
+                                                svnFormat);
                                 String repos_path = rsRepo.getString(1);
                                 if (repos_path != null && repos_path.length() > 0) {
                                     // exclude local repositories here.. we cannot retrieve or
@@ -264,10 +256,9 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                         } catch (Exception e) {
                             getLogger()
                                     .error(
-                                            "Error executing SQL on temporary SVN SQLite database '"
-                                                    + sqliteConnectionUrl
-                                                    + "': "
-                                                    + e);
+                                            "Error executing SQL on temporary SVN SQLite database '{}': ",
+                                            sqliteConnectionUrl,
+                                            e);
                         } finally {
                             // the JDBC driver in use does not play well with "try with resource"
                             // construct. I tried!
@@ -285,8 +276,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                     // resources
                     getLogger()
                             .error(
-                                    "Error parsing temporary SVN SQLite database "
-                                            + sqliteConnectionUrl);
+                                    "Error parsing temporary SVN SQLite database {}",
+                                    sqliteConnectionUrl);
                 } finally {
                     // delete the temp file.
                     // this will be deleted when the VM is shut down anyway, but better to be safe
@@ -297,8 +288,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
             } catch (IOException | ClassNotFoundException e) {
                 getLogger()
                         .error(
-                                "An error occurred trying to set up to parse the SQLite based file: "
-                                        + e);
+                                "An error occurred trying to set up to parse the SQLite based file: ",
+                                e);
                 // We consider the message fully parsed, so it doesn't get parsed by 'fallback'
                 // parsers
                 return true;
@@ -322,8 +313,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
             } catch (SAXException | IOException e) {
                 getLogger()
                         .error(
-                                "An error occurred trying to parse the XML based .svn/entries file: "
-                                        + e);
+                                "An error occurred trying to parse the XML based .svn/entries file: ",
+                                e);
                 // We consider the message fully parsed, so it doesn't get parsed by 'fallback'
                 // parsers
                 return true;

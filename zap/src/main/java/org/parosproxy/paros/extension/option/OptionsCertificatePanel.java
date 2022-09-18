@@ -43,6 +43,7 @@
 // ZAP: 2022/05/21 Remove unsafe SSL/TLS renegotiation option.
 // ZAP: 2022/05/29 Deprecate the class.
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.extension.option;
 
 // TODO: Buttons should be gray
@@ -977,7 +978,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                                 JOptionPane.ERROR_MESSAGE);
                         // Error message changed to explain that user should try to add it again...
                         retry = true;
-                        logger.warn("Couldn't add key from " + name, e);
+                        logger.warn("Couldn't add key from {}", name, e);
                     }
                 } else {
                     logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(false, name, e);
@@ -1007,11 +1008,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                             Constant.messages.getString("options.cert.label.client.cert"),
                             JOptionPane.ERROR_MESSAGE);
                     logger.warn(
-                            "PKCS#11: Incorrect PIN or password"
-                                    + attempts
-                                    + ": "
-                                    + name
-                                    + " *LAST TRY BEFORE BLOCKING*");
+                            "PKCS#11: Incorrect PIN or password {}: {} *LAST TRY BEFORE BLOCKING*",
+                            attempts,
+                            name);
                 } else {
                     JOptionPane.showMessageDialog(
                             null,
@@ -1022,7 +1021,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                             },
                             Constant.messages.getString("options.cert.label.client.cert"),
                             JOptionPane.ERROR_MESSAGE);
-                    logger.warn("PKCS#11: Incorrect PIN or password" + attempts + ": " + name);
+                    logger.warn("PKCS#11: Incorrect PIN or password {}:{}", attempts, name);
                 }
             } else {
                 logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(false, name, e);
@@ -1113,9 +1112,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                     Constant.messages.getString("options.cert.label.client.cert"),
                     JOptionPane.ERROR_MESSAGE);
             if (isErrorLevel) {
-                logger.error("Couldn't add key from " + name, e);
+                logger.error("Couldn't add key from {}", name, e);
             } else {
-                logger.warn("Couldn't add key from " + name, e);
+                logger.warn("Couldn't add key from {}", name, e);
             }
         }
     }

@@ -370,7 +370,7 @@ public abstract class HttpPanel extends AbstractPanel {
         HttpPanelComponentInterface newComponent = components.get(name);
 
         if (newComponent == null) {
-            logger.info("No component found with name: " + name);
+            logger.info("No component found with name: {}", name);
             return;
         }
 

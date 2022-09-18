@@ -161,10 +161,9 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
         if (this.authorizationMethod != null) {
             if (authorizationMethod instanceof BasicAuthorizationDetectionMethod) {
                 log.debug(
-                        "Initializing panel with "
-                                + BasicAuthorizationDetectionMethod.class.getSimpleName()
-                                + ": "
-                                + authorizationMethod);
+                        "Initializing panel with {}: {}",
+                        BasicAuthorizationDetectionMethod.class.getSimpleName(),
+                        authorizationMethod);
                 BasicAuthorizationDetectionMethod method =
                         (BasicAuthorizationDetectionMethod) this.authorizationMethod;
 
@@ -180,8 +179,8 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
                 return;
             }
             log.warn(
-                    "Unsupported authorization method on panel: "
-                            + authorizationMethod.getClass().getSimpleName());
+                    "Unsupported authorization method on panel: {}",
+                    authorizationMethod.getClass().getSimpleName());
         }
     }
 
@@ -228,7 +227,7 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
     public void saveContextData(Session session) throws Exception {
         saveMethod();
         session.getContext(getContextId()).setAuthorizationDetectionMethod(authorizationMethod);
-        log.debug("Saving authorization method: " + authorizationMethod);
+        log.debug("Saving authorization method: {}", authorizationMethod);
     }
 
     @Override

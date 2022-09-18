@@ -533,7 +533,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                                         .getOptionsParam()
                                                         .getDatabaseParam()
                                                         .isCompactDatabase());
-                                logger.info(Constant.PROGRAM_TITLE + " terminated.");
+                                logger.info("{} terminated.", Constant.PROGRAM_TITLE);
                             } catch (Throwable e) {
                                 logger.error("An error occurred while shutting down:", e);
                             } finally {
@@ -1352,7 +1352,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         API.getDefaultResponseHeader(
                                 "application/json; charset=UTF-8", responseBody.length));
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: " + e.getMessage(), e);
+                logger.error("Failed to create response header: {}", e.getMessage(), e);
             }
             msg.setResponseBody(responseBody);
 
@@ -1399,7 +1399,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         API.getDefaultResponseHeader(
                                 "application/json; charset=UTF-8", responseBody.length));
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: " + e.getMessage(), e);
+                logger.error("Failed to create response header: {}", e.getMessage(), e);
             }
             msg.setResponseBody(responseBody);
 
@@ -1467,7 +1467,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         API.getDefaultResponseHeader(
                                 "application/json; charset=UTF-8", responseBody.length));
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: " + e.getMessage(), e);
+                logger.error("Failed to create response header: {}", e.getMessage(), e);
             }
             msg.setResponseBody(responseBody);
 
@@ -1481,7 +1481,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 msg.getResponseHeader()
                         .addHeader(HttpResponseHeader.CACHE_CONTROL, API_SCRIPT_CACHE_CONTROL);
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: " + e.getMessage(), e);
+                logger.error("Failed to create response header: {}", e.getMessage(), e);
             }
 
             return msg;
@@ -1582,7 +1582,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 
             if (!xmlFile.delete()) {
-                logger.debug("Failed to delete temporary report file " + xmlFile.getAbsolutePath());
+                logger.debug(
+                        "Failed to delete temporary report file {}", xmlFile.getAbsolutePath());
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

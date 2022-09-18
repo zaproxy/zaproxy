@@ -174,7 +174,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor
                 ctx.setAuthorizationDetectionMethod(new BasicAuthorizationDetectionMethod(config));
                 break;
             default:
-                log.warn("No authorization detection method found for ID: " + type);
+                log.warn("No authorization detection method found for ID: {}", type);
         }
     }
 }

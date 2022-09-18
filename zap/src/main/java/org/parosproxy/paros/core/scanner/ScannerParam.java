@@ -52,6 +52,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/04/13 Issue 6469: Add option to scan null JSON values.
 // ZAP: 2021/09/14 Enable Anti CSRF handling by default.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -286,7 +287,7 @@ public class ScannerParam extends AbstractParam {
             }
 
         } catch (ConversionException e) {
-            logger.error("Error while loading the excluded parameter list: " + e.getMessage(), e);
+            logger.error("Error while loading the excluded parameter list: {}", e.getMessage(), e);
         }
 
         // If the list is null probably we've to use defaults!!!

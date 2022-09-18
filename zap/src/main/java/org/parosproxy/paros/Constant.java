@@ -117,6 +117,7 @@
 // ZAP: 2022/02/03 Removed deprecated FILE_CONFIG_DEFAULT and VULNS_BASE
 // ZAP: 2022/02/25 Remove options that are no longer needed.
 // ZAP: 2022/05/20 Remove usage of ConnectionParam.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -454,7 +455,7 @@ public final class Constant {
                 && oldf.exists()
                 && Paths.get(zapHome).equals(Paths.get(getDefaultHomeDirectory(true)))) {
             // Dont copy old configs if forcedReset or they've specified a non std directory
-            LOG.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
+            LOG.info("Copying defaults from {} to {}", oldf.getAbsolutePath(), FILE_CONFIG);
             copier.copy(oldf, f);
 
             if (isDevMode() || isDailyBuild()) {
@@ -464,7 +465,7 @@ public final class Constant {
                 newConfig.save();
             }
         } else {
-            LOG.info("Copying default configuration to " + FILE_CONFIG);
+            LOG.info("Copying default configuration to {}", FILE_CONFIG);
             copyDefaultConfigFile();
         }
     }
@@ -578,7 +579,7 @@ public final class Constant {
 
             f = new File(FOLDER_SESSION);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory " + FOLDER_SESSION);
+                LOG.info("Creating directory {}", FOLDER_SESSION);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -586,7 +587,7 @@ public final class Constant {
             }
             f = new File(DIRBUSTER_CUSTOM_DIR);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory " + DIRBUSTER_CUSTOM_DIR);
+                LOG.info("Creating directory {}", DIRBUSTER_CUSTOM_DIR);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -594,7 +595,7 @@ public final class Constant {
             }
             f = new File(FUZZER_DIR);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory " + FUZZER_DIR);
+                LOG.info("Creating directory {}", FUZZER_DIR);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -602,7 +603,7 @@ public final class Constant {
             }
             f = new File(FOLDER_LOCAL_PLUGIN);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory " + FOLDER_LOCAL_PLUGIN);
+                LOG.info("Creating directory {}", FOLDER_LOCAL_PLUGIN);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -632,7 +633,7 @@ public final class Constant {
                     // Nothing to do
                 } else {
                     // Backup the old one
-                    LOG.info("Backing up config file to " + FILE_CONFIG + ".bak");
+                    LOG.info("Backing up config file to {}.bak", FILE_CONFIG);
                     f = new File(FILE_CONFIG);
                     try {
                         copier.copy(f, new File(FILE_CONFIG + ".bak"));
@@ -710,7 +711,7 @@ public final class Constant {
                     // Execute always to pick installer choices.
                     updateCfuFromDefaultConfig(config);
 
-                    LOG.info("Upgraded from " + ver);
+                    LOG.info("Upgraded from {}", ver);
 
                     setLatestVersion(config);
                 }
@@ -1011,8 +1012,7 @@ public final class Constant {
             }
         } catch (ConversionException e) {
             LOG.debug(
-                    "The option " + OptionsParamCheckForUpdates.CHECK_ON_START + " is not an int.",
-                    e);
+                    "The option {} is not an int.", OptionsParamCheckForUpdates.CHECK_ON_START, e);
         }
         // Clear the block list - addons were incorrectly added to this if an update failed
         config.setProperty(AddOnLoader.ADDONS_BLOCK_LIST, "");
@@ -1025,9 +1025,8 @@ public final class Constant {
             config.setProperty(OptionsParamCheckForUpdates.CHECK_ON_START, oldValue != 0);
         } catch (ConversionException e) {
             LOG.debug(
-                    "The option "
-                            + OptionsParamCheckForUpdates.CHECK_ON_START
-                            + " is no longer an int.",
+                    "The option {} is no longer an int.",
+                    OptionsParamCheckForUpdates.CHECK_ON_START,
                     e);
         }
     }
@@ -1107,7 +1106,7 @@ public final class Constant {
             int oldValue = config.getInt(certUseKey, 0);
             config.setProperty(certUseKey, oldValue != 0);
         } catch (ConversionException e) {
-            LOG.debug("The option " + certUseKey + " is no longer an int.", e);
+            LOG.debug("The option {} is no longer an int.", certUseKey, e);
         }
     }
 

@@ -167,7 +167,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             this.target = target;
         }
 
-        logger.debug("init " + this.target);
+        logger.debug("init {}", this.target);
 
         this.removeAllFields();
         this.injectionPointModel.clear();
@@ -179,7 +179,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             try {
                 scanPolicy = extension.getPolicyManager().getPolicy(scanPolicyName);
             } catch (ConfigurationException e) {
-                logger.warn("Failed to load scan policy (" + scanPolicyName + "):", e);
+                logger.warn("Failed to load scan policy ({}):", scanPolicyName, e);
             }
         }
 

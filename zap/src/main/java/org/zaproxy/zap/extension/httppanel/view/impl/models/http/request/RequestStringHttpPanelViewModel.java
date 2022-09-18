@@ -55,7 +55,7 @@ public class RequestStringHttpPanelViewModel extends AbstractHttpStringHttpPanel
         try {
             httpMessage.setRequestHeader(header);
         } catch (HttpMalformedHeaderException e) {
-            logger.warn("Could not Save Header: " + header, e);
+            logger.warn("Could not Save Header: {}", header, e);
             throw new InvalidMessageDataException(
                     Constant.messages.getString("http.panel.model.header.warn.malformed"), e);
         }

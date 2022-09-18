@@ -1150,7 +1150,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                     }
                 }
             } catch (Exception e) {
-                logger.debug("Error on " + this.latestInfo.getZapRelease().getUrl(), e);
+                logger.debug("Error on {}", this.latestInfo.getZapRelease().getUrl(), e);
                 this.getDownloadProgress()
                         .setText(Constant.messages.getString("cfu.table.label.failed"));
             }
@@ -1189,7 +1189,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
     @Override
     public void gotLatestData(AddOnCollection aoc) {
         // Callback
-        logger.debug("gotLatestData(AddOnCollection " + aoc);
+        logger.debug("gotLatestData(AddOnCollection {}", aoc);
 
         if (aoc != null) {
             EventQueue.invokeLater(() -> setLatestVersionInfo(aoc));
@@ -1201,7 +1201,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
     @Override
     public void insecureUrl(String url, Exception cause) {
-        logger.error("Failed to get check for updates on " + url, cause);
+        logger.error("Failed to get check for updates on {}", url, cause);
         View.getSingleton().showWarningDialog(this, Constant.messages.getString("cfu.warn.badurl"));
     }
 
@@ -1279,7 +1279,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
                             try {
                                 Desktop.getDesktop().browse(evt.getURL().toURI());
                             } catch (IOException | URISyntaxException e) {
-                                logger.warn("Failed to open the URL: " + evt.getURL(), e);
+                                logger.warn("Failed to open the URL: {}", evt.getURL(), e);
                             }
                         }
                     });

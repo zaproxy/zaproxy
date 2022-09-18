@@ -112,7 +112,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
             setConfiguredAccelerator(zme);
             this.map.put(identifier, new KeyboardMapping(zme));
         } else {
-            logger.warn("ZapMenuItem \"" + zme.getName() + "\" has a null identifier.");
+            logger.warn("ZapMenuItem \"{}\" has a null identifier.", zme.getName());
         }
     }
 
@@ -197,7 +197,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 
             } else if (c instanceof JMenuItem) {
                 JMenuItem menuItem = (JMenuItem) c;
-                logger.debug("Unable to set accelerators on menu " + menuItem.getText());
+                logger.debug("Unable to set accelerators on menu {}", menuItem.getText());
             }
         }
     }
@@ -210,14 +210,10 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 
         if (ks.getKeyCode() == 0) {
             // Used to indicate no accelerator should be used
-            logger.debug("Cleaning menu " + menuItem.getIdentifier() + " accelerator");
+            logger.debug("Cleaning menu {} accelerator", menuItem.getIdentifier());
             ks = null;
         } else {
-            logger.debug(
-                    "Setting menu "
-                            + menuItem.getIdentifier()
-                            + " accelerator to "
-                            + ks.toString());
+            logger.debug("Setting menu {} accelerator to {}", menuItem.getIdentifier(), ks);
         }
         menuItem.setAccelerator(ks);
     }
@@ -245,7 +241,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 
             } else if (c instanceof JMenuItem) {
                 JMenuItem menuItem = (JMenuItem) c;
-                logger.debug("Unable to set accelerators on menu " + menuItem.getText());
+                logger.debug("Unable to set accelerators on menu {}", menuItem.getText());
             }
         }
     }
@@ -286,7 +282,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
     public void setShortcut(String identifier, KeyStroke ks) {
         KeyboardMapping mapping = (KeyboardMapping) this.map.get(identifier);
         if (mapping == null) {
-            logger.error("No mapping found for keyboard shortcut: " + identifier);
+            logger.error("No mapping found for keyboard shortcut: {}", identifier);
             return;
         }
         mapping.setKeyStroke(ks);

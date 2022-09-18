@@ -147,9 +147,7 @@ public class PassiveScanController extends Thread implements ProxyListener {
                 }
                 if (href != null
                         && HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Temporary record {} no longer available:", currentId, e);
-                    }
+                    logger.debug("Temporary record {} no longer available:", currentId, e);
                 } else {
                     logger.error("Failed on record {} from History table", currentId, e);
                 }

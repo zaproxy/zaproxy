@@ -169,7 +169,7 @@ public class User extends Enableable {
             if (this.requiresAuthentication()) {
                 this.authenticate();
                 if (this.requiresAuthentication()) {
-                    log.info("Authentication failed for user: " + name);
+                    log.info("Authentication failed for user: {}", name);
                     return;
                 }
             }
@@ -262,7 +262,7 @@ public class User extends Enableable {
      * @see Context
      */
     public void authenticate() {
-        log.info("Authenticating user: " + this.name);
+        log.info("Authenticating user: {}", this.name);
         WebSession result = null;
         try {
             result =
@@ -314,7 +314,7 @@ public class User extends Enableable {
         out.append(user.getContext().getAuthenticationMethod().getType().getUniqueIdentifier())
                 .append(FIELD_SEPARATOR);
         out.append(user.authenticationCredentials.encode(FIELD_SEPARATOR));
-        if (log.isDebugEnabled()) log.debug("Encoded user: " + out.toString());
+        log.debug("Encoded user: {}", out);
         return out.toString();
     }
 
@@ -359,10 +359,10 @@ public class User extends Enableable {
             cred.decode(pieces[4]);
             user.setAuthenticationCredentials(cred);
         } catch (Exception ex) {
-            log.error("An error occured while decoding user from: " + encodedString, ex);
+            log.error("An error occured while decoding user from: {}", encodedString, ex);
             return null;
         }
-        if (log.isDebugEnabled()) log.debug("Decoded user: " + user);
+        log.debug("Decoded user: {}", user);
         return user;
     }
 

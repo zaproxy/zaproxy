@@ -111,7 +111,7 @@ public class SpiderDialog extends StandardFieldsDialog {
             // If one isn't specified then leave the previously selected one
             this.target = target;
         }
-        logger.debug("init " + this.target);
+        logger.debug("init {}", this.target);
 
         this.removeAllFields();
 

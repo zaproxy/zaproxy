@@ -352,9 +352,8 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
 
             if (script == null) {
                 LOG.warn(
-                        "The script "
-                                + scriptW.getName()
-                                + " does not properly implement the Session Script interface.");
+                        "The script {} does not properly implement the Session Script interface.",
+                        scriptW.getName());
                 warnAndResetPanel(
                         Constant.messages.getString(
                                 "session.method.script.dialog.error.text.interface",
@@ -372,9 +371,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                 Map<String, String> oldValues = null;
                 if (adaptOldValues && dynamicFieldsPanel != null) {
                     oldValues = dynamicFieldsPanel.getFieldValues();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Trying to adapt old values: " + oldValues);
-                    }
+                    LOG.debug("Trying to adapt old values: {}", oldValues);
                 }
 
                 this.dynamicFieldsPanel = new DynamicFieldsPanel(requiredParams, optionalParams);
@@ -560,8 +557,8 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
             ScriptWrapper script = getScriptsExtension().getScript(scriptName);
             if (script == null) {
                 LOG.error(
-                        "Unable to find script while loading Script Based Session Management Method for name: "
-                                + scriptName);
+                        "Unable to find script while loading Script Based Session Management Method for name: {}",
+                        scriptName);
                 if (View.isInitialised()) {
                     View.getSingleton()
                             .showMessageDialog(
@@ -571,16 +568,15 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                 }
                 return;
             }
-            LOG.info("Loaded script:" + script.getName());
+            LOG.info("Loaded script:{}", script.getName());
             method.script = script;
 
             // Check script interface
             SessionScript s = getScriptInterface(script);
             if (s == null) {
                 LOG.error(
-                        "Unable to load Script Based Session Management method. The script "
-                                + scriptName
-                                + " does not properly implement the Session Management Script interface.");
+                        "Unable to load Script Based Session Management method. The script {} does not properly implement the Session Management Script interface.",
+                        scriptName);
                 return;
             }
         }
@@ -593,8 +589,8 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
         } else {
             method.paramValues = new HashMap<>();
             LOG.error(
-                    "Unable to load script parameter values loading Script Based Session Management Method for name: "
-                            + scriptName);
+                    "Unable to load script parameter values loading Script Based Session Management Method for name: {}",
+                    scriptName);
         }
     }
 
@@ -647,24 +643,21 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                 ScriptWrapper script = getScriptsExtension().getScript(scriptName);
                 if (script == null) {
                     LOG.error(
-                            "Unable to find script while loading Script Based Session Management Method for name: "
-                                    + scriptName);
+                            "Unable to find script while loading Script Based Session Management Method for name: {}",
+                            scriptName);
                     throw new ApiException(ApiException.Type.SCRIPT_NOT_FOUND, scriptName);
                 } else {
-                    LOG.info("Loaded script for API:" + script.getName());
+                    LOG.info("Loaded script for API:{}", script.getName());
                 }
                 method.script = script;
 
                 SessionScript sessionScript = getScriptInterface(script);
                 String[] requiredParams = sessionScript.getRequiredParamsNames();
                 String[] optionalParams = sessionScript.getOptionalParamsNames();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(
-                            "Loaded session management script - required parameters: "
-                                    + Arrays.toString(requiredParams)
-                                    + " - optional parameters: "
-                                    + Arrays.toString(optionalParams));
-                }
+                LOG.debug(
+                        "Loaded session management script - required parameters: {} - optial parameters: {}",
+                        Arrays.toString(requiredParams),
+                        Arrays.toString(optionalParams));
 
                 Map<String, String> paramValues = new HashMap<>();
                 for (String rp : requiredParams) {
@@ -677,8 +670,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                 for (String op : optionalParams)
                     paramValues.put(op, ApiUtils.getOptionalStringParam(params, op));
                 method.paramValues = paramValues;
-                if (LOG.isDebugEnabled())
-                    LOG.debug("Loaded session management script parameters:" + paramValues);
+                LOG.debug("Loaded session management script parameters:{}", paramValues);
 
                 context.setSessionManagementMethod(method);
             }

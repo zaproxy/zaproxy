@@ -165,10 +165,9 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
 
             getLogger()
                     .warn(
-                            "Add-on \""
-                                    + addOn.getId()
-                                    + "\" or its extensions will no longer be run until its requirements are restored: "
-                                    + issues);
+                            "Add-on \"{}\" or its extensions will no longer be run until its requirements are restored: {}",
+                            addOn.getId(),
+                            issues);
         }
     }
 

@@ -219,7 +219,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
                 }
             }
         } catch (ConversionException e) {
-            logger.error("Error while loading Global Exclude URL tokens: " + e.getMessage(), e);
+            logger.error("Error while loading Global Exclude URL tokens: {}", e.getMessage(), e);
             this.tokens = new ArrayList<>(defaultList.size());
             this.enabledTokensNames = new ArrayList<>(defaultList.size());
         }
