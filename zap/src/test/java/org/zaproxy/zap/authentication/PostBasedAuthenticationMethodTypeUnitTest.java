@@ -44,6 +44,7 @@ import net.sf.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.quality.Strictness;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
@@ -269,14 +270,16 @@ class PostBasedAuthenticationMethodTypeUnitTest {
         }
 
         static AntiCsrfToken token(String name, String value) {
-            AntiCsrfToken token = mock(AntiCsrfToken.class, withSettings().lenient());
+            AntiCsrfToken token =
+                    mock(AntiCsrfToken.class, withSettings().strictness(Strictness.LENIENT));
             given(token.getName()).willReturn(name);
             given(token.getValue()).willReturn(value);
             return token;
         }
 
         private static NameValuePair parameter(String name, String value) {
-            NameValuePair parameter = mock(NameValuePair.class, withSettings().lenient());
+            NameValuePair parameter =
+                    mock(NameValuePair.class, withSettings().strictness(Strictness.LENIENT));
             given(parameter.getName()).willReturn(name);
             given(parameter.getValue()).willReturn(value);
             return parameter;

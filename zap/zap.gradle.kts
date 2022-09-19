@@ -73,7 +73,7 @@ dependencies {
     api("org.apache.commons:commons-text:1.9")
     api("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
-    val log4jVersion = "2.17.2"
+    val log4jVersion = "2.19.0"
     api("org.apache.logging.log4j:log4j-api:$log4jVersion")
     api("org.apache.logging.log4j:log4j-1.2-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
@@ -89,7 +89,7 @@ dependencies {
     api("org.jfree:jfreechart:1.5.3")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
-    api("org.xerial:sqlite-jdbc:3.36.0.3")
+    api("org.xerial:sqlite-jdbc:3.39.3.0")
 
     implementation("commons-validator:commons-validator:1.7")
     // Don't need its dependencies, for now.
@@ -100,20 +100,20 @@ dependencies {
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
-    runtimeOnly("xom:xom:1.3.7") {
+    runtimeOnly("xom:xom:1.3.8") {
         setTransitive(false)
     }
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.32.0") {
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.34.0") {
         // Not needed.
         exclude(group = "org.junit")
     }
     testImplementation("org.hamcrest:hamcrest-core:2.2")
-    val jupiterVersion = "5.8.2"
+    val jupiterVersion = "5.9.0"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
     testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
-    testImplementation("org.mockito:mockito-junit-jupiter:4.4.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:4.8.0")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
     testImplementation("org.nanohttpd:nanohttpd-webserver:2.3.1")
 
