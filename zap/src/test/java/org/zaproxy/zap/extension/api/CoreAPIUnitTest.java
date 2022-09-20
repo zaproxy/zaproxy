@@ -34,6 +34,7 @@ import net.sf.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.quality.Strictness;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -47,10 +48,10 @@ class CoreAPIUnitTest {
 
     @BeforeEach
     void setUp() {
-        Model model = mock(Model.class, withSettings().lenient());
+        Model model = mock(Model.class, withSettings().strictness(Strictness.LENIENT));
         Model.setSingletonForTesting(model);
-        Constant.messages = mock(I18N.class, withSettings().lenient());
-        networkApi = mock(ApiImplementor.class, withSettings().lenient());
+        Constant.messages = mock(I18N.class, withSettings().strictness(Strictness.LENIENT));
+        networkApi = mock(ApiImplementor.class, withSettings().strictness(Strictness.LENIENT));
         given(networkApi.getPrefix()).willReturn("network");
         API.getInstance().registerApiImplementor(networkApi);
         coreApi = new CoreAPI();
