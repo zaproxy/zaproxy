@@ -46,6 +46,7 @@
 // ZAP: 2022/06/05 Remove usage of HttpException.
 // ZAP: 2022/06/09 Quote the query component used in the regular expression.
 // ZAP: 2022/06/09 Use Analyser in more circumstances.
+// ZAP: 2022/09/07 Remove unnecessary comments and address SonarLint issues
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -74,12 +75,13 @@ public class Analyser {
     private static final Logger logger = LogManager.getLogger(Analyser.class);
 
     /** remove HTML HEAD as this may contain expiry time which dynamic changes */
-    private static final String p_REMOVE_HEADER = "(?m)(?i)(?s)<HEAD>.*?</HEAD>";
+    private static final String PATTERN_REMOVE_HEADER = "(?m)(?i)(?s)<HEAD>.*?</HEAD>";
 
-    private static final Pattern patternNotFound =
+    private static final Pattern PATTERN_NOT_FOUND =
             Pattern.compile(
                     "(\\bnot\\b(found|exist))|(\\b404\\berror\\b)|(\\berror\\b404\\b)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    private static final String PATTERN_THREE_SEGMENT_TIME = "\\s[012]\\d:[0-5]\\d:[0-5]\\d\\s";
 
     private static Random staticRandomGenerator = new Random();
     private static final String[] staticSuffixList = {
@@ -93,7 +95,6 @@ public class Analyser {
     private StopWatch stopWatch;
     private boolean stopWatchStarted;
 
-    // ZAP Added delayInMs
     private int delayInMs;
 
     /**
@@ -104,7 +105,6 @@ public class Analyser {
      */
     private int requestCount;
 
-    // ZAP: Added parent
     HostProcess parent = null;
 
     public Analyser() {}
@@ -143,7 +143,7 @@ public class Analyser {
             mapVisited.put(uri.toString(), new SampleResponse(msg, errorIndicator));
 
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            logger.error("Failed to persist the message: " + e.getMessage(), e);
+            logger.error("Failed to persist the message: {}", e.getMessage(), e);
         }
     }
 
@@ -155,8 +155,7 @@ public class Analyser {
      *     the message)
      */
     private void analyse(StructuralNode node) throws Exception {
-        // if analysed already, return;
-        // move to host part
+        // if analysed already, return; move to host part
         if (node.getHistoryReference() == null) {
             logger.debug("Node being analysed has no History Reference");
             return;
@@ -167,13 +166,11 @@ public class Analyser {
             return;
         }
 
-        // ZAP: Removed unnecessary cast.
         HttpMessage baseMsg = node.getHistoryReference().getHttpMessage();
         URI baseUri = (URI) baseMsg.getRequestHeader().getURI().clone();
         logger.debug("Analysing {}", baseUri);
 
         baseUri.setQuery(null);
-        // System.out.println("analysing: " + baseUri.toString());
 
         // already exist one.  no need to test
         if (mapVisited.get(baseUri.toString()) != null) {
@@ -187,7 +184,7 @@ public class Analyser {
         URI uri = (URI) baseUri.clone();
         uri.setPath(path);
         msg.getRequestHeader().setURI(uri);
-        // System.out.println("analysing 2: " + uri);
+
         logger.debug("Sending first analyse request {}", uri);
         sendAndReceive(msg);
 
@@ -220,8 +217,8 @@ public class Analyser {
         sendAndReceive(msg2);
 
         // remove HTML HEAD as this may contain expiry time which dynamic changes
-        String resBody1 = msg.getResponseBody().toString().replaceAll(p_REMOVE_HEADER, "");
-        String resBody2 = msg2.getResponseBody().toString().replaceAll(p_REMOVE_HEADER, "");
+        String resBody1 = msg.getResponseBody().toString().replaceAll(PATTERN_REMOVE_HEADER, "");
+        String resBody2 = msg2.getResponseBody().toString().replaceAll(PATTERN_REMOVE_HEADER, "");
 
         // check if page is static.  If so, remember this static page
         if (resBody1.equals(resBody2)) {
@@ -234,10 +231,10 @@ public class Analyser {
         // else check if page is dynamic but deterministic
         resBody1 =
                 resBody1.replaceAll(getPathRegex(uri), "")
-                        .replaceAll("\\s[012]\\d:[0-5]\\d:[0-5]\\d\\s", "");
+                        .replaceAll(PATTERN_THREE_SEGMENT_TIME, "");
         resBody2 =
                 resBody2.replaceAll(getPathRegex(uri2), "")
-                        .replaceAll("\\s[012]\\d:[0-5]\\d:[0-5]\\d\\s", "");
+                        .replaceAll(PATTERN_THREE_SEGMENT_TIME, "");
         if (resBody1.equals(resBody2)) {
             msg.getResponseBody().setBody(resBody1);
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_DYNAMIC_BUT_DETERMINISTIC);
@@ -277,6 +274,7 @@ public class Analyser {
                             return suffix;
                         }
                     } catch (Exception e) {
+                        // Nothing to do
                     }
                 }
             }
@@ -293,6 +291,7 @@ public class Analyser {
             }
 
         } catch (Exception e) {
+            // Nothing to do
         }
 
         return resultSuffix;
@@ -300,7 +299,6 @@ public class Analyser {
 
     static String getPathRegex(URI uri) throws URIException {
         URI newUri;
-        // ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
         try {
             newUri = (URI) uri.clone();
 
@@ -311,11 +309,10 @@ public class Analyser {
         String query = newUri.getQuery();
         StringBuilder sb = new StringBuilder(100);
 
-        // case should be sensitive
-        // sb.append("(?i)");
+        // case should be sensitive sb.append("(?i)");
         newUri.setQuery(null);
 
-        sb.append(newUri.toString().replaceAll("\\.", "\\."));
+        sb.append(newUri.toString());
         if (query != null) {
             String queryPattern = "(\\?" + Pattern.quote(query) + ")?";
             sb.append(queryPattern);
@@ -385,12 +382,12 @@ public class Analyser {
                     logger.debug("Node being analysed is a leaf whose parent is not root");
                     inOrderAnalyse(traversedNodes, node.getParent());
                 } else {
-                    // ZAP: it's a Leaf then no children are available
                     return 1;
                 }
             }
 
         } catch (Exception e) {
+            // Nothing to do
         }
 
         Iterator<StructuralNode> iter = node.getChildIterator();
@@ -413,7 +410,6 @@ public class Analyser {
             return false;
         }
 
-        // ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
         URI uri = null;
         String sUri = null;
         try {
@@ -426,6 +422,7 @@ public class Analyser {
             uri.setPath(path);
 
         } catch (Exception e) {
+            // Nothing to do
         } finally {
             if (uri != null) {
                 sUri = uri.toString();
@@ -434,29 +431,23 @@ public class Analyser {
 
         // get sample with same relative path position when possible.
         // if not exist, use the host only
-        // ZAP: Removed unnecessary cast.
         SampleResponse sample = mapVisited.get(sUri);
         if (sample == null) {
             try {
                 uri.setPath(null);
 
             } catch (URIException e2) {
+                // Nothing to do
             }
 
             String sHostOnly = uri.toString();
 
-            // ZAP: Removed unnecessary cast.
             sample = mapVisited.get(sHostOnly);
         }
 
         // check if any analysed result.
         if (sample == null) {
-            if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
-                // no analysed result to confirm, assume file exist and return
-                return true;
-            } else {
-                return false;
-            }
+            return msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK;
         }
 
         // check for redirect response.  If redirect to same location, then file does not exist
@@ -486,13 +477,13 @@ public class Analyser {
 
         // remain only OK response here
         // nothing more to determine.  Check for possible not found page pattern.
-        Matcher matcher = patternNotFound.matcher(msg.getResponseBody().toString());
+        Matcher matcher = PATTERN_NOT_FOUND.matcher(msg.getResponseBody().toString());
         if (matcher.find()) {
             return false;
         }
 
         // static response
-        String body = msg.getResponseBody().toString().replaceAll(p_REMOVE_HEADER, "");
+        String body = msg.getResponseBody().toString().replaceAll(PATTERN_REMOVE_HEADER, "");
         if (sample.getErrorPageType() == SampleResponse.ERROR_PAGE_STATIC) {
             try {
                 if (sample.getMessage().getResponseBody().toString().equals(body)) {
@@ -500,7 +491,7 @@ public class Analyser {
                 }
 
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                logger.error("Failed to read the message: " + e.getMessage(), e);
+                logger.error("Failed to read the message: {}", e.getMessage(), e);
             }
             return true;
         }
@@ -512,12 +503,8 @@ public class Analyser {
                         msg.getResponseBody()
                                 .toString()
                                 .replaceAll(getPathRegex(uri), "")
-                                .replaceAll("\\s[012]\\d:[0-5]\\d:[0-5]\\d\\s", "");
-                // ZAP: FindBugs fix - added call to HttpBody.toString()
-                if (sample.getMessage().getResponseBody().toString().equals(body)) {
-                    return false;
-                }
-                return true;
+                                .replaceAll(PATTERN_THREE_SEGMENT_TIME, "");
+                return !sample.getMessage().getResponseBody().toString().equals(body);
             }
 
         } catch (Exception e) {
