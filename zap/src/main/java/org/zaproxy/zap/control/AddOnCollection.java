@@ -71,10 +71,9 @@ public class AddOnCollection {
                 if (requirements.hasDependencyIssue()) {
                     if (logger.isDebugEnabled()) {
                         logger.debug(
-                                "Ignoring add-on  "
-                                        + addOn.getName()
-                                        + " because of dependency issue: "
-                                        + AddOnRunIssuesUtils.getDependencyIssue(requirements));
+                                "Ignoring add-on {} because of dependency issue: {}",
+                                addOn.getName(),
+                                AddOnRunIssuesUtils.getDependencyIssue(requirements));
                     }
                     if (AddOn.AddOnRunRequirements.DependencyIssue.CYCLIC
                             == requirements.getDependencyIssue()) {
@@ -86,10 +85,9 @@ public class AddOnCollection {
                 } else if (requirements.hasExtensionsWithRunningIssues()) {
                     if (logger.isDebugEnabled()) {
                         logger.debug(
-                                "Ignoring add-on  "
-                                        + addOn.getName()
-                                        + " because of dependency issue in an extension: "
-                                        + AddOnRunIssuesUtils.getDependencyIssue(requirements));
+                                "Ignoring add-on {} because of dependency issue in an extension: {}",
+                                addOn.getName(),
+                                AddOnRunIssuesUtils.getDependencyIssue(requirements));
                     }
                 } else {
                     runnableAddOns.add(addOn);
@@ -136,21 +134,21 @@ public class AddOnCollection {
             // And then load the addons
             String[] addOnIds = config.getStringArray("addon");
             for (String id : addOnIds) {
-                logger.debug("Found addon " + id);
+                logger.debug("Found add-on {}", id);
 
                 AddOn ao;
                 try {
                     ao = new AddOn(id, downloadDir, config.configurationAt("addon_" + id));
                     ao.setInstallationStatus(AddOn.InstallationStatus.AVAILABLE);
                 } catch (Exception e) {
-                    logger.warn("Failed to create add-on for " + id, e);
+                    logger.warn("Failed to create add-on for {}", id, e);
                     continue;
                 }
                 if (ao.canLoadInCurrentVersion()) {
                     // Ignore ones that dont apply to this version
                     this.addOns.add(ao);
                 } else {
-                    logger.debug("Ignoring addon " + ao.getName() + " cant load in this version");
+                    logger.debug("Ignoring add-on {} can't load in this version", ao.getName());
                 }
             }
 
@@ -178,12 +176,12 @@ public class AddOnCollection {
         }
         if (!dir.exists()) {
             logger.warn(
-                    "Skipping enumeration of add-ons, the directory does not exist: "
-                            + dir.getAbsolutePath());
+                    "Skipping enumeration of add-ons, the directory does not exist: {}",
+                    dir.getAbsolutePath());
             return;
         }
         if (!dir.isDirectory()) {
-            logger.warn("Not a directory: " + dir.getAbsolutePath());
+            logger.warn("Not a directory: {}", dir.getAbsolutePath());
             return;
         }
 
@@ -202,37 +200,27 @@ public class AddOnCollection {
                                                     // Replace in situ so we're not changing a list
                                                     // we're iterating through
                                                     logger.debug(
-                                                            "Addon "
-                                                                    + addOn.getId()
-                                                                    + " version "
-                                                                    + addOn.getVersion()
-                                                                    + " superseded by "
-                                                                    + ao.getVersion());
+                                                            "Add-on {} version {} superseded by {}",
+                                                            addOn.getId(),
+                                                            addOn.getVersion(),
+                                                            ao.getVersion());
                                                     addOns.remove(addOn);
                                                 } else {
-                                                    if (logger.isDebugEnabled()) {
-                                                        logger.debug(
-                                                                "Ignoring newer addon "
-                                                                        + ao.getId()
-                                                                        + " version "
-                                                                        + ao.getVersion()
-                                                                        + " because of ZAP version constraints; Not before="
-                                                                        + ao.getNotBeforeVersion()
-                                                                        + " Not from="
-                                                                        + ao.getNotFromVersion()
-                                                                        + " Current Version="
-                                                                        + Constant.PROGRAM_VERSION);
-                                                    }
+                                                    logger.debug(
+                                                            "Ignoring newer add-on {} version {} because of ZAP version constraints; Not before={} Not from={} Current Version={}",
+                                                            ao.getId(),
+                                                            ao.getVersion(),
+                                                            ao.getNotBeforeVersion(),
+                                                            ao.getNotFromVersion(),
+                                                            Constant.PROGRAM_VERSION);
                                                     add = false;
                                                 }
                                             } else {
                                                 // Same or older version, don't include
                                                 logger.debug(
-                                                        "Addon "
-                                                                + ao.getId()
-                                                                + " version "
-                                                                + ao.getVersion()
-                                                                + " not latest.");
+                                                        "Add-on {} version {} not latest.",
+                                                        ao.getId(),
+                                                        ao.getVersion());
                                                 add = false;
                                             }
                                             break;
@@ -240,10 +228,9 @@ public class AddOnCollection {
                                     }
                                     if (add) {
                                         logger.debug(
-                                                "Found addon "
-                                                        + ao.getId()
-                                                        + " version "
-                                                        + ao.getVersion());
+                                                "Found add-on {} version {}",
+                                                ao.getId(),
+                                                ao.getVersion());
                                         this.addOns.add(ao);
                                     }
                                 });

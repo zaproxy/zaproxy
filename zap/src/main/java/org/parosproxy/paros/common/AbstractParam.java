@@ -34,6 +34,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.common;
 
 import java.util.Map.Entry;
@@ -87,12 +88,10 @@ public abstract class AbstractParam implements Cloneable {
             if (overrides != null) {
                 for (Entry<String, String> entry : overrides.getOrderedConfigs().entrySet()) {
                     logger.info(
-                            "Setting config "
-                                    + entry.getKey()
-                                    + " = "
-                                    + entry.getValue()
-                                    + " was "
-                                    + config.getString(entry.getKey()));
+                            "Setting config {} = {} was {}",
+                            entry.getKey(),
+                            entry.getValue(),
+                            config.getString(entry.getKey()));
                     config.setProperty(entry.getKey(), entry.getValue());
                 }
             }
@@ -168,7 +167,7 @@ public abstract class AbstractParam implements Cloneable {
      * @since 2.7.0
      */
     protected static void logConversionException(String key, ConversionException e) {
-        logger.warn("Failed to read '" + key + "'", e);
+        logger.warn("Failed to read '{}'", key, e);
     }
 
     /**

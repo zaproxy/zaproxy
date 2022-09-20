@@ -229,9 +229,7 @@ public class ByteBuilder {
                 | IllegalAccessException
                 | InvocationTargetException e) {
             // shouldn't happen but in case it does log it.
-            if (logger.isDebugEnabled()) {
-                logger.debug(e.getMessage(), e);
-            }
+            logger.debug(e.getMessage(), e);
         } catch (NoSuchMethodException e) {
             // will happen, a lot
         }

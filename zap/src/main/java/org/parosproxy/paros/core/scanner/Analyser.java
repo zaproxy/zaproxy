@@ -47,6 +47,7 @@
 // ZAP: 2022/06/09 Quote the query component used in the regular expression.
 // ZAP: 2022/06/09 Use Analyser in more circumstances.
 // ZAP: 2022/09/07 Remove unnecessary comments and address SonarLint issues
+// ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;

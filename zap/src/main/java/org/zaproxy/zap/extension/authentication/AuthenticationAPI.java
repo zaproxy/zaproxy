@@ -116,7 +116,7 @@ public class AuthenticationAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiView " + name + " " + params.toString());
+        log.debug("handleApiView {} {}", name, params);
 
         switch (name) {
             case VIEW_GET_AUTHENTICATION:
@@ -149,7 +149,7 @@ public class AuthenticationAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction " + name + " " + params.toString());
+        log.debug("handleApiAction {} {}", name, params);
 
         Context context;
         switch (name) {

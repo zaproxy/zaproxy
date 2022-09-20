@@ -308,7 +308,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
                             }
                         });
             } catch (InvocationTargetException | InterruptedException e) {
-                LOGGER.error("Failed to switch view: " + e.getMessage(), e);
+                LOGGER.error("Failed to switch view: {}", e.getMessage(), e);
             }
             return;
         }

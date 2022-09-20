@@ -99,7 +99,7 @@ public class AttackModeScanner implements EventConsumer {
         if (this.rescanOnChange) {
             this.nodeStack.addAll(Model.getSingleton().getSession().getNodesInScopeFromSiteTree());
             log.debug(
-                    "Added existing in scope nodes to attack mode stack " + this.nodeStack.size());
+                    "Added existing in scope nodes to attack mode stack {}", this.nodeStack.size());
             updateCount();
         }
     }
@@ -122,7 +122,8 @@ public class AttackModeScanner implements EventConsumer {
                         != HistoryReference.TYPE_TEMPORARY) {
                     // Add to the stack awaiting attack
                     log.debug(
-                            "Adding node to attack mode stack " + event.getTarget().getStartNode());
+                            "Adding node to attack mode stack {}",
+                            event.getTarget().getStartNode());
                     nodeStack.add(event.getTarget().getStartNode());
                     updateCount();
                 }
@@ -302,7 +303,7 @@ public class AttackModeScanner implements EventConsumer {
                 }
                 while (nodeStack.size() > 0 && scanners.size() < scannerCount) {
                     SiteNode node = nodeStack.remove(0);
-                    log.debug("Attacking node " + node.getNodeName());
+                    log.debug("Attacking node {}", node.getNodeName());
 
                     Scanner scanner =
                             new Scanner(
@@ -340,7 +341,7 @@ public class AttackModeScanner implements EventConsumer {
                     if (scanner.isStop()) {
                         SiteNode node = scanner.getStartNode();
                         if (node != null) {
-                            log.debug("Finished attacking node " + node.getNodeName());
+                            log.debug("Finished attacking node {}", node.getNodeName());
                             if (View.isInitialised()) {
                                 // Remove the icon
                                 node.removeCustomIcon(ATTACK_ICON_RESOURCE);

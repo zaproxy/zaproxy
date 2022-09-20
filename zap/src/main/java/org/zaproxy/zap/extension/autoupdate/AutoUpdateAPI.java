@@ -87,7 +87,7 @@ public class AutoUpdateAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction " + name + " " + params.toString());
+        log.debug("handleApiAction {} {}", name, params);
         if (ACTION_DOWNLOAD_LATEST_RELEASE.equals(name)) {
             if (this.downloadLatestRelease()) {
                 return ApiResponseElement.OK;

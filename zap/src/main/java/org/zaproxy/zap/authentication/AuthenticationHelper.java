@@ -184,7 +184,9 @@ public class AuthenticationHelper {
             msg.getRequestHeader().setURI(new URI(uri, true));
         } catch (Exception e) {
             log.error(
-                    "Failed to replace user data in request " + msg.getRequestHeader().getURI(), e);
+                    "Failed to replace user data in request {}",
+                    msg.getRequestHeader().getURI(),
+                    e);
         }
         if (msg.getRequestBody().length() > 0) {
             msg.setRequestBody(

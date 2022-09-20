@@ -73,7 +73,7 @@ public class AuthorizationAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiView " + name + " " + params.toString());
+        log.debug("handleApiView {} {}", name, params);
 
         switch (name) {
             case VIEW_GET_AUTHORIZATION_METHOD:
@@ -87,7 +87,7 @@ public class AuthorizationAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction " + name + " " + params.toString());
+        log.debug("handleApiAction {} {}", name, params);
         Context context;
         switch (name) {
             case ACTION_SET_AUTHORIZATION_METHOD:
@@ -108,12 +108,12 @@ public class AuthorizationAPI extends ApiImplementor {
                                 PARAM_STATUS_CODE,
                                 BasicAuthorizationDetectionMethod.NO_STATUS_CODE);
 
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                            String.format(
-                                    "Setting basic authorization detection to: %s / %s / %d / %s",
-                                    headerRegex, bodyRegex, statusCode, logicalOperator));
-                }
+                log.debug(
+                        "Setting basic authorization detection to: {} / {} / {} / {}",
+                        headerRegex,
+                        bodyRegex,
+                        statusCode,
+                        logicalOperator);
 
                 BasicAuthorizationDetectionMethod method =
                         new BasicAuthorizationDetectionMethod(

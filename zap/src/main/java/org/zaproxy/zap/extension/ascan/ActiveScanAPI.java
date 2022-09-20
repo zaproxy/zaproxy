@@ -293,7 +293,7 @@ public class ActiveScanAPI extends ApiImplementor {
     @SuppressWarnings({"fallthrough"})
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction " + name + " " + params.toString());
+        log.debug("handleApiAction {} {}", name, params);
         ScanPolicy policy;
         int categoryId;
 
@@ -351,7 +351,7 @@ public class ActiveScanAPI extends ApiImplementor {
                     try {
                         if (policyName != null && policyName.length() > 0) {
                             // Not specified, use the default one
-                            log.debug("handleApiAction scan policy =" + policyName);
+                            log.debug("handleApiAction scan policy ={}", policyName);
                             policy = controller.getPolicyManager().getPolicy(policyName);
                         }
                     } catch (ConfigurationException e) {

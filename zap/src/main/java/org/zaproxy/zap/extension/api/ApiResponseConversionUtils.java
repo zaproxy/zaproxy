@@ -89,7 +89,7 @@ public final class ApiResponseConversionUtils {
         try {
             tags = HistoryReference.getTags(historyId);
         } catch (DatabaseException e) {
-            LOGGER.warn("Failed to obtain the tags for message with ID " + historyId, e);
+            LOGGER.warn("Failed to obtain the tags for message with ID {}", historyId, e);
         }
         return new HttpMessageResponseSet(map, tags);
     }

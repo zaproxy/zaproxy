@@ -229,7 +229,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
      * @param context the context that was selected
      */
     protected void contextSelected(Context context) {
-        log.debug("Selected new context: " + context);
+        log.debug("Selected new context: {}", context);
         switchViewForContext(context);
     }
 

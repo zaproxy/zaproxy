@@ -89,26 +89,21 @@ final class AddOnLoaderUtils {
         try {
             cls = addOnClassLoader.loadClass(classname);
         } catch (ClassNotFoundException e) {
-            LOGGER.error("Declared \"" + type + "\" was not found: " + classname, e);
+            LOGGER.error("Declared \"{}\" was not found: {}", type, classname, e);
             return null;
         } catch (LinkageError e) {
-            LOGGER.error("Declared \"" + type + "\" could not be loaded: " + classname, e);
+            LOGGER.error("Declared \"{}\" could not be loaded: {}", type, classname, e);
             return null;
         }
 
         if (Modifier.isAbstract(cls.getModifiers()) || Modifier.isInterface(cls.getModifiers())) {
-            LOGGER.error("Declared \"" + type + "\" is abstract or an interface: " + classname);
+            LOGGER.error("Declared \"{}\" is abstract or an interface: {}", type, classname);
             return null;
         }
 
         if (!clazz.isAssignableFrom(cls)) {
             LOGGER.error(
-                    "Declared \""
-                            + type
-                            + "\" is not of type \""
-                            + clazz.getName()
-                            + "\": "
-                            + classname);
+                    "Declared \"{}\" is not of type \"{}\": {}", type, clazz.getName(), classname);
             return null;
         }
 
@@ -117,7 +112,7 @@ final class AddOnLoaderUtils {
             Constructor<T> c = (Constructor<T>) cls.getConstructor();
             return c.newInstance();
         } catch (LinkageError | Exception e) {
-            LOGGER.error("Failed to initialise: " + classname, e);
+            LOGGER.error("Failed to initialise: {}", classname, e);
         }
         return null;
     }
