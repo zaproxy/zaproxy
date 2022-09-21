@@ -59,6 +59,8 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2022/09/21 Use a contains check for DDN prefix. Tweak if conditions in setIncludedFromScope
+// and setExcludedFromScope to short-circuit && operator earlier.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -121,9 +123,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         super();
         this.siteMap = siteMap;
         this.nodeName = nodeName;
-        if (nodeName.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {
-            this.dataDriven = true;
-        }
+        this.dataDriven = nodeName.contains(SessionStructure.DATA_DRIVEN_NODE_PREFIX);
         this.icons = new ArrayList<>();
         this.clearIfManual = new ArrayList<>();
         if (type == HistoryReference.TYPE_SPIDER) {
@@ -651,7 +651,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
         this.nodeChanged();
         // Recurse down
-        if (this.getChildCount() > 0 && applyToChildNodes) {
+        if (applyToChildNodes && this.getChildCount() > 0) {
             SiteNode c = (SiteNode) this.getFirstChild();
             while (c != null) {
                 c.setIncludedInScope(isIncludedInScope, applyToChildNodes);
@@ -675,7 +675,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
         this.nodeChanged();
         // Recurse down
-        if (this.getChildCount() > 0 && applyToChildNodes) {
+        if (applyToChildNodes && this.getChildCount() > 0) {
             SiteNode c = (SiteNode) this.getFirstChild();
             while (c != null) {
                 c.setExcludedFromScope(isExcludedFromScope, applyToChildNodes);
