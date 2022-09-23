@@ -1,5 +1,5 @@
 # This dockerfile builds the zap weekly release
-FROM ubuntu:20.04 AS builder
+FROM debian:unstable-slim AS builder
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
@@ -21,7 +21,7 @@ RUN if [ -z "$WEBSWING_URL" ] ; \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
 
-FROM ubuntu:20.04
+FROM debian:unstable-slim
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -49,6 +49,8 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3 zapcli
+# This apparently must be run separately so the packaged scans will run, don't know why
+RUN pip3 install --upgrade requests
 
 RUN useradd -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd

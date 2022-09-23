@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2022-09-26
+ - Changed weekly image to use debian:unstable-slim.
+
 ### 2022-09-20
  - Changed live image to use debian:unstable-slim.
 
