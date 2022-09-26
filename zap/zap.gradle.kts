@@ -28,10 +28,10 @@ val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.no
 val distDir = file("src/main/dist/")
 
 java {
-    // Compile ZAP with Java 8 when building releases.
-    if (System.getenv("GITHUB_REF")?.contains("refs/tags/") ?: false) {
+    // Compile with appropriate Java version when building ZAP releases.
+    if (System.getenv("ZAP_RELEASE") != null) {
         toolchain {
-            languageVersion.set(JavaLanguageVersion.of(8))
+            languageVersion.set(JavaLanguageVersion.of(System.getenv("ZAP_JAVA_VERSION")))
         }
     } else {
         sourceCompatibility = JavaVersion.VERSION_1_8
