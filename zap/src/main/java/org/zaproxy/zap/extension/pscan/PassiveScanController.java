@@ -86,6 +86,14 @@ public class PassiveScanController extends Thread implements ProxyListener {
     @Override
     public void run() {
         logger.debug("Starting passive scan monitoring");
+        try {
+            scan();
+        } finally {
+            logger.debug("Stopping passive scan monitoring");
+        }
+    }
+
+    private void scan() {
         // Get the last id - in case we've just opened an existing session
         currentId = this.getLastHistoryId();
         lastId = currentId;
@@ -120,7 +128,11 @@ public class PassiveScanController extends Thread implements ProxyListener {
 
                 if (href != null
                         && (!pscanOptions.isScanOnlyInScope() || session.isInScope(href))) {
-                    logger.debug("Submitting request to executor: {}", href.getURI());
+                    logger.debug(
+                            "Submitting request to executor: {} id {} type {}",
+                            href.getURI(),
+                            currentId,
+                            href.getHistoryType());
                     getExecutor().submit(new PassiveScanTask(href, helper));
                 }
                 int recordsToScan = this.getRecordsToScan();
@@ -143,7 +155,6 @@ public class PassiveScanController extends Thread implements ProxyListener {
                 }
             }
         }
-        logger.debug("Stopping passive scan monitoring");
     }
 
     private ThreadPoolExecutor getExecutor() {
@@ -201,6 +212,19 @@ public class PassiveScanController extends Thread implements ProxyListener {
 
     public PassiveScanTask getOldestRunningTask() {
         return this.helper.getOldestRunningTask();
+    }
+
+    /**
+     * Empties the passive scan queue without passively scanning the messages. Currently running
+     * rules will run to completion but new rules will only be run when new messages are added to
+     * the queue.
+     *
+     * @since 2.12.0
+     */
+    public void clearQueue() {
+        currentId = this.getLastHistoryId();
+        lastId = currentId;
+        this.helper.shutdownTasks();
     }
 
     @Override

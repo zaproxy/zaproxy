@@ -441,6 +441,19 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         return psc;
     }
 
+    /**
+     * Empties the passive scan queue without passively scanning the messages. Currently running
+     * rules will run to completion but new rules will only be run when new messages are added to
+     * the queue.
+     *
+     * @since 2.12.0
+     */
+    public void clearQueue() {
+        if (passiveScanEnabled) {
+            getPassiveScanController().clearQueue();
+        }
+    }
+
     PassiveScanParam getPassiveScanParam() {
         if (passiveScanParam == null) {
             passiveScanParam = new PassiveScanParam();
@@ -450,7 +463,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
     private PassiveScannerOptionsPanel getPassiveScannerOptionsPanel() {
         if (passiveScannerOptionsPanel == null) {
-            passiveScannerOptionsPanel = new PassiveScannerOptionsPanel(Constant.messages);
+            passiveScannerOptionsPanel = new PassiveScannerOptionsPanel(this, Constant.messages);
         }
         return passiveScannerOptionsPanel;
     }
