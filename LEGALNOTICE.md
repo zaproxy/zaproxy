@@ -52,7 +52,6 @@ and subject to their respective licenses.
 | flatlaf-2.4.jar                     | Apache 2.0                |
 | harlib-1.1.3.jar                    | Apache 2.0                |
 | hsqldb-2.5.2.jar                    | BSD                       |
-| ice4j-3.0-24-g34c2ce5.jar           | Apache 2.0                |
 | jackson-core-asl-1.9.13.jar         | Apache 2.0                |
 | javahelp-2.0.05.jar                 | GPL + classpath exception |
 | java-semver-0.9.0.jar               | MIT                       |
