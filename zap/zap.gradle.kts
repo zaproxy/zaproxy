@@ -92,10 +92,6 @@ dependencies {
     api("org.xerial:sqlite-jdbc:3.39.3.0")
 
     implementation("commons-validator:commons-validator:1.7")
-    // Don't need its dependencies, for now.
-    implementation("org.jitsi:ice4j:3.0-24-g34c2ce5") {
-        setTransitive(false)
-    }
     implementation("com.formdev:flatlaf:2.4")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
