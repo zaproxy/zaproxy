@@ -3,6 +3,7 @@ All notable changes to the docker containers will be documented in this file.
 
 ### 2022-09-27
  - Fixed problem where python-owasp-zap-v2.4 was getting an older version.
+ - Use curl for the weekly/live health checks.
 
 ### 2022-09-26
  - Changed weekly image to use debian:unstable-slim.
