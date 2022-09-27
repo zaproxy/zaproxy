@@ -23,18 +23,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
-import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -44,24 +37,7 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
 import org.apache.commons.io.FileUtils;
-import org.bouncycastle.asn1.x500.X500NameBuilder;
-import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.BasicConstraints;
-import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
-import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.asn1.x509.KeyPurposeId;
-import org.bouncycastle.asn1.x509.KeyUsage;
-import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
-import org.bouncycastle.cert.X509v3CertificateBuilder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
-import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.ContentSigner;
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
 /** @author MaWoKi */
 @Deprecated
@@ -111,82 +87,7 @@ public class SslCertificateUtils {
      * @throws IllegalStateException in case of errors during assembling {@link KeyStore}
      */
     public static final KeyStore createRootCA() throws NoSuchAlgorithmException {
-        final Date startDate = Calendar.getInstance().getTime();
-        final Date expireDate = new Date(startDate.getTime() + DEFAULT_VALIDITY_IN_MS);
-
-        final KeyPairGenerator g = KeyPairGenerator.getInstance("RSA");
-        g.initialize(2048, SecureRandom.getInstance("SHA1PRNG"));
-        final KeyPair keypair = g.genKeyPair();
-        final PrivateKey privKey = keypair.getPrivate();
-        final PublicKey pubKey = keypair.getPublic();
-        Security.addProvider(new BouncyCastleProvider());
-        Random rnd = new Random();
-
-        // using the hash code of the user's name and home path, keeps anonymity
-        // but also gives user a chance to distinguish between each other
-        X500NameBuilder namebld = new X500NameBuilder(BCStyle.INSTANCE);
-        namebld.addRDN(BCStyle.CN, "OWASP Zed Attack Proxy Root CA");
-        namebld.addRDN(
-                BCStyle.L,
-                Integer.toHexString(System.getProperty("user.name").hashCode())
-                        + Integer.toHexString(System.getProperty("user.home").hashCode()));
-        namebld.addRDN(BCStyle.O, "OWASP Root CA");
-        namebld.addRDN(BCStyle.OU, "OWASP ZAP Root CA");
-        namebld.addRDN(BCStyle.C, "xx");
-
-        X509v3CertificateBuilder certGen =
-                new JcaX509v3CertificateBuilder(
-                        namebld.build(),
-                        BigInteger.valueOf(rnd.nextInt()),
-                        startDate,
-                        expireDate,
-                        namebld.build(),
-                        pubKey);
-
-        KeyStore ks = null;
-        try {
-            certGen.addExtension(
-                    Extension.subjectKeyIdentifier,
-                    false,
-                    new SubjectKeyIdentifier(pubKey.getEncoded()));
-            certGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
-            certGen.addExtension(
-                    Extension.keyUsage,
-                    false,
-                    new KeyUsage(
-                            KeyUsage.keyCertSign
-                                    | KeyUsage.digitalSignature
-                                    | KeyUsage.keyEncipherment
-                                    | KeyUsage.dataEncipherment
-                                    | KeyUsage.cRLSign));
-
-            KeyPurposeId[] eku = {
-                KeyPurposeId.id_kp_serverAuth,
-                KeyPurposeId.id_kp_clientAuth,
-                KeyPurposeId.anyExtendedKeyUsage
-            };
-            certGen.addExtension(Extension.extendedKeyUsage, false, new ExtendedKeyUsage(eku));
-
-            final ContentSigner sigGen =
-                    new JcaContentSignerBuilder("SHA256WithRSAEncryption")
-                            .setProvider("BC")
-                            .build(privKey);
-            final X509Certificate cert =
-                    new JcaX509CertificateConverter()
-                            .setProvider("BC")
-                            .getCertificate(certGen.build(sigGen));
-
-            ks = KeyStore.getInstance(KeyStore.getDefaultType());
-            ks.load(null, null);
-            ks.setKeyEntry(
-                    org.parosproxy.paros.security.SslCertificateService.ZAPROXY_JKS_ALIAS,
-                    privKey,
-                    org.parosproxy.paros.security.SslCertificateService.PASSPHRASE,
-                    new Certificate[] {cert});
-        } catch (final Exception e) {
-            throw new IllegalStateException("Errors during assembling root CA.", e);
-        }
-        return ks;
+        throw new IllegalStateException("No longer supported.");
     }
 
     /**

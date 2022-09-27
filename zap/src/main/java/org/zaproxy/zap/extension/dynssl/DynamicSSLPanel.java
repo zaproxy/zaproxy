@@ -26,12 +26,10 @@ import java.awt.event.ActionListener;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.KeyStore;
-import java.security.cert.Certificate;
 import java.util.Locale;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.Alignment;
@@ -50,8 +48,6 @@ import javax.swing.filechooser.FileFilter;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
-import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
@@ -296,30 +292,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
         return "ui.dialogs.options.dynsslcert";
     }
 
-    private void setRootca(KeyStore rootca) {
-        this.rootca = rootca;
-        final StringWriter sw = new StringWriter();
-        if (rootca != null) {
-            try {
-                final Certificate cert =
-                        rootca.getCertificate(
-                                org.parosproxy.paros.security.SslCertificateService
-                                        .ZAPROXY_JKS_ALIAS);
-                try (final PemWriter pw = new PemWriter(sw)) {
-                    pw.writeObject(new JcaMiscPEMGenerator(cert));
-                    pw.flush();
-                }
-            } catch (final Exception e) {
-                logger.error(
-                        "Error while extracting public part from generated Root CA certificate.",
-                        e);
-            }
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("Certificate defined.\n" + sw.toString());
-        }
-        txt_PubCert.setText(sw.toString());
-    }
+    private void setRootca(KeyStore rootca) {}
 
     /**
      * Viewing is only allowed, if (a) when java.Desktop#open() works (b) there's a certificate
