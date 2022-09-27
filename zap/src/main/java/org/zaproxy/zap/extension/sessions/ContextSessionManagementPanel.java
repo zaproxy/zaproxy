@@ -39,6 +39,7 @@ import org.zaproxy.zap.session.AbstractSessionManagementMethodOptionsPanel;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.SessionManagementMethodType;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -96,7 +97,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
         this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
         this.add(
-                new JLabel(
+                new ZapHtmlLabel(
                         Constant.messages.getString("sessionmanagement.panel.label.description")),
                 LayoutHelper.getGBC(0, 0, 1, 1.0D));
 
@@ -150,7 +151,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
             this.shownConfigPanel = null;
             getConfigContainerPanel()
                     .add(
-                            new JLabel("<html><p>" + CONFIG_NOT_NEEDED + "</p></html>"),
+                            new ZapHtmlLabel("<html><p>" + CONFIG_NOT_NEEDED + "</p></html>"),
                             BorderLayout.CENTER);
         }
         this.shownMethodType = newMethodType;

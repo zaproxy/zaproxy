@@ -81,6 +81,7 @@ import org.zaproxy.zap.extension.autoupdate.AddOnDependencyChecker.Uninstallatio
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.AddOnUninstallListener;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.UninstallationProgressEvent;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.UninstallationProgressHandler;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -1025,7 +1026,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 View.getSingleton()
                         .showMessageDialog(
                                 this.getAddOnsDialog(),
-                                Constant.messages.getString("cfu.kali.options"));
+                                new ZapHtmlLabel(Constant.messages.getString("cfu.kali.options")));
             }
             return false;
         }
@@ -1491,7 +1492,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         if (message != null
                 && JOptionPane.showConfirmDialog(
                                 getWindowParent(caller),
-                                message,
+                                new ZapHtmlLabel(message),
                                 Constant.PROGRAM_NAME,
                                 JOptionPane.YES_NO_OPTION)
                         != JOptionPane.YES_OPTION) {

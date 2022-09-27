@@ -40,6 +40,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 
 public class MainFooterPanel extends JPanel {
 
@@ -97,7 +98,7 @@ public class MainFooterPanel extends JPanel {
         add(getToolbarRight(), gbcToolbarRight);
 
         // Common alerts (Left)
-        footerToolbarLeft.add(new JLabel(Constant.messages.getString("footer.alerts.label")));
+        footerToolbarLeft.add(new ZapHtmlLabel(Constant.messages.getString("footer.alerts.label")));
 
         footerToolbarLeft.add(getAlertHigh());
 

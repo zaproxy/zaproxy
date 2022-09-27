@@ -37,6 +37,7 @@ import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod.LogicalOperator;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -50,9 +51,9 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
             Constant.messages.getString("authorization.panel.title");
 
     private static final String LABEL_DESCRIPTION =
-            Constant.messages.getHtmlWrappedString("authorization.panel.label.description");
+            Constant.messages.getString("authorization.panel.label.description");
     private static final String FIELD_LABEL_INTRO =
-            Constant.messages.getHtmlWrappedString("authorization.detection.basic.field.intro");
+            Constant.messages.getString("authorization.detection.basic.field.intro");
     private static final String FIELD_LABEL_STATUS_CODE =
             Constant.messages.getString("authorization.detection.basic.field.statusCode");
     private static final String FIELD_LABEL_HEADER_PATTERN =
@@ -108,14 +109,14 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
         this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
         this.add(
-                new JLabel(LABEL_DESCRIPTION),
+                new ZapHtmlLabel(LABEL_DESCRIPTION),
                 LayoutHelper.getGBC(0, 0, 2, 0.0D, new Insets(0, 0, 20, 0)));
 
         // Basic Authorization detection
         Insets insets = new Insets(2, 5, 2, 5);
 
         this.add(
-                new JLabel(FIELD_LABEL_INTRO),
+                new ZapHtmlLabel(FIELD_LABEL_INTRO),
                 LayoutHelper.getGBC(0, 1, 2, 0.0D, new Insets(0, 0, 5, 0)));
 
         JPanel configContainerPanel = new JPanel(new GridBagLayout());

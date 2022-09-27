@@ -58,7 +58,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import javax.swing.JDialog;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
@@ -73,6 +72,7 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 
 // ZAP: Added support for selecting the locale
 
@@ -746,7 +746,8 @@ public class OptionsParamView extends AbstractParam {
             if (mainPanel == null) {
                 mainPanel = new JPanel();
                 mainPanel.add(
-                        new JLabel(Constant.messages.getString("view.options.warn.applylaf")));
+                        new ZapHtmlLabel(
+                                Constant.messages.getString("view.options.warn.applylaf")));
             }
             return mainPanel;
         }

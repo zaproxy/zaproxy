@@ -23,13 +23,13 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SortOrder;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
 /**
@@ -66,10 +66,9 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
         gbc.anchor = GridBagConstraints.LINE_START;
         gbc.fill = GridBagConstraints.BOTH;
 
-        JLabel tokenNamesLabel = new JLabel();
-        tokenNamesLabel.setText(Constant.messages.getString("httpsessions.options.label.tokens"));
-
-        this.add(tokenNamesLabel, gbc);
+        this.add(
+                new ZapHtmlLabel(Constant.messages.getString("httpsessions.options.label.tokens")),
+                gbc);
 
         tokensOptionsPanel = new HttpSessionTokensMultipleOptionsPanel(getDefaultTokensModel());
 

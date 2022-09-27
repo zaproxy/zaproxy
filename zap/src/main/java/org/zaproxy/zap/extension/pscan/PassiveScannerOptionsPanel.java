@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.I18N;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -91,7 +92,7 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
         this.add(maxBodySizeInBytes, LayoutHelper.getGBC(1, y, 1, 1.0));
         this.add(clearQueue, LayoutHelper.getGBC(1, ++y, 1, 0.5));
         this.add(
-                new JLabel(messages.getString("pscan.options.main.footer.threadsApply")),
+                new ZapHtmlLabel(messages.getString("pscan.options.main.footer.threadsApply")),
                 LayoutHelper.getGBC(0, ++y, 2, 1.0));
 
         this.add(new JLabel(""), LayoutHelper.getGBC(0, ++y, 2, 1.0, 1.0));
