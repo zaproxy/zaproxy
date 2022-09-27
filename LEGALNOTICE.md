@@ -49,7 +49,7 @@ and subject to their respective licenses.
 | commons-text-1.9.jar                | Apache 2.0                |
 | commons-validator-1.7.jar           | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
-| flatlaf-2.4.jar                     | Apache 2.0                |
+| flatlaf-2.5.jar                     | Apache 2.0                |
 | harlib-1.1.3.jar                    | Apache 2.0                |
 | hsqldb-2.5.2.jar                    | BSD                       |
 | jackson-core-asl-1.9.13.jar         | Apache 2.0                |

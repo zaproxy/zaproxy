@@ -91,7 +91,7 @@ dependencies {
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
 
     implementation("commons-validator:commons-validator:1.7")
-    implementation("com.formdev:flatlaf:2.4")
+    implementation("com.formdev:flatlaf:2.5")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
     runtimeOnly("commons-logging:commons-logging:1.2")
