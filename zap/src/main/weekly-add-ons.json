@@ -11,6 +11,7 @@
       ":addOns:callhome",
       ":addOns:commonlib",
       ":addOns:coreLang",
+      ":addOns:database",
       ":addOns:diff",
       ":addOns:directorylistv1",
       ":addOns:domxss",
