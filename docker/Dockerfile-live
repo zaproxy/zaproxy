@@ -114,4 +114,4 @@ RUN chown zap:zap /zap/* && \
 WORKDIR /zap
 
 USER zap
-HEALTHCHECK --retries=5 --interval=5s CMD zap-cli status
+HEALTHCHECK CMD curl --silent --output /dev/null --fail http://localhost:$ZAP_PORT/ || exit 1
