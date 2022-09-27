@@ -128,21 +128,6 @@ public class SpiderSVNEntriesParser extends SpiderParser {
                 fos.write(message.getResponseBody().getBytes());
                 fos.close();
 
-                if (getLogger().isDebugEnabled()) {
-                    org.sqlite.JDBC jdbcDriver = new org.sqlite.JDBC();
-                    getLogger()
-                            .debug(
-                                    "Created a temporary SQLite database file '"
-                                            + tempSqliteFile
-                                            + "'");
-                    getLogger()
-                            .debug(
-                                    "SQLite JDBC Driver is version "
-                                            + jdbcDriver.getMajorVersion()
-                                            + "."
-                                            + jdbcDriver.getMinorVersion());
-                }
-
                 // now load the temporary SQLite file using JDBC, and query the file entries within.
                 Class.forName("org.sqlite.JDBC");
                 String sqliteConnectionUrl = "jdbc:sqlite:" + tempSqliteFile.getAbsolutePath();
