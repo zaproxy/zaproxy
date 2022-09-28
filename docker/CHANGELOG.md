@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2022-09-28
+ - Removed zap-cli from weekly/live.
+
 ### 2022-09-27
  - Fixed problem where python-owasp-zap-v2.4 was getting an older version.
  - Use curl for the weekly/live health checks.
