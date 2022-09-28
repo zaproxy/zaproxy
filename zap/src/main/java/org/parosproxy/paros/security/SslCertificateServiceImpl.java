@@ -20,7 +20,6 @@
 package org.parosproxy.paros.security;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -31,34 +30,13 @@ import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.Security;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
-import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
-import java.time.Duration;
-import java.util.Date;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
-import org.bouncycastle.asn1.x500.X500NameBuilder;
-import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.BasicConstraints;
-import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
-import org.bouncycastle.asn1.x509.Extension;
-import org.bouncycastle.asn1.x509.GeneralName;
-import org.bouncycastle.asn1.x509.GeneralNames;
-import org.bouncycastle.asn1.x509.KeyPurposeId;
-import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
-import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.X509v3CertificateBuilder;
-import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
-import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.operator.ContentSigner;
-import org.bouncycastle.operator.OperatorCreationException;
-import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
 /**
  * This is a singleton class. Use {@link #getService()} method to obtain a service bean. This
@@ -99,7 +77,6 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
     private static final SslCertificateService singleton = new SslCertificateServiceImpl();
 
     private SslCertificateServiceImpl() {
-        Security.addProvider(new BouncyCastleProvider());
         final Random rnd = new Random();
         rnd.setSeed(System.currentTimeMillis());
         // prevent browser certificate caches, cause of doubled serial numbers
@@ -139,95 +116,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
             throws NoSuchAlgorithmException, InvalidKeyException, CertificateException,
                     NoSuchProviderException, SignatureException, KeyStoreException, IOException,
                     UnrecoverableKeyException {
-
-        if (this.caCert == null || this.caPrivKey == null || this.caPubKey == null) {
-            throw new MissingRootCertificateException(
-                    this.getClass()
-                            + " wasn't initialized! Got to options 'Dynamic SSL Certs' and create one.");
-        }
-
-        CertData.Name[] certDataNames = certData.getSubjectAlternativeNames();
-        GeneralName[] subjectAlternativeNames = new GeneralName[certDataNames.length];
-        for (int i = 0; i < certDataNames.length; i++) {
-            CertData.Name certDataName = certDataNames[i];
-            subjectAlternativeNames[i] =
-                    new GeneralName(certDataName.getType(), certDataName.getValue());
-        }
-
-        if (certData.getCommonName() == null && subjectAlternativeNames.length == 0) {
-            throw new IllegalArgumentException(
-                    "commonName is null and no subjectAlternativeNames are specified");
-        }
-
-        final KeyPair mykp = this.createKeyPair();
-        final PrivateKey privKey = mykp.getPrivate();
-        final PublicKey pubKey = mykp.getPublic();
-
-        X500NameBuilder namebld = new X500NameBuilder(BCStyle.INSTANCE);
-        if (certData.getCommonName() != null) {
-            namebld.addRDN(BCStyle.CN, certData.getCommonName());
-        }
-        namebld.addRDN(BCStyle.OU, "Zed Attack Proxy Project");
-        namebld.addRDN(BCStyle.O, "OWASP");
-        namebld.addRDN(BCStyle.C, "xx");
-        namebld.addRDN(BCStyle.EmailAddress, "zaproxy-develop@googlegroups.com");
-
-        long currentTime = System.currentTimeMillis();
-        X509v3CertificateBuilder certGen =
-                new JcaX509v3CertificateBuilder(
-                        new X509CertificateHolder(caCert.getEncoded()).getSubject(),
-                        BigInteger.valueOf(serial.getAndIncrement()),
-                        new Date(
-                                currentTime
-                                        - Duration.ofDays(SITE_CERTIFICATE_START_ADJUSTMENT)
-                                                .toMillis()),
-                        new Date(
-                                currentTime
-                                        + Duration.ofDays(SITE_CERTIFICATE_END_VALIDITY_PERIOD)
-                                                .toMillis()),
-                        namebld.build(),
-                        pubKey);
-
-        certGen.addExtension(
-                Extension.subjectKeyIdentifier,
-                false,
-                new SubjectKeyIdentifier(pubKey.getEncoded()));
-        certGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(false));
-        certGen.addExtension(
-                Extension.extendedKeyUsage,
-                false,
-                new ExtendedKeyUsage(new KeyPurposeId[] {KeyPurposeId.id_kp_serverAuth}));
-
-        if (subjectAlternativeNames.length > 0) {
-            certGen.addExtension(
-                    Extension.subjectAlternativeName,
-                    certData.isSubjectAlternativeNameIsCritical(),
-                    new GeneralNames(subjectAlternativeNames));
-        }
-
-        ContentSigner sigGen;
-        try {
-            sigGen =
-                    new JcaContentSignerBuilder("SHA256WithRSAEncryption")
-                            .setProvider("BC")
-                            .build(caPrivKey);
-        } catch (OperatorCreationException e) {
-            throw new CertificateException(e);
-        }
-        final X509Certificate cert =
-                new JcaX509CertificateConverter()
-                        .setProvider("BC")
-                        .getCertificate(certGen.build(sigGen));
-        cert.checkValidity(new Date());
-        cert.verify(caPubKey);
-
-        final KeyStore ks = KeyStore.getInstance("JKS");
-        ks.load(null, null);
-        final Certificate[] chain = new Certificate[2];
-        chain[1] = this.caCert;
-        chain[0] = cert;
-        ks.setKeyEntry(ZAPROXY_JKS_ALIAS, privKey, PASSPHRASE, chain);
-        return ks;
+        return null;
     }
 
     /**

@@ -45,6 +45,7 @@
 // ZAP: 2021/11/23 Allow to set certificates service.
 // ZAP: 2022/05/29 Address deprecations related to client certificates.
 // ZAP: 2022/06/07 Deprecate the class.
+// ZAP: 2022/09/27 Remove usage of Commons Validator class.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -91,7 +92,6 @@ import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
-import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -776,9 +776,7 @@ public class SSLConnector
     }
 
     private static boolean isIpAddress(String value) {
-        return value != null
-                && !value.isEmpty()
-                && InetAddressValidator.getInstance().isValid(value);
+        return false;
     }
 
     private static SSLSocketFactory createDecoratedServerSslSocketFactory(

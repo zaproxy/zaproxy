@@ -80,17 +80,11 @@ dependencies {
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.9.0")
-    // Bouncy Castle is no longer in actual use by core, to be removed in a following version.
-    val bcVersion = "1.69"
-    implementation("org.bouncycastle:bcmail-jdk15on:$bcVersion")
-    implementation("org.bouncycastle:bcprov-jdk15on:$bcVersion")
-    implementation("org.bouncycastle:bcpkix-jdk15on:$bcVersion")
     api("org.hsqldb:hsqldb:2.5.2")
     api("org.jfree:jfreechart:1.5.3")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
 
-    implementation("commons-validator:commons-validator:1.7")
     implementation("com.formdev:flatlaf:2.5")
 
     runtimeOnly("commons-jxpath:commons-jxpath:1.3")
