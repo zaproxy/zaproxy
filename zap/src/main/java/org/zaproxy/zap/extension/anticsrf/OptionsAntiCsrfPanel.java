@@ -22,13 +22,13 @@ package org.zaproxy.zap.extension.anticsrf;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SortOrder;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
 public class OptionsAntiCsrfPanel extends AbstractParamPanel {
@@ -57,7 +57,7 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
         gbc.anchor = GridBagConstraints.LINE_START;
         gbc.fill = GridBagConstraints.BOTH;
 
-        this.add(new JLabel(Constant.messages.getString("options.acsrf.label.tokens")), gbc);
+        this.add(new ZapHtmlLabel(Constant.messages.getString("options.acsrf.label.tokens")), gbc);
 
         tokensOptionsPanel = new AntiCsrfMultipleOptionsPanel(getAntiCsrfModel());
 

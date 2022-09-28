@@ -28,6 +28,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.widgets.ContextPanelUsersSelectComboBox;
@@ -58,10 +59,7 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
         this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
         this.add(
-                new JLabel(
-                        "<html><p>"
-                                + Constant.messages.getString("forceduser.panel.label.description")
-                                + "</p></html>"),
+                new ZapHtmlLabel(Constant.messages.getString("forceduser.panel.label.description")),
                 LayoutHelper.getGBC(0, 0, 1, 1.0D));
 
         // Forced User combo box

@@ -74,6 +74,7 @@ import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.EncodingUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.DynamicFieldsPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -413,7 +414,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
             this.dynamicContentPanel = new JPanel(new BorderLayout());
             this.add(this.dynamicContentPanel, LayoutHelper.getGBC(0, 1, 3, 1.0d, 0.0d));
-            this.dynamicContentPanel.add(new JLabel(LABEL_NOT_LOADED));
+            this.dynamicContentPanel.add(new ZapHtmlLabel(LABEL_NOT_LOADED));
         }
 
         @Override

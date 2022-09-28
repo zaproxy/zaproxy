@@ -79,6 +79,7 @@ import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.NodeSelectDialog;
@@ -892,7 +893,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             this.passwordParameterCombo.setRenderer(NameValuePairRenderer.INSTANCE);
             this.add(passwordParameterCombo, LayoutHelper.getGBC(1, 5, 1, 1.0d, 0.0d));
 
-            this.add(new JLabel(AUTH_DESCRIPTION), LayoutHelper.getGBC(0, 8, 2, 1.0d, 0.0d));
+            this.add(new ZapHtmlLabel(AUTH_DESCRIPTION), LayoutHelper.getGBC(0, 8, 2, 1.0d, 0.0d));
 
             // Make sure we update the parameters when something has been changed in the
             // postDataField

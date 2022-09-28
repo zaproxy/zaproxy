@@ -81,6 +81,7 @@ import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.model.IllegalContextNameException;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.PersistSessionDialog;
 import org.zaproxy.zap.view.SessionTableSelectDialog;
@@ -184,7 +185,7 @@ public class MenuFileControl implements SessionListener {
         if (!activeActions.isEmpty()) {
             String message =
                     Constant.messages.getString("menu.file.session.activeactions", activeActions);
-            if (view.showConfirmDialog(message) != JOptionPane.OK_OPTION) {
+            if (view.showConfirmDialog(new ZapHtmlLabel(message)) != JOptionPane.OK_OPTION) {
                 return false;
             }
         }

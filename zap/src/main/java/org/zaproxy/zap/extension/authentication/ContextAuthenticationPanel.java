@@ -62,6 +62,7 @@ import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -101,7 +102,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
     private static final String LABEL_POLL_FREQUENCY =
             Constant.messages.getString("authentication.panel.label.freq");
     private static final String LABEL_CONFIG_NOT_NEEDED =
-            Constant.messages.getHtmlWrappedString("sessionmanagement.panel.label.noConfigPanel");
+            Constant.messages.getString("sessionmanagement.panel.label.noConfigPanel");
     private static final String LABEL_STRATEGY =
             Constant.messages.getString("authentication.panel.label.strategy");
     private static final String STRATEGY_PREFIX = "authentication.panel.label.strategy.";
@@ -180,7 +181,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
         scrollPanel.setViewportView(panel);
         this.add(scrollPanel);
 
-        panel.add(new JLabel(LABEL_DESCRIPTION), LayoutHelper.getGBC(0, 0, 1, 1.0D));
+        panel.add(new ZapHtmlLabel(LABEL_DESCRIPTION), LayoutHelper.getGBC(0, 0, 1, 1.0D));
 
         // Method type combo box
         panel.add(
@@ -284,7 +285,8 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
             getConfigContainerPanel().add(shownConfigPanel, BorderLayout.CENTER);
         } else {
             shownConfigPanel = null;
-            getConfigContainerPanel().add(new JLabel(LABEL_CONFIG_NOT_NEEDED), BorderLayout.CENTER);
+            getConfigContainerPanel()
+                    .add(new ZapHtmlLabel(LABEL_CONFIG_NOT_NEEDED), BorderLayout.CENTER);
         }
         this.shownMethodType = newMethodType;
 

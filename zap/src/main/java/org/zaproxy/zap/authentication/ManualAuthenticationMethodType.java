@@ -57,6 +57,7 @@ import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
@@ -262,7 +263,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
             this.getSessionsComboBox().setRenderer(new HttpSessionRenderer());
 
             this.add(
-                    new JLabel(
+                    new ZapHtmlLabel(
                             Constant.messages.getString(
                                     "authentication.method.manual.field.description")),
                     LayoutHelper.getGBC(0, 1, 2, 0.0d, 0.0d));

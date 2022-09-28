@@ -193,7 +193,9 @@ public class I18N {
      *
      * @param key the key of the string
      * @return the string read wrapped in HTML and paragraph tags
+     * @deprecated 2.12.0 Include the HTML tags in the Message.properties file
      */
+    @Deprecated
     public String getHtmlWrappedString(String key) {
         String values = getStringImpl(key);
         if (values == null) return null;

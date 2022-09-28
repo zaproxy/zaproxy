@@ -34,6 +34,7 @@ import javax.swing.JRadioButton;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 
 public class PersistSessionDialog extends AbstractDialog implements ActionListener {
 
@@ -77,7 +78,7 @@ public class PersistSessionDialog extends AbstractDialog implements ActionListen
             jPanel.setLayout(new GridBagLayout());
 
             JLabel question =
-                    new JLabel(Constant.messages.getString("database.newsession.question"));
+                    new ZapHtmlLabel(Constant.messages.getString("database.newsession.question"));
             jPanel.add(question, LayoutHelper.getGBC(0, 0, 2, 1.0D, new Insets(4, 4, 4, 4)));
             jPanel.add(
                     this.getTimestampRadioButton(),
@@ -100,7 +101,8 @@ public class PersistSessionDialog extends AbstractDialog implements ActionListen
                     LayoutHelper.getGBC(0, 7, 2, 1.0D, new Insets(4, 4, 4, 4)));
 
             jPanel.add(
-                    new JLabel(Constant.messages.getString("database.newsession.prompt.note")),
+                    new ZapHtmlLabel(
+                            Constant.messages.getString("database.newsession.prompt.note")),
                     LayoutHelper.getGBC(0, 8, 2, 1.0D, new Insets(4, 4, 4, 4)));
 
             JPanel buttonPanel = new JPanel();

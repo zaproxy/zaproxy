@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.pscan;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import javax.swing.JCheckBox;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SortOrder;
 import org.parosproxy.paros.Constant;
@@ -30,6 +29,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
 @SuppressWarnings("serial")
@@ -59,7 +59,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
         gbc.anchor = GridBagConstraints.LINE_START;
         gbc.fill = GridBagConstraints.BOTH;
 
-        this.add(new JLabel(Constant.messages.getString("pscan.options.header")), gbc);
+        this.add(new ZapHtmlLabel(Constant.messages.getString("pscan.options.header")), gbc);
 
         scannersOptionsPanel = new ScannersMultipleOptionsPanel(getTableModel());
 

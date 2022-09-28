@@ -359,6 +359,8 @@ public class GuiBootstrap extends ZapBootstrap {
         }
         lookAndFeelSet = true;
 
+        UIManager.addAuxiliaryLookAndFeel(new ZapLookAndFeel());
+
         if (Constant.isMacOsX()) {
             OsXGui.setup();
         } else if (Constant.isWindows()) {

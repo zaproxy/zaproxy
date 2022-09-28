@@ -113,6 +113,7 @@ import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 
 /** Overall control with interaction on model and view. */
 public class Control extends AbstractControl implements SessionListener {
@@ -286,7 +287,8 @@ public class Control extends AbstractControl implements SessionListener {
                                 "menu.file.exit.message.activeActions", activeActions);
             }
 
-            if (message != null && view.showConfirmDialog(message) != JOptionPane.OK_OPTION) {
+            if (message != null
+                    && view.showConfirmDialog(new ZapHtmlLabel(message)) != JOptionPane.OK_OPTION) {
                 return;
             }
         }
