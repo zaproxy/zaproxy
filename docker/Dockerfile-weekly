@@ -48,9 +48,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade awscli pip pyyaml urllib3 zapcli
-# This apparently must be run separately so the packaged scans will run, don't know why
-RUN pip3 install --upgrade python-owasp-zap-v2.4 requests
+RUN pip3 install --upgrade awscli pip python-owasp-zap-v2.4 pyyaml requests urllib3 
 
 RUN useradd -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
@@ -73,7 +71,7 @@ ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 ENV ZAP_PATH /zap/zap.sh
 
-# Default port for use with zapcli
+# Default port for use with health check
 ENV ZAP_PORT 8080
 ENV IS_CONTAINERIZED true
 ENV HOME /home/zap/
