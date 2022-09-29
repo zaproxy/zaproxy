@@ -74,6 +74,7 @@
 // ZAP: 2022/06/05 Remove usage of HttpException.
 // ZAP: 2022/08/03 Keep enabled state when setting default alert threshold (Issue 7400).
 // ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
+// ZAP: 2022/09/28 Do not set the Content-Length header when the method does not require one.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -95,6 +96,7 @@ import org.parosproxy.paros.core.scanner.Alert.Source;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
@@ -297,7 +299,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         // always get the fresh copy
         message.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
         message.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
-        message.getRequestHeader().setContentLength(message.getRequestBody().length());
+
+        updateRequestContentLength(message);
 
         if (this.getDelayInMs() > 0) {
             try {
@@ -321,6 +324,30 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         // ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(message, this);
+    }
+
+    /**
+     * Updates the Content-Length header of the request.
+     *
+     * <p>For methods with absent or unanticipated enclosed content, the header is removed otherwise
+     * in all other cases the header is updated to match the length of the content.
+     *
+     * @param message the message to update.
+     * @since 2.12.0
+     */
+    protected void updateRequestContentLength(HttpMessage message) {
+        int bodyLength = message.getRequestBody().length();
+        String method = message.getRequestHeader().getMethod();
+        if (bodyLength == 0
+                && (HttpRequestHeader.GET.equalsIgnoreCase(method)
+                        || HttpRequestHeader.CONNECT.equalsIgnoreCase(method)
+                        || HttpRequestHeader.DELETE.equalsIgnoreCase(method)
+                        || HttpRequestHeader.HEAD.equalsIgnoreCase(method)
+                        || HttpRequestHeader.TRACE.equalsIgnoreCase(method))) {
+            message.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
+            return;
+        }
+        message.getRequestHeader().setContentLength(bodyLength);
     }
 
     @Override
