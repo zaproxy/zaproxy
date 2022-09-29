@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="8.0.7" transformSequenceNumber="8">
-  <application name="OWASP Zed Attack Proxy" applicationId="OWASP ZAP" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" shortName="ZAP" publisher="OWASP ZAP" publisherWeb="https://www.zaproxy.org/" version="${compiler:version}" allPathsRelative="true" backupOnSave="true" macVolumeId="1369b1f423bb47f8" javaMinVersion="1.8">
+<install4j version="10.0.3" transformSequenceNumber="10">
+  <application name="OWASP Zed Attack Proxy" applicationId="OWASP ZAP" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" shortName="ZAP" publisher="OWASP ZAP" publisherWeb="https://www.zaproxy.org/" version="${compiler:version}" allPathsRelative="true" backupOnSave="true" macVolumeId="1369b1f423bb47f8" javaMinVersion="11">
     <languages skipLanguageSelection="true">
       <principalLanguage id="en" customLocalizationFile="./resources/Messages.properties" />
       <additionalLanguages>
@@ -87,6 +87,7 @@
               <action id="13" beanClass="com.install4j.runtime.beans.actions.misc.RequestPrivilegesAction" actionElevationType="none">
                 <serializedBean>
                   <property name="failIfNotRootUnix" type="boolean" value="true" />
+                  <property name="linuxPrivilegeRequirement" type="enum" class="com.install4j.runtime.beans.actions.misc.PrivilegeRequirement" value="ROOT" />
                   <property name="obtainIfAdminMac" type="boolean" value="true" />
                   <property name="obtainIfNormalMac" type="boolean" value="true" />
                   <property name="obtainIfNormalWin" type="boolean" value="true" />
@@ -186,7 +187,7 @@ return console.askOkCancel(message, true);
               <property name="title" type="string">${i18n:zap.installer.uninstalloldversion.screentitle}</property>
             </serializedBean>
             <condition>context.getVariable("innoUninstaller") != null</condition>
-            <preActivation>context.getWizardContext().setNextButtonText(context.getMessage("zap.installer.uninstalloldversion.button"));</preActivation>
+            <preActivation>context.getWizardContext().setControlButtonText(ControlButtonType.NEXT, context.getMessage("zap.installer.uninstalloldversion.button"));</preActivation>
             <actions>
               <action id="325" beanClass="com.install4j.runtime.beans.actions.misc.RunExecutableAction" actionElevationType="elevated" rollbackBarrier="true" failureStrategy="askQuit" errorMessage="${i18n:zap.installer.uninstalloldversion.errormsg}">
                 <serializedBean>
@@ -482,7 +483,7 @@ return true;</validation>
             </serializedBean>
             <preActivation>import java.text.MessageFormat;
 
-context.getWizardContext().setNextButtonText(context.getMessage("ButtonInstall"));
+context.getWizardContext().setControlButtonText(ControlButtonType.NEXT, context.getMessage("ButtonInstall"));
 
 StringBuilder summaryBuilder = new StringBuilder(500);
 
@@ -795,11 +796,19 @@ return console.askYesNo(message, true);
           <group id="804" beanClass="com.install4j.runtime.beans.groups.VerticalFormComponentGroup" useExternalParametrization="true" externalParametrizationName="Customize banner image" externalParametrizationMode="include">
             <serializedBean>
               <property name="backgroundColor">
-                <object class="java.awt.Color">
-                  <int>255</int>
-                  <int>255</int>
-                  <int>255</int>
-                  <int>255</int>
+                <object class="com.install4j.runtime.beans.LightOrDarkColor">
+                  <object class="java.awt.Color">
+                    <int>255</int>
+                    <int>255</int>
+                    <int>255</int>
+                    <int>255</int>
+                  </object>
+                  <object class="java.awt.Color">
+                    <int>49</int>
+                    <int>52</int>
+                    <int>53</int>
+                    <int>255</int>
+                  </object>
                 </object>
               </property>
               <property name="borderSides">
@@ -808,11 +817,19 @@ return console.askYesNo(message, true);
                 </object>
               </property>
               <property name="imageEdgeBackgroundColor">
-                <object class="java.awt.Color">
-                  <int>25</int>
-                  <int>143</int>
-                  <int>220</int>
-                  <int>255</int>
+                <object class="com.install4j.runtime.beans.LightOrDarkColor">
+                  <object class="java.awt.Color">
+                    <int>25</int>
+                    <int>143</int>
+                    <int>220</int>
+                    <int>255</int>
+                  </object>
+                  <object class="java.awt.Color">
+                    <int>0</int>
+                    <int>74</int>
+                    <int>151</int>
+                    <int>255</int>
+                  </object>
                 </object>
               </property>
               <property name="imageEdgeBorder" type="boolean" value="true" />
@@ -866,11 +883,19 @@ return console.askYesNo(message, true);
               <group id="811" beanClass="com.install4j.runtime.beans.groups.VerticalFormComponentGroup" useExternalParametrization="true" externalParametrizationName="Customize title bar" externalParametrizationMode="include">
                 <serializedBean>
                   <property name="backgroundColor">
-                    <object class="java.awt.Color">
-                      <int>255</int>
-                      <int>255</int>
-                      <int>255</int>
-                      <int>255</int>
+                    <object class="com.install4j.runtime.beans.LightOrDarkColor">
+                      <object class="java.awt.Color">
+                        <int>255</int>
+                        <int>255</int>
+                        <int>255</int>
+                        <int>255</int>
+                      </object>
+                      <object class="java.awt.Color">
+                        <int>49</int>
+                        <int>52</int>
+                        <int>53</int>
+                        <int>255</int>
+                      </object>
                     </object>
                   </property>
                   <property name="borderSides">
@@ -984,8 +1009,9 @@ return console.askYesNo(message, true);
         <entry filesetId="671" />
         <entry filesetId="679" />
       </exclude>
+      <jreBundle jreBundleSource="none" />
     </unixInstaller>
-    <windows name="Windows 32bit" id="30" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" installDir="${compiler:groupName}\${compiler:longName}" jreBitType="32">
+    <windows name="Windows 32bit" id="30" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" installDir="${compiler:groupName}\${compiler:longName}" architecture="32">
       <excludedLaunchers>
         <launcher id="26" />
       </excludedLaunchers>
@@ -993,8 +1019,9 @@ return console.askYesNo(message, true);
         <entry filesetId="679" />
         <entry filesetId="674" />
       </exclude>
+      <jreBundle jreBundleSource="none" />
     </windows>
-    <windows name="Windows 64bit" id="529" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_windows" installDir="${compiler:groupName}\${compiler:longName}">
+    <windows name="Windows 64bit" id="529" mediaFileName="${compiler:sys.shortName}_${compiler:sys.version}_windows" installDir="${compiler:groupName}\${compiler:longName}" architecture="64">
       <excludedLaunchers>
         <launcher id="26" />
       </excludedLaunchers>
@@ -1002,6 +1029,7 @@ return console.askYesNo(message, true);
         <entry filesetId="671" />
         <entry filesetId="674" />
       </exclude>
+      <jreBundle jreBundleSource="none" />
     </windows>
   </mediaSets>
 </install4j>

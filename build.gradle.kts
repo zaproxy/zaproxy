@@ -33,9 +33,6 @@ allprojects {
     project.plugins.withType(JavaPlugin::class) {
         dependencies {
             "errorprone"("com.google.errorprone:error_prone_core:2.9.0")
-            if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
-                "errorproneJavac"("com.google.errorprone:javac:9+181-r4173-1")
-            }
         }
     }
 
