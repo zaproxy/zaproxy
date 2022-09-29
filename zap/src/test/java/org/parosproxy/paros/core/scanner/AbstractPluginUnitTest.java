@@ -36,6 +36,8 @@ import static org.mockito.Mockito.when;
 
 import java.io.IOException;
 import java.security.InvalidParameterException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URI;
@@ -50,6 +52,7 @@ import org.mockito.ArgumentCaptor;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
@@ -62,6 +65,19 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link AbstractPlugin}. */
 class AbstractPluginUnitTest extends PluginTestUtils {
+
+    private static final List<String> METHODS_NO_ENCLOSED_CONTENT =
+            Arrays.asList(
+                    HttpRequestHeader.CONNECT,
+                    "connect",
+                    HttpRequestHeader.DELETE,
+                    "delete",
+                    HttpRequestHeader.GET,
+                    "get",
+                    HttpRequestHeader.HEAD,
+                    "head",
+                    HttpRequestHeader.TRACE,
+                    "trace");
 
     HostProcess parent;
     HttpMessage message;
@@ -2071,6 +2087,95 @@ class AbstractPluginUnitTest extends PluginTestUtils {
         plugin.sendAndReceive(message, true, true);
         // Then
         assertThat(message.getRequestHeader().getHeader(HttpHeader.X_ZAP_SCAN_ID), is(nullValue()));
+    }
+
+    @ParameterizedTest
+    @MethodSource("methodsNoEnclosedContent")
+    void shouldNotAddContentLenthHeaderWhenNotExpected(String method) {
+        // Given
+        HttpMessage message = messageWithMethod(method);
+        // When
+        plugin.updateRequestContentLength(message);
+        // Then
+        assertContentLength(message.getRequestHeader(), null);
+    }
+
+    @ParameterizedTest
+    @MethodSource("methodsNoEnclosedContent")
+    void shouldRemoveExistingContentLengthHeaderWhenNotExpectedNorNeeded(String method) {
+        // Given
+        HttpMessage message = messageWithMethod(method);
+        message.getRequestHeader().setContentLength(1234);
+        // When
+        plugin.updateRequestContentLength(message);
+        // Then
+        assertContentLength(message.getRequestHeader(), null);
+    }
+
+    @ParameterizedTest
+    @MethodSource("allMethods")
+    void shouldAddContentLengthHeaderWhenNeeded(String method) {
+        // Given
+        HttpMessage message = messageWithMethod(method);
+        message.setRequestBody("1234");
+        // When
+        plugin.updateRequestContentLength(message);
+        // Then
+        assertContentLength(message.getRequestHeader(), "4");
+    }
+
+    @ParameterizedTest
+    @MethodSource("allMethodsExceptNoEnclosedContent")
+    void shouldAddZeroContentLengthHeaderWhenNeeded(String method) {
+        // Given
+        HttpMessage message = messageWithMethod(method);
+        // When
+        plugin.updateRequestContentLength(message);
+        // Then
+        assertContentLength(message.getRequestHeader(), "0");
+    }
+
+    @ParameterizedTest
+    @MethodSource("allMethods")
+    void shouldUpdateExistingContentLengthHeaderWhenNeeded(String method) {
+        // Given
+        HttpMessage message = messageWithMethod(method);
+        message.setRequestBody("1234");
+        message.getRequestHeader().setContentLength(42);
+        // When
+        plugin.updateRequestContentLength(message);
+        // Then
+        assertContentLength(message.getRequestHeader(), "4");
+    }
+
+    private static void assertContentLength(HttpHeader header, String value) {
+        assertThat(header.getHeader(HttpHeader.CONTENT_LENGTH), is(equalTo(value)));
+    }
+
+    private static HttpMessage messageWithMethod(String method) {
+        try {
+            String header =
+                    method
+                            + (HttpRequestHeader.CONNECT.equalsIgnoreCase(method)
+                                    ? " example.com "
+                                    : " / ")
+                            + "HTTP/1.1";
+            return new HttpMessage(new HttpRequestHeader(header));
+        } catch (HttpMalformedHeaderException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Stream<String> allMethods() {
+        return Stream.of(HttpRequestHeader.METHODS);
+    }
+
+    private static Stream<String> methodsNoEnclosedContent() {
+        return METHODS_NO_ENCLOSED_CONTENT.stream();
+    }
+
+    private static Stream<String> allMethodsExceptNoEnclosedContent() {
+        return allMethods().filter(e -> !METHODS_NO_ENCLOSED_CONTENT.contains(e));
     }
 
     private static HttpMessage createAlertMessage() {
