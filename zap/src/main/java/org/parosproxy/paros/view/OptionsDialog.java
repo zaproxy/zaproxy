@@ -24,6 +24,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/06/08 Fix resizing issues.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.view;
 
 import java.awt.Frame;
@@ -119,7 +120,7 @@ public class OptionsDialog extends AbstractParamDialog {
             try {
                 panel.reset();
             } catch (Exception e) {
-                logger.error("Failed to reset " + panel.getName() + " options panel:", e);
+                logger.error("Failed to reset {} options panel:", panel.getName(), e);
                 View.getSingleton()
                         .showWarningDialog(
                                 Constant.messages.getString(

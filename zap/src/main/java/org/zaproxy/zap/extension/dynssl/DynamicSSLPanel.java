@@ -341,9 +341,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
         final int result = fc.showOpenDialog(this);
         final File f = fc.getSelectedFile();
         if (result == JFileChooser.APPROVE_OPTION && f.exists()) {
-            if (logger.isInfoEnabled()) {
-                logger.info("Loading Root CA certificate from " + f);
-            }
+            logger.info("Loading Root CA certificate from {}", f);
             KeyStore ks = null;
             if (f.getName().toLowerCase().endsWith("pem")) {
                 ks = convertPemFileToKeyStore(f.toPath());
@@ -472,13 +470,11 @@ public class DynamicSSLPanel extends AbstractParamPanel {
         fc.setSelectedFile(new File(OWASP_ZAP_ROOT_CA_FILENAME));
         if (fc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             final File f = fc.getSelectedFile();
-            if (logger.isInfoEnabled()) {
-                logger.info("Saving Root CA certificate to " + f);
-            }
+            logger.info("Saving Root CA certificate to {}", f);
             try {
                 writePubCertificateToFile(f);
             } catch (final Exception e) {
-                logger.error("Error while writing certificate data to file " + f, e);
+                logger.error("Error while writing certificate data to file {}", f, e);
             }
         }
     }
@@ -551,7 +547,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
                 try {
                     Desktop.getDesktop().open(tmpfile);
                 } catch (final IOException e) {
-                    logger.error("Error while telling the Operating System to open " + tmpfile, e);
+                    logger.error("Error while telling the Operating System to open {}", tmpfile, e);
                 }
             }
         }

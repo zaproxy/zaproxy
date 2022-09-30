@@ -57,9 +57,7 @@ public class DbUtils {
                     rs.close();
                 }
             } catch (SQLException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                logger.debug(e.getMessage(), e);
             }
         }
 
@@ -94,9 +92,7 @@ public class DbUtils {
                     rs.close();
                 }
             } catch (SQLException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                logger.debug(e.getMessage(), e);
             }
         }
 
@@ -134,9 +130,7 @@ public class DbUtils {
                     rs.close();
                 }
             } catch (SQLException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                logger.debug(e.getMessage(), e);
             }
         }
 
@@ -169,9 +163,7 @@ public class DbUtils {
                     rs.close();
                 }
             } catch (SQLException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                logger.debug(e.getMessage(), e);
             }
         }
 
@@ -205,9 +197,7 @@ public class DbUtils {
                     rs.close();
                 }
             } catch (SQLException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                logger.debug(e.getMessage(), e);
             }
         }
 
@@ -232,9 +222,7 @@ public class DbUtils {
             try {
                 preparedStatement.close();
             } catch (SQLException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                logger.debug(e.getMessage(), e);
             }
         }
     }
@@ -271,9 +259,7 @@ public class DbUtils {
             try {
                 preparedStatement.close();
             } catch (SQLException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                logger.debug(e.getMessage(), e);
             }
         }
     }

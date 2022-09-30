@@ -164,7 +164,7 @@ public class HttpPanelComponentViewsManager implements ItemListener, MessageLoca
         HttpPanelView view = views.get(name);
 
         if (view == null) {
-            logger.info("No view found with name: " + name);
+            logger.info("No view found with name: {}", name);
             return;
         }
 

@@ -43,6 +43,7 @@
 // ZAP: 2020/11/26 Use getLogger().
 // ZAP: 2021/08/24 Remove the "(non-Javadoc)" comments.
 // ZAP: 2021/09/27 Added support for Alert Tags.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
@@ -145,7 +146,7 @@ public class ParosDatabase extends AbstractDatabase {
     @Override
     public void open(String path) throws ClassNotFoundException, Exception {
         // ZAP: Added log statement.
-        getLogger().debug("open " + path);
+        getLogger().debug("open {}", path);
         setDatabaseServer(new ParosDatabaseServer(path, databaseOptions));
 
         notifyListenersDatabaseOpen(internalDatabaseListeners, getDatabaseServer());
@@ -154,7 +155,7 @@ public class ParosDatabase extends AbstractDatabase {
 
     @Override
     public void deleteSession(String sessionName) {
-        getLogger().debug("deleteSession " + sessionName);
+        getLogger().debug("deleteSession {}", sessionName);
         if (databaseServer == null) {
             return;
         }
@@ -175,10 +176,10 @@ public class ParosDatabase extends AbstractDatabase {
     }
 
     private void deleteDbFile(File file) {
-        getLogger().debug("Deleting " + file.getAbsolutePath());
+        getLogger().debug("Deleting {}", file.getAbsolutePath());
         if (file.exists()) {
             if (!file.delete()) {
-                getLogger().error("Failed to delete " + file.getAbsolutePath());
+                getLogger().error("Failed to delete {}", file.getAbsolutePath());
             }
         }
     }

@@ -46,6 +46,7 @@
 // ZAP: 2022/02/09 Deprecate the class.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 // ZAP: 2022/06/07 Address deprecation warnings with SSLConnector.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
@@ -358,14 +359,11 @@ public class ProxyParam extends AbstractParam {
                     securityProtocolsEnabled);
         } catch (IllegalArgumentException e) {
             logger.warn(
-                    "Failed to set persisted protocols "
-                            + Arrays.toString(securityProtocolsEnabled)
-                            + " falling back to "
-                            + Arrays.toString(
-                                    org.parosproxy.paros.network.SSLConnector
-                                            .getFailSafeProtocols())
-                            + " caused by: "
-                            + e.getMessage());
+                    "Failed to set persisted protocols {} falling back to {} caused by: {}",
+                    Arrays.toString(securityProtocolsEnabled),
+                    Arrays.toString(
+                            org.parosproxy.paros.network.SSLConnector.getFailSafeProtocols()),
+                    e.getMessage());
             securityProtocolsEnabled =
                     org.parosproxy.paros.network.SSLConnector.getFailSafeProtocols();
             org.parosproxy.paros.network.SSLConnector.setServerEnabledProtocols(

@@ -370,9 +370,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
             sessionTokens.put(site, siteTokens);
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Added new session token for site '" + site + "': " + token);
-        }
+        log.debug("Added new session token for site '{}': {}", site, token);
 
         siteTokens.addToken(token);
         // If the session token is a default token and was previously marked as remove, undo that
@@ -413,9 +411,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
         // be detected again and added as a session token
         if (isDefaultSessionToken(token)) markRemovedDefaultSessionToken(site, token);
 
-        if (log.isDebugEnabled()) {
-            log.debug("Removed session token for site '" + site + "': " + token);
-        }
+        log.debug("Removed session token for site '{}': {}", site, token);
     }
 
     /**
@@ -616,7 +612,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
         try {
             requestCookies = msg.getRequestHeader().getHttpCookies();
         } catch (IllegalArgumentException e) {
-            log.warn("Failed to obtain the cookies: " + e.getMessage(), e);
+            log.warn("Failed to obtain the cookies: {}", e.getMessage(), e);
             return;
         }
 

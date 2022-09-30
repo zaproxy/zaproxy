@@ -113,7 +113,7 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
         } finally {
             control.shutdown(
                     Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
-            logger.info(Constant.PROGRAM_TITLE + " terminated.");
+            logger.info("{} terminated.", Constant.PROGRAM_TITLE);
         }
         if (rc == 0) {
             rc = control.getExitStatus();

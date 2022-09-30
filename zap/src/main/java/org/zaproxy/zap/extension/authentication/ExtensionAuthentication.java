@@ -204,9 +204,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
             a.hook(hook);
         }
 
-        if (log.isInfoEnabled()) {
-            log.info("Loaded authentication method types: " + authenticationMethodTypes);
-        }
+        log.info("Loaded authentication method types: {}", authenticationMethodTypes);
     }
 
     /**
@@ -271,7 +269,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                                     .setAuthCheckingStrategy(
                                             AuthCheckingStrategy.valueOf(strategy));
                         } catch (Exception e) {
-                            log.error("Failed to parse auth checking strategy " + strategy, e);
+                            log.error("Failed to parse auth checking strategy {}", strategy, e);
                         }
                     }
 
@@ -310,7 +308,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                                     .setPollFrequencyUnits(
                                             AuthPollFrequencyUnits.valueOf(freqUnits));
                         } catch (Exception e) {
-                            log.error("Failed to parse auth frequency units " + freqUnits, e);
+                            log.error("Failed to parse auth frequency units {}", freqUnits, e);
                         }
                     }
 
@@ -479,7 +477,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
         AuthenticationMethodType authMethodType = getAuthenticationMethodTypeForIdentifier(typeId);
         if (authMethodType == null) {
-            log.warn("No authentication method type found for ID: " + typeId);
+            log.warn("No authentication method type found for ID: {}", typeId);
             return;
         }
         ctx.setAuthenticationMethod(authMethodType.createAuthenticationMethod(ctx.getId()));

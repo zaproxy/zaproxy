@@ -71,9 +71,7 @@ public class PersistedHttpMessagesList extends AbstractList<HttpMessage> {
         try {
             return historyReferences.get(index).getHttpMessage();
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Failed to get the message from DB: " + e.getMessage(), e);
-            }
+            LOGGER.debug("Failed to get the message from DB: {}", e.getMessage(), e);
         }
         return null;
     }

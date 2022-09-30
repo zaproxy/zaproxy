@@ -217,14 +217,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "Request for handleApiAction: "
-                            + name
-                            + " (params: "
-                            + params.toString()
-                            + ")");
-        }
+        log.debug("Request for handleApiAction: {} (params: {}]", name, params);
 
         HttpSessionsSite site;
         switch (name) {
@@ -364,10 +357,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "Request for handleApiView: " + name + " (params: " + params.toString() + ")");
-        }
+        log.debug("Request for handleApiView: {} (params: {})", name, params);
 
         HttpSessionsSite site;
         switch (name) {
@@ -394,12 +384,10 @@ public class HttpSessionsAPI extends ApiImplementor {
                     Set<HttpSession> sessions = site.getHttpSessions();
                     if (log.isDebugEnabled()) {
                         log.debug(
-                                "API View for sessions for "
-                                        + ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE))
-                                        + ": "
-                                        + site);
+                                "API View for sessions for {}:{}",
+                                ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE)),
+                                site);
                     }
-
                     // Build the response
                     for (HttpSession session : sessions) {
                         // Dont include 'null' sessions
@@ -426,12 +414,10 @@ public class HttpSessionsAPI extends ApiImplementor {
                 }
                 if (log.isDebugEnabled()) {
                     log.debug(
-                            "API View for active session for "
-                                    + ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE))
-                                    + ": "
-                                    + site);
+                            "API View for active session for {}:{}",
+                            ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE)),
+                            site);
                 }
-
                 if (site.getActiveSession() != null) {
                     return new ApiResponseElement(
                             "active_session", site.getActiveSession().getName());

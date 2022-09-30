@@ -299,7 +299,7 @@ public class SearchAPI extends ApiImplementor {
                     API.getDefaultResponseHeader(
                             "application/json; charset=UTF-8", responseBody.length));
         } catch (HttpMalformedHeaderException e) {
-            log.error("Failed to create response header: " + e.getMessage(), e);
+            log.error("Failed to create response header: {}", e.getMessage(), e);
         }
         msg.setResponseBody(responseBody);
 

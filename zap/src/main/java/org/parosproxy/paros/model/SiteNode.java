@@ -61,6 +61,7 @@
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 // ZAP: 2022/09/21 Use a contains check for DDN prefix. Tweak if conditions in setIncludedFromScope
 // and setExcludedFromScope to short-circuit && operator earlier.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -179,7 +180,7 @@ public class SiteNode extends DefaultMutableTreeNode {
                     if (url == null) {
                         url = ExtensionFactory.getAddOnLoader().getResource(icon);
                         if (url == null) {
-                            log.warn("Failed to find icon: " + icon);
+                            log.warn("Failed to find icon: {}", icon);
                             it.remove();
                         }
                     }

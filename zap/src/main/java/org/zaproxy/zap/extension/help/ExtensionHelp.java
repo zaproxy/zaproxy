@@ -266,23 +266,20 @@ public class ExtensionHelp extends ExtensionAdaptor {
                         classLoader::getResource);
         if (helpSetUrl == null) {
             logger.error(
-                    "Declared helpset not found for '"
-                            + addOn.getId()
-                            + "' add-on, with base name: "
-                            + helpSetData.getBaseName()
-                            + (helpSetData.getLocaleToken().isEmpty()
-                                    ? ""
-                                    : " and locale token: " + helpSetData.getLocaleToken()));
+                    "Declared helpset not found for '{}' add-on, with base name: {} {}",
+                    addOn.getId(),
+                    helpSetData.getBaseName(),
+                    (helpSetData.getLocaleToken().isEmpty()
+                            ? ""
+                            : " and locale token: " + helpSetData.getLocaleToken()));
             return;
         }
 
         try {
-            logger.debug(
-                    "Loading help for '" + addOn.getId() + "' add-on and merging with core help.");
+            logger.debug("Loading help for '{}' add-on and merging with core help.", addOn.getId());
             addHelpSet(addOn, new HelpSet(classLoader, helpSetUrl));
         } catch (HelpSetException e) {
-            logger.error(
-                    "An error occured while adding help for '" + addOn.getId() + "' add-on:", e);
+            logger.error("An error occured while adding help for '{}' add-on:", addOn.getId(), e);
         }
     }
 
@@ -296,17 +293,15 @@ public class ExtensionHelp extends ExtensionAdaptor {
         if (helpSetUrl != null) {
             try {
                 logger.debug(
-                        "Load help files for extension '"
-                                + ext.getName()
-                                + "' and merge with core help.");
+                        "Load help files for extension '{}' and merge with core help.",
+                        ext.getName());
                 addHelpSet(
                         ext.getAddOn(), new HelpSet(ext.getClass().getClassLoader(), helpSetUrl));
             } catch (HelpSetException e) {
                 logger.error(
-                        "An error occured while adding help file of extension '"
-                                + ext.getName()
-                                + "': "
-                                + e.getMessage(),
+                        "An error occured while adding help file of extension '{}': {}",
+                        ext.getName(),
+                        e.getMessage(),
                         e);
             }
         }
@@ -450,7 +445,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
         try {
             getHelpBroker().showID(helpindex, "javax.help.SecondaryWindow", null);
         } catch (Exception e) {
-            logger.error("error loading help with index: " + helpindex, e);
+            logger.error("error loading help with index: {}", helpindex, e);
         }
     }
 

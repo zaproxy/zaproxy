@@ -604,7 +604,7 @@ public class Context {
     }
 
     private void restructureSiteTreeEventHandler() {
-        log.debug("Restructure site tree for context: " + this.getName());
+        log.debug("Restructure site tree for context: {}", this.getName());
         List<SiteNode> nodes = this.getTopNodesInContextFromSiteTree();
         for (SiteNode sn : nodes) {
             checkNode(sn);
@@ -687,8 +687,7 @@ public class Context {
 
         // Add into the right place
         SiteNode sn2 = sitesTree.addPath(sn.getHistoryReference());
-        log.debug(
-                "Moved node " + sn.getHierarchicNodeName() + " to " + sn2.getHierarchicNodeName());
+        log.debug("Moved node {} to {}", sn.getHierarchicNodeName(), sn2.getHierarchicNodeName());
 
         // And sort out the alerts
         for (Alert alert : alerts) {
@@ -697,7 +696,7 @@ public class Context {
     }
 
     private void deleteNode(SiteMap sitesTree, SiteNode sn) {
-        log.debug("Deleting node " + sn.getHierarchicNodeName());
+        log.debug("Deleting node {}", sn.getHierarchicNodeName());
         sn.deleteAlerts(sn.getAlerts());
 
         // Remove old one

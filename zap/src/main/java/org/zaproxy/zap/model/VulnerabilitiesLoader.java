@@ -99,14 +99,10 @@ public class VulnerabilitiesLoader {
                         locale,
                         candidateFilename -> {
                             if (filenames.contains(candidateFilename)) {
-                                if (logger.isDebugEnabled()) {
-                                    logger.debug(
-                                            "loading vulnerabilities from "
-                                                    + candidateFilename
-                                                    + " for locale "
-                                                    + locale
-                                                    + ".");
-                                }
+                                logger.debug(
+                                        "loading vulnerabilities from {} for locale {}",
+                                        candidateFilename,
+                                        locale);
 
                                 List<Vulnerability> list =
                                         loadVulnerabilitiesFile(
@@ -190,8 +186,8 @@ public class VulnerabilitiesLoader {
     List<String> getListOfVulnerabilitiesFiles() {
         if (!Files.exists(directory)) {
             logger.debug(
-                    "Skipping read of vulnerabilities, the directory does not exist: "
-                            + directory.toAbsolutePath());
+                    "Skipping read of vulnerabilities, the directory does not exist: {}",
+                    directory.toAbsolutePath());
             return Collections.emptyList();
         }
 
@@ -215,7 +211,7 @@ public class VulnerabilitiesLoader {
                         }
                     });
         } catch (IOException e) {
-            logger.error("An error occurred while walking directory: " + directory, e);
+            logger.error("An error occurred while walking directory: {}", directory, e);
         }
         return fileNames;
     }

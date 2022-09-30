@@ -37,7 +37,7 @@ public class MaxChildrenFetchFilter extends FetchFilter {
 
     @Override
     public FetchStatus checkFilter(URI uri) {
-        getLogger().debug("Checking: " + uri);
+        getLogger().debug("Checking: {}", uri);
 
         SiteNode parent = model.getSession().getSiteTree().findClosestParent(uri);
         if (parent != null) {

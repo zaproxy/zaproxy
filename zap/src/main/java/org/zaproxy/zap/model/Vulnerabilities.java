@@ -56,7 +56,7 @@ public final class Vulnerabilities {
                 LOGGER.debug("Using bundled vulnerabilities file.");
                 try (InputStream in = VulnerabilitiesLoader.class.getResourceAsStream(path)) {
                     if (in == null) {
-                        LOGGER.error("The vulnerabilities file was not bundled: " + path);
+                        LOGGER.error("The vulnerabilities file was not bundled: {}", path);
                     } else {
                         vulns = VulnerabilitiesLoader.loadVulnerabilities(in);
                         if (vulns == null) {

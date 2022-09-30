@@ -139,13 +139,11 @@ public class PassiveScanTask implements Runnable {
                             scanned = true;
                         } else {
                             Stats.incCounter("stats.pscan.reqBodyTooBig");
-                            if (logger.isDebugEnabled()) {
-                                logger.debug(
-                                        "Request to {} body size {} larger than max configured {}",
-                                        msg.getRequestHeader().getURI(),
-                                        msg.getRequestBody().length(),
-                                        maxBodySize);
-                            }
+                            logger.debug(
+                                    "Request to {} body size {} larger than max configured {}",
+                                    msg.getRequestHeader().getURI(),
+                                    msg.getRequestBody().length(),
+                                    maxBodySize);
                         }
                         if (msg.isResponseFromTargetHost()) {
                             if (maxBodySize <= 0 || msg.getResponseBody().length() < maxBodySize) {
@@ -153,13 +151,11 @@ public class PassiveScanTask implements Runnable {
                                 scanned = true;
                             } else {
                                 Stats.incCounter("stats.pscan.respBodyTooBig");
-                                if (logger.isDebugEnabled()) {
-                                    logger.debug(
-                                            "Response from {} body size {} larger than max configured {}",
-                                            msg.getRequestHeader().getURI(),
-                                            msg.getResponseBody().length(),
-                                            maxBodySize);
-                                }
+                                logger.debug(
+                                        "Response from {} body size {} larger than max configured {}",
+                                        msg.getRequestHeader().getURI(),
+                                        msg.getResponseBody().length(),
+                                        maxBodySize);
                             }
                         }
                         if (scanned) {
@@ -203,10 +199,7 @@ public class PassiveScanTask implements Runnable {
 
         } catch (Exception e) {
             if (HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
-                            "Temporary record {} no longer available:", href.getHistoryId(), e);
-                }
+                logger.debug("Temporary record {} no longer available:", href.getHistoryId(), e);
             } else {
                 RecordHistory rec = null;
                 try {

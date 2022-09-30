@@ -65,6 +65,7 @@
 // ZAP: 2021/07/07 Add TYPE_OAST.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 // ZAP: 2022/06/27 Add TYPE_PARAM_DIGGER.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
@@ -556,7 +557,7 @@ public class HistoryReference {
             staticTableTag.insert(historyId, tag);
             return true;
         } catch (DatabaseException e) {
-            log.error("Failed to persist tag: " + e.getMessage(), e);
+            log.error("Failed to persist tag: {}", e.getMessage(), e);
         }
         return false;
     }
@@ -588,7 +589,7 @@ public class HistoryReference {
             staticTableTag.delete(historyId, tag);
             return true;
         } catch (DatabaseException e) {
-            log.error("Failed to delete tag: " + e.getMessage(), e);
+            log.error("Failed to delete tag: {}", e.getMessage(), e);
         }
         return false;
     }
@@ -834,7 +835,8 @@ public class HistoryReference {
                 httpMessageCachedData.setRequestBody(requestBody);
             } catch (HttpMalformedHeaderException | DatabaseException e) {
                 log.error(
-                        "Failed to reload request body from database with history ID: " + historyId,
+                        "Failed to reload request body from database with history ID: {}",
+                        historyId,
                         e);
                 requestBody = "";
             }

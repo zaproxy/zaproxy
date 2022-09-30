@@ -112,9 +112,8 @@ public class ExtensionUserManagement extends ExtensionAdaptor
                             .getExtension(ExtensionHttpSessions.class);
             if (extensionHttpSessions == null)
                 log.error(
-                        "Http Sessions Extension should be enabled for the "
-                                + ExtensionUserManagement.class.getSimpleName()
-                                + " to work.");
+                        "Http Sessions Extension should be enabled for the {} to work.",
+                        ExtensionUserManagement.class.getSimpleName());
         }
         return extensionHttpSessions;
     }

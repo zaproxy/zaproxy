@@ -54,6 +54,7 @@
 // ZAP: 2022/02/08 Use isEmpty where applicable.
 // ZAP: 2022/05/04 Deprecate single cookie request header option.
 // ZAP: 2022/05/20 Deprecate the class.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.network;
 
 import java.net.PasswordAuthentication;
@@ -324,7 +325,7 @@ public class ConnectionParam extends AbstractParam {
                         Pattern pattern = Pattern.compile(excludedDomain, Pattern.CASE_INSENSITIVE);
                         excludedDomains.add(new DomainMatcher(pattern));
                     } catch (IllegalArgumentException e) {
-                        log.error("Failed to migrate the excluded domain name: " + name, e);
+                        log.error("Failed to migrate the excluded domain name: {}", name, e);
                     }
                 } else {
                     excludedDomains.add(new DomainMatcher(excludedDomain));
@@ -683,8 +684,8 @@ public class ConnectionParam extends AbstractParam {
                     excludedDomain = new DomainMatcher(pattern);
                 } catch (IllegalArgumentException e) {
                     log.error(
-                            "Failed to read an outgoing proxy excluded domain entry with regex: "
-                                    + value,
+                            "Failed to read an outgoing proxy excluded domain entry with regex: {}",
+                            value,
                             e);
                 }
             } else {
@@ -789,12 +790,10 @@ public class ConnectionParam extends AbstractParam {
             SSLConnector.setClientEnabledProtocols(securityProtocolsEnabled);
         } catch (IllegalArgumentException e) {
             log.warn(
-                    "Failed to set persisted protocols "
-                            + Arrays.toString(securityProtocolsEnabled)
-                            + " falling back to "
-                            + Arrays.toString(SSLConnector.getFailSafeProtocols())
-                            + " caused by: "
-                            + e.getMessage());
+                    "Failed to set persisted protocols {} falling back to {} caused by: {}",
+                    Arrays.toString(securityProtocolsEnabled),
+                    Arrays.toString(SSLConnector.getFailSafeProtocols()),
+                    e.getMessage());
             securityProtocolsEnabled = SSLConnector.getFailSafeProtocols();
             SSLConnector.setClientEnabledProtocols(securityProtocolsEnabled);
         }
@@ -892,7 +891,7 @@ public class ConnectionParam extends AbstractParam {
         try {
             port = Integer.parseInt(value);
         } catch (NumberFormatException e) {
-            log.warn("Failed to parse the SOCKS port: " + value, e);
+            log.warn("Failed to parse the SOCKS port: {}", value, e);
             return DEFAULT_SOCKS_PROXY.getPort();
         }
 
@@ -900,7 +899,7 @@ public class ConnectionParam extends AbstractParam {
             return port;
         }
 
-        log.warn("Invalid SOCKS port: " + value);
+        log.warn("Invalid SOCKS port: {}", value);
         return DEFAULT_SOCKS_PROXY.getPort();
     }
 

@@ -593,13 +593,10 @@ public abstract class PopupMenuItemHttpMessageContainer
 
         @Override
         public void actionPerformed(ActionEvent evt) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                        "actionPerformed "
-                                + (invoker != null ? invoker.name() : "null invoker")
-                                + " "
-                                + evt.getActionCommand());
-            }
+            logger.debug(
+                    "actionPerformed {} {}",
+                    invoker != null ? invoker.name() : "null invoker",
+                    evt.getActionCommand());
 
             try {
                 performActions(httpMessageContainer);

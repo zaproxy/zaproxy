@@ -52,7 +52,7 @@ public class DownloadManager extends Thread {
     }
 
     public Downloader downloadFile(URL url, File targetFile, long size, String hash) {
-        logger.debug("Download file " + url + " to " + targetFile.getAbsolutePath());
+        logger.debug("Download file {} to {}", url, targetFile.getAbsolutePath());
 
         Downloader dl = new Downloader(url, targetFile, size, hash, initiator);
         dl.start();
@@ -69,14 +69,14 @@ public class DownloadManager extends Thread {
             for (Downloader dl : this.currentDownloads) {
                 if (!dl.isAlive()) {
                     if (dl.getException() != null) {
-                        logger.debug("Download failed " + dl.getTargetFile().getAbsolutePath());
+                        logger.debug("Download failed {}", dl.getTargetFile().getAbsolutePath());
                     } else if (dl.isValidated()) {
-                        logger.debug("Download finished " + dl.getTargetFile().getAbsolutePath());
+                        logger.debug("Download finished {}", dl.getTargetFile().getAbsolutePath());
                     } else if (dl.isCancelled()) {
-                        logger.debug("Download cancelled " + dl.getTargetFile().getAbsolutePath());
+                        logger.debug("Download cancelled {}", dl.getTargetFile().getAbsolutePath());
                     } else {
                         // Corrupt or corrupted file? Pretty bad anyway
-                        logger.error("Validation failed " + dl.getTargetFile().getAbsolutePath());
+                        logger.error("Validation failed {}", dl.getTargetFile().getAbsolutePath());
                         dl.cancelDownload();
                         if (View.isInitialised()) {
                             View.getSingleton()
@@ -88,14 +88,12 @@ public class DownloadManager extends Thread {
                     }
                     finishedDownloads.add(dl);
                 } else if (this.cancelDownloads) {
-                    logger.debug("Cancelling download " + dl.getTargetFile().getAbsolutePath());
+                    logger.debug("Cancelling download {}", dl.getTargetFile().getAbsolutePath());
                     dl.cancelDownload();
                 } else {
                     logger.debug(
-                            "Still downloading "
-                                    + dl.getTargetFile().getAbsolutePath()
-                                    + " progress % "
-                                    + dl.getProgressPercent());
+                            "Still downloading {} progress % {}",
+                            dl.getTargetFile().getAbsolutePath(), dl.getProgressPercent());
                 }
             }
             for (Downloader dl : finishedDownloads) {

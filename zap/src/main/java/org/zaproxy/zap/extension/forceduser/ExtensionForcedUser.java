@@ -357,13 +357,10 @@ public class ExtensionForcedUser extends ExtensionAdaptor
 
         if (requestingUser == null || !requestingUser.isEnabled()) return;
 
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "Modifying request message ("
-                            + msg.getRequestHeader().getURI()
-                            + ") to match user: "
-                            + requestingUser);
-        }
+        log.debug(
+                "Modifying request message ({}) to match user: {}",
+                msg.getRequestHeader().getURI(),
+                requestingUser);
         msg.setRequestingUser(requestingUser);
     }
 

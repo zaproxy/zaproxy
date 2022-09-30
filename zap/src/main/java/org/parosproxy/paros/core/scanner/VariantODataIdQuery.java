@@ -153,7 +153,7 @@ public class VariantODataIdQuery implements Variant {
             }
 
         } catch (URIException e) {
-            LOG.error(e.getMessage() + uri, e);
+            LOG.error("{} {}", e.getMessage(), uri, e);
         }
     }
 

@@ -402,8 +402,8 @@ public final class LocaleUtils {
         File dir = new File(Constant.getZapInstall(), Constant.LANG_DIR);
         if (!dir.exists()) {
             logger.debug(
-                    "Skipping read of available locales, the directory does not exist: "
-                            + dir.getAbsolutePath());
+                    "Skipping read of available locales, the directory does not exist: {}",
+                    dir.getAbsolutePath());
             return new ArrayList<>(0);
         }
 
@@ -411,7 +411,7 @@ public final class LocaleUtils {
         String[] files = dir.list(filter);
 
         if (files == null || files.length == 0) {
-            logger.warn("No Messages files in directory " + dir.getAbsolutePath());
+            logger.warn("No Messages files in directory {}", dir.getAbsolutePath());
             return new ArrayList<>(0);
         }
 

@@ -89,13 +89,13 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
 
         File file = new File(ExtensionScript.TEMPLATES_DIR, resourceName);
         if (!file.exists()) {
-            logger.debug("No template at: " + file.getAbsolutePath());
+            logger.debug("No template at: {}", file.getAbsolutePath());
             file =
                     new File(
                             Constant.getZapHome() + File.separator + ExtensionScript.TEMPLATES_DIR,
                             resourceName);
             if (!file.exists()) {
-                logger.debug("No template at: " + file.getAbsolutePath());
+                logger.debug("No template at: {}", file.getAbsolutePath());
                 return "";
             }
         }

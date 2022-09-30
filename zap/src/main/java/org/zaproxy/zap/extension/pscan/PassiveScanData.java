@@ -76,10 +76,7 @@ public class PassiveScanData {
                         .getSession()
                         .getContextsForUrl(message.getRequestHeader().getURI().toString());
         if (contextList.isEmpty()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(
-                        "No Context found for: " + message.getRequestHeader().getURI().toString());
-            }
+            LOGGER.debug("No Context found for: {}", message.getRequestHeader().getURI());
             return null;
         }
         return contextList.get(0);

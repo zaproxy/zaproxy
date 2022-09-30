@@ -63,9 +63,7 @@ public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
             View.getSingleton()
                     .showWarningDialog(
                             Constant.messages.getString("exportUrls.popup.context.error"));
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("No context selected, when trying to export URLs for a context.");
-            }
+            LOG.debug("No context selected, when trying to export URLs for a context.");
             return;
         }
 

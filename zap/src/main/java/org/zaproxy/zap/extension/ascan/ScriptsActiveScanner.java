@@ -160,10 +160,9 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
                     if (s != null) {
                         HttpMessage msg = this.getNewMsg();
                         logger.debug(
-                                "Calling script "
-                                        + script.getName()
-                                        + " scanNode for "
-                                        + msg.getRequestHeader().getURI());
+                                "Calling script {} scanNode for {}",
+                                script.getName(),
+                                msg.getRequestHeader().getURI());
                         s.scanNode(this, msg);
                     } else {
                         scriptsNoInterface.add(script);
@@ -216,14 +215,11 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
             ScriptWrapper script = cachedScript.getScriptWrapper();
             try {
                 logger.debug(
-                        "Calling script "
-                                + script.getName()
-                                + " scan for "
-                                + msg.getRequestHeader().getURI()
-                                + "param="
-                                + param
-                                + " value="
-                                + value);
+                        "Calling script {} scan for {} param={} value={}",
+                        script.getName(),
+                        msg.getRequestHeader().getURI(),
+                        param,
+                        value);
                 cachedScript.getScript().scan(this, msg, param, value);
 
             } catch (Exception e) {

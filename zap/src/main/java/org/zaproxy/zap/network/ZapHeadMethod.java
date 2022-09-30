@@ -78,12 +78,10 @@ public class ZapHeadMethod extends EntityEnclosingMethod {
         if (bodyCheckTimeout < 0) {
             responseBodyConsumed();
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(
-                        "Check for non-compliant response body. Timeout in "
-                                + bodyCheckTimeout
-                                + " ms");
-            }
+            LOG.debug(
+                    "Check for non-compliant response body. Timeout in "
+                            + bodyCheckTimeout
+                            + " ms");
             boolean responseAvailable = false;
             try {
                 responseAvailable = conn.isResponseAvailable(bodyCheckTimeout);

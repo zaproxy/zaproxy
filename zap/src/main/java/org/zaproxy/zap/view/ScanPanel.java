@@ -116,7 +116,7 @@ public abstract class ScanPanel extends AbstractPanel {
         this.extension = extension;
         this.scanParam = scanParam;
         initialize(icon);
-        log.debug("Constructor " + prefix);
+        log.debug("Constructor {}", prefix);
     }
 
     /** This method initializes this */
@@ -470,7 +470,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public void scanAllInContext(Context context, User user) {
-        log.debug("Scan all in context: " + context.getName());
+        log.debug("Scan all in context: {}", context.getName());
         this.setTabFocus();
         if (this.getStartScanButton().isEnabled()) {
 
@@ -479,7 +479,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public void scanSite(SiteNode node, boolean incPort) {
-        log.debug("scanSite " + prefix + " node=" + node.getNodeName());
+        log.debug("scanSite {} node={}", prefix, node.getNodeName());
         this.setTabFocus();
         nodeSelected(node, incPort);
         if (currentSite != null && this.getStartScanButton().isEnabled()) {
@@ -507,7 +507,7 @@ public abstract class ScanPanel extends AbstractPanel {
      * @param user the user
      */
     public void scanNode(SiteNode node, boolean incPort, User user) {
-        log.debug("scanNode" + prefix + " node=" + node.getNodeName());
+        log.debug("scanNode{} node={}", prefix, node.getNodeName());
         this.setTabFocus();
         nodeSelected(node, incPort);
         if (currentSite != null && this.getStartScanButton().isEnabled()) {
@@ -550,7 +550,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     private void addSite(String site) {
-        log.debug("addSite " + site);
+        log.debug("addSite {}", site);
         siteModel.addElement(passiveSitelabel(site));
     }
 
@@ -738,7 +738,7 @@ public abstract class ScanPanel extends AbstractPanel {
             Context scanContext,
             User scanUser,
             Object[] contextSpecificObjects) {
-        log.debug("startScan " + prefix + " " + startNode);
+        log.debug("startScan {} {}", prefix, startNode);
         this.getStartScanButton().setEnabled(false);
         this.getStopScanButton().setEnabled(true);
         this.getPauseScanButton().setEnabled(true);
@@ -790,7 +790,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public void stopScan(String site) {
-        log.debug("stopScan " + prefix + " on " + site);
+        log.debug("stopScan {} on {}", prefix, site);
         GenericScanner scan = scanMap.get(site);
         if (scan != null) {
             scan.stopScan();
@@ -798,7 +798,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public void pauseScan(String site) {
-        log.debug("pauseScan " + prefix + " on " + site);
+        log.debug("pauseScan {} on  {}", prefix, site);
         GenericScanner scan = scanMap.get(site);
         if (scan != null) {
             if (scan.isPaused()) {
@@ -828,7 +828,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     private void scanFinshedEventHandler(String host) {
-        log.debug("scanFinished " + prefix + " on " + currentSite);
+        log.debug("scanFinished {} on {}", prefix, currentSite);
         if (host != null && host.equals(currentSite)) {
             resetScanButtonsAndProgressBarStates(true);
         }
@@ -876,7 +876,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public void reset() {
-        log.debug("reset " + prefix);
+        log.debug("reset {}", prefix);
         stopAllScans();
 
         siteModel.removeAllElements();

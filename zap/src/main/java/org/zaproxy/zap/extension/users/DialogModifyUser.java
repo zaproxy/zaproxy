@@ -44,9 +44,8 @@ public class DialogModifyUser extends DialogAddUser {
 
     @Override
     protected void init() {
-        if (log.isDebugEnabled()) {
-            log.debug("Initializing modify user dialog for: " + user);
-        }
+        log.debug("Initializing modify user dialog for: {}", user);
+
         getNameTextField().setText(user.getName());
         getEnabledCheckBox().setSelected(user.isEnabled());
 

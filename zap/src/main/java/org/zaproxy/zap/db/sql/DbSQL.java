@@ -119,7 +119,7 @@ public class DbSQL implements DatabaseListener {
         try (Reader sqlReader = new FileReader(sqlFile)) {
             sqlProperties.load(sqlReader);
         } catch (Exception e) {
-            logger.error("No SQL properties file for db type " + sqlFile.getAbsolutePath());
+            logger.error("No SQL properties file for db type {}", sqlFile.getAbsolutePath());
             throw new DatabaseException(
                     "Missing SQL properties file: " + sqlFile.getAbsolutePath());
         }

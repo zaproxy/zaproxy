@@ -138,9 +138,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
             t.hook(extensionHook);
         }
 
-        if (log.isInfoEnabled()) {
-            log.info("Loaded session management method types: " + sessionManagementMethodTypes);
-        }
+        log.info("Loaded session management method types: {}", sessionManagementMethodTypes);
     }
 
     @Override

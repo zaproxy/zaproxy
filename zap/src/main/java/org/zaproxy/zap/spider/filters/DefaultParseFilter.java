@@ -151,12 +151,8 @@ public class DefaultParseFilter extends ParseFilter {
 
         // Check response body size
         if (responseMessage.getResponseBody().length() > params.getMaxParseSizeBytes()) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger()
-                        .debug(
-                                "Resource too large: "
-                                        + responseMessage.getRequestHeader().getURI());
-            }
+            getLogger()
+                    .debug("Resource too large: {}", responseMessage.getRequestHeader().getURI());
             return filterResultMaxSize;
         }
 
@@ -167,12 +163,8 @@ public class DefaultParseFilter extends ParseFilter {
 
         // Check response type.
         if (!responseMessage.getResponseHeader().isText()) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger()
-                        .debug(
-                                "Resource is not text: "
-                                        + responseMessage.getRequestHeader().getURI());
-            }
+            getLogger()
+                    .debug("Resource is not text: {}", responseMessage.getRequestHeader().getURI());
             return filterResultNotText;
         }
 

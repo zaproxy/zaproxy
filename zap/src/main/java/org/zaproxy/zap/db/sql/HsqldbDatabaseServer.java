@@ -57,9 +57,7 @@ public class HsqldbDatabaseServer extends SqlDatabaseServer {
                         propsStream.close();
                     }
                 } catch (IOException e) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(e.getMessage(), e);
-                    }
+                    logger.debug(e.getMessage(), e);
                 }
             }
             String version = (String) dbProps.get("version");

@@ -66,17 +66,13 @@ public class ZapProxySelector extends ProxySelector {
     @Override
     public List<Proxy> select(URI uri) {
         List<Proxy> proxies = getDefaultProxySelector().select(uri);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Selected proxies for " + uri + " " + proxies);
-        }
+        logger.debug("Selected proxies for {} {}", uri, proxies);
         return proxies;
     }
 
     @Override
     public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Connect failed for " + uri + " " + sa, ioe);
-        }
+        logger.debug("Connect failed for {} {}", uri, sa, ioe);
 
         getDefaultProxySelector().connectFailed(uri, sa, ioe);
     }

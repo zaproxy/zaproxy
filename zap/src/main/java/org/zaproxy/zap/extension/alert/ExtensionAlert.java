@@ -139,7 +139,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         if (filename != null && filename.length() > 0) {
             File file = new File(filename);
             if (!file.isFile() || !file.canRead()) {
-                logger.error("Cannot read alert overrides file " + file.getAbsolutePath());
+                logger.error("Cannot read alert overrides file {}", file.getAbsolutePath());
                 return false;
             }
 
@@ -147,13 +147,12 @@ public class ExtensionAlert extends ExtensionAdaptor
                     Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
                 this.alertOverrides.load(br);
                 logger.info(
-                        "Read "
-                                + this.alertOverrides.size()
-                                + " overrides from "
-                                + file.getAbsolutePath());
+                        "Read {} overrides from {}",
+                        this.alertOverrides.size(),
+                        file.getAbsolutePath());
                 return true;
             } catch (IOException e) {
-                logger.error("Failed to read alert overrides file " + file.getAbsolutePath(), e);
+                logger.error("Failed to read alert overrides file {}", file.getAbsolutePath(), e);
                 return false;
             }
         }
@@ -180,7 +179,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         }
 
         try {
-            logger.debug("alertFound " + alert.getName() + " " + alert.getUri());
+            logger.debug("alertFound {} {}", alert.getName(), alert.getUri());
             if (ref == null) {
                 ref = alert.getHistoryRef();
             }
@@ -241,12 +240,10 @@ public class ExtensionAlert extends ExtensionAdaptor
     private static boolean isInvalid(Alert alert) {
         if (alert.getUri().isEmpty() || alert.getMessage() == null) {
             logger.error(
-                    "Attempting to raise an alert without URI or HTTP message, Plugin ID: "
-                            + alert.getPluginId()
-                            + " Alert Name:"
-                            + alert.getName()
-                            + "\n\t"
-                            + StringUtils.join(Thread.currentThread().getStackTrace(), "\n\t"));
+                    "Attempting to raise an alert without URI or HTTP message, Plugin ID: {} Alert Name:{}\n\t{}",
+                    alert.getPluginId(),
+                    alert.getName(),
+                    StringUtils.join(Thread.currentThread().getStackTrace(), "\n\t"));
             return true;
         }
         return false;
@@ -463,7 +460,7 @@ public class ExtensionAlert extends ExtensionAdaptor
     }
 
     public void updateAlert(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
-        logger.debug("updateAlert " + alert.getName() + " " + alert.getUri());
+        logger.debug("updateAlert {} {}", alert.getName(), alert.getUri());
         HistoryReference hRef = hrefs.get(alert.getSourceHistoryId());
         if (hRef != null) {
             updateAlertInDB(alert);
@@ -509,7 +506,7 @@ public class ExtensionAlert extends ExtensionAdaptor
     }
 
     public void displayAlert(Alert alert) {
-        logger.debug("displayAlert " + alert.getName() + " " + alert.getUri());
+        logger.debug("displayAlert {} {}", alert.getName(), alert.getUri());
         this.alertPanel.getAlertViewPanel().displayAlert(alert);
     }
 
@@ -684,7 +681,7 @@ public class ExtensionAlert extends ExtensionAdaptor
     }
 
     public void deleteAlert(Alert alert) {
-        logger.debug("deleteAlert " + alert.getName() + " " + alert.getUri());
+        logger.debug("deleteAlert {} {}", alert.getName(), alert.getUri());
 
         try {
             getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
@@ -790,7 +787,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                     getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
                     getModel().getDb().getTableAlertTag().deleteAllTagsForAlert(alert.getAlertId());
                 } catch (DatabaseException e) {
-                    logger.error("Failed to delete alert with ID: " + alert.getAlertId(), e);
+                    logger.error("Failed to delete alert with ID: {}", alert.getAlertId(), e);
                 }
             }
 

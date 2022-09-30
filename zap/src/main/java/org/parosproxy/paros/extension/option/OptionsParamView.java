@@ -49,6 +49,7 @@
 // ZAP: 2021/09/16 Add support for enabling app integration in containers
 // ZAP: 2022/02/25 Deprecate options no longer in use.
 // ZAP: 2022/02/26 Remove code deprecated in 2.5.0
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.Window;
@@ -629,8 +630,8 @@ public class OptionsParamView extends AbstractParam {
                                                 .forEach(SwingUtilities::updateComponentTreeUI);
                                     } catch (Exception e2) {
                                         LOG.warn(
-                                                "Failed to set the look and feel: "
-                                                        + e2.getMessage());
+                                                "Failed to set the look and feel: {}",
+                                                e2.getMessage());
                                     } finally {
                                         dialog.setVisible(false);
                                         dialog.dispose();

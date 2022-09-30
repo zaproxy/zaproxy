@@ -289,7 +289,7 @@ public class ExtensionParams extends ExtensionAdaptor
                 persist(sps.addParam(site, iter.next(), msg));
             }
         } catch (IllegalArgumentException e) {
-            logger.warn("Failed to obtain the cookies: " + e.getMessage(), e);
+            logger.warn("Failed to obtain the cookies: {}", e.getMessage(), e);
         }
 
         // URL Parameters
@@ -382,13 +382,11 @@ public class ExtensionParams extends ExtensionAdaptor
             }
         } catch (DatabaseException e) {
             if (e.getCause().getMessage().contains("truncation")) {
-                logger.warn("Could not add or update param: " + param.getName());
+                logger.warn("Could not add or update param: {}", param.getName());
                 logger.warn(
                         "It is likely that the length of one of the data elements exceeded the column size.");
                 logger.warn(e.getMessage());
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                logger.debug(e.getMessage(), e);
             } else {
                 logger.error(e.getMessage(), e);
             }
@@ -415,7 +413,7 @@ public class ExtensionParams extends ExtensionAdaptor
                 persist(sps.addParam(site, iter.next(), msg));
             }
         } catch (IllegalArgumentException e) {
-            logger.warn("Failed to obtain the cookies: " + e.getMessage(), e);
+            logger.warn("Failed to obtain the cookies: {}", e.getMessage(), e);
         }
 
         // Header "Parameters"

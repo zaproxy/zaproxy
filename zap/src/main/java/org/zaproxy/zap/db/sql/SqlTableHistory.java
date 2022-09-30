@@ -111,9 +111,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                     try {
                         stmt.close();
                     } catch (SQLException e) {
-                        if (log.isDebugEnabled()) {
-                            log.debug(e.getMessage(), e);
-                        }
+                        log.debug(e.getMessage(), e);
                     }
                 }
             }
@@ -174,15 +172,13 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                     }
                 }
             } catch (SQLException e) {
-                log.error("An error occurred while modifying a column length on " + TABLE_NAME);
+                log.error("An error occurred while modifying a column length on {}", TABLE_NAME);
                 log.error(
-                        "The 'Maximum Request Body Size' value in the Database Options needs to be set to at least "
-                                + requestbodysizeindb
-                                + " to avoid this error");
+                        "The 'Maximum Request Body Size' value in the Database Options needs to be set to at least {} to avoid this error",
+                        requestbodysizeindb);
                 log.error(
-                        "The 'Maximum Response Body Size' value in the Database Options needs to be set to at least "
-                                + responsebodysizeindb
-                                + " to avoid this error");
+                        "The 'Maximum Response Body Size' value in the Database Options needs to be set to at least {}  to avoid this error",
+                        responsebodysizeindb);
                 log.error("The SQL Exception was:", e);
                 throw e;
             }

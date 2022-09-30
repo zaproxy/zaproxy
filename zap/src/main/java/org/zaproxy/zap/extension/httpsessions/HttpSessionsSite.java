@@ -146,9 +146,7 @@ public class HttpSessionsSite {
      * @throws IllegalArgumentException If the session provided as parameter is null.
      */
     public void setActiveSession(HttpSession activeSession) {
-        if (log.isInfoEnabled()) {
-            log.info("Setting new active session for site '" + site + "': " + activeSession);
-        }
+        log.info("Setting new active session for site '{}': {}", site, activeSession);
         if (activeSession == null) {
             throw new IllegalArgumentException(
                     "When setting an active session, a non-null session has to be provided.");
@@ -181,9 +179,7 @@ public class HttpSessionsSite {
      * @see #setActiveSession(HttpSession)
      */
     public void unsetActiveSession() {
-        if (log.isInfoEnabled()) {
-            log.info("Setting no active session for site '" + site + "'.");
-        }
+        log.info("Setting no active session for site '{}'.", site);
 
         if (this.activeSession != null) {
             this.activeSession.setActive(false);
@@ -342,20 +338,14 @@ public class HttpSessionsSite {
 
         // No tokens for this site, so no processing
         if (siteTokensSet == null) {
-            log.debug("No session tokens for: " + this.getSite());
+            log.debug("No session tokens for: {}", this.getSite());
             return;
         }
 
         // Get the matching session, based on the request header
         List<HttpCookie> requestCookies = message.getRequestHeader().getHttpCookies();
         HttpSession session = getMatchingHttpSession(requestCookies, siteTokensSet);
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "Matching session for request message (for site "
-                            + getSite()
-                            + "): "
-                            + session);
-        }
+        log.debug("Matching session for request message (for site {}): {}", getSite(), session);
 
         // If any session is active (forced), change the necessary cookies
         if (activeSession != null && activeSession != session) {
@@ -386,7 +376,7 @@ public class HttpSessionsSite {
 
         // No tokens for this site, so no processing
         if (siteTokensSet == null) {
-            log.debug("No session tokens for: " + this.getSite());
+            log.debug("No session tokens for: {}", this.getSite());
             return;
         }
         // Create an auxiliary map of token values and insert keys for every token
@@ -416,12 +406,10 @@ public class HttpSessionsSite {
                     tokenValues.put(lcCookieName, ck);
                 } catch (IllegalArgumentException e) {
                     log.warn(
-                            "Failed to create cookie ["
-                                    + cookie
-                                    + "] for site ["
-                                    + getSite()
-                                    + "]: "
-                                    + e.getMessage());
+                            "Failed to create cookie [{}] for site [{}]: {}",
+                            cookie,
+                            getSite(),
+                            e.getMessage());
                 }
             }
         }
@@ -437,21 +425,13 @@ public class HttpSessionsSite {
         HttpSession session = message.getHttpSession();
         if (session == null || !session.isValid()) {
             session = getMatchingHttpSession(requestCookies, siteTokensSet);
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Matching session for response message (from site "
-                                + getSite()
-                                + "): "
-                                + session);
-            }
+            log.debug(
+                    "Matching session for response message (from site {}): {}", getSite(), session);
         } else {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Matching cached session for response message (from site "
-                                + getSite()
-                                + "): "
-                                + session);
-            }
+            log.debug(
+                    "Matching cached session for response message (from site {}): {}",
+                    getSite(),
+                    session);
         }
 
         boolean newSession = false;
@@ -506,8 +486,8 @@ public class HttpSessionsSite {
             }
         }
 
-        if (newSession && log.isDebugEnabled()) {
-            log.debug("Created a new session as no match was found: " + session);
+        if (newSession) {
+            log.debug("Created a new session as no match was found: {}", session);
         }
 
         // Update the count of messages matched
@@ -559,13 +539,10 @@ public class HttpSessionsSite {
             return;
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "Removing duplicates and cleaning up sessions for site - token: "
-                            + site
-                            + " - "
-                            + token);
-        }
+        log.debug(
+                "Removing duplicates and cleaning up sessions for site - token: {} - {}",
+                site,
+                token);
 
         synchronized (this.sessions) {
             // If there are no more session tokens, delete all sessions
@@ -619,9 +596,7 @@ public class HttpSessionsSite {
             }
 
             // Delete the duplicate sessions
-            if (log.isInfoEnabled()) {
-                log.info("Removing duplicate or empty sessions: " + toDelete);
-            }
+            log.info("Removing duplicate or empty sessions: {}", toDelete);
             Iterator<HttpSession> it = toDelete.iterator();
             while (it.hasNext()) {
                 HttpSession ses = it.next();
@@ -671,7 +646,7 @@ public class HttpSessionsSite {
     public boolean renameHttpSession(String oldName, String newName) {
         // Check new name validity
         if (newName == null || newName.isEmpty()) {
-            log.warn("Trying to rename session from " + oldName + " illegal name: " + newName);
+            log.warn("Trying to rename session from {} illegal name: {}", oldName, newName);
             return false;
         }
 
@@ -683,11 +658,7 @@ public class HttpSessionsSite {
 
         // Check new name uniqueness
         if (getHttpSession(newName) != null) {
-            log.warn(
-                    "Trying to rename session from "
-                            + oldName
-                            + " to already existing: "
-                            + newName);
+            log.warn("Trying to rename session from {} to already existing: {}", oldName, newName);
             return false;
         }
 

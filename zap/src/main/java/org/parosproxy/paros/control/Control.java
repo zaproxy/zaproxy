@@ -88,6 +88,7 @@
 // ZAP: 2021/11/08 Validate if mandatory add-ons are present.
 // ZAP: 2022/02/09 No longer manage the proxy, deprecate related code.
 // ZAP: 2022/02/24 Remove code deprecated in 2.5.0
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.control;
 
 import java.awt.Desktop;
@@ -309,18 +310,18 @@ public class Control extends AbstractControl implements SessionListener {
                                                     .getOptionsParam()
                                                     .getDatabaseParam()
                                                     .isCompactDatabase());
-                                    log.info(Constant.PROGRAM_TITLE + " terminated.");
+                                    log.info("{} terminated.", Constant.PROGRAM_TITLE);
 
                                     if (openOnExit != null && Desktop.isDesktopSupported()) {
                                         try {
                                             log.info(
-                                                    "Openning file "
-                                                            + openOnExit.getAbsolutePath());
+                                                    "Openning file {}",
+                                                    openOnExit.getAbsolutePath());
                                             Desktop.getDesktop().open(openOnExit);
                                         } catch (IOException e) {
                                             log.error(
-                                                    "Failed to open file "
-                                                            + openOnExit.getAbsolutePath(),
+                                                    "Failed to open file {}",
+                                                    openOnExit.getAbsolutePath(),
                                                     e);
                                         }
                                     }
@@ -385,7 +386,7 @@ public class Control extends AbstractControl implements SessionListener {
         shutdown(false);
         Model.getSingleton().getDb().deleteSession(sessionName);
 
-        log.info(Constant.PROGRAM_TITLE + " terminated.");
+        log.info("{} terminated.", Constant.PROGRAM_TITLE);
         System.exit(this.getExitStatus());
     }
 
@@ -442,7 +443,7 @@ public class Control extends AbstractControl implements SessionListener {
     }
 
     public void runCommandLineNewSession(String fileName) throws Exception {
-        log.debug("runCommandLineNewSession " + fileName);
+        log.debug("runCommandLineNewSession {}", fileName);
         getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 
         model.createAndOpenUntitledDb();
@@ -463,7 +464,7 @@ public class Control extends AbstractControl implements SessionListener {
                     });
         }
 
-        log.info("New session file created: " + Paths.get(fileName).toRealPath());
+        log.info("New session file created: {}", Paths.get(fileName).toRealPath());
         control.getExtensionLoader().databaseOpen(model.getDb());
         control.getExtensionLoader().sessionChangedAllPlugin(session);
     }
@@ -478,7 +479,7 @@ public class Control extends AbstractControl implements SessionListener {
     }
 
     public void runCommandLineOpenSession(String fileName) throws Exception {
-        log.debug("runCommandLineOpenSession " + fileName);
+        log.debug("runCommandLineOpenSession {}", fileName);
         getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 
         Session session = Model.getSingleton().getSession();

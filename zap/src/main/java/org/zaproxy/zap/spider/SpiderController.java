@@ -100,13 +100,13 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
 
         // If parsing of sitemap.xml is enabled
         if (spider.getSpiderParam().isParseSitemapXml()) {
-            if (log.isDebugEnabled()) log.debug("Adding SpiderSitemapXMLParser");
+            log.debug("Adding SpiderSitemapXMLParser");
             parser =
                     new org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser(
                             spider.getSpiderParam());
             parsers.add(parser);
         } else {
-            if (log.isDebugEnabled()) log.debug("NOT Adding SpiderSitemapXMLParser");
+            log.debug("NOT Adding SpiderSitemapXMLParser");
         }
 
         // If parsing of SVN entries is enabled
@@ -174,7 +174,7 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
         }
         synchronized (visitedResources) {
             if (visitedResources.contains(resourceIdentifier)) {
-                log.debug("URI already visited: " + uri);
+                log.debug("URI already visited: {}", uri);
                 return;
             } else {
                 visitedResources.add(resourceIdentifier);
@@ -205,7 +205,7 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
      * @param filter the filter
      */
     public void addFetchFilter(org.zaproxy.zap.spider.filters.FetchFilter filter) {
-        log.debug("Loading fetch filter: " + filter.getClass().getSimpleName());
+        log.debug("Loading fetch filter: {}", filter.getClass().getSimpleName());
         fetchFilters.add(filter);
     }
 
@@ -224,12 +224,12 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
      * @param filter the filter
      */
     public void addParseFilter(org.zaproxy.zap.spider.filters.ParseFilter filter) {
-        log.debug("Loading parse filter: " + filter.getClass().getSimpleName());
+        log.debug("Loading parse filter: {}", filter.getClass().getSimpleName());
         parseFilters.add(filter);
     }
 
     protected void setDefaultParseFilter(org.zaproxy.zap.spider.filters.ParseFilter filter) {
-        log.debug("Setting Default filter: " + filter.getClass().getSimpleName());
+        log.debug("Setting Default filter: {}", filter.getClass().getSimpleName());
         defaultParseFilter = filter;
     }
 
@@ -312,7 +312,7 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
         for (org.zaproxy.zap.spider.filters.FetchFilter f : fetchFilters) {
             org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus s = f.checkFilter(uriV);
             if (s != org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID) {
-                log.debug("URI: " + uriV + " was filtered by a filter with reason: " + s);
+                log.debug("URI: {} was filtered by a filter with reason: {}", uriV, s);
                 spider.notifyListenersFoundURI(
                         resourceFound.getUri(), resourceFound.getMethod(), s);
                 return;
@@ -321,10 +321,7 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
 
         // Check if resource should be ignored and not fetched
         if (resourceFound.isShouldIgnore()) {
-            log.debug(
-                    "URI: "
-                            + uriV
-                            + " is valid, but will not be fetched, by parser recommendation.");
+            log.debug("URI: {} is valid, but will not be fetched, by parser recommendation.", uriV);
             spider.notifyListenersFoundURI(
                     resourceFound.getUri(),
                     resourceFound.getMethod(),
@@ -380,12 +377,12 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
                 log.debug("Second try...");
                 uriV = new URI(uri, false);
             } catch (Exception ex) {
-                log.error("Error while converting to uri: " + uri, ex);
+                log.error("Error while converting to uri: {}", uri, ex);
                 return null;
             }
             // A non URIException occurred, so just ignore the URI
         } catch (Exception e) {
-            log.error("Error while converting to uri: " + uri, e);
+            log.error("Error while converting to uri: {}", uri, e);
             return null;
         }
         return uriV;
@@ -401,7 +398,7 @@ public class SpiderController implements org.zaproxy.zap.spider.parser.SpiderPar
     }
 
     public void addSpiderParser(org.zaproxy.zap.spider.parser.SpiderParser parser) {
-        log.debug("Loading custom Spider Parser: " + parser.getClass().getSimpleName());
+        log.debug("Loading custom Spider Parser: {}", parser.getClass().getSimpleName());
         parser.setSpiderParam(spider.getSpiderParam());
         this.parsers.addFirst(parser);
     }

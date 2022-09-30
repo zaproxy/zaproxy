@@ -628,7 +628,7 @@ public class ExtensionBreak extends ExtensionAdaptor
     }
 
     public void setBreakOnId(String id, boolean enable) {
-        logger.debug("setBreakOnId " + id + " " + enable);
+        logger.debug("setBreakOnId {} {}", id, enable);
         if (enable) {
             breakpointMessageHandler.getEnabledKeyBreakpoints().add(id);
         } else {

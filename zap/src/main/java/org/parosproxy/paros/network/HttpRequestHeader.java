@@ -63,6 +63,7 @@
 // ZAP: 2021/07/16 Issue 6691: Do not add zero Content-Length by default in GET requests
 // ZAP: 2021/07/19 Include SVG in isImage().
 // ZAP: 2022/09/12 Allow arbitrary HTTP versions.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -291,14 +292,12 @@ public class HttpRequestHeader extends HttpHeader {
 
         } catch (HttpMalformedHeaderException e) {
             mMalformedHeader = true;
-            if (log.isDebugEnabled()) {
-                log.debug("Malformed header: " + data, e);
-            }
+            log.debug("Malformed header: {}", data, e);
 
             throw e;
 
         } catch (Exception e) {
-            log.error("Failed to parse:\n" + data, e);
+            log.error("Failed to parse:\n{}", data, e);
             mMalformedHeader = true;
             throw new HttpMalformedHeaderException(e.getMessage());
         }
@@ -831,7 +830,7 @@ public class HttpRequestHeader extends HttpHeader {
 
                 } catch (IllegalArgumentException e) {
                     // Occurs while scanning ;)
-                    log.debug(e.getMessage() + " " + htmlParameter.getName());
+                    log.debug("{} {}", e.getMessage(), htmlParameter.getName());
                 }
             }
         }

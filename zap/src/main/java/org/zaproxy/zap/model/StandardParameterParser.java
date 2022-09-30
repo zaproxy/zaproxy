@@ -360,7 +360,7 @@ public class StandardParameterParser implements ParameterParser {
                     }
                 }
                 if (changed) {
-                    log.debug("Changed path from " + uri.getPath() + " to " + path);
+                    log.debug("Changed path from {} to {}", uri.getPath(), path);
                 }
             }
 

@@ -71,7 +71,7 @@ public class ExtensionParam extends AbstractParam {
             }
             extensionsState = Collections.unmodifiableMap(extensions);
         } catch (ConversionException e) {
-            LOGGER.error("Error while loading extensions' state: " + e.getMessage(), e);
+            LOGGER.error("Error while loading extensions' state: {}", e.getMessage(), e);
             extensionsState = Collections.emptyMap();
         }
     }

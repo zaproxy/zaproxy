@@ -90,6 +90,7 @@
 // ZAP: 2022/02/09 Remove code no longer needed and deprecate a method.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 // ZAP: 2022/08/23 Use SiteMap#createTree to create a new Sites Tree when loading a session.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -474,10 +475,9 @@ public class Session {
                     Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
                     if (c == null) {
                         log.error(
-                                "Failed to load URL parser for context "
-                                        + ctx.getId()
-                                        + " : "
-                                        + strs.get(0));
+                                "Failed to load URL parser for context {} : {}",
+                                ctx.getId(),
+                                strs.get(0));
                     } else {
                         ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
                         strs =
@@ -491,7 +491,7 @@ public class Session {
                     }
                 }
             } catch (Exception e) {
-                log.error("Failed to load URL parser for context " + ctx.getId(), e);
+                log.error("Failed to load URL parser for context {}", ctx.getId(), e);
             }
             try {
                 // Set up the URL parameter parser
@@ -502,10 +502,9 @@ public class Session {
                     Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
                     if (c == null) {
                         log.error(
-                                "Failed to load POST parser for context "
-                                        + ctx.getId()
-                                        + " : "
-                                        + strs.get(0));
+                                "Failed to load POST parser for context {} : {}",
+                                ctx.getId(),
+                                strs.get(0));
                     } else {
                         ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
                         strs =
@@ -519,7 +518,7 @@ public class Session {
                     }
                 }
             } catch (Exception e) {
-                log.error("Failed to load POST parser for context " + ctx.getId(), e);
+                log.error("Failed to load POST parser for context {}", ctx.getId(), e);
             }
 
             try {
@@ -531,7 +530,7 @@ public class Session {
                     ctx.addDataDrivenNodes(new StructuralNodeModifier(str));
                 }
             } catch (Exception e) {
-                log.error("Failed to load data driven nodes for context " + ctx.getId(), e);
+                log.error("Failed to load data driven nodes for context {}", ctx.getId(), e);
             }
 
             ctx.restructureSiteTree();
@@ -1183,7 +1182,7 @@ public class Session {
             try {
                 return Integer.parseInt(dataList.get(0).getData());
             } catch (NumberFormatException e) {
-                log.error("Failed to parse context value type " + type, e);
+                log.error("Failed to parse context value type {}", type, e);
             }
         }
         return defaultValue;

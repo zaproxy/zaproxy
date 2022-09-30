@@ -240,8 +240,8 @@ public final class HarUtils {
             }
         } catch (IllegalArgumentException e) {
             LOGGER.warn(
-                    "Ignoring cookies for HAR (\"request\") \"cookies\" list. Request contains invalid cookie: "
-                            + e.getMessage());
+                    "Ignoring cookies for HAR (\"request\") \"cookies\" list. Request contains invalid cookie: {}",
+                    e.getMessage());
         }
 
         HarQueryString harQueryString = new HarQueryString();

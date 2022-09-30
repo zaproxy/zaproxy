@@ -325,7 +325,7 @@ public class OptionsParamApi extends AbstractParam {
                     addr = new DomainMatcher(pattern);
                 } catch (IllegalArgumentException e) {
                     LOGGER.error(
-                            "Failed to read a permitted address entry with regex: " + value, e);
+                            "Failed to read a permitted address entry with regex: {}", value, e);
                 }
             } else {
                 addr = new DomainMatcher(value);

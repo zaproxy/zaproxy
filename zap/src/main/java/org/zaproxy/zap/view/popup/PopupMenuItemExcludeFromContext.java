@@ -65,7 +65,7 @@ public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContai
         try {
             uiSharedContext.excludeFromContext(sn, !sn.isLeaf());
         } catch (Exception e) {
-            LOGGER.error("Failed to execute action exclude from context: " + e.getMessage(), e);
+            LOGGER.error("Failed to execute action exclude from context: {}", e.getMessage(), e);
         }
     }
 

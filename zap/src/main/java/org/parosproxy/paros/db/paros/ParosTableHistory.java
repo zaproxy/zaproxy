@@ -46,6 +46,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/03 Removed getHistoryList(long, int) and getHistoryList(long)
 // ZAP: 2022/02/25 Remove code deprecated in 2.5.0
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.db.paros;
 
 import java.nio.charset.StandardCharsets;
@@ -243,9 +244,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
                     try {
                         stmt.close();
                     } catch (SQLException e) {
-                        if (log.isDebugEnabled()) {
-                            log.debug(e.getMessage(), e);
-                        }
+                        log.debug(e.getMessage(), e);
                     }
                 }
             }
@@ -307,14 +306,11 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
             try {
                 if (requestbodysizeindb != this.configuredrequestbodysize
                         && this.configuredrequestbodysize > 0) {
-                    if (log.isDebugEnabled())
-                        log.debug(
-                                "Extending table "
-                                        + TABLE_NAME
-                                        + " request body length from "
-                                        + requestbodysizeindb
-                                        + " to "
-                                        + this.configuredrequestbodysize);
+                    log.debug(
+                            "Extending table {} request body length from {} to {}",
+                            TABLE_NAME,
+                            requestbodysizeindb,
+                            this.configuredrequestbodysize);
                     DbUtils.execute(
                             connection,
                             "ALTER TABLE "
@@ -324,26 +320,20 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
                                     + " VARBINARY("
                                     + this.configuredrequestbodysize
                                     + ")");
-                    if (log.isDebugEnabled())
-                        log.debug(
-                                "Completed extending table "
-                                        + TABLE_NAME
-                                        + " request body length from "
-                                        + requestbodysizeindb
-                                        + " to "
-                                        + this.configuredrequestbodysize);
+                    log.debug(
+                            "Completed extending table {} request body length from {} to {}",
+                            TABLE_NAME,
+                            requestbodysizeindb,
+                            this.configuredrequestbodysize);
                 }
 
                 if (responsebodysizeindb != this.configuredresponsebodysize
                         && this.configuredresponsebodysize > 0) {
-                    if (log.isDebugEnabled())
-                        log.debug(
-                                "Extending table "
-                                        + TABLE_NAME
-                                        + " response body length from "
-                                        + responsebodysizeindb
-                                        + " to "
-                                        + this.configuredresponsebodysize);
+                    log.debug(
+                            "Extending table {} response body length from {} to {}",
+                            TABLE_NAME,
+                            responsebodysizeindb,
+                            this.configuredresponsebodysize);
                     DbUtils.execute(
                             connection,
                             "ALTER TABLE "
@@ -353,25 +343,20 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
                                     + " VARBINARY("
                                     + this.configuredresponsebodysize
                                     + ")");
-                    if (log.isDebugEnabled())
-                        log.debug(
-                                "Completed extending table "
-                                        + TABLE_NAME
-                                        + " response body length from "
-                                        + responsebodysizeindb
-                                        + " to "
-                                        + this.configuredresponsebodysize);
+                    log.debug(
+                            "Completed extending table {} response body length from {} to {}",
+                            TABLE_NAME,
+                            responsebodysizeindb,
+                            this.configuredresponsebodysize);
                 }
             } catch (SQLException e) {
-                log.error("An error occurred while modifying a column length on " + TABLE_NAME);
+                log.error("An error occurred while modifying a column length on {}", TABLE_NAME);
                 log.error(
-                        "The 'Maximum Request Body Size' value in the Database Options needs to be set to at least "
-                                + requestbodysizeindb
-                                + " to avoid this error");
+                        "The 'Maximum Request Body Size' value in the Database Options needs to be set to at least {} to avoid this error",
+                        requestbodysizeindb);
                 log.error(
-                        "The 'Maximum Response Body Size' value in the Database Options needs to be set to at least "
-                                + responsebodysizeindb
-                                + " to avoid this error");
+                        "The 'Maximum Response Body Size' value in the Database Options needs to be set to at least {} to avoid this error",
+                        responsebodysizeindb);
                 log.error("The SQL Exception was:", e);
                 throw e;
             }

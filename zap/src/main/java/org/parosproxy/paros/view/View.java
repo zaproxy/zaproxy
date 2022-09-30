@@ -92,6 +92,7 @@
 // ZAP: 2022/02/09 Remove method call no longer needed.
 // ZAP: 2022/02/26 Remove code deprecated in 2.5.0
 // ZAP: 2022/05/29 Implement getOptionsDialog().
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/09/27 Added dialog methods with ZapHtmlLabel parameter.
 package org.parosproxy.paros.view;
 
@@ -1100,7 +1101,7 @@ public class View implements ViewDelegate {
         }
 
         if (!(message instanceof HttpMessage)) {
-            logger.warn("Unable to display message: " + message.getClass().getCanonicalName());
+            logger.warn("Unable to display message: {}", message.getClass().getCanonicalName());
             return;
         }
 

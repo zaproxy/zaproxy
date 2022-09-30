@@ -130,7 +130,7 @@ public final class URLCanonicalizer {
         try {
             /* Build the absolute URL, from the url and the baseURL */
             String resolvedURL = URLResolver.resolveUrl(baseURL == null ? "" : baseURL, url);
-            log.debug("Resolved URL: " + resolvedURL);
+            log.debug("Resolved URL: {}", resolvedURL);
             URI canonicalURI;
             try {
                 canonicalURI = new URI(resolvedURL);
@@ -141,30 +141,25 @@ public final class URLCanonicalizer {
             /* Some checking. */
             if (canonicalURI.getScheme() == null) {
                 log.warn(
-                        "Protocol could not be reliably evaluated from uri: "
-                                + canonicalURI
-                                + " and base url: "
-                                + baseURL);
+                        "Protocol could not be reliably evaluated from uri: {} and base url: {}",
+                        canonicalURI,
+                        baseURL);
                 return null;
             }
 
             if (canonicalURI.getRawAuthority() == null) {
                 log.debug(
-                        "Ignoring URI with no authority (host[\":\"port]): "
-                                + canonicalURI
-                                + " (on base "
-                                + baseURL
-                                + ")");
+                        "Ignoring URI with no authority (host[\":\"port]): {} (on base {})",
+                        canonicalURI,
+                        baseURL);
                 return null;
             }
 
             if (canonicalURI.getHost() == null) {
                 log.warn(
-                        "Host could not be reliably evaluated from: "
-                                + canonicalURI
-                                + " (on base "
-                                + baseURL
-                                + ")");
+                        "Host could not be reliably evaluated from: {} (on base {})",
+                        canonicalURI,
+                        baseURL);
                 return null;
             }
 
@@ -217,12 +212,11 @@ public final class URLCanonicalizer {
 
         } catch (Exception ex) {
             log.warn(
-                    "Error while Processing URL ["
-                            + url
-                            + "] in the spidering process (on base "
-                            + baseURL
-                            + "): "
-                            + ex.getMessage());
+                    "Error while Processing URL [{}"
+                            + "] in the spidering process (on base {}): {}",
+                    url,
+                    baseURL,
+                    ex.getMessage());
             return null;
         }
     }

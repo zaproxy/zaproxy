@@ -155,7 +155,7 @@ public class ZAP {
         public void uncaughtException(Thread t, Throwable e) {
             if (!(e instanceof ThreadDeath)) {
                 if (loggerConfigured || isLoggerConfigured()) {
-                    logger.error("Exception in thread \"" + t.getName() + "\"", e);
+                    logger.error("Exception in thread \"{}\"", t.getName(), e);
 
                 } else {
                     System.err.println("Exception in thread \"" + t.getName() + "\"");

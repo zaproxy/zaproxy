@@ -60,6 +60,7 @@
 // ZAP: 2021/04/01 Detect WebSocket upgrade messages having multiple Connection directives
 // ZAP: 2021/05/11 Fixed conversion of Request Method to/from CONNECT
 // ZAP: 2021/05/14 Add missing override annotation.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -605,8 +606,7 @@ public class HttpMessage implements Message {
                                         ? 0
                                         : uri.getHost().toLowerCase(Locale.ROOT).hashCode());
             } catch (URIException e) {
-                log.error(
-                        "Failed to obtain the host for hashCode calculation: " + uri.toString(), e);
+                log.error("Failed to obtain the host for hashCode calculation: {}", uri, e);
             }
             result =
                     prime * result
