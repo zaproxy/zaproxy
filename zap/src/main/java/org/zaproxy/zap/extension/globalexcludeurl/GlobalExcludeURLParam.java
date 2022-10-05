@@ -126,13 +126,13 @@ public class GlobalExcludeURLParam extends AbstractParam {
             {
                 "^https?://(?:safebrowsing-cache|sb-ssl|sb|safebrowsing).*\\.(?:google|googleapis)\\.com/.*$",
                 "Site - Google malware detector updates",
-                "false"
+                "true"
             },
             {"^https?://(?:[^/])*\\.?lastpass\\.com", "Site - Lastpass manager", "false"},
             {
                 "^https?://(?:.*addons|aus[0-9])\\.mozilla\\.(?:org|net|com)/.*$",
                 "Site - Firefox browser updates",
-                "false"
+                "true"
             },
             {
                 "^https?://(?:[^/])*\\.?(?:getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)",
@@ -144,17 +144,17 @@ public class GlobalExcludeURLParam extends AbstractParam {
                 // http://serverfault.com/questions/332003/what-urls-must-be-in-ies-trusted-sites-list-to-allow-windows-update
                 "^https?://(?:.*update\\.microsoft|.*\\.windowsupdate)\\.com/.*$",
                 "Site - Microsoft Windows updates",
-                "false"
+                "true"
             },
             {
                 "^https?://clients2\\.google\\.com/service/update2/crx.*$",
                 "Site - Google Chrome extension updates",
-                "false"
+                "true"
             },
             {
                 "^https?://detectportal\\.firefox\\.com.*$",
                 "Site - Firefox captive portal detection",
-                "false"
+                "true"
             },
             {"^https?://www\\.google-analytics\\.com.*$", "Site - Google Analytics", "false"},
             {
@@ -166,20 +166,20 @@ public class GlobalExcludeURLParam extends AbstractParam {
             {
                 "^https?://.*\\.cdn\\.mozilla\\.(?:com|org|net)/.*$",
                 "Site - Mozilla CDN (requests such as getpocket)",
-                "false"
+                "true"
             },
             {
                 "^https?://.*\\.telemetry\\.mozilla\\.(?:com|org|net)/.*$",
                 "Site - Firefox browser telemetry",
-                "false"
+                "true"
             },
             {
                 "^https?://.*\\.adblockplus\\.org.*$",
                 "Site - Adblockplus updates and notifications",
                 "false"
             },
-            {"^https?://.*\\.services\\.mozilla\\.com.*$", "Site - Firefox services", "false"},
-            {"^https?://.*\\.gvt1\\.com.*$", "Site - Google updates", "false"}
+            {"^https?://.*\\.services\\.mozilla\\.com.*$", "Site - Firefox services", "true"},
+            {"^https?://.*\\.gvt1\\.com.*$", "Site - Google updates", "true"}
         };
 
         for (String row[] : defaultListArray) {
