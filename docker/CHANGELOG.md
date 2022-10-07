@@ -6,6 +6,7 @@ All notable changes to the docker containers will be documented in this file.
  - Changed bare image to use eclipse-temurin:11-jre-alpine.
  - Removed zap-cli from stable.
  - Updated to use Webswing 22.1.5.
+ - Alert_on_Unexpected_Content_Types.js > Added Content-Type application/x-ndjson to the list of expected types.
 
 ### 2022-09-28
  - Removed zap-cli from weekly/live.
