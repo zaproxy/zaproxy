@@ -1,9 +1,15 @@
-# This dockerfile builds the zap stable release
-FROM openjdk:8-jdk-alpine AS builder
+# This dockerfile builds the zap bare release
+FROM debian:unstable-slim AS builder
+
+RUN apt-get update && apt-get install -q -y --fix-missing \
+	wget \
+	curl \
+	openjdk-11-jdk \
+	xmlstarlet \
+	unzip && \
+	apt-get clean
 
 WORKDIR /zap
-
-RUN apk add --no-cache wget xmlstarlet bash
 
 # Download and expand the latest stable release
 RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
@@ -15,8 +21,12 @@ RUN ./zap.sh -cmd -silent -addonupdate
 # Copy them to installation directory
 RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
-FROM openjdk:8-jdk-alpine
+FROM eclipse-temurin:11-jre-alpine
 LABEL maintainer="psiinon@gmail.com"
+
+RUN apk update && apk add bash curl 
+
+USER root
 
 WORKDIR /zap
 COPY --from=builder /zap .
@@ -24,13 +34,12 @@ COPY policies /home/zap/.ZAP/policies/
 
 RUN echo "zap2docker-bare" > /zap/container
 
-RUN echo "http://dl-3.alpinelinux.org/alpine/edge/main" >> /etc/apk/repositories &&\
-    apk add --update --no-cache bash netcat-openbsd && \
-    adduser -h /home/zap -s /bin/bash zap -D zap && \
+RUN /usr/sbin/adduser -h /home/zap -s /bin/bash -D zap && \
     rm -rf /var/cache/apk/* && \
     chown zap /zap && \
     chgrp zap /zap && \
     chown -R zap:zap /zap && \
+    chown -R zap:zap /home/zap/ && \
     chown -R zap:zap /home/zap/.ZAP/
 
 #Change to the zap user so things get done as the right person (apart from copy)
@@ -41,4 +50,4 @@ ENV ZAP_PATH /zap/zap.sh
 ENV HOME /home/zap/
 ENV ZAP_PORT 8080
 
-HEALTHCHECK --retries=15 --interval=5s CMD nc -vz 127.0.0.1 $ZAP_PORT
+HEALTHCHECK CMD curl --silent --output /dev/null --fail http://localhost:$ZAP_PORT/ || exit 1
