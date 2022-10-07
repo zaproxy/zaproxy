@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 WORKDIR /zap
 
 # Setup Webswing
-ENV WEBSWING_VERSION 22.1.3
+ENV WEBSWING_VERSION 22.1.5
 ARG WEBSWING_URL=""
 RUN if [ -z "$WEBSWING_URL" ] ; \
 	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \

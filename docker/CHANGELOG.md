@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2022-10-07
+ - Changed stable image to use debian:unstable-slim.
+ - Changed bare image to use eclipse-temurin:11-jre-alpine.
+ - Removed zap-cli from stable.
+ - Updated to use Webswing 22.1.5.
+
 ### 2022-09-28
  - Removed zap-cli from weekly/live.
 
