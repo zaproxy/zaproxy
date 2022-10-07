@@ -535,7 +535,8 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 
         } else if (!newName.equals(currentName)) {
             // Name changed
-            if (extension.getPolicyManager().getAllPolicyNames().contains(newName)) {
+            if (extension.getPolicyManager().getAllPolicyNames().stream()
+                    .anyMatch(newName::equalsIgnoreCase)) {
                 getPolicyName().requestFocusInWindow();
                 throw new Exception(Constant.messages.getString("ascan.policy.warn.exists"));
             }

@@ -104,6 +104,13 @@ public class PolicyManager {
 
         policy.getPluginFactory().saveTo(conf);
 
+        if (previousName != null && !previousName.equals(policy.getName())) {
+            File oldFile = new File(Constant.getPoliciesDir(), previousName + POLICY_EXTENSION);
+            if (oldFile.exists()) {
+                oldFile.delete();
+            }
+        }
+
         conf.save(file);
 
         if (previousName != null && previousName.length() > 0) {
