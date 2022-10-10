@@ -33,7 +33,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-import java.util.StringTokenizer;
 
 public class PhpAPIGenerator extends AbstractAPIGenerator {
 
@@ -87,21 +86,16 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
         super(path, optional, resourceBundle);
     }
 
-    private String addLinebreaks(String input, int maxLineLength) {
-        StringTokenizer tok = new StringTokenizer(input, " ");
-        StringBuilder output = new StringBuilder(input.length());
-        int lineLen = 0;
-        while (tok.hasMoreTokens()) {
-            String word = tok.nextToken() + " ";
-    
-            if (lineLen + word.length() > maxLineLength) {
-                output.append("\n* ");
-                lineLen = 0;
-            }
-            output.append(word);
-            lineLen += word.length();
-        }
-        return output.toString();
+    /**
+     * Generates the API client files of the given API implementors.
+     *
+     * @param implementors the implementors
+     * @throws IOException if an error occurred while generating the APIs.
+     * @deprecated (2.6.0) Use {@link #generateAPIFiles(List)} instead.
+     */
+    @Deprecated
+    public void generatePhpFiles(List<ApiImplementor> implementors) throws IOException {
+        this.generateAPIFiles(implementors);
     }
 
     private void generatePhpElement(ApiElement element, String component, String type, Writer out)
@@ -114,23 +108,29 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
 
         try {
             String desc = getMessages().getString(descTag);
-            out.write("/**\n");
-            out.write(" * " + addLinebreaks(desc, 100) + "\n");
-            if (isOptional()) {
-                out.write(" * " + OPTIONAL_MESSAGE + "\n");
+            String commentBlock = "";
+            if (!desc.isEmpty()) {
+                commentBlock = "\t * " + desc + "\n";
             }
-            out.write("*/\n");
+            if (isOptional()) {
+                commentBlock += "\t * " + OPTIONAL_MESSAGE + "\n";
+            }
+
+            if (!commentBlock.isEmpty()) {
+                out.write("\t/**\n" + commentBlock + "\t */\n");
+            }
+
         } catch (Exception e) {
             // Might not be set, so just print out the ones that are missing
             System.out.println("No i18n for: " + descTag);
             if (isOptional()) {
-                out.write("/**\n");
-                out.write(" * " + OPTIONAL_MESSAGE + "\n");
-                out.write(" */\n");
+                out.write("\t/**\n");
+                out.write("\t * " + OPTIONAL_MESSAGE + "\n");
+                out.write("\t */\n");
             }
         }
 
-        out.write("public function " + createMethodName(element.getName()) + "(");
+        out.write("\tpublic function " + createMethodName(element.getName()) + "(");
 
         out.write(
                 element.getParameters().stream()
@@ -143,7 +143,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
                                     }
                                     return varName + " = null";
                                 })
-                        .collect(Collectors.joining(", \n")));
+                        .collect(Collectors.joining(", ")));
 
         if (hasParams) {
             out.write(", ");
@@ -152,7 +152,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
         out.write("string $" + API.API_KEY_PARAM + " = '') {\n");
 
         StringBuilder reqParams = new StringBuilder();
-        reqParams.append("[\n");
+        reqParams.append("array(");
         String params =
                 element.getParameters().stream()
                         .filter(ApiParameter::isRequired)
@@ -161,7 +161,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
                                     String name = parameter.getName();
                                     return "'" + name + "' => $" + name.toLowerCase(Locale.ROOT);
                                 })
-                        .collect(Collectors.joining(",\n"));
+                        .collect(Collectors.joining(", "));
         reqParams.append(params);
         boolean first = params.isEmpty();
 
@@ -174,14 +174,14 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
                 .append(API.API_KEY_PARAM)
                 .append("' => $")
                 .append(API.API_KEY_PARAM)
-                .append("\n]");
+                .append(")");
 
         List<ApiParameter> optionalParameters =
                 element.getParameters().stream()
                         .filter(e -> !e.isRequired())
                         .collect(Collectors.toList());
         if (!optionalParameters.isEmpty()) {
-            out.write("$params = ");
+            out.write("\t\t$params = ");
             out.write(reqParams.toString());
             out.write(";\n");
             reqParams.replace(0, reqParams.length(), "$params");
@@ -189,9 +189,9 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
             for (ApiParameter parameter : optionalParameters) {
                 String name = parameter.getName();
                 String varName = name.toLowerCase(Locale.ROOT);
-                out.write("if ($" + varName + " !== null) {\n");
-                out.write("$params['" + name + "'] = $" + varName + ";\n");
-                out.write("}\n");
+                out.write("\t\tif ($" + varName + " !== NULL) {\n");
+                out.write("\t\t\t$params['" + name + "'] = $" + varName + ";\n");
+                out.write("\t\t}\n");
             }
         }
 
@@ -203,9 +203,9 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
         }
 
         out.write(
-                "return $this->zap->"
+                "\t\treturn $this->zap->"
                         + method
-                        + "(\n$this->zap->"
+                        + "($this->zap->"
                         + baseUrl
                         + " . '"
                         + component
@@ -215,9 +215,9 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
                         + element.getName()
                         + "/'");
 
-        out.write(", \n");
+        out.write(", ");
         out.write(reqParams.toString());
-        out.write("\n)");
+        out.write(")");
         if (type.equals(VIEW_ENDPOINT)) {
             if (element.getName().startsWith("option")) {
                 out.write("['" + element.getName().substring(6) + "'] ?? null;\n");
@@ -227,7 +227,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
         } else {
             out.write(";\n");
         }
-        out.write("}\n\n");
+        out.write("\t}\n\n");
     }
 
     private static String createMethodName(String name) {
@@ -260,9 +260,11 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
             out.write(" */\n");
             out.write("class " + className + " {\n\n");
 
-            out.write("public function __construct (private Zap $zap) {\n");
-            out.write("$this->zap = $zap;\n");
-            out.write("}\n\n");
+            out.write("\tprivate Zap $zap;\n\n");
+
+            out.write("\tpublic function __construct (Zap $zap) {\n");
+            out.write("\t\t$this->zap = $zap;\n");
+            out.write("\t}\n\n");
 
             for (ApiElement view : imp.getApiViews()) {
                 this.generatePhpElement(view, imp.getPrefix(), VIEW_ENDPOINT, out);
