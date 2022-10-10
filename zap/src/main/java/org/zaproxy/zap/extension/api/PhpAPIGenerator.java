@@ -152,7 +152,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
         out.write("string $" + API.API_KEY_PARAM + " = '') {\n");
 
         StringBuilder reqParams = new StringBuilder();
-        reqParams.append("array(");
+        reqParams.append("[");
         String params =
                 element.getParameters().stream()
                         .filter(ApiParameter::isRequired)
@@ -174,7 +174,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
                 .append(API.API_KEY_PARAM)
                 .append("' => $")
                 .append(API.API_KEY_PARAM)
-                .append(")");
+                .append("]");
 
         List<ApiParameter> optionalParameters =
                 element.getParameters().stream()
