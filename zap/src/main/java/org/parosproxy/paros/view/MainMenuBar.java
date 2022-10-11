@@ -287,9 +287,6 @@ public class MainMenuBar extends JMenuBar {
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             try {
                                 getMenuFileControl().newSession(true);
-                                if (Model.getSingleton().getSession().isNewState()) {
-                                    toggleSnapshotState(false);
-                                }
                             } catch (Exception e1) {
                                 View.getSingleton()
                                         .showWarningDialog(
@@ -314,9 +311,6 @@ public class MainMenuBar extends JMenuBar {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
                             getMenuFileControl().openSession();
-                            if (!Model.getSingleton().getSession().isNewState()) {
-                                toggleSnapshotState(true);
-                            }
                         }
                     });
         }
@@ -337,9 +331,6 @@ public class MainMenuBar extends JMenuBar {
                                         .showWarningDialog(
                                                 Constant.messages.getString(
                                                         "menu.file.sessionExists.error"));
-                            }
-                            if (!Model.getSingleton().getSession().isNewState()) {
-                                toggleSnapshotState(true);
                             }
                         }
                     });
@@ -557,7 +548,7 @@ public class MainMenuBar extends JMenuBar {
     public void sessionChanged(Session session) {
         if (session != null) {
             this.getMenuFileSaveAs().setEnabled(session.isNewState());
-            this.getMenuFileSnapshot().setEnabled(!session.isNewState());
+            toggleSnapshotState(!session.isNewState());
         }
     }
 
