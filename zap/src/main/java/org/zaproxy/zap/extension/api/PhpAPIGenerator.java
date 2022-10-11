@@ -220,9 +220,9 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
         out.write(")");
         if (type.equals(VIEW_ENDPOINT)) {
             if (element.getName().startsWith("option")) {
-                out.write("['" + element.getName().substring(6) + "'] ?? null;\n");
+                out.write("->" + element.getName().substring(6) +" ?? null;\n");
             } else {
-                out.write("['" + element.getName() + "'] ?? null;\n");
+                out.write("->" + element.getName() + " ?? null;\n");
             }
         } else {
             out.write(";\n");
