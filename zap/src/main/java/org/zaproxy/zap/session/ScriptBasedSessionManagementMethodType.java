@@ -20,7 +20,7 @@
 package org.zaproxy.zap.session;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,23 +33,20 @@ import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.HttpState;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jdesktop.swingx.JXComboBox;
+import org.jdesktop.swingx.decorator.FontHighlighter;
+import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -70,6 +67,7 @@ import org.zaproxy.zap.extension.sessions.SessionManagementAPI;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.EncodingUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.DynamicFieldsPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -273,7 +271,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                 Constant.messages.getString("session.method.script.field.label.scriptName");
         private final String LABEL_NOT_LOADED =
                 Constant.messages.getString("session.method.script.field.label.notLoaded");
-        private JComboBox<ScriptWrapper> scriptsComboBox;
+        private JXComboBox scriptsComboBox;
         private JButton loadScriptButton;
 
         private ScriptBasedSessionManagementMethod method;
@@ -289,17 +287,34 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
             initialize();
         }
 
-        @SuppressWarnings("unchecked")
         private void initialize() {
             this.setLayout(new GridBagLayout());
 
             this.add(new JLabel(SCRIPT_NAME_LABEL), LayoutHelper.getGBC(0, 0, 1, 0.0d, 0.0d));
 
-            this.scriptsComboBox = new JComboBox<>();
-            this.scriptsComboBox.setRenderer(new ScriptWrapperRenderer(this));
+            scriptsComboBox = new JXComboBox();
+            scriptsComboBox.addHighlighter(
+                    new FontHighlighter(
+                            (renderer, adapter) -> loadedScript == adapter.getValue(),
+                            scriptsComboBox.getFont().deriveFont(Font.BOLD)));
+            scriptsComboBox.setRenderer(
+                    new DefaultListRenderer(
+                            sw -> {
+                                if (sw == null) {
+                                    return null;
+                                }
+
+                                String name = ((ScriptWrapper) sw).getName();
+                                if (loadedScript == sw) {
+                                    return Constant.messages.getString(
+                                            "session.method.script.loaded", name);
+                                }
+                                return name;
+                            }));
             this.add(this.scriptsComboBox, LayoutHelper.getGBC(1, 0, 1, 1.0d, 0.0d));
 
-            this.loadScriptButton = new JButton("Load");
+            this.loadScriptButton =
+                    new JButton(Constant.messages.getString("session.method.script.load.button"));
             this.add(this.loadScriptButton, LayoutHelper.getGBC(2, 0, 1, 0.0d, 0.0d));
             this.loadScriptButton.addActionListener(
                     new ActionListener() {
@@ -321,7 +336,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
 
             this.dynamicContentPanel = new JPanel(new BorderLayout());
             this.add(this.dynamicContentPanel, LayoutHelper.getGBC(0, 1, 3, 1.0d, 0.0d));
-            this.dynamicContentPanel.add(new JLabel(LABEL_NOT_LOADED));
+            this.dynamicContentPanel.add(new ZapHtmlLabel(LABEL_NOT_LOADED));
         }
 
         @Override
@@ -409,6 +424,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void bindMethod(SessionManagementMethod method)
                 throws UnsupportedSessionManagementMethodException {
             this.method = (ScriptBasedSessionManagementMethod) method;
@@ -433,39 +449,6 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
         @Override
         public SessionManagementMethod getMethod() {
             return this.method;
-        }
-    }
-
-    /**
-     * A renderer for properly displaying the name of a {@link ScriptWrapper} in a ComboBox and
-     * putting emphasis on loaded script.
-     */
-    private static class ScriptWrapperRenderer extends BasicComboBoxRenderer {
-        private static final long serialVersionUID = 3654541772447187317L;
-        private static final Border BORDER = new EmptyBorder(2, 3, 3, 3);
-        private ScriptBasedSessionManagementMethodOptionsPanel panel;
-
-        public ScriptWrapperRenderer(ScriptBasedSessionManagementMethodOptionsPanel panel) {
-            super();
-            this.panel = panel;
-        }
-
-        @Override
-        @SuppressWarnings("rawtypes")
-        public Component getListCellRendererComponent(
-                JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (value != null) {
-                setBorder(BORDER);
-                ScriptWrapper item = (ScriptWrapper) value;
-                if (panel.loadedScript == item)
-                    setText(
-                            "<html><b>"
-                                    + StringEscapeUtils.unescapeHtml(item.getName())
-                                    + " (loaded)</b></html>");
-                else setText(item.getName());
-            }
-            return this;
         }
     }
 
