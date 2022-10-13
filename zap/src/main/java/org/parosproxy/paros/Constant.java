@@ -189,7 +189,7 @@ public final class Constant {
     private static final String VERSION_ELEMENT = "version";
 
     // Accessible for tests
-    static final long VERSION_TAG = 20011001;
+    static final long VERSION_TAG = 20012000;
 
     // Old version numbers - for upgrade
     private static final long V_2_11_1_TAG = 20011001;
@@ -1137,6 +1137,7 @@ public final class Constant {
     private static void upgradeFrom2_11_1(XMLConfiguration config) {
         config.setProperty("view.largeRequest", null);
         config.setProperty("view.largeResponse", null);
+        config.setProperty("hud.enableTelemetry", null);
     }
 
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
