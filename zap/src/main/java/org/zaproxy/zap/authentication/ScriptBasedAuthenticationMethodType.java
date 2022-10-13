@@ -20,7 +20,7 @@
 package org.zaproxy.zap.authentication;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -35,21 +35,18 @@ import javax.script.ScriptException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jdesktop.swingx.JXComboBox;
+import org.jdesktop.swingx.decorator.FontHighlighter;
+import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -360,7 +357,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                 Constant.messages.getString("authentication.method.script.field.label.scriptName");
         private final String LABEL_NOT_LOADED =
                 Constant.messages.getString("authentication.method.script.field.label.notLoaded");
-        private JComboBox<ScriptWrapper> scriptsComboBox;
+        private JXComboBox scriptsComboBox;
         private JButton loadScriptButton;
 
         private ScriptBasedAuthenticationMethod method;
@@ -379,17 +376,36 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             initialize();
         }
 
-        @SuppressWarnings("unchecked")
         private void initialize() {
             this.setLayout(new GridBagLayout());
 
             this.add(new JLabel(SCRIPT_NAME_LABEL), LayoutHelper.getGBC(0, 0, 1, 0.0d, 0.0d));
 
-            this.scriptsComboBox = new JComboBox<>();
-            this.scriptsComboBox.setRenderer(new ScriptWrapperRenderer(this));
+            scriptsComboBox = new JXComboBox();
+            scriptsComboBox.addHighlighter(
+                    new FontHighlighter(
+                            (renderer, adapter) -> loadedScript == adapter.getValue(),
+                            scriptsComboBox.getFont().deriveFont(Font.BOLD)));
+            scriptsComboBox.setRenderer(
+                    new DefaultListRenderer(
+                            sw -> {
+                                if (sw == null) {
+                                    return null;
+                                }
+
+                                String name = ((ScriptWrapper) sw).getName();
+                                if (loadedScript == sw) {
+                                    return Constant.messages.getString(
+                                            "authentication.method.script.loaded", name);
+                                }
+                                return name;
+                            }));
             this.add(this.scriptsComboBox, LayoutHelper.getGBC(1, 0, 1, 1.0d, 0.0d));
 
-            this.loadScriptButton = new JButton("Load");
+            this.loadScriptButton =
+                    new JButton(
+                            Constant.messages.getString(
+                                    "authentication.method.script.load.button"));
             this.add(this.loadScriptButton, LayoutHelper.getGBC(2, 0, 1, 0.0d, 0.0d));
             this.loadScriptButton.addActionListener(
                     new ActionListener() {
@@ -438,6 +454,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void bindMethod(AuthenticationMethod method)
                 throws UnsupportedAuthenticationMethodException {
             this.method = (ScriptBasedAuthenticationMethod) method;
@@ -559,39 +576,6 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
             this.dynamicContentPanel.removeAll();
             this.dynamicContentPanel.add(new JLabel(LABEL_NOT_LOADED), BorderLayout.CENTER);
             this.dynamicContentPanel.revalidate();
-        }
-    }
-
-    /**
-     * A renderer for properly displaying the name of a {@link ScriptWrapper} in a ComboBox and
-     * putting emphasis on loaded script.
-     */
-    private static class ScriptWrapperRenderer extends BasicComboBoxRenderer {
-        private static final long serialVersionUID = 3654541772447187317L;
-        private static final Border BORDER = new EmptyBorder(2, 3, 3, 3);
-        private ScriptBasedAuthenticationMethodOptionsPanel panel;
-
-        public ScriptWrapperRenderer(ScriptBasedAuthenticationMethodOptionsPanel panel) {
-            super();
-            this.panel = panel;
-        }
-
-        @Override
-        @SuppressWarnings("rawtypes")
-        public Component getListCellRendererComponent(
-                JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (value != null) {
-                setBorder(BORDER);
-                ScriptWrapper item = (ScriptWrapper) value;
-                if (panel.loadedScript == item)
-                    setText(
-                            "<html><b>"
-                                    + StringEscapeUtils.unescapeHtml(item.getName())
-                                    + " (loaded)</b></html>");
-                else setText(item.getName());
-            }
-            return this;
         }
     }
 
