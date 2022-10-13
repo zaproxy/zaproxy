@@ -61,7 +61,7 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.2.0")
+    api("com.fifesoft:rsyntaxtextarea:3.3.0")
     api("com.github.zafarkhaja:java-semver:0.9.0")
     api("commons-beanutils:commons-beanutils:1.9.4")
     api("commons-codec:commons-codec:1.15")
@@ -71,7 +71,7 @@ dependencies {
     api("commons-io:commons-io:2.11.0")
     api("commons-lang:commons-lang:2.6")
     api("org.apache.commons:commons-lang3:3.12.0")
-    api("org.apache.commons:commons-text:1.9")
+    api("org.apache.commons:commons-text:1.10.0")
     api("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
     val log4jVersion = "2.19.0"
