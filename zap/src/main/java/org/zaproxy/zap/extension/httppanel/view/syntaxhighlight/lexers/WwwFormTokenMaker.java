@@ -476,6 +476,7 @@ public class WwwFormTokenMaker extends AbstractJFlexTokenMaker {
      *
      * @return the matched text.
      */
+    @Override
     public final String yytext() {
         return new String(zzBuffer, zzStartRead, zzMarkedPos - zzStartRead);
     }
