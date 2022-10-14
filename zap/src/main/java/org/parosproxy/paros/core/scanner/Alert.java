@@ -58,6 +58,7 @@
 // ZAP: 2019/10/21 Add Alert builder.
 // ZAP: 2020/11/03 Add alertRef field.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/04/30 Add input vector to Alert
 // ZAP: 2021/06/22 Moved the ReportGenerator.entityEncode method to this class.
 // ZAP: 2022/02/02 Deleted a deprecated setDetails method.
 // ZAP: 2022/02/03 Removed SUSPICIOUS, WARNING, MSG_RELIABILITY, setRiskReliability(int, int) and
@@ -197,6 +198,7 @@ public class Alert implements Comparable<Alert> {
     private String solution = "";
     private String reference = "";
     private String evidence = "";
+    private String inputVector = "";
     private int cweId = -1;
     private int wascId = -1;
     // Temporary ref - should be cleared asap after use
@@ -266,6 +268,7 @@ public class Alert implements Comparable<Alert> {
                 recordAlert.getCweId(),
                 recordAlert.getWascId(),
                 null);
+        setInputVector(recordAlert.getInputVector());
         setHistoryRef(ref);
         String alertRef = recordAlert.getAlertRef();
         if (alertRef != null) {
@@ -475,6 +478,11 @@ public class Alert implements Comparable<Alert> {
             return result;
         }
 
+        result = inputVector.compareTo(alert2.inputVector);
+        if (result != 0) {
+            return result;
+        }
+
         return compareStrings(attack, alert2.attack);
     }
 
@@ -541,6 +549,9 @@ public class Alert implements Comparable<Alert> {
         } else if (!evidence.equals(item.evidence)) {
             return false;
         }
+        if (!inputVector.equals(item.inputVector)) {
+            return false;
+        }
         if (attack == null) {
             if (item.attack != null) {
                 return false;
@@ -558,6 +569,7 @@ public class Alert implements Comparable<Alert> {
         result = prime * result + risk;
         result = prime * result + confidence;
         result = prime * result + ((evidence == null) ? 0 : evidence.hashCode());
+        result = prime * result + inputVector.hashCode();
         result = prime * result + name.hashCode();
         result = prime * result + otherInfo.hashCode();
         result = prime * result + param.hashCode();
@@ -588,6 +600,7 @@ public class Alert implements Comparable<Alert> {
                 this.reference,
                 this.historyRef);
         item.setEvidence(this.evidence);
+        item.setInputVector(inputVector);
         item.setCweId(this.cweId);
         item.setWascId(this.wascId);
         item.setSource(this.source);
@@ -843,6 +856,26 @@ public class Alert implements Comparable<Alert> {
         this.evidence = (evidence == null) ? "" : evidence;
     }
 
+    /**
+     * Gets the input vector used to find the alert.
+     *
+     * @return the short name of the input vector, never {@code null}.
+     * @since 2.12.0
+     */
+    public String getInputVector() {
+        return inputVector;
+    }
+
+    /**
+     * Sets the input vector used to find the alert.
+     *
+     * @param inputVector the short name of the input vector.
+     * @since 2.12.0
+     */
+    public void setInputVector(String inputVector) {
+        this.inputVector = inputVector == null ? "" : inputVector;
+    }
+
     public int getCweId() {
         return cweId;
     }
@@ -972,6 +1005,7 @@ public class Alert implements Comparable<Alert> {
         private String solution;
         private String reference;
         private String evidence;
+        private String inputVector;
         private int cweId = -1;
         private int wascId = -1;
         private HttpMessage message;
@@ -1045,6 +1079,18 @@ public class Alert implements Comparable<Alert> {
 
         public Builder setEvidence(String evidence) {
             this.evidence = evidence;
+            return this;
+        }
+
+        /**
+         * Sets the input vector used to find the alert.
+         *
+         * @param inputVector the short name of the input vector.
+         * @return the builder for chaining.
+         * @since 2.12.0
+         */
+        public Builder setInputVector(String inputVector) {
+            this.inputVector = inputVector;
             return this;
         }
 
@@ -1173,6 +1219,7 @@ public class Alert implements Comparable<Alert> {
             alert.setSolution(solution);
             alert.setReference(reference);
             alert.setEvidence(evidence);
+            alert.setInputVector(inputVector);
             alert.setCweId(cweId);
             alert.setWascId(wascId);
             alert.setMessage(message);

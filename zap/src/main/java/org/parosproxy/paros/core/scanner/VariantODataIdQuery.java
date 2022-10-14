@@ -79,6 +79,13 @@ public class VariantODataIdQuery implements Variant {
     // Store the composite IDs if any
     private List<NameValuePair> listParams = null;
 
+    private static final String SHORT_NAME = "odataid";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
+
     @Override
     public void setMessage(HttpMessage msg) {
         URI uri = msg.getRequestHeader().getURI();

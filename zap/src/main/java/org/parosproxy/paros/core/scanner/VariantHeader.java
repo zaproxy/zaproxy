@@ -94,6 +94,13 @@ public class VariantHeader implements Variant {
      */
     private List<NameValuePair> params = Collections.emptyList();
 
+    private static final String SHORT_NAME = "header";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
+
     /** @throws IllegalArgumentException if {@code message} is {@code null}. */
     @Override
     public void setMessage(HttpMessage message) {

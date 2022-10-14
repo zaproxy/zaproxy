@@ -45,6 +45,12 @@ public class VariantCustom implements Variant {
     // base64 strings are similar, except they can contain + and /, and end
     // with 0 - 2 '=' signs. They are also a multiple of 4 bytes.
     private static final Pattern BASE64_PATTERN = Pattern.compile("^[a-zA-Z0-9/+]+={0,2}$");
+    private static final String SHORT_NAME = "script";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
 
     /**
      * Create a new Custom Variant using the specific script

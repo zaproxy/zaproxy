@@ -448,7 +448,8 @@ public class ExtensionAlert extends ExtensionAdaptor
                         ref.getHistoryId(),
                         alert.getSourceHistoryId(),
                         alert.getSource().getId(),
-                        alert.getAlertRef());
+                        alert.getAlertRef(),
+                        alert.getInputVector());
 
         int alertId = recordAlert.getAlertId();
         alert.setAlertId(alertId);
@@ -489,7 +490,8 @@ public class ExtensionAlert extends ExtensionAdaptor
                 alert.getEvidence(),
                 alert.getCweId(),
                 alert.getWascId(),
-                alert.getSourceHistoryId());
+                alert.getSourceHistoryId(),
+                alert.getInputVector());
 
         int alertId = alert.getAlertId();
         TableAlertTag tableAlertTag = getModel().getDb().getTableAlertTag();

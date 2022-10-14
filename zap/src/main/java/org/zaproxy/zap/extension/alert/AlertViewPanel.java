@@ -99,6 +99,7 @@ public class AlertViewPanel extends AbstractPanel {
     private ZapLabel alertParam = null;
     private ZapLabel alertAttack = null;
     private ZapLabel alertEvidence = null;
+    private ZapLabel alertInputVector;
     private ZapTextArea alertDescription = null;
     private ZapTextArea alertOtherInfo = null;
     private ZapTextArea alertSolution = null;
@@ -123,6 +124,7 @@ public class AlertViewPanel extends AbstractPanel {
     private JLabel attackLabel;
     private JLabel cweidLabel;
     private JLabel evidenceLabel;
+    private JLabel inputVectorLabel;
     private JLabel otherLabel;
     private JLabel confidenceLabel;
     private JLabel riskLabel;
@@ -283,6 +285,8 @@ public class AlertViewPanel extends AbstractPanel {
             alertAttack.setLineWrap(true);
             alertEvidence = new ZapLabel();
             alertEvidence.setLineWrap(true);
+            alertInputVector = new ZapLabel();
+            alertInputVector.setLineWrap(true);
             alertCweId = new ZapLabel();
             alertWascId = new ZapLabel();
             alertSource = new ZapLabel();
@@ -404,6 +408,12 @@ public class AlertViewPanel extends AbstractPanel {
                 alertDisplay.add(
                         getSourceLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
                 alertDisplay.add(alertSource, LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+                gbcRow++;
+                alertDisplay.add(
+                        getInputVectorLabel(),
+                        LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+                alertDisplay.add(
+                        alertInputVector, LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
                 gbcRow++;
             }
 
@@ -574,6 +584,7 @@ public class AlertViewPanel extends AbstractPanel {
             alertParam.setText(alert.getParam());
             alertAttack.setText(alert.getAttack());
             alertEvidence.setText(alert.getEvidence());
+            alertInputVector.setText(getInputVectorName(alert));
             alertCweId.setText(normalisedId(alert.getCweId()));
             alertWascId.setText(normalisedId(alert.getWascId()));
             alertSource.setText(getSourceData(alert));
@@ -621,6 +632,18 @@ public class AlertViewPanel extends AbstractPanel {
         return strBuilder.toString();
     }
 
+    private static String getInputVectorName(Alert alert) {
+        String inputVector = alert.getInputVector();
+        if (inputVector.isEmpty()) {
+            return "";
+        }
+        String key = "variant.shortname." + inputVector;
+        if (Constant.messages.containsKey(key)) {
+            return Constant.messages.getString(key);
+        }
+        return inputVector;
+    }
+
     public void clearAlert() {
         cardLayout.show(this, getDefaultPane().getName());
 
@@ -638,6 +661,7 @@ public class AlertViewPanel extends AbstractPanel {
         alertSolution.setText("");
         alertReference.setText("");
         alertSource.setText("");
+        alertInputVector.setText("");
         setAlertTags(Collections.emptyMap());
 
         if (editable) {
@@ -720,6 +744,7 @@ public class AlertViewPanel extends AbstractPanel {
             alert.setSolution(alertSolution.getText());
             alert.setReference(alertReference.getText());
             alert.setEvidence(alertEvidence.getText());
+            alert.setInputVector(originalAlert.getInputVector());
             alert.setCweId(alertEditCweId.getValue());
             alert.setWascId(alertEditWascId.getValue());
             alert.setHistoryRef(historyRef);
@@ -738,6 +763,7 @@ public class AlertViewPanel extends AbstractPanel {
         if (originalAlert != null) {
             alert.setAlertId(originalAlert.getAlertId());
             alert.setSource(originalAlert.getSource());
+            alert.setInputVector(originalAlert.getInputVector());
         }
 
         String uri = null;
@@ -885,6 +911,13 @@ public class AlertViewPanel extends AbstractPanel {
             evidenceLabel = new JLabel(Constant.messages.getString("alert.label.evidence"));
         }
         return evidenceLabel;
+    }
+
+    private JLabel getInputVectorLabel() {
+        if (inputVectorLabel == null) {
+            inputVectorLabel = new JLabel(Constant.messages.getString("alert.label.inputvector"));
+        }
+        return inputVectorLabel;
     }
 
     private JLabel getParameterLabel() {

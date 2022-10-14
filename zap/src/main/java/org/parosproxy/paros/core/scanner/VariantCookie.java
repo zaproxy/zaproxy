@@ -35,6 +35,13 @@ public class VariantCookie implements Variant {
 
     private List<NameValuePair> params = Collections.emptyList();
 
+    private static final String SHORT_NAME = "cookie";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
+
     /** @throws IllegalArgumentException if {@code message} is {@code null}. */
     @Override
     public void setMessage(HttpMessage message) {

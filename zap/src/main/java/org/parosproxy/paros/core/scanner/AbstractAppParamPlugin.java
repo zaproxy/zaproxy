@@ -40,6 +40,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/08/27 Moved variants into VariantFactory
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2021/05/06 Add input vector and param to all alerts
 // ZAP: 2021/06/16 Add support for updating multiple parameters in HttpMessage.
 // ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.core.scanner;
@@ -251,5 +252,18 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      */
     protected void setParameters(HttpMessage message, List<InputVector> inputVectors) {
         variant.setParameters(message, inputVectors);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Since 2.12.0 it also sets the input vector and parameter.
+     */
+    @Override
+    protected AlertBuilder newAlert() {
+        AlertBuilder builder = super.newAlert();
+        builder.setInputVector(variant.getShortName());
+        builder.setParam(originalPair.getName());
+        return builder;
     }
 }
