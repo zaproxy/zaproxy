@@ -94,10 +94,6 @@ dependencies {
         setTransitive(false)
     }
 
-    testImplementation("com.github.tomakehurst:wiremock-jre8:2.34.0") {
-        // Not needed.
-        exclude(group = "org.junit")
-    }
     testImplementation("org.hamcrest:hamcrest-core:2.2")
     val jupiterVersion = "5.9.0"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")

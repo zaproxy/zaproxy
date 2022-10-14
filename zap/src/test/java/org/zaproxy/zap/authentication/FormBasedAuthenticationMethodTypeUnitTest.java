@@ -33,10 +33,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
@@ -56,6 +59,17 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
 
     private AuthenticationMethod method;
     private FormBasedAuthenticationMethodType type;
+
+    @BeforeAll
+    @SuppressWarnings("deprecation")
+    static void setUpAll() {
+        HttpSender.setImpl(new org.parosproxy.paros.network.HttpSenderParos());
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        HttpSender.setImpl(null);
+    }
 
     @BeforeEach
     void setUp() throws Exception {

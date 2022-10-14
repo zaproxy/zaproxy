@@ -38,10 +38,13 @@ import java.nio.channels.ClosedByInterruptException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.testutils.NanoServerHandler;
 
@@ -56,6 +59,17 @@ class DownloaderUnitTest extends WithConfigsTest {
 
     private URL downloadUrl;
     private Downloader downloader;
+
+    @BeforeAll
+    @SuppressWarnings("deprecation")
+    static void setUpAll() {
+        HttpSender.setImpl(new org.parosproxy.paros.network.HttpSenderParos());
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        HttpSender.setImpl(null);
+    }
 
     @BeforeEach
     void setUp() throws IOException {
