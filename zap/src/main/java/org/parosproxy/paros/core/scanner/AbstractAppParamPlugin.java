@@ -64,11 +64,16 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     private NameValuePair originalPair = null;
     private Variant variant = null;
 
+    // Allow tests to provide their own.
+    VariantFactory getVariantFactory() {
+        return Model.getSingleton().getVariantFactory();
+    }
+
     @Override
     public void scan() {
-        VariantFactory factory = Model.getSingleton().getVariantFactory();
-
-        listVariant = factory.createVariants(this.getParent().getScannerParam(), this.getBaseMsg());
+        listVariant =
+                getVariantFactory()
+                        .createVariants(this.getParent().getScannerParam(), this.getBaseMsg());
 
         if (listVariant.isEmpty()) {
             getParent()
@@ -262,8 +267,12 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     @Override
     protected AlertBuilder newAlert() {
         AlertBuilder builder = super.newAlert();
-        builder.setInputVector(variant.getShortName());
-        builder.setParam(originalPair.getName());
+        if (variant != null) {
+            builder.setInputVector(variant.getShortName());
+        }
+        if (originalPair != null) {
+            builder.setParam(originalPair.getName());
+        }
         return builder;
     }
 }
