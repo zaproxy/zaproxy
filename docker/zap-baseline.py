@@ -106,12 +106,12 @@ def usage():
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/baseline-scan/')
 
-'''
+    '''
     This script is in the process of being converted to use the Automation Framework.
     If you map a directory to /zap/wrk then the zap.yaml file generated will be copied to that directory.
-    
+
     The following parameters are currently supported:
-    
+
     -c config_file
     -u config_url
     -m mins
@@ -128,13 +128,13 @@ def usage():
     -T mins
     -z zap_options
 
-    The following parameters are partially supported. 
+    The following parameters are partially supported.
     If you specify the '--auto' flag _before_ using them then the Automation Framework will be used:
 
     Currently none.
-    
+
     If any of the next set of parameters are used then the existing code will be used instead:
-    
+
     -D secs           need new delay/sleep job
     -i                need to support config files
     -l level          ditto
@@ -144,9 +144,9 @@ def usage():
     --hook            will need scripting support in the AF
     -g gen_file       may never support
     --autooff         will never support, may remove at some point
-    
-     
-'''
+
+
+    '''
 
 def main(argv):
     global min_level
@@ -344,7 +344,7 @@ def main(argv):
             home_dir = str(Path.home())
             yaml_file = os.path.join(home_dir, 'zap.yaml')
             summary_file = os.path.join(home_dir, 'zap_out.json')
-            
+
             with open(yaml_file, 'w') as yf:
 
                 # Add the top level to the scope for backwards compatibility
@@ -355,44 +355,44 @@ def main(argv):
                     if not t2 == target:
                         target = t2
                         top_levels.append(target)
-               
+
                 yaml.dump(get_af_env(top_levels, out_of_scope_dict, debug), yf)
-                
+
                 alertFilters = []
-                
+
                 # Handle id specific alertFilters - rules that apply to all IDs are excluded from the env
                 for id in out_of_scope_dict:
                     if id != '*':
                         for regex in out_of_scope_dict[id]:
                             alertFilters.append({'ruleId': id, 'newRisk': 'False Positive', 'url': regex.pattern, 'urlRegex': True})
-                
+
                 jobs = [get_af_pscan_config()]
 
                 if len(alertFilters) > 0:
                     jobs.append(get_af_alertFilter(alertFilters))
-                
+
                 jobs.append(get_af_spider(target, mins))
 
                 if ajax:
                     jobs.append(get_af_spiderAjax(target, mins))
-                
+
                 jobs.append(get_af_pscan_wait(timeout))
                 jobs.append(get_af_output_summary(('Short', 'Long')[detailed_output], summary_file, config_dict, config_msg))
-                
+
                 if report_html:
                     jobs.append(get_af_report('traditional-html', base_dir, report_html, 'ZAP Scanning Report', ''))
-            
+
                 if report_md:
                     jobs.append(get_af_report('traditional-md', base_dir, report_md, 'ZAP Scanning Report', ''))
-            
+
                 if report_xml:
                     jobs.append(get_af_report('traditional-xml', base_dir, report_xml, 'ZAP Scanning Report', ''))
-            
+
                 if report_json:
                     jobs.append(get_af_report('traditional-json', base_dir, report_json, 'ZAP Scanning Report', ''))
-            
+
                 yaml.dump({'jobs': jobs}, yf)
-                
+
                 if os.path.exists('/zap/wrk'):
                     yaml_copy_file = '/zap/wrk/zap.yaml'
                     try:
@@ -400,44 +400,44 @@ def main(argv):
                         copyfile(yaml_file, yaml_copy_file)
                     except OSError as err:
                         logging.warning('Unable to copy yaml file to ' + yaml_copy_file + ' ' + str(err))
- 
+
             try:
                 # Run ZAP inline to update the add-ons
                 install_opts = ['-addonupdate', '-addoninstall', 'pscanrulesBeta']
                 if zap_alpha:
                     install_opts.append('-addoninstall')
                     install_opts.append('pscanrulesAlpha')
-            
+
                 run_zap_inline(port, install_opts)
-                
+
                 # Run ZAP inline with the yaml file
                 params = ['-autorun', yaml_file]
-    
+
                 add_zap_options(params, zap_options)
-    
+
                 out = run_zap_inline(port, params)
-                
-                ignore_strs = ["Found Java version", "Available memory", "Using JVM args", "Add-on already installed", "[main] INFO", 
+
+                ignore_strs = ["Found Java version", "Available memory", "Using JVM args", "Add-on already installed", "[main] INFO",
                                "Automation plan succeeded"]
-                
+
                 for line in out.splitlines():
                     if any(x in line for x in ignore_strs):
                         continue
                     print(line)
-    
+
             except OSError:
                 logging.warning('Failed to start ZAP :(')
                 sys.exit(3)
-    
+
             # Read the status file to find out what code we should exit with
-            if not os.path.isfile(summary_file): 
+            if not os.path.isfile(summary_file):
                 logging.warning('Failed to access summary file ' + summary_file)
                 sys.exit(3)
 
             try:
                 with open(summary_file) as f:
                     summary_data = json.load(f)
-                    
+
                     if summary_data['fail'] > 0:
                         sys.exit(1)
                     elif (not ignore_warn) and summary_data['warn'] > 0:
@@ -450,22 +450,22 @@ def main(argv):
                 logging.warning('Failed to read summary file ' + summary_file)
 
             sys.exit(3)
-           
+
         else:
             try:
                 params = [
                           '-config', 'spider.maxDuration=' + str(mins),
                           '-addonupdate',
                           '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
-    
+
                 if zap_alpha:
                     params.append('-addoninstall')
                     params.append('pscanrulesAlpha')
-    
+
                 add_zap_options(params, zap_options)
-    
+
                 start_zap(port, params)
-    
+
             except OSError:
                 logging.warning('Failed to start ZAP :(')
                 sys.exit(3)
