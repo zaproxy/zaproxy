@@ -31,12 +31,15 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.httpclient.URI;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
 import org.zaproxy.zap.testutils.NanoServerHandler;
@@ -55,6 +58,17 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
 
     private HttpMessage loginMessage;
     private AuthenticationMethod method;
+
+    @BeforeAll
+    @SuppressWarnings("deprecation")
+    static void setUpAll() {
+        HttpSender.setImpl(new org.parosproxy.paros.network.HttpSenderParos());
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        HttpSender.setImpl(null);
+    }
 
     @BeforeEach
     void setUp() throws Exception {

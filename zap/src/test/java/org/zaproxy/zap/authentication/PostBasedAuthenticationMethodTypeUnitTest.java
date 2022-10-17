@@ -41,7 +41,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.function.UnaryOperator;
 import net.sf.json.JSONObject;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.quality.Strictness;
@@ -49,6 +51,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
 import org.zaproxy.zap.authentication.PostBasedAuthenticationMethodType.PostBasedAuthenticationMethod;
@@ -302,6 +305,17 @@ class PostBasedAuthenticationMethodTypeUnitTest {
         private FormBasedAuthenticationMethodType type;
         private Context context;
         private ExtensionAntiCSRF extAntiCsrf;
+
+        @BeforeAll
+        @SuppressWarnings("deprecation")
+        static void setUpAll() {
+            HttpSender.setImpl(new org.parosproxy.paros.network.HttpSenderParos());
+        }
+
+        @AfterAll
+        static void tearDownAll() {
+            HttpSender.setImpl(null);
+        }
 
         @BeforeEach
         void setUp() throws Exception {

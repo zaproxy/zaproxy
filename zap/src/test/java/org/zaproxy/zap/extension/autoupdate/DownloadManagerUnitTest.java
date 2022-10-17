@@ -35,10 +35,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.testutils.NanoServerHandler;
 
@@ -49,6 +52,17 @@ class DownloadManagerUnitTest extends WithConfigsTest {
             "SHA-256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
 
     private DownloadManager downloadManager;
+
+    @BeforeAll
+    @SuppressWarnings("deprecation")
+    static void setUpAll() {
+        HttpSender.setImpl(new org.parosproxy.paros.network.HttpSenderParos());
+    }
+
+    @AfterAll
+    static void tearDownAll() {
+        HttpSender.setImpl(null);
+    }
 
     @BeforeEach
     void setUp() throws Exception {
