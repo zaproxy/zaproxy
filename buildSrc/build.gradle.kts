@@ -33,7 +33,9 @@ dependencies {
     implementation("com.github.javaparser:javaparser-core:3.15.21")
     implementation("com.github.zafarkhaja:java-semver:0.9.0")
     implementation("commons-codec:commons-codec:1.12")
-    implementation("com.google.code.gson:gson:2.8.5")
+    implementation("commons-configuration:commons-configuration:1.10")
+    implementation("commons-collections:commons-collections:3.2.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.13.4")
     val jgitVersion = "5.3.1.201904271842-r"
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgitVersion")
     implementation("org.eclipse.jgit:org.eclipse.jgit.archive:$jgitVersion")

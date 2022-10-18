@@ -19,12 +19,11 @@
  */
 package org.zaproxy.zap.tasks;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -222,11 +221,10 @@ public class GradleBuildWithGitRepos extends DefaultTask {
     }
 
     private List<RepoData> readRepoData() throws IOException {
-        Gson gson = new Gson();
-        Type reposType = new TypeToken<List<RepoData>>() {}.getType();
+        TypeReference<List<RepoData>> reposType = new TypeReference<>() {};
         File file = repositoriesDataFile.get().getAsFile();
         try (Reader reader = Files.newBufferedReader(file.toPath())) {
-            return gson.fromJson(reader, reposType);
+            return JsonMapper.builder().build().readValue(reader, reposType);
         }
     }
 
