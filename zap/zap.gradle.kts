@@ -101,7 +101,6 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
     testImplementation("org.mockito:mockito-junit-jupiter:4.8.0")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
-    testImplementation("org.nanohttpd:nanohttpd-webserver:2.3.1")
 
     testRuntimeOnly(files(distDir))
 
