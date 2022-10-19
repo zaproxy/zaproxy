@@ -68,7 +68,6 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.model;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -450,7 +449,7 @@ public class HistoryReference {
      *
      * @return the http message
      * @throws HttpMalformedHeaderException the http malformed header exception
-     * @throws SQLException the sQL exception
+     * @throws DatabaseException if an error occurred while reading the HTTP message.
      */
     public HttpMessage getHttpMessage() throws HttpMalformedHeaderException, DatabaseException {
         if (httpMessage != null) {

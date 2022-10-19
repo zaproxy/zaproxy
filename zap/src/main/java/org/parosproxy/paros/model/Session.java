@@ -1721,13 +1721,13 @@ public class Session {
         return this.getFormParamParser(uri.toString()).parseParameters(formData);
     }
 
-    /** @deprecated use {@link SessionStructure#getTeeePath(Model, URI)} */
+    /** @deprecated use {@link SessionStructure#getTreePath(Model, URI)} */
     @Deprecated
     public List<String> getTreePath(URI uri) throws URIException {
         return SessionStructure.getTreePath(Model.getSingleton(), uri);
     }
 
-    /** @deprecated use {@link SessionStructure#getTeeePath(Model, HttpMessage)} */
+    /** @deprecated use {@link SessionStructure#getTreePath(Model, HttpMessage)} */
     @Deprecated
     public List<String> getTreePath(HttpMessage msg) throws URIException {
         return SessionStructure.getTreePath(Model.getSingleton(), msg);

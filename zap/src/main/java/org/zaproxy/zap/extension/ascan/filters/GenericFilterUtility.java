@@ -38,7 +38,7 @@ public class GenericFilterUtility {
      * @param incList Include Criteria List
      * @param excList Exclude Criteria List
      * @param constructor of the ScanFilter to be populated
-     * @return List of <R> type
+     * @return List of {@code <R>} type
      */
     public static <T, V, R extends AbstractGenericScanFilter<T, V>> List<R> createScanFilter(
             List<T> incList, List<T> excList, Supplier<R> constructor) {

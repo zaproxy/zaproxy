@@ -23,7 +23,7 @@ import java.net.Socket;
 import org.apache.commons.httpclient.HostConfiguration;
 
 /**
- * Custom {@link HttpConnection} that exposes its socket and avoids closing.
+ * Custom {@code HttpConnection} that exposes its socket and avoids closing.
  *
  * @deprecated (2.12.0) Implementation details, do not use.
  */

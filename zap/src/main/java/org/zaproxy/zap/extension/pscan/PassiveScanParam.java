@@ -295,7 +295,7 @@ public class PassiveScanParam extends AbstractParam {
     /**
      * Set the number of passive scan threads
      *
-     * @param passiveScanThreads the number of passive scan threads, must be > 0
+     * @param passiveScanThreads the number of passive scan threads, must be &gt; 0
      * @since 2.12.0
      */
     public void setPassiveScanThreads(int passiveScanThreads) {

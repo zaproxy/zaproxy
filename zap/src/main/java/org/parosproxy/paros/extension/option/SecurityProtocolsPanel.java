@@ -33,7 +33,6 @@ import org.zaproxy.zap.utils.FontUtils;
 /**
  * A {@code JPanel} for selecting security protocols provided by {@code SSLConnector}.
  *
- * @see SSLConnector
  * @deprecated (2.12.0) No longer in use.
  */
 @Deprecated

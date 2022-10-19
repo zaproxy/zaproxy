@@ -89,7 +89,7 @@ public interface Variant {
      * <p>By default the elements are returned for the following URL are:
      *
      * <ul>
-     *   <li><i>http://example.org/path/to/element?aa=bb&cc==dd</i> : ["path", "to", "element"]
+     *   <li><i>http://example.org/path/to/element?aa=bb&amp;cc==dd</i> : ["path", "to", "element"]
      *   <li><i>http://example.org/path/to/element</i> : ["path", "to", "element"]
      *   <li><i>http://example.org/path/to/</i> : ["path", "to"]
      *   <li><i>http://example.org/path/to</i> : ["path", "to"]

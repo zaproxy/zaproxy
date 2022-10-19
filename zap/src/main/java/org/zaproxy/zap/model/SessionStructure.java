@@ -60,7 +60,7 @@ public class SessionStructure {
      * @param ref the history reference
      * @param msg the message
      * @return the node added to the Sites Tree
-     * @depreciated Use {@link #addPath(Model, HistoryReference, HttpMessage)}
+     * @deprecated Use {@link #addPath(Model, HistoryReference, HttpMessage)}
      */
     @Deprecated
     public static StructuralNode addPath(Session session, HistoryReference ref, HttpMessage msg) {
@@ -89,7 +89,7 @@ public class SessionStructure {
      * @param newOnly Only return a SiteNode if one was newly created
      * @return the SiteNode that corresponds to the HttpMessage, or null if newOnly and the node
      *     already exists
-     * @depreciated Use {@link #addPath(Model, HistoryReference, HttpMessage, boolean)}
+     * @deprecated Use {@link #addPath(Model, HistoryReference, HttpMessage, boolean)}
      */
     @Deprecated
     public static StructuralNode addPath(
@@ -199,7 +199,7 @@ public class SessionStructure {
      * @return the site node or null if not found
      * @throws DatabaseException
      * @throws URIException
-     * @depreciated Use {@link #find(Model, URI, String, String)}
+     * @deprecated Use {@link #find(Model, URI, String, String)}
      */
     @Deprecated
     public static StructuralNode find(long sessionId, URI uri, String method, String postData)
@@ -290,7 +290,7 @@ public class SessionStructure {
      * @param msg the message
      * @return the node name
      * @throws URIException
-     * @depreciated Use {@link #getNodeName(Model, HttpMessage)}
+     * @deprecated Use {@link #getNodeName(Model, HttpMessage)}
      */
     @Deprecated
     public static String getNodeName(HttpMessage msg) throws URIException {
@@ -700,7 +700,7 @@ public class SessionStructure {
      * Returns the root node
      *
      * @return the root node
-     * @depreciated Use {@link #getRootNode(Model)}
+     * @deprecated Use {@link #getRootNode(Model)}
      */
     @Deprecated
     public static StructuralNode getRootNode() {

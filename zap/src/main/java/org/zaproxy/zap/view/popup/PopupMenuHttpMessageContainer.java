@@ -234,7 +234,7 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
      * be disabled if in {@code Mode.Safe} or if in {@code Mode.Protected} and not all the selected
      * messages are in scope.
      *
-     * <h3>Notifying and processing child menus</h3>
+     * <p>Notifying and processing child menus
      *
      * <p>When the method {@code isProcessExtensionPopupChildren()} returns true, the method {@code
      * isEnableForComponent(Component)} is called on all child {@code ExtensionPopupMenuComponent}s.

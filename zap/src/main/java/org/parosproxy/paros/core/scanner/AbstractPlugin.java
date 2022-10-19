@@ -734,7 +734,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since 2.10.0
-     * @see {@code Analyser#isFileExist(HttpMessage)}
+     * @see Analyser#isFileExist(HttpMessage)
      */
     public boolean isSuccess(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.NOTFOUND_404)
@@ -756,7 +756,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param msg the message that will be checked
      * @return {@code true} if the message matches, {@code false} otherwise
      * @since 2.10.0
-     * @see {@code Analyser#isFileExist(HttpMessage)}
+     * @see Analyser#isFileExist(HttpMessage)
      */
     public boolean isClientError(HttpMessage msg) {
         if (isCustomPage(msg, CustomPage.Type.OK_200)

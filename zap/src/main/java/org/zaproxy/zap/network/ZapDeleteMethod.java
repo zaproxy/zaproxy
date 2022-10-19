@@ -43,9 +43,9 @@ public class ZapDeleteMethod extends EntityEnclosingMethod {
     }
 
     /**
-     * Returns <tt>"DELETE"</tt>.
+     * Returns {@code DELETE}.
      *
-     * @return <tt>"DELETE"</tt>
+     * @return {@code DELETE}
      * @since 2.0
      */
     @Override
