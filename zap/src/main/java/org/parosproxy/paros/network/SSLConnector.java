@@ -606,9 +606,6 @@ public class SSLConnector
                 "Method no longer supported since it's no longer required/called by Commons HttpClient library (version >= 3.0).");
     }
 
-    /**
-     * @see SecureProtocolSocketFactory#createSocket(java.net.Socket,java.lang.String,int,boolean)
-     */
     @Override
     public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
             throws IOException, UnknownHostException {

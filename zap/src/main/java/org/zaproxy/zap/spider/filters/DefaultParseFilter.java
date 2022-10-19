@@ -31,7 +31,7 @@ import org.parosproxy.paros.network.HttpStatusCode;
  * spidering process. Its filter rules are the following:
  *
  * <ul>
- *   <li>the resource body should be under a {@link SpiderParam#getMaxParseSizeBytes() number of
+ *   <li>the resource body should be under a {@code SpiderParam#getMaxParseSizeBytes() number of
  *       bytes}, otherwise it's considered a binary resource.
  *   <li>the resource must be of parsable type (text, html, xml, javascript). Actually, the content
  *       type should be text/...
@@ -46,7 +46,7 @@ public class DefaultParseFilter extends ParseFilter {
      * The Constant MAX_RESPONSE_BODY_SIZE defining the size of response body that is considered too
      * big for a parsable file.
      *
-     * @deprecated (2.7.0) No longer in use, replaced by {@link SpiderParam#getMaxParseSizeBytes()}.
+     * @deprecated (2.7.0) No longer in use, replaced by {@code SpiderParam#getMaxParseSizeBytes()}.
      */
     @Deprecated public static final int MAX_RESPONSE_BODY_SIZE = 512000;
 
@@ -77,7 +77,7 @@ public class DefaultParseFilter extends ParseFilter {
     /**
      * Constructs a {@code DefaultParseFilter} with default configurations.
      *
-     * @deprecated (2.7.0) Replaced by {@link #DefaultParseFilter(SpiderParam, ResourceBundle)}.
+     * @deprecated (2.7.0) Replaced by {@code #DefaultParseFilter(SpiderParam, ResourceBundle)}.
      */
     @Deprecated
     public DefaultParseFilter() {
@@ -107,7 +107,6 @@ public class DefaultParseFilter extends ParseFilter {
      * @param resourceBundle the resource bundle to obtain the internationalised reasons.
      * @throws IllegalArgumentException if any of the given parameters is {@code null}.
      * @since 2.7.0
-     * @see SpiderParam#getMaxParseSizeBytes()
      */
     public DefaultParseFilter(
             org.zaproxy.zap.spider.SpiderParam params, ResourceBundle resourceBundle) {

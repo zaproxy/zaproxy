@@ -45,7 +45,7 @@ public interface SpiderListener {
      *
      * @param uri the uri
      * @param method the method used for accessing the uri
-     * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
+     * @param status the {@code FetchStatus} stating if this uri will be processed, and, if not,
      *     stating the reason of the filtering
      */
     void foundURI(

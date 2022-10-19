@@ -83,7 +83,7 @@ public class PassiveScanData {
     }
 
     /**
-     * Returns an unmodifiable list of {@Code User}s for the {@code HttpMessage} being passively
+     * Returns an unmodifiable list of {@code User}s for the {@code HttpMessage} being passively
      * scanned. The list returned is based on the first {@code Context} matched.
      *
      * @return A list of users if some are available, an empty list otherwise.

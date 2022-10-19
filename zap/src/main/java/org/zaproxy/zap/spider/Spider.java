@@ -143,7 +143,7 @@ public class Spider {
      * @param scanContext if a scan context is set, only URIs within the context are fetched and
      *     processed
      * @since 2.6.0
-     * @deprecated (2.12.0) Use {@link #Spider(String, ExtensionSpider, SpiderParam, Model,
+     * @deprecated (2.12.0) Use {@code #Spider(String, ExtensionSpider, SpiderParam, Model,
      *     Context)} instead.
      */
     @Deprecated
@@ -803,7 +803,7 @@ public class Spider {
      *
      * @param uri the uri
      * @param method the method used for fetching the resource
-     * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
+     * @param status the {@code FetchStatus} stating if this uri will be processed, and, if not,
      *     stating the reason of the filtering
      */
     protected synchronized void notifyListenersFoundURI(
