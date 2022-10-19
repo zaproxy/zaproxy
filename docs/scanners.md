@@ -173,6 +173,7 @@ Scan rules:
 40044   Exponential Entity Expansion (Billion Laughs Attack)
 40045   Spring4Shell (CVE-2022-22965)
 40046   Server Side Request Forgery
+40047   Text4Shell (CVE-2022-42889)
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
