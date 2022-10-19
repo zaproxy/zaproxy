@@ -4,8 +4,9 @@ import de.undercouch.gradle.tasks.download.Download
 import de.undercouch.gradle.tasks.download.Verify
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.apache.tools.ant.taskdefs.condition.Os
-import org.zaproxy.zap.tasks.DownloadAddOns
+import org.zaproxy.zap.tasks.DownloadMainAddOns
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
+import org.zaproxy.zap.tasks.UpdateMainAddOns
 
 plugins {
     de.undercouch.download
@@ -20,12 +21,20 @@ val bundledResourcesPath = "src/main/resources/org/zaproxy/zap/resources"
 val jar by tasks.existing(Jar::class)
 
 
-val downloadMainAddOns by tasks.registering(DownloadAddOns::class) {
+val downloadMainAddOns by tasks.registering(DownloadMainAddOns::class) {
     group = "build"
     description = "Downloads the add-ons included in main (non-SNAPSHOT) releases."
 
-    addOnsData.set(file("src/main/add-ons.txt"))
+    addOnsData.set(file("src/main/main-add-ons.yml"))
     outputDir.set(file("$buildDir/mainAddOns"))
+}
+
+val updateMainAddOns by tasks.registering(UpdateMainAddOns::class) {
+    group = "build"
+    description = "Updates the main add-ons from a ZapVersions.xml file."
+
+    addOnsData.set(file("src/main/main-add-ons.yml"))
+    addOnsDataUpdated.set(file("src/main/main-add-ons.yml"))
 }
 
 val bundledAddOns: Any = provider {
