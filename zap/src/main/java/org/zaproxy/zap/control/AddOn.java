@@ -543,9 +543,6 @@ public class AddOn {
      * Constructs an {@code AddOn} from an add-on entry of {@code ZapVersions.xml} file. The
      * installation status of the add-on is 'not installed'.
      *
-     * <p>The given {@code SubnodeConfiguration} must have a {@code XPathExpressionEngine}
-     * installed.
-     *
      * <p>The {@value #MANIFEST_FILE_NAME} ZIP file entry is read, if the add-on file exists
      * locally.
      *
@@ -554,7 +551,6 @@ public class AddOn {
      * @param xmlData the source of add-on entry of {@code ZapVersions.xml} file
      * @throws MalformedURLException if the {@code URL} of the add-on is malformed
      * @throws IOException if an error occurs while reading the XML data
-     * @see org.apache.commons.configuration.tree.xpath.XPathExpressionEngine
      */
     public AddOn(String id, File baseDir, SubnodeConfiguration xmlData)
             throws MalformedURLException, IOException {

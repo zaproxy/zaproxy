@@ -27,7 +27,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -98,33 +97,33 @@ public class AddOnCollection {
     }
 
     private void load(ZapXmlConfiguration config) {
-        config.setExpressionEngine(new XPathExpressionEngine());
         try {
             // See if theres a ZAP release defined
-            String version = config.getString("core/version");
+            String version = config.getString("core.version");
             if (Platform.daily.equals(platform)) {
                 // Daily releases take precedence even if running on Kali as they will have been
                 // manually installed
-                version = config.getString("core/daily-version", version);
+                version = config.getString("core.daily-version", version);
             } else if (Constant.isKali()) {
-                version = config.getString("core/kali-version", version);
+                version = config.getString("core.kali-version", version);
             }
             if (version != null && version.length() > 0) {
-                String relUrlStr = config.getString("core/relnotes-url", null);
+                String relUrlStr = config.getString("core.relnotes-url", null);
                 URL relUrl = null;
                 if (relUrlStr != null) {
                     relUrl = new URL(relUrlStr);
                 }
 
+                String platformPrefix = "core." + platform.name() + ".";
                 this.zapRelease =
                         new ZapRelease(
                                 version,
-                                new URL(config.getString("core/" + platform.name() + "/url")),
-                                config.getString("core/" + platform.name() + "/file"),
-                                config.getLong("core/" + platform.name() + "/size"),
-                                config.getString("core/relnotes"),
+                                new URL(config.getString(platformPrefix + "url")),
+                                config.getString(platformPrefix + "file"),
+                                config.getLong(platformPrefix + "size"),
+                                config.getString("core.relnotes"),
                                 relUrl,
-                                config.getString("core/" + platform.name() + "/hash"));
+                                config.getString(platformPrefix + "hash"));
             }
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

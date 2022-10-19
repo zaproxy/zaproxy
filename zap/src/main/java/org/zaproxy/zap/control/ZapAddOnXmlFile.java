@@ -32,17 +32,17 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
 
     private static final String ASCANRULE_ELEMENT = "ascanrule";
-    private static final String ASCANRULES_ALL_ELEMENTS = "ascanrules/" + ASCANRULE_ELEMENT;
+    private static final String ASCANRULES_ALL_ELEMENTS = "ascanrules." + ASCANRULE_ELEMENT;
     private static final String PSCANRULE_ELEMENT = "pscanrule";
-    private static final String PSCANRULES_ALL_ELEMENTS = "pscanrules/" + PSCANRULE_ELEMENT;
+    private static final String PSCANRULES_ALL_ELEMENTS = "pscanrules." + PSCANRULE_ELEMENT;
     private static final String FILE_ELEMENT = "file";
-    private static final String FILES_ALL_ELEMENTS = "files/" + FILE_ELEMENT;
+    private static final String FILES_ALL_ELEMENTS = "files." + FILE_ELEMENT;
     private static final String LIB_ELEMENT = "lib";
-    private static final String LIBS_ALL_ELEMENTS = "libs/" + LIB_ELEMENT;
+    private static final String LIBS_ALL_ELEMENTS = "libs." + LIB_ELEMENT;
     private static final String BUNDLE_ELEMENT = "bundle";
-    private static final String BUNDLE_PREFIX_ATT = "bundle/@prefix";
+    private static final String BUNDLE_PREFIX_ATT = "bundle[@prefix]";
     private static final String HELPSET_ELEMENT = "helpset";
-    private static final String HELPSET_LOCALE_TOKEN_ATT = "helpset/@localetoken";
+    private static final String HELPSET_LOCALE_TOKEN_ATT = "helpset[@localetoken]";
 
     private List<String> ascanrules;
     private List<String> pscanrules;

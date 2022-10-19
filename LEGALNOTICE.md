@@ -36,10 +36,8 @@ and subject to their respective licenses.
 | commons-collections-3.2.2.jar       | Apache 2.0                |
 | commons-configuration-1.10.jar      | Apache 2.0                |
 | commons-csv-1.9.0.jar               | Apache 2.0                |
-| commons-digester-1.8.1.jar          | Apache 2.0                |
 | commons-httpclient-3.1.jar          | Apache 2.0                |
 | commons-io-2.11.0.jar               | Apache 2.0                |
-| commons-jxpath-1.3.jar              | Apache 2.0                |
 | commons-lang-2.6.jar                | Apache 2.0                |
 | commons-lang3-3.12.0.jar            | Apache 2.0                |
 | commons-logging-1.2.jar             | Apache 2.0                |
