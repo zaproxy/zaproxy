@@ -26,9 +26,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -111,7 +111,7 @@ public abstract class BaseZapAddOnXmlData {
 
     private static final String DEPENDENCIES_ELEMENT = "dependencies";
     private static final String DEPENDENCIES_JAVA_VERSION_ELEMENT = "javaversion";
-    private static final String DEPENDENCIES_ADDONS_ALL_ELEMENTS = "addons/addon";
+    private static final String DEPENDENCIES_ADDONS_ALL_ELEMENTS = "addons.addon";
     private static final String ZAPADDON_ID_ELEMENT = "id";
     private static final String ZAPADDON_NOT_BEFORE_VERSION_ELEMENT = "not-before-version";
     private static final String ZAPADDON_NOT_FROM_VERSION_ELEMENT = "not-from-version";
@@ -124,18 +124,17 @@ public abstract class BaseZapAddOnXmlData {
     private static final String ZAPADDON_SEMVER_ELEMENT = "semver";
 
     private static final String EXTENSION_ELEMENT = "extension";
-    private static final String EXTENSIONS_ALL_ELEMENTS = "extensions/" + EXTENSION_ELEMENT;
-    private static final String EXTENSIONS_V1_ALL_ELEMENTS =
-            "extensions/" + EXTENSION_ELEMENT + "[@v='1']";
+    private static final String EXTENSIONS_ALL_ELEMENTS = "extensions." + EXTENSION_ELEMENT;
+    private static final String EXTENSIONS_VERSION_ATT = "[@v]";
     private static final String EXTENSION_CLASS_NAME = "classname";
     private static final String EXTENSION_DEPENDENCIES =
-            DEPENDENCIES_ELEMENT + "/" + DEPENDENCIES_ADDONS_ALL_ELEMENTS;
+            DEPENDENCIES_ELEMENT + "." + DEPENDENCIES_ADDONS_ALL_ELEMENTS;
     private static final String CLASSNAMES_ALLOWED_ELEMENT = "allowed";
     private static final String CLASSNAMES_ALLOWED_ALL_ELEMENTS =
-            "classnames/" + CLASSNAMES_ALLOWED_ELEMENT;
+            "classnames." + CLASSNAMES_ALLOWED_ELEMENT;
     private static final String CLASSNAMES_RESTRICTED_ELEMENT = "restricted";
     private static final String CLASSNAMES_RESTRICTED_ALL_ELEMENTS =
-            "classnames/" + CLASSNAMES_RESTRICTED_ELEMENT;
+            "classnames." + CLASSNAMES_RESTRICTED_ELEMENT;
 
     private String name;
     private String status;
@@ -169,7 +168,6 @@ public abstract class BaseZapAddOnXmlData {
         Objects.requireNonNull(inputStream, "The InputStream must not be null.");
 
         ZapXmlConfiguration zapAddOnXml = new ZapXmlConfiguration();
-        zapAddOnXml.setExpressionEngine(new XPathExpressionEngine());
 
         try {
             zapAddOnXml.load(inputStream);
@@ -183,11 +181,7 @@ public abstract class BaseZapAddOnXmlData {
      * Constructs a {@code BaseZapAddOnXmlData} with the given {@code zapAddOnXml} {@code
      * HierarchicalConfiguration} as the source of the {@code ZapAddOn} XML data.
      *
-     * <p>The given {@code HierarchicalConfiguration} must have a {@code XPathExpressionEngine}
-     * installed.
-     *
      * @param zapAddOnXml the source of the {@code ZapAddOn} XML data.
-     * @see XPathExpressionEngine
      */
     public BaseZapAddOnXmlData(HierarchicalConfiguration zapAddOnXml) {
         readDataImpl(zapAddOnXml);
@@ -420,7 +414,9 @@ public abstract class BaseZapAddOnXmlData {
 
     private List<ExtensionWithDeps> readExtensionsWithDeps(HierarchicalConfiguration currentNode) {
         List<HierarchicalConfiguration> extensions =
-                currentNode.configurationsAt(EXTENSIONS_V1_ALL_ELEMENTS);
+                currentNode.configurationsAt(EXTENSIONS_ALL_ELEMENTS).stream()
+                        .filter(e -> "1".equals(e.getString(EXTENSIONS_VERSION_ATT, null)))
+                        .collect(Collectors.toList());
         if (extensions.isEmpty()) {
             return Collections.emptyList();
         }
