@@ -119,13 +119,11 @@ public class PassiveScanTask implements Runnable {
                                             .contains(hrefHistoryType))) {
 
                         if (scanner instanceof PluginPassiveScanner) {
-                            PluginPassiveScanner pps = (PluginPassiveScanner) scanner;
-                            PluginPassiveScanner pps2 = pps.copy();
-                            pps2.init(psThread, msg, passiveScanData);
-                            scanner = pps2;
-                        } else {
-                            scanner.setParent(psThread);
+                            PluginPassiveScanner pps = ((PluginPassiveScanner) scanner).copy();
+                            pps.setHelper(passiveScanData);
+                            scanner = pps;
                         }
+                        scanner.setParent(psThread);
                         scanner.setTaskHelper(helper);
 
                         logger.debug(
