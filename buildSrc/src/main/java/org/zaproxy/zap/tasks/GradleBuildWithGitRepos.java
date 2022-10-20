@@ -51,7 +51,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
-import org.zaproxy.zap.internal.RepoData;
+import org.zaproxy.zap.tasks.internal.RepoData;
 
 /** A task that clones Git repositories and runs Gradle tasks contained in them. */
 public class GradleBuildWithGitRepos extends DefaultTask {
