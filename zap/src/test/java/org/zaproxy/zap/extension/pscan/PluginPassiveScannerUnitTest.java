@@ -502,7 +502,9 @@ class PluginPassiveScannerUnitTest {
         HttpMessage msg = mock(HttpMessage.class);
         HistoryReference href = mock(HistoryReference.class);
         when(msg.getHistoryRef()).thenReturn(href);
-        scanner.init(null, msg, mock(PassiveScanData.class));
+        PassiveScanData passiveScanData = mock(PassiveScanData.class);
+        when(passiveScanData.getMessage()).thenReturn(msg);
+        scanner.setHelper(passiveScanData);
         scanner.setTaskHelper(taskHelper);
         // When
         scanner.addHistoryTag(tag);

@@ -70,6 +70,10 @@ public class PassiveScanData {
         }
     }
 
+    public HttpMessage getMessage() {
+        return message;
+    }
+
     private static Context getContext(HttpMessage message) {
         List<Context> contextList =
                 Model.getSingleton()

@@ -84,19 +84,14 @@ public abstract class PluginPassiveScanner extends Enableable
     private Configuration config = null;
     private AddOn.Status status = AddOn.Status.unknown;
 
-    private HttpMessage message;
     private PassiveScanData passiveScanData;
 
     public PluginPassiveScanner() {
         super(true);
     }
 
-    @SuppressWarnings("deprecation")
-    void init(PassiveScanThread parent, HttpMessage message, PassiveScanData psd) {
-        this.message = message;
-        this.passiveScanData = psd;
-
-        setParent(parent);
+    public void setHelper(PassiveScanData passiveScanData) {
+        this.passiveScanData = passiveScanData;
     }
 
     /**
@@ -108,11 +103,6 @@ public abstract class PluginPassiveScanner extends Enableable
     @SuppressWarnings("deprecation")
     public void setParent(PassiveScanThread parent) {
         // Nothing to do.
-    }
-
-    void clean() {
-        message = null;
-        passiveScanData = null;
     }
 
     /**
@@ -425,7 +415,7 @@ public abstract class PluginPassiveScanner extends Enableable
      * @since 2.12.0
      */
     protected void addHistoryTag(String tag) {
-        this.taskHelper.addHistoryTag(this.message.getHistoryRef(), tag);
+        this.taskHelper.addHistoryTag(passiveScanData.getMessage().getHistoryRef(), tag);
     }
 
     /**
@@ -497,7 +487,7 @@ public abstract class PluginPassiveScanner extends Enableable
      * @since 2.9.0
      */
     protected AlertBuilder newAlert() {
-        return new AlertBuilder(this, message);
+        return new AlertBuilder(this, passiveScanData.getMessage());
     }
 
     /**

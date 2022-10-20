@@ -53,7 +53,6 @@ import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PassiveScanData;
 import org.zaproxy.zap.extension.pscan.PassiveScanTaskHelper;
-import org.zaproxy.zap.extension.pscan.PassiveScanTestHelper;
 import org.zaproxy.zap.extension.pscan.PassiveScript;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
@@ -126,8 +125,9 @@ class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
         HistoryReference href = mock(HistoryReference.class);
         when(message.getHistoryRef()).thenReturn(href);
         ScriptsPassiveScanner scriptsPassiveScanner = new ScriptsPassiveScanner();
-        PassiveScanTestHelper.init(
-                scriptsPassiveScanner, null, message, mock(PassiveScanData.class));
+        PassiveScanData passiveScanData = mock(PassiveScanData.class);
+        when(passiveScanData.getMessage()).thenReturn(message);
+        scriptsPassiveScanner.setHelper(passiveScanData);
         scriptsPassiveScanner.setTaskHelper(taskHelper);
         // When
         scriptsPassiveScanner.addHistoryTag(tag);
