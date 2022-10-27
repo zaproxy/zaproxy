@@ -20,8 +20,8 @@ plugins {
 }
 
 group = "org.zaproxy"
-version = "2.12.0"
-val versionBC = "2.11.0"
+version = "2.13.0-SNAPSHOT"
+val versionBC = "2.12.0"
 
 val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
@@ -145,169 +145,11 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     packageExcludes.set(listOf())
 
-    fieldExcludes.set(
-        listOf(
-            "org.parosproxy.paros.Constant#FILE_CONFIG_DEFAULT",
-            "org.parosproxy.paros.Constant#VULNS_BASE",
-            "org.parosproxy.paros.core.scanner.Alert#MSG_RELIABILITY",
-            "org.parosproxy.paros.core.scanner.Alert#SUSPICIOUS",
-            "org.parosproxy.paros.core.scanner.Alert#WARNING",
-            "org.parosproxy.paros.model.HistoryReference#TYPE_RESERVED_11",
-            "org.parosproxy.paros.view.View#DISPLAY_OPTION_BOTTOM_FULL",
-            "org.parosproxy.paros.view.View#DISPLAY_OPTION_LEFT_FULL",
-            "org.parosproxy.paros.view.View#DISPLAY_OPTION_TOP_FULL",
-            "org.zaproxy.zap.extension.ascan.ActiveScanPanel#PANEL_NAME",
-            "org.zaproxy.zap.extension.search.SearchPanel#PANEL_NAME"
-        )
-    )
+    fieldExcludes.set(listOf())
 
-    classExcludes.set(
-        listOf(
-            "org.parosproxy.paros.common.FileXML",
-            "org.parosproxy.paros.core.proxy.SenderThread",
-            "org.parosproxy.paros.core.proxy.SenderThreadListener",
-            "org.parosproxy.paros.core.proxy.StreamForwarder",
-            "org.parosproxy.paros.core.scanner.AbstractDefaultFilePlugin",
-            "org.parosproxy.paros.extension.history.BrowserDialog",
-            "org.parosproxy.paros.extension.history.PopupMenuResend",
-            "org.parosproxy.paros.extension.history.PopupMenuResendSites",
-            "org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog",
-            "org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog",
-            "org.parosproxy.paros.model.HistoryList",
-            "org.parosproxy.paros.model.HttpMessageList",
-            "org.parosproxy.paros.network.ByteVector",
-            "org.parosproxy.paros.network.ProxyExcludedDomainMatcher",
-            "org.zaproxy.zap.extension.brk.BreakpointMessageHandler",
-            "org.zaproxy.zap.extension.brk.BreakPanel",
-            "org.zaproxy.zap.extension.brk.ExtensionBreak\$DialogType",
-            "org.zaproxy.zap.extension.history.PopupMenuShowInHistory",
-            "org.zaproxy.zap.extension.httppanel.HttpPanel",
-            "org.zaproxy.zap.extension.httppanel.HttpPanelRequest",
-            "org.zaproxy.zap.extension.httppanel.HttpPanelResponse",
-            "org.zaproxy.zap.extension.pscan.PassiveScanThread",
-            "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderContext",
-            "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderContextAsUser",
-            "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderDialog",
-            "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderScope",
-            "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderSite",
-            "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderSubtree",
-            "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderURL",
-            "org.zaproxy.zap.extension.stdmenus.PopupMenuSpiderURLAsUser",
-            "org.zaproxy.zap.httputils.RequestUtils",
-            "org.zaproxy.zap.view.HistoryReferenceTableModel",
-            "org.zaproxy.zap.view.messagelocation.SelectMessageLocationsPanel",
-            "org.zaproxy.zap.view.MessagePanelsPositionController",
-            "org.zaproxy.zap.view.PopupMenuHistoryReference",
-            "org.zaproxy.zap.view.PopupMenuHttpMessage",
-            "org.zaproxy.zap.view.PopupMenuSiteNode"
-        )
-    )
+    classExcludes.set(listOf())
 
-    methodExcludes.set(
-        listOf(
-            "org.parosproxy.paros.CommandLine#getConfigs()",
-            "org.parosproxy.paros.control.Control#createAndOpenUntitledDb()",
-            "org.parosproxy.paros.core.proxy.ProxyParam#isModifyAcceptEncodingHeader()",
-            "org.parosproxy.paros.core.proxy.ProxyParam#setModifyAcceptEncodingHeader(boolean)",
-            "org.parosproxy.paros.core.scanner.Alert#getAlert()",
-            "org.parosproxy.paros.core.scanner.Alert#getReliability()",
-            "org.parosproxy.paros.core.scanner.Alert#setAlert(java.lang.String)",
-            "org.parosproxy.paros.core.scanner.Alert#setDetail(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,org.parosproxy.paros.network.HttpMessage)",
-            "org.parosproxy.paros.core.scanner.Alert#setRiskReliability(int,int)",
-            "org.parosproxy.paros.core.scanner.HostProcess#setPluginRequestCount(int,int)",
-            "org.parosproxy.paros.core.scanner.HostProcess#setTestCurrentCount(org.parosproxy.paros.core.scanner.Plugin,int)",
-            "org.parosproxy.paros.core.scanner.Plugin#getDisplayName()",
-            "org.parosproxy.paros.core.scanner.PluginFactory#loadedPlugin(java.lang.String)",
-            "org.parosproxy.paros.core.scanner.PluginFactory#unloadedPlugin(java.lang.String)",
-            "org.parosproxy.paros.core.scanner.Variant#getShortName()",
-            "org.parosproxy.paros.core.scanner.VariantAbstractQuery#setParams(int,java.util.Map)",
-            "org.parosproxy.paros.db.paros.ParosTableAlert#update(int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int)",
-            "org.parosproxy.paros.db.paros.ParosTableAlert#write(int,int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.lang.String)",
-            "org.parosproxy.paros.db.paros.ParosTableHistory#getHistoryList(long)",
-            "org.parosproxy.paros.db.paros.ParosTableHistory#getHistoryList(long,int)",
-            "org.parosproxy.paros.db.paros.ParosTableHistory#setHistoryTypeAsTemporary(int)",
-            "org.parosproxy.paros.db.paros.ParosTableHistory#unsetHistoryTypeAsTemporary(int)",
-            "org.parosproxy.paros.db.RecordAlert#getReliability()",
-            "org.parosproxy.paros.db.RecordAlert#setReliability(int)",
-            "org.parosproxy.paros.db.RecordAlert#RecordAlert(int,int,int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.lang.String)",
-            "org.parosproxy.paros.db.TableAlert#update(int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int)",
-            "org.parosproxy.paros.db.TableAlert#write(int,int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.lang.String)",
-            "org.parosproxy.paros.extension.CommandLineListener#preExecute(org.parosproxy.paros.extension.CommandLineArgument[])",
-            "org.parosproxy.paros.extension.ExtensionPopupMenuItem#isSuperMenu()",
-            "org.parosproxy.paros.extension.history.ExtensionHistory#clearLogPanelDisplayQueue()",
-            "org.parosproxy.paros.extension.history.LogPanel#clearDisplayQueue()",
-            "org.parosproxy.paros.extension.history.LogPanel#LogPanel()",
-            "org.parosproxy.paros.extension.history.LogPanel#setDisplayPanel(org.zaproxy.zap.extension.httppanel.HttpPanel,org.zaproxy.zap.extension.httppanel.HttpPanel)",
-            "org.parosproxy.paros.extension.option.OptionsParamView#getShowMainToolbar()",
-            "org.parosproxy.paros.extension.option.OptionsParamView#setShowMainToolbar(int)",
-            "org.parosproxy.paros.model.Session#addGlobalExcludeURLRegexs(java.lang.String)",
-            "org.parosproxy.paros.model.Session#setGlobalExcludeURLRegexs(java.util.List)",
-            "org.parosproxy.paros.network.ConnectionParam#getProxyChainSkipName()",
-            "org.parosproxy.paros.network.ConnectionParam#setProxyChainSkipName(java.lang.String)",
-            "org.parosproxy.paros.view.AbstractFrame#loadIconImages()",
-            "org.parosproxy.paros.view.MainFrame#changeDisplayOption(int)",
-            "org.parosproxy.paros.view.MainFrame#MainFrame(int)",
-            "org.parosproxy.paros.view.View#getDisplayOption()",
-            "org.parosproxy.paros.view.View#getMessagePanelsPositionController()",
-            "org.parosproxy.paros.view.View#setDisplayOption(int)",
-            "org.parosproxy.paros.view.WorkbenchPanel#changeDisplayOption(int)",
-            "org.parosproxy.paros.view.WorkbenchPanel#getTabbedOldSelect()",
-            "org.parosproxy.paros.view.WorkbenchPanel#getTabbedOldStatus()",
-            "org.parosproxy.paros.view.WorkbenchPanel#getTabbedOldWork()",
-            "org.parosproxy.paros.view.WorkbenchPanel#removeSplitPaneWork()",
-            "org.parosproxy.paros.view.WorkbenchPanel#setTabbedOldSelect(org.zaproxy.zap.view.TabbedPanel2)",
-            "org.parosproxy.paros.view.WorkbenchPanel#setTabbedOldStatus(org.zaproxy.zap.view.TabbedPanel2)",
-            "org.parosproxy.paros.view.WorkbenchPanel#setTabbedOldWork(org.zaproxy.zap.view.TabbedPanel2)",
-            "org.parosproxy.paros.view.WorkbenchPanel#splitPaneWorkWithTabbedPanel(org.parosproxy.paros.view.TabbedPanel,int)",
-            "org.parosproxy.paros.view.WorkbenchPanel#WorkbenchPanel(int)",
-            "org.zaproxy.zap.control.AddOn#AddOn(java.io.File)",
-            "org.zaproxy.zap.control.AddOn#AddOn(java.lang.String)",
-            "org.zaproxy.zap.control.AddOn#canLoad()",
-            "org.zaproxy.zap.control.AddOn#isAddOn(java.io.File)",
-            "org.zaproxy.zap.control.AddOn#isAddOn(java.lang.String)",
-            "org.zaproxy.zap.control.ControlOverrides#getConfigs()",
-            "org.zaproxy.zap.control.ControlOverrides#setConfigs(java.util.Hashtable)",
-            "org.zaproxy.zap.db.sql.SqlTableAlert#update(int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int)",
-            "org.zaproxy.zap.db.sql.SqlTableAlert#write(int,int,java.lang.String,int,int,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,int,int,int,int,int,java.lang.String)",
-            "org.zaproxy.zap.db.sql.SqlTableHistory#setHistoryTypeAsTemporary(int)",
-            "org.zaproxy.zap.db.sql.SqlTableHistory#unsetHistoryTypeAsTemporary(int)",
-            "org.zaproxy.zap.extension.api.DotNetAPIGenerator#generateCSharpFiles(java.util.List)",
-            "org.zaproxy.zap.extension.api.GoAPIGenerator#generateGoFiles(java.util.List)",
-            "org.zaproxy.zap.extension.api.JavaAPIGenerator#generateJavaFiles(java.util.List)",
-            "org.zaproxy.zap.extension.api.NodeJSAPIGenerator#generateNodeJSFiles(java.util.List)",
-            "org.zaproxy.zap.extension.api.PhpAPIGenerator#generatePhpFiles(java.util.List)",
-            "org.zaproxy.zap.extension.api.PythonAPIGenerator#generatePythonFiles(java.util.List)",
-            "org.zaproxy.zap.extension.api.WikiAPIGenerator#generateWikiFiles(java.util.List)",
-            "org.zaproxy.zap.extension.ascan.ActiveScan#updatePluginRequestCounts()",
-            "org.zaproxy.zap.extension.autoupdate.AddOnsTableModel#AddOnsTableModel(java.util.Comparator,org.zaproxy.zap.control.AddOnCollection,int)",
-            "org.zaproxy.zap.extension.brk.ExtensionBreak#canAddBreakpoint()",
-            "org.zaproxy.zap.extension.brk.ExtensionBreak#canEditBreakpoint()",
-            "org.zaproxy.zap.extension.brk.ExtensionBreak#canRemoveBreakpoint()",
-            "org.zaproxy.zap.extension.brk.ExtensionBreak#dialogClosed()",
-            "org.zaproxy.zap.extension.brk.ExtensionBreak#dialogShown(org.zaproxy.zap.extension.brk.ExtensionBreak\$DialogType)",
-            "org.zaproxy.zap.extension.brk.ExtensionBreak#getBreakPanel()",
-            "org.zaproxy.zap.extension.ExtensionPopupMenu#prepareShow()",
-            "org.zaproxy.zap.extension.history.PopupMenuPurgeSites#purge(org.parosproxy.paros.model.SiteMap,org.parosproxy.paros.model.SiteNode)",
-            "org.zaproxy.zap.extension.params.ParamScanner#setParent(org.zaproxy.zap.extension.pscan.PassiveScanThread)",
-            "org.zaproxy.zap.extension.pscan.PassiveScanner#getTaskHelper()",
-            "org.zaproxy.zap.extension.pscan.PassiveScanner#setTaskHelper(org.zaproxy.zap.extension.pscan.PassiveScanTaskHelper)",
-            "org.zaproxy.zap.extension.pscan.ExtensionPassiveScan#addPassiveScanner(java.lang.String)",
-            "org.zaproxy.zap.extension.pscan.PassiveScanThread#PassiveScanThread( org.zaproxy.zap.extension.pscan.PassiveScannerList, org.parosproxy.paros.extension.history.ExtensionHistory, org.zaproxy.zap.extension.alert.ExtensionAlert)",
-            "org.zaproxy.zap.extension.search.SearchPanel#SearchPanel()",
-            "org.zaproxy.zap.extension.search.SearchPanel#setDisplayPanel(org.zaproxy.zap.extension.httppanel.HttpPanelRequest,org.zaproxy.zap.extension.httppanel.HttpPanelResponse)",
-            "org.zaproxy.zap.extension.spider.SpiderScan#SpiderScan( org.zaproxy.zap.extension.spider.ExtensionSpider, org.zaproxy.zap.spider.SpiderParam, org.zaproxy.zap.model.Target, org.apache.commons.httpclient.URI, org.zaproxy.zap.users.User, int)",
-            "org.zaproxy.zap.extension.spider.SpiderThread#SpiderThread( org.zaproxy.zap.extension.spider.ExtensionSpider, org.zaproxy.zap.spider.SpiderParam, java.lang.String, org.zaproxy.zap.model.ScanListenner)",
-            "org.zaproxy.zap.spider.Spider#Spider(org.zaproxy.zap.extension.spider.ExtensionSpider,org.zaproxy.zap.spider.SpiderParam,org.parosproxy.paros.network.ConnectionParam,org.parosproxy.paros.model.Model,org.zaproxy.zap.model.Context)",
-            "org.zaproxy.zap.spider.SpiderParam#getScope()",
-            "org.zaproxy.zap.spider.SpiderParam#getScopeText()",
-            "org.zaproxy.zap.spider.SpiderParam#setScopeString(java.lang.String)",
-            "org.zaproxy.zap.view.ContextExcludePanel#getPanelName(org.zaproxy.zap.model.Context)",
-            "org.zaproxy.zap.view.ContextIncludePanel#getPanelName(org.zaproxy.zap.model.Context)",
-            "org.zaproxy.zap.view.MainToolbarPanel#setDisplayOption(int)",
-            "org.zaproxy.zap.view.ScanPanel2#ScanPanel2(java.lang.String, javax.swing.ImageIcon, org.zaproxy.zap.model.ScanController, org.parosproxy.paros.common.AbstractParam)",
-            "org.zaproxy.zap.view.TabbedPanel2#clone(org.zaproxy.zap.view.TabbedPanel2)"
-        )
-    )
+    methodExcludes.set(listOf())
 
     richReport {
         destinationDir.set(file("$buildDir/reports/japicmp/"))
