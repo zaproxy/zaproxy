@@ -111,19 +111,20 @@ tasks.register<Zip>("distCore") {
     val liteAddOns = listOf(
             "ascanrules",
             "bruteforce",
+            "callhome",
             "commonlib",
             "coreLang",
             "diff",
             "gettingStarted",
             "help",
             "invoke",
+            "network",
             "onlineMenu",
             "plugnhack",
             "pscanrules",
             "quickstart",
             "reports",
             "reveal",
-            "saverawmessage",
             "tips")
     val topLevelDir = "ZAP_${project.version}"
 
