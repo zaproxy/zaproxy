@@ -28,7 +28,6 @@ These tasks use checkboxes so that they can be copied into an issue.
      - [ ] Add new add-ons.
      - [ ] Remove add-ons no longer needed.
      - [ ] Update add-ons with the task mentioned in `main-add-ons.yml`.
-  - [ ] Update [README.md](https://github.com/zaproxy/zaproxy/blob/main/README.md) to point to the latest JavaDocs
   - [ ] Update [SECURITY.md](https://github.com/zaproxy/zaproxy/blob/main/SECURITY.md) to mention the latest version.
 - [ ] Merge the pull request, to create the tag and the draft release (done by [Release Main Version](https://github.com/zaproxy/zaproxy/actions/workflows/release-main-version.yml));
 - [ ] Verify the draft release;
