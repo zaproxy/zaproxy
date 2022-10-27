@@ -81,7 +81,7 @@ dependencies {
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.9.0")
-    api("org.hsqldb:hsqldb:2.7.0")
+    api("org.hsqldb:hsqldb:2.7.1")
     api("org.jfree:jfreechart:1.5.3")
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
