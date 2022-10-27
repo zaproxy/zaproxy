@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2022-10-27
+ - Updated to use Webswing 22.2
+
 ### 2022-10-07
  - Changed stable image to use debian:unstable-slim.
  - Changed bare image to use eclipse-temurin:11-jre-alpine.
