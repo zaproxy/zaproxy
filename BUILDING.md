@@ -63,7 +63,7 @@ A dmg bundling ZAP, its dependencies, and JRE. The Linux/Windows specific add-on
 
 To build it run the task `:zap:distMac`.
 
-**NOTE:** Needs to be executed on macOS, it requires `hdiutils`.
+**NOTE:** Needs to be executed on macOS, it requires `hdiutil`.
 
 ## Installers
 The installers for Linux and Windows are built with [install4j]. The Windows executable is built with the [launch4j], invoked with Gradle plugin [gradle-launch4j].
