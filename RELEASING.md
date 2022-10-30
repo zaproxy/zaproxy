@@ -29,6 +29,7 @@ These tasks use checkboxes so that they can be copied into an issue.
      - [ ] Remove add-ons no longer needed.
      - [ ] Update add-ons with the task mentioned in `main-add-ons.yml`.
   - [ ] Update [SECURITY.md](https://github.com/zaproxy/zaproxy/blob/main/SECURITY.md) to mention the latest version.
+  - [ ] Update the version of the snap and the source file in [snapcraft.yaml](https://github.com/zaproxy/zaproxy/blob/main/snap/snapcraft.yaml).
 - [ ] Merge the pull request, to create the tag and the draft release (done by [Release Main Version](https://github.com/zaproxy/zaproxy/actions/workflows/release-main-version.yml));
 - [ ] Create the macOS release on a Mac (requires `hdiutil`):
   - [ ] Check out the tag: e.g. `git checkout tags/v2.12.0`
@@ -68,6 +69,7 @@ The resulting localized resources are added/updated in the repository periodical
   - [ ] Kali - [new issue](https://bugs.kali.org/)
   - [ ] [Flathub](https://github.com/flathub/org.zaproxy.ZAP)
   - [ ] [Snap](https://github.com/zaproxy/zaproxy/tree/main/snap)
+    - [ ] Run the workflow [Release Snap](https://github.com/zaproxy/zaproxy/actions/workflows/release-snap.yml).
 - [ ] Update 3rd Party Package Managers 
   - [ ] Homebrew - [owasp-zap.rb](https://github.com/Homebrew/homebrew-cask/blob/master/Casks/owasp-zap.rb)
   - [ ] Scoop - [zaproxy.json](https://github.com/ScoopInstaller/Extras/blob/master/bucket/zaproxy.json)
