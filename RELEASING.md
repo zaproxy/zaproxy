@@ -30,8 +30,15 @@ These tasks use checkboxes so that they can be copied into an issue.
      - [ ] Update add-ons with the task mentioned in `main-add-ons.yml`.
   - [ ] Update [SECURITY.md](https://github.com/zaproxy/zaproxy/blob/main/SECURITY.md) to mention the latest version.
 - [ ] Merge the pull request, to create the tag and the draft release (done by [Release Main Version](https://github.com/zaproxy/zaproxy/actions/workflows/release-main-version.yml));
-- [ ] Verify the draft release;
+- [ ] Create the macOS release on a Mac (requires `hdiutil`):
+  - [ ] Check out the tag: e.g. `git checkout tags/v2.12.0`
+  - [ ] Run `./gradlew :zap:distMac`
+  - [ ] Verify it locally
+  - [ ] Upload it to the release and update the README with the hash
+- [ ] Verify the draft release.
 - [ ] Publish the release.
+- [ ] Regenerate and publish the Weekly and Live releases.
+- [ ] Update the [Linux Repos](https://software.opensuse.org/download.html?project=home%3Acabelo&package=owasp-zap)
 
 Once published the [Handle Release](https://github.com/zaproxy/zaproxy/actions/workflows/handle-release.yml) workflow
 will trigger the update of the marketplace with the new release, it will also create a pull request preparing the next
@@ -49,6 +56,7 @@ The resulting localized resources are added/updated in the repository periodical
 ### Post Release
 
 - [ ] Publish blog post
+- [ ] Update latest News file to point to blog / release notes?
 - [ ] Announce on
   - [ ] ZAP User and Dev groups
   - [ ] @zaproxy twitter account
