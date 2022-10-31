@@ -1,3 +1,11 @@
+
+pluginManagement {
+    repositories {
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+
 rootProject.name = "zaproxy"
 
 include("zap")
