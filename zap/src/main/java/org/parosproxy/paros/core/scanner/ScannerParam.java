@@ -53,6 +53,7 @@
 // ZAP: 2021/04/13 Issue 6469: Add option to scan null JSON values.
 // ZAP: 2021/09/14 Enable Anti CSRF handling by default.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2022/11/04 Prevent invalid number of hosts/threads.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -220,9 +221,9 @@ public class ScannerParam extends AbstractParam {
     protected void parse() {
         removeOldOptions();
 
-        this.threadPerHost = getInt(THREAD_PER_HOST, 2);
+        this.threadPerHost = Math.max(1, getInt(THREAD_PER_HOST, 2));
 
-        this.hostPerScan = getInt(HOST_PER_SCAN, 2);
+        this.hostPerScan = Math.max(1, getInt(HOST_PER_SCAN, 2));
 
         this.delayInMs = getInt(DELAY_IN_MS, 0);
 
@@ -370,7 +371,7 @@ public class ScannerParam extends AbstractParam {
 
     /** @param threadPerHost */
     public void setThreadPerHost(int threadPerHost) {
-        this.threadPerHost = threadPerHost;
+        this.threadPerHost = Math.max(1, threadPerHost);
         getConfig().setProperty(THREAD_PER_HOST, Integer.toString(this.threadPerHost));
     }
 
@@ -381,7 +382,7 @@ public class ScannerParam extends AbstractParam {
 
     /** @param hostPerScan The thread to set. */
     public void setHostPerScan(int hostPerScan) {
-        this.hostPerScan = hostPerScan;
+        this.hostPerScan = Math.max(1, hostPerScan);
         getConfig().setProperty(HOST_PER_SCAN, Integer.toString(this.hostPerScan));
     }
 
