@@ -57,6 +57,94 @@ class ScannerParamUnitTest {
         param.load(configuration);
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 10})
+    void shouldLoadThreadPerHostFromConfig(int threadPerHost) {
+        // Given
+        configuration.setProperty("scanner.threadPerHost", threadPerHost);
+        // When
+        param.load(configuration);
+        // Then
+        assertThat(param.getThreadPerHost(), is(equalTo(threadPerHost)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, 0})
+    void shouldUseOneIfLoadingInvalidThreadPerHostFromConfig(int threadPerHost) {
+        // Given
+        configuration.setProperty("scanner.threadPerHost", threadPerHost);
+        // When
+        param.load(configuration);
+        // Then
+        assertThat(param.getThreadPerHost(), is(equalTo(1)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 10})
+    void shouldSetThreadPerHost(int threadPerHost) {
+        // Given / When
+        param.setThreadPerHost(threadPerHost);
+        // Then
+        assertThat(param.getThreadPerHost(), is(equalTo(threadPerHost)));
+        assertThat(
+                configuration.getProperty("scanner.threadPerHost"),
+                is(equalTo(String.valueOf(threadPerHost))));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, 0})
+    void shouldUseOneIfSettingInvalidNumberOfThreadPerHost(int threadPerHost) {
+        // Given / When
+        param.setThreadPerHost(threadPerHost);
+        // Then
+        assertThat(param.getThreadPerHost(), is(equalTo(1)));
+        assertThat(configuration.getProperty("scanner.threadPerHost"), is(equalTo("1")));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 10})
+    void shouldLoadHostPerScanFromConfig(int hostPerScan) {
+        // Given
+        configuration.setProperty("scanner.hostPerScan", hostPerScan);
+        // When
+        param.load(configuration);
+        // Then
+        assertThat(param.getHostPerScan(), is(equalTo(hostPerScan)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, 0})
+    void shouldUseOneIfLoadingInvalidHostPerScanFromConfig(int hostPerScan) {
+        // Given
+        configuration.setProperty("scanner.hostPerScan", hostPerScan);
+        // When
+        param.load(configuration);
+        // Then
+        assertThat(param.getHostPerScan(), is(equalTo(1)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2, 10})
+    void shouldSetHostPerScan(int hostPerScan) {
+        // Given / When
+        param.setHostPerScan(hostPerScan);
+        // Then
+        assertThat(param.getHostPerScan(), is(equalTo(hostPerScan)));
+        assertThat(
+                configuration.getProperty("scanner.hostPerScan"),
+                is(equalTo(String.valueOf(hostPerScan))));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, 0})
+    void shouldUseOneIfSettingInvalidNumberOfHostPerScan(int hostPerScan) {
+        // Given / When
+        param.setHostPerScan(hostPerScan);
+        // Then
+        assertThat(param.getHostPerScan(), is(equalTo(1)));
+        assertThat(configuration.getProperty("scanner.hostPerScan"), is(equalTo("1")));
+    }
+
     @Test
     void shouldHaveScanJsonNullValuesDisabledByDefault() {
         // Given / When
