@@ -2,7 +2,7 @@
 All notable changes to the docker containers will be documented in this file.
 
 ### 2022-11-07
- - Updated `zap-x.sh` to use full path
+ - Updated packaged scans to use full path to `zap-x.sh`.
 
 ### 2022-11-04
   - Fixed `zap-x.sh` to return the exit code from `zap.sh` instead of `rm -f`
