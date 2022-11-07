@@ -274,7 +274,7 @@ def add_zap_options(params, zap_options):
 
 def create_start_options(mode, port, extra_params):
     params = [
-        'zap-x.sh', mode,
+        '/zap/zap-x.sh', mode,
         '-port', str(port),
         '-host', '0.0.0.0',
         '-config', 'database.recoverylog=false',
