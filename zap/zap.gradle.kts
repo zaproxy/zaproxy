@@ -149,7 +149,12 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     classExcludes.set(listOf())
 
-    methodExcludes.set(listOf())
+    methodExcludes.set(
+        listOf(
+            "org.parosproxy.paros.extension.ViewDelegate#getOptionsButton(java.lang.String, java.lang.String)",
+            "org.parosproxy.paros.extension.ViewDelegate#getHelpButton(java.lang.String)"
+        )
+    )
 
     richReport {
         destinationDir.set(file("$buildDir/reports/japicmp/"))
