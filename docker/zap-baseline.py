@@ -484,11 +484,12 @@ def main(argv):
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
         params = [
-                '-config', 'spider.maxDuration=' + str(mins),
-                '-addonupdate']
+                '-config', 'spider.maxDuration=' + str(mins),]
 
         if (zap_alpha):
             params.extend(['-addoninstall', 'pscanrulesAlpha'])
+        if (updates_addons):
+            params.extend(['-addonupdate'])
 
         add_zap_options(params, zap_options)
 
