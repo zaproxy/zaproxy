@@ -114,6 +114,7 @@ def usage():
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
     print('    --schema          GraphQL schema location, URL or file, e.g. https://www.example.com/schema.graphqls')
+    print('    -ua               update addons on run')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/api-scan/')
 
@@ -151,6 +152,7 @@ def main(argv):
     schema = ''
     schema_url = ''
     user = ''
+    update_addons = False
 
     pass_count = 0
     warn_count = 0
@@ -231,6 +233,8 @@ def main(argv):
         elif opt == '--schema':
             schema = arg
             logging.debug('Schema: ' + schema)
+        elif opt == '-ua':
+            update_addons = True
 
     check_zap_client_version()
 
@@ -330,12 +334,13 @@ def main(argv):
     if running_in_docker():
         try:
             params = [
-                      '-addonupdate',
                       '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
 
             if zap_alpha:
                 params.append('-addoninstall')
                 params.append('pscanrulesAlpha')
+            if update_addons:
+                params.append('-addonupdate')
 
             add_zap_options(params, zap_options)
 
@@ -351,10 +356,11 @@ def main(argv):
         if context_file:
             mount_dir =  os.path.dirname(os.path.abspath(context_file))
 
-        params = ['-addonupdate']
-
         if (zap_alpha):
             params.extend(['-addoninstall', 'pscanrulesAlpha'])
+        
+        if update_addons:
+            params.extend(['-addonupdate'])
 
         add_zap_options(params, zap_options)
 
