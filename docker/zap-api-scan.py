@@ -153,7 +153,7 @@ def main(argv):
     schema = ''
     schema_url = ''
     user = ''
-    update_addons = False
+    updates_addons = False
 
     pass_count = 0
     warn_count = 0
@@ -235,7 +235,7 @@ def main(argv):
             schema = arg
             logging.debug('Schema: ' + schema)
         elif opt == '-ua':
-            update_addons = True
+            updates_addons = True
 
     check_zap_client_version()
 
@@ -344,7 +344,9 @@ def main(argv):
             if zap_alpha:
                 params.append('-addoninstall')
                 params.append('pscanrulesAlpha')
-            if update_addons:
+            if not updates_addons:
+                params.append('-silent')
+            else:
                 params.append('-addonupdate')
 
             add_zap_options(params, zap_options)
@@ -363,8 +365,10 @@ def main(argv):
 
         if (zap_alpha):
             params.extend(['-addoninstall', 'pscanrulesAlpha'])
-        
-        if update_addons:
+
+        if not updates_addons:
+            params.extend(['-silent'])
+        else:
             params.extend(['-addonupdate'])
 
         add_zap_options(params, zap_options)

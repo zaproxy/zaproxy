@@ -466,11 +466,12 @@ def main(argv):
                 params = [
                           '-config', 'spider.maxDuration=' + str(mins),
                           '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
-    
                 if zap_alpha:
                     params.append('-addoninstall')
                     params.append('pscanrulesAlpha')
-                if updates_addons:
+                if not updates_addons:
+                    params.append('-silent')
+                else:
                     params.append('-addonupdate')
     
                 add_zap_options(params, zap_options)
