@@ -12,8 +12,9 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 
 WORKDIR /zap
 
-# Download and expand the latest stable release
-RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
+# Download and expand specific stable release
+ARG ZAP_VERSION=2.12.0
+RUN wget -qO- "https://github.com/zaproxy/zaproxy/releases/download/v${ZAP_VERSION}/ZAP_${ZAP_VERSION}_Linux.tar.gz" | tar zxv && \
 	mv ZAP*/* . && \
 	rm -R ZAP*
 
