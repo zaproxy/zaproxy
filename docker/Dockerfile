@@ -16,8 +16,8 @@ RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVers
 	mv ZAP*/* . && \
 	rm -R ZAP*
 
-# Update add-ons
-RUN ./zap.sh -cmd -silent -addonupdate
+# install add-ons
+# RUN ./zap.sh -cmd -silent -addoninstallall
 # Copy them to installation directory
 RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
