@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.api;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.endsWith;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -552,7 +551,7 @@ class APIUnitTest {
         ApiException e =
                 assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
         // Then
-        assertThat(e.getMessage(), containsString("internal_error"));
+        assertThat(e.getType(), is(equalTo(ApiException.Type.INTERNAL_ERROR)));
     }
 
     @Test
@@ -564,7 +563,7 @@ class APIUnitTest {
         ApiException e =
                 assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
         // Then
-        assertThat(e.getMessage(), containsString("internal_error"));
+        assertThat(e.getType(), is(equalTo(ApiException.Type.INTERNAL_ERROR)));
     }
 
     @Test
@@ -576,7 +575,7 @@ class APIUnitTest {
         ApiException e =
                 assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
         // Then
-        assertThat(e.getMessage(), containsString("internal_error"));
+        assertThat(e.getType(), is(equalTo(ApiException.Type.INTERNAL_ERROR)));
     }
 
     @Test
@@ -588,7 +587,7 @@ class APIUnitTest {
         ApiException e =
                 assertThrows(ApiException.class, () -> API.responseToXml(endpointName, response));
         // Then
-        assertThat(e.getMessage(), containsString("internal_error"));
+        assertThat(e.getType(), is(equalTo(ApiException.Type.INTERNAL_ERROR)));
     }
 
     @Test

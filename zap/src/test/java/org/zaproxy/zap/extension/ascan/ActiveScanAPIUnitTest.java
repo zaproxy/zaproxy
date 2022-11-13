@@ -105,7 +105,7 @@ class ActiveScanAPIUnitTest {
         // When / Then
         ApiException exception =
                 assertThrows(ApiException.class, () -> api.handleApiAction(name, params));
-        assertThat(exception.getMessage(), is(equalTo("illegal_parameter")));
+        assertThat(exception.getType(), is(equalTo(ApiException.Type.ILLEGAL_PARAMETER)));
         assertThat(exception.toString(true), containsString("a"));
         verify(scanRule1).setEnabled(anyBoolean());
         verifyNoInteractions(scanRule3);
@@ -140,7 +140,7 @@ class ActiveScanAPIUnitTest {
         // When / Then
         ApiException exception =
                 assertThrows(ApiException.class, () -> api.handleApiAction(name, params));
-        assertThat(exception.getMessage(), is(equalTo("does_not_exist")));
+        assertThat(exception.getType(), is(equalTo(ApiException.Type.DOES_NOT_EXIST)));
         assertThat(exception.toString(true), containsString("IDs: [1, 3]"));
     }
 }
