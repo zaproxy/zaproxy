@@ -103,7 +103,7 @@ def usage():
     print('    --hook            path to python file that define your custom hooks')
     print('    --auto            use the automation framework if supported for the given parameters (this is now the default)')
     print('    --autooff         do not use the automation framework even if supported for the given parameters')
-    print('    -ua               update addons on run')
+    print('    --updateAddons    update addons on run')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/baseline-scan/')
 
@@ -193,7 +193,7 @@ def main(argv):
     debug = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff"])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff", "updateAddons"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -271,7 +271,7 @@ def main(argv):
             af_override = True
         elif opt == '--autooff':
             use_af = False
-        elif opt == '-ua':
+        elif opt == '--updateAddons':
             updates_addons = True
 
     check_zap_client_version()

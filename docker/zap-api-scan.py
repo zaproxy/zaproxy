@@ -114,7 +114,7 @@ def usage():
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
     print('    --schema          GraphQL schema location, URL or file, e.g. https://www.example.com/schema.graphqls')
-    print('    -ua               update addons on run')
+    print('    --updateAddons                update addons on run')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/api-scan/')
 
@@ -164,7 +164,7 @@ def main(argv):
     exception_raised = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:IO:U:", ["hook=", "schema="])
+        opts, args = getopt.getopt(argv, "t:f:c:u:g:m:n:r:J:w:x:l:hdaijSp:sz:P:D:T:IO:U:", ["hook=", "schema=", "updateAddons"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -233,7 +233,7 @@ def main(argv):
         elif opt == '--schema':
             schema = arg
             logging.debug('Schema: ' + schema)
-        elif opt == '-ua':
+        elif opt == '--updateAddons':
             updates_addons = True
 
     check_zap_client_version()
