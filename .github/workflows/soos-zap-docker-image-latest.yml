@@ -1,4 +1,4 @@
-name: Push Docker Container Beta
+name: Push Docker Container Latest
 
 on:
   release:
