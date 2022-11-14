@@ -1,9 +1,8 @@
 name: Push Docker Container Beta
 
 on:
-  push:
-    branches:
-      - 'main'
+  release:
+    types: [published]
 
 jobs:
   docker:
@@ -28,5 +27,5 @@ jobs:
           context: docker
           file: docker/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: soosio/dast:latest
+          tags: soosio/zap2docker-soos:latest
           labels: ${{ steps.meta.outputs.labels }}

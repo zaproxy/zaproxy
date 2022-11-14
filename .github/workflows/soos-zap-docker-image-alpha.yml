@@ -28,5 +28,5 @@ jobs:
           context: docker
           file: docker/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: soosio/dast:alpha
+          tags: soosio/zap2docker-soos:alpha
           labels: ${{ steps.meta.outputs.labels }}

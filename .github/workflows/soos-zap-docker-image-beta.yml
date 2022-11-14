@@ -2,8 +2,8 @@ name: Push Docker Container Beta
 
 on:
   push:
-    branches:
-      - 'main'
+    tags:
+      - "v*"
 
 jobs:
   docker:
@@ -28,5 +28,5 @@ jobs:
           context: docker
           file: docker/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
-          tags: soosio/dast:beta
+          tags: soosio/zap2docker-soos:beta
           labels: ${{ steps.meta.outputs.labels }}
