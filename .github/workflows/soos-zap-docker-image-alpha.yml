@@ -25,7 +25,8 @@ jobs:
       - name: Build and Push
         uses: docker/build-push-action@v2
         with:
-          context: .
+          context: docker
+          file: docker/Dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           tags: soosio/dast:alpha
           labels: ${{ steps.meta.outputs.labels }}
