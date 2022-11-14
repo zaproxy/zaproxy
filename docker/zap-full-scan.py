@@ -100,7 +100,7 @@ def usage():
     print('    -U user           username to use for authenticated scans - must be defined in the given context file')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
-    print('    -ua               update addons on run')
+    print('    --updateAddons                update addons on run')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/full-scan/')
 
@@ -146,7 +146,7 @@ def main(argv):
     exception_raised = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook="])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "updateAddons"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -210,7 +210,7 @@ def main(argv):
             user = arg
         elif opt == '--hook':
             hook_file = arg
-        elif opt == '-ua':
+        elif opt == '--updateAddons':
             updates_addons = True
 
     check_zap_client_version()
