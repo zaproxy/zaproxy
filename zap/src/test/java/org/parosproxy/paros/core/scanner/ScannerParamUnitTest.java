@@ -22,6 +22,7 @@ package org.parosproxy.paros.core.scanner;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.AfterAll;
@@ -184,5 +185,19 @@ class ScannerParamUnitTest {
         // Then
         assertThat(
                 configuration.getBoolean(ScannerParam.SCAN_NULL_JSON_VALUES), is(equalTo(value)));
+    }
+
+    @Test
+    void shouldMigrateOldOptions() {
+        // Given
+        configuration.setProperty("scanner.deleteOnShutdown", true);
+        configuration.setProperty("scanner.antiCSRF", true);
+        // When
+        param.load(configuration);
+        // Then
+        assertThat(configuration.getProperty("scanner.antiCSRF"), is(equalTo(true)));
+        assertThat(param.getHandleAntiCSRFTokens(), is(equalTo(true)));
+        assertNull(configuration.getProperty("scanner.antiCSFR"));
+        assertNull(configuration.getProperty("scanner.deleteOnShutdown"));
     }
 }

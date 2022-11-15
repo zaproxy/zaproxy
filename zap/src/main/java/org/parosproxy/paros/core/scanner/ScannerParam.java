@@ -77,7 +77,7 @@ public class ScannerParam extends AbstractParam {
     // ZAP: Added support for delayInMs
     private static final String DELAY_IN_MS = ACTIVE_SCAN_BASE_KEY + ".delayInMs";
     private static final String INJECT_PLUGIN_ID_IN_HEADER = ACTIVE_SCAN_BASE_KEY + ".pluginHeader";
-    private static final String HANDLE_ANTI_CSRF_TOKENS = ACTIVE_SCAN_BASE_KEY + ".antiCSFR";
+    private static final String HANDLE_ANTI_CSRF_TOKENS = ACTIVE_SCAN_BASE_KEY + ".antiCSRF";
     private static final String PROMPT_IN_ATTACK_MODE = ACTIVE_SCAN_BASE_KEY + ".attackPrompt";
     private static final String RESCAN_IN_ATTACK_MODE = ACTIVE_SCAN_BASE_KEY + ".attackRescan";
     private static final String PROMPT_TO_CLEAR_FINISHED = ACTIVE_SCAN_BASE_KEY + ".clearFinished";
@@ -219,7 +219,7 @@ public class ScannerParam extends AbstractParam {
 
     @Override
     protected void parse() {
-        removeOldOptions();
+        migrateOldOptions();
 
         this.threadPerHost = Math.max(1, getInt(THREAD_PER_HOST, 2));
 
@@ -311,8 +311,14 @@ public class ScannerParam extends AbstractParam {
         }
     }
 
-    private void removeOldOptions() {
-        final String oldKey = "scanner.deleteOnShutdown";
+    private void migrateOldOptions() {
+        String oldKey = "scanner.antiCSFR";
+        if (getConfig().containsKey(oldKey)) {
+            getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, getConfig().getProperty(oldKey));
+            getConfig().clearProperty(oldKey);
+        }
+
+        oldKey = "scanner.deleteOnShutdown";
         if (getConfig().containsKey(oldKey)) {
             getConfig().clearProperty(oldKey);
         }
