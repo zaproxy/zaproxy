@@ -45,6 +45,7 @@
 // getHeaders(String) method (returning Vector).
 // ZAP: 2022/03/11 Added headers: Content-Location, Link, Refresh
 // ZAP: 2022/09/12 Allow only major HTTP version.
+// ZAP: 2022/11/17 Add HTTP/2 constant.
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
@@ -93,6 +94,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String HTTP09 = "HTTP/0.9";
     public static final String HTTP10 = "HTTP/1.0";
     public static final String HTTP11 = "HTTP/1.1";
+    public static final String HTTP2 = "HTTP/2";
     public static final String _CLOSE = "Close";
     public static final String _KEEP_ALIVE = "Keep-Alive";
     public static final String _CHUNKED = "Chunked";
