@@ -476,7 +476,7 @@ Muchos sitios web se encuentran diseñados para poder autenticar y seguir a un u
 
 <vuln_items>wasc_19</vuln_items>
 <vuln_item_wasc_19>
-	<alert>Falla por Inyección SQL</alert>
+	<alert>Inyección SQL</alert>
 	<desc>La inyección SQL es un médodo de ataque que es utilizada para poder explotar las aplicaciones que construyen algun sentencias SQL a partir de entradas que son proporcionadas por el usuario. Cuando el método tiene exito, el atacante puede modificar la lógica de las sentencias de SQL que se encuentran activadas en la base de datos.
 
 Structured Query Language (SQL) es un lenguaje de programación el cual está especializado para poder enviar las consultas a las bases de datos. El lenguaje de programación de SQL es al mismo tiempo un ANSI y un estándar ISO, aunque una gran cantidad de productos de bases de datos que son compatibles con SQL lo hace por medio de extensiones propietarias del lenguaje estándar. Las aplicaciones normalmente utilizan datos que son proporcionados por el usuario para poder crear declaraciones SQL. Si una aplicación no puede contruir de forma correcta la sentencias de SQL, es posible que un atacante pueda alterar la estructura de la sentencia y active comandos no planificados y que pueden ser potencialmente hostiles. Cuando se activan los comandos mencionados, lo hacen bajo el contexto del usuaro determinado por la aplicación que activa el enunciado. Esta capacidad le permite a los atacantes poseer el control de todos los recursos de la base de datos a los que puede ingresar el usuario, incluyendo la posibilidad de ejecutar comandos en el sistema de hospedaje.</desc>
