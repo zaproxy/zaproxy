@@ -64,6 +64,7 @@
 // ZAP: 2021/07/19 Include SVG in isImage().
 // ZAP: 2022/09/12 Allow arbitrary HTTP versions.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2022/11/22 Lower case the HTTP field names for compatibility with HTTP/2.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -89,14 +90,14 @@ public class HttpRequestHeader extends HttpHeader {
      *
      * @since 2.8.0
      */
-    public static final String ACCEPT = "Accept";
+    public static final String ACCEPT = "accept";
 
     /**
      * The {@code Origin} request header.
      *
      * @since 2.8.0
      */
-    public static final String ORIGIN = "Origin";
+    public static final String ORIGIN = "origin";
 
     private static final long serialVersionUID = 4156598327921777493L;
     private static final Logger log = LogManager.getLogger(HttpRequestHeader.class);
@@ -117,7 +118,7 @@ public class HttpRequestHeader extends HttpHeader {
     public static final String[] METHODS = {
         CONNECT, DELETE, GET, HEAD, OPTIONS, PATCH, POST, PUT, TRACE, TRACK
     };
-    public static final String HOST = "Host";
+    public static final String HOST = "host";
     private static final Pattern patternRequestLine =
             Pattern.compile(p_METHOD + p_SP + p_URI + p_SP + p_VERSION, Pattern.CASE_INSENSITIVE);
     // private static final Pattern patternHostHeader
