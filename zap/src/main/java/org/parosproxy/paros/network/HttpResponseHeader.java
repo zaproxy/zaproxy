@@ -44,6 +44,7 @@
 // ZAP: 2021/05/14 Remove redundant type arguments.
 // ZAP: 2022/09/12 Allow arbitrary HTTP versions.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2022/11/22 Lower case the HTTP field names for compatibility with HTTP/2.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -65,35 +66,35 @@ public class HttpResponseHeader extends HttpHeader {
      *
      * @since 2.8.0
      */
-    public static final String CSP = "Content-Security-Policy";
+    public static final String CSP = "content-security-policy";
 
     /**
      * The {@code Content-Security-Policy-Report-Only} response header.
      *
      * @since 2.8.0
      */
-    public static final String CSP_REPORT_ONLY = "Content-Security-Policy-Report-Only";
+    public static final String CSP_REPORT_ONLY = "content-security-policy-report-only";
 
     /**
      * The {@code X-Content-Security-Policy} response header.
      *
      * @since 2.8.0
      */
-    public static final String XCSP = "X-Content-Security-Policy";
+    public static final String XCSP = "x-content-security-policy";
 
     /**
      * The {@code X-WebKit-CSP} response header.
      *
      * @since 2.8.0
      */
-    public static final String WEBKIT_CSP = "X-WebKit-CSP";
+    public static final String WEBKIT_CSP = "x-webkit-csp";
 
     /**
      * The {@code Server} response header.
      *
      * @since 2.8.0
      */
-    public static final String SERVER = "Server";
+    public static final String SERVER = "server";
 
     private static final long serialVersionUID = 2812716126742059785L;
     private static final Logger log = LogManager.getLogger(HttpResponseHeader.class);

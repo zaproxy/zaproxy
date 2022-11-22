@@ -46,6 +46,7 @@
 // ZAP: 2022/03/11 Added headers: Content-Location, Link, Refresh
 // ZAP: 2022/09/12 Allow only major HTTP version.
 // ZAP: 2022/11/17 Add HTTP/2 constant.
+// ZAP: 2022/11/22 Lower case the HTTP field names for compatibility with HTTP/2.
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
@@ -63,34 +64,32 @@ public abstract class HttpHeader implements java.io.Serializable {
     private static final long serialVersionUID = 7922279497679304778L;
     public static final String CRLF = "\r\n";
     public static final String LF = "\n";
-    public static final String CONTENT_LENGTH = "Content-Length";
-    public static final String TRANSFER_ENCODING = "Transfer-Encoding";
-    public static final String CONTENT_ENCODING = "Content-Encoding";
-    public static final String CONTENT_LOCATION = "Content-Location";
-    public static final String CONTENT_TYPE = "Content-Type";
-    public static final String PROXY_CONNECTION = "Proxy-Connection";
-    public static final String PROXY_AUTHENTICATE = "Proxy-Authenticate";
-    public static final String CONNECTION = "Connection";
-    public static final String AUTHORIZATION = "Authorization";
-    public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
-    public static final String LOCATION = "Location";
-    public static final String IF_MODIFIED_SINCE = "If-Modified-Since";
-    public static final String IF_NONE_MATCH = "If-None-Match";
-    public static final String USER_AGENT = "User-Agent";
-    public static final String ACCEPT_ENCODING = "Accept-Encoding";
-    // ZAP:  the correct case is "Cache-Control", not "Cache-control"
-    public static final String CACHE_CONTROL = "Cache-Control";
-    public static final String PRAGMA = "Pragma";
-    public static final String REFERER = "Referer";
-    public static final String X_ZAP_REQUESTID = "X-ZAP-RequestID";
-    public static final String X_SECURITY_PROXY = "X-Security-Proxy";
-    // ZAP: Added cookie headers
-    public static final String COOKIE = "Cookie";
-    public static final String SET_COOKIE = "Set-Cookie";
-    public static final String SET_COOKIE2 = "Set-Cookie2";
-    public static final String X_XSS_PROTECTION = "X-XSS-Protection";
-    public static final String X_FRAME_OPTION = "X-Frame-Options";
-    public static final String X_CONTENT_TYPE_OPTIONS = "X-Content-Type-Options";
+    public static final String CONTENT_LENGTH = "content-length";
+    public static final String TRANSFER_ENCODING = "transfer-encoding";
+    public static final String CONTENT_ENCODING = "content-encoding";
+    public static final String CONTENT_LOCATION = "content-location";
+    public static final String CONTENT_TYPE = "content-type";
+    public static final String PROXY_CONNECTION = "proxy-connection";
+    public static final String PROXY_AUTHENTICATE = "proxy-authenticate";
+    public static final String CONNECTION = "connection";
+    public static final String AUTHORIZATION = "authorization";
+    public static final String WWW_AUTHENTICATE = "www-authenticate";
+    public static final String LOCATION = "location";
+    public static final String IF_MODIFIED_SINCE = "if-modified-since";
+    public static final String IF_NONE_MATCH = "if-none-match";
+    public static final String USER_AGENT = "user-agent";
+    public static final String ACCEPT_ENCODING = "accept-encoding";
+    public static final String CACHE_CONTROL = "cache-control";
+    public static final String PRAGMA = "pragma";
+    public static final String REFERER = "referer";
+    public static final String X_ZAP_REQUESTID = "x-zap-requestid";
+    public static final String X_SECURITY_PROXY = "x-security-proxy";
+    public static final String COOKIE = "cookie";
+    public static final String SET_COOKIE = "set-cookie";
+    public static final String SET_COOKIE2 = "set-cookie2";
+    public static final String X_XSS_PROTECTION = "x-xss-protection";
+    public static final String X_FRAME_OPTION = "x-frame-options";
+    public static final String X_CONTENT_TYPE_OPTIONS = "x-content-type-options";
     public static final String HTTP09 = "HTTP/0.9";
     public static final String HTTP10 = "HTTP/1.0";
     public static final String HTTP11 = "HTTP/1.1";
@@ -109,8 +108,8 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String IDENTITY = "identity";
     public static final String SEC_PROXY_INTERCEPT = "intercept";
     public static final String SEC_PROXY_RECORD = "record";
-    public static final String LINK = "Link";
-    public static final String REFRESH = "Refresh";
+    public static final String LINK = "link";
+    public static final String REFRESH = "refresh";
     public static final Pattern patternCRLF = Pattern.compile("\\r\\n", Pattern.MULTILINE);
     public static final Pattern patternLF = Pattern.compile("\\n", Pattern.MULTILINE);
     // ZAP: Issue 410: charset wrapped in quotation marks
@@ -135,21 +134,21 @@ public abstract class HttpHeader implements java.io.Serializable {
     protected String mLineDelimiter;
     protected String mVersion;
     // ZAP: added CORS headers
-    public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
-    public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
-    public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
-    public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+    public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "access-control-allow-origin";
+    public static final String ACCESS_CONTROL_ALLOW_HEADERS = "access-control-allow-headers";
+    public static final String ACCESS_CONTROL_ALLOW_METHODS = "access-control-allow-methods";
+    public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "access-control-expose-headers";
     // ZAP: added "Allow" and "Public" Headers, for response to "OPTIONS" method
     public static final String METHODS_ALLOW = "Allow";
     public static final String METHODS_PUBLIC = "Public"; // IIS specific?
-    public static final String X_ZAP_SCAN_ID = "X-ZAP-Scan-ID";
-    public static final String X_ZAP_API_KEY = "X-ZAP-API-Key";
-    public static final String X_ZAP_API_NONCE = "X-ZAP-API-Nonce";
+    public static final String X_ZAP_SCAN_ID = "x-zap-scan-id";
+    public static final String X_ZAP_API_KEY = "x-zap-api-key";
+    public static final String X_ZAP_API_NONCE = "x-zap-api-nonce";
     // ZAP: additional standard/defacto headers
-    public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
-    public static final String X_CSRF_TOKEN = "X-Csrf-Token";
-    public static final String X_CSRFTOKEN = "X-CsrfToken";
-    public static final String X_XSRF_TOKEN = "X-Xsrf-Token";
+    public static final String PROXY_AUTHORIZATION = "proxy-authorization";
+    public static final String X_CSRF_TOKEN = "x-csrf-token";
+    public static final String X_CSRFTOKEN = "x-csrftoken";
+    public static final String X_XSRF_TOKEN = "x-xsrf-token";
 
     public HttpHeader() {
         init();
