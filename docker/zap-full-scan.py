@@ -329,8 +329,9 @@ def main(argv):
             cid = start_docker_zap('owasp/zap2docker-weekly', port, params, mount_dir)
             zap_ip = ipaddress_for_cid(cid)
             logging.debug('Docker ZAP IP Addr: ' + zap_ip)
-        except OSError:
-            logging.warning('Failed to start ZAP in docker :(')
+        except Exception as error:
+            logging.warning('Failed to start ZAP in docker')
+            logging.warning(error)
             sys.exit(3)
 
     try:

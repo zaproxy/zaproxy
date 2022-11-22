@@ -386,8 +386,9 @@ def main(argv):
                 logging.warning('Failed to copy one of the required files')
                 sys.exit(3)
 
-        except OSError:
-            logging.warning('Failed to start ZAP in docker :(')
+        except Exception as error:
+            logging.warning('Failed to start ZAP in docker')
+            logging.warning(error)
             sys.exit(3)
 
     try:
