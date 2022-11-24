@@ -97,6 +97,7 @@
 // ZAP: 2022/04/17 Address various SAST (SonarLint) issues.
 // ZAP: 2022/06/13 Hook HrefTypeInfo.
 // ZAP: 2022/08/17 Install updates before running other cmdline args.
+// ZAP: 2022/11/23 Refresh tabs menu when tabs are removed.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -1158,8 +1159,6 @@ public class ExtensionLoader {
         removeMenuHelper(menuBar.getMenuImport(), hookMenu.getImport());
 
         removeMenuHelper(view.getPopupList(), hookMenu.getPopupMenus());
-
-        view.refreshTabViewMenus();
     }
 
     private void removeMenuHelper(JMenuBar menuBar, List<JMenuItem> items) {
@@ -1301,6 +1300,12 @@ public class ExtensionLoader {
         view.getWorkbench().removePanels(pv.getSelectPanel(), WorkbenchPanel.PanelType.SELECT);
         view.getWorkbench().removePanels(pv.getWorkPanel(), WorkbenchPanel.PanelType.WORK);
         view.getWorkbench().removePanels(pv.getStatusPanel(), WorkbenchPanel.PanelType.STATUS);
+
+        if (!(pv.getSelectPanel().isEmpty()
+                && pv.getWorkPanel().isEmpty()
+                && pv.getStatusPanel().isEmpty())) {
+            view.refreshTabViewMenus();
+        }
 
         removeParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         removeParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
