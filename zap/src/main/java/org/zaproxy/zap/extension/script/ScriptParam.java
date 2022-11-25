@@ -46,6 +46,7 @@ public class ScriptParam extends AbstractParam {
     private static final String SCRIPT_ENABLED_KEY = "enabled";
     private static final String SCRIPT_DIRS = "dirs";
     private static final String SCRIPT_CONFIRM_REMOVE_DIR = "confRemdir";
+    private static final String SCRIPT_ENABLE_SCRIPTS_FROM_DIRS = "enableScriptsFromDirs";
 
     private static final Logger logger = LogManager.getLogger(ScriptParam.class);
 
@@ -54,6 +55,7 @@ public class ScriptParam extends AbstractParam {
     private Set<ScriptWrapper> scripts;
     private List<File> scriptDirs;
     private boolean confirmRemoveDir = true;
+    private boolean enableScriptsFromDirs = false;
 
     public ScriptParam() {}
 
@@ -115,6 +117,7 @@ public class ScriptParam extends AbstractParam {
             logger.error("Error while loading the script dirs: {}", e.getMessage(), e);
         }
         confirmRemoveDir = getBoolean(SCRIPT_CONFIRM_REMOVE_DIR, true);
+        enableScriptsFromDirs = getBoolean(SCRIPT_ENABLE_SCRIPTS_FROM_DIRS, false);
     }
 
     public void addScript(ScriptWrapper script) {
@@ -198,5 +201,14 @@ public class ScriptParam extends AbstractParam {
 
     public boolean isConfirmRemoveDir() {
         return confirmRemoveDir;
+    }
+    
+    public void setEnableScriptsFromDirs(boolean enableScriptsFromDirs){
+        this.enableScriptsFromDirs = enableScriptsFromDirs;
+        getConfig().setProperty(SCRIPT_ENABLE_SCRIPTS_FROM_DIRS, this.enableScriptsFromDirs);
+    }
+
+    public boolean isEnableScriptsFromDirs(){
+      return enableScriptsFromDirs;
     }
 }

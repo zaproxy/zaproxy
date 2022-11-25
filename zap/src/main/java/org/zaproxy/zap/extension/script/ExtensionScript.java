@@ -1039,6 +1039,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                                             type,
                                             false,
                                             f);
+                            if (this.getScriptParam().isEnableScriptsFromDirs())
+                              this.setEnabled(sw,true);
                             this.loadScript(sw);
                             this.addScript(sw, false);
                         } else {
