@@ -1629,7 +1629,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
 
         final Set<AddOn> failedUninstallations = new HashSet<>();
         for (AddOn addOn : addOns) {
-            if (!uninstall(addOn, false, null)) {
+            if (!uninstall(addOn, updates, null)) {
                 failedUninstallations.add(addOn);
             }
         }
