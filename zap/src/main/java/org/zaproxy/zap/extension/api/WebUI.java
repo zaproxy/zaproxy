@@ -34,6 +34,8 @@ public class WebUI {
 
     private API api;
     private boolean isDevTestNonce = false; // Manually change here to test nonces with the web UI
+    private static final String PAC_FILE_API_PATH = "/OTHER/network/other/proxy.pac/";
+    private static final String ROOT_CA_CERT_API_PATH = "/OTHER/network/other/rootCaCert/";
 
     public WebUI(API api) {
         this.api = api;
@@ -474,20 +476,10 @@ public class WebUI {
         sb.append(Constant.messages.getString("api.home.topmsg"));
         sb.append(
                 Constant.messages.getString(
-                        "api.home.proxypac",
-                        "/?"
-                                + API.API_NONCE_PARAM
-                                + "="
-                                + API.getInstance()
-                                        .getLongLivedNonce("/OTHER/core/other/proxy.pac/")));
+                        "api.home.proxypac", getApiPathWithNonceParam(PAC_FILE_API_PATH)));
         sb.append(
                 Constant.messages.getString(
-                        "api.home.cacert",
-                        "/?"
-                                + API.API_NONCE_PARAM
-                                + "="
-                                + API.getInstance()
-                                        .getLongLivedNonce("/OTHER/network/other/rootCaCert/")));
+                        "api.home.cacert", getApiPathWithNonceParam(ROOT_CA_CERT_API_PATH)));
         sb.append(Constant.messages.getString("api.home.links.header"));
         if (apiEnabled) {
             sb.append(Constant.messages.getString("api.home.links.api.enabled"));
@@ -498,6 +490,10 @@ public class WebUI {
         sb.append("</body>\n");
 
         return sb.toString();
+    }
+
+    private static String getApiPathWithNonceParam(String path) {
+        return path + '?' + API.API_NONCE_PARAM + '=' + API.getInstance().getLongLivedNonce(path);
     }
 
     private OptionsParamApi getOptionsParamApi() {
