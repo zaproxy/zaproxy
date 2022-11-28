@@ -202,13 +202,13 @@ public class ScriptParam extends AbstractParam {
     public boolean isConfirmRemoveDir() {
         return confirmRemoveDir;
     }
-    
-    public void setEnableScriptsFromDirs(boolean enableScriptsFromDirs){
+
+    public void setEnableScriptsFromDirs(boolean enableScriptsFromDirs) {
         this.enableScriptsFromDirs = enableScriptsFromDirs;
         getConfig().setProperty(SCRIPT_ENABLE_SCRIPTS_FROM_DIRS, this.enableScriptsFromDirs);
     }
 
-    public boolean isEnableScriptsFromDirs(){
-      return enableScriptsFromDirs;
+    public boolean isEnableScriptsFromDirs() {
+        return enableScriptsFromDirs;
     }
 }
