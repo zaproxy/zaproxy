@@ -42,7 +42,7 @@ public class OptionsScriptPanel extends AbstractParamPanel {
     private ExtensionScript extension;
     private AntiCsrfMultipleOptionsPanel tokensOptionsPanel;
     private OptionsScriptTableModel scriptDirModel = null;
-    private JCheckBox enableLoadedScripts = new JCheckBox("Enable scripts loaded from directories");
+    private JCheckBox enableLoadedScripts = new JCheckBox(Constant.messages.getString("options.script.dialog.dirs.enableLoadedScripts"));
 
     public OptionsScriptPanel(ExtensionScript extension) {
         super();
