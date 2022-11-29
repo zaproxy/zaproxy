@@ -42,7 +42,9 @@ public class OptionsScriptPanel extends AbstractParamPanel {
     private ExtensionScript extension;
     private AntiCsrfMultipleOptionsPanel tokensOptionsPanel;
     private OptionsScriptTableModel scriptDirModel = null;
-    private JCheckBox enableLoadedScripts = new JCheckBox(Constant.messages.getString("options.script.dialog.dirs.enableLoadedScripts"));
+    private JCheckBox enableLoadedScripts =
+            new JCheckBox(
+                    Constant.messages.getString("options.script.dialog.dirs.enableLoadedScripts"));
 
     public OptionsScriptPanel(ExtensionScript extension) {
         super();
@@ -63,7 +65,7 @@ public class OptionsScriptPanel extends AbstractParamPanel {
 
         this.add(new ZapHtmlLabel(Constant.messages.getString("options.script.label.dirs")), gbc);
 
-        this.add(enableLoadedScripts,gbc);
+        this.add(enableLoadedScripts, gbc);
         tokensOptionsPanel = new AntiCsrfMultipleOptionsPanel(this.extension, getScriptDirModel());
 
         gbc.weighty = 1.0;
