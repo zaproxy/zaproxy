@@ -90,7 +90,7 @@ public class AddOnLoader extends URLClassLoader {
 
     /** A "null" object, for use when no callback is given during the uninstallation process. */
     private static final AddOnUninstallationProgressCallback NULL_CALLBACK =
-            new NullUninstallationProgressCallBack();
+            NullUninstallationProgressCallBack.getSingleton();
 
     private static final Logger logger = LogManager.getLogger(AddOnLoader.class);
 
@@ -129,6 +129,8 @@ public class AddOnLoader extends URLClassLoader {
     /** File where the data of runnable state and blocked add-ons is saved. */
     private ZapXmlConfiguration addOnsStateConfig;
 
+    private PostponedTasksRunner postponedTasks;
+
     public AddOnLoader(File[] dirs) {
         super(new URL[0], AddOnLoader.class.getClassLoader());
 
@@ -147,6 +149,8 @@ public class AddOnLoader extends URLClassLoader {
         this.loadBlockList();
 
         this.aoc = new AddOnCollection(dirs);
+        postponedTasks = new PostponedTasksRunner(addOnsStateConfig, aoc);
+        postponedTasks.run();
         loadAllAddOns();
 
         if (dirs != null) {
@@ -625,7 +629,8 @@ public class AddOnLoader extends URLClassLoader {
             if (runnableAddOns.remove(ao) != null) {
                 saveAddOnsRunState(runnableAddOns);
             }
-            AddOnInstaller.uninstallAddOnFiles(ao, NULL_CALLBACK, runnableAddOns.keySet());
+            AddOnInstaller.uninstallAddOnFiles(
+                    ao, NULL_CALLBACK, runnableAddOns.keySet(), postponedTasks);
             removeAddOnClassLoader(ao);
             deleteAddOn(ao, upgrading);
             ao.setInstallationStatus(AddOn.InstallationStatus.UNINSTALLATION_FAILED);
@@ -648,11 +653,18 @@ public class AddOnLoader extends URLClassLoader {
             return this.aoc.removeAddOn(ao);
         }
 
+        if (!canUnloadAllExtensions(ao)) {
+            logger.debug("Can't dynamically unload all the extensions of: {}", ao);
+            ao.setInstallationStatus(AddOn.InstallationStatus.UNINSTALLATION_FAILED);
+            postponedTasks.addUninstallAddOnTask(ao);
+            return false;
+        }
+
         unloadDependentExtensions(ao);
         softUninstallDependentAddOns(ao);
 
         boolean uninstalledWithoutErrors =
-                AddOnInstaller.uninstall(ao, callback, runnableAddOns.keySet());
+                AddOnInstaller.uninstall(ao, callback, runnableAddOns.keySet(), postponedTasks);
 
         if (uninstalledWithoutErrors && !this.aoc.removeAddOn(ao)) {
             uninstalledWithoutErrors = false;
@@ -675,6 +687,15 @@ public class AddOnLoader extends URLClassLoader {
 
         Control.getSingleton().getExtensionLoader().addOnUninstalled(ao, uninstalledWithoutErrors);
         return uninstalledWithoutErrors;
+    }
+
+    private static boolean canUnloadAllExtensions(AddOn ao) {
+        for (Extension e : ao.getLoadedExtensions()) {
+            if (e.isEnabled() && !e.canUnload()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1364,44 +1385,6 @@ public class AddOnLoader extends URLClassLoader {
             dataMigrated = true;
         }
         return dataMigrated;
-    }
-
-    /**
-     * An {@code UninstallationProgressCallback} that does nothing. A "{@code null}" object, for use
-     * when no callback is given during the uninstallation process.
-     */
-    private static class NullUninstallationProgressCallBack
-            implements AddOnUninstallationProgressCallback {
-
-        @Override
-        public void uninstallingAddOn(AddOn addOn, boolean updating) {}
-
-        @Override
-        public void activeScanRulesWillBeRemoved(int numberOfRules) {}
-
-        @Override
-        public void activeScanRuleRemoved(String name) {}
-
-        @Override
-        public void passiveScanRulesWillBeRemoved(int numberOfRules) {}
-
-        @Override
-        public void passiveScanRuleRemoved(String name) {}
-
-        @Override
-        public void filesWillBeRemoved(int numberOfFiles) {}
-
-        @Override
-        public void fileRemoved() {}
-
-        @Override
-        public void extensionsWillBeRemoved(int numberOfExtensions) {}
-
-        @Override
-        public void extensionRemoved(String name) {}
-
-        @Override
-        public void addOnUninstalled(boolean uninstalled) {}
     }
 
     private static class AddOnRunState {

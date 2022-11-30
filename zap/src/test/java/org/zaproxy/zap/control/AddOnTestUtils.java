@@ -28,6 +28,7 @@ import java.nio.file.Paths;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -48,6 +49,10 @@ class AddOnTestUtils extends WithConfigsTest {
     }
 
     protected Path createAddOnWithLibs(String... libs) {
+        return createAddOnWithLibs(null, libs);
+    }
+
+    protected Path createAddOnWithLibs(Consumer<StringBuilder> manifestConsumer, String... libs) {
         return createAddOnFile(
                 "addon.zap",
                 "release",
@@ -62,6 +67,10 @@ class AddOnTestUtils extends WithConfigsTest {
                         manifest.append("<lib>").append(lib).append("</lib>");
                     }
                     manifest.append("</libs>");
+
+                    if (manifestConsumer != null) {
+                        manifestConsumer.accept(manifest);
+                    }
                 },
                 addOnContents -> {
                     if (libs == null || libs.length == 0) {
@@ -171,6 +180,34 @@ class AddOnTestUtils extends WithConfigsTest {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    protected static Path addOnDataLibsDir(AddOn addOn) {
+        return AddOnInstaller.getAddOnDataDir(addOn).resolve("libs");
+    }
+
+    protected static Path installLib(AddOn addOn, String name) throws IOException {
+        return installLib(addOn, name, null);
+    }
+
+    protected static Path installLib(AddOn addOn, String name, String contents) throws IOException {
+        Path addOnLibsDir = addOnDataLibsDir(addOn);
+        return createFile(addOnLibsDir.resolve(name), contents);
+    }
+
+    protected static Path createFile(Path file) throws IOException {
+        return createFile(file, null);
+    }
+
+    protected static Path createHomeFile(String name) throws IOException {
+        return createFile(Paths.get(Constant.getZapHome(), name), "");
+    }
+
+    private static Path createFile(Path file, String contents) throws IOException {
+        Files.createDirectories(file.getParent());
+        String data = contents != null ? contents : DEFAULT_LIB_CONTENTS;
+        Files.write(file, data.getBytes(StandardCharsets.UTF_8));
+        return file;
     }
 
     protected static AddOn createAddOn(String addOnId, ZapXmlConfiguration zapVersions)
