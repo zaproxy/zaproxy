@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2022-12-01
+ - Updated GitHub workflows to build multi-platform images (linux/amd64, linux/arm64).
+
 ### 2022-11-07
  - Updated packaged scans to use full path to `zap-x.sh`.
 
