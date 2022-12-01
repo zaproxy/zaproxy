@@ -59,9 +59,9 @@ A deb package, bundling ZAP and its dependencies. Does not bundle any add-ons, t
 To build it run the task `:zap:distDebian`.
 
 ### macOS
-A dmg bundling ZAP, its dependencies, and JRE. The Linux/Windows specific add-ons are excluded from this distribution.
+A dmg bundling ZAP, its dependencies, and a JRE. The Linux/Windows specific add-ons are excluded from this distribution.
 
-To build it run the task `:zap:distMac`.
+To build the macOS distributions run the tasks `:zap:distMac` and `:zap:distMacArm64`, for the architectures `x64` and `aarch64` respectively.
 
 **NOTE:** Needs to be executed on macOS, it requires `hdiutil`.
 
