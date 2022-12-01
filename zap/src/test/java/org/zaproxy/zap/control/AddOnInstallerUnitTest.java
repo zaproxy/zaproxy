@@ -179,30 +179,6 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         assertInstalledLibs(addOn, "lib1", "lib2");
     }
 
-    private static Path addOnDataLibsDir(AddOn addOn) {
-        return AddOnInstaller.getAddOnDataDir(addOn).resolve("libs");
-    }
-
-    private static Path installLib(AddOn addOn, String name) throws IOException {
-        return installLib(addOn, name, null);
-    }
-
-    private static Path installLib(AddOn addOn, String name, String contents) throws IOException {
-        Path addOnLibsDir = addOnDataLibsDir(addOn);
-        return createFile(addOnLibsDir.resolve(name), contents);
-    }
-
-    private static Path createFile(Path file) throws IOException {
-        return createFile(file, null);
-    }
-
-    private static Path createFile(Path file, String contents) throws IOException {
-        Files.createDirectories(file.getParent());
-        String data = contents != null ? contents : DEFAULT_LIB_CONTENTS;
-        Files.write(file, data.getBytes(StandardCharsets.UTF_8));
-        return file;
-    }
-
     private static void assertInstalledLibs(AddOn addOn, String... fileNames) throws IOException {
         Path addOnLibsDir = addOnDataLibsDir(addOn);
 

@@ -186,9 +186,46 @@ public final class AddOnInstaller {
      * @see Extension
      * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
+     * @deprecated (2.13.0) Use {@link #uninstall(AddOn, AddOnUninstallationProgressCallback, Set,
+     *     PostponedTasksRunner)} instead.
      */
+    @Deprecated
     public static boolean uninstall(
             AddOn addOn, AddOnUninstallationProgressCallback callback, Set<AddOn> installedAddOns) {
+        return uninstall(addOn, callback, installedAddOns, null);
+    }
+
+    /**
+     * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s,
+     * {@code PassiveScanner}s and files) of the given {@code addOn}.
+     *
+     * <p>The components are uninstalled in the following order (inverse to installation):
+     *
+     * <ol>
+     *   <li>Passive scanners;
+     *   <li>Active scanners;
+     *   <li>Extensions;
+     *   <li>Files (if not in use by other add-ons);
+     *   <li>{@link java.util.ResourceBundle ResourceBundle};
+     * </ol>
+     *
+     * @param addOn the add-on that will be uninstalled.
+     * @param callback the callback that will be notified of the progress of the uninstallation.
+     * @param installedAddOns the add-ons currently installed.
+     * @param postponedTasks the container for postponed tasks.
+     * @return {@code true} if the add-on was uninstalled without errors, {@code false} otherwise.
+     * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
+     * @since 2.13.0
+     * @see #softUninstall(AddOn, AddOnUninstallationProgressCallback)
+     * @see Extension
+     * @see PassiveScanner
+     * @see org.parosproxy.paros.core.scanner.Plugin
+     */
+    public static boolean uninstall(
+            AddOn addOn,
+            AddOnUninstallationProgressCallback callback,
+            Set<AddOn> installedAddOns,
+            PostponedTasksRunner postponedTasks) {
         Validate.notNull(addOn, "Parameter addOn must not be null.");
         validateCallbackNotNull(callback);
 
@@ -197,7 +234,8 @@ public final class AddOnInstaller {
             uninstalledWithoutErrors &= uninstallAddOnPassiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn, callback);
-            uninstalledWithoutErrors &= uninstallAddOnFiles(addOn, callback, installedAddOns);
+            uninstalledWithoutErrors &=
+                    uninstallAddOnFiles(addOn, callback, installedAddOns, postponedTasks);
             uninstallResourceBundle(addOn);
 
             return uninstalledWithoutErrors;
@@ -745,9 +783,35 @@ public final class AddOnInstaller {
      * @return {@code true} if no error occurred while removing the files, {@code false} otherwise.
      * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
      * @since 2.8.0
+     * @deprecated (2.13.0) Use {@link #uninstallAddOnFiles(AddOn,
+     *     AddOnUninstallationProgressCallback, Set, PostponedTasksRunner)} instead.
      */
+    @Deprecated
     public static boolean uninstallAddOnFiles(
             AddOn addOn, AddOnUninstallationProgressCallback callback, Set<AddOn> installedAddOns) {
+        return uninstallAddOnFiles(addOn, callback, installedAddOns, null);
+    }
+
+    /**
+     * Uninstalls the files of the given add-on.
+     *
+     * <p><strong>Note:</strong> Files that are in use by other installed add-ons are not
+     * uninstalled.
+     *
+     * @param addOn the add-on whose files should be uninstalled.
+     * @param callback the callback for notification of progress.
+     * @param installedAddOns the add-ons currently installed (to check if the files can be safely
+     *     uninstalled).
+     * @param postponedTasks the container for postponed tasks.
+     * @return {@code true} if no error occurred while removing the files, {@code false} otherwise.
+     * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
+     * @since 2.13.0
+     */
+    public static boolean uninstallAddOnFiles(
+            AddOn addOn,
+            AddOnUninstallationProgressCallback callback,
+            Set<AddOn> installedAddOns,
+            PostponedTasksRunner postponedTasks) {
         Validate.notNull(addOn, "Parameter addOn must not be null.");
         validateCallbackNotNull(callback);
 
@@ -771,6 +835,9 @@ public final class AddOnInstaller {
                 if (file.exists() && !file.delete()) {
                     logger.error("Failed to delete: {}", file.getAbsolutePath());
                     uninstalledWithoutErrors = false;
+                    if (postponedTasks != null) {
+                        postponedTasks.addDeleteFileTask(file.toPath());
+                    }
                 }
                 callback.fileRemoved();
                 if (parent.isDirectory() && parent.list().length == 0) {
