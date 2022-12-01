@@ -65,7 +65,8 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+ARG TARGETARCH
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-$TARGETARCH/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
 WORKDIR /zap-src

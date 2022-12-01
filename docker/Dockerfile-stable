@@ -78,7 +78,8 @@ COPY --from=builder /zap .
 
 COPY --from=builder /zap/webswing /zap/webswing
 
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+ARG TARGETARCH
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-$TARGETARCH/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 ENV ZAP_PATH /zap/zap.sh
 
