@@ -21,7 +21,6 @@ jobs:
         name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          load: true
           context: docker
           file: docker/Dockerfile-tests
           platforms: linux/amd64,linux/arm64
