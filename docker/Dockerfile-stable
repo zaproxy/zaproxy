@@ -1,5 +1,6 @@
+# syntax=docker/dockerfile:1
 # This dockerfile builds the zap stable release
-FROM debian:stable-slim AS builder
+FROM --platform=linux/amd64 debian:bullseye-slim AS builder
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
@@ -33,7 +34,7 @@ RUN if [ -z "$WEBSWING_URL" ] ; \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
 
-FROM debian:stable-slim
+FROM debian:bullseye-slim AS final
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -54,7 +55,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	net-tools \
 	python3-pip \
 	python-is-python3 \
-	firefox \
+	firefox-esr \
 	xvfb \
 	x11vnc && \
 	apt-get clean && \
@@ -74,12 +75,12 @@ USER zap
 RUN mkdir /home/zap/.vnc
 
 # Copy stable release
-COPY --from=builder /zap .
+COPY --link --from=builder --chown=zap:zap /zap .
 
-COPY --from=builder /zap/webswing /zap/webswing
+COPY --link --from=builder --chown=zap:zap /zap/webswing /zap/webswing
 
 ARG TARGETARCH
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-$TARGETARCH/
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-$TARGETARCH
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 ENV ZAP_PATH /zap/zap.sh
 
@@ -90,29 +91,16 @@ ENV HOME /home/zap/
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-COPY zap* CHANGELOG.md /zap/
-COPY webswing.config /zap/webswing/
-COPY webswing.properties /zap/webswing/
-COPY policies /home/zap/.ZAP/policies/
-COPY policies /root/.ZAP/policies/
+COPY --link --chown=zap:zap zap* CHANGELOG.md /zap/
+COPY --link --chown=zap:zap webswing.config /zap/webswing/
+COPY --link --chown=zap:zap webswing.properties /zap/webswing/
+COPY --link --chown=zap:zap policies /home/zap/.ZAP/policies/
+COPY --link --chown=zap:zap policies /root/.ZAP/policies/
 # The scan script loads the scripts from dev home dir.
-COPY scripts /home/zap/.ZAP_D/scripts/
-COPY .xinitrc /home/zap/
+COPY --link --chown=zap:zap scripts /home/zap/.ZAP_D/scripts/
+COPY --link --chown=zap:zap .xinitrc /home/zap/
 
-RUN echo "zap2docker-stable" > /zap/container
-
-#Copy doesn't respect USER directives so we need to chown and to do that we need to be root
-USER root
-
-RUN chown zap:zap /zap/* && \
-	chown zap:zap /zap/webswing/webswing.config && \
-	chown zap:zap /zap/webswing/webswing.properties && \
-	chown zap:zap -R /home/zap/.ZAP/ && \
-	chown zap:zap /home/zap/.xinitrc && \
-	chmod a+x /home/zap/.xinitrc
-
-#Change back to zap at the end
-USER zap
+RUN echo "zap2docker-stable" > /zap/container && \
+    chmod a+x /home/zap/.xinitrc
 
 HEALTHCHECK CMD curl --silent --output /dev/null --fail http://localhost:$ZAP_PORT/ || exit 1
-

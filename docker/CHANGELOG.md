@@ -2,7 +2,7 @@
 All notable changes to the docker containers will be documented in this file.
 
 ### 2022-12-05
- - Changed all images to use debian:stable-slim instead of unstable-slim
+ - Changed all images to use debian:bullseye-slim instead of unstable-slim.
 
 ### 2022-11-07
  - Updated packaged scans to use full path to `zap-x.sh`.
