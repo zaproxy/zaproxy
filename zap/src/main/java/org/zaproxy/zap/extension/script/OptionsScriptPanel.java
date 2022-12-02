@@ -42,7 +42,7 @@ public class OptionsScriptPanel extends AbstractParamPanel {
     private ExtensionScript extension;
     private AntiCsrfMultipleOptionsPanel tokensOptionsPanel;
     private OptionsScriptTableModel scriptDirModel = null;
-    private JCheckBox enableLoadedScripts =
+    private JCheckBox enableScriptsFromDirs =
             new JCheckBox(
                     Constant.messages.getString("options.script.dialog.dirs.enableLoadedScripts"));
 
@@ -65,7 +65,7 @@ public class OptionsScriptPanel extends AbstractParamPanel {
 
         this.add(new ZapHtmlLabel(Constant.messages.getString("options.script.label.dirs")), gbc);
 
-        this.add(enableLoadedScripts, gbc);
+        this.add(enableScriptsFromDirs, gbc);
         tokensOptionsPanel = new AntiCsrfMultipleOptionsPanel(this.extension, getScriptDirModel());
 
         gbc.weighty = 1.0;
@@ -78,7 +78,7 @@ public class OptionsScriptPanel extends AbstractParamPanel {
         ScriptParam param = optionsParam.getParamSet(ScriptParam.class);
         getScriptDirModel().setTokens(param.getScriptDirs());
         tokensOptionsPanel.setRemoveWithoutConfirmation(!param.isConfirmRemoveDir());
-        enableLoadedScripts.setSelected(param.isEnableScriptsFromDirs());
+        enableScriptsFromDirs.setSelected(param.isEnableScriptsFromDirs());
     }
 
     @Override
@@ -105,7 +105,7 @@ public class OptionsScriptPanel extends AbstractParamPanel {
 
         param.setScriptDirs(dirs);
         param.setConfirmRemoveDir(!tokensOptionsPanel.isRemoveWithoutConfirmation());
-        param.setEnableScriptsFromDirs(enableLoadedScripts.isSelected());
+        param.setEnableScriptsFromDirs(enableScriptsFromDirs.isSelected());
     }
 
     /**
