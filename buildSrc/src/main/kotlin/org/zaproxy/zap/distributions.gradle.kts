@@ -160,107 +160,118 @@ tasks.register<Tar>("distLinux") {
     }
 }
 
-val macOsJreDir = file("$buildDir/macOsJre")
-val macOsJreUnpackDir = File(macOsJreDir, "unpacked")
-val macOsJreVersion = "11.0.16.1+1"
-val macOsJreFile = File(macOsJreDir, "jdk$macOsJreVersion-jre.tar.gz")
+listOf(
+    MacArch("", "", "", "x64", "66508958b5da6e36021d960b65490ab70cc7d44851c98301a3d6d3552f305674"),
+    MacArch("Arm64", "_aarch64", " (ARM64)", "aarch64", "2a5cbc2888f8e382c7d0a5bf2c6d2c3bad120ceff51b00d3a62805dae4473c02")
+).forEach { it ->
 
-val downloadMacOsJre by tasks.registering(Download::class) {
-    src("https://api.adoptium.net/v3/binary/version/jdk-$macOsJreVersion/mac/x64/jre/hotspot/normal/eclipse?project=jdk")
-    dest(macOsJreFile)
-    connectTimeout(60_000)
-    readTimeout(60_000)
-    onlyIfModified(true)
-    doFirst {
-        require (Os.isFamily(Os.FAMILY_MAC)) {
-            "To build the macOS distribution the OS must be macOS."
+    val macOsJreDir = file("$buildDir/macOsJre${it.suffix}")
+    val macOsJreUnpackDir = File(macOsJreDir, "unpacked")
+    val macOsJreVersion = "11.0.17+8"
+    val macOsJreFile = File(macOsJreDir, "jdk$macOsJreVersion-jre.tar.gz")
+
+    val downloadMacOsJre = tasks.register<Download>("downloadMacOsJre${it.suffix}") {
+        src("https://api.adoptium.net/v3/binary/version/jdk-$macOsJreVersion/mac/${it.arch}/jre/hotspot/normal/eclipse?project=jdk")
+        dest(macOsJreFile)
+        connectTimeout(60_000)
+        readTimeout(60_000)
+        onlyIfModified(true)
+        doFirst {
+            require(Os.isFamily(Os.FAMILY_MAC)) {
+                "To build the macOS distribution the OS must be macOS."
+            }
         }
     }
-}
 
-val verifyMacOsJre by tasks.registering(Verify::class) {
-    dependsOn(downloadMacOsJre)
-    src(macOsJreFile)
-    algorithm("SHA-256")
-    checksum("10be61a8dd3766f7c12e2e823a6eca48cc6361d97e1b76310c752bd39770c7fe")
-}
-
-val unpackMacOSJre by tasks.registering(Copy::class) {
-    dependsOn(verifyMacOsJre)
-    from(tarTree(macOsJreFile))
-    into(macOsJreUnpackDir)
-    doFirst {
-        delete(macOsJreUnpackDir)
+    val verifyMacOsJre = tasks.register<Verify>("verifyMacOsJre${it.suffix}") {
+        dependsOn(downloadMacOsJre)
+        src(macOsJreFile)
+        algorithm("SHA-256")
+        checksum(it.checksum)
     }
-    doLast {
-        // Rename top level dir to start with "jre" to match the
-        // expectations of zap.sh script.
-        val dirName = macOsJreUnpackDir.listFiles()[0].name
-        ant.withGroovyBuilder {
-            "move"(mapOf("file" to "$macOsJreUnpackDir/$dirName", "tofile" to "$macOsJreUnpackDir/jre-$dirName"))
+
+    val unpackMacOSJre = tasks.register<Copy>("unpackMacOSJre${it.suffix}") {
+        dependsOn(verifyMacOsJre)
+        from(tarTree(macOsJreFile))
+        into(macOsJreUnpackDir)
+        doFirst {
+            delete(macOsJreUnpackDir)
+        }
+        doLast {
+            // Rename top level dir to start with "jre" to match the
+            // expectations of zap.sh script.
+            val dirName = macOsJreUnpackDir.listFiles()[0].name
+            ant.withGroovyBuilder {
+                "move"(mapOf("file" to "$macOsJreUnpackDir/$dirName", "tofile" to "$macOsJreUnpackDir/jre-$dirName"))
+            }
         }
     }
-}
 
-val macOsDistDataDir = file("$buildDir/macOsDistData")
-val prepareDistMac by tasks.registering(Copy::class) {
-    destinationDir = macOsDistDataDir
-    from(unpackMacOSJre) {
-        into("OWASP ZAP.app/Contents/PlugIns/")
-    }
-    from("src/main/macOS/") {
-        filesMatching("**/Info.plist") {
-            filter<ReplaceTokens>("tokens" to mapOf(
-                    "JREDIR" to macOsJreUnpackDir.listFiles()[0].name,
-                    "SHORT_VERSION_STRING" to "$version",
-                    "VERSION_STRING" to "2",
-                    "ZAPJAR" to jar.get().archiveFileName.get()
-            ))
+    val macOsDistDataDir = file("$buildDir/macOsDistData${it.suffix}")
+    val prepareDistMac = tasks.register<Copy>("prepareDistMac${it.suffix}") {
+        destinationDir = macOsDistDataDir
+        from(unpackMacOSJre) {
+            into("OWASP ZAP.app/Contents/PlugIns/")
+        }
+        from("src/main/macOS/") {
+            filesMatching("**/Info.plist") {
+                filter<ReplaceTokens>(
+                    "tokens" to mapOf(
+                        "JREDIR" to macOsJreUnpackDir.listFiles()[0].name,
+                        "SHORT_VERSION_STRING" to "$version",
+                        "VERSION_STRING" to "2",
+                        "ZAPJAR" to jar.get().archiveFileName.get()
+                    )
+                )
+            }
+        }
+        from("src/main/resources/resource/ZAP.icns") {
+            into("OWASP ZAP.app/Contents/Resources/")
+        }
+        val zapDir = "OWASP ZAP.app/Contents/Java/"
+        from(distFiles) {
+            into(zapDir)
+            exclude(listOf("zap.bat", "zap.ico"))
+        }
+        from(bundledAddOns) {
+            into("$zapDir/plugin")
+            exclude(listOf("Readme.txt", "*linux*.zap", "*windows*.zap"))
+        }
+
+        doFirst {
+            delete(macOsDistDataDir)
+        }
+        doLast {
+            ant.withGroovyBuilder {
+                "symlink"(mapOf("link" to "$macOsDistDataDir/Applications", "resource" to "/Applications"))
+            }
         }
     }
-    from("src/main/resources/resource/ZAP.icns") {
-        into("OWASP ZAP.app/Contents/Resources/")
-    }
-    val zapDir = "OWASP ZAP.app/Contents/Java/"
-    from(distFiles) {
-        into(zapDir)
-        exclude(listOf("zap.bat", "zap.ico"))
-    }
-    from(bundledAddOns) {
-        into("$zapDir/plugin")
-        exclude(listOf("Readme.txt", "*linux*.zap", "*windows*.zap"))
-    }
 
-    doFirst {
-        delete(macOsDistDataDir)
-    }
-    doLast {
-        ant.withGroovyBuilder {
-            "symlink"(mapOf("link" to "$macOsDistDataDir/Applications", "resource" to "/Applications"))
+    tasks.register<Exec>("distMac${it.suffix}") {
+        group = "Distribution"
+        description = "Bundles the macOS${it.taskDesc} distribution."
+
+        dependsOn(prepareDistMac)
+
+        val outputDir = file("$buildDir/distributions")
+        workingDir = macOsDistDataDir
+        executable = "hdiutil"
+        args(
+            listOf(
+                "create",
+                "-format", "UDBZ",
+                "-megabytes", "800",
+                "-fs", "HFS+",
+                "-srcfolder", macOsDistDataDir,
+                "-volname", "OWASP ZAP",
+                "$outputDir/ZAP_$version${it.fileNameSuffix}.dmg"
+            )
+        )
+
+        doFirst {
+            mkdir(outputDir)
         }
-    }
-}
-
-tasks.register<Exec>("distMac") {
-    group = "Distribution"
-    description = "Bundles the macOS distribution."
-
-    dependsOn(prepareDistMac)
-
-    val outputDir = file("$buildDir/distributions")
-    workingDir = macOsDistDataDir
-    executable = "hdiutil"
-    args(listOf(
-            "create",
-            "-format", "UDBZ",
-            "-megabytes", "800",
-            "-fs", "HFS+",
-            "-srcfolder", macOsDistDataDir,
-            "-volname", "OWASP ZAP",
-            "$outputDir/ZAP_$version.dmg"))
-
-    doFirst {
-        mkdir(outputDir)
     }
 }
 
@@ -378,3 +389,5 @@ tasks.register<Zip>("distWeekly") {
         into("ZAP_${dailyVersion.get()}")
     }
 }
+
+data class MacArch(val suffix: String, val fileNameSuffix: String, val taskDesc: String, val arch: String, val checksum: String)
