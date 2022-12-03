@@ -56,7 +56,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.authentication.GenericAuthenticationCredentials.GenericAuthenticationCredentialsOptionsPanel;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -93,10 +92,6 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
     public static final String SCRIPT_TYPE_AUTH = "authentication";
 
     private static final String API_METHOD_NAME = "scriptBasedAuthentication";
-
-    /** The SCRIPT ICON. */
-    private static final ImageIcon SCRIPT_ICON_AUTH =
-            new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-auth.png"));
 
     /** The Authentication method's name. */
     private static final String METHOD_NAME =
@@ -589,7 +584,12 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
                             new ScriptType(
                                     SCRIPT_TYPE_AUTH,
                                     "authentication.method.script.type",
-                                    SCRIPT_ICON_AUTH,
+                                    getScriptsExtension().getView() != null
+                                            ? new ImageIcon(
+                                                    getClass()
+                                                            .getResource(
+                                                                    "/resource/icon/16/script-auth.png"))
+                                            : null,
                                     false,
                                     new String[] {ScriptType.CAPABILITY_APPEND}));
         }

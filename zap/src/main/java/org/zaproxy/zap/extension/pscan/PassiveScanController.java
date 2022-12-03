@@ -33,7 +33,6 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.view.ScanStatus;
@@ -137,7 +136,7 @@ public class PassiveScanController extends Thread implements ProxyListener {
                 }
                 int recordsToScan = this.getRecordsToScan();
                 Stats.setHighwaterMark("stats.pscan.recordsToScan", recordsToScan);
-                if (View.isInitialised()) {
+                if (scanStatus != null) {
                     scanStatus.setScanCount(recordsToScan);
                 }
 
