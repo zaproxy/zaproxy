@@ -99,7 +99,40 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
             if (isOptional()) {
                 out.write(" * " + OPTIONAL_MESSAGE + "\n");
             }
+            if (hasParams) {
+
+                out.write(
+                        " * @param {string} "
+                                + element.getParameters().stream()
+                                        .map(
+                                                parameter -> {
+                                                    String description = "";
+                                                    if (getMessages()
+                                                            .containsKey(
+                                                                    parameter
+                                                                            .getDescriptionKey())) {
+                                                        String paramDesc =
+                                                                getMessages()
+                                                                        .getString(
+                                                                                parameter
+                                                                                        .getDescriptionKey());
+                                                        description =
+                                                                paramDesc.length() == 0
+                                                                        ? ""
+                                                                        : " - " + paramDesc;
+                                                    }
+                                                    return safeName(
+                                                                    parameter
+                                                                            .getName()
+                                                                            .toLowerCase(
+                                                                                    Locale.ROOT))
+                                                            + description;
+                                                })
+                                        .collect(Collectors.joining("\n * @param {string} ")));
+                out.write("\n");
+            }
             out.write(" **/\n");
+
         } catch (Exception e) {
             // Might not be set, so just print out the ones that are missing
             System.out.println("No i18n for: " + descTag);
@@ -114,12 +147,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
                 className + ".prototype." + createMethodName(element.getName()) + " = function (");
 
         if (hasParams) {
-            out.write(
-                    element.getParameters().stream()
-                            .map(ApiParameter::getName)
-                            .map(name -> safeName(name.toLowerCase(Locale.ROOT)))
-                            .collect(Collectors.joining(", ")));
-            out.write(", ");
+            out.write("args, ");
         }
         out.write("callback) {\n");
 
@@ -136,7 +164,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
                                     name ->
                                             "'"
                                                     + name
-                                                    + "': "
+                                                    + "': args."
                                                     + safeName(name.toLowerCase(Locale.ROOT)))
                             .collect(Collectors.joining(", ")));
             reqParamsBuilder.append("}");
@@ -155,8 +183,8 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
                 for (ApiParameter parameter : optionalParameters) {
                     String name = parameter.getName();
                     String varName = safeName(name.toLowerCase(Locale.ROOT));
-                    out.write("  if (" + varName + " && " + varName + " !== null) {\n");
-                    out.write("    params['" + name + "'] = " + varName + ";\n");
+                    out.write("  if (args." + varName + " && args." + varName + " !== null) {\n");
+                    out.write("    params['" + name + "'] = args." + varName + ";\n");
                     out.write("  }\n");
                 }
             }
