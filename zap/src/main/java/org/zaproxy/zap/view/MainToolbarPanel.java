@@ -130,6 +130,7 @@ public class MainToolbarPanel extends JPanel {
             addButton((JToggleButton) component);
         } else {
             getToolbar().add(component);
+            revalidateAndRepaintToolbar();
         }
     }
 
@@ -145,6 +146,11 @@ public class MainToolbarPanel extends JPanel {
         }
     }
 
+    private void revalidateAndRepaintToolbar() {
+        getToolbar().revalidate();
+        getToolbar().repaint();
+    }
+
     /**
      * Removes the given component to the tool bar.
      *
@@ -156,13 +162,13 @@ public class MainToolbarPanel extends JPanel {
         validateComponentNonNull(component);
 
         getToolbar().remove(component);
-        getToolbar().validate();
-        getToolbar().repaint();
+        revalidateAndRepaintToolbar();
     }
 
     public void addButton(JButton button) {
         DisplayUtils.scaleIcon(button);
         getToolbar().add(button);
+        revalidateAndRepaintToolbar();
     }
 
     public void removeButton(JButton button) {
@@ -172,6 +178,7 @@ public class MainToolbarPanel extends JPanel {
     public void addButton(JToggleButton button) {
         DisplayUtils.scaleIcon(button);
         getToolbar().add(button);
+        revalidateAndRepaintToolbar();
     }
 
     public void removeButton(JToggleButton button) {
@@ -180,10 +187,12 @@ public class MainToolbarPanel extends JPanel {
 
     public void addSeparator() {
         getToolbar().addSeparator();
+        revalidateAndRepaintToolbar();
     }
 
     public void addSeparator(JToolBar.Separator separator) {
         getToolbar().add(separator);
+        revalidateAndRepaintToolbar();
     }
 
     public void removeSeparator(JToolBar.Separator separator) {
