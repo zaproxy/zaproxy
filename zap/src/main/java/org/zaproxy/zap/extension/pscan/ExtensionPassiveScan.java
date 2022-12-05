@@ -434,7 +434,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
                             extensionLoader.getExtension(ExtensionHistory.class),
                             extensionLoader.getExtension(ExtensionAlert.class),
                             getPassiveScanParam(),
-                            getScanStatus());
+                            hasView() ? getScanStatus() : null);
             psc.setSession(Model.getSingleton().getSession());
             psc.start();
         }

@@ -98,11 +98,6 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
 
     public static final String SCRIPT_TYPE_SESSION = "session";
 
-    private static final ImageIcon SCRIPT_ICON_SESSION =
-            new ImageIcon(
-                    ScriptBasedSessionManagementMethodType.class.getResource(
-                            "/resource/icon/16/script-session.png"));
-
     private static ExtensionScript extensionScript;
 
     public class ScriptBasedSessionManagementMethod implements SessionManagementMethod {
@@ -462,7 +457,12 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                             new ScriptType(
                                     SCRIPT_TYPE_SESSION,
                                     "session.method.script.type",
-                                    SCRIPT_ICON_SESSION,
+                                    getScriptsExtension().getView() != null
+                                            ? new ImageIcon(
+                                                    getClass()
+                                                            .getResource(
+                                                                    "/resource/icon/16/script-session.png"))
+                                            : null,
                                     false,
                                     new String[] {ScriptType.CAPABILITY_APPEND}));
         }
