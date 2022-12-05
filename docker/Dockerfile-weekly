@@ -1,5 +1,5 @@
 # This dockerfile builds the zap weekly release
-FROM debian:unstable-slim AS builder
+FROM debian:stable-slim AS builder
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
@@ -21,7 +21,7 @@ RUN if [ -z "$WEBSWING_URL" ] ; \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
 
-FROM debian:unstable-slim
+FROM debian:stable-slim
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
