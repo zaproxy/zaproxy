@@ -56,15 +56,15 @@ public class ScriptParam extends AbstractParam {
     private Set<ScriptWrapper> scripts;
     private List<File> scriptDirs;
     private boolean confirmRemoveDir = true;
-    private boolean enableScriptsFromDirs = false;
+    private boolean enableScriptsFromDirs;
 
     public ScriptParam() {}
 
     @Override
     protected void parse() {
+        migrateOldKeys();
         defaultScript = getString(PARAM_DEFAULT_SCRIPT, "");
         defaultDir = getString(PARAM_DEFAULT_DIR, "");
-        migrateOldKeys();
 
         try {
             List<HierarchicalConfiguration> fields =

@@ -42,9 +42,7 @@ public class OptionsScriptPanel extends AbstractParamPanel {
     private ExtensionScript extension;
     private AntiCsrfMultipleOptionsPanel tokensOptionsPanel;
     private OptionsScriptTableModel scriptDirModel = null;
-    private JCheckBox enableScriptsFromDirs =
-            new JCheckBox(
-                    Constant.messages.getString("options.script.dialog.dirs.enableLoadedScripts"));
+    private JCheckBox enableScriptsFromDirs;
 
     public OptionsScriptPanel(ExtensionScript extension) {
         super();
@@ -62,6 +60,11 @@ public class OptionsScriptPanel extends AbstractParamPanel {
         gbc.weightx = 1.0;
         gbc.anchor = GridBagConstraints.LINE_START;
         gbc.fill = GridBagConstraints.BOTH;
+
+        this.enableScriptsFromDirs =
+                new JCheckBox(
+                        Constant.messages.getString(
+                                "options.script.dialog.dirs.enableLoadedScripts"));
 
         this.add(new ZapHtmlLabel(Constant.messages.getString("options.script.label.dirs")), gbc);
 

@@ -1000,17 +1000,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @see #removeScriptsFromDir(File)
      */
     public int addScriptsFromDir(File dir) {
-        int addedScripts = 0;
-        addedScripts = addScriptsFromDir(dir, false);
-        return addedScripts;
+        return addScriptsFromDir(dir, false);
     }
 
-    public int addScriptsFromDir(File dir, boolean enableScriptsFromDirs) {
+    private int addScriptsFromDir(File dir, boolean enableScripts) {
         logger.debug("Adding scripts from dir: {}", dir.getAbsolutePath());
         trackedDirs.add(dir);
         int addedScripts = 0;
         for (ScriptType type : this.getScriptTypes()) {
-            addedScripts += addScriptsFromDir(dir, type, null, enableScriptsFromDirs);
+            addedScripts += addScriptsFromDir(dir, type, null, enableScripts);
         }
         return addedScripts;
     }
@@ -1022,11 +1020,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @param dir the directory from where to add the scripts.
      * @param type the script type, must not be {@code null}.
      * @param targetEngineName the engine that the scripts must be of, {@code null} for all engines.
-     * @param enableScriptsFromDirs whether or not to enable added scripts
+     * @param enableScripts whether or not to enable added scripts
      * @return the number of scripts added.
      */
     private int addScriptsFromDir(
-            File dir, ScriptType type, String targetEngineName, boolean enableScriptsFromDirs) {
+            File dir, ScriptType type, String targetEngineName, boolean enableScripts) {
         int addedScripts = 0;
         File typeDir = new File(dir, type.getName());
         if (typeDir.exists()) {
@@ -1048,7 +1046,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                                             type,
                                             false,
                                             f);
-                            if (enableScriptsFromDirs) {
+                            if (enableScripts) {
                                 this.setEnabled(sw, true);
                             }
                             this.loadScript(sw);
