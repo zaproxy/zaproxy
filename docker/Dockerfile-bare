@@ -1,5 +1,5 @@
 # This dockerfile builds the zap bare release
-FROM debian:unstable-slim AS builder
+FROM debian:stable-slim AS builder
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
