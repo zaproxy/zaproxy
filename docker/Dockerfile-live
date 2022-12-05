@@ -63,7 +63,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	x11vnc && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*  && \
-	useradd -d /home/zap -m -s /bin/bash zap && \
+	useradd -u 1337 -d /home/zap -m -s /bin/bash zap && \
 	echo zap:zap | chpasswd && \
 	mkdir /zap  && \
 	chown zap:zap /zap
@@ -87,15 +87,15 @@ ENV HOME /home/zap/
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-COPY --link --from=builder --chown=zap:zap /zap-src/zaproxy/zap/build/distFilesWeekly/ /zap/
-COPY --link --chown=zap:zap zap* CHANGELOG.md /zap/
-COPY --link --from=builder --chown=zap:zap /zap/webswing /zap/webswing
-COPY --link --chown=zap:zap webswing.config /zap/webswing/
-COPY --link --chown=zap:zap webswing.properties /zap/webswing/
-COPY --link --chown=zap:zap policies /home/zap/.ZAP_D/policies/
-COPY --link --chown=zap:zap policies /root/.ZAP_D/policies/
-COPY --link --chown=zap:zap scripts /home/zap/.ZAP_D/scripts/
-COPY --link --chown=zap:zap .xinitrc /home/zap/
+COPY --link --from=builder --chown=1337:1337 /zap-src/zaproxy/zap/build/distFilesWeekly/ /zap/
+COPY --link --chown=1337:1337 zap* CHANGELOG.md /zap/
+COPY --link --from=builder --chown=1337:1337 /zap/webswing /zap/webswing
+COPY --link --chown=1337:1337 webswing.config /zap/webswing/
+COPY --link --chown=1337:1337 webswing.properties /zap/webswing/
+COPY --link --chown=1337:1337 policies /home/zap/.ZAP_D/policies/
+COPY --link --chown=1337:1337 policies /root/.ZAP_D/policies/
+COPY --link --chown=1337:1337 scripts /home/zap/.ZAP_D/scripts/
+COPY --link --chown=1337:1337 .xinitrc /home/zap/
 
 RUN echo "zap2docker-live" > /zap/container && \
     chmod a+x /home/zap/.xinitrc && \
