@@ -29,7 +29,7 @@ jobs:
         with:
           context: docker
           file: docker/Dockerfile-weekly
-          platforms: linux/amd64
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: |
             owasp/zap2docker-weekly:w${{ env.REL_DATE }}

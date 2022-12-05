@@ -17,7 +17,7 @@ check_results() {
     
     if [ $expected -ne $code ] 
     then
-        echo "ERROR: exited with $? instead of $code"
+        echo "ERROR: exited with $code instead of $expected"
         RES=1
     else
         files=`ls /zap/wrk/results/$base-*`
