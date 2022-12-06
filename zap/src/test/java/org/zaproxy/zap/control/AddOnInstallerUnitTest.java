@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +53,7 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // Then
         assertThat(
                 Paths.get(Constant.getZapHome()).relativize(addOnDataDir),
-                is(equalTo(Paths.get("addOnData/addOnId"))));
+                is(equalTo(Paths.get("addOnData/addOnId/1.0.0"))));
     }
 
     @Test
@@ -64,7 +65,26 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // Then
         assertThat(
                 Paths.get(Constant.getZapHome()).relativize(addOnLibsDir),
-                is(equalTo(Paths.get("addOnData/addOnId/libs"))));
+                is(equalTo(Paths.get("addOnData/addOnId/1.0.0/libs"))));
+    }
+
+    @Test
+    void shouldDeleteLegacyAddOnLibsDir() throws Exception {
+        // Given
+        AddOn addOnA = new AddOn(createAddOnFile("addOnA.zap"));
+        Path addOnALibsDir = Paths.get(Constant.getZapHome(), "addOnData/addOnA/libs");
+        createFile(addOnALibsDir.resolve("a_a.jar"));
+        createFile(addOnALibsDir.resolve("a_b.jar"));
+        AddOn addOnB = new AddOn(createAddOnFile("addOnB.zap"));
+        Path addOnBLibsDir = Paths.get(Constant.getZapHome(), "addOnData/addOnB/libs");
+        createFile(addOnBLibsDir.resolve("b_a.jar"));
+        createFile(addOnBLibsDir.resolve("b_b.jar"));
+        List<AddOn> addOns = List.of(addOnA, addOnB);
+        // When
+        AddOnInstaller.deleteLegacyAddOnLibsDir(addOns);
+        // Then
+        assertThat(Files.notExists(addOnALibsDir), is(equalTo(true)));
+        assertThat(Files.notExists(addOnBLibsDir), is(equalTo(true)));
     }
 
     @Test

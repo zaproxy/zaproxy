@@ -505,7 +505,7 @@ public final class AddOnInstaller {
      * Installs the libraries declared by the given add-on.
      *
      * <p>The libraries are copied to the directory with the following path: {@code
-     * <zapHome>/addOnData/<addOnId>/libs/}
+     * <zapHome>/addOnData/<addOnId>/<version>/libs/}
      *
      * @param addOn the add-on that will have the declared libraries installed.
      * @return {@code true} if no error occurred while installing the libraries, {@code false}
@@ -576,20 +576,43 @@ public final class AddOnInstaller {
     /**
      * Gets the path to the data directory of the given add-on.
      *
-     * <p>The path is built as: {@code <zapHome>/addOnData/<addOnId>/}
+     * <p>The path is built as: {@code <zapHome>/addOnData/<addOnId>/<version>/}
      *
      * @param addOn the add-on.
      * @return the path to the directory.
      * @see #ADD_ON_DATA_DIR
      */
     static Path getAddOnDataDir(AddOn addOn) {
-        return Paths.get(Constant.getZapHome(), ADD_ON_DATA_DIR, addOn.getId());
+        return Paths.get(
+                Constant.getZapHome(),
+                ADD_ON_DATA_DIR,
+                addOn.getId(),
+                addOn.getVersion().toString());
+    }
+
+    static void deleteLegacyAddOnLibsDir(List<AddOn> addOns) {
+        for (AddOn addOn : addOns) {
+            Path libsDir =
+                    Paths.get(
+                            Constant.getZapHome(),
+                            ADD_ON_DATA_DIR,
+                            addOn.getId(),
+                            ADD_ON_DATA_LIBS_DIR);
+            try {
+                deleteDir(libsDir);
+            } catch (IOException e) {
+                logger.warn(
+                        "An error occurred while removing legacy add-on libs directory {}",
+                        libsDir,
+                        e);
+            }
+        }
     }
 
     /**
      * Gets the path to the libraries directory of the given add-on.
      *
-     * <p>The path is built as: {@code <zapHome>/addOnData/<addOnId>/libs/}
+     * <p>The path is built as: {@code <zapHome>/addOnData/<addOnId>/<version>/libs/}
      *
      * @param addOn the add-on.
      * @return the path to the directory.
