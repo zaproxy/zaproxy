@@ -191,6 +191,8 @@ public class AddOnLoader extends URLClassLoader {
     }
 
     private void loadAllAddOns() {
+        AddOnInstaller.deleteLegacyAddOnLibsDir(aoc.getAddOns());
+
         for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext(); ) {
             AddOn addOn = iterator.next();
             if (canLoadAddOn(addOn)) {
