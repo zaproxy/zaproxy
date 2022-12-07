@@ -261,6 +261,15 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
         }
 
         AddOn installedAddOn = this.getLocalVersionInfo().getAddOn(ao.getId());
+        if ("network".equals(ao.getId())) {
+            new Thread(() -> installLocalAddOnQuietly(installedAddOn, ao), "ZAP-AddOnAsyncInstall")
+                    .start();
+            return true;
+        }
+        return installLocalAddOnQuietly(installedAddOn, ao);
+    }
+
+    private boolean installLocalAddOnQuietly(AddOn installedAddOn, AddOn ao) {
         if (installedAddOn != null) {
             try {
                 if (Files.isSameFile(installedAddOn.getFile().toPath(), ao.getFile().toPath())) {
