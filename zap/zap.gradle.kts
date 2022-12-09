@@ -147,7 +147,11 @@ val japicmp by tasks.registering(JapicmpTask::class) {
 
     fieldExcludes.set(listOf())
 
-    classExcludes.set(listOf())
+    classExcludes.set(
+        listOf(
+            "org.zaproxy.zap.network.HttpSenderImpl"
+        )
+    )
 
     methodExcludes.set(
         listOf(
