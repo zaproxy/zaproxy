@@ -63,7 +63,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 
 RUN pip3 install --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3
 
-RUN useradd -u 1337 -d /home/zap -m -s /bin/bash zap
+RUN useradd -u 1000 -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
 RUN mkdir /zap && chown zap:zap /zap
 
@@ -75,9 +75,9 @@ USER zap
 RUN mkdir /home/zap/.vnc
 
 # Copy stable release
-COPY --link --from=builder --chown=1337:1337 /zap .
+COPY --link --from=builder --chown=1000:1000 /zap .
 
-COPY --link --from=builder --chown=1337:1337 /zap/webswing /zap/webswing
+COPY --link --from=builder --chown=1000:1000 /zap/webswing /zap/webswing
 
 ARG TARGETARCH
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-$TARGETARCH
@@ -91,14 +91,14 @@ ENV HOME /home/zap/
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-COPY --link --chown=1337:1337 zap* CHANGELOG.md /zap/
-COPY --link --chown=1337:1337 webswing.config /zap/webswing/
-COPY --link --chown=1337:1337 webswing.properties /zap/webswing/
-COPY --link --chown=1337:1337 policies /home/zap/.ZAP/policies/
-COPY --link --chown=1337:1337 policies /root/.ZAP/policies/
+COPY --link --chown=1000:1000 zap* CHANGELOG.md /zap/
+COPY --link --chown=1000:1000 webswing.config /zap/webswing/
+COPY --link --chown=1000:1000 webswing.properties /zap/webswing/
+COPY --link --chown=1000:1000 policies /home/zap/.ZAP/policies/
+COPY --link --chown=1000:1000 policies /root/.ZAP/policies/
 # The scan script loads the scripts from dev home dir.
-COPY --link --chown=1337:1337 scripts /home/zap/.ZAP_D/scripts/
-COPY --link --chown=1337:1337 .xinitrc /home/zap/
+COPY --link --chown=1000:1000 scripts /home/zap/.ZAP_D/scripts/
+COPY --link --chown=1000:1000 .xinitrc /home/zap/
 
 RUN echo "zap2docker-stable" > /zap/container && \
     chmod a+x /home/zap/.xinitrc

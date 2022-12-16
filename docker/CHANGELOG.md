@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2022-12-16
+ - Changed the UID and GID of the `zap` user to 1000 (Issue 7655).
+
 ### 2022-12-05
  - Changed all images to use debian:bullseye-slim instead of unstable-slim.
 

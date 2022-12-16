@@ -30,12 +30,12 @@ RUN apk update && apk add bash curl
 USER root
 
 WORKDIR /zap
-COPY --from=builder --link --chown=1337:1337 /zap .
-COPY --link --chown=1337:1337 policies /home/zap/.ZAP/policies/
+COPY --from=builder --link --chown=1000:1000 /zap .
+COPY --link --chown=1000:1000 policies /home/zap/.ZAP/policies/
 
 RUN echo "zap2docker-bare" > /zap/container
 
-RUN /usr/sbin/adduser -u 1337 -h /home/zap -s /bin/bash -D zap && \
+RUN /usr/sbin/adduser -u 1000 -h /home/zap -s /bin/bash -D zap && \
     rm -rf /var/cache/apk/*
 
 #Change to the zap user so things get done as the right person (apart from copy)
