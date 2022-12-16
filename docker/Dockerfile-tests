@@ -8,10 +8,10 @@ ARG DEBIAN_FRONTEND=noninteractive
 #Change to the zap user so things get done as the right person (apart from copy)
 USER zap
 
-COPY --link --chown=1337:1337 integration_tests /zap/wrk/
+COPY --link --chown=1000:1000 integration_tests /zap/wrk/
 
 # Pick up any local changes
-COPY --link --chown=1337:1337 zap* CHANGELOG.md /zap/
+COPY --link --chown=1000:1000 zap* CHANGELOG.md /zap/
 
 RUN chmod +x /zap/wrk/*.sh
 
