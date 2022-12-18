@@ -34,8 +34,6 @@ jobs:
           push: true
           tags: |
             owasp/zap2docker-tests:latest
-          build-args: |
-            WEBSWING_URL=${{ secrets.WEBSWING_URL }}
       - 
         name: Run install tests
         run: docker run --rm -t owasp/zap2docker-tests:latest wrk/install_tests.sh
