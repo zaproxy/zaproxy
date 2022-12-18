@@ -6,7 +6,7 @@ on:
     - cron:  '0 1 * * *'
 
 env:
-  REGISTRY: ghcr.io 
+  REGISTRY: ghcr.io
 
 jobs:
   publish:
@@ -30,6 +30,11 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/zap2docker-tests
       -
         name: Build and push Docker image
         uses: docker/build-push-action@v3
@@ -38,20 +43,20 @@ jobs:
           file: docker/Dockerfile-tests
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            owasp/zap2docker-tests:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
       - 
         name: Run install tests
-        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/install_tests.sh
+        run: docker run --rm -t ${{ steps.meta.outputs.tags }}:latest wrk/install_tests.sh
       - 
         name: Run python tests
-        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/python_tests.sh
+        run: docker run --rm -t ${{ steps.meta.outputs.tags }}:latest wrk/python_tests.sh
       - 
         name: Run baseline tests
-        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/baseline_tests.sh
+        run: docker run --rm -t ${{ steps.meta.outputs.tags }}:latest wrk/baseline_tests.sh
       - 
         name: Automation Framework context tests
-        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/af_context_tests.sh
+        run: docker run --rm -t ${{ steps.meta.outputs.tags }}:latest wrk/af_context_tests.sh
       - 
         name: Automation Framework plan tests
-        run: docker run --rm -t owasp/zap2docker-tests:latest wrk/af_plan_tests.sh
+        run: docker run --rm -t ${{ steps.meta.outputs.tags }}:latest wrk/af_plan_tests.sh
