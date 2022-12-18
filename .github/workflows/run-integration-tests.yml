@@ -6,12 +6,15 @@ on:
     - cron:  '0 1 * * *'
 
 env:
-  REGISTRY: ghcr.io
+  REGISTRY: ghcr.io 
 
 jobs:
   publish:
     name: Build, Push and Run Docker Image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     steps:
       - uses: actions/checkout@v3
       -
