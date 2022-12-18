@@ -48,16 +48,16 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
       - 
         name: Run install tests
-        run: docker run --rm -t ${{ steps.meta.outputs.tags }}:latest wrk/install_tests.sh
+        run: docker run --rm -t ${{ steps.meta.outputs.tags }} wrk/install_tests.sh
       - 
         name: Run python tests
-        run: docker run --rm -t ${{ steps.meta.outputs.tags }}:latest wrk/python_tests.sh
+        run: docker run --rm -t ${{ steps.meta.outputs.tags }} wrk/python_tests.sh
       - 
         name: Run baseline tests
-        run: docker run --rm -t ${{ steps.meta.outputs.tags }}:latest wrk/baseline_tests.sh
+        run: docker run --rm -t ${{ steps.meta.outputs.tags }} wrk/baseline_tests.sh
       - 
         name: Automation Framework context tests
-        run: docker run --rm -t ${{ steps.meta.outputs.tags }}:latest wrk/af_context_tests.sh
+        run: docker run --rm -t ${{ steps.meta.outputs.tags }} wrk/af_context_tests.sh
       - 
         name: Automation Framework plan tests
-        run: docker run --rm -t ${{ steps.meta.outputs.tags }}:latest wrk/af_plan_tests.sh
+        run: docker run --rm -t ${{ steps.meta.outputs.tags }} wrk/af_plan_tests.sh
