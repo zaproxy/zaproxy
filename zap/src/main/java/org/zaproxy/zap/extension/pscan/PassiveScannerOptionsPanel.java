@@ -23,6 +23,7 @@ import java.awt.GridBagLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.I18N;
@@ -60,8 +61,7 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
                 new JCheckBox(messages.getString("pscan.options.main.label.scanOnlyInScope"));
         scanFuzzerMessagesCheckBox =
                 new JCheckBox(messages.getString("pscan.options.main.label.scanFuzzerMessages"));
-        passiveScanThreads =
-                new ZapNumberSpinner(1, PassiveScanParam.PASSIVE_SCAN_DEFAULT_THREADS, 50);
+        passiveScanThreads = new ZapNumberSpinner(1, Constant.getDefaultThreadCount(), 50);
         maxAlertsPerRule = new ZapNumberSpinner();
         maxBodySizeInBytes = new ZapNumberSpinner();
         clearQueue = new JButton(messages.getString("pscan.options.main.label.clearQueue"));

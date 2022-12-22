@@ -69,6 +69,14 @@ class ScannerParamUnitTest {
         assertThat(param.getThreadPerHost(), is(equalTo(threadPerHost)));
     }
 
+    @Test
+    void shouldDefaultThreadPerHost() {
+        // Given / When
+        param.load(configuration);
+        // Then
+        assertThat(param.getThreadPerHost(), is(equalTo(Constant.getDefaultThreadCount())));
+    }
+
     @ParameterizedTest
     @ValueSource(ints = {-1, 0})
     void shouldUseOneIfLoadingInvalidThreadPerHostFromConfig(int threadPerHost) {
