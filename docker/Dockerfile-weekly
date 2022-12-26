@@ -4,7 +4,8 @@ FROM --platform=linux/amd64 debian:bullseye-slim AS builder
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
 	curl \
-	unzip
+	unzip && \
+	rm -rf /var/lib/apt/lists/*
 
 WORKDIR /zap
 
