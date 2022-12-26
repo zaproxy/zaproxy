@@ -10,7 +10,6 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	curl \
 	unzip \
 	git && \
-	apt-get clean && \
 	rm -rf /var/lib/apt/lists/* && \
 	mkdir /zap-src
 
@@ -61,7 +60,6 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	vim \
 	xvfb \
 	x11vnc && \
-	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*  && \
 	useradd -u 1000 -d /home/zap -m -s /bin/bash zap && \
 	echo zap:zap | chpasswd && \

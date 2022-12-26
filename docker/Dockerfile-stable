@@ -7,8 +7,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	curl \
 	openjdk-11-jdk \
 	xmlstarlet \
-	unzip && \
-	apt-get clean
+	unzip
 
 WORKDIR /zap
 
@@ -58,7 +57,6 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	firefox-esr \
 	xvfb \
 	x11vnc && \
-	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
 RUN pip3 install --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3

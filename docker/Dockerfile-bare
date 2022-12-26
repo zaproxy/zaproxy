@@ -7,8 +7,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	curl \
 	openjdk-11-jdk \
 	xmlstarlet \
-	unzip && \
-	apt-get clean
+	unzip
 
 WORKDIR /zap
 

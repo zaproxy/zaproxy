@@ -4,8 +4,7 @@ FROM --platform=linux/amd64 debian:bullseye-slim AS builder
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
 	curl \
-	unzip && \
-	apt-get clean
+	unzip
 
 WORKDIR /zap
 
@@ -44,7 +43,6 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	firefox-esr \
 	xvfb \
 	x11vnc && \
-	apt-get clean && \
 	rm -rf /var/lib/apt/lists/* && \
     useradd -u 1000 -d /home/zap -m -s /bin/bash zap && \
     echo zap:zap | chpasswd && \
