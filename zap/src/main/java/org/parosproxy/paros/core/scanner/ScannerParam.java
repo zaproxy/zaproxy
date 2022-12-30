@@ -54,6 +54,7 @@
 // ZAP: 2021/09/14 Enable Anti CSRF handling by default.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/11/04 Prevent invalid number of hosts/threads.
+// ZAP: 2022/12/22 Issue 7663: Default thread to number of processors.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -64,6 +65,7 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
@@ -152,7 +154,7 @@ public class ScannerParam extends AbstractParam {
 
     // Internal variables
     private int hostPerScan = 2;
-    private int threadPerHost = 2;
+    private int threadPerHost;
     private int delayInMs = 0;
     private int maxResultsToList = 1000;
     private int maxScansInUI = 5;
@@ -221,7 +223,7 @@ public class ScannerParam extends AbstractParam {
     protected void parse() {
         migrateOldOptions();
 
-        this.threadPerHost = Math.max(1, getInt(THREAD_PER_HOST, 2));
+        this.threadPerHost = Math.max(1, getInt(THREAD_PER_HOST, Constant.getDefaultThreadCount()));
 
         this.hostPerScan = Math.max(1, getInt(HOST_PER_SCAN, 2));
 

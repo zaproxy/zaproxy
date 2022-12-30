@@ -261,4 +261,34 @@ class ConstantUnitTest {
         }
         assertThat(configuration.getProperty(unrelatedKey), is(equalTo("abc")));
     }
+
+    @Test
+    void shouldUpgradeDefaultThreadsFrom2_12_0() {
+        // Given
+        ZapXmlConfiguration configuration = new ZapXmlConfiguration();
+        configuration.setProperty("scanner.threadPerHost", 2);
+        configuration.setProperty("pscans.threads", 4);
+        // When
+        Constant.upgradeFrom2_12(configuration);
+        // Then
+        assertThat(
+                configuration.getProperty("scanner.threadPerHost"),
+                is(equalTo(Constant.getDefaultThreadCount())));
+        assertThat(
+                configuration.getProperty("pscans.threads"),
+                is(equalTo(Constant.getDefaultThreadCount() / 2)));
+    }
+
+    @Test
+    void shouldNotChangeNonDefaultThreadsFrom2_12_0() {
+        // Given
+        ZapXmlConfiguration configuration = new ZapXmlConfiguration();
+        configuration.setProperty("scanner.threadPerHost", 3);
+        configuration.setProperty("pscans.threads", 5);
+        // When
+        Constant.upgradeFrom2_12(configuration);
+        // Then
+        assertThat(configuration.getProperty("scanner.threadPerHost"), is(equalTo(3)));
+        assertThat(configuration.getProperty("pscans.threads"), is(equalTo(5)));
+    }
 }

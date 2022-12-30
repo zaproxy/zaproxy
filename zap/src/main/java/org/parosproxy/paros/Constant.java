@@ -118,6 +118,7 @@
 // ZAP: 2022/02/25 Remove options that are no longer needed.
 // ZAP: 2022/05/20 Remove usage of ConnectionParam.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2022/12/22 Issue 7663: Default threads based on number of processors.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -192,6 +193,7 @@ public final class Constant {
     static final long VERSION_TAG = 20012000;
 
     // Old version numbers - for upgrade
+    private static final long V_2_12_0_TAG = 20012000;
     private static final long V_2_11_1_TAG = 20011001;
     private static final long V_2_9_0_TAG = 2009000;
     private static final long V_2_8_0_TAG = 2008000;
@@ -278,6 +280,7 @@ public final class Constant {
     private static Constant instance = null;
 
     public static final int MAX_HOST_CONNECTION = 15;
+    @Deprecated // No longer limit in the UI
     public static final int MAX_THREADS_PER_SCAN = 50;
     // ZAP: Dont announce ourselves
     // public static final String USER_AGENT = PROGRAM_NAME + "/" + PROGRAM_VERSION;
@@ -706,6 +709,9 @@ public final class Constant {
                     }
                     if (ver <= V_2_11_1_TAG) {
                         upgradeFrom2_11_1(config);
+                    }
+                    if (ver <= V_2_12_0_TAG) {
+                        upgradeFrom2_12(config);
                     }
 
                     // Execute always to pick installer choices.
@@ -1138,6 +1144,23 @@ public final class Constant {
         config.setProperty("view.largeRequest", null);
         config.setProperty("view.largeResponse", null);
         config.setProperty("hud.enableTelemetry", null);
+    }
+
+    private static void updateDefaultInt(
+            XMLConfiguration config, String key, int oldDefault, int newDefault) {
+        try {
+            if (config.getInteger(key, oldDefault) == oldDefault) {
+                config.setProperty(key, newDefault);
+            }
+        } catch (Exception e) {
+            // Don't bother reporting, just fix
+            config.setProperty(key, newDefault);
+        }
+    }
+
+    static void upgradeFrom2_12(XMLConfiguration config) {
+        updateDefaultInt(config, "scanner.threadPerHost", 2, getDefaultThreadCount());
+        updateDefaultInt(config, "pscans.threads", 4, getDefaultThreadCount() / 2);
     }
 
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
@@ -1623,5 +1646,15 @@ public final class Constant {
     public static String getContainerName() {
         isInContainer();
         return containerName;
+    }
+
+    /**
+     * Returns the recommended default number of threads. Note that add-ons should use the
+     * equivalent method in the commonlib add-on.
+     *
+     * @return the recommended default number of threads.
+     */
+    public static int getDefaultThreadCount() {
+        return Runtime.getRuntime().availableProcessors() * 2;
     }
 }
