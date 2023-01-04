@@ -312,7 +312,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                     wrapper.getLanguageName() + LANG_ENGINE_SEP + wrapper.getEngineName();
             for (File dir : trackedDirs) {
                 for (ScriptType type : this.getScriptTypes()) {
-                    addScriptsFromDir(dir, type, engineName);
+                    addScriptsFromDir(dir, type, engineName, false);
                 }
             }
         }
@@ -561,7 +561,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
         synchronized (trackedDirs) {
             for (File dir : trackedDirs) {
-                addScriptsFromDir(dir, type, null);
+                addScriptsFromDir(dir, type, null, false);
             }
         }
     }
@@ -859,9 +859,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
         this.loadTemplates();
 
+        boolean enableScriptsFromDirs = this.getScriptParam().isEnableScriptsFromDirs();
         for (File dir : this.getScriptParam().getScriptDirs()) {
             // Load the scripts from subdirectories of each directory configured
-            int numAdded = addScriptsFromDir(dir);
+            int numAdded = addScriptsFromDir(dir, enableScriptsFromDirs);
             logger.debug("Added {} scripts from dir: {}", numAdded, dir.getAbsolutePath());
         }
         shouldLoadScriptsOnScriptTypeRegistration = true;
@@ -999,11 +1000,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @see #removeScriptsFromDir(File)
      */
     public int addScriptsFromDir(File dir) {
+        return addScriptsFromDir(dir, false);
+    }
+
+    private int addScriptsFromDir(File dir, boolean enableScripts) {
         logger.debug("Adding scripts from dir: {}", dir.getAbsolutePath());
         trackedDirs.add(dir);
         int addedScripts = 0;
         for (ScriptType type : this.getScriptTypes()) {
-            addedScripts += addScriptsFromDir(dir, type, null);
+            addedScripts += addScriptsFromDir(dir, type, null, enableScripts);
         }
         return addedScripts;
     }
@@ -1015,9 +1020,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
      * @param dir the directory from where to add the scripts.
      * @param type the script type, must not be {@code null}.
      * @param targetEngineName the engine that the scripts must be of, {@code null} for all engines.
+     * @param enableScripts whether or not to enable added scripts
      * @return the number of scripts added.
      */
-    private int addScriptsFromDir(File dir, ScriptType type, String targetEngineName) {
+    private int addScriptsFromDir(
+            File dir, ScriptType type, String targetEngineName, boolean enableScripts) {
         int addedScripts = 0;
         File typeDir = new File(dir, type.getName());
         if (typeDir.exists()) {
@@ -1039,6 +1046,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
                                             type,
                                             false,
                                             f);
+                            if (enableScripts) {
+                                this.setEnabled(sw, true);
+                            }
                             this.loadScript(sw);
                             this.addScript(sw, false);
                         } else {
