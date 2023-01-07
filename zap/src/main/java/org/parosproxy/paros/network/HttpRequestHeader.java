@@ -125,7 +125,7 @@ public class HttpRequestHeader extends HttpHeader {
     //	= Pattern.compile("([^:]+)\\s*?:?\\s*?(\\d*?)");
     private static final Pattern patternImage =
             Pattern.compile(
-                    "\\.(bmp|ico|jpg|jpeg|gif|tiff|tif|png|svg)\\z", Pattern.CASE_INSENSITIVE);
+                    "\\.(bmp|ico|jpg|jpeg|gif|tiff|tif|pdf|png|svg)\\z", Pattern.CASE_INSENSITIVE);
     private static final Pattern patternPartialRequestLine =
             Pattern.compile(
                     "\\A *(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT)\\b",
