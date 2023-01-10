@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-01-10
+- Rework Docker build files to not leave cached files and to not do unnecessary work.
+
 ### 2022-12-16
  - Changed the UID and GID of the `zap` user to 1000 (Issue 7655).
 
