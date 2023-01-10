@@ -65,6 +65,7 @@
 // ZAP: 2022/09/12 Allow arbitrary HTTP versions.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/11/22 Lower case the HTTP field names for compatibility with HTTP/2.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -100,7 +101,7 @@ public class HttpRequestHeader extends HttpHeader {
     public static final String ORIGIN = "origin";
 
     private static final long serialVersionUID = 4156598327921777493L;
-    private static final Logger log = LogManager.getLogger(HttpRequestHeader.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpRequestHeader.class);
 
     // method list
     public static final String CONNECT = "CONNECT";
@@ -231,7 +232,7 @@ public class HttpRequestHeader extends HttpHeader {
                             + (uri.getPort() > 0 ? ":" + Integer.toString(uri.getPort()) : ""));
 
         } catch (URIException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         setHeader(USER_AGENT, defaultUserAgent);
@@ -293,12 +294,12 @@ public class HttpRequestHeader extends HttpHeader {
 
         } catch (HttpMalformedHeaderException e) {
             mMalformedHeader = true;
-            log.debug("Malformed header: {}", data, e);
+            LOGGER.debug("Malformed header: {}", data, e);
 
             throw e;
 
         } catch (Exception e) {
-            log.error("Failed to parse:\n{}", data, e);
+            LOGGER.error("Failed to parse:\n{}", data, e);
             mMalformedHeader = true;
             throw new HttpMalformedHeaderException(e.getMessage());
         }
@@ -513,8 +514,8 @@ public class HttpRequestHeader extends HttpHeader {
             hostName = ((mUri.getHost() != null) ? mUri.getHost() : mHostName);
 
         } catch (URIException e) {
-            if (log.isDebugEnabled()) {
-                log.warn(e);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.warn(e);
             }
         }
 
@@ -580,7 +581,7 @@ public class HttpRequestHeader extends HttpHeader {
             }
 
         } catch (URIException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return false;
@@ -683,7 +684,7 @@ public class HttpRequestHeader extends HttpHeader {
                 mUri.setQuery("");
 
             } catch (URIException e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
 
             return;
@@ -706,7 +707,7 @@ public class HttpRequestHeader extends HttpHeader {
                 mUri.setQuery("");
 
             } catch (URIException e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
 
             return;
@@ -720,7 +721,7 @@ public class HttpRequestHeader extends HttpHeader {
             mUri.setQuery(query);
 
         } catch (URIException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -831,7 +832,7 @@ public class HttpRequestHeader extends HttpHeader {
 
                 } catch (IllegalArgumentException e) {
                     // Occurs while scanning ;)
-                    log.debug("{} {}", e.getMessage(), htmlParameter.getName());
+                    LOGGER.debug("{} {}", e.getMessage(), htmlParameter.getName());
                 }
             }
         }

@@ -47,7 +47,7 @@ public class HistoryFilter {
     private List<Pattern> urlIncPatternList = new ArrayList<>();
     private List<Pattern> urlExcPatternList = new ArrayList<>();
 
-    private Logger logger = LogManager.getLogger(HistoryFilter.class);
+    private static final Logger LOGGER = LogManager.getLogger(HistoryFilter.class);
 
     public void setMethods(List<String> methods) {
         methodList.clear();
@@ -148,7 +148,7 @@ public class HistoryFilter {
                 }
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return true;
     }

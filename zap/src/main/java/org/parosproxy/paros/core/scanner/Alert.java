@@ -65,6 +65,7 @@
 // getReliability()
 // ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 // ZAP: 2022/05/26 Add addTag and removeTag methods
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -207,7 +208,7 @@ public class Alert implements Comparable<Alert> {
     private int sourceHistoryId = 0;
     private HistoryReference historyRef = null;
     // ZAP: Added logger
-    private static final Logger logger = LogManager.getLogger(Alert.class);
+    private static final Logger LOGGER = LogManager.getLogger(Alert.class);
     // Cache this info so that we dont have to keep a ref to the HttpMessage
     private String method = "";
     private String postData;
@@ -244,10 +245,10 @@ public class Alert implements Comparable<Alert> {
 
         } catch (HttpMalformedHeaderException e) {
             // ZAP: Just an indication the history record doesn't exist
-            logger.debug(e.getMessage(), e);
+            LOGGER.debug(e.getMessage(), e);
         } catch (Exception e) {
             // ZAP: Log the exception
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         init(recordAlert, hRef);
@@ -700,7 +701,7 @@ public class Alert implements Comparable<Alert> {
             try {
                 return this.historyRef.getHttpMessage();
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
         return null;

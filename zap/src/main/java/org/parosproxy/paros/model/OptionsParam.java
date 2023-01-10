@@ -46,6 +46,7 @@
 // ZAP: 2022/02/09 Deprecate methods related to core proxy options.
 // ZAP: 2022/05/20 Deprecate methods related to core connection options.
 // ZAP: 2022/05/29 Deprecate methods related to core client certificates.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.model;
 
 import java.io.File;
@@ -67,7 +68,7 @@ import org.zaproxy.zap.extension.globalexcludeurl.GlobalExcludeURLParam;
 
 public class OptionsParam extends AbstractParam {
 
-    private static final Logger logger = LogManager.getLogger(OptionsParam.class);
+    private static final Logger LOGGER = LogManager.getLogger(OptionsParam.class);
 
     //	private static final String ROOT = "Options";
     // ZAP: User directory now stored in the config file
@@ -224,7 +225,7 @@ public class OptionsParam extends AbstractParam {
                     this.userDirectory = file;
                 }
             } catch (Exception e1) {
-                logger.error(e1.getMessage(), e1);
+                LOGGER.error(e1.getMessage(), e1);
             }
         }
     }
@@ -262,7 +263,7 @@ public class OptionsParam extends AbstractParam {
         try {
             getConfig().save();
         } catch (ConfigurationException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

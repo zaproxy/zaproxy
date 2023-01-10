@@ -43,13 +43,12 @@
 // ZAP: 2021/05/06 Add input vector and param to all alerts
 // ZAP: 2021/06/16 Add support for updating multiple parameters in HttpMessage.
 // ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Use logger provided by base class.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -59,7 +58,6 @@ import org.zaproxy.zap.extension.ascan.VariantFactory;
 
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
     private List<Variant> listVariant;
     private NameValuePair originalPair = null;
     private Variant variant = null;
@@ -93,10 +91,11 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
                 variant.setMessage(msg);
                 this.scan(this.variant.getParamList());
             } catch (Exception e) {
-                logger.error(
-                        "Error occurred while scanning with variant {}",
-                        variant.getClass().getCanonicalName(),
-                        e);
+                getLogger()
+                        .error(
+                                "Error occurred while scanning with variant {}",
+                                variant.getClass().getCanonicalName(),
+                                e);
             }
 
             // ZAP: Implement pause and resume
@@ -132,7 +131,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
                 try {
                     scan(msg, originalPair);
                 } catch (Exception e) {
-                    logger.error("Error occurred while scanning a message:", e);
+                    getLogger().error("Error occurred while scanning a message:", e);
                 }
             }
         }

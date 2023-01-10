@@ -32,7 +32,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class ScanPolicy {
 
-    private static final Logger logger = LogManager.getLogger(ScanPolicy.class);
+    private static final Logger LOGGER = LogManager.getLogger(ScanPolicy.class);
 
     private String name;
     private PluginFactory pluginFactory = new PluginFactory();
@@ -126,7 +126,7 @@ public class ScanPolicy {
         if (alertThreshold.isEmpty()
                 || !EnumUtils.isValidEnum(AlertThreshold.class, alertThreshold)
                 || AlertThreshold.DEFAULT.name().equals(alertThreshold)) {
-            logger.warn(
+            LOGGER.warn(
                     "Found illegal value {} for alert threshold, using MEDIUM instead.",
                     alertThreshold);
             return AlertThreshold.MEDIUM;
@@ -139,7 +139,7 @@ public class ScanPolicy {
         if (attackStrength.isEmpty()
                 || !EnumUtils.isValidEnum(AttackStrength.class, attackStrength)
                 || AttackStrength.DEFAULT.name().equals(attackStrength)) {
-            logger.warn(
+            LOGGER.warn(
                     "Found illegal value {} for attack strength, using MEDIUM instead.",
                     attackStrength);
             return AttackStrength.MEDIUM;

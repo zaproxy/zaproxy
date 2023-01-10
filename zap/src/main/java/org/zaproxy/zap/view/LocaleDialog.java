@@ -41,7 +41,7 @@ public class LocaleDialog extends AbstractDialog {
     private OptionsLocalePanel localePanel = null;
     private OptionsParam options = null;
     private JButton btnOK = null;
-    private Logger logger = LogManager.getLogger(LocaleDialog.class);
+    private static final Logger LOGGER = LogManager.getLogger(LocaleDialog.class);
 
     /**
      * Constructs an {@code LocaleDialog} with no owner and not modal.
@@ -120,7 +120,7 @@ public class LocaleDialog extends AbstractDialog {
         try {
             localePanel.saveParam(options);
         } catch (Exception e1) {
-            logger.error(e1.getMessage(), e1);
+            LOGGER.error(e1.getMessage(), e1);
         }
 
         LocaleDialog.this.dispose();

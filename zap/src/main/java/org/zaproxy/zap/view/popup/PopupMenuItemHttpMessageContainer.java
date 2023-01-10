@@ -52,7 +52,7 @@ public abstract class PopupMenuItemHttpMessageContainer
 
     private static final long serialVersionUID = -4769111731197641466L;
 
-    private static final Logger logger =
+    private static final Logger LOGGER =
             LogManager.getLogger(PopupMenuItemHttpMessageContainer.class);
 
     /** The invokers of the the pop up menu. */
@@ -593,7 +593,7 @@ public abstract class PopupMenuItemHttpMessageContainer
 
         @Override
         public void actionPerformed(ActionEvent evt) {
-            logger.debug(
+            LOGGER.debug(
                     "actionPerformed {} {}",
                     invoker != null ? invoker.name() : "null invoker",
                     evt.getActionCommand());
@@ -601,7 +601,7 @@ public abstract class PopupMenuItemHttpMessageContainer
             try {
                 performActions(httpMessageContainer);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
 
             resetState();

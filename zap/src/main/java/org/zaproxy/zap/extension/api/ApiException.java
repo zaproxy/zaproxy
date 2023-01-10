@@ -109,7 +109,7 @@ public class ApiException extends Exception {
     private final String code;
     private final String detail;
 
-    private static final Logger logger = LogManager.getLogger(ApiException.class);
+    private static final Logger LOGGER = LogManager.getLogger(ApiException.class);
 
     public ApiException(Type type) {
         this(type, null, null);
@@ -186,7 +186,7 @@ public class ApiException extends Exception {
                     return sw.toString();
 
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
                 break;
 

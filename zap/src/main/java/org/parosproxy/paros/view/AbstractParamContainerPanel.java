@@ -41,6 +41,7 @@
 // ZAP: 2022/05/11 Use a unique ID to identify the panels instead of their name (Issue 5637).
 // ZAP: 2022/06/08 Fix resizing issues.
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -133,7 +134,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
     private ShowHelpAction showHelpAction = null;
 
     // ZAP: Added logger
-    private static Logger log = LogManager.getLogger(AbstractParamContainerPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractParamContainerPanel.class);
 
     /**
      * Constructs an {@code AbstractParamContainerPanel} with a default root node's name ({@value
@@ -675,7 +676,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
             try {
                 panel.validateParam(paramObject);
             } catch (NullPointerException e) {
-                log.error("Failed to validate the panel: ", e);
+                LOGGER.error("Failed to validate the panel: ", e);
                 showInternalError(e);
             } catch (Exception e) {
                 showParamPanel(panel);
@@ -712,7 +713,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
             try {
                 panel.saveParam(paramObject);
             } catch (NullPointerException e) {
-                log.error("Failed to save the panel: ", e);
+                LOGGER.error("Failed to save the panel: ", e);
                 showInternalError(e);
             }
         }
@@ -808,7 +809,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
 
         } catch (Exception e) {
             // ZAP: log errors
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

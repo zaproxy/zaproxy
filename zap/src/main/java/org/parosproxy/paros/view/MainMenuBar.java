@@ -45,6 +45,7 @@
 // disabled menu item (Issue 6938).
 // ZAP: 2022/03/12 Add open recent menu
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.view;
 
 import java.awt.event.ActionEvent;
@@ -76,7 +77,7 @@ public class MainMenuBar extends JMenuBar {
 
     private static final long serialVersionUID = 8580116506279095244L;
 
-    private static final Logger logger = LogManager.getLogger(MainMenuBar.class);
+    private static final Logger LOGGER = LogManager.getLogger(MainMenuBar.class);
 
     private javax.swing.JMenu menuEdit = null;
     private javax.swing.JMenu menuTools = null;
@@ -295,7 +296,7 @@ public class MainMenuBar extends JMenuBar {
                                         .showWarningDialog(
                                                 Constant.messages.getString(
                                                         "menu.file.newSession.error")); // ZAP: i18n
-                                logger.error(e1.getMessage(), e1);
+                                LOGGER.error(e1.getMessage(), e1);
                             }
                         }
                     });

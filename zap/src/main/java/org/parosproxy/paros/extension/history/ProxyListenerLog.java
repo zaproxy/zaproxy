@@ -37,6 +37,7 @@
 // ZAP: 2019/09/30 Use instance variable for view checks.
 // ZAP: 2020/08/04 Changed to use new SessionStructure method
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -60,7 +61,7 @@ import org.zaproxy.zap.model.StructuralNode;
 public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListener {
 
     // ZAP: Added logger
-    private static final Logger log = LogManager.getLogger(ProxyListenerLog.class);
+    private static final Logger LOGGER = LogManager.getLogger(ProxyListenerLog.class);
 
     // ZAP: Must be the last one of all listeners to be notified, as is the one that saves the
     // HttpMessage
@@ -106,7 +107,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
                 }
             }
         } catch (URIException | DatabaseException | HttpMalformedHeaderException e) {
-            log.warn("Failed to check if message already exists:", e);
+            LOGGER.warn("Failed to check if message already exists:", e);
         }
 
         // if not, make sure a new copy will be obtained
@@ -166,7 +167,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
         try {
             addToSiteMap(historyRef, historyRef.getHttpMessage());
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            log.warn("Failed to add the message to Sites tree:", e);
+            LOGGER.warn("Failed to add the message to Sites tree:", e);
         }
 
         ProxyListenerLogEventPublisher.getPublisher().publishHrefAddedEvent(historyRef);
@@ -177,7 +178,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
             return new HistoryReference(model.getSession(), type, message);
         } catch (Exception e) {
             // ZAP: Log exceptions
-            log.warn(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
         }
         return null;
     }
@@ -194,7 +195,7 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
                         });
             } catch (Exception e) {
                 // ZAP: Log exceptions
-                log.warn(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
             return;
         }

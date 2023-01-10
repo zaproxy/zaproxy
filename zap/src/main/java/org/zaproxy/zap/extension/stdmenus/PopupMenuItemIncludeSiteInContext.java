@@ -19,8 +19,6 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.SiteNode;
@@ -30,7 +28,6 @@ import org.zaproxy.zap.view.popup.PopupMenuItemIncludeInContext;
 class PopupMenuItemIncludeSiteInContext extends PopupMenuItemIncludeInContext {
 
     private static final long serialVersionUID = 1L;
-    private static Logger log = LogManager.getLogger(PopupMenuItemIncludeSiteInContext.class);
 
     PopupMenuItemIncludeSiteInContext() {
         super();

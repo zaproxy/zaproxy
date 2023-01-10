@@ -74,7 +74,7 @@ import org.zaproxy.zap.view.NodeSelectDialog;
 @SuppressWarnings("serial")
 public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
-    private static final Logger log = LogManager.getLogger(ContextAuthenticationPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(ContextAuthenticationPanel.class);
     private static final long serialVersionUID = -898084998156067286L;
 
     /** The Constant PANEL NAME. */
@@ -274,7 +274,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
             return;
         }
 
-        log.debug("Creating new panel for configuring: {}", newMethodType.getName());
+        LOGGER.debug("Creating new panel for configuring: {}", newMethodType.getName());
 
         this.getConfigContainerPanel().removeAll();
 
@@ -313,7 +313,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
                         public void itemStateChanged(ItemEvent e) {
                             if (e.getStateChange() == ItemEvent.SELECTED
                                     && !e.getItem().equals(shownMethodType)) {
-                                log.debug("Selected new Authentication type: {}", e.getItem());
+                                LOGGER.debug("Selected new Authentication type: {}", e.getItem());
 
                                 AuthenticationMethodType type =
                                         ((AuthenticationMethodType) e.getItem());
@@ -323,7 +323,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
                                                         .getAuthenticationCredentialsType()) {
 
                                     if (needsConfirm && !confirmAndResetUsersCredentials(type)) {
-                                        log.debug("Cancelled change of authentication type.");
+                                        LOGGER.debug("Cancelled change of authentication type.");
 
                                         authenticationMethodsComboBox.setSelectedItem(
                                                 shownMethodType);
@@ -550,7 +550,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
                                                             .getRequestBody()
                                                             .toString());
                                 } catch (Exception e1) {
-                                    log.error(e1.getMessage(), e1);
+                                    LOGGER.error(e1.getMessage(), e1);
                                 }
                             }
                         }
@@ -598,7 +598,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
     @Override
     public void initContextData(Session session, Context uiSharedContext) {
         selectedAuthenticationMethod = uiSharedContext.getAuthenticationMethod();
-        log.debug(
+        LOGGER.debug(
                 "Initializing configuration panel for authentication method: {} for context {}",
                 selectedAuthenticationMethod,
                 uiSharedContext.getName());
@@ -646,7 +646,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
             if (shownMethodType != null
                     && shownMethodType.isTypeForMethod(selectedAuthenticationMethod)) {
                 if (shownMethodType.hasOptionsPanel()) {
-                    log.debug(
+                    LOGGER.debug(
                             "Binding authentication method to existing panel of proper type for context {}",
                             uiSharedContext.getName());
                     shownConfigPanel.bindMethod(
@@ -660,7 +660,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
                 if (type.isTypeForMethod(selectedAuthenticationMethod)) {
                     // Selecting the type here will also force the selection listener to run and
                     // change the config panel accordingly
-                    log.debug(
+                    LOGGER.debug(
                             "Binding authentication method to new panel of proper type for context {}",
                             uiSharedContext.getName());
                     // Add hack to make sure no confirmation is needed if a change has been done

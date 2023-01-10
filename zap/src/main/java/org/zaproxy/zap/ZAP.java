@@ -52,7 +52,7 @@ public class ZAP {
     private static ProcessType processType;
 
     private static final EventBus eventBus = new SimpleEventBus();
-    private static final Logger logger = LogManager.getLogger(ZAP.class);
+    private static final Logger LOGGER = LogManager.getLogger(ZAP.class);
 
     static {
         try {
@@ -97,7 +97,7 @@ public class ZAP {
             }
 
         } catch (final Exception e) {
-            logger.fatal(e.getMessage(), e);
+            LOGGER.fatal(e.getMessage(), e);
             System.exit(1);
         }
     }
@@ -147,7 +147,7 @@ public class ZAP {
 
     static final class UncaughtExceptionLogger implements Thread.UncaughtExceptionHandler {
 
-        private static final Logger logger = LogManager.getLogger(UncaughtExceptionLogger.class);
+        private static final Logger LOGGER = LogManager.getLogger(UncaughtExceptionLogger.class);
 
         private boolean loggerConfigured = false;
 
@@ -155,7 +155,7 @@ public class ZAP {
         public void uncaughtException(Thread t, Throwable e) {
             if (!(e instanceof ThreadDeath)) {
                 if (loggerConfigured || isLoggerConfigured()) {
-                    logger.error("Exception in thread \"{}\"", t.getName(), e);
+                    LOGGER.error("Exception in thread \"{}\"", t.getName(), e);
 
                 } else {
                     System.err.println("Exception in thread \"" + t.getName() + "\"");

@@ -52,6 +52,7 @@
 // ZAP: 2020/10/14 Allow to set a singleton Model for tests.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.model;
 
 import java.io.File;
@@ -92,7 +93,7 @@ public class Model {
     private Database db = null;
     private String currentDBNameUntitled = "";
     // ZAP: Added logger
-    private Logger logger = LogManager.getLogger(Model.class);
+    private static final Logger LOGGER = LogManager.getLogger(Model.class);
     private List<ContextDataFactory> contextDataFactories = new ArrayList<>();
     private VariantFactory variantFactory = new VariantFactory();
 
@@ -196,7 +197,7 @@ public class Model {
         getOptionsParam().load(Constant.getInstance().FILE_CONFIG, overrides);
 
         if (overrides.isExperimentalDb()) {
-            logger.info("Using experimental database :/");
+            LOGGER.info("Using experimental database :/");
             db = DbSQL.getSingleton().initDatabase();
         } else {
             ParosDatabase parosDb = new ParosDatabase();
@@ -326,7 +327,7 @@ public class Model {
 
     // TODO disable for non file based sessions
     protected void snapshotSessionDb(String currentFile, String destFile) throws Exception {
-        logger.debug("snapshotSessionDb {} -> {}", currentFile, destFile);
+        LOGGER.debug("snapshotSessionDb {} -> {}", currentFile, destFile);
 
         // ZAP: Changed to call the method close(boolean, boolean).
         getDb().close(false, false);
@@ -367,7 +368,7 @@ public class Model {
         }
 
         if (currentFile.length() == 0) {
-            logger.debug("snapshotSessionDb using {} -> {}", currentDBNameUntitled, destFile);
+            LOGGER.debug("snapshotSessionDb using {} -> {}", currentDBNameUntitled, destFile);
             currentFile = currentDBNameUntitled;
         }
 
@@ -396,7 +397,7 @@ public class Model {
         for (int i = 0; i < listFile.length; i++) {
             if (!listFile[i].delete()) {
                 // ZAP: Log failure to delete file
-                logger.error("Failed to delete file {}", listFile[i].getAbsolutePath());
+                LOGGER.error("Failed to delete file {}", listFile[i].getAbsolutePath());
             }
         }
 
@@ -409,7 +410,7 @@ public class Model {
             File fileOut = new File(currentDBNameUntitled + ".data");
             if (fileOut.exists() && !fileOut.delete()) {
                 // ZAP: Log failure to delete file
-                logger.error("Failed to delete file {}", fileOut.getAbsolutePath());
+                LOGGER.error("Failed to delete file {}", fileOut.getAbsolutePath());
             }
 
             copier.copy(fileIn, fileOut);
@@ -420,7 +421,7 @@ public class Model {
             File fileOut = new File(currentDBNameUntitled + ".properties");
             if (fileOut.exists() && !fileOut.delete()) {
                 // ZAP: Log failure to delete file
-                logger.error("Failed to delete file {}", fileOut.getAbsolutePath());
+                LOGGER.error("Failed to delete file {}", fileOut.getAbsolutePath());
             }
 
             copier.copy(fileIn, fileOut);
@@ -431,7 +432,7 @@ public class Model {
             File fileOut = new File(currentDBNameUntitled + ".script");
             if (fileOut.exists() && !fileOut.delete()) {
                 // ZAP: Log failure to delete file
-                logger.error("Failed to delete file {}", fileOut.getAbsolutePath());
+                LOGGER.error("Failed to delete file {}", fileOut.getAbsolutePath());
             }
 
             copier.copy(fileIn, fileOut);
@@ -450,7 +451,7 @@ public class Model {
         if (fileIn.exists()) {
             if (!fileIn.delete()) {
                 // ZAP: Log failure to delete file
-                logger.error("Failed to delete file {}", fileIn.getAbsolutePath());
+                LOGGER.error("Failed to delete file {}", fileIn.getAbsolutePath());
             }
         }
 
@@ -458,7 +459,7 @@ public class Model {
         fileIn = new File(currentDBNameUntitled + ".lobs");
         if (fileIn.exists()) {
             if (!fileIn.delete()) {
-                logger.error("Failed to delete file {}", fileIn.getAbsolutePath());
+                LOGGER.error("Failed to delete file {}", fileIn.getAbsolutePath());
             }
         }
 

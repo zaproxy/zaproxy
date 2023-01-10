@@ -47,7 +47,7 @@ public class MainToolbarPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = LogManager.getLogger(MainToolbarPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(MainToolbarPanel.class);
 
     private JToolBar toolbar = null;
     private JComboBox<String> modeSelect = null;
@@ -295,7 +295,7 @@ public class MainToolbarPanel extends JPanel {
                             try {
                                 Control.getSingleton().getMenuFileControl().newSession(true);
                             } catch (Exception ex) {
-                                logger.error(ex.getMessage(), ex);
+                                LOGGER.error(ex.getMessage(), ex);
                                 View.getSingleton()
                                         .showWarningDialog(
                                                 Constant.messages.getString(
@@ -327,7 +327,7 @@ public class MainToolbarPanel extends JPanel {
                             try {
                                 Control.getSingleton().getMenuFileControl().openSession();
                             } catch (Exception ex) {
-                                logger.error(ex.getMessage(), ex);
+                                LOGGER.error(ex.getMessage(), ex);
                                 View.getSingleton()
                                         .showWarningDialog(
                                                 Constant.messages.getString(
@@ -366,7 +366,7 @@ public class MainToolbarPanel extends JPanel {
                                                             "menu.file.sessionExists.error"));
                                 }
                             } catch (Exception ex) {
-                                logger.error(ex.getMessage(), ex);
+                                LOGGER.error(ex.getMessage(), ex);
                                 View.getSingleton()
                                         .showWarningDialog(
                                                 Constant.messages.getString(
@@ -406,7 +406,7 @@ public class MainToolbarPanel extends JPanel {
                                     Control.getSingleton().getMenuFileControl().saveSnapshot();
                                 }
                             } catch (Exception ex) {
-                                logger.error(ex.getMessage(), ex);
+                                LOGGER.error(ex.getMessage(), ex);
                                 View.getSingleton()
                                         .showWarningDialog(
                                                 Constant.messages.getString(

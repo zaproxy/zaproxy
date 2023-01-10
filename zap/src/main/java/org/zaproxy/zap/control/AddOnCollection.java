@@ -41,7 +41,7 @@ public class AddOnCollection {
         mac
     }
 
-    private static final Logger logger = LogManager.getLogger(AddOnCollection.class);
+    private static final Logger LOGGER = LogManager.getLogger(AddOnCollection.class);
     private ZapRelease zapRelease = null;
     private List<AddOn> addOns = new ArrayList<>();
     private File downloadDir = new File(Constant.FOLDER_LOCAL_PLUGIN);
@@ -68,8 +68,8 @@ public class AddOnCollection {
                 AddOn.AddOnRunRequirements requirements =
                         addOn.calculateInstallRequirements(addOns);
                 if (requirements.hasDependencyIssue()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(
                                 "Ignoring add-on {} because of dependency issue: {}",
                                 addOn.getName(),
                                 AddOnRunIssuesUtils.getDependencyIssue(requirements));
@@ -82,8 +82,8 @@ public class AddOnCollection {
                         checkedAddOns.removeAll(cyclicChain);
                     }
                 } else if (requirements.hasExtensionsWithRunningIssues()) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(
                                 "Ignoring add-on {} because of dependency issue in an extension: {}",
                                 addOn.getName(),
                                 AddOnRunIssuesUtils.getDependencyIssue(requirements));
@@ -126,33 +126,33 @@ public class AddOnCollection {
                                 config.getString(platformPrefix + "hash"));
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         try {
             // And then load the addons
             String[] addOnIds = config.getStringArray("addon");
             for (String id : addOnIds) {
-                logger.debug("Found add-on {}", id);
+                LOGGER.debug("Found add-on {}", id);
 
                 AddOn ao;
                 try {
                     ao = new AddOn(id, downloadDir, config.configurationAt("addon_" + id));
                     ao.setInstallationStatus(AddOn.InstallationStatus.AVAILABLE);
                 } catch (Exception e) {
-                    logger.warn("Failed to create add-on for {}", id, e);
+                    LOGGER.warn("Failed to create add-on for {}", id, e);
                     continue;
                 }
                 if (ao.canLoadInCurrentVersion()) {
                     // Ignore ones that dont apply to this version
                     this.addOns.add(ao);
                 } else {
-                    logger.debug("Ignoring add-on {} can't load in this version", ao.getName());
+                    LOGGER.debug("Ignoring add-on {} can't load in this version", ao.getName());
                 }
             }
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -162,7 +162,7 @@ public class AddOnCollection {
                 try {
                     this.addDirectory(dir);
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
         }
@@ -170,17 +170,17 @@ public class AddOnCollection {
 
     private void addDirectory(File dir) throws Exception {
         if (dir == null) {
-            logger.error("Null directory supplied");
+            LOGGER.error("Null directory supplied");
             return;
         }
         if (!dir.exists()) {
-            logger.warn(
+            LOGGER.warn(
                     "Skipping enumeration of add-ons, the directory does not exist: {}",
                     dir.getAbsolutePath());
             return;
         }
         if (!dir.isDirectory()) {
-            logger.warn("Not a directory: {}", dir.getAbsolutePath());
+            LOGGER.warn("Not a directory: {}", dir.getAbsolutePath());
             return;
         }
 
@@ -198,14 +198,14 @@ public class AddOnCollection {
                                                 if (ao.canLoadInCurrentVersion()) {
                                                     // Replace in situ so we're not changing a list
                                                     // we're iterating through
-                                                    logger.debug(
+                                                    LOGGER.debug(
                                                             "Add-on {} version {} superseded by {}",
                                                             addOn.getId(),
                                                             addOn.getVersion(),
                                                             ao.getVersion());
                                                     addOns.remove(addOn);
                                                 } else {
-                                                    logger.debug(
+                                                    LOGGER.debug(
                                                             "Ignoring newer add-on {} version {} because of ZAP version constraints; Not before={} Not from={} Current Version={}",
                                                             ao.getId(),
                                                             ao.getVersion(),
@@ -216,7 +216,7 @@ public class AddOnCollection {
                                                 }
                                             } else {
                                                 // Same or older version, don't include
-                                                logger.debug(
+                                                LOGGER.debug(
                                                         "Add-on {} version {} not latest.",
                                                         ao.getId(),
                                                         ao.getVersion());
@@ -226,7 +226,7 @@ public class AddOnCollection {
                                         }
                                     }
                                     if (add) {
-                                        logger.debug(
+                                        LOGGER.debug(
                                                 "Found add-on {} version {}",
                                                 ao.getId(),
                                                 ao.getVersion());
@@ -293,7 +293,7 @@ public class AddOnCollection {
                         updatedAddOns.add(ao);
                     }
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
         }
@@ -320,7 +320,7 @@ public class AddOnCollection {
                         break;
                     }
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
             if (isNew) {

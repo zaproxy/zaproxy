@@ -45,6 +45,7 @@
 // ZAP: 2022/09/12 Allow arbitrary HTTP versions.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/11/22 Lower case the HTTP field names for compatibility with HTTP/2.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -97,7 +98,7 @@ public class HttpResponseHeader extends HttpHeader {
     public static final String SERVER = "server";
 
     private static final long serialVersionUID = 2812716126742059785L;
-    private static final Logger log = LogManager.getLogger(HttpResponseHeader.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpResponseHeader.class);
 
     public static final String HTTP_CLIENT_BAD_REQUEST = "HTTP/1.0 400 Bad request" + CRLF + CRLF;
     private static final String _CONTENT_TYPE_CSS = "css";
@@ -349,7 +350,7 @@ public class HttpResponseHeader extends HttpHeader {
                     }
                     return parsedCookies;
                 } catch (IllegalArgumentException e2) {
-                    log.error("Failed to parse cookie: {}", c, e);
+                    LOGGER.error("Failed to parse cookie: {}", c, e);
                 }
             }
         }

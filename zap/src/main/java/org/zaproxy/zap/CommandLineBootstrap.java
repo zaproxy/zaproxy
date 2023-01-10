@@ -35,7 +35,7 @@ import org.zaproxy.zap.utils.ZapSupportUtils;
  */
 public class CommandLineBootstrap extends HeadlessBootstrap {
 
-    private final Logger logger = LogManager.getLogger(CommandLineBootstrap.class);
+    private static final Logger LOGGER = LogManager.getLogger(CommandLineBootstrap.class);
 
     public CommandLineBootstrap(CommandLine cmdLineArgs) {
         super(cmdLineArgs);
@@ -52,7 +52,7 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
             disableStdOutLog();
         }
 
-        logger.info(getStartingMessage());
+        LOGGER.info(getStartingMessage());
 
         try {
             initModel();
@@ -103,7 +103,7 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
         } catch (ShutdownRequestedException e) {
             rc = 1;
         } catch (final Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             System.out.println(e.getMessage());
             System.out.println();
             // Help is kind of useful too ;)
@@ -113,7 +113,7 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
         } finally {
             control.shutdown(
                     Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
-            logger.info("{} terminated.", Constant.PROGRAM_TITLE);
+            LOGGER.info("{} terminated.", Constant.PROGRAM_TITLE);
         }
         if (rc == 0) {
             rc = control.getExitStatus();
@@ -124,6 +124,6 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
 
     @Override
     protected Logger getLogger() {
-        return logger;
+        return LOGGER;
     }
 }

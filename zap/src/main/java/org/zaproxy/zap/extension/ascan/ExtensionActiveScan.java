@@ -64,7 +64,7 @@ import org.zaproxy.zap.view.ZapMenuItem;
 public class ExtensionActiveScan extends ExtensionAdaptor
         implements SessionChangedListener, CommandLineListener, ScanController<ActiveScan> {
 
-    private static final Logger logger = LogManager.getLogger(ExtensionActiveScan.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionActiveScan.class);
     private static final int ARG_SCAN_IDX = 0;
 
     public static final String NAME = "ExtensionActiveScan";
@@ -386,7 +386,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor
                 getModel().getOptionsParam().getConfig().save();
 
             } catch (ConfigurationException ce) {
-                logger.error(ce.getMessage(), ce);
+                LOGGER.error(ce.getMessage(), ce);
                 getView().showWarningDialog(Constant.messages.getString("scanner.save.warning"));
             }
         }
@@ -431,7 +431,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor
                         });
 
             } catch (InterruptedException | InvocationTargetException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }

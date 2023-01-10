@@ -59,6 +59,7 @@
 // ZAP: 2021/05/14 Remove redundant type arguments.
 // ZAP: 2022/02/03 Removed loadedPlugin and unloadedPlugin.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -81,7 +82,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
 
 public class PluginFactory {
 
-    private static Logger log = LogManager.getLogger(PluginFactory.class);
+    private static final Logger LOGGER = LogManager.getLogger(PluginFactory.class);
     private static List<AbstractPlugin> loadedPlugins = null;
     private static Map<Integer, Plugin> mapLoadedPlugins;
 
@@ -128,7 +129,7 @@ public class PluginFactory {
 
     private static void checkPluginId(Plugin plugin) {
         if (plugin.getId() == -1) {
-            log.error(
+            LOGGER.error(
                     "The active scan rule [{}] does not have a defined ID.",
                     plugin.getClass().getCanonicalName());
         }
@@ -297,7 +298,7 @@ public class PluginFactory {
         } else {
             plugin.setEnabled(false);
             plugin.setAlertThreshold(Plugin.AlertThreshold.OFF);
-            log.warn(
+            LOGGER.warn(
                     "Disabled scanner '{}' because of unfulfilled dependencies.", plugin.getName());
         }
     }
@@ -364,7 +365,7 @@ public class PluginFactory {
 
     /** @param config */
     public synchronized void loadAllPlugin(Configuration config) {
-        log.debug("loadAllPlugin");
+        LOGGER.debug("loadAllPlugin");
         this.config = config;
 
         // mapAllPlugin is ordered by insertion order, so the ordering of plugins in listTest is
@@ -380,13 +381,13 @@ public class PluginFactory {
                 try {
                     Plugin loadedPlugin = getLoadedPlugins().get(i);
                     if (!loadedPlugin.isVisible()) {
-                        log.info("Plugin {} not visible", loadedPlugin.getName());
+                        LOGGER.info("Plugin {} not visible", loadedPlugin.getName());
                         continue;
                     }
 
                     if (loadedPlugin.isDepreciated()) {
                         // ZAP: ignore all depreciated plugins
-                        log.info("Plugin {} deprecated", loadedPlugin.getName());
+                        LOGGER.info("Plugin {} deprecated", loadedPlugin.getName());
                         continue;
                     }
 
@@ -395,7 +396,7 @@ public class PluginFactory {
                     }
 
                     Plugin plugin = createNewPlugin(loadedPlugin, config);
-                    log.debug(
+                    LOGGER.debug(
                             "loaded plugin {} with: Threshold={} Strength={}",
                             plugin.getName(),
                             plugin.getAlertThreshold().name(),
@@ -406,7 +407,7 @@ public class PluginFactory {
                     mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
 
                 } catch (Exception e) {
-                    log.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
             Iterator<Plugin> iterator = mapAllPlugin.values().iterator();
@@ -437,7 +438,7 @@ public class PluginFactory {
         // Check if it has also the same name, might be the same scanner but a newer/older version
         if (existingPlugin.getName().equals(plugin.getName())) {
             if (existingPlugin.getStatus().compareTo(plugin.getStatus()) > 0) {
-                log.info(
+                LOGGER.info(
                         "Ignoring (apparently) less stable scanner version, id={}, ExistingPlugin[Status={}, Class={}], LessStablePlugin[Status={}, Class={}]",
                         plugin.getId(),
                         existingPlugin.getStatus(),
@@ -448,7 +449,7 @@ public class PluginFactory {
             }
 
             if (existingPlugin.getStatus() != plugin.getStatus()) {
-                log.info(
+                LOGGER.info(
                         "Replacing existing scanner with (apparently) stabler version, id={}, ExistingPlugin[Status={}, Class={}], StablerPlugin[Status={}, Class={}]",
                         plugin.getId(),
                         existingPlugin.getStatus(),
@@ -459,7 +460,7 @@ public class PluginFactory {
             }
         }
 
-        log.error(
+        LOGGER.error(
                 "Duplicate id {} {} {}",
                 plugin.getId(),
                 plugin.getClass().getCanonicalName(),
@@ -468,7 +469,7 @@ public class PluginFactory {
     }
 
     public synchronized void loadFrom(PluginFactory pf) {
-        log.debug("loadFrom {}", pf.listAllPlugin.size());
+        LOGGER.debug("loadFrom {}", pf.listAllPlugin.size());
         for (Plugin plugin : pf.listAllPlugin) {
             Plugin p = this.mapAllPlugin.get(plugin.getId());
             if (p != null) {
@@ -492,7 +493,7 @@ public class PluginFactory {
                 plugin.cloneInto(pluginCopy);
                 clone.addPlugin(pluginCopy);
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
         return clone;
@@ -505,9 +506,9 @@ public class PluginFactory {
 
             boolean duplicatedId = mapAllPlugin.get(plugin.getId()) != null;
             if (this.addPlugin(plugin)) {
-                log.info("loaded plugin {}", plugin.getName());
+                LOGGER.info("loaded plugin {}", plugin.getName());
                 if (duplicatedId) {
-                    log.error(
+                    LOGGER.error(
                             "Duplicate id {} {}",
                             plugin.getName(),
                             mapAllPlugin.get(plugin.getId()).getName());
@@ -516,17 +517,17 @@ public class PluginFactory {
             }
 
             if (!plugin.isVisible()) {
-                log.info("Plugin {} not visible", plugin.getName());
+                LOGGER.info("Plugin {} not visible", plugin.getName());
                 return false;
             }
 
             if (plugin.isDepreciated()) {
-                log.info("Plugin {} deprecated", plugin.getName());
+                LOGGER.info("Plugin {} deprecated", plugin.getName());
                 return false;
             }
             return false;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             return false;
         }
     }

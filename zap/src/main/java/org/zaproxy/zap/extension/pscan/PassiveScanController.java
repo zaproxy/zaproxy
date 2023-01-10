@@ -44,7 +44,7 @@ import org.zaproxy.zap.view.ScanStatus;
  */
 public class PassiveScanController extends Thread implements ProxyListener {
 
-    private static final Logger logger = LogManager.getLogger(PassiveScanController.class);
+    private static final Logger LOGGER = LogManager.getLogger(PassiveScanController.class);
 
     private ExtensionHistory extHist;
     private PassiveScanParam pscanOptions;
@@ -84,11 +84,11 @@ public class PassiveScanController extends Thread implements ProxyListener {
 
     @Override
     public void run() {
-        logger.debug("Starting passive scan monitoring");
+        LOGGER.debug("Starting passive scan monitoring");
         try {
             scan();
         } finally {
-            logger.debug("Stopping passive scan monitoring");
+            LOGGER.debug("Stopping passive scan monitoring");
         }
     }
 
@@ -127,7 +127,7 @@ public class PassiveScanController extends Thread implements ProxyListener {
 
                 if (href != null
                         && (!pscanOptions.isScanOnlyInScope() || session.isInScope(href))) {
-                    logger.debug(
+                    LOGGER.debug(
                             "Submitting request to executor: {} id {} type {}",
                             href.getURI(),
                             currentId,
@@ -146,9 +146,9 @@ public class PassiveScanController extends Thread implements ProxyListener {
                 }
                 if (href != null
                         && HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
-                    logger.debug("Temporary record {} no longer available:", currentId, e);
+                    LOGGER.debug("Temporary record {} no longer available:", currentId, e);
                 } else {
-                    logger.error("Failed on record {} from History table", currentId, e);
+                    LOGGER.error("Failed on record {} from History table", currentId, e);
                 }
             }
         }
@@ -157,7 +157,7 @@ public class PassiveScanController extends Thread implements ProxyListener {
     private ThreadPoolExecutor getExecutor() {
         if (this.executor == null || this.executor.isShutdown()) {
             int threads = pscanOptions.getPassiveScanThreads();
-            logger.debug("Creating new executor with {} threads", threads);
+            LOGGER.debug("Creating new executor with {} threads", threads);
 
             this.executor =
                     (ThreadPoolExecutor)
@@ -195,7 +195,7 @@ public class PassiveScanController extends Thread implements ProxyListener {
     }
 
     protected void shutdown() {
-        logger.debug("Shutdown");
+        LOGGER.debug("Shutdown");
         this.shutDown = true;
         if (this.executor != null) {
             this.executor.shutdown();

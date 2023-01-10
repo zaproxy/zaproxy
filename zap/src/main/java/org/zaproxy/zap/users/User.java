@@ -40,7 +40,7 @@ import org.zaproxy.zap.utils.Enableable;
 public class User extends Enableable {
 
     /** The Constant log. */
-    private static final Logger log = LogManager.getLogger(User.class);
+    private static final Logger LOGGER = LogManager.getLogger(User.class);
 
     /** The id source. */
     private static int ID_SOURCE = 0;
@@ -169,7 +169,7 @@ public class User extends Enableable {
             if (this.requiresAuthentication()) {
                 this.authenticate();
                 if (this.requiresAuthentication()) {
-                    log.info("Authentication failed for user: {}", name);
+                    LOGGER.info("Authentication failed for user: {}", name);
                     return;
                 }
             }
@@ -262,7 +262,7 @@ public class User extends Enableable {
      * @see Context
      */
     public void authenticate() {
-        log.info("Authenticating user: {}", this.name);
+        LOGGER.info("Authenticating user: {}", this.name);
         WebSession result = null;
         try {
             result =
@@ -273,9 +273,9 @@ public class User extends Enableable {
                                     this.authenticationCredentials,
                                     this);
         } catch (UnsupportedAuthenticationCredentialsException e) {
-            log.error("User does not have the expected type of credentials:", e);
+            LOGGER.error("User does not have the expected type of credentials:", e);
         } catch (Exception e) {
-            log.error("An error occurred while authenticating:", e);
+            LOGGER.error("An error occurred while authenticating:", e);
             return;
         }
         // no issues appear if a simultaneous call to #queueAuthentication() is made
@@ -314,7 +314,7 @@ public class User extends Enableable {
         out.append(user.getContext().getAuthenticationMethod().getType().getUniqueIdentifier())
                 .append(FIELD_SEPARATOR);
         out.append(user.authenticationCredentials.encode(FIELD_SEPARATOR));
-        log.debug("Encoded user: {}", out);
+        LOGGER.debug("Encoded user: {}", out);
         return out.toString();
     }
 
@@ -359,10 +359,10 @@ public class User extends Enableable {
             cred.decode(pieces[4]);
             user.setAuthenticationCredentials(cred);
         } catch (Exception ex) {
-            log.error("An error occured while decoding user from: {}", encodedString, ex);
+            LOGGER.error("An error occured while decoding user from: {}", encodedString, ex);
             return null;
         }
-        log.debug("Decoded user: {}", user);
+        LOGGER.debug("Decoded user: {}", user);
         return user;
     }
 

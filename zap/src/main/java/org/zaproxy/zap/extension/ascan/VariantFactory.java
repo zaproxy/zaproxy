@@ -50,7 +50,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache;
 import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
 public class VariantFactory {
-    private static final Logger LOG = LogManager.getLogger(VariantFactory.class);
+    private static final Logger LOGGER = LogManager.getLogger(VariantFactory.class);
 
     private ExtensionScript extension;
     private final List<Class<? extends Variant>> customVariants = new ArrayList<>();
@@ -184,7 +184,7 @@ public class VariantFactory {
             try {
                 list.add(variant.getDeclaredConstructor().newInstance());
             } catch (Exception e) {
-                LOG.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }

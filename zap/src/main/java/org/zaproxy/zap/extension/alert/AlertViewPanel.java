@@ -80,7 +80,7 @@ import org.zaproxy.zap.view.ZapTable;
 public class AlertViewPanel extends AbstractPanel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = LogManager.getLogger(AlertViewPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(AlertViewPanel.class);
 
     private static final int UNDEFINED_ID = -1;
 
@@ -717,7 +717,7 @@ public class AlertViewPanel extends AbstractPanel {
                         }
                     });
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -776,7 +776,7 @@ public class AlertViewPanel extends AbstractPanel {
                 uri = historyRef.getURI().toString();
                 msg = historyRef.getHttpMessage();
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         } else if (originalAlert != null) {
             uri = originalAlert.getUri();
@@ -812,7 +812,7 @@ public class AlertViewPanel extends AbstractPanel {
                 this.alertUrl.setText(msg.getRequestHeader().getURI().toString());
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

@@ -45,7 +45,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
 
     private static final long serialVersionUID = 2416553589170267959L;
-    private static final Logger log = LogManager.getLogger(ContextAuthorizationPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(ContextAuthorizationPanel.class);
 
     private static final String PANEL_NAME =
             Constant.messages.getString("authorization.panel.title");
@@ -160,7 +160,7 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
         this.authorizationMethod = uiSharedContext.getAuthorizationDetectionMethod();
         if (this.authorizationMethod != null) {
             if (authorizationMethod instanceof BasicAuthorizationDetectionMethod) {
-                log.debug(
+                LOGGER.debug(
                         "Initializing panel with {}: {}",
                         BasicAuthorizationDetectionMethod.class.getSimpleName(),
                         authorizationMethod);
@@ -178,7 +178,7 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
                 else this.logicalOperatorComboBox.setSelectedItem(FIELD_VALUE_OR_COMPOSITION);
                 return;
             }
-            log.warn(
+            LOGGER.warn(
                     "Unsupported authorization method on panel: {}",
                     authorizationMethod.getClass().getSimpleName());
         }
@@ -227,7 +227,7 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
     public void saveContextData(Session session) throws Exception {
         saveMethod();
         session.getContext(getContextId()).setAuthorizationDetectionMethod(authorizationMethod);
-        log.debug("Saving authorization method: {}", authorizationMethod);
+        LOGGER.debug("Saving authorization method: {}", authorizationMethod);
     }
 
     @Override

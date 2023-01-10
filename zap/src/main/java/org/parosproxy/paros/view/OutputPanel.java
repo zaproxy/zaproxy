@@ -33,6 +33,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove empty statement.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -57,7 +58,7 @@ public class OutputPanel extends AbstractPanel {
 
     private static final long serialVersionUID = -947074835463140074L;
     // ZAP: Added logger.
-    private static final Logger logger = LogManager.getLogger(OutputPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(OutputPanel.class);
 
     private static final String CLEAR_BUTTON_LABEL =
             Constant.messages.getString("output.panel.clear.button.label");
@@ -203,7 +204,7 @@ public class OutputPanel extends AbstractPanel {
                     });
         } catch (Exception e) {
             // ZAP: Added logging.
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

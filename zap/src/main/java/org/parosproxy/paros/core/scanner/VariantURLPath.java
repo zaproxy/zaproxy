@@ -39,7 +39,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantURLPath implements Variant {
 
-    private final Logger LOGGER = LogManager.getLogger(this.getClass());
+    private static final Logger LOGGER = LogManager.getLogger(VariantURLPath.class);
 
     private static final char ESCAPE = '%';
 

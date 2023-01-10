@@ -73,7 +73,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         implements SessionChangedListener, XmlReporterExtension, OptionsChangedListener {
 
     public static final String NAME = "ExtensionAlert";
-    private static final Logger logger = LogManager.getLogger(ExtensionAlert.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionAlert.class);
     private Map<Integer, HistoryReference> hrefs = new HashMap<>();
     private AlertTreeModel treeModel = null;
     private AlertTreeModel filteredTreeModel = null;
@@ -139,20 +139,20 @@ public class ExtensionAlert extends ExtensionAdaptor
         if (filename != null && filename.length() > 0) {
             File file = new File(filename);
             if (!file.isFile() || !file.canRead()) {
-                logger.error("Cannot read alert overrides file {}", file.getAbsolutePath());
+                LOGGER.error("Cannot read alert overrides file {}", file.getAbsolutePath());
                 return false;
             }
 
             try (BufferedReader br =
                     Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
                 this.alertOverrides.load(br);
-                logger.info(
+                LOGGER.info(
                         "Read {} overrides from {}",
                         this.alertOverrides.size(),
                         file.getAbsolutePath());
                 return true;
             } catch (IOException e) {
-                logger.error("Failed to read alert overrides file {}", file.getAbsolutePath(), e);
+                LOGGER.error("Failed to read alert overrides file {}", file.getAbsolutePath(), e);
                 return false;
             }
         }
@@ -179,7 +179,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         }
 
         try {
-            logger.debug("alertFound {} {}", alert.getName(), alert.getUri());
+            LOGGER.debug("alertFound {} {}", alert.getName(), alert.getUri());
             if (ref == null) {
                 ref = alert.getHistoryRef();
             }
@@ -222,7 +222,7 @@ public class ExtensionAlert extends ExtensionAdaptor
 
                 ref.addAlert(alert);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
 
             addAlertToTree(alert);
@@ -233,13 +233,13 @@ public class ExtensionAlert extends ExtensionAdaptor
             publishAlertEvent(alert, AlertEventPublisher.ALERT_ADDED_EVENT);
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
     private static boolean isInvalid(Alert alert) {
         if (alert.getUri().isEmpty() || alert.getMessage() == null) {
-            logger.error(
+            LOGGER.error(
                     "Attempting to raise an alert without URI or HTTP message, Plugin ID: {} Alert Name:{}\n\t{}",
                     alert.getPluginId(),
                     alert.getName(),
@@ -367,7 +367,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                             }
                         });
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -461,7 +461,7 @@ public class ExtensionAlert extends ExtensionAdaptor
     }
 
     public void updateAlert(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
-        logger.debug("updateAlert {} {}", alert.getName(), alert.getUri());
+        LOGGER.debug("updateAlert {} {}", alert.getName(), alert.getUri());
         HistoryReference hRef = hrefs.get(alert.getSourceHistoryId());
         if (hRef != null) {
             updateAlertInDB(alert);
@@ -508,7 +508,7 @@ public class ExtensionAlert extends ExtensionAdaptor
     }
 
     public void displayAlert(Alert alert) {
-        logger.debug("displayAlert {} {}", alert.getName(), alert.getUri());
+        LOGGER.debug("displayAlert {} {}", alert.getName(), alert.getUri());
         this.alertPanel.getAlertViewPanel().displayAlert(alert);
     }
 
@@ -529,7 +529,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                             }
                         });
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -564,7 +564,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                             }
                         });
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -584,7 +584,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         try {
             refreshAlert(session);
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         setTreeModel(getTreeModel());
     }
@@ -683,13 +683,13 @@ public class ExtensionAlert extends ExtensionAdaptor
     }
 
     public void deleteAlert(Alert alert) {
-        logger.debug("deleteAlert {} {}", alert.getName(), alert.getUri());
+        LOGGER.debug("deleteAlert {} {}", alert.getName(), alert.getUri());
 
         try {
             getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
             getModel().getDb().getTableAlertTag().deleteAllTagsForAlert(alert.getAlertId());
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         deleteAlertFromDisplay(alert);
@@ -701,7 +701,7 @@ public class ExtensionAlert extends ExtensionAdaptor
             getModel().getDb().getTableAlert().deleteAllAlerts();
             getModel().getDb().getTableAlertTag().deleteAllTags();
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         if (!Constant.isLowMemoryOptionSet()) {
@@ -748,7 +748,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                             }
                         });
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -789,7 +789,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                     getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
                     getModel().getDb().getTableAlertTag().deleteAllTagsForAlert(alert.getAlertId());
                 } catch (DatabaseException e) {
-                    logger.error("Failed to delete alert with ID: {}", alert.getAlertId(), e);
+                    LOGGER.error("Failed to delete alert with ID: {}", alert.getAlertId(), e);
                 }
             }
 
@@ -883,7 +883,7 @@ public class ExtensionAlert extends ExtensionAdaptor
                 }
             }
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return allAlerts;
     }

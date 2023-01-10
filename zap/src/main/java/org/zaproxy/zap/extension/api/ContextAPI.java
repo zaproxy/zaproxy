@@ -57,7 +57,7 @@ import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ContextAPI extends ApiImplementor {
 
-    private static final Logger log = LogManager.getLogger(ContextAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(ContextAPI.class);
 
     private static final String PREFIX = "context";
     private static final String TECH_NAME = "technologyName";
@@ -159,7 +159,7 @@ public class ContextAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction {} {}", name, params);
+        LOGGER.debug("handleApiAction {} {}", name, params);
 
         Context context;
         TechSet techSet;
@@ -285,7 +285,7 @@ public class ContextAPI extends ApiImplementor {
                     } catch (IllegalContextNameException e) {
                         throw new ApiException(ApiException.Type.BAD_EXTERNAL_DATA, e);
                     } catch (Exception e) {
-                        log.error(e.getMessage(), e);
+                        LOGGER.error(e.getMessage(), e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     }
                 }
@@ -368,7 +368,7 @@ public class ContextAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiView {} {}", name, params);
+        LOGGER.debug("handleApiView {} {}", name, params);
 
         ApiResponse result;
         ApiResponseList resultList;

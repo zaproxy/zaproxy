@@ -61,6 +61,7 @@
 // ZAP: 2021/05/11 Fixed conversion of Request Method to/from CONNECT
 // ZAP: 2021/05/14 Add missing override annotation.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
@@ -119,7 +120,7 @@ public class HttpMessage implements Message {
     // ZAP: Added historyRef
     private HistoryReference historyRef = null;
     // ZAP: Added logger
-    private static Logger log = LogManager.getLogger(HttpMessage.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpMessage.class);
     // ZAP: Added HttpSession
     private HttpSession httpSession = null;
     // ZAP: Added support for requesting the message to be sent as a particular User
@@ -583,7 +584,7 @@ public class HttpMessage implements Message {
                                 .equalsIgnoreCase(msg.getRequestHeader().getURI().toString());
             } catch (Exception e1) {
                 // ZAP: log error
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
 
@@ -606,7 +607,7 @@ public class HttpMessage implements Message {
                                         ? 0
                                         : uri.getHost().toLowerCase(Locale.ROOT).hashCode());
             } catch (URIException e) {
-                log.error("Failed to obtain the host for hashCode calculation: {}", uri, e);
+                LOGGER.error("Failed to obtain the host for hashCode calculation: {}", uri, e);
             }
             result =
                     prime * result
@@ -681,7 +682,7 @@ public class HttpMessage implements Message {
 
         } catch (URIException e) {
             // ZAP: log error
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return result;
@@ -931,7 +932,7 @@ public class HttpMessage implements Message {
             try {
                 newMsg.getRequestHeader().setMessage(this.getRequestHeader().toString());
             } catch (HttpMalformedHeaderException e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
             newMsg.setRequestBody(this.getRequestBody().getBytes());
         }
@@ -1062,9 +1063,9 @@ public class HttpMessage implements Message {
             getRequestBody().setBody(body);
         } catch (HttpMalformedHeaderException e) {
             // Ignore?
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         } catch (URIException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

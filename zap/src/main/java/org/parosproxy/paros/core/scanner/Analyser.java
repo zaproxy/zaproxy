@@ -48,6 +48,7 @@
 // ZAP: 2022/06/09 Use Analyser in more circumstances.
 // ZAP: 2022/09/07 Remove unnecessary comments and address SonarLint issues
 // ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -73,7 +74,7 @@ import org.zaproxy.zap.model.StructuralNode;
 
 public class Analyser {
 
-    private static final Logger logger = LogManager.getLogger(Analyser.class);
+    private static final Logger LOGGER = LogManager.getLogger(Analyser.class);
 
     /** remove HTML HEAD as this may contain expiry time which dynamic changes */
     private static final String PATTERN_REMOVE_HEADER = "(?m)(?i)(?s)<HEAD>.*?</HEAD>";
@@ -144,7 +145,7 @@ public class Analyser {
             mapVisited.put(uri.toString(), new SampleResponse(msg, errorIndicator));
 
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            logger.error("Failed to persist the message: {}", e.getMessage(), e);
+            LOGGER.error("Failed to persist the message: {}", e.getMessage(), e);
         }
     }
 
@@ -158,24 +159,24 @@ public class Analyser {
     private void analyse(StructuralNode node) throws Exception {
         // if analysed already, return; move to host part
         if (node.getHistoryReference() == null) {
-            logger.debug("Node being analysed has no History Reference");
+            LOGGER.debug("Node being analysed has no History Reference");
             return;
         }
 
         if (!parent.nodeInScope(node.getName())) {
-            logger.debug("Node being analysed is out of scope");
+            LOGGER.debug("Node being analysed is out of scope");
             return;
         }
 
         HttpMessage baseMsg = node.getHistoryReference().getHttpMessage();
         URI baseUri = (URI) baseMsg.getRequestHeader().getURI().clone();
-        logger.debug("Analysing {}", baseUri);
+        LOGGER.debug("Analysing {}", baseUri);
 
         baseUri.setQuery(null);
 
         // already exist one.  no need to test
         if (mapVisited.get(baseUri.toString()) != null) {
-            logger.debug("Skipping: This node has already been analysed");
+            LOGGER.debug("Skipping: This node has already been analysed");
             return;
         }
 
@@ -186,25 +187,25 @@ public class Analyser {
         uri.setPath(path);
         msg.getRequestHeader().setURI(uri);
 
-        logger.debug("Sending first analyse request {}", uri);
+        LOGGER.debug("Sending first analyse request {}", uri);
         sendAndReceive(msg);
 
         // standard RFC response, no further check is needed
         if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.NOT_FOUND) {
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_RFC);
-            logger.debug("Analysis determined standard 404 handling");
+            LOGGER.debug("Analysis determined standard 404 handling");
             return;
         }
 
         if (HttpStatusCode.isRedirection(msg.getResponseHeader().getStatusCode())) {
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_REDIRECT);
-            logger.debug("Analysis determined error page redirect handling");
+            LOGGER.debug("Analysis determined error page redirect handling");
             return;
         }
 
         if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_NON_RFC);
-            logger.debug("Analysis determined non-RFC error page handling");
+            LOGGER.debug("Analysis determined non-RFC error page handling");
             return;
         }
 
@@ -214,7 +215,7 @@ public class Analyser {
         uri2 = (URI) baseUri.clone();
         uri2.setPath(path2);
         msg2.getRequestHeader().setURI(uri2);
-        logger.debug("Sending second analyse request {}", uri2);
+        LOGGER.debug("Sending second analyse request {}", uri2);
         sendAndReceive(msg2);
 
         // remove HTML HEAD as this may contain expiry time which dynamic changes
@@ -225,7 +226,7 @@ public class Analyser {
         if (resBody1.equals(resBody2)) {
             msg.getResponseBody().setBody(resBody1);
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_STATIC);
-            logger.debug("Analysis determined static error page handling");
+            LOGGER.debug("Analysis determined static error page handling");
             return;
         }
 
@@ -239,13 +240,13 @@ public class Analyser {
         if (resBody1.equals(resBody2)) {
             msg.getResponseBody().setBody(resBody1);
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_DYNAMIC_BUT_DETERMINISTIC);
-            logger.debug("Analysis determined dynamic but deterministic error page handling");
+            LOGGER.debug("Analysis determined dynamic but deterministic error page handling");
             return;
         }
 
         // else mark app "undeterministic".
         addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_UNDETERMINISTIC);
-        logger.debug("Analysis fell all the way through to non-deterministic error page handling");
+        LOGGER.debug("Analysis fell all the way through to non-deterministic error page handling");
     }
 
     /**
@@ -376,11 +377,11 @@ public class Analyser {
         try {
             if (!node.isRoot()) {
                 if (!node.isLeaf() || node.isLeaf() && node.getParent().isRoot()) {
-                    logger.debug(
+                    LOGGER.debug(
                             "Node being analysed isn't a leaf or is a leaf whose parent is root");
                     analyse(node);
                 } else if (node.isLeaf() && !node.getParent().isRoot()) {
-                    logger.debug("Node being analysed is a leaf whose parent is not root");
+                    LOGGER.debug("Node being analysed is a leaf whose parent is not root");
                     inOrderAnalyse(traversedNodes, node.getParent());
                 } else {
                     return 1;
@@ -392,7 +393,7 @@ public class Analyser {
         }
 
         Iterator<StructuralNode> iter = node.getChildIterator();
-        logger.debug("Iterating children of {} with URI {}", node.getName(), node.getURI());
+        LOGGER.debug("Iterating children of {} with URI {}", node.getName(), node.getURI());
         while (iter.hasNext()) {
             subtreeNodes += inOrderAnalyse(traversedNodes, iter.next());
         }
@@ -466,7 +467,7 @@ public class Analyser {
                     }
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
             return true;
         }
@@ -492,7 +493,7 @@ public class Analyser {
                 }
 
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                logger.error("Failed to read the message: {}", e.getMessage(), e);
+                LOGGER.error("Failed to read the message: {}", e.getMessage(), e);
             }
             return true;
         }
@@ -509,7 +510,7 @@ public class Analyser {
             }
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return true;

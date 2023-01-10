@@ -34,7 +34,7 @@ public class HsqldbDatabaseServer extends SqlDatabaseServer {
 
     public static final int DEFAULT_SERVER_PORT = 9001;
 
-    private static final Logger logger = LogManager.getLogger(HsqldbDatabaseServer.class);
+    private static final Logger LOGGER = LogManager.getLogger(HsqldbDatabaseServer.class);
 
     public HsqldbDatabaseServer(String dbname) throws ClassNotFoundException, Exception {
         super(dbname);
@@ -57,7 +57,7 @@ public class HsqldbDatabaseServer extends SqlDatabaseServer {
                         propsStream.close();
                     }
                 } catch (IOException e) {
-                    logger.debug(e.getMessage(), e);
+                    LOGGER.debug(e.getMessage(), e);
                 }
             }
             String version = (String) dbProps.get("version");

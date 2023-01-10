@@ -69,7 +69,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor
     public static final String NAME = "ExtensionUserManagement";
 
     /** The Constant log. */
-    private static final Logger log = LogManager.getLogger(ExtensionUserManagement.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionUserManagement.class);
 
     /** The user panels, mapped to each context. */
     private Map<Integer, ContextUsersPanel> userPanelsMap = new HashMap<>();
@@ -111,7 +111,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor
                             .getExtensionLoader()
                             .getExtension(ExtensionHttpSessions.class);
             if (extensionHttpSessions == null)
-                log.error(
+                LOGGER.error(
                         "Http Sessions Extension should be enabled for the {} to work.",
                         ExtensionUserManagement.class.getSimpleName());
         }
@@ -243,7 +243,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor
                 usersManager.addUser(u);
             }
         } catch (Exception ex) {
-            log.error("Unable to load Users.", ex);
+            LOGGER.error("Unable to load Users.", ex);
         }
     }
 
@@ -259,7 +259,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor
                 session.setContextData(context.getId(), RecordContext.TYPE_USER, encodedUsers);
             }
         } catch (Exception ex) {
-            log.error("Unable to persist Users.", ex);
+            LOGGER.error("Unable to persist Users.", ex);
         }
     }
 

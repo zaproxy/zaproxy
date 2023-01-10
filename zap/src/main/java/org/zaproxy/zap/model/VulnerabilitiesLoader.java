@@ -49,7 +49,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  */
 public class VulnerabilitiesLoader {
 
-    private static final Logger logger = LogManager.getLogger(VulnerabilitiesLoader.class);
+    private static final Logger LOGGER = LogManager.getLogger(VulnerabilitiesLoader.class);
 
     private final Path directory;
     private final String fileName;
@@ -99,7 +99,7 @@ public class VulnerabilitiesLoader {
                         locale,
                         candidateFilename -> {
                             if (filenames.contains(candidateFilename)) {
-                                logger.debug(
+                                LOGGER.debug(
                                         "loading vulnerabilities from {} for locale {}",
                                         candidateFilename,
                                         locale);
@@ -125,7 +125,7 @@ public class VulnerabilitiesLoader {
         try (InputStream is = new BufferedInputStream(Files.newInputStream(file))) {
             return loadVulnerabilities(is);
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             return null;
         }
     }
@@ -135,7 +135,7 @@ public class VulnerabilitiesLoader {
         try {
             config = new ZapXmlConfiguration(is);
         } catch (ConfigurationException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             return null;
         }
 
@@ -143,7 +143,7 @@ public class VulnerabilitiesLoader {
         try {
             test = config.getStringArray("vuln_items");
         } catch (ConversionException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             return null;
         }
         final int numberOfVulns = test.length;
@@ -159,7 +159,7 @@ public class VulnerabilitiesLoader {
                 references =
                         new ArrayList<>(Arrays.asList(config.getStringArray(name + ".reference")));
             } catch (ConversionException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 references = new ArrayList<>(0);
             }
 
@@ -185,7 +185,7 @@ public class VulnerabilitiesLoader {
      */
     List<String> getListOfVulnerabilitiesFiles() {
         if (!Files.exists(directory)) {
-            logger.debug(
+            LOGGER.debug(
                     "Skipping read of vulnerabilities, the directory does not exist: {}",
                     directory.toAbsolutePath());
             return Collections.emptyList();
@@ -211,7 +211,7 @@ public class VulnerabilitiesLoader {
                         }
                     });
         } catch (IOException e) {
-            logger.error("An error occurred while walking directory: {}", directory, e);
+            LOGGER.error("An error occurred while walking directory: {}", directory, e);
         }
         return fileNames;
     }

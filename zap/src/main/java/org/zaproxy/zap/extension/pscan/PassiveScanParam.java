@@ -33,7 +33,7 @@ import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 public class PassiveScanParam extends AbstractParam {
 
-    private static final Logger logger = LogManager.getLogger(PassiveScanParam.class);
+    private static final Logger LOGGER = LogManager.getLogger(PassiveScanParam.class);
 
     static final String PASSIVE_SCANS_BASE_KEY = "pscans";
     private static final String ALL_AUTO_TAG_SCANNERS_KEY =
@@ -124,7 +124,7 @@ public class PassiveScanParam extends AbstractParam {
                 }
             }
         } catch (ConversionException e) {
-            logger.error("Error while loading the auto tag scanners: {}", e.getMessage(), e);
+            LOGGER.error("Error while loading the auto tag scanners: {}", e.getMessage(), e);
         }
 
         this.confirmRemoveAutoTagScanner = getBoolean(CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY, true);

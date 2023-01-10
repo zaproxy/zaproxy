@@ -53,8 +53,6 @@ import org.zaproxy.zap.utils.ApiUtils;
 public class CookieBasedSessionManagementMethodType extends SessionManagementMethodType {
 
     private static final int METHOD_IDENTIFIER = 0;
-    private static final Logger log =
-            LogManager.getLogger(CookieBasedSessionManagementMethod.class);
 
     /** The Constant METHOD_NAME. */
     private static final String METHOD_NAME =
@@ -65,6 +63,9 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
      * cookies for session management.
      */
     public static class CookieBasedSessionManagementMethod implements SessionManagementMethod {
+
+        private static final Logger LOGGER =
+                LogManager.getLogger(CookieBasedSessionManagementMethod.class);
 
         private int contextId;
 
@@ -166,13 +167,14 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
         @Override
         public void clearWebSessionIdentifiers(HttpMessage msg) {
             if (getHttpSessionsExtension() == null) {
-                log.info("No tokens will be removed, the HTTP Sessions Extension is not enabled.");
+                LOGGER.info(
+                        "No tokens will be removed, the HTTP Sessions Extension is not enabled.");
                 return;
             }
             HttpSessionTokensSet tokens =
                     getHttpSessionsExtension().getHttpSessionTokensSetForContext(getContext());
             if (tokens == null) {
-                log.info("No tokens to clear.");
+                LOGGER.info("No tokens to clear.");
                 return;
             }
             List<HttpCookie> requestCookies = msg.getRequestHeader().getHttpCookies();

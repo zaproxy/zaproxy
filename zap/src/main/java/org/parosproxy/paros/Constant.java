@@ -119,6 +119,7 @@
 // ZAP: 2022/05/20 Remove usage of ConnectionParam.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/12/22 Issue 7663: Default threads based on number of processors.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -389,7 +390,7 @@ public final class Constant {
     public static final URL SPIDER_IMAGE_URL =
             Constant.class.getResource("/resource/icon/10/spider.png");
 
-    private static Logger LOG = LogManager.getLogger(Constant.class);
+    private static final Logger LOGGER = LogManager.getLogger(Constant.class);
 
     public static String getEyeCatcher() {
         return staticEyeCatcher;
@@ -458,7 +459,7 @@ public final class Constant {
                 && oldf.exists()
                 && Paths.get(zapHome).equals(Paths.get(getDefaultHomeDirectory(true)))) {
             // Dont copy old configs if forcedReset or they've specified a non std directory
-            LOG.info("Copying defaults from {} to {}", oldf.getAbsolutePath(), FILE_CONFIG);
+            LOGGER.info("Copying defaults from {} to {}", oldf.getAbsolutePath(), FILE_CONFIG);
             copier.copy(oldf, f);
 
             if (isDevMode() || isDailyBuild()) {
@@ -468,7 +469,7 @@ public final class Constant {
                 newConfig.save();
             }
         } else {
-            LOG.info("Copying default configuration to {}", FILE_CONFIG);
+            LOGGER.info("Copying default configuration to {}", FILE_CONFIG);
             copyDefaultConfigFile();
         }
     }
@@ -515,7 +516,7 @@ public final class Constant {
             try {
                 return path.toUri().toURL();
             } catch (MalformedURLException e) {
-                LOG.debug("Failed to convert file system path:", e);
+                LOGGER.debug("Failed to convert file system path:", e);
             }
         }
         return Constant.class.getResource(PATH_BUNDLED_CONFIG_XML);
@@ -582,7 +583,7 @@ public final class Constant {
 
             f = new File(FOLDER_SESSION);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory {}", FOLDER_SESSION);
+                LOGGER.info("Creating directory {}", FOLDER_SESSION);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -590,7 +591,7 @@ public final class Constant {
             }
             f = new File(DIRBUSTER_CUSTOM_DIR);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory {}", DIRBUSTER_CUSTOM_DIR);
+                LOGGER.info("Creating directory {}", DIRBUSTER_CUSTOM_DIR);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -598,7 +599,7 @@ public final class Constant {
             }
             f = new File(FUZZER_DIR);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory {}", FUZZER_DIR);
+                LOGGER.info("Creating directory {}", FUZZER_DIR);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -606,7 +607,7 @@ public final class Constant {
             }
             f = new File(FOLDER_LOCAL_PLUGIN);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory {}", FOLDER_LOCAL_PLUGIN);
+                LOGGER.info("Creating directory {}", FOLDER_LOCAL_PLUGIN);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -636,7 +637,7 @@ public final class Constant {
                     // Nothing to do
                 } else {
                     // Backup the old one
-                    LOG.info("Backing up config file to {}.bak", FILE_CONFIG);
+                    LOGGER.info("Backing up config file to {}.bak", FILE_CONFIG);
                     f = new File(FILE_CONFIG);
                     try {
                         copier.copy(f, new File(FILE_CONFIG + ".bak"));
@@ -649,7 +650,7 @@ public final class Constant {
                                         + ".bak "
                                         + e.getMessage();
                         System.err.println(msg);
-                        LOG.error(msg, e);
+                        LOGGER.error(msg, e);
                     }
 
                     if (ver == V_PAROS_TAG) {
@@ -717,7 +718,7 @@ public final class Constant {
                     // Execute always to pick installer choices.
                     updateCfuFromDefaultConfig(config);
 
-                    LOG.info("Upgraded from {}", ver);
+                    LOGGER.info("Upgraded from {}", ver);
 
                     setLatestVersion(config);
                 }
@@ -812,13 +813,13 @@ public final class Constant {
     }
 
     private static void logAndPrintError(String message, Exception e) {
-        LOG.error(message, e);
+        LOGGER.error(message, e);
         System.err.println(message);
         e.printStackTrace();
     }
 
     private static void logAndPrintInfo(String message) {
-        LOG.info(message);
+        LOGGER.info(message);
         System.out.println(message);
     }
 
@@ -1017,7 +1018,7 @@ public final class Constant {
                 config.setProperty(OptionsParamCheckForUpdates.DAY_LAST_CHECKED, "");
             }
         } catch (ConversionException e) {
-            LOG.debug(
+            LOGGER.debug(
                     "The option {} is not an int.", OptionsParamCheckForUpdates.CHECK_ON_START, e);
         }
         // Clear the block list - addons were incorrectly added to this if an update failed
@@ -1030,7 +1031,7 @@ public final class Constant {
             int oldValue = config.getInt(OptionsParamCheckForUpdates.CHECK_ON_START, 1);
             config.setProperty(OptionsParamCheckForUpdates.CHECK_ON_START, oldValue != 0);
         } catch (ConversionException e) {
-            LOG.debug(
+            LOGGER.debug(
                     "The option {} is no longer an int.",
                     OptionsParamCheckForUpdates.CHECK_ON_START,
                     e);
@@ -1112,7 +1113,7 @@ public final class Constant {
             int oldValue = config.getInt(certUseKey, 0);
             config.setProperty(certUseKey, oldValue != 0);
         } catch (ConversionException e) {
-            LOG.debug("The option {} is no longer an int.", certUseKey, e);
+            LOGGER.debug("The option {} is no longer an int.", certUseKey, e);
         }
     }
 

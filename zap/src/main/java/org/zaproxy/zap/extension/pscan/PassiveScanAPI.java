@@ -39,7 +39,7 @@ import org.zaproxy.zap.utils.ApiUtils;
 
 public class PassiveScanAPI extends ApiImplementor {
 
-    private static final Logger logger = LogManager.getLogger(PassiveScanAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(PassiveScanAPI.class);
 
     private static final String PREFIX = "pscan";
 
@@ -188,7 +188,7 @@ public class PassiveScanAPI extends ApiImplementor {
                 extension.setPluginPassiveScannerEnabled(pluginId, enabled);
             }
         } catch (NumberFormatException e) {
-            logger.error("Failed to parse scanner ID: {}", e.getMessage(), e);
+            LOGGER.error("Failed to parse scanner ID: {}", e.getMessage(), e);
             throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
         }
     }

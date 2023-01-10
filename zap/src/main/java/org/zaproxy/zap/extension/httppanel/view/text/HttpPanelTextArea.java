@@ -43,7 +43,7 @@ public abstract class HttpPanelTextArea extends ZapTextArea {
 
     private static final long serialVersionUID = 1L;
 
-    private static Logger log = LogManager.getLogger(HttpPanelTextArea.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpPanelTextArea.class);
 
     private Message message;
 
@@ -102,7 +102,7 @@ public abstract class HttpPanelTextArea extends ZapTextArea {
                 hilite.addHighlight(lastPos, lastPos + entry.getToken().length(), painter);
                 lastPos += entry.getToken().length();
             } catch (BadLocationException e) {
-                log.warn("Could not highlight entry", e);
+                LOGGER.warn("Could not highlight entry", e);
             }
         }
     }
@@ -124,7 +124,7 @@ public abstract class HttpPanelTextArea extends ZapTextArea {
             hilite.addHighlight(start, end, painter);
             this.setCaretPosition(start);
         } catch (BadLocationException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

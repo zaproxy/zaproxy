@@ -36,7 +36,7 @@ import org.zaproxy.zap.utils.ApiUtils;
 /** The API for managing the Authorization for a Context. */
 public class AuthorizationAPI extends ApiImplementor {
 
-    private static final Logger log = LogManager.getLogger(AuthorizationAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(AuthorizationAPI.class);
 
     private static final String PREFIX = "authorization";
 
@@ -73,7 +73,7 @@ public class AuthorizationAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiView {} {}", name, params);
+        LOGGER.debug("handleApiView {} {}", name, params);
 
         switch (name) {
             case VIEW_GET_AUTHORIZATION_METHOD:
@@ -87,7 +87,7 @@ public class AuthorizationAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction {} {}", name, params);
+        LOGGER.debug("handleApiAction {} {}", name, params);
         Context context;
         switch (name) {
             case ACTION_SET_AUTHORIZATION_METHOD:
@@ -108,7 +108,7 @@ public class AuthorizationAPI extends ApiImplementor {
                                 PARAM_STATUS_CODE,
                                 BasicAuthorizationDetectionMethod.NO_STATUS_CODE);
 
-                log.debug(
+                LOGGER.debug(
                         "Setting basic authorization detection to: {} / {} / {} / {}",
                         headerRegex,
                         bodyRegex,

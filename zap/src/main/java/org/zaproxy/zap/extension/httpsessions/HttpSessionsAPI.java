@@ -48,7 +48,7 @@ import org.zaproxy.zap.utils.XMLStringUtil;
 public class HttpSessionsAPI extends ApiImplementor {
 
     /** The Constant log. */
-    private static final Logger log = LogManager.getLogger(HttpSessionsAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpSessionsAPI.class);
 
     /** The Constant PREFIX defining the name/prefix of the api. */
     private static final String PREFIX = "httpSessions";
@@ -217,7 +217,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("Request for handleApiAction: {} (params: {}]", name, params);
+        LOGGER.debug("Request for handleApiAction: {} (params: {}]", name, params);
 
         HttpSessionsSite site;
         switch (name) {
@@ -357,7 +357,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        log.debug("Request for handleApiView: {} (params: {})", name, params);
+        LOGGER.debug("Request for handleApiView: {} (params: {})", name, params);
 
         HttpSessionsSite site;
         switch (name) {
@@ -382,8 +382,8 @@ public class HttpSessionsAPI extends ApiImplementor {
                 // If a session name was not provided
                 if (vsName == null || vsName.isEmpty()) {
                     Set<HttpSession> sessions = site.getHttpSessions();
-                    if (log.isDebugEnabled()) {
-                        log.debug(
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(
                                 "API View for sessions for {}:{}",
                                 ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE)),
                                 site);
@@ -412,8 +412,8 @@ public class HttpSessionsAPI extends ApiImplementor {
                 if (site == null) {
                     throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
                 }
-                if (log.isDebugEnabled()) {
-                    log.debug(
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
                             "API View for active session for {}:{}",
                             ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE)),
                             site);

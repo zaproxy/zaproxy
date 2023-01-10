@@ -62,6 +62,7 @@
 // ZAP: 2022/09/21 Use a contains check for DDN prefix. Tweak if conditions in setIncludedFromScope
 // and setExcludedFromScope to short-circuit && operator earlier.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -101,7 +102,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     private ArrayList<String> icons = null;
     private ArrayList<Boolean> clearIfManual = null;
 
-    private static Logger log = LogManager.getLogger(SiteNode.class);
+    private static final Logger LOGGER = LogManager.getLogger(SiteNode.class);
     private boolean isIncludedInScope = false;
     private boolean isExcludedFromScope = false;
     private boolean filtered = false;
@@ -180,7 +181,7 @@ public class SiteNode extends DefaultMutableTreeNode {
                     if (url == null) {
                         url = ExtensionFactory.getAddOnLoader().getResource(icon);
                         if (url == null) {
-                            log.warn("Failed to find icon: {}", icon);
+                            LOGGER.warn("Failed to find icon: {}", icon);
                             it.remove();
                         }
                     }
@@ -414,7 +415,7 @@ public class SiteNode extends DefaultMutableTreeNode {
                             }
                         });
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }

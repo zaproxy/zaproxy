@@ -79,7 +79,7 @@ public class AlertPanel extends AbstractPanel {
     public static final String ALERT_TREE_PANEL_NAME = "treeAlert";
 
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = LogManager.getLogger(AlertPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(AlertPanel.class);
 
     private ViewDelegate view = null;
     private JTree treeAlert = null;
@@ -659,7 +659,7 @@ public class AlertPanel extends AbstractPanel {
                         }
                     });
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

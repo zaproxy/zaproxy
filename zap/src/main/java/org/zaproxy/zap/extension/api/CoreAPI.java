@@ -83,7 +83,7 @@ import org.zaproxy.zap.utils.HarUtils;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
-    private static final Logger logger = LogManager.getLogger(CoreAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(CoreAPI.class);
 
     private enum ScanReportType {
         HTML,
@@ -533,9 +533,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                                         .getOptionsParam()
                                                         .getDatabaseParam()
                                                         .isCompactDatabase());
-                                logger.info("{} terminated.", Constant.PROGRAM_TITLE);
+                                LOGGER.info("{} terminated.", Constant.PROGRAM_TITLE);
                             } catch (Throwable e) {
-                                logger.error("An error occurred while shutting down:", e);
+                                LOGGER.error("An error occurred while shutting down:", e);
                             } finally {
                                 System.exit(Control.getSingleton().getExitStatus());
                             }
@@ -557,7 +557,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         sameSession =
                                 Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
                     } catch (IOException e) {
-                        logger.error("Failed to check if same session path:", e);
+                        LOGGER.error("Failed to check if same session path:", e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     }
                 }
@@ -570,7 +570,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 Control.getSingleton().saveSession(filename, this);
             } catch (Exception e) {
-                logger.error("Failed to save the session:", e);
+                LOGGER.error("Failed to save the session:", e);
                 this.savingSession = false;
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             }
@@ -581,9 +581,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 }
             } catch (InterruptedException e) {
                 // Probably not an error
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            logger.debug("Can now return after saving session");
+            LOGGER.debug("Can now return after saving session");
 
         } else if (ACTION_SNAPSHOT_SESSION.equalsIgnoreCase(
                 name)) { // Ignore case for backwards compatibility
@@ -618,7 +618,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         sameSession =
                                 Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
                     } catch (IOException e) {
-                        logger.error("Failed to check if same session path:", e);
+                        LOGGER.error("Failed to check if same session path:", e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     }
 
@@ -632,7 +632,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 Control.getSingleton().snapshotSession(fileName, this);
             } catch (Exception e) {
-                logger.error("Failed to snapshot the session:", e);
+                LOGGER.error("Failed to snapshot the session:", e);
                 this.savingSession = false;
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             }
@@ -643,9 +643,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 }
             } catch (InterruptedException e) {
                 // Probably not an error
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            logger.debug("Can now return after saving session");
+            LOGGER.debug("Can now return after saving session");
 
         } else if (ACTION_LOAD_SESSION.equalsIgnoreCase(
                 name)) { // Ignore case for backwards compatibility
@@ -658,7 +658,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 Control.getSingleton().runCommandLineOpenSession(filename);
             } catch (Exception e) {
-                logger.error("Failed to load the session:", e);
+                LOGGER.error("Failed to load the session:", e);
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             }
 
@@ -676,7 +676,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 try {
                     Control.getSingleton().newSession();
                 } catch (Exception e) {
-                    logger.error("Failed to create a new session:", e);
+                    LOGGER.error("Failed to create a new session:", e);
                     throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                 }
             } else {
@@ -691,7 +691,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 try {
                     Control.getSingleton().runCommandLineNewSession(filename);
                 } catch (Exception e) {
-                    logger.error("Failed to create a new session:", e);
+                    LOGGER.error("Failed to create a new session:", e);
                     throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                 }
             }
@@ -706,7 +706,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 session.addExcludeFromProxyRegex(regex);
             } catch (DatabaseException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             } catch (PatternSyntaxException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
@@ -986,7 +986,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
-            logger.warn("Failed to send the HTTP request:", e);
+            LOGGER.warn("Failed to send the HTTP request:", e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
         }
     }
@@ -1046,7 +1046,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                             HistoryReference.TYPE_ZAP_USER,
                             message);
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
             return;
         }
 
@@ -1259,7 +1259,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         try {
             recordHistory = tableHistory.read(id);
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            logger.error("Failed to read the history record:", e);
+            LOGGER.error("Failed to read the history record:", e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
         }
         if (recordHistory == null) {
@@ -1337,7 +1337,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         e.toString(API.Format.JSON, incErrorDetails())
                                 .getBytes(StandardCharsets.UTF_8);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
 
                 ApiException apiException =
                         new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -1352,7 +1352,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         API.getDefaultResponseHeader(
                                 "application/json; charset=UTF-8", responseBody.length));
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: {}", e.getMessage(), e);
+                LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
             }
             msg.setResponseBody(responseBody);
 
@@ -1384,7 +1384,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         e.toString(API.Format.JSON, incErrorDetails())
                                 .getBytes(StandardCharsets.UTF_8);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
 
                 ApiException apiException =
                         new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -1399,7 +1399,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         API.getDefaultResponseHeader(
                                 "application/json; charset=UTF-8", responseBody.length));
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: {}", e.getMessage(), e);
+                LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
             }
             msg.setResponseBody(responseBody);
 
@@ -1450,7 +1450,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 e.toString(API.Format.JSON, incErrorDetails())
                                         .getBytes(StandardCharsets.UTF_8);
                     } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
+                        LOGGER.error(e.getMessage(), e);
 
                         ApiException apiException =
                                 new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -1467,7 +1467,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         API.getDefaultResponseHeader(
                                 "application/json; charset=UTF-8", responseBody.length));
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: {}", e.getMessage(), e);
+                LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
             }
             msg.setResponseBody(responseBody);
 
@@ -1481,7 +1481,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 msg.getResponseHeader()
                         .addHeader(HttpResponseHeader.CACHE_CONTROL, API_SCRIPT_CACHE_CONTROL);
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: {}", e.getMessage(), e);
+                LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
             }
 
             return msg;
@@ -1582,11 +1582,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 
             if (!xmlFile.delete()) {
-                logger.debug(
+                LOGGER.debug(
                         "Failed to delete temporary report file {}", xmlFile.getAbsolutePath());
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
         }
     }
@@ -1598,7 +1598,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 return this.handleApiOther(msg, OTHER_SCRIPT_JS, new JSONObject());
             }
         } catch (URIException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR);
         }
         throw new ApiException(
@@ -1656,7 +1656,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 }
             }
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR);
         }
     }
@@ -1691,13 +1691,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
     @Override
     public void sessionSaved(Exception e) {
-        logger.debug("Saved session notification");
+        LOGGER.debug("Saved session notification");
         this.savingSession = false;
     }
 
     @Override
     public void sessionSnapshot(Exception e) {
-        logger.debug("Snapshot session notification");
+        LOGGER.debug("Snapshot session notification");
         this.savingSession = false;
     }
 

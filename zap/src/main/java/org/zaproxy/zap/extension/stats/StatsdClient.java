@@ -87,7 +87,7 @@ public class StatsdClient extends TimerTask {
     private boolean multi_metrics = false;
 
 	private static final Random RNG = new Random();
-	private static final Logger log = LogManager.getLogger(StatsdClient.class.getName());
+	private static final Logger LOGGER = LogManager.getLogger(StatsdClient.class.getName());
 
 	private final InetSocketAddress _address;
 	private final DatagramChannel _channel;
@@ -260,7 +260,7 @@ public class StatsdClient extends TimerTask {
             return true;
 
 		} catch (IOException e) {
-			log.error(
+			LOGGER.error(
 				String.format("Could not send stat %s to host %s:%d", sendBuffer.toString(), _address.getHostName(),
 						_address.getPort()), e);
 			return false;
@@ -282,7 +282,7 @@ public class StatsdClient extends TimerTask {
 			if (sizeOfBuffer == nbSentBytes) {
 				return true;
 			} else {
-				log.error(String.format(
+				LOGGER.error(String.format(
 					"Could not send entirely stat %s to host %s:%d. Only sent %d bytes out of %d bytes", sendBuffer.toString(),
 					_address.getHostName(), _address.getPort(), nbSentBytes, sizeOfBuffer));
 				return false;
@@ -290,7 +290,7 @@ public class StatsdClient extends TimerTask {
 
 		} catch (IOException e) {
 			/* This would be a good place to close the channel down and recreate it. */
-			log.error(
+			LOGGER.error(
 				String.format("Could not send stat %s to host %s:%d", sendBuffer.toString(), _address.getHostName(),
 					_address.getPort()), e);
 			return false;

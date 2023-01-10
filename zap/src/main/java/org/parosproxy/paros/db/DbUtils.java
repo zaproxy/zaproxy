@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 
 public class DbUtils {
 
-    private static final Logger logger = LogManager.getLogger(DbUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(DbUtils.class);
 
     private DbUtils() {}
 
@@ -57,7 +57,7 @@ public class DbUtils {
                     rs.close();
                 }
             } catch (SQLException e) {
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
         }
 
@@ -92,7 +92,7 @@ public class DbUtils {
                     rs.close();
                 }
             } catch (SQLException e) {
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
         }
 
@@ -130,7 +130,7 @@ public class DbUtils {
                     rs.close();
                 }
             } catch (SQLException e) {
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
         }
 
@@ -163,7 +163,7 @@ public class DbUtils {
                     rs.close();
                 }
             } catch (SQLException e) {
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
         }
 
@@ -197,7 +197,7 @@ public class DbUtils {
                     rs.close();
                 }
             } catch (SQLException e) {
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
         }
 
@@ -222,7 +222,7 @@ public class DbUtils {
             try {
                 preparedStatement.close();
             } catch (SQLException e) {
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
         }
     }
@@ -259,7 +259,7 @@ public class DbUtils {
             try {
                 preparedStatement.close();
             } catch (SQLException e) {
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
         }
     }

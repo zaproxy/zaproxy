@@ -23,8 +23,6 @@ import java.awt.Component;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -113,9 +111,6 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
             extends HttpPanelSyntaxHighlightTextArea {
 
         private static final long serialVersionUID = 923466158533211593L;
-
-        private static final Logger log =
-                LogManager.getLogger(HttpRequestAllPanelSyntaxHighlightTextArea.class);
 
         // private static final String HTTP_REQUEST_HEADER_AND_BODY = "HTTP Request Header and
         // Body";

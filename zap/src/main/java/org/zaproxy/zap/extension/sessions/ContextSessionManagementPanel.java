@@ -54,7 +54,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
     private static final String CONFIG_NOT_NEEDED =
             Constant.messages.getString("sessionmanagement.panel.label.noConfigPanel");
 
-    private static final Logger log = LogManager.getLogger(ContextSessionManagementPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(ContextSessionManagementPanel.class);
 
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 6125457981814742851L;
@@ -140,7 +140,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
             return;
         }
 
-        log.debug("Creating new panel for configuring: {}", newMethodType.getName());
+        LOGGER.debug("Creating new panel for configuring: {}", newMethodType.getName());
         this.getConfigContainerPanel().removeAll();
 
         // show the panel according to whether the session management type needs configuration
@@ -180,7 +180,8 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
                         public void itemStateChanged(ItemEvent e) {
                             if (e.getStateChange() == ItemEvent.SELECTED) {
                                 // Prepare the new session management method
-                                log.debug("Selected new Session Management type: {}", e.getItem());
+                                LOGGER.debug(
+                                        "Selected new Session Management type: {}", e.getItem());
                                 SessionManagementMethodType type =
                                         ((SessionManagementMethodType) e.getItem());
 
@@ -231,7 +232,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
     @Override
     public void initContextData(Session session, Context uiSharedContext) {
         selectedMethod = uiSharedContext.getSessionManagementMethod();
-        log.debug(
+        LOGGER.debug(
                 "Initializing configuration panel for session management method: {}  for context {}",
                 selectedMethod,
                 uiSharedContext.getName());

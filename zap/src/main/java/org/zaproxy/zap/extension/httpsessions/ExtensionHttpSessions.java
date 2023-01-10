@@ -71,7 +71,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
     public static final String NAME = "ExtensionHttpSessions";
 
     /** The Constant log. */
-    private static final Logger log = LogManager.getLogger(ExtensionHttpSessions.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionHttpSessions.class);
 
     /** The http sessions panel. */
     private HttpSessionsPanel httpSessionsPanel;
@@ -370,7 +370,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
             sessionTokens.put(site, siteTokens);
         }
 
-        log.debug("Added new session token for site '{}': {}", site, token);
+        LOGGER.debug("Added new session token for site '{}': {}", site, token);
 
         siteTokens.addToken(token);
         // If the session token is a default token and was previously marked as remove, undo that
@@ -411,7 +411,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
         // be detected again and added as a session token
         if (isDefaultSessionToken(token)) markRemovedDefaultSessionToken(site, token);
 
-        log.debug("Removed session token for site '{}': {}", site, token);
+        LOGGER.debug("Removed session token for site '{}': {}", site, token);
     }
 
     /**
@@ -612,7 +612,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
         try {
             requestCookies = msg.getRequestHeader().getHttpCookies();
         } catch (IllegalArgumentException e) {
-            log.warn("Failed to obtain the cookies: {}", e.getMessage(), e);
+            LOGGER.warn("Failed to obtain the cookies: {}", e.getMessage(), e);
             return;
         }
 

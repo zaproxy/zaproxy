@@ -62,7 +62,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
     private JScrollPane extDescScrollPane = null;
     private JButton urlLaunchButton = null;
 
-    private static Logger log = LogManager.getLogger(OptionsExtensionPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(OptionsExtensionPanel.class);
 
     public OptionsExtensionPanel(ExtensionExtension ext) {
         super();
@@ -171,7 +171,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
                                         }
                                     } catch (Exception e) {
                                         // Just to be safe
-                                        log.error(e.getMessage(), e);
+                                        LOGGER.error(e.getMessage(), e);
                                     }
                                 }
                             }
