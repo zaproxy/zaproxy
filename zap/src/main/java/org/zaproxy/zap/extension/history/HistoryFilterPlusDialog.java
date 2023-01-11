@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.history;
 
+import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -124,6 +125,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
         }
         centreDialog();
         this.getRootPane().setDefaultButton(btnApply);
+        this.setMinimumSize(new Dimension(1000,600));
         this.pack();
     }
 
