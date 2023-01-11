@@ -67,7 +67,7 @@ public class TabbedPanel2 extends TabbedPanel {
     // A fake component that never actually get displayed - used for the 'hidden tab list tab'
     private Component hiddenComponent = new JLabel();
 
-    private final Logger logger = LogManager.getLogger(TabbedPanel2.class);
+    private static final Logger LOGGER = LogManager.getLogger(TabbedPanel2.class);
 
     private int prevTabIndex = -1;
 
@@ -204,7 +204,7 @@ public class TabbedPanel2 extends TabbedPanel {
         try {
             Model.getSingleton().getOptionsParam().getConfig().save();
         } catch (ConfigurationException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

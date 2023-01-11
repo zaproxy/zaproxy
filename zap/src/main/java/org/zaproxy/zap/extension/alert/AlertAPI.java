@@ -112,7 +112,7 @@ public class AlertAPI extends ApiImplementor {
     private static final int NO_CONFIDENCE_ID = -1;
 
     private ExtensionAlert extension = null;
-    private static final Logger logger = LogManager.getLogger(AlertAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(AlertAPI.class);
 
     public AlertAPI(ExtensionAlert ext) {
         this.extension = ext;
@@ -201,7 +201,7 @@ public class AlertAPI extends ApiImplementor {
                 recordAlert = tableAlert.read(this.getParam(params, PARAM_ID, -1));
                 alertTags = tableAlertTag.getTagsByAlertId(this.getParam(params, PARAM_ID, -1));
             } catch (DatabaseException e) {
-                logger.error("Failed to read the alert from the session:", e);
+                LOGGER.error("Failed to read the alert from the session:", e);
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR);
             }
             if (recordAlert == null) {
@@ -484,7 +484,7 @@ public class AlertAPI extends ApiImplementor {
                 }
             }
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR);
         }
     }
@@ -626,7 +626,7 @@ public class AlertAPI extends ApiImplementor {
         try {
             recAlert = Model.getSingleton().getDb().getTableAlert().read(alertId);
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
         }
 
@@ -640,7 +640,7 @@ public class AlertAPI extends ApiImplementor {
         try {
             extension.updateAlert(updatedAlert);
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
         }
     }
@@ -662,7 +662,7 @@ public class AlertAPI extends ApiImplementor {
             if (e.getMessage() == null) {
                 throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_MESSAGE_ID);
             }
-            logger.error("Failed to read the history record:", e);
+            LOGGER.error("Failed to read the history record:", e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
         }
     }

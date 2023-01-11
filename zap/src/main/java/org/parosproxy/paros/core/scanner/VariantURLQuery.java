@@ -30,6 +30,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/06 Add method to get a short name of the variant
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.httpclient.URIException;
@@ -41,7 +42,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public class VariantURLQuery extends VariantAbstractQuery {
 
-    private static final Logger LOG = LogManager.getLogger(VariantURLQuery.class);
+    private static final Logger LOGGER = LogManager.getLogger(VariantURLQuery.class);
 
     private static final String SHORT_NAME = "querystring";
 
@@ -91,7 +92,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
             msg.getRequestHeader().getURI().setEscapedQuery(query);
 
         } catch (URIException e) {
-            LOG.error("{} {}", e.getMessage(), query, e);
+            LOGGER.error("{} {}", e.getMessage(), query, e);
         }
     }
 }

@@ -55,6 +55,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/07/04 Make delete more consistent and protective (Issue 7336).
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -128,7 +129,7 @@ public class SiteMapPanel extends AbstractPanel {
     private static final long serialVersionUID = -3161729504065679088L;
 
     // ZAP: Added logger
-    private static Logger log = LogManager.getLogger(SiteMapPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(SiteMapPanel.class);
 
     private JTree treeSite = null;
     private JTree treeContext = null;
@@ -320,7 +321,7 @@ public class SiteMapPanel extends AbstractPanel {
         try {
             dialog.setAllTags(Model.getSingleton().getDb().getTableTag().getAllTags());
         } catch (DatabaseException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         int exit = dialog.showDialog();
@@ -412,7 +413,7 @@ public class SiteMapPanel extends AbstractPanel {
                                     msg = node.getHistoryReference().getHttpMessage();
                                 } catch (Exception e1) {
                                     // ZAP: Log exceptions
-                                    log.warn(e1.getMessage(), e1);
+                                    LOGGER.warn(e1.getMessage(), e1);
                                     return;
                                 }
 
@@ -675,7 +676,7 @@ public class SiteMapPanel extends AbstractPanel {
                     });
         } catch (Exception e) {
             // ZAP: Log exceptions
-            log.warn(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
         }
     }
 

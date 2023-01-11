@@ -72,7 +72,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
     // Still being developed
     // private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
-    private static Logger log = LogManager.getLogger(ExtensionStdMenus.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionStdMenus.class);
 
     public ExtensionStdMenus() {
         super();
@@ -319,7 +319,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
             try {
                 return (String) contents.getTransferData(DataFlavor.stringFlavor);
             } catch (UnsupportedFlavorException | IOException e) {
-                log.error("Unable to get data from clipboard");
+                LOGGER.error("Unable to get data from clipboard");
             }
         }
 

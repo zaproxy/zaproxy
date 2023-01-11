@@ -60,7 +60,7 @@ import org.zaproxy.zap.utils.ApiUtils;
 /** The API for manipulating {@link User Users}. */
 public class UsersAPI extends ApiImplementor {
 
-    private static final Logger log = LogManager.getLogger(UsersAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(UsersAPI.class);
 
     private static final String PREFIX = "users";
 
@@ -193,7 +193,7 @@ public class UsersAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiView {} {}", name, params);
+        LOGGER.debug("handleApiView {} {}", name, params);
 
         switch (name) {
             case VIEW_USERS_LIST:
@@ -242,7 +242,7 @@ public class UsersAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction {} {}", name, params);
+        LOGGER.debug("handleApiAction {} {}", name, params);
 
         User user;
         Context context;
@@ -332,7 +332,7 @@ public class UsersAPI extends ApiImplementor {
                                                             user.getAuthenticationState())));
                             return responseSet;
                         } catch (Exception e) {
-                            log.error("Failed to read auth request from db {}", hId2, e);
+                            LOGGER.error("Failed to read auth request from db {}", hId2, e);
                             throw new ApiException(Type.INTERNAL_ERROR, e);
                         }
                     }
@@ -492,7 +492,7 @@ public class UsersAPI extends ApiImplementor {
             credList.addItem(new ApiResponseSet<>("credentials", credMap));
             list.addItem(credList);
         } catch (Exception e) {
-            log.error("Failed to access HttpState credMap", e);
+            LOGGER.error("Failed to access HttpState credMap", e);
         }
         return list;
     }

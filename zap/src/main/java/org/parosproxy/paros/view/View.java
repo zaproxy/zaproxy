@@ -94,6 +94,7 @@
 // ZAP: 2022/05/29 Implement getOptionsDialog().
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/09/27 Added dialog methods with ZapHtmlLabel parameter.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -198,7 +199,7 @@ public class View implements ViewDelegate {
     private Map<ContextPanelFactory, List<AbstractContextPropertiesPanel>>
             contextPanelFactoriesPanels = new HashMap<>();
 
-    private static final Logger logger = LogManager.getLogger(View.class);
+    private static final Logger LOGGER = LogManager.getLogger(View.class);
 
     // ZAP: splash screen
     private SplashScreen splashScreen = null;
@@ -626,11 +627,11 @@ public class View implements ViewDelegate {
         if (view == null) {
             if (daemon) {
                 Exception e = new Exception("Attempting to initialise View in daemon mode");
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 return null;
             }
 
-            logger.info("Initialising View");
+            LOGGER.info("Initialising View");
             view = new View();
             view.init();
         }
@@ -1101,7 +1102,7 @@ public class View implements ViewDelegate {
         }
 
         if (!(message instanceof HttpMessage)) {
-            logger.warn("Unable to display message: {}", message.getClass().getCanonicalName());
+            LOGGER.warn("Unable to display message: {}", message.getClass().getCanonicalName());
             return;
         }
 

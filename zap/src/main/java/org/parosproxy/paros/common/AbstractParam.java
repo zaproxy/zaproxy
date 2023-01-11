@@ -35,6 +35,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.common;
 
 import java.util.Map.Entry;
@@ -48,7 +49,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public abstract class AbstractParam implements Cloneable {
 
-    private static final Logger logger = LogManager.getLogger(AbstractParam.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractParam.class);
 
     private FileConfiguration config = null;
     /**
@@ -62,7 +63,7 @@ public abstract class AbstractParam implements Cloneable {
         try {
             parse();
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -87,7 +88,7 @@ public abstract class AbstractParam implements Cloneable {
             config = new ZapXmlConfiguration(filePath);
             if (overrides != null) {
                 for (Entry<String, String> entry : overrides.getOrderedConfigs().entrySet()) {
-                    logger.info(
+                    LOGGER.info(
                             "Setting config {} = {} was {}",
                             entry.getKey(),
                             entry.getValue(),
@@ -97,7 +98,7 @@ public abstract class AbstractParam implements Cloneable {
             }
             parse();
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -117,7 +118,7 @@ public abstract class AbstractParam implements Cloneable {
             clone.load((FileConfiguration) ConfigurationUtils.cloneConfiguration(config));
             return clone;
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return null;
     }
@@ -167,7 +168,7 @@ public abstract class AbstractParam implements Cloneable {
      * @since 2.7.0
      */
     protected static void logConversionException(String key, ConversionException e) {
-        logger.warn("Failed to read '{}'", key, e);
+        LOGGER.warn("Failed to read '{}'", key, e);
     }
 
     /**

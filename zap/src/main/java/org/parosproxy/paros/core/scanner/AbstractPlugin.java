@@ -75,6 +75,7 @@
 // ZAP: 2022/08/03 Keep enabled state when setting default alert threshold (Issue 7400).
 // ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/09/28 Do not set the Content-Length header when the method does not require one.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -116,7 +117,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private HostProcess parent = null;
     private HttpMessage msg = null;
     private boolean enabled = true;
-    private Logger logger = LogManager.getLogger(this.getClass());
+    private final Logger logger = LogManager.getLogger(getClass());
     private Configuration config = null;
     // ZAP Added delayInMs
     private int delayInMs;

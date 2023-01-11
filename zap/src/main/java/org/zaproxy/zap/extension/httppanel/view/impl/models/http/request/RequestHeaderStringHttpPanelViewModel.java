@@ -29,7 +29,7 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStr
 
 public class RequestHeaderStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
 
-    private static final Logger logger =
+    private static final Logger LOGGER =
             LogManager.getLogger(RequestHeaderStringHttpPanelViewModel.class);
 
     @Override
@@ -51,7 +51,7 @@ public class RequestHeaderStringHttpPanelViewModel extends AbstractHttpStringHtt
         try {
             httpMessage.setRequestHeader(header);
         } catch (HttpMalformedHeaderException e) {
-            logger.warn("Could not Save Header: {}", header, e);
+            LOGGER.warn("Could not Save Header: {}", header, e);
             throw new InvalidMessageDataException(
                     Constant.messages.getString("http.panel.model.header.warn.malformed"), e);
         }

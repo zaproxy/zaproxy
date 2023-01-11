@@ -44,7 +44,7 @@ import org.zaproxy.zap.extension.api.ApiView;
 
 public class AutoUpdateAPI extends ApiImplementor {
 
-    private static Logger log = LogManager.getLogger(AutoUpdateAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(AutoUpdateAPI.class);
 
     private static final String PREFIX = "autoupdate";
     private static final String ACTION_DOWNLOAD_LATEST_RELEASE = "downloadLatestRelease";
@@ -87,7 +87,7 @@ public class AutoUpdateAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction {} {}", name, params);
+        LOGGER.debug("handleApiAction {} {}", name, params);
         if (ACTION_DOWNLOAD_LATEST_RELEASE.equals(name)) {
             if (this.downloadLatestRelease()) {
                 return ApiResponseElement.OK;

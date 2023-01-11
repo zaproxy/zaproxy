@@ -49,6 +49,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/03 Removed deprecated prepareShow method
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -87,7 +88,7 @@ public class MainPopupMenu extends JPopupMenu {
     // ZAP: Added support for submenus
     Map<String, JMenu> superMenus = new HashMap<>();
     View view = null;
-    private static final Logger log = LogManager.getLogger(MainPopupMenu.class);
+    private static final Logger LOGGER = LogManager.getLogger(MainPopupMenu.class);
 
     /**
      * The change listener responsible for updating the {@code pathSelectedMenu} when the path to
@@ -166,7 +167,7 @@ public class MainPopupMenu extends JPopupMenu {
                     }
                 }
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
 
@@ -261,7 +262,7 @@ public class MainPopupMenu extends JPopupMenu {
             }
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -295,7 +296,7 @@ public class MainPopupMenu extends JPopupMenu {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

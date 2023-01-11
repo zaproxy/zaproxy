@@ -328,7 +328,7 @@ public class AddOn {
      */
     private boolean mandatory;
 
-    private static final Logger logger = LogManager.getLogger(AddOn.class);
+    private static final Logger LOGGER = LogManager.getLogger(AddOn.class);
 
     /**
      * Tells whether or not the given file name matches the name of a ZAP add-on.
@@ -415,11 +415,11 @@ public class AddOn {
                         e -> {
                             ZipEntry libEntry = zip.getEntry(e);
                             if (libEntry == null) {
-                                logger.warn("The add-on {} does not have the lib: {}", file, e);
+                                LOGGER.warn("The add-on {} does not have the lib: {}", file, e);
                                 return true;
                             }
                             if (libEntry.isDirectory()) {
-                                logger.warn("The add-on {} does not have a file lib: {}", file, e);
+                                LOGGER.warn("The add-on {} does not have a file lib: {}", file, e);
                                 return true;
                             }
                             return false;
@@ -442,13 +442,13 @@ public class AddOn {
             return Optional.of(new AddOn(file));
         } catch (AddOn.InvalidAddOnException e) {
             String logMessage = "Invalid add-on: " + file.toString() + ".";
-            if (logger.isDebugEnabled() || Constant.isDevMode()) {
-                logger.warn(logMessage, e);
+            if (LOGGER.isDebugEnabled() || Constant.isDevMode()) {
+                LOGGER.warn(logMessage, e);
             } else {
-                logger.warn("{} {}", logMessage, e.getMessage());
+                LOGGER.warn("{} {}", logMessage, e.getMessage());
             }
         } catch (Exception e) {
-            logger.error("Failed to create an add-on from: {}", file, e);
+            LOGGER.error("Failed to create an add-on from: {}", file, e);
         }
         return Optional.empty();
     }
@@ -583,7 +583,7 @@ public class AddOn {
             try {
                 return new URL(url);
             } catch (Exception e) {
-                logger.warn("Invalid URL for add-on \"{}\": {}", id, url, e);
+                LOGGER.warn("Invalid URL for add-on \"{}\": {}", id, url, e);
             }
         }
         return null;
@@ -776,7 +776,7 @@ public class AddOn {
                 try {
                     this.loadManifestFile();
                 } catch (IOException e) {
-                    logger.debug(
+                    LOGGER.debug(
                             "Failed to read the {} file of {}:", AddOn.MANIFEST_FILE_NAME, id, e);
                 }
             }
@@ -1261,7 +1261,7 @@ public class AddOn {
         if (installedVersion != null && !addOn.equals(installedVersion)) {
             requirements.setIssue(
                     BaseRunRequirements.DependencyIssue.OLDER_VERSION, installedVersion);
-            logger.debug(
+            LOGGER.debug(
                     "Add-on {} not runnable, old version still installed: {}",
                     addOn,
                     installedVersion);
@@ -1269,7 +1269,7 @@ public class AddOn {
         }
 
         if (!requirements.addDependency(parent, addOn)) {
-            logger.warn("Cyclic dependency detected with: {}", requirements.getDependencies());
+            LOGGER.warn("Cyclic dependency detected with: {}", requirements.getDependencies());
             requirements.setIssue(
                     BaseRunRequirements.DependencyIssue.CYCLIC, requirements.getDependencies());
             return;

@@ -33,7 +33,7 @@ public final class NetworkUtils {
 
     private NetworkUtils() {}
 
-    private static final Logger LOG = LogManager.getLogger(NetworkUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(NetworkUtils.class);
 
     public static List<String> getAvailableAddresses(boolean remoteOnly) {
         List<String> list = new ArrayList<>();
@@ -59,7 +59,7 @@ public final class NetworkUtils {
                 }
             }
         } catch (SocketException e1) {
-            LOG.error(e1.getMessage(), e1);
+            LOGGER.error(e1.getMessage(), e1);
         }
         return list;
     }

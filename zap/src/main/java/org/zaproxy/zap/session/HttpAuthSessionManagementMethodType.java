@@ -23,8 +23,6 @@ import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.HttpState;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -45,9 +43,6 @@ import org.zaproxy.zap.utils.ApiUtils;
 public class HttpAuthSessionManagementMethodType extends SessionManagementMethodType {
 
     private static final int METHOD_IDENTIFIER = 1;
-
-    @SuppressWarnings("unused")
-    private static final Logger log = LogManager.getLogger(HttpAuthSessionManagementMethod.class);
 
     /** The Constant METHOD_NAME. */
     private static final String METHOD_NAME =

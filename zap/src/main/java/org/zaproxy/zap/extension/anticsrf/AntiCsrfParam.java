@@ -32,7 +32,7 @@ import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 public class AntiCsrfParam extends AbstractParam {
 
-    private static final Logger logger = LogManager.getLogger(AntiCsrfParam.class);
+    private static final Logger LOGGER = LogManager.getLogger(AntiCsrfParam.class);
 
     private static final String ANTI_CSRF_BASE_KEY = "anticsrf";
 
@@ -93,7 +93,7 @@ public class AntiCsrfParam extends AbstractParam {
                 }
             }
         } catch (ConversionException e) {
-            logger.error("Error while loading anti CSRF tokens: {}", e.getMessage(), e);
+            LOGGER.error("Error while loading anti CSRF tokens: {}", e.getMessage(), e);
             this.tokens = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
             this.enabledTokensNames = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
         }

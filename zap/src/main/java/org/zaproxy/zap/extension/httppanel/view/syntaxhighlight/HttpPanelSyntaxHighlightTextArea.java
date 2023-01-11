@@ -61,7 +61,8 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
 
     private static final long serialVersionUID = -9082089105656842054L;
 
-    private static Logger log = LogManager.getLogger(HttpPanelSyntaxHighlightTextArea.class);
+    private static final Logger LOGGER =
+            LogManager.getLogger(HttpPanelSyntaxHighlightTextArea.class);
 
     public static final String PLAIN_SYNTAX_LABEL =
             Constant.messages.getString("http.panel.view.syntaxtext.syntax.plain");
@@ -253,7 +254,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
                 hilite.addHighlight(lastPos, lastPos + entry.getToken().length(), painter);
                 lastPos += entry.getToken().length();
             } catch (BadLocationException e) {
-                log.warn("Could not highlight entry", e);
+                LOGGER.warn("Could not highlight entry", e);
             }
         }
     }
@@ -280,7 +281,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
             hilite.addHighlight(start, end, painter);
             this.setCaretPosition(start);
         } catch (BadLocationException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -290,7 +291,7 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea {
             this.setCaretPosition(start);
             return highlightReference;
         } catch (BadLocationException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return null;
     }

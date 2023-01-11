@@ -39,7 +39,7 @@ import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionKeyboard extends ExtensionAdaptor {
 
-    private static final Logger logger = LogManager.getLogger(ExtensionKeyboard.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionKeyboard.class);
 
     public static final String NAME = "ExtensionKeyboard";
 
@@ -90,7 +90,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
     @Override
     public void postInit() {
         if (hasView()) {
-            logger.info("Initializing keyboard shortcuts");
+            LOGGER.info("Initializing keyboard shortcuts");
             processMainMenuBarMenus(this::initAllMenuItems);
         }
     }
@@ -112,7 +112,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
             setConfiguredAccelerator(zme);
             this.map.put(identifier, new KeyboardMapping(zme));
         } else {
-            logger.warn("ZapMenuItem \"{}\" has a null identifier.", zme.getName());
+            LOGGER.warn("ZapMenuItem \"{}\" has a null identifier.", zme.getName());
         }
     }
 
@@ -146,7 +146,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
                         String.format(
                                 "Menus %s and %s use the same default accelerator: %s",
                                 zme.getIdentifier(), km.getIdentifier(), ks);
-                logger.log(Constant.isDevMode() ? Level.ERROR : Level.WARN, msg);
+                LOGGER.log(Constant.isDevMode() ? Level.ERROR : Level.WARN, msg);
                 if (menusDupDefaultAccelerator == null) {
                     menusDupDefaultAccelerator = new ArrayList<>();
                 }
@@ -197,7 +197,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 
             } else if (c instanceof JMenuItem) {
                 JMenuItem menuItem = (JMenuItem) c;
-                logger.debug("Unable to set accelerators on menu {}", menuItem.getText());
+                LOGGER.debug("Unable to set accelerators on menu {}", menuItem.getText());
             }
         }
     }
@@ -210,10 +210,10 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 
         if (ks.getKeyCode() == 0) {
             // Used to indicate no accelerator should be used
-            logger.debug("Cleaning menu {} accelerator", menuItem.getIdentifier());
+            LOGGER.debug("Cleaning menu {} accelerator", menuItem.getIdentifier());
             ks = null;
         } else {
-            logger.debug("Setting menu {} accelerator to {}", menuItem.getIdentifier(), ks);
+            LOGGER.debug("Setting menu {} accelerator to {}", menuItem.getIdentifier(), ks);
         }
         menuItem.setAccelerator(ks);
     }
@@ -241,7 +241,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 
             } else if (c instanceof JMenuItem) {
                 JMenuItem menuItem = (JMenuItem) c;
-                logger.debug("Unable to set accelerators on menu {}", menuItem.getText());
+                LOGGER.debug("Unable to set accelerators on menu {}", menuItem.getText());
             }
         }
     }
@@ -282,7 +282,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
     public void setShortcut(String identifier, KeyStroke ks) {
         KeyboardMapping mapping = (KeyboardMapping) this.map.get(identifier);
         if (mapping == null) {
-            logger.error("No mapping found for keyboard shortcut: {}", identifier);
+            LOGGER.error("No mapping found for keyboard shortcut: {}", identifier);
             return;
         }
         mapping.setKeyStroke(ks);
@@ -300,7 +300,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
         try {
             DesktopUtils.openUrlInBrowser(api.getCheatSheetActionURI());
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -308,7 +308,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
         try {
             DesktopUtils.openUrlInBrowser(api.getCheatSheetKeyURI());
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

@@ -49,7 +49,7 @@ import org.zaproxy.zap.utils.ApiUtils;
  */
 public class AuthenticationAPI extends ApiImplementor {
 
-    private static final Logger log = LogManager.getLogger(AuthenticationAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(AuthenticationAPI.class);
 
     private static final String PREFIX = "authentication";
 
@@ -116,7 +116,7 @@ public class AuthenticationAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiView {} {}", name, params);
+        LOGGER.debug("handleApiView {} {}", name, params);
 
         switch (name) {
             case VIEW_GET_AUTHENTICATION:
@@ -149,7 +149,7 @@ public class AuthenticationAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction {} {}", name, params);
+        LOGGER.debug("handleApiAction {} {}", name, params);
 
         Context context;
         switch (name) {

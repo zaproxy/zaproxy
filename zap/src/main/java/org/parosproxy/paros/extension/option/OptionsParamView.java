@@ -51,6 +51,7 @@
 // ZAP: 2022/02/26 Remove code deprecated in 2.5.0
 // ZAP: 2022/04/28 Add set and get of the open recent menu
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.Window;
@@ -83,7 +84,7 @@ import org.zaproxy.zap.utils.ZapHtmlLabel;
 
 public class OptionsParamView extends AbstractParam {
 
-    private static final Logger LOG = LogManager.getLogger(OptionsParamView.class);
+    private static final Logger LOGGER = LogManager.getLogger(OptionsParamView.class);
 
     private static final String DEFAULT_TIME_STAMP_FORMAT =
             Constant.messages.getString("timestamp.format.datetime");
@@ -638,7 +639,7 @@ public class OptionsParamView extends AbstractParam {
                                                 .getPopupList()
                                                 .forEach(SwingUtilities::updateComponentTreeUI);
                                     } catch (Exception e2) {
-                                        LOG.warn(
+                                        LOGGER.warn(
                                                 "Failed to set the look and feel: {}",
                                                 e2.getMessage());
                                     } finally {

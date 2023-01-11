@@ -62,7 +62,7 @@ import org.zaproxy.zap.view.LocaleDialog;
  */
 public class GuiBootstrap extends ZapBootstrap {
 
-    private static final Logger logger = LogManager.getLogger(GuiBootstrap.class);
+    private static final Logger LOGGER = LogManager.getLogger(GuiBootstrap.class);
 
     /**
      * Flag that indicates whether or not the look and feel was already set.
@@ -82,12 +82,12 @@ public class GuiBootstrap extends ZapBootstrap {
             return rc;
         }
 
-        logger.info(getStartingMessage());
+        LOGGER.info(getStartingMessage());
 
         if (GraphicsEnvironment.isHeadless()) {
             String headlessMessage =
                     Constant.messages.getString("start.gui.headless", CommandLine.HELP);
-            logger.fatal(headlessMessage);
+            LOGGER.fatal(headlessMessage);
             System.err.println(headlessMessage);
             return 1;
         }
@@ -122,7 +122,7 @@ public class GuiBootstrap extends ZapBootstrap {
                 awtAppClassName.setAccessible(true);
                 awtAppClassName.set(null, Constant.PROGRAM_NAME);
             } catch (Exception e) {
-                logger.warn("Failed to set awt app class name: {}", e.getMessage());
+                LOGGER.warn("Failed to set awt app class name: {}", e.getMessage());
             }
         }
     }
@@ -141,7 +141,7 @@ public class GuiBootstrap extends ZapBootstrap {
                         Constant.messages.getString("start.title.error"),
                         JOptionPane.ERROR_MESSAGE);
             }
-            logger.fatal("Failed to initialise: {}", e.getMessage(), e);
+            LOGGER.fatal("Failed to initialise: {}", e.getMessage(), e);
             System.err.println(e.getMessage());
             System.exit(1);
         }
@@ -201,7 +201,7 @@ public class GuiBootstrap extends ZapBootstrap {
                                     }
                                     View.getSingleton().hideSplashScreen();
 
-                                    logger.fatal("Failed to initialise GUI: ", e);
+                                    LOGGER.fatal("Failed to initialise GUI: ", e);
 
                                     // We must exit otherwise EDT would keep ZAP running.
                                     System.exit(1);
@@ -254,7 +254,7 @@ public class GuiBootstrap extends ZapBootstrap {
                             try {
                                 sessionPath = SessionUtils.getSessionPath(path);
                             } catch (IllegalArgumentException e) {
-                                logger.warn(
+                                LOGGER.warn(
                                         "An error occurred while resolving the session path:", e);
                             }
 
@@ -281,7 +281,7 @@ public class GuiBootstrap extends ZapBootstrap {
                             try {
                                 sessionPath = SessionUtils.getSessionPath(path);
                             } catch (IllegalArgumentException e) {
-                                logger.warn(
+                                LOGGER.warn(
                                         "An error occurred while resolving the session path:", e);
                             }
 
@@ -308,7 +308,7 @@ public class GuiBootstrap extends ZapBootstrap {
                             try {
                                 control.getMenuFileControl().newSession(false);
                             } catch (Exception e) {
-                                logger.error(e.getMessage(), e);
+                                LOGGER.error(e.getMessage(), e);
                                 View.getSingleton()
                                         .showWarningDialog(
                                                 Constant.messages.getString(
@@ -324,7 +324,7 @@ public class GuiBootstrap extends ZapBootstrap {
             control.runCommandLine();
 
         } catch (final Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             EventQueue.invokeLater(
                     new Runnable() {
 
@@ -406,7 +406,7 @@ public class GuiBootstrap extends ZapBootstrap {
                     | ClassNotFoundException
                     | InstantiationException
                     | IllegalAccessException e) {
-                logger.warn("Failed to set the look and feel: {}", e.getMessage());
+                LOGGER.warn("Failed to set the look and feel: {}", e.getMessage());
             }
         }
         return false;
@@ -447,7 +447,7 @@ public class GuiBootstrap extends ZapBootstrap {
             try {
                 options.getViewParam().getConfig().save();
             } catch (ConfigurationException e) {
-                logger.warn("Failed to save locale: ", e);
+                LOGGER.warn("Failed to save locale: ", e);
             }
         }
     }

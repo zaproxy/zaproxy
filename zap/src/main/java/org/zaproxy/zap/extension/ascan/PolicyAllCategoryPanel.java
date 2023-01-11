@@ -72,7 +72,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     // private static final String ILLEGAL_CHRS = "/`?*\\<>|\":\t\n\r";
 
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = LogManager.getLogger(PolicyAllCategoryPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(PolicyAllCategoryPanel.class);
 
     private ZapTextField policyName = null;
     private JTable tableTest = null;
@@ -282,7 +282,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
                                     fireScanPolicyChanged(policy);
                                 }
                             } catch (ConfigurationException e1) {
-                                logger.error(e1.getMessage(), e1);
+                                LOGGER.error(e1.getMessage(), e1);
                             }
                         }
                     });

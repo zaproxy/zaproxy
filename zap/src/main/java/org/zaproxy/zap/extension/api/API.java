@@ -133,7 +133,7 @@ public class API {
     private org.parosproxy.paros.core.proxy.ProxyParam proxyParam;
 
     private Random random = new SecureRandom();
-    private static final Logger logger = LogManager.getLogger(API.class);
+    private static final Logger LOGGER = LogManager.getLogger(API.class);
 
     private static synchronized API newInstance() {
         if (api == null) {
@@ -167,16 +167,16 @@ public class API {
      */
     public void registerApiImplementor(ApiImplementor impl) {
         if (implementors.get(impl.getPrefix()) != null) {
-            logger.error(
+            LOGGER.error(
                     "Second attempt to register API implementor with prefix of {}",
                     impl.getPrefix());
             return;
         }
         implementors.put(impl.getPrefix(), impl);
         for (String shortcut : impl.getApiShortcuts()) {
-            logger.debug("Registering API shortcut: {}", shortcut);
+            LOGGER.debug("Registering API shortcut: {}", shortcut);
             if (this.shortcuts.containsKey(shortcut)) {
-                logger.error("Duplicate API shortcut: {}", shortcut);
+                LOGGER.error("Duplicate API shortcut: {}", shortcut);
             }
             this.shortcuts.put("/" + shortcut, impl);
         }
@@ -194,7 +194,7 @@ public class API {
      */
     public void removeApiImplementor(ApiImplementor impl) {
         if (!implementors.containsKey(impl.getPrefix())) {
-            logger.warn(
+            LOGGER.warn(
                     "Attempting to remove an API implementor not registered, with prefix: {}",
                     impl.getPrefix());
             return;
@@ -203,7 +203,7 @@ public class API {
         for (String shortcut : impl.getApiShortcuts()) {
             String key = "/" + shortcut;
             if (this.shortcuts.containsKey(key)) {
-                logger.debug("Removing registered API shortcut: {}", shortcut);
+                LOGGER.debug("Removing registered API shortcut: {}", shortcut);
                 this.shortcuts.remove(key);
             }
         }
@@ -264,13 +264,13 @@ public class API {
             if (getOptionsParamApi().isPermittedAddress(requestHeader.getHostName())) {
                 return true;
             }
-            logger.warn(
+            LOGGER.warn(
                     "Request to API URL {} with host header {} not permitted",
                     requestHeader.getURI(),
                     requestHeader.getHostName());
             return false;
         }
-        logger.warn(
+        LOGGER.warn(
                 "Request to API URL {} from {} not permitted",
                 requestHeader.getURI(),
                 requestHeader.getSenderAddress().getHostAddress());
@@ -302,7 +302,7 @@ public class API {
 
         // Check for callbacks
         if (url.contains(CALL_BACK_URL)) {
-            logger.debug("handleApiRequest Callback: {}", url);
+            LOGGER.debug("handleApiRequest Callback: {}", url);
             for (Entry<String, ApiImplementor> callback : callBacks.entrySet()) {
                 if (url.startsWith(callback.getKey())) {
                     callbackImpl = callback.getValue();
@@ -321,7 +321,7 @@ public class API {
                 }
             }
             if (callbackImpl == null) {
-                logger.warn(
+                LOGGER.warn(
                         "Request to callback URL {} from {} not found - this could be a callback url from a previous session or possibly an attempt to attack ZAP",
                         requestHeader.getURI(),
                         requestHeader.getSenderAddress().getHostAddress());
@@ -350,11 +350,11 @@ public class API {
         }
         if (getOptionsParamApi().isSecureOnly() && !requestHeader.isSecure()) {
             // Insecure request with secure only set, always ignore
-            logger.debug("handleApiRequest rejecting insecure request");
+            LOGGER.debug("handleApiRequest rejecting insecure request");
             return new HttpMessage();
         }
 
-        logger.debug("handleApiRequest {}", url);
+        LOGGER.debug("handleApiRequest {}", url);
 
         HttpMessage msg = new HttpMessage();
         msg.setRequestHeader(requestHeader);
@@ -692,7 +692,7 @@ public class API {
                 return responseToHtml(res);
             default:
                 // Should not happen, format validation should prevent this case...
-                logger.error("Unhandled format: {}", format);
+                LOGGER.error("Unhandled format: {}", format);
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR);
         }
     }
@@ -834,7 +834,7 @@ public class API {
             return sw.toString();
 
         } catch (Exception e) {
-            logger.error("Failed to convert API response to XML: {}", e.getMessage(), e);
+            LOGGER.error("Failed to convert API response to XML: {}", e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
         }
     }
@@ -865,12 +865,12 @@ public class API {
                     // Carry on anyway
                     Exception apiException =
                             new ApiException(ApiException.Type.ILLEGAL_PARAMETER, params, e);
-                    logger.error(apiException.getMessage(), apiException);
+                    LOGGER.error(apiException.getMessage(), apiException);
                 }
             } else {
                 // Carry on anyway
                 Exception e = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, params);
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
         return jp;
@@ -898,7 +898,7 @@ public class API {
     public String getCallBackUrl(ApiImplementor impl, String site) {
         String url = site + CALL_BACK_URL + random.nextLong();
         this.callBacks.put(url, impl);
-        logger.debug("Callback {} registered for {}", url, impl.getClass().getCanonicalName());
+        LOGGER.debug("Callback {} registered for {}", url, impl.getClass().getCanonicalName());
         return url;
     }
 
@@ -912,7 +912,7 @@ public class API {
      * @see #removeApiImplementor(ApiImplementor)
      */
     public void removeCallBackUrl(String url) {
-        logger.debug("Callback {} removed", url);
+        LOGGER.debug("Callback {} removed", url);
         this.callBacks.remove(url);
     }
 
@@ -930,7 +930,7 @@ public class API {
         if (impl == null) {
             throw new IllegalArgumentException("Parameter impl must not be null.");
         }
-        logger.debug("All callbacks removed for {}", impl.getClass().getCanonicalName());
+        LOGGER.debug("All callbacks removed for {}", impl.getClass().getCanonicalName());
         this.callBacks.values().removeIf(impl::equals);
     }
 
@@ -1005,7 +1005,7 @@ public class API {
             HttpRequestHeader requestHeader = msg.getRequestHeader();
             return this.hasValidKey(requestHeader, getParams(requestHeader));
         } catch (ApiException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             return false;
         }
     }
@@ -1024,7 +1024,7 @@ public class API {
             try {
                 apiPath = reqHeader.getURI().getPath();
             } catch (URIException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 return false;
             }
             String nonceParam = reqHeader.getHeader(HttpHeader.X_ZAP_API_NONCE);
@@ -1035,7 +1035,7 @@ public class API {
             if (nonceParam != null) {
                 Nonce nonce = nonces.get(nonceParam);
                 if (nonce == null) {
-                    logger.warn(
+                    LOGGER.warn(
                             "API nonce {} not found in request from {}",
                             nonceParam,
                             reqHeader.getSenderAddress().getHostAddress());
@@ -1044,7 +1044,7 @@ public class API {
                     nonces.remove(nonceParam);
                 }
                 if (!nonce.isValid()) {
-                    logger.warn(
+                    LOGGER.warn(
                             "API nonce {} expired at {} in request from {}",
                             nonce.getNonceKey(),
                             nonce.getExpires(),
@@ -1053,7 +1053,7 @@ public class API {
                 }
 
                 if (!apiPath.equals(nonce.getApiPath())) {
-                    logger.warn(
+                    LOGGER.warn(
                             "API nonce path was {} but call was for {} in request from {}",
                             nonce.getApiPath(),
                             apiPath,
@@ -1066,7 +1066,7 @@ public class API {
                     keyParam = params.getString(API_KEY_PARAM);
                 }
                 if (!getOptionsParamApi().getKey().equals(keyParam)) {
-                    logger.warn(
+                    LOGGER.warn(
                             "API key incorrect or not supplied: {} in request from {}",
                             keyParam,
                             reqHeader.getSenderAddress().getHostAddress());
@@ -1156,7 +1156,7 @@ public class API {
             }
 
             if (logError) {
-                logger.error("API 'other' endpoint didn't handle exception:", cause);
+                LOGGER.error("API 'other' endpoint didn't handle exception:", cause);
             }
         } else {
             ApiException exception;
@@ -1168,7 +1168,7 @@ public class API {
                 }
             } else {
                 exception = new ApiException(ApiException.Type.INTERNAL_ERROR, cause);
-                logger.error("Exception while handling API request:", cause);
+                LOGGER.error("Exception while handling API request:", cause);
             }
             String response =
                     exception.toString(
@@ -1184,12 +1184,12 @@ public class API {
                     getDefaultResponseHeader(
                             responseStatus, contentType, msg.getResponseBody().length()));
         } catch (HttpMalformedHeaderException e) {
-            logger.warn("Failed to build API error response:", e);
+            LOGGER.warn("Failed to build API error response:", e);
         }
     }
 
     private static void logBadRequest(HttpMessage msg, Exception cause) {
-        logger.warn(
+        LOGGER.warn(
                 "Bad request to API endpoint [{}] from [{}]:",
                 msg.getRequestHeader().getURI().getEscapedPath(),
                 msg.getRequestHeader().getSenderAddress().getHostAddress(),

@@ -57,7 +57,7 @@ public class BreakpointsPanel extends AbstractPanel {
     private final Preferences preferences;
     private final String prefnzPrefix = this.getClass().getSimpleName() + ".";
 
-    private static Logger log = LogManager.getLogger(BreakpointsPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(BreakpointsPanel.class);
 
     public BreakpointsPanel(ExtensionBreak extension) {
         super();
@@ -241,7 +241,7 @@ public class BreakpointsPanel extends AbstractPanel {
                         }
                     });
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -267,7 +267,7 @@ public class BreakpointsPanel extends AbstractPanel {
                         }
                     });
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -289,13 +289,13 @@ public class BreakpointsPanel extends AbstractPanel {
                         }
                     });
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
     private void saveColumnWidth(String prefix, int width) {
         if (width > 0) {
-            log.debug(
+            LOGGER.debug(
                     "Saving preference {}{}.{}={}", prefnzPrefix, prefix, PREF_COLUMN_WIDTH, width);
             this.preferences.put(
                     prefnzPrefix + prefix + "." + PREF_COLUMN_WIDTH, Integer.toString(width));
@@ -303,7 +303,7 @@ public class BreakpointsPanel extends AbstractPanel {
             try {
                 this.preferences.flush();
             } catch (final BackingStoreException e) {
-                log.error("Error while saving the preferences", e);
+                LOGGER.error("Error while saving the preferences", e);
             }
         }
     }
@@ -321,7 +321,7 @@ public class BreakpointsPanel extends AbstractPanel {
             }
             if (width > 0) {
                 result = width;
-                log.debug(
+                LOGGER.debug(
                         "Restoring preference {}{}.{}={}",
                         prefnzPrefix,
                         prefix,
@@ -346,7 +346,8 @@ public class BreakpointsPanel extends AbstractPanel {
         public void propertyChange(PropertyChangeEvent evt) {
             TableColumn column = (TableColumn) evt.getSource();
             if (column != null) {
-                log.debug("{}{}.{}={}", prefnzPrefix, prefix, PREF_COLUMN_WIDTH, column.getWidth());
+                LOGGER.debug(
+                        "{}{}.{}={}", prefnzPrefix, prefix, PREF_COLUMN_WIDTH, column.getWidth());
                 saveColumnWidth(prefix, column.getWidth());
             }
         }

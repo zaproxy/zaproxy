@@ -62,7 +62,7 @@ import org.apache.logging.log4j.Logger;
 public abstract class PagingTableModel<T> extends AbstractTableModel {
     private static final long serialVersionUID = -6353414328926478100L;
 
-    private static final Logger logger = LogManager.getLogger(PagingTableModel.class);
+    private static final Logger LOGGER = LogManager.getLogger(PagingTableModel.class);
 
     /** Default segment loader thread name. */
     public static final String DEFAULT_SEGMENT_LOADER_THREAD_NAME =
@@ -418,7 +418,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
             try {
                 page = loadPage(segment.getBase(), segment.getLength());
             } catch (Exception e) {
-                logger.warn("error retrieving page at {}: aborting", segment.getBase(), e);
+                LOGGER.warn("error retrieving page at {}: aborting", segment.getBase(), e);
                 pending.remove(segment);
                 return;
             }

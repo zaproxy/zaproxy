@@ -99,7 +99,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private static final String FIELD_RECURSE = "ascan.custom.label.recurse";
     private static final String FIELD_ADVANCED = "ascan.custom.label.adv";
 
-    private static final Logger logger = LogManager.getLogger(CustomScanDialog.class);
+    private static final Logger LOGGER = LogManager.getLogger(CustomScanDialog.class);
     private static final long serialVersionUID = 1L;
 
     private JButton[] extraButtons = null;
@@ -167,7 +167,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             this.target = target;
         }
 
-        logger.debug("init {}", this.target);
+        LOGGER.debug("init {}", this.target);
 
         this.removeAllFields();
         this.injectionPointModel.clear();
@@ -179,7 +179,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             try {
                 scanPolicy = extension.getPolicyManager().getPolicy(scanPolicyName);
             } catch (ConfigurationException e) {
-                logger.warn("Failed to load scan policy ({}):", scanPolicyName, e);
+                LOGGER.warn("Failed to load scan policy ({}):", scanPolicyName, e);
             }
         }
 
@@ -299,7 +299,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             scanPolicyName = policyName;
         } catch (ConfigurationException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -572,7 +572,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                                     getRequestField().getCaret().setVisible(true);
 
                                 } catch (BadLocationException e1) {
-                                    logger.error(e1.getMessage(), e1);
+                                    LOGGER.error(e1.getMessage(), e1);
                                 }
                             }
                         }
@@ -859,7 +859,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                     }
 
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
 

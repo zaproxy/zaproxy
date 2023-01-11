@@ -52,6 +52,7 @@
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 // ZAP: 2022/04/11 Remove -nouseragent option.
 // ZAP: 2022/08/18 Support parameters supplied to newly installed or updated add-ons.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -73,7 +74,7 @@ import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 
 public class CommandLine {
 
-    private static final Logger logger = LogManager.getLogger(CommandLine.class);
+    private static final Logger LOGGER = LogManager.getLogger(CommandLine.class);
 
     // ZAP: Made public
     public static final String SESSION = "-session";
@@ -627,7 +628,7 @@ public class CommandLine {
             default: // Ignore
         }
         // Always write to the log
-        logger.info(str);
+        LOGGER.info(str);
     }
 
     /**
@@ -645,7 +646,7 @@ public class CommandLine {
             default: // Ignore
         }
         // Always write to the log
-        logger.error(str);
+        LOGGER.error(str);
     }
 
     /**
@@ -664,6 +665,6 @@ public class CommandLine {
             default: // Ignore
         }
         // Always write to the log
-        logger.error(str, e);
+        LOGGER.error(str, e);
     }
 }

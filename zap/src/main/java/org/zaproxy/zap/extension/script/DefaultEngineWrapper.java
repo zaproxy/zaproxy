@@ -35,7 +35,7 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
 
     private Map<String, String> templateMap = new HashMap<>();
 
-    private static Logger logger = LogManager.getLogger(DefaultEngineWrapper.class);
+    private static final Logger LOGGER = LogManager.getLogger(DefaultEngineWrapper.class);
 
     /**
      * Constructs a {@code DefaultEngineWrapper} with the given engine (to obtain a factory).
@@ -89,13 +89,13 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
 
         File file = new File(ExtensionScript.TEMPLATES_DIR, resourceName);
         if (!file.exists()) {
-            logger.debug("No template at: {}", file.getAbsolutePath());
+            LOGGER.debug("No template at: {}", file.getAbsolutePath());
             file =
                     new File(
                             Constant.getZapHome() + File.separator + ExtensionScript.TEMPLATES_DIR,
                             resourceName);
             if (!file.exists()) {
-                logger.debug("No template at: {}", file.getAbsolutePath());
+                LOGGER.debug("No template at: {}", file.getAbsolutePath());
                 return "";
             }
         }
@@ -110,7 +110,7 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
             return sb.toString();
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             return "";
         }
     }

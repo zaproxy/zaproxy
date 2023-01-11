@@ -43,7 +43,7 @@ import org.zaproxy.zap.view.panels.TableFilterPanel;
 public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = LogManager.getLogger(OptionsKeyboardShortcutPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(OptionsKeyboardShortcutPanel.class);
 
     private ExtensionKeyboard extension;
     private KeyboardOptionsPanel tkeyboardOptionsPanel;
@@ -195,7 +195,7 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
                 }
             }
             if (setShortcut) {
-                logger.debug(
+                LOGGER.debug(
                         "Setting keyboard shortcut for {} to {}",
                         ks.getIdentifier(),
                         ks.getKeyStroke());

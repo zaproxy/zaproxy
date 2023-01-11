@@ -33,7 +33,7 @@ public class PopupMenuShowAlert extends JMenuItem implements Comparable<PopupMen
     private final ExtensionAlert extension;
     private final Alert alert;
 
-    private static final Logger log = LogManager.getLogger(ExtensionPopupMenuItem.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionPopupMenuItem.class);
 
     public PopupMenuShowAlert(String name, ExtensionAlert extension, Alert alert) {
         super(name);
@@ -49,7 +49,7 @@ public class PopupMenuShowAlert extends JMenuItem implements Comparable<PopupMen
                             PopupMenuShowAlert.this.extension.showAlertEditDialog(
                                     PopupMenuShowAlert.this.alert);
                         } catch (Exception e2) {
-                            log.error(e2.getMessage(), e2);
+                            LOGGER.error(e2.getMessage(), e2);
                         }
                     }
                 });

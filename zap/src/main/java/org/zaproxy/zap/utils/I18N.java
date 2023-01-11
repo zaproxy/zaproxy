@@ -76,7 +76,7 @@ public class I18N {
      */
     private URLClassLoader langClassLoader;
 
-    private static final Logger logger = LogManager.getLogger(I18N.class);
+    private static final Logger LOGGER = LogManager.getLogger(I18N.class);
 
     public I18N(Locale locale) {
         langClassLoader = createLangClassLoader();
@@ -89,7 +89,7 @@ public class I18N {
             try {
                 return new URLClassLoader(new URL[] {langDir.toUri().toURL()});
             } catch (MalformedURLException e) {
-                logger.warn("Failed to convert path {}", langDir, e);
+                LOGGER.warn("Failed to convert path {}", langDir, e);
             }
         }
         return null;
@@ -106,9 +106,9 @@ public class I18N {
     }
 
     public void addMessageBundle(String prefix, ResourceBundle bundle) {
-        logger.debug("Adding message bundle with prefix: {}", prefix);
+        LOGGER.debug("Adding message bundle with prefix: {}", prefix);
         if (addonMessages.containsKey(prefix)) {
-            logger.error("Adding message bundle with duplicate prefix: {}", prefix);
+            LOGGER.error("Adding message bundle with duplicate prefix: {}", prefix);
         }
         addonMessages.put(prefix, bundle);
     }
@@ -116,11 +116,11 @@ public class I18N {
     public void removeMessageBundle(String prefix) {
         missingKeys.removeIf(k -> k.startsWith(prefix));
 
-        logger.debug("Removing message bundle with prefix: {}", prefix);
+        LOGGER.debug("Removing message bundle with prefix: {}", prefix);
         if (addonMessages.containsKey(prefix)) {
             addonMessages.remove(prefix);
         } else {
-            logger.debug("Message bundle not found, prefix: {}", prefix);
+            LOGGER.debug("Message bundle not found, prefix: {}", prefix);
         }
     }
 
@@ -153,7 +153,7 @@ public class I18N {
     }
 
     private String handleMissingResourceException(MissingResourceException e) {
-        logger.error("Failed to load a message:", e);
+        LOGGER.error("Failed to load a message:", e);
         String key = e.getKey();
         missingKeys.add(key);
         return missingKeyReplacement(key);
@@ -238,15 +238,15 @@ public class I18N {
         ResourceBundle fsRb = loadFsResourceBundle(rbc);
         if (fsRb != null) {
             this.stdMessages = fsRb;
-            logger.debug("Using file system Messages resource bundle.");
+            LOGGER.debug("Using file system Messages resource bundle.");
             try {
                 this.fallbackStdMessages = loadBundledResourceBundle(rbc);
             } catch (MissingResourceException e) {
-                logger.warn("Failed to find bundled Messages resource bundle.");
+                LOGGER.warn("Failed to find bundled Messages resource bundle.");
             }
         } else {
             this.stdMessages = loadBundledResourceBundle(rbc);
-            logger.debug("Using bundled Messages resource bundle.");
+            LOGGER.debug("Using bundled Messages resource bundle.");
         }
     }
 
@@ -259,7 +259,7 @@ public class I18N {
         try {
             return loadResourceBundle(Constant.MESSAGES_PREFIX, langClassLoader, rbc);
         } catch (MissingResourceException e) {
-            logger.debug("Failed to load file system Messages resource bundle.", e);
+            LOGGER.debug("Failed to load file system Messages resource bundle.", e);
         }
         return null;
     }

@@ -41,6 +41,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/26 Remove deprecated methods in 2.5.0
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -229,7 +230,7 @@ public class WorkbenchPanel extends JPanel {
 
     private static final long serialVersionUID = -4610792807151921550L;
 
-    private static final Logger logger = LogManager.getLogger(WorkbenchPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(WorkbenchPanel.class);
 
     private static final String PREF_DIVIDER_LOCATION = "divider.location";
     private static final String DIVIDER_VERTICAL = "vertical";
@@ -1286,7 +1287,7 @@ public class WorkbenchPanel extends JPanel {
      */
     private void saveDividerLocation(String prefix, int location) {
         if (location > 0) {
-            logger.debug(
+            LOGGER.debug(
                     "Saving preference {}{}.{}={}",
                     prefnzPrefix,
                     prefix,
@@ -1299,7 +1300,7 @@ public class WorkbenchPanel extends JPanel {
             try {
                 this.preferences.flush();
             } catch (final BackingStoreException e) {
-                logger.error("Error while saving the preferences", e);
+                LOGGER.error("Error while saving the preferences", e);
             }
         }
     }
@@ -1322,7 +1323,7 @@ public class WorkbenchPanel extends JPanel {
             }
             if (location > 0) {
                 result = location;
-                logger.debug(
+                LOGGER.debug(
                         "Restoring preference {}{}.{}={}",
                         prefnzPrefix,
                         prefix,
@@ -1351,7 +1352,7 @@ public class WorkbenchPanel extends JPanel {
         public void propertyChange(PropertyChangeEvent evt) {
             JSplitPane component = (JSplitPane) evt.getSource();
             if (component != null) {
-                logger.debug(
+                LOGGER.debug(
                         "{}{}.location={}", prefnzPrefix, prefix, component.getDividerLocation());
                 saveDividerLocation(prefix, component.getDividerLocation());
             }

@@ -43,7 +43,7 @@ import org.zaproxy.zap.users.User;
 @SuppressWarnings("serial")
 public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFactory {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
             LogManager.getLogger(PopupMenuFactoryAddUserFromSession.class);
 
     private static final long serialVersionUID = 2453839120088204122L;
@@ -253,7 +253,7 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
 
             HttpSessionsPanel panel = extension.getHttpSessionsPanel();
             HttpSession session = panel.getSelectedSession();
-            log.info(
+            LOGGER.info(
                     "Creating user from HttpSession {} for Context {}",
                     session.getName(),
                     uiSharedContext.getName());
@@ -264,7 +264,7 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
             // First make sure the authentication method is Manual Authentication
             if (!(uiSharedContext.getAuthenticationMethod()
                     instanceof ManualAuthenticationMethod)) {
-                log.info(
+                LOGGER.info(
                         "Creating new Manual Authentication instance for Context {}",
                         uiSharedContext.getName());
                 ManualAuthenticationMethod method =
@@ -272,7 +272,7 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
                                 .createAuthenticationMethod(context.getId());
 
                 if (!confirmUsersDeletion(uiSharedContext)) {
-                    log.debug("Cancelled change of authentication type.");
+                    LOGGER.debug("Cancelled change of authentication type.");
                     return;
                 }
 
@@ -283,10 +283,10 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
 
             newUser = showAddUserDialogue(uiSharedContext, session);
             if (newUser == null) {
-                log.debug("Cancelled creation of user from HttpSession.");
+                LOGGER.debug("Cancelled creation of user from HttpSession.");
                 return;
             }
-            log.info("Created user: {}", newUser);
+            LOGGER.info("Created user: {}", newUser);
 
             // Show the session dialog without recreating UI Shared contexts
             // NOTE: First init the panels of the dialog so old users data gets loaded and just then

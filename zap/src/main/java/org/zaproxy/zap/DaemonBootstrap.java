@@ -34,7 +34,7 @@ import org.parosproxy.paros.view.View;
  */
 class DaemonBootstrap extends HeadlessBootstrap {
 
-    private final Logger logger = LogManager.getLogger(DaemonBootstrap.class);
+    private static final Logger LOGGER = LogManager.getLogger(DaemonBootstrap.class);
 
     public DaemonBootstrap(CommandLine cmdLineArgs) {
         super(cmdLineArgs);
@@ -49,7 +49,7 @@ class DaemonBootstrap extends HeadlessBootstrap {
 
         View.setDaemon(true); // Prevents the View ever being initialised
 
-        logger.info(getStartingMessage());
+        LOGGER.info(getStartingMessage());
 
         try {
             initModel();
@@ -59,7 +59,7 @@ class DaemonBootstrap extends HeadlessBootstrap {
                 System.out.println(e.getLocalizedMessage());
             }
 
-            logger.fatal(e.getMessage(), e);
+            LOGGER.fatal(e.getMessage(), e);
             return 1;
         }
 
@@ -92,10 +92,10 @@ class DaemonBootstrap extends HeadlessBootstrap {
                                     control.runCommandLine();
                                 } catch (ShutdownRequestedException e) {
                                     control.shutdown(false);
-                                    logger.info("{} terminated.", Constant.PROGRAM_TITLE);
+                                    LOGGER.info("{} terminated.", Constant.PROGRAM_TITLE);
                                     return;
                                 } catch (Exception e) {
-                                    logger.error(e.getMessage(), e);
+                                    LOGGER.error(e.getMessage(), e);
                                 }
 
                                 // This is the only non-daemon thread, so should keep running
@@ -119,6 +119,6 @@ class DaemonBootstrap extends HeadlessBootstrap {
 
     @Override
     protected Logger getLogger() {
-        return logger;
+        return LOGGER;
     }
 }

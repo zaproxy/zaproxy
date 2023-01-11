@@ -100,6 +100,7 @@
 // ZAP: 2022/06/12 Deprecate getResendDialog().
 // ZAP: 2022/06/27 Make delete more consistent and protective (Issue 7336).
 // ZAP: 2022/09/14 Address deprecation warnings.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -188,7 +189,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      */
     private boolean sessionChanging;
 
-    private Logger logger = LogManager.getLogger(ExtensionHistory.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionHistory.class);
 
     public ExtensionHistory() {
         super(NAME);
@@ -383,7 +384,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         try {
             this.addHistory(new HistoryReference(Model.getSingleton().getSession(), type, msg));
         } catch (final Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -425,7 +426,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                 }
             }
         } catch (final Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -475,7 +476,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
                 buildHistory(list, historyFilter);
             } catch (DatabaseException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -521,7 +522,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                     historyTableModel.addHistoryReference(historyRef);
 
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
             if (hasView()) {
@@ -543,7 +544,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         try {
             dialog.setAllTags(getModel().getDb().getTableTag().getAllTags());
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         int exit = dialog.showDialog();
@@ -677,7 +678,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         try {
             manageTags.setAllTags(getModel().getDb().getTableTag().getAllTags());
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         manageTags.setTags(tags);
         manageTags.setHistoryRef(ref);
@@ -720,7 +721,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                         });
             } catch (Exception e) {
                 // ZAP: Added logging.
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -751,7 +752,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                     child = (SiteNode) node.getChildAt(0);
                     purge(map, child);
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
 
@@ -967,7 +968,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                             | HttpMalformedHeaderException
                             | NullPointerException
                             | DatabaseException e) {
-                        logger.error("Failed to create temporary node:", e);
+                        LOGGER.error("Failed to create temporary node:", e);
                     }
                 }
             }

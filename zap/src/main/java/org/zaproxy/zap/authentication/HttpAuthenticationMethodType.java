@@ -71,7 +71,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
     public static final String CONTEXT_CONFIG_AUTH_HTTP_REALM = CONTEXT_CONFIG_AUTH_HTTP + ".realm";
     public static final String CONTEXT_CONFIG_AUTH_HTTP_PORT = CONTEXT_CONFIG_AUTH_HTTP + ".port";
 
-    private static final Logger log = LogManager.getLogger(HttpAuthenticationMethodType.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpAuthenticationMethodType.class);
 
     /** The unique identifier of the method. */
     private static final int METHOD_IDENTIFIER = 3;
@@ -174,7 +174,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
                 session.getHttpState().setCredentials(stateAuthScope, stateCredentials);
             } catch (UnknownHostException e1) {
                 user.getAuthenticationState().setLastAuthFailure(e1.getMessage());
-                log.error(e1.getMessage(), e1);
+                LOGGER.error(e1.getMessage(), e1);
             }
             user.getAuthenticationState().setLastAuthFailure("");
             return session;
@@ -342,7 +342,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
             try {
                 method.port = Integer.parseInt(ports.get(0));
             } catch (Exception ex) {
-                log.error("Unable to load HttpAuthenticationMethod. ", ex);
+                LOGGER.error("Unable to load HttpAuthenticationMethod. ", ex);
             }
         }
 

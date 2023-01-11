@@ -51,7 +51,7 @@ public class SessionStructure {
     private static final String MULTIPART_FORM_DATA = "multipart/form-data";
     private static final String MULTIPART_FORM_DATA_DISPLAY = "(" + MULTIPART_FORM_DATA + ")";
 
-    private static final Logger log = LogManager.getLogger(SessionStructure.class);
+    private static final Logger LOGGER = LogManager.getLogger(SessionStructure.class);
 
     /**
      * Adds the message to the Sites tree
@@ -131,7 +131,7 @@ public class SessionStructure {
                     return null;
                 }
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 return null;
             }
         }
@@ -150,7 +150,7 @@ public class SessionStructure {
                     return path;
                 }
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
         URI uri = msg.getRequestHeader().getURI();
@@ -324,7 +324,7 @@ public class SessionStructure {
                     return name;
                 }
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
 
@@ -642,7 +642,7 @@ public class SessionStructure {
 
             return newMsg;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return null;
     }
@@ -729,7 +729,7 @@ public class SessionStructure {
                 return new StructuralTableNode(rs);
             }
         } catch (DatabaseException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return null;
     }

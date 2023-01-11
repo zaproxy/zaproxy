@@ -41,7 +41,7 @@ public class PolicyManager {
     private List<String> allPolicyNames = null;
     private ExtensionActiveScan extension;
 
-    private static final Logger logger = LogManager.getLogger(PolicyManager.class);
+    private static final Logger LOGGER = LogManager.getLogger(PolicyManager.class);
 
     public PolicyManager(ExtensionActiveScan extension) {
         this.extension = extension;
@@ -59,7 +59,7 @@ public class PolicyManager {
             if (files != null) {
                 for (String file : files) {
                     if (file.endsWith(POLICY_EXTENSION)) {
-                        logger.debug("Found policy file {}", file);
+                        LOGGER.debug("Found policy file {}", file);
                         allPolicyNames.add(file.substring(0, file.lastIndexOf(POLICY_EXTENSION)));
                     }
                 }
@@ -76,7 +76,7 @@ public class PolicyManager {
                     // Note this will add the name to allPolicyNames
                     this.savePolicy(defaultPolicy);
                 } catch (ConfigurationException e) {
-                    logger.debug(
+                    LOGGER.debug(
                             "Failed to create default scan policy in {}",
                             Constant.getPoliciesDir().getAbsolutePath(),
                             e);
@@ -93,7 +93,7 @@ public class PolicyManager {
     }
 
     public void savePolicy(ScanPolicy policy, String previousName) throws ConfigurationException {
-        logger.debug("Save policy {}", policy.getName());
+        LOGGER.debug("Save policy {}", policy.getName());
 
         File file = new File(Constant.getPoliciesDir(), policy.getName() + POLICY_EXTENSION);
 
@@ -167,7 +167,7 @@ public class PolicyManager {
     }
 
     public void importPolicy(File file) throws ConfigurationException, IOException {
-        logger.debug("Import policy from {}", file.getAbsolutePath());
+        LOGGER.debug("Import policy from {}", file.getAbsolutePath());
         ScanPolicy policy = new ScanPolicy(new ZapXmlConfiguration(file));
         String baseName = file.getName();
         if (baseName.endsWith(POLICY_EXTENSION)) {
@@ -188,7 +188,7 @@ public class PolicyManager {
     }
 
     public void exportPolicy(ScanPolicy policy, File file) throws ConfigurationException {
-        logger.debug("Export policy to {}", file.getAbsolutePath());
+        LOGGER.debug("Export policy to {}", file.getAbsolutePath());
         ZapXmlConfiguration conf = new ZapXmlConfiguration();
         conf.setProperty("policy", policy.getName());
         conf.setProperty("scanner.level", policy.getDefaultThreshold().name());
@@ -202,7 +202,7 @@ public class PolicyManager {
     }
 
     public void deletePolicy(String name) {
-        logger.debug("Delete policy {}", name);
+        LOGGER.debug("Delete policy {}", name);
         File file = new File(Constant.getPoliciesDir(), name + POLICY_EXTENSION);
         if (file.exists()) {
             file.delete();
@@ -214,26 +214,26 @@ public class PolicyManager {
         try {
             String policyName = extension.getScannerParam().getDefaultPolicy();
             if (policyExists(policyName)) {
-                logger.debug("getDefaultScanPolicy: {}", policyName);
+                LOGGER.debug("getDefaultScanPolicy: {}", policyName);
                 return this.loadPolicy(policyName);
             }
             // No good, try the default name
             policyName = DEFAULT_POLICY_NAME;
             if (policyExists(policyName)) {
-                logger.debug("getDefaultScanPolicy (default name): {}", policyName);
+                LOGGER.debug("getDefaultScanPolicy (default name): {}", policyName);
                 return this.loadPolicy(policyName);
             }
             if (this.allPolicyNames.size() > 0) {
                 // Still no joy, try the first
-                logger.debug("getDefaultScanPolicy (first one): {}", policyName);
+                LOGGER.debug("getDefaultScanPolicy (first one): {}", policyName);
                 return this.loadPolicy(this.allPolicyNames.get(0));
             }
 
         } catch (ConfigurationException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         // Return a new 'blank' one
-        logger.debug("getDefaultScanPolicy (new blank)");
+        LOGGER.debug("getDefaultScanPolicy (new blank)");
         return new ScanPolicy();
     }
 
@@ -253,7 +253,7 @@ public class PolicyManager {
                 return this.loadPolicy(this.allPolicyNames.get(0));
             }
         } catch (ConfigurationException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         // Return a new 'blank' one
         return new ScanPolicy();

@@ -35,7 +35,7 @@ import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
 /** Helper for Cookie-based session management. */
 public class CookieBasedSessionManagementHelper {
 
-    private static final Logger log =
+    private static final Logger LOGGER =
             LogManager.getLogger(CookieBasedSessionManagementHelper.class);
 
     /**
@@ -77,7 +77,7 @@ public class CookieBasedSessionManagementHelper {
             // If the cookie is a token
             if (tokensSet.isSessionToken(cookieName)) {
                 String tokenValue = session.getTokenValue(cookieName);
-                log.debug("Changing value of token '{}' to: {}", cookieName, tokenValue);
+                LOGGER.debug("Changing value of token '{}' to: {}", cookieName, tokenValue);
 
                 // Change it's value to the one in the active session, if any
                 if (tokenValue != null) {
@@ -99,7 +99,7 @@ public class CookieBasedSessionManagementHelper {
             String tokenValue = session.getTokenValue(token);
             // Change it's value to the one in the active session, if any
             if (tokenValue != null) {
-                log.debug("Adding token '{}' with value: {}", token, tokenValue);
+                LOGGER.debug("Adding token '{}' with value: {}", token, tokenValue);
                 HttpCookie cookie = new HttpCookie(token, tokenValue);
                 requestCookies.add(cookie);
             }
@@ -153,7 +153,8 @@ public class CookieBasedSessionManagementHelper {
         // Return the matching session
         if (matchingSessions.size() >= 1) {
             if (matchingSessions.size() > 1) {
-                log.warn("Multiple sessions matching the cookies from response. Using first one.");
+                LOGGER.warn(
+                        "Multiple sessions matching the cookies from response. Using first one.");
             }
             return matchingSessions.get(0);
         }

@@ -236,7 +236,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
         /** The Constant serialVersionUID. */
         private static final long serialVersionUID = -8081914793980311435L;
 
-        private static final Logger log =
+        private static final Logger LOGGER =
                 LogManager.getLogger(ManualAuthenticationCredentialsOptionsPanel.class);
         private JComboBox<HttpSession> sessionsComboBox;
         private Context uiSharedContext;
@@ -294,7 +294,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
                                 .getExtension(ExtensionHttpSessions.class);
                 List<HttpSession> sessions =
                         extensionHttpSessions.getHttpSessionsForContext(uiSharedContext);
-                log.debug("Found sessions for Manual Authentication Config: {}", sessions);
+                LOGGER.debug("Found sessions for Manual Authentication Config: {}", sessions);
                 sessionsComboBox =
                         new JComboBox<>(sessions.toArray(new HttpSession[sessions.size()]));
                 sessionsComboBox.setSelectedItem(this.getCredentials().getSelectedSession());
@@ -310,7 +310,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
         @Override
         public void saveCredentials() {
-            log.info(
+            LOGGER.info(
                     "Saving Manual Authentication Method: {}",
                     getSessionsComboBox().getSelectedItem());
             getCredentials()

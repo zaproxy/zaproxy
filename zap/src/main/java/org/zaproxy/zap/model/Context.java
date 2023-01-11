@@ -71,7 +71,7 @@ public class Context {
             CONTEXT_CONFIG_POSTPARSER + ".config";
     public static final String CONTEXT_CONFIG_DATA_DRIVEN_NODES = CONTEXT_CONFIG + ".ddns";
 
-    private static Logger log = LogManager.getLogger(Context.class);
+    private static final Logger LOGGER = LogManager.getLogger(Context.class);
 
     private Session session;
     private int id;
@@ -193,7 +193,7 @@ public class Context {
         try {
             return this.isInContext(href.getURI().toString());
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return false;
     }
@@ -598,13 +598,13 @@ public class Context {
                             }
                         });
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
 
     private void restructureSiteTreeEventHandler() {
-        log.debug("Restructure site tree for context: {}", this.getName());
+        LOGGER.debug("Restructure site tree for context: {}", this.getName());
         List<SiteNode> nodes = this.getTopNodesInContextFromSiteTree();
         for (SiteNode sn : nodes) {
             checkNode(sn);
@@ -654,7 +654,7 @@ public class Context {
                 // log.debug("Didn't need to move " + sn.getHierarchicNodeName());	// Useful for
                 // debugging
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
         return false;
@@ -687,7 +687,8 @@ public class Context {
 
         // Add into the right place
         SiteNode sn2 = sitesTree.addPath(sn.getHistoryReference());
-        log.debug("Moved node {} to {}", sn.getHierarchicNodeName(), sn2.getHierarchicNodeName());
+        LOGGER.debug(
+                "Moved node {} to {}", sn.getHierarchicNodeName(), sn2.getHierarchicNodeName());
 
         // And sort out the alerts
         for (Alert alert : alerts) {
@@ -696,7 +697,7 @@ public class Context {
     }
 
     private void deleteNode(SiteMap sitesTree, SiteNode sn) {
-        log.debug("Deleting node {}", sn.getHierarchicNodeName());
+        LOGGER.debug("Deleting node {}", sn.getHierarchicNodeName());
         sn.deleteAlerts(sn.getAlerts());
 
         // Remove old one

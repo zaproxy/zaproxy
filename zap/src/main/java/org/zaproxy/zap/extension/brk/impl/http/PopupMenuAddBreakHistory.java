@@ -34,7 +34,7 @@ public class PopupMenuAddBreakHistory extends PopupMenuItemHistoryReferenceConta
 
     private static final long serialVersionUID = -1984801437717248474L;
 
-    private static final Logger logger = LogManager.getLogger(PopupMenuAddBreakHistory.class);
+    private static final Logger LOGGER = LogManager.getLogger(PopupMenuAddBreakHistory.class);
 
     private final ExtensionBreak extension;
 
@@ -54,7 +54,7 @@ public class PopupMenuAddBreakHistory extends PopupMenuItemHistoryReferenceConta
         try {
             extension.addUiBreakpoint(href.getHttpMessage());
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             extension
                     .getView()
                     .showWarningDialog(Constant.messages.getString("brk.add.error.history"));

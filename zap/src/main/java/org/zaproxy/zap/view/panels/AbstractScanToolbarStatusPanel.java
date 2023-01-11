@@ -65,7 +65,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
         implements ScanListener {
 
     private static final long serialVersionUID = -2351280081989616482L;
-    private static final Logger log = LogManager.getLogger(AbstractScanToolbarStatusPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractScanToolbarStatusPanel.class);
 
     /**
      * Location provided to {@link #addToolBarElements(JToolBar, short, int)} to add items after the
@@ -313,7 +313,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
      * @param context the context whose scan should be paused
      */
     protected void pauseScan(Context context) {
-        log.debug("Access Control pause on Context: {}", context);
+        LOGGER.debug("Access Control pause on Context: {}", context);
         threadManager.getScannerThread(context.getId()).pauseScan();
     }
 
@@ -325,7 +325,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
      * @param context the context whose scan should be resumed
      */
     protected void resumeScan(Context context) {
-        log.debug("Access Control resume on Context: {}", context);
+        LOGGER.debug("Access Control resume on Context: {}", context);
         threadManager.getScannerThread(context.getId()).resumeScan();
     }
 
@@ -337,7 +337,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
      * @param context the context whose scan should be stopped
      */
     protected void stopScan(Context context) {
-        log.debug("Access Control stop on Context: {}", context);
+        LOGGER.debug("Access Control stop on Context: {}", context);
         threadManager.getScannerThread(context.getId()).stopScan();
     }
 
@@ -395,7 +395,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
                 new Runnable() {
                     @Override
                     public void run() {
-                        log.debug("ScanStarted {} on context {}", panelPrefix, contextId);
+                        LOGGER.debug("ScanStarted {} on context {}", panelPrefix, contextId);
                         if (getSelectedContext() != null
                                 && contextId == getSelectedContext().getId()) {
                             setScanButtonsAndProgressBarStates(true, false, false);
@@ -407,7 +407,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
         try {
             ThreadUtils.invokeAndWait(handler);
         } catch (InvocationTargetException | InterruptedException e) {
-            log.error("Error while starting scan: {}", e.getMessage(), e);
+            LOGGER.error("Error while starting scan: {}", e.getMessage(), e);
         }
     }
 
@@ -417,7 +417,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
                 new Runnable() {
                     @Override
                     public void run() {
-                        log.debug("ScanFinished {} on context {}", panelPrefix, contextId);
+                        LOGGER.debug("ScanFinished {} on context {}", panelPrefix, contextId);
                         if (getSelectedContext() != null
                                 && contextId == getSelectedContext().getId()) {
                             setScanButtonsAndProgressBarStates(false, false, true);
@@ -428,7 +428,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
         try {
             ThreadUtils.invokeAndWait(handler);
         } catch (InvocationTargetException | InterruptedException e) {
-            log.error("Error while finishing scan: {}", e.getMessage(), e);
+            LOGGER.error("Error while finishing scan: {}", e.getMessage(), e);
         }
     }
 
@@ -438,7 +438,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
                 new Runnable() {
                     @Override
                     public void run() {
-                        log.debug(
+                        LOGGER.debug(
                                 "scanProgress {} on context {} {}",
                                 panelPrefix,
                                 contextId,
@@ -454,7 +454,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
         try {
             ThreadUtils.invokeAndWait(handler);
         } catch (InvocationTargetException | InterruptedException e) {
-            log.error("Error while updating progress: {}", e.getMessage(), e);
+            LOGGER.error("Error while updating progress: {}", e.getMessage(), e);
         }
     }
 

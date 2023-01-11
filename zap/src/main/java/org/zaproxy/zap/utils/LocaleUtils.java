@@ -40,7 +40,7 @@ import org.zaproxy.zap.view.ViewLocale;
 
 public final class LocaleUtils {
 
-    private static final Logger logger = LogManager.getLogger(LocaleUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(LocaleUtils.class);
 
     private static final String MESSAGES_BASE_FILENAME = Constant.MESSAGES_PREFIX + "_";
 
@@ -401,7 +401,7 @@ public final class LocaleUtils {
     private static List<String> readAvailableLocales() {
         File dir = new File(Constant.getZapInstall(), Constant.LANG_DIR);
         if (!dir.exists()) {
-            logger.debug(
+            LOGGER.debug(
                     "Skipping read of available locales, the directory does not exist: {}",
                     dir.getAbsolutePath());
             return new ArrayList<>(0);
@@ -411,7 +411,7 @@ public final class LocaleUtils {
         String[] files = dir.list(filter);
 
         if (files == null || files.length == 0) {
-            logger.warn("No Messages files in directory {}", dir.getAbsolutePath());
+            LOGGER.warn("No Messages files in directory {}", dir.getAbsolutePath());
             return new ArrayList<>(0);
         }
 

@@ -30,7 +30,7 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewMo
 
 public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelViewModel {
 
-    private static final Logger logger = LogManager.getLogger(RequestByteHttpPanelViewModel.class);
+    private static final Logger LOGGER = LogManager.getLogger(RequestByteHttpPanelViewModel.class);
 
     @Override
     public byte[] getData() {
@@ -58,8 +58,8 @@ public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelView
         int pos = HttpPanelViewModelUtils.findHeaderLimit(data);
 
         if (pos == -1) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Could not Save Header, limit not found. Header: {}", new String(data));
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Could not Save Header, limit not found. Header: {}", new String(data));
             }
             throw new InvalidMessageDataException(
                     Constant.messages.getString("http.panel.model.header.warn.notfound"));
@@ -68,8 +68,8 @@ public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelView
         try {
             httpMessage.setRequestHeader(new String(data, 0, pos));
         } catch (HttpMalformedHeaderException e) {
-            if (logger.isWarnEnabled()) {
-                logger.warn("Could not Save Header: {}", new String(data, 0, pos), e);
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Could not Save Header: {}", new String(data, 0, pos), e);
             }
             throw new InvalidMessageDataException(
                     Constant.messages.getString("http.panel.model.header.warn.malformed"), e);

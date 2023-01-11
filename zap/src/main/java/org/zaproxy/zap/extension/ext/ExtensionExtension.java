@@ -23,8 +23,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.CommandLineArgument;
@@ -37,8 +35,6 @@ public class ExtensionExtension extends ExtensionAdaptor implements CommandLineL
     public static final String NAME = "ExtensionExtension";
 
     private OptionsExtensionPanel optionsExceptionsPanel = null;
-
-    private Logger logger = LogManager.getLogger(ExtensionExtension.class);
 
     public ExtensionExtension() {
         super();

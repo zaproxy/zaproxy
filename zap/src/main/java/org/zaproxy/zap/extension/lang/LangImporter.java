@@ -39,7 +39,7 @@ import org.zaproxy.zap.utils.LocaleUtils;
 
 public final class LangImporter {
 
-    private static final Logger logger = LogManager.getLogger(LangImporter.class);
+    private static final Logger LOGGER = LogManager.getLogger(LangImporter.class);
 
     private static final String MSG_SUCCESS = "options.lang.importer.dialog.message.success";
     private static final String MSG_ERROR = "options.lang.importer.dialog.message.error";
@@ -92,7 +92,7 @@ public final class LangImporter {
 
         } catch (IOException e) {
             message = MSG_FILE_NOT_FOUND;
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         if (View.isInitialised()) {

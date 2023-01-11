@@ -51,7 +51,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
         implements OnContextsChangedListener {
 
     private static final long serialVersionUID = 7164298579345445108L;
-    private static final Logger log =
+    private static final Logger LOGGER =
             LogManager.getLogger(AbstractContextSelectToolbarStatusPanel.class);
 
     /**
@@ -229,7 +229,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
      * @param context the context that was selected
      */
     protected void contextSelected(Context context) {
-        log.debug("Selected new context: {}", context);
+        LOGGER.debug("Selected new context: {}", context);
         switchViewForContext(context);
     }
 
@@ -244,20 +244,20 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 
     @Override
     public void contextAdded(Context context) {
-        log.debug("Context added...");
+        LOGGER.debug("Context added...");
         contextSelectBox.reloadContexts(true);
     }
 
     @Override
     public void contextDeleted(Context context) {
-        log.debug("Context deleted...");
+        LOGGER.debug("Context deleted...");
         contextSelectBox.reloadContexts(false);
         contextSelectBox.setSelectedIndex(-1);
     }
 
     @Override
     public void contextsChanged() {
-        log.debug("Contexts changed...");
+        LOGGER.debug("Contexts changed...");
         contextSelectBox.reloadContexts(false);
         contextSelectBox.setSelectedIndex(-1);
     }

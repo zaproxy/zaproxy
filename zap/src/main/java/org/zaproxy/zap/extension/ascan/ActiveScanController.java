@@ -45,7 +45,7 @@ import org.zaproxy.zap.users.User;
 public class ActiveScanController implements ScanController<ActiveScan> {
 
     private ExtensionActiveScan extension;
-    private static final Logger logger = LogManager.getLogger(ActiveScanController.class);
+    private static final Logger LOGGER = LogManager.getLogger(ActiveScanController.class);
 
     private ExtensionAlert extAlert = null;
 
@@ -142,11 +142,11 @@ public class ActiveScanController implements ScanController<ActiveScan> {
             if (contextSpecificObjects != null) {
                 for (Object obj : contextSpecificObjects) {
                     if (obj instanceof ScannerParam) {
-                        logger.debug("Setting custom scanner params");
+                        LOGGER.debug("Setting custom scanner params");
                         ascan.setScannerParam((ScannerParam) obj);
                     } else if (obj instanceof ScanPolicy) {
                         policy = (ScanPolicy) obj;
-                        logger.debug("Setting custom policy {}", policy.getName());
+                        LOGGER.debug("Setting custom policy {}", policy.getName());
                         ascan.setScanPolicy(policy);
                     } else if (obj instanceof TechSet) {
                         ascan.setTechSet((TechSet) obj);
@@ -156,7 +156,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
                     } else if (obj instanceof ScanFilter) {
                         ascan.addScanFilter((ScanFilter) obj);
                     } else {
-                        logger.error(
+                        LOGGER.error(
                                 "Unexpected contextSpecificObject: {}",
                                 obj.getClass().getCanonicalName());
                     }
@@ -165,7 +165,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
             if (policy == null) {
                 // use the default
                 policy = extension.getPolicyManager().getDefaultScanPolicy();
-                logger.debug("Setting default policy {}", policy.getName());
+                LOGGER.debug("Setting default policy {}", policy.getName());
                 ascan.setScanPolicy(policy);
             }
 
