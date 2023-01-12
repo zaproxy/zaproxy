@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2020 The ZAP Development Team
+ * Copyright 2023 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,13 +27,13 @@ import static org.mockito.Mockito.mock;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -62,13 +62,9 @@ public class ScriptParamUnitTest {
     }
 
     @Test
-    void shouldMigrateOldOptions() throws IOException {
+    void shouldMigrateOldOptions(@TempDir File dir1, @TempDir File dir2) throws IOException {
         // Given
-        File dir1 = Files.createTempDirectory("zapUnitTest").toFile();
-        File dir2 = Files.createTempDirectory("zapUnitTest").toFile();
-        List<File> dirs = new ArrayList<>();
-        dirs.add(dir1);
-        dirs.add(dir2);
+        List<File> dirs = Arrays.asList(dir1, dir2);
 
         configuration.setProperty("confRemdir", true);
         configuration.setProperty("dirs", new String[] {dir1.toString(), dir2.toString()});
@@ -79,9 +75,5 @@ public class ScriptParamUnitTest {
         assertThat(param.getScriptDirs(), is(equalTo(dirs)));
         assertNull(configuration.getProperty("dirs"));
         assertNull(configuration.getProperty("confRemdir"));
-
-        // Cleanup
-        dir1.delete();
-        dir2.delete();
     }
 }
