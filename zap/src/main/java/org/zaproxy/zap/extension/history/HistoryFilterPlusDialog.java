@@ -74,7 +74,10 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
     private JList<String> confidenceList = null;
     private JList<String> tagList = null;
     private JTextArea regexInc = null;
+    private JList<String> regexSamples = null;
     private JTextArea regexExc = null;
+    private JButton btnRegxInc = null;
+    private JButton btnRegxExc = null;
 
     private DefaultListModel<String> tagModel = null;
 
@@ -85,6 +88,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
     private JScrollPane confidenceScroller = null;
     private JComboBox<String> notesComboBox = null;
     private JScrollPane urlRegxIncScroller = null;
+    private JScrollPane urlRegxSamples = null;
     private JScrollPane urlRegxExcScroller = null;
 
     /**
@@ -120,12 +124,14 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
         this.setContentPane(getJPanel());
         this.setVisible(false);
         this.setTitle(Constant.messages.getString("history.filter.title"));
+
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
             this.setSize(600, 300);
         }
+
         centreDialog();
         this.getRootPane().setDefaultButton(btnApply);
-        this.setMinimumSize(new Dimension(1000,600));
+        this.setMinimumSize(new Dimension(1000, 600));
         this.pack();
     }
 
@@ -320,6 +326,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
             GridBagConstraints gbc02 = LayoutHelper.getGBC(2, 0, 1, 1.0, stdInset());
             GridBagConstraints gbc03 = LayoutHelper.getGBC(3, 0, 1, 1.0, stdInset());
             GridBagConstraints gbc04 = LayoutHelper.getGBC(4, 0, 1, 1.0, stdInset());
+            GridBagConstraints gbc06 = LayoutHelper.getGBC(6, 0, 1, 1.0, stdInset());
 
             GridBagConstraints gbc10 =
                     LayoutHelper.getGBC(
@@ -377,6 +384,30 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
                             GridBagConstraints.NORTHWEST,
                             stdInset());
 
+            GridBagConstraints gbc15 =
+                    LayoutHelper.getGBC(
+                            5,
+                            1,
+                            1,
+                            1,
+                            1.0,
+                            1.0,
+                            GridBagConstraints.BOTH,
+                            GridBagConstraints.NORTHWEST,
+                            stdInset());
+
+            GridBagConstraints gbc16 =
+                    LayoutHelper.getGBC(
+                            6,
+                            1,
+                            1,
+                            3,
+                            1.0,
+                            1.0,
+                            GridBagConstraints.BOTH,
+                            GridBagConstraints.NORTHWEST,
+                            stdInset());
+
             GridBagConstraints gbc24 =
                     LayoutHelper.getGBC(
                             4,
@@ -400,19 +431,30 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
                             GridBagConstraints.BOTH,
                             GridBagConstraints.NORTHWEST,
                             stdInset());
+
             GridBagConstraints gbc34 =
                     LayoutHelper.getGBC(
                             4,
                             3,
                             1,
                             1,
-                            0.0,
-                            0.0,
+                            1.0,
+                            1.0,
                             GridBagConstraints.BOTH,
                             GridBagConstraints.NORTHWEST,
                             stdInset());
 
-            GridBagConstraints gbc30 = LayoutHelper.getGBC(0, 4, 2, 1.0, stdInset());
+            GridBagConstraints gbc35 =
+                    LayoutHelper.getGBC(
+                            5,
+                            3,
+                            1,
+                            1,
+                            1.0,
+                            1.0,
+                            GridBagConstraints.BOTH,
+                            GridBagConstraints.NORTHWEST,
+                            stdInset());
 
             jPanel2.add(
                     new JLabel(Constant.messages.getString("history.filter.label.methods")), gbc00);
@@ -425,12 +467,15 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
             jPanel2.add(
                     new JLabel(Constant.messages.getString("history.filter.label.urlincregex")),
                     gbc04);
+            jPanel2.add(new JLabel("Sample regexps:"), gbc06);
 
             jPanel2.add(getMethodScroller(), gbc10);
             jPanel2.add(getCodeScroller(), gbc11);
             jPanel2.add(getTagScroller(), gbc12);
             jPanel2.add(getRiskScroller(), gbc13);
             jPanel2.add(getUrlRegxIncScroller(), gbc14);
+            jPanel2.add(getBtnAddRegxToInc(), gbc15);
+            jPanel2.add(getUrlRegxSamples(), gbc16);
 
             jPanel2.add(
                     new JLabel(Constant.messages.getString("history.filter.label.urlexcregex")),
@@ -438,13 +483,12 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 
             jPanel2.add(getConfidenceScroller(), gbc33);
             jPanel2.add(getUrlRegxExcScroller(), gbc34);
-            getUrlRegxExcScroller();
+            jPanel2.add(getBtnAddRegxToExc(), gbc35);
 
             JPanel jPanel3 = new JPanel();
             jPanel3.setLayout(new BoxLayout(jPanel3, BoxLayout.X_AXIS));
             jPanel3.add(new JLabel(Constant.messages.getString("history.filter.label.notes")));
             jPanel3.add(getNotesComboBox());
-            jPanel2.add(jPanel3, gbc30);
         }
         return jPanel2;
     }
@@ -496,6 +540,84 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
         return confidenceScroller;
     }
 
+    private JScrollPane getUrlRegxSamples() {
+        if (urlRegxSamples == null) {
+            // TODO save the list in better place
+            final String[] URL_REGX_INC_LIST = {
+                ".*\\.(js|css|woff2|png|jpeg|jpg|gif|svg)$", ".*\\.(html|asp|jsp|php)$"
+            };
+
+            regexSamples = new JList<>(URL_REGX_INC_LIST);
+            regexSamples.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            regexSamples.setLayoutOrientation(JList.VERTICAL);
+            regexSamples.setVisibleRowCount(URL_REGX_INC_LIST.length);
+            urlRegxSamples = new JScrollPane(regexSamples);
+        }
+        return urlRegxSamples;
+    }
+
+    private JButton getBtnAddRegxToInc() {
+        if (btnRegxInc == null) {
+            btnRegxInc = new JButton();
+            btnRegxInc.setText("<");
+            btnRegxInc.addActionListener(
+                    new java.awt.event.ActionListener() {
+
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+
+                            exitResult = JOptionPane.NO_OPTION;
+
+                            @SuppressWarnings("deprecation")
+                            List<Object> regexVals =
+                                    Arrays.asList(regexSamples.getSelectedValues());
+
+                            String curText = regexInc.getText();
+                            for (Object r : regexVals) {
+                                curText =
+                                        curText.isEmpty()
+                                                ? r.toString()
+                                                : curText + "\n" + r.toString();
+                            }
+
+                            regexInc.setText(curText);
+                        }
+                    });
+        }
+        return btnRegxInc;
+    }
+
+    private JButton getBtnAddRegxToExc() {
+        if (btnRegxExc == null) {
+            btnRegxExc = new JButton();
+            btnRegxExc.setText("<");
+            btnRegxExc.addActionListener(
+                    new java.awt.event.ActionListener() {
+
+                        @Override
+                        public void actionPerformed(java.awt.event.ActionEvent e) {
+
+                            exitResult = JOptionPane.NO_OPTION;
+
+                            @SuppressWarnings("deprecation")
+                            List<Object> regexVals =
+                                    Arrays.asList(regexSamples.getSelectedValues());
+
+                            String curText = regexExc.getText();
+                            for (Object r : regexVals) {
+                                curText =
+                                        curText.isEmpty()
+                                                ? r.toString()
+                                                : curText + "\n" + r.toString();
+                            }
+
+                            regexExc.setText(curText);
+                        }
+                    });
+        }
+        return btnRegxExc;
+    }
+
     private JScrollPane getUrlRegxIncScroller() {
         if (urlRegxIncScroller == null) {
             regexInc = new JTextArea();
@@ -508,7 +630,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
     private JScrollPane getUrlRegxExcScroller() {
         if (urlRegxExcScroller == null) {
             regexExc = new JTextArea();
-            regexExc.setRows(5);
+            regexExc.setRows(4);
             urlRegxExcScroller = new JScrollPane(regexExc);
         }
         return urlRegxExcScroller;
