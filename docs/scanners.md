@@ -99,6 +99,8 @@ Scan rules:
 10108   Blank link target
 10109   Modern Web Application (info)
 10110   Dangerous JS Function Scanner
+10111   Authentication Request Detection (info)
+10112   Session Handling Detection (info)
 
 10200   Beast (via HTTPS Info Extension)
 10201   Crime (via HTTPS Info Extension)
