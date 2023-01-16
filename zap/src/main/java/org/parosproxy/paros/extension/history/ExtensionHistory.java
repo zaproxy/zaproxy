@@ -101,6 +101,8 @@
 // ZAP: 2022/06/27 Make delete more consistent and protective (Issue 7336).
 // ZAP: 2022/09/14 Address deprecation warnings.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/01/11 Add "jump to" right-click menu item (Issue 7362).
+// ZAP: 2023/01/11 Prevent NPE in "showInHistory" when tab doesn't have focus.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -142,6 +144,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.history.ManageTagsDialog;
 import org.zaproxy.zap.extension.history.NotesAddDialog;
+import org.zaproxy.zap.extension.history.PopupMenuJumpTo;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
@@ -164,6 +167,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuPurgeHistory popupMenuPurgeHistory = null;
 
     private PopupMenuTag popupMenuTag = null;
+    private PopupMenuJumpTo popupMenuJumpTo;
 
     // ZAP: Added history notes
     private PopupMenuNote popupMenuNote = null;
@@ -260,6 +264,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             pv.addStatusPanel(getLogPanel());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuTag());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuJumpTo());
             // ZAP: Added history notes
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
 
@@ -593,6 +598,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return popupMenuTag;
     }
 
+    private PopupMenuJumpTo getPopupMenuJumpTo() {
+        if (popupMenuJumpTo == null) {
+            popupMenuJumpTo = new PopupMenuJumpTo(this);
+        }
+        return popupMenuJumpTo;
+    }
+
     private PopupMenuNote getPopupMenuNote() {
         if (popupMenuNote == null) {
             popupMenuNote = new PopupMenuNote(this);
@@ -695,6 +707,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
     public void showInHistory(HistoryReference href) {
+        this.getLogPanel().setTabFocus();
         this.getLogPanel().display(href);
         this.getLogPanel().setTabFocus();
     }
