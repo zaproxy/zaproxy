@@ -6,6 +6,7 @@
       ":addOns:alertFilters",
       ":addOns:ascanrules",
       ":addOns:ascanrulesBeta",
+      ":addOns:authhelper",
       ":addOns:automation",
       ":addOns:bruteforce",
       ":addOns:callhome",
