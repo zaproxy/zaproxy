@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.history;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Collections;
 import java.util.List;
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -106,11 +107,25 @@ public class PopupMenuJumpTo extends PopupMenuItemHistoryReferenceContainer {
                         null);
         if (option == JOptionPane.OK_OPTION) {
             int historyId = idSpinner.getValue();
-            try {
+            if (extension.getHistoryReferencesTable().getModel().getEntryRowIndex(historyId)
+                    != -1) {
                 extension.showInHistory(extension.getHistoryReference(historyId));
-            } catch (NullPointerException npe) {
-                LOGGER.info("Could not jump to history Id: {}", historyId);
+                return;
             }
+            List<Integer> list = extension.getHistoryIds();
+            if (list.isEmpty()) {
+                return;
+            }
+            int nearestIdx = Math.abs(Collections.binarySearch(list, historyId)) - 1;
+            if (nearestIdx >= list.size()) {
+                nearestIdx = list.size() - 1;
+            }
+            HistoryReference nearestRef = extension.getHistoryReference(list.get(nearestIdx));
+            extension.showInHistory(nearestRef);
+            LOGGER.debug(
+                    "Jumping to nearest ID: {}, after request for: {}",
+                    nearestRef.getHistoryId(),
+                    historyId);
         }
     }
 

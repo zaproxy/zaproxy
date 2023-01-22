@@ -103,6 +103,7 @@
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/01/11 Add "jump to" right-click menu item (Issue 7362).
 // ZAP: 2023/01/11 Prevent NPE in "showInHistory" when tab doesn't have focus.
+// ZAP: 2023/01/22 Add utility getHistoryIds() method.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -463,26 +464,37 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
     }
 
-    private void searchHistory(HistoryFilter historyFilter) {
+    /**
+     * Returns a sorted list of History IDs for the visible history references.
+     *
+     * @return a list of History IDs for the visible history references.
+     * @since 2.13.0
+     */
+    public List<Integer> getHistoryIds() {
         Session session = getModel().getSession();
 
-        synchronized (historyTableModel) {
-            try {
-                // ZAP: Added type argument.
-                List<Integer> list =
-                        getModel()
-                                .getDb()
-                                .getTableHistory()
-                                .getHistoryIdsOfHistType(
-                                        session.getSessionId(),
-                                        HistoryReference.TYPE_PROXIED,
-                                        HistoryReference.TYPE_ZAP_USER,
-                                        HistoryReference.TYPE_PROXY_CONNECT);
+        try {
+            List<Integer> list =
+                    getModel()
+                            .getDb()
+                            .getTableHistory()
+                            .getHistoryIdsOfHistType(
+                                    session.getSessionId(),
+                                    HistoryReference.TYPE_PROXIED,
+                                    HistoryReference.TYPE_ZAP_USER,
+                                    HistoryReference.TYPE_PROXY_CONNECT);
+            Collections.sort(list);
+            return list;
+        } catch (DatabaseException e) {
+            LOGGER.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
 
-                buildHistory(list, historyFilter);
-            } catch (DatabaseException e) {
-                LOGGER.error(e.getMessage(), e);
-            }
+    private void searchHistory(HistoryFilter historyFilter) {
+        synchronized (historyTableModel) {
+            List<Integer> list = getHistoryIds();
+            buildHistory(list, historyFilter);
         }
     }
 
