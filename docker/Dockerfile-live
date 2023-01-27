@@ -23,7 +23,7 @@ RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
 WORKDIR /zap
 
 # Setup Webswing
-ENV WEBSWING_VERSION 22.2
+ENV WEBSWING_VERSION 22.2.4
 ARG WEBSWING_URL=""
 RUN if [ -z "$WEBSWING_URL" ] ; \
 	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \

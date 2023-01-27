@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-01-27
+ - Updated to use Webswing 22.2.4 (Issue 7704).
+
 ### 2023-01-10
 - Rework Docker build files to not leave cached files and to not do unnecessary work.
 
