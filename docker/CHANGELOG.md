@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-02-03
+ - Alert_on_Unexpected_Content_Types.js > Added Content-Type application/hal+json to the list of expected types.
+
 ### 2023-01-27
  - Updated to use Webswing 22.2.4 (Issue 7704).
 
