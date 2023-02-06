@@ -13,6 +13,7 @@ var pluginid = 100001	// https://github.com/zaproxy/zaproxy/blob/main/docs/scann
 var extensionAlert = control.getExtensionLoader().getExtension(org.zaproxy.zap.extension.alert.ExtensionAlert.NAME)
 
 var expectedTypes = [
+		"application/hal+json",
 		"application/health+json",
 		"application/json",
 		"application/octet-stream",
