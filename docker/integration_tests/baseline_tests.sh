@@ -37,6 +37,9 @@ check_results() {
         then
             echo PASS
         else
+            echo "ERROR: Failing diff:"
+            echo "$d"
+            echo ""
             echo "ERROR: Failing output:"
             # Output the results file as is - this can be copied into the results dir if its valid
             echo ">>>>>"
