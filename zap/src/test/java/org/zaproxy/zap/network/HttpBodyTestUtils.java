@@ -82,7 +82,7 @@ public class HttpBodyTestUtils {
     }
 
     protected static Matcher<byte[]> allZeroBytes() {
-        return new BaseMatcher<byte[]>() {
+        return new BaseMatcher<>() {
 
             @Override
             public boolean matches(Object actualValue) {

@@ -501,7 +501,7 @@ public class ProxyServer implements Runnable {
     private synchronized void createListenersComparator() {
         if (listenersComparator == null) {
             listenersComparator =
-                    new Comparator<ArrangeableProxyListener>() {
+                    new Comparator<>() {
                         @Override
                         public int compare(
                                 ArrangeableProxyListener o1, ArrangeableProxyListener o2) {

@@ -432,7 +432,7 @@ class VariantCookieUnitTest {
     }
 
     private static Matcher<HttpMessage> containsCookieHeader(final String cookies) {
-        return new BaseMatcher<HttpMessage>() {
+        return new BaseMatcher<>() {
 
             @Override
             public boolean matches(Object actualValue) {
@@ -467,7 +467,7 @@ class VariantCookieUnitTest {
     }
 
     private static Matcher<HttpMessage> hasNoCookieHeaders() {
-        return new BaseMatcher<HttpMessage>() {
+        return new BaseMatcher<>() {
 
             @Override
             public boolean matches(Object actualValue) {

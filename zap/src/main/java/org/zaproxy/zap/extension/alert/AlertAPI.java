@@ -239,7 +239,7 @@ public class AlertAPI extends ApiImplementor {
         } else if (VIEW_ALERTS_SUMMARY.equals(name)) {
             final int[] riskSummary = {0, 0, 0, 0};
             Processor<Alert> counter =
-                    new Processor<Alert>() {
+                    new Processor<>() {
 
                         @Override
                         public void process(Alert alert) {
@@ -258,7 +258,7 @@ public class AlertAPI extends ApiImplementor {
                 alertData.put(Alert.MSG_RISK[i], riskSummary[i]);
             }
             result =
-                    new ApiResponseSet<Object>("risk", alertData) {
+                    new ApiResponseSet<>("risk", alertData) {
 
                         @Override
                         public JSON toJSON() {

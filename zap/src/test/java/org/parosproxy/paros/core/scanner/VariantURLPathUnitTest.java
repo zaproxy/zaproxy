@@ -188,7 +188,7 @@ class VariantURLPathUnitTest {
     }
 
     private static Matcher<HttpMessage> containsPath(String path) {
-        return new BaseMatcher<HttpMessage>() {
+        return new BaseMatcher<>() {
 
             @Override
             public boolean matches(Object actualValue) {

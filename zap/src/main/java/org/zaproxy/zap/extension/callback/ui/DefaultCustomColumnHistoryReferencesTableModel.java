@@ -77,7 +77,7 @@ public class DefaultCustomColumnHistoryReferencesTableModel<
     }
 
     private CustomColumn<T> emptyColumn() {
-        return new CustomColumn<T>(String.class, "") {
+        return new CustomColumn<>(String.class, "") {
 
             @Override
             public Object getValue(T model) {

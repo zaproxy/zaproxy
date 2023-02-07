@@ -1,6 +1,6 @@
 plugins {
     `kotlin-dsl`
-    id("com.diffplug.spotless") version "6.11.0"
+    id("com.diffplug.spotless") version "6.14.1"
 }
 
 repositories {
@@ -41,10 +41,10 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit.archive:$jgitVersion")
     implementation("org.kohsuke:github-api:1.95")
     // Gradle Plugins
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.11.0")
-    implementation("com.netflix.nebula:gradle-ospackage-plugin:8.5.6")
-    implementation("de.undercouch:gradle-download-task:4.1.1")
-    implementation("edu.sc.seis.launch4j:launch4j:2.5.0")
-    implementation("gradle.plugin.install4j.install4j.buildtools:gradle_publish:10.0.3")
+    implementation("com.diffplug.spotless:spotless-plugin-gradle:6.14.1")
+    implementation("com.netflix.nebula:gradle-ospackage-plugin:11.0.0")
+    implementation("de.undercouch:gradle-download-task:5.3.1")
+    implementation("edu.sc.seis.launch4j:launch4j:2.5.4")
+    implementation("gradle.plugin.install4j.install4j.buildtools:gradle_publish:10.0.4")
     implementation("me.champeau.gradle:japicmp-gradle-plugin:0.4.1")
 }
