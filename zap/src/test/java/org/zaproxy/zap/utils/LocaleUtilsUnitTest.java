@@ -46,7 +46,8 @@ class LocaleUtilsUnitTest {
     private static final ResourceBundle.Control HELPER_CONTROL =
             ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_DEFAULT);
 
-    private static final Locale LOCALE_SPAIN = new Locale("es", "ES");
+    private static final Locale LOCALE_SPAIN =
+            new Locale.Builder().setLanguage("es").setRegion("ES").build();
 
     private static final String FILE_NAME = "FileName";
     private static final String FILE_EXTENSION = ".extension";
@@ -360,6 +361,13 @@ class LocaleUtilsUnitTest {
                         invocation -> {
                             Object[] args = invocation.getArguments();
                             return HELPER_CONTROL.toBundleName((String) args[0], (Locale) args[1]);
+                        });
+        when(control.toResourceName(anyString(), anyString()))
+                .thenAnswer(
+                        invocation -> {
+                            Object[] args = invocation.getArguments();
+                            return HELPER_CONTROL.toResourceName(
+                                    (String) args[0], (String) args[1]);
                         });
         return control;
     }

@@ -758,7 +758,7 @@ public final class Constant {
             }
 
             String[] langArray = lang.split("_");
-            return new Locale(langArray[0], langArray[1]);
+            return new Locale.Builder().setLanguage(langArray[0]).setRegion(langArray[1]).build();
 
         } catch (Exception e) {
             System.out.println("Failed to load locale " + e);
@@ -1212,7 +1212,8 @@ public final class Constant {
 
     public static void setLocale(String loc) {
         String[] langArray = loc.split("_");
-        Locale locale = new Locale(langArray[0], langArray[1]);
+        Locale locale =
+                new Locale.Builder().setLanguage(langArray[0]).setRegion(langArray[1]).build();
 
         Locale.setDefault(locale);
         if (messages == null) {

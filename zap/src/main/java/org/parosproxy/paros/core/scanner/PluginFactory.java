@@ -212,7 +212,7 @@ public class PluginFactory {
     // now order the list by the highest risk thrown, in descending order (to execute the more
     // critical checks first)
     private static final Comparator<AbstractPlugin> riskComparator =
-            new Comparator<AbstractPlugin>() {
+            new Comparator<>() {
                 @Override
                 public int compare(AbstractPlugin e1, AbstractPlugin e2) {
                     // Run stable plugins first

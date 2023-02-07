@@ -1736,7 +1736,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                 });
 
         SwingWorker<Void, UninstallationProgressEvent> a =
-                new SwingWorker<Void, UninstallationProgressEvent>() {
+                new SwingWorker<>() {
 
                     @Override
                     protected void process(List<UninstallationProgressEvent> events) {

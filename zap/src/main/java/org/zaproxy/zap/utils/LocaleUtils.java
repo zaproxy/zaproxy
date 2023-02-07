@@ -484,17 +484,19 @@ public final class LocaleUtils {
         String desc = "" + locale;
         if (locale != null) {
             String[] langArray = locale.split("_");
-            Locale loc = null;
-            if (langArray.length == 1) {
-                loc = new Locale(langArray[0]);
-            } else if (langArray.length == 2) {
-                loc = new Locale(langArray[0], langArray[1]);
-            } else if (langArray.length == 3) {
-                loc = new Locale(langArray[0], langArray[1], langArray[2]);
+            if (langArray.length > 3) {
+                return desc;
             }
-            if (loc != null) {
-                desc = loc.getDisplayLanguage(loc);
+
+            Locale.Builder builder = new Locale.Builder().setLanguage(langArray[0]);
+            if (langArray.length >= 2) {
+                builder.setRegion(langArray[1]);
             }
+            if (langArray.length == 3) {
+                builder.setVariant(langArray[2]);
+            }
+            Locale loc = builder.build();
+            desc = loc.getDisplayLanguage(loc);
         }
         return desc;
     }

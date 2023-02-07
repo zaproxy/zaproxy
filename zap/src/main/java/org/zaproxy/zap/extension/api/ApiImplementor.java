@@ -46,7 +46,7 @@ public abstract class ApiImplementor {
 
     static {
         METHOD_NAME_COMPARATOR =
-                new Comparator<Method>() {
+                new Comparator<>() {
 
                     @Override
                     public int compare(Method method, Method otherMethod) {

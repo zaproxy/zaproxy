@@ -41,7 +41,7 @@ class GenericFilterUtilityTest extends WithConfigsTest {
     @BeforeEach
     void init() {
         abstractGenericScanFilter =
-                new AbstractGenericScanFilter<String, String>() {
+                new AbstractGenericScanFilter<>() {
 
                     @Override
                     public FilterResult isFiltered(StructuralNode node) {

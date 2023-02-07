@@ -10,7 +10,7 @@ import org.zaproxy.zap.tasks.UpdateMainAddOns
 
 plugins {
     de.undercouch.download
-    nebula.ospackage
+    com.netflix.nebula.ospackage
 }
 
 val dailyVersion = provider { "D-${extra["creationDate"]}" }

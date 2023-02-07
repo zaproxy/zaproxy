@@ -293,7 +293,7 @@ class VariantHeaderUnitTest {
     }
 
     private static Matcher<HttpMessage> containsHeader(final String name, final String value) {
-        return new BaseMatcher<HttpMessage>() {
+        return new BaseMatcher<>() {
 
             @Override
             public boolean matches(Object actualValue) {
