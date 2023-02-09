@@ -126,6 +126,8 @@ public class AddOnLoader extends URLClassLoader {
      */
     private Map<String, AddOnClassLoader> addOnLoaders = new HashMap<>();
 
+    private Map<String, Collection<AddOnClassLoader>> extensionLoaders = new HashMap<>();
+
     /** File where the data of runnable state and blocked add-ons is saved. */
     private ZapXmlConfiguration addOnsStateConfig;
 
@@ -562,7 +564,10 @@ public class AddOnLoader extends URLClassLoader {
                     ExtensionRunRequirements extReqs = reqs.getExtensionRequirements().get(0);
                     if (extReqs.isRunnable()) {
                         List<AddOnClassLoader> dependencies =
-                                new ArrayList<>(extReqs.getDependencies().size());
+                                new ArrayList<>(
+                                        extReqs.getDependencies().size()
+                                                + extReqs.getExtensionDependencies().size());
+                        dependencies.addAll(extensionLoaders.get(runningAddOn.getId()));
                         for (AddOn addOnDep : extReqs.getDependencies()) {
                             dependencies.add(addOnLoaders.get(addOnDep.getId()));
                         }
@@ -869,18 +874,40 @@ public class AddOnLoader extends URLClassLoader {
         if (addOn.hasExtensionsWithDeps()) {
             AddOn.AddOnRunRequirements reqs =
                     addOn.calculateRunRequirements(aoc.getInstalledAddOns());
+            Map<String, AddOnClassLoader> addOnExtensionLoaders = new HashMap<>();
             for (ExtensionRunRequirements extReqs : reqs.getExtensionRequirements()) {
                 if (extReqs.isRunnable()) {
                     List<AddOnClassLoader> dependencies =
-                            new ArrayList<>(extReqs.getDependencies().size());
+                            new ArrayList<>(
+                                    extReqs.getDependencies().size()
+                                            + extReqs.getExtensionDependencies().size());
+                    for (String extDep : extReqs.getExtensionDependencies()) {
+                        dependencies.add(
+                                addOnExtensionLoaders.computeIfAbsent(
+                                        extDep,
+                                        k ->
+                                                new AddOnClassLoader(
+                                                        addOnClassLoader,
+                                                        List.of(),
+                                                        addOn.getExtensionAddOnClassnames(
+                                                                extDep))));
+                    }
                     for (AddOn addOnDep : extReqs.getDependencies()) {
                         dependencies.add(addOnLoaders.get(addOnDep.getId()));
                     }
-                    AddOnClassLoader extAddOnClassLoader =
-                            new AddOnClassLoader(
-                                    addOnClassLoader,
-                                    dependencies,
-                                    addOn.getExtensionAddOnClassnames(extReqs.getClassname()));
+                    AddOnClassLoader extAddOnClassLoader;
+                    if (addOnExtensionLoaders.containsKey(extReqs.getClassname())) {
+                        extAddOnClassLoader = addOnExtensionLoaders.get(extReqs.getClassname());
+                        dependencies.addAll(extAddOnClassLoader.getDependencies());
+                        extAddOnClassLoader.setDependencies(dependencies);
+                    } else {
+                        extAddOnClassLoader =
+                                new AddOnClassLoader(
+                                        addOnClassLoader,
+                                        dependencies,
+                                        addOn.getExtensionAddOnClassnames(extReqs.getClassname()));
+                        addOnExtensionLoaders.put(extReqs.getClassname(), extAddOnClassLoader);
+                    }
                     Extension ext =
                             loadAddOnExtension(addOn, extReqs.getClassname(), extAddOnClassLoader);
                     if (ext != null) {
@@ -894,6 +921,7 @@ public class AddOnLoader extends URLClassLoader {
                             AddOnRunIssuesUtils.getRunningIssues(extReqs));
                 }
             }
+            extensionLoaders.put(addOn.getId(), addOnExtensionLoaders.values());
         }
         return extensions;
     }

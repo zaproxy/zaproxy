@@ -146,6 +146,7 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     classExcludes.set(
         listOf(
             "org.zaproxy.zap.network.HttpSenderImpl",
+            "org.zaproxy.zap.control.BaseZapAddOnXmlData\$ExtensionWithDeps",
         ),
     )
 

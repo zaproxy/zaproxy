@@ -626,6 +626,9 @@ class ZapAddOnXmlFileUnitTest {
                         "<version>" + version + "</version>",
                         "</addon>",
                         "</addons>",
+                        "<extensions>",
+                        "<extension>" + extension1 + "</extension>",
+                        "</extensions>",
                         "</dependencies>",
                         "</extension>",
                         "</extensions>",
@@ -645,11 +648,18 @@ class ZapAddOnXmlFileUnitTest {
                         .getRestrictedClassnames(),
                 contains(restrictedClass));
         assertThat(
-                manifest.getExtensionsWithDeps().get(0).getDependencies().get(0).getId(),
+                manifest.getExtensionsWithDeps().get(0).getAddOnDependencies().get(0).getId(),
                 is(equalTo(addOnId)));
         assertThat(
-                manifest.getExtensionsWithDeps().get(0).getDependencies().get(0).getVersion(),
+                manifest.getExtensionsWithDeps().get(0).getAddOnDependencies().get(0).getVersion(),
                 is(equalTo(version)));
+        assertThat(
+                manifest.getExtensionsWithDeps()
+                        .get(0)
+                        .getExtensionDependencies()
+                        .get(0)
+                        .getClassname(),
+                is(equalTo(extension1)));
     }
 
     private static Version version(String version) {

@@ -311,6 +311,14 @@ public class AddOnClassLoader extends URLClassLoader {
         this.dependencies = Collections.emptyList();
     }
 
+    public List<AddOnClassLoader> getDependencies() {
+        return Collections.unmodifiableList(dependencies);
+    }
+
+    public void setDependencies(List<AddOnClassLoader> dependencies) {
+        this.dependencies = dependencies;
+    }
+
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         if (addOnClassnames.isAllowed(name)) {
@@ -320,16 +328,12 @@ public class AddOnClassLoader extends URLClassLoader {
             }
         }
 
-        try {
-            return parent.loadClass(name, false);
-        } catch (ClassNotFoundException ignore) {
+        Class<?> clazz = findClassInDependencies(name);
+        if (clazz != null) {
+            return clazz;
         }
 
-        Class<?> clazz = findClassInDependencies(name);
-        if (clazz == null) {
-            throw new ClassNotFoundException();
-        }
-        return clazz;
+        return parent.loadClass(name, false);
     }
 
     private Class<?> findClassInAddOn(String name) throws ClassNotFoundException {

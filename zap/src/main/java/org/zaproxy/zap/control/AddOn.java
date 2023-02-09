@@ -1335,7 +1335,7 @@ public class AddOn {
         ExtensionRunRequirements extensionRequirements =
                 new ExtensionRunRequirements(addOn, extension.getClassname());
         requirements.addExtensionRequirements(extensionRequirements);
-        for (AddOnDep dependency : extension.getDependencies()) {
+        for (AddOnDep dependency : extension.getAddOnDependencies()) {
             String addOnId = dependency.getId();
             if (addOnId == null) {
                 continue;
@@ -1371,6 +1371,18 @@ public class AddOn {
 
             calculateRunRequirementsImpl(
                     availableAddOns, extensionRequirements, addOn, addOnDep, checkLibs);
+        }
+
+        for (var dependency : extension.getExtensionDependencies()) {
+            String classname = dependency.getClassname();
+            if (classname == null) {
+                continue;
+            }
+            if (addOn.getExtensionsWithDeps().contains(classname)) {
+                extensionRequirements.addExtensionDependency(classname);
+                continue;
+            }
+            extensionRequirements.setIssue(BaseRunRequirements.DependencyIssue.MISSING, classname);
         }
     }
 
@@ -1492,7 +1504,7 @@ public class AddOn {
 
         for (ExtensionWithDeps extensionWithDeps : extensionsWithDeps) {
             if (extensionWithDeps.getClassname().equals(classname)) {
-                return dependsOn(extensionWithDeps.getDependencies(), addOn);
+                return dependsOn(extensionWithDeps.getAddOnDependencies(), addOn);
             }
         }
         return false;
@@ -2220,7 +2232,7 @@ public class AddOn {
     }
 
     /**
-     * The requirements to run an {@code extension} (with add-on dependencies).
+     * The requirements to run an {@code extension} (with add-on or extension dependencies).
      *
      * <p>It can be used to check if an extension can or not be run, which requirements it has (for
      * example, dependency add-ons) and which issues prevent it from being run, if any.
@@ -2230,10 +2242,12 @@ public class AddOn {
     public static class ExtensionRunRequirements extends BaseRunRequirements {
 
         private final String classname;
+        private final Set<String> extensionDependencies;
 
         private ExtensionRunRequirements(AddOn addOn, String classname) {
             super(addOn);
             this.classname = classname;
+            extensionDependencies = new HashSet<>();
         }
 
         /**
@@ -2243,6 +2257,14 @@ public class AddOn {
          */
         public String getClassname() {
             return classname;
+        }
+
+        public void addExtensionDependency(String extension) {
+            extensionDependencies.add(extension);
+        }
+
+        public Set<String> getExtensionDependencies() {
+            return extensionDependencies;
         }
     }
 

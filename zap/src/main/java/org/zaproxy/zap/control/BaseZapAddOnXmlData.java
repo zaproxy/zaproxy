@@ -112,6 +112,7 @@ public abstract class BaseZapAddOnXmlData {
     private static final String DEPENDENCIES_ELEMENT = "dependencies";
     private static final String DEPENDENCIES_JAVA_VERSION_ELEMENT = "javaversion";
     private static final String DEPENDENCIES_ADDONS_ALL_ELEMENTS = "addons.addon";
+    private static final String DEPENDENCIES_EXTENSIONS_ALL_ELEMENTS = "extensions.extension";
     private static final String ZAPADDON_ID_ELEMENT = "id";
     private static final String ZAPADDON_NOT_BEFORE_VERSION_ELEMENT = "not-before-version";
     private static final String ZAPADDON_NOT_FROM_VERSION_ELEMENT = "not-from-version";
@@ -127,8 +128,10 @@ public abstract class BaseZapAddOnXmlData {
     private static final String EXTENSIONS_ALL_ELEMENTS = "extensions." + EXTENSION_ELEMENT;
     private static final String EXTENSIONS_VERSION_ATT = "[@v]";
     private static final String EXTENSION_CLASS_NAME = "classname";
-    private static final String EXTENSION_DEPENDENCIES =
+    private static final String EXTENSION_ADDON_DEPENDENCIES =
             DEPENDENCIES_ELEMENT + "." + DEPENDENCIES_ADDONS_ALL_ELEMENTS;
+    private static final String EXTENSION_EXTENSION_DEPENDENCIES =
+            DEPENDENCIES_ELEMENT + '.' + DEPENDENCIES_EXTENSIONS_ALL_ELEMENTS;
     private static final String CLASSNAMES_ALLOWED_ELEMENT = "allowed";
     private static final String CLASSNAMES_ALLOWED_ALL_ELEMENTS =
             "classnames." + CLASSNAMES_ALLOWED_ELEMENT;
@@ -375,14 +378,16 @@ public abstract class BaseZapAddOnXmlData {
 
         HierarchicalConfiguration node = dependencies.get(0);
         String javaVersion = node.getString(DEPENDENCIES_JAVA_VERSION_ELEMENT, "");
-        List<HierarchicalConfiguration> fields =
+        List<HierarchicalConfiguration> addOnFields =
                 node.configurationsAt(DEPENDENCIES_ADDONS_ALL_ELEMENTS);
-        if (fields.isEmpty()) {
-            return new Dependencies(javaVersion, Collections.<AddOnDep>emptyList());
+        var extensionFields = node.configurationsAt(DEPENDENCIES_EXTENSIONS_ALL_ELEMENTS);
+        if (addOnFields.isEmpty() && extensionFields.isEmpty()) {
+            return new Dependencies(javaVersion, List.of(), List.of());
         }
 
-        List<AddOnDep> addOns = readAddOnDependencies(fields);
-        return new Dependencies(javaVersion, addOns);
+        List<AddOnDep> addOns = readAddOnDependencies(addOnFields);
+        List<ExtensionDep> extensions = readExtensionDependencies(extensionFields);
+        return new Dependencies(javaVersion, addOns, extensions);
     }
 
     private List<AddOnDep> readAddOnDependencies(List<HierarchicalConfiguration> fields) {
@@ -412,6 +417,18 @@ public abstract class BaseZapAddOnXmlData {
         return addOns;
     }
 
+    private List<ExtensionDep> readExtensionDependencies(List<HierarchicalConfiguration> fields) {
+        List<ExtensionDep> extensions = new ArrayList<>(fields.size());
+        for (var field : fields) {
+            String classname = field.getRootNode().getValue().toString();
+            if (classname.isEmpty()) {
+                malformedFile("an extension dependency has empty \"" + EXTENSION_ELEMENT + "\".");
+            }
+            extensions.add(new ExtensionDep(classname));
+        }
+        return extensions;
+    }
+
     private List<ExtensionWithDeps> readExtensionsWithDeps(HierarchicalConfiguration currentNode) {
         List<HierarchicalConfiguration> extensions =
                 currentNode.configurationsAt(EXTENSIONS_ALL_ELEMENTS).stream()
@@ -428,9 +445,11 @@ public abstract class BaseZapAddOnXmlData {
                 malformedFile("a v1 extension has empty \"" + EXTENSION_CLASS_NAME + "\".");
             }
 
-            List<HierarchicalConfiguration> fields =
-                    extensionNode.configurationsAt(EXTENSION_DEPENDENCIES);
-            if (fields.isEmpty()) {
+            List<HierarchicalConfiguration> addOnFields =
+                    extensionNode.configurationsAt(EXTENSION_ADDON_DEPENDENCIES);
+            List<HierarchicalConfiguration> extensionFields =
+                    extensionNode.configurationsAt(EXTENSION_EXTENSION_DEPENDENCIES);
+            if (addOnFields.isEmpty() && extensionFields.isEmpty()) {
                 // Extension v1 without dependencies, handle as normal extension.
                 if (this.extensions.isEmpty()) {
                     // Empty thus Collections.emptyList(), create and use a mutable list.
@@ -440,9 +459,11 @@ public abstract class BaseZapAddOnXmlData {
                 continue;
             }
 
-            List<AddOnDep> addOnDeps = readAddOnDependencies(fields);
-            AddOnClassnames classnames = readAddOnClassnames(extensionNode);
-            extensionsWithDeps.add(new ExtensionWithDeps(classname, addOnDeps, classnames));
+            List<AddOnDep> addOnDeps = readAddOnDependencies(addOnFields);
+            AddOnClassnames addOnClassnames = readAddOnClassnames(extensionNode);
+            List<ExtensionDep> extensionDeps = readExtensionDependencies(extensionFields);
+            extensionsWithDeps.add(
+                    new ExtensionWithDeps(classname, addOnDeps, extensionDeps, addOnClassnames));
         }
 
         return extensionsWithDeps;
@@ -472,12 +493,20 @@ public abstract class BaseZapAddOnXmlData {
     public static class Dependencies {
 
         private final String javaVersion;
-
         private final List<AddOnDep> addOnDependencies;
+        private final List<ExtensionDep> extensionDependencies;
 
         public Dependencies(String javaVersion, List<AddOnDep> addOnDependencies) {
+            this(javaVersion, addOnDependencies, List.of());
+        }
+
+        public Dependencies(
+                String javaVersion,
+                List<AddOnDep> addOnDependencies,
+                List<ExtensionDep> extensionDependencies) {
             this.javaVersion = javaVersion;
             this.addOnDependencies = addOnDependencies;
+            this.extensionDependencies = extensionDependencies;
         }
 
         public String getJavaVersion() {
@@ -486,6 +515,10 @@ public abstract class BaseZapAddOnXmlData {
 
         public List<AddOnDep> getAddOns() {
             return addOnDependencies;
+        }
+
+        public List<ExtensionDep> getExtensions() {
+            return extensionDependencies;
         }
     }
 
@@ -585,18 +618,33 @@ public abstract class BaseZapAddOnXmlData {
         }
     }
 
+    public static class ExtensionDep {
+        private final String classname;
+
+        public ExtensionDep(String classname) {
+            this.classname = classname;
+        }
+
+        public String getClassname() {
+            return classname;
+        }
+    }
+
     public static class ExtensionWithDeps {
 
         private final String classname;
         private final List<AddOnDep> addOnDependencies;
+        private final List<ExtensionDep> extensionDependencies;
         private final AddOnClassnames addOnClassnames;
 
         public ExtensionWithDeps(
                 String classname,
                 List<AddOnDep> addOnDependencies,
+                List<ExtensionDep> extensionDependencies,
                 AddOnClassnames addOnClassnames) {
             this.classname = classname;
             this.addOnDependencies = addOnDependencies;
+            this.extensionDependencies = extensionDependencies;
             this.addOnClassnames = addOnClassnames;
         }
 
@@ -604,8 +652,12 @@ public abstract class BaseZapAddOnXmlData {
             return classname;
         }
 
-        public List<AddOnDep> getDependencies() {
+        public List<AddOnDep> getAddOnDependencies() {
             return addOnDependencies;
+        }
+
+        public List<ExtensionDep> getExtensionDependencies() {
+            return extensionDependencies;
         }
 
         public AddOnClassnames getAddOnClassnames() {
