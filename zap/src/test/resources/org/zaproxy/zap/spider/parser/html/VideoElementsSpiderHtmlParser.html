@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <base href="http://example.com/sample/">
+    <meta charset="UTF-8">
+    <title>Video Elements - Spider HTML Parser</title>
+</head>
+<body>
+
+<video src="//video.example.com/base/scheme">
+<video src="http://video.example.com:8000/b">
+<video src="https://video.example.com/c?a=b#fragment">
+<video src="video/relative">
+<video src="">
+<video src="/video/absolute">
+<video src="ftp://video.example.com/">
+<video src="http://poster.example.com/" poster="poster/relative">
+
+<video>
+    <source src="/media/cc0-videos/flower.webm"
+            type="video/webm">
+    <source src="/media/cc0-videos/flower.mp4"
+            type="video/mp4">
+</video>
+
+<video src="ftp://src.precedence.example.com/">
+    <source src="/media/cc0-videos/stillFound.webm"
+            type="video/webm">
+    <source src="/media/cc0-videos/stillFound.mp4"
+            type="video/mp4">
+</video>
+
+<!--  Ignored: -->
+<video>
+<video src="mailto:video@example.com">
+<video src="javascript:hello();">
+<video src="scheme://video.example.com/invalid">
+
+</body>
+</html>

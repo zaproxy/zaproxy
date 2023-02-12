@@ -28,6 +28,8 @@ package ch.csnc.extension.httpclient;
 
 import java.security.cert.Certificate;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class AliasCertificate {
 
     private Certificate certificate;

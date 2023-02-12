@@ -61,6 +61,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 
+@SuppressWarnings("serial")
 public class SplashScreen extends JFrame {
 
     private static final String TIPS_PREFIX = "tips";
@@ -86,13 +87,13 @@ public class SplashScreen extends JFrame {
     public SplashScreen() {
         super();
 
-        setSize(DisplayUtils.getScaledDimension(420, 430));
+        setSize(DisplayUtils.getScaledDimension(430, 430));
         setLocationRelativeTo(null);
         setTitle(Constant.PROGRAM_NAME);
         setIconImages(DisplayUtils.getZapIconImages());
 
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setPreferredSize(DisplayUtils.getScaledDimension(420, 430));
+        panel.setPreferredSize(DisplayUtils.getScaledDimension(430, 430));
         if (!DisplayUtils.isDarkLookAndFeel()) {
             panel.setBackground(Color.decode("#F4FAFF"));
         }

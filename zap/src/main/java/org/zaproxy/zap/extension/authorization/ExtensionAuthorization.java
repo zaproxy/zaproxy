@@ -45,7 +45,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor
         implements ContextPanelFactory, ContextDataFactory {
 
     /** The Constant log. */
-    private static final Logger log = LogManager.getLogger(ExtensionAuthorization.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionAuthorization.class);
 
     /** The NAME of the extension. */
     public static final String NAME = "ExtensionAuthorization";
@@ -131,7 +131,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor
                 }
             }
         } catch (DatabaseException e) {
-            log.error("Unable to load Authorization Detection method.", e);
+            LOGGER.error("Unable to load Authorization Detection method.", e);
         }
     }
 
@@ -147,7 +147,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor
             context.getAuthorizationDetectionMethod()
                     .persistMethodToSession(session, context.getId());
         } catch (DatabaseException e) {
-            log.error("Unable to persist Authorization Detection method.", e);
+            LOGGER.error("Unable to persist Authorization Detection method.", e);
         }
     }
 
@@ -174,7 +174,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor
                 ctx.setAuthorizationDetectionMethod(new BasicAuthorizationDetectionMethod(config));
                 break;
             default:
-                log.warn("No authorization detection method found for ID: " + type);
+                LOGGER.warn("No authorization detection method found for ID: {}", type);
         }
     }
 }

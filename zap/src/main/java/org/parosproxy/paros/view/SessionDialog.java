@@ -26,6 +26,7 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/10 Update to use Context.getId following deprecation of Context.getIndex
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.view;
 
 import java.awt.Frame;
@@ -37,6 +38,7 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 
+@SuppressWarnings("serial")
 public class SessionDialog extends AbstractParamDialog {
 
     private static final long serialVersionUID = 2078860056416521552L;

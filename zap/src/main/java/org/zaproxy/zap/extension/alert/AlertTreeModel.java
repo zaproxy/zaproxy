@@ -37,7 +37,7 @@ class AlertTreeModel extends DefaultTreeModel {
     private static final Comparator<AlertNode> ALERT_CHILD_COMPARATOR =
             new AlertChildNodeComparator();
 
-    private static Logger logger = LogManager.getLogger(AlertTreeModel.class);
+    private static final Logger LOGGER = LogManager.getLogger(AlertTreeModel.class);
 
     AlertTreeModel() {
         super(
@@ -60,7 +60,7 @@ class AlertTreeModel extends DefaultTreeModel {
                             }
                         });
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -131,7 +131,7 @@ class AlertTreeModel extends DefaultTreeModel {
                             }
                         });
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }

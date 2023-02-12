@@ -24,6 +24,7 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
+@SuppressWarnings("serial")
 public class PopupMenuTag extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = 1L;

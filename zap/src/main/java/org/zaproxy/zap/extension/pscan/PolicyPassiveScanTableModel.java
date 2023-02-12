@@ -30,6 +30,7 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.StatusUI;
 
+@SuppressWarnings("serial")
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
     private static final long serialVersionUID = 1L;
@@ -37,10 +38,10 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     private static final String[] columnNames = {
         Constant.messages.getString("ascan.policy.table.testname"),
         Constant.messages.getString("ascan.policy.table.threshold"),
-        Constant.messages.getString("ascan.policy.table.quality")
+        Constant.messages.getString("ascan.policy.table.status")
     };
 
-    private static final int QUALITY_COLUMN_IDX = 2;
+    private static final int STATUS_COLUMN_IDX = 2;
 
     private List<ScannerWrapper> listScanners = new ArrayList<>();
     private Map<String, String> i18nToStr = null;
@@ -71,13 +72,13 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         }
     }
 
-    public void applyThreshold(AlertThreshold threshold, String quality) {
+    public void applyThreshold(AlertThreshold threshold, String status) {
         if (listScanners.isEmpty()) {
             return;
         }
 
         for (ScannerWrapper ss : this.listScanners) {
-            if (quality.equals(ss.getQuality().toString())) {
+            if (status.equals(ss.getStatus().toString())) {
                 ss.setThreshold(threshold);
             }
         }
@@ -116,7 +117,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      */
     @Override
     public Class<?> getColumnClass(int c) {
-        if (c == QUALITY_COLUMN_IDX) {
+        if (c == STATUS_COLUMN_IDX) {
             return StatusUI.class;
         }
         return String.class;
@@ -208,8 +209,8 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
                 result = strToI18n(test.getThreshold().name());
                 break;
 
-            case QUALITY_COLUMN_IDX:
-                result = test.getQuality();
+            case STATUS_COLUMN_IDX:
+                result = test.getStatus();
                 break;
 
             default:
@@ -225,12 +226,12 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      */
     private static class ScannerWrapper {
         private final PluginPassiveScanner scanner;
-        private final StatusUI quality;
+        private final StatusUI status;
         private AlertThreshold threshold;
 
-        public ScannerWrapper(PluginPassiveScanner scanner, StatusUI quality) {
+        public ScannerWrapper(PluginPassiveScanner scanner, StatusUI status) {
             this.scanner = scanner;
-            this.quality = quality;
+            this.status = status;
             reset();
         }
 
@@ -249,7 +250,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         }
 
         public String getName() {
-            return scanner.getName();
+            return scanner.getDisplayName();
         }
 
         public AlertThreshold getThreshold() {
@@ -260,8 +261,8 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
             this.threshold = threshold;
         }
 
-        public StatusUI getQuality() {
-            return quality;
+        public StatusUI getStatus() {
+            return status;
         }
     }
 }

@@ -55,6 +55,9 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/08/05 Address warns with Java 18.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.control;
 
 import java.awt.EventQueue;
@@ -80,6 +83,7 @@ import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.model.IllegalContextNameException;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.PersistSessionDialog;
 import org.zaproxy.zap.view.SessionTableSelectDialog;
@@ -87,7 +91,7 @@ import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 public class MenuFileControl implements SessionListener {
 
-    private static Logger log = LogManager.getLogger(MenuFileControl.class);
+    private static final Logger LOGGER = LogManager.getLogger(MenuFileControl.class);
 
     private View view = null;
     private Model model = null;
@@ -183,7 +187,7 @@ public class MenuFileControl implements SessionListener {
         if (!activeActions.isEmpty()) {
             String message =
                     Constant.messages.getString("menu.file.session.activeactions", activeActions);
-            if (view.showConfirmDialog(message) != JOptionPane.OK_OPTION) {
+            if (view.showConfirmDialog(new ZapHtmlLabel(message)) != JOptionPane.OK_OPTION) {
                 return false;
             }
         }
@@ -238,9 +242,9 @@ public class MenuFileControl implements SessionListener {
                             } else {
                                 view.showWarningDialog(
                                         Constant.messages.getString("menu.file.newSession.error"));
-                                log.error(
-                                        "Error creating session file "
-                                                + model.getSession().getFileName(),
+                                LOGGER.error(
+                                        "Error creating session file {}",
+                                        model.getSession().getFileName(),
                                         e);
                                 created[0] = Boolean.FALSE;
                             }
@@ -274,7 +278,7 @@ public class MenuFileControl implements SessionListener {
         File sessionFile = new File(session);
         waitMessageDialog =
                 view.getWaitMessageDialog(Constant.messages.getString("menu.file.loadSession"));
-        log.info("opening session file " + sessionFile.getAbsolutePath());
+        LOGGER.info("opening session file {}", sessionFile.getAbsolutePath());
         control.openSession(
                 sessionFile,
                 new SessionListener() {
@@ -291,9 +295,9 @@ public class MenuFileControl implements SessionListener {
                             if (e != null) {
                                 view.showWarningDialog(
                                         Constant.messages.getString("menu.file.openSession.error"));
-                                log.error(
-                                        "error opening session file "
-                                                + model.getSession().getFileName(),
+                                LOGGER.error(
+                                        "error opening session file {}",
+                                        model.getSession().getFileName(),
                                         e);
                                 opened[0] = Boolean.FALSE;
                             }
@@ -350,14 +354,14 @@ public class MenuFileControl implements SessionListener {
                     return;
                 }
                 model.getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-                log.info("opening session file " + file.getAbsolutePath());
+                LOGGER.info("opening session file {}", file.getAbsolutePath());
                 waitMessageDialog =
                         view.getWaitMessageDialog(
                                 Constant.messages.getString("menu.file.loadSession"));
                 control.openSession(file, this);
                 waitMessageDialog.setVisible(true);
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -381,7 +385,7 @@ public class MenuFileControl implements SessionListener {
             }
 
         } catch (DatabaseException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -398,7 +402,7 @@ public class MenuFileControl implements SessionListener {
                     view.getWaitMessageDialog(
                             Constant.messages.getString("menu.file.savingSession")); // ZAP: i18n
             control.saveSession(session.getFileName(), this);
-            log.info("saving session file " + session.getFileName());
+            LOGGER.info("saving session file {}", session.getFileName());
             // ZAP: If the save is quick the dialog can already be null here
             if (waitMessageDialog != null) {
                 waitMessageDialog.setVisible(true);
@@ -407,8 +411,8 @@ public class MenuFileControl implements SessionListener {
         } catch (Exception e) {
             view.showWarningDialog(
                     Constant.messages.getString("menu.file.savingSession.error")); // ZAP: i18n
-            log.error("error saving session file " + session.getFileName());
-            log.error(e.getMessage(), e);
+            LOGGER.error("error saving session file {}", session.getFileName());
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -443,10 +447,10 @@ public class MenuFileControl implements SessionListener {
                                 Constant.messages.getString(
                                         "menu.file.savingSession")); // ZAP: i18n
                 control.saveSession(fileName, this);
-                log.info("save as session file " + session.getFileName());
+                LOGGER.info("save as session file {}", session.getFileName());
                 waitMessageDialog.setVisible(true);
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -496,10 +500,10 @@ public class MenuFileControl implements SessionListener {
                                 Constant.messages.getString(
                                         "menu.file.savingSnapshot")); // ZAP: i18n
                 control.snapshotSession(fileName, this);
-                log.info("Snapshotting: " + session.getFileName() + " as " + fileName);
+                LOGGER.info("Snapshotting: {} as {}", session.getFileName(), fileName);
                 waitMessageDialog.setVisible(true);
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -518,10 +522,10 @@ public class MenuFileControl implements SessionListener {
         } else {
             view.showWarningDialog(Constant.messages.getString("menu.file.openSession.errorFile"));
             if (file != null) {
-                log.error("Error opening session file " + file.getAbsolutePath(), e);
+                LOGGER.error("Error opening session file {}", file.getAbsolutePath(), e);
             } else {
                 // File is null for table based sessions (i.e. non HSQLDB)
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
 
@@ -536,8 +540,8 @@ public class MenuFileControl implements SessionListener {
         if (e != null) {
             view.showWarningDialog(
                     Constant.messages.getString("menu.file.savingSession.error")); // ZAP: i18n
-            log.error("error saving session file " + model.getSession().getFileName(), e);
-            log.error(e.getMessage(), e);
+            LOGGER.error("error saving session file {}", model.getSession().getFileName(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         if (waitMessageDialog != null) {
@@ -551,8 +555,8 @@ public class MenuFileControl implements SessionListener {
         if (e != null) {
             view.showWarningDialog(
                     Constant.messages.getString("menu.file.snapshotSession.error")); // ZAP: i18n
-            log.error("error saving snapshot file " + model.getSession().getFileName(), e);
-            log.error(e.getMessage(), e);
+            LOGGER.error("error saving snapshot file {}", model.getSession().getFileName(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         if (waitMessageDialog != null) {
@@ -613,7 +617,7 @@ public class MenuFileControl implements SessionListener {
                         .showWarningDialog(
                                 Constant.messages.getString("context.import.error", detailError));
             } catch (Exception e1) {
-                log.error(e1.getMessage(), e1);
+                LOGGER.error(e1.getMessage(), e1);
                 View.getSingleton()
                         .showWarningDialog(
                                 Constant.messages.getString(
@@ -629,6 +633,7 @@ public class MenuFileControl implements SessionListener {
         exportDialog.setVisible(true);
     }
 
+    @SuppressWarnings("serial")
     private static class SessionFileChooser extends WritableFileChooser {
 
         public static final FileFilter SESSION_FILE_FILTER =

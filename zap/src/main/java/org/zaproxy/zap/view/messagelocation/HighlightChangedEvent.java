@@ -29,6 +29,7 @@ import java.util.EventObject;
  * @see HighlightChangedEvent
  * @see MessageLocationHighlight
  */
+@SuppressWarnings("serial")
 public class HighlightChangedEvent<T> extends EventObject {
 
     private static final long serialVersionUID = 2706344550718757343L;

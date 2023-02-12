@@ -28,7 +28,7 @@ import org.apache.logging.log4j.Logger;
 
 public class ByteBuilder {
 
-    private static final Logger logger = LogManager.getLogger(ByteBuilder.class);
+    private static final Logger LOGGER = LogManager.getLogger(ByteBuilder.class);
 
     private byte[] array;
     private int size;
@@ -229,9 +229,7 @@ public class ByteBuilder {
                 | IllegalAccessException
                 | InvocationTargetException e) {
             // shouldn't happen but in case it does log it.
-            if (logger.isDebugEnabled()) {
-                logger.debug(e.getMessage(), e);
-            }
+            LOGGER.debug(e.getMessage(), e);
         } catch (NoSuchMethodException e) {
             // will happen, a lot
         }

@@ -19,17 +19,17 @@
  */
 package org.zaproxy.zap.spider.parser;
 
-import java.util.Objects;
 import java.util.StringTokenizer;
 import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * The Class SpiderRobotstxtParser used for parsing Robots.txt files.
  *
  * @since 2.0.0
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderRobotstxtParser extends SpiderParser {
 
     private static final String COMMENT_TOKEN = "#";
@@ -40,24 +40,20 @@ public class SpiderRobotstxtParser extends SpiderParser {
     private static final int PATTERNS_DISALLOW_LENGTH = 9;
     private static final int PATTERNS_ALLOW_LENGTH = 6;
 
-    /** The params. */
-    private SpiderParam params;
-
     /**
      * Instantiates a new spider robotstxt parser.
      *
      * @param params the params
      * @throws NullPointerException if {@code params} is null.
      */
-    public SpiderRobotstxtParser(SpiderParam params) {
-        super();
-        this.params = Objects.requireNonNull(params, "Parameter params must not be null.");
+    public SpiderRobotstxtParser(org.zaproxy.zap.spider.SpiderParam params) {
+        super(params);
     }
 
     /** @throws NullPointerException if {@code message} is null. */
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
-        if (!params.isParseRobotsTxt()) {
+        if (!getSpiderParam().isParseRobotsTxt()) {
             return false;
         }
         getLogger().debug("Parsing a robots.txt resource...");
@@ -80,7 +76,7 @@ public class SpiderRobotstxtParser extends SpiderParser {
             if (line.isEmpty()) {
                 continue;
             }
-            getLogger().debug("Processing robots.txt line: " + line);
+            getLogger().debug("Processing robots.txt line: {}", line);
 
             if (line.matches(PATTERNS_DISALLOW)) {
                 processPath(message, depth, line.substring(PATTERNS_DISALLOW_LENGTH), baseURL);

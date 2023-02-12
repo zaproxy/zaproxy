@@ -1,9 +1,16 @@
+# syntax=docker/dockerfile:1
 # This dockerfile builds the zap stable release
-FROM openjdk:8-jdk-alpine AS builder
+FROM --platform=linux/amd64 debian:bullseye-slim AS builder
+
+RUN apt-get update && apt-get install -q -y --fix-missing \
+	wget \
+	curl \
+	openjdk-11-jdk \
+	xmlstarlet \
+	unzip && \
+	rm -rf /var/lib/apt/lists/*
 
 WORKDIR /zap
-
-RUN apk add --no-cache wget xmlstarlet bash
 
 # Download and expand the latest stable release
 RUN wget -qO- https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i Linux | wget --content-disposition -i - -O - | tar zxv && \
@@ -15,11 +22,22 @@ RUN ./zap.sh -cmd -silent -addonupdate
 # Copy them to installation directory
 RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
-FROM ubuntu:20.04
+# Setup Webswing
+ENV WEBSWING_VERSION 22.2.4
+ARG WEBSWING_URL=""
+RUN if [ -z "$WEBSWING_URL" ] ; \
+	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
+	unzip webswing.zip && \
+	rm webswing.zip && \
+	mv webswing-* webswing && \
+	# Remove Webswing bundled examples
+	rm -Rf webswing/apps/
+
+FROM debian:bullseye-slim AS final
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
-ARG WEBSWING_URL=""
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
@@ -37,15 +55,14 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	net-tools \
 	python3-pip \
 	python-is-python3 \
-	firefox \
+	firefox-esr \
 	xvfb \
 	x11vnc && \
-	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3 zapcli
+RUN pip3 install --no-cache-dir --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3
 
-RUN useradd -d /home/zap -m -s /bin/bash zap
+RUN useradd -u 1000 -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
 RUN mkdir /zap && chown zap:zap /zap
 
@@ -56,54 +73,33 @@ USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV WEBSWING_VERSION 21.2.8
-
-# Setup Webswing
-RUN if [ -z "$WEBSWING_URL" ] ; \
-	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
-	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
-	unzip webswing.zip && \
-	rm webswing.zip && \
-	mv webswing-* webswing && \
-	# Remove Webswing bundled examples
-	rm -Rf webswing/apps/
-
 # Copy stable release
-COPY --from=builder /zap .
+COPY --link --from=builder --chown=1000:1000 /zap .
 
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+COPY --link --from=builder --chown=1000:1000 /zap/webswing /zap/webswing
+
+ARG TARGETARCH
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-$TARGETARCH
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 ENV ZAP_PATH /zap/zap.sh
 
-# Default port for use with zapcli
+# Default port for use with health check
 ENV ZAP_PORT 8080
 ENV IS_CONTAINERIZED true
 ENV HOME /home/zap/
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-COPY zap* CHANGELOG.md /zap/
-COPY webswing.config /zap/webswing/
-COPY webswing.properties /zap/webswing/
-COPY policies /home/zap/.ZAP/policies/
-COPY policies /root/.ZAP/policies/
+COPY --link --chown=1000:1000 zap* CHANGELOG.md /zap/
+COPY --link --chown=1000:1000 webswing.config /zap/webswing/
+COPY --link --chown=1000:1000 webswing.properties /zap/webswing/
+COPY --link --chown=1000:1000 policies /home/zap/.ZAP/policies/
+COPY --link --chown=1000:1000 policies /root/.ZAP/policies/
 # The scan script loads the scripts from dev home dir.
-COPY scripts /home/zap/.ZAP_D/scripts/
-COPY .xinitrc /home/zap/
+COPY --link --chown=1000:1000 scripts /home/zap/.ZAP_D/scripts/
+COPY --link --chown=1000:1000 .xinitrc /home/zap/
 
-RUN echo "zap2docker-stable" > /zap/container
+RUN echo "zap2docker-stable" > /zap/container && \
+    chmod a+x /home/zap/.xinitrc
 
-#Copy doesn't respect USER directives so we need to chown and to do that we need to be root
-USER root
-
-RUN chown zap:zap /zap/* && \
-	chown zap:zap /zap/webswing/webswing.config && \
-	chown zap:zap /zap/webswing/webswing.properties && \
-	chown zap:zap -R /home/zap/.ZAP/ && \
-	chown zap:zap /home/zap/.xinitrc && \
-	chmod a+x /home/zap/.xinitrc
-
-#Change back to zap at the end
-USER zap
-
-HEALTHCHECK --retries=5 --interval=5s CMD zap-cli status
+HEALTHCHECK CMD curl --silent --output /dev/null --fail http://localhost:$ZAP_PORT/ || exit 1

@@ -1,12 +1,12 @@
-ZAP Scanners
-============
-The registry of scanners' (passive, active, custom...) IDs.
+ZAP Scan Rules
+==============
+The registry of scan rules' (passive, active, custom...) IDs.
 
 Format: `<ID> <NAME>`
 
-If the scanner is no longer in use: `<ID> <NAME> [Deprecated]`
+If the scan rule is no longer in use: `<ID> <NAME> [Deprecated]`
 
-Scanners:
+Scan rules:
 ```
 0       Directory browsing
 1       Potential File Path Manipulation
@@ -99,6 +99,8 @@ Scanners:
 10108   Blank link target
 10109   Modern Web Application (info)
 10110   Dangerous JS Function Scanner
+10111   Authentication Request Detection (info)
+10112   Session Handling Detection (info)
 
 10200   Beast (via HTTPS Info Extension)
 10201   Crime (via HTTPS Info Extension)
@@ -172,6 +174,8 @@ Scanners:
 40043   Log4Shell (CVE-2021-44228, CVE-2021-45046)
 40044   Exponential Entity Expansion (Billion Laughs Attack)
 40045   Spring4Shell (CVE-2022-22965)
+40046   Server Side Request Forgery
+40047   Text4Shell (CVE-2022-42889)
 
 50000   Active Scan scripts
 50001   Passive Scan scripts

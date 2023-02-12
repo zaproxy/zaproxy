@@ -41,11 +41,14 @@
 // ZAP: 2020/11/20 Support Send button in response panel in tab mode
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/02/12 Add shortcut key to Send button (Issue 6448).
+// ZAP: 2022/06/08 Fix resizing issues.
+// ZAP: 2022/06/23 Do not implement Tab.
+// ZAP: 2022/09/14 Deprecate the class.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.HeadlessException;
 import java.awt.event.KeyEvent;
@@ -67,11 +70,16 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.tab.Tab;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-/** Send custom crafted messages via HTTP or other TCP based protocols. */
-public abstract class ManualRequestEditorDialog extends AbstractFrame implements Tab {
+/**
+ * Send custom crafted messages via HTTP or other TCP based protocols.
+ *
+ * @deprecated (2.12.0) Replaced by Requester add-on.
+ */
+@Deprecated
+public abstract class ManualRequestEditorDialog extends AbstractFrame {
     private static final long serialVersionUID = 1L;
 
     private static final Logger logger = LogManager.getLogger(ManualRequestEditorDialog.class);
@@ -100,7 +108,7 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
         this.isSendEnabled = isSendEnabled;
         this.configurationKey = OptionsParamView.BASE_VIEW_KEY + "." + configurationKey + ".";
 
-        this.setPreferredSize(new Dimension(700, 800));
+        this.setPreferredSize(DisplayUtils.getScaledDimension(700, 800));
     }
 
     protected void initialize() {
@@ -278,17 +286,13 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
                                                     "network.ssl.error.help",
                                                     Constant.messages.getString(
                                                             "network.ssl.error.help.url")));
-                                    if (logger.isDebugEnabled()) {
-                                        logger.debug(sslEx, sslEx);
-                                    }
+                                    logger.debug(sslEx, sslEx);
                                     View.getSingleton()
                                             .showWarningDialog(
                                                     ManualRequestEditorDialog.this,
                                                     strBuilder.toString());
                                 } catch (Exception e) {
-                                    if (logger.isDebugEnabled()) {
-                                        logger.debug(e.getMessage(), e);
-                                    }
+                                    logger.debug(e.getMessage(), e);
                                     View.getSingleton()
                                             .showWarningDialog(
                                                     ManualRequestEditorDialog.this, e.getMessage());

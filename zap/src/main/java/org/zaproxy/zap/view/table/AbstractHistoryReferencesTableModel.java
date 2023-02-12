@@ -32,6 +32,7 @@ import org.parosproxy.paros.Constant;
  *
  * @param <T> the type of table model entries
  */
+@SuppressWarnings("serial")
 public abstract class AbstractHistoryReferencesTableModel<T extends HistoryReferencesTableEntry>
         extends AbstractTableModel implements HistoryReferencesTableModel<T> {
 

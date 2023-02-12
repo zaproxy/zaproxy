@@ -250,10 +250,9 @@ public final class AddOnRunIssuesUtils {
                             Constant.messages.getString(
                                     "cfu.warn.addon.with.missing.requirements.unknown");
                     LOGGER.warn(
-                            "Failed to handle dependency issue with name \""
-                                    + requirements.getDependencyIssue().name()
-                                    + "\" and details: "
-                                    + issueDetails);
+                            "Failed to handle dependency issue with name \"{}\" and details: {}",
+                            requirements.getDependencyIssue().name(),
+                            issueDetails);
                     break;
             }
 
@@ -422,10 +421,9 @@ public final class AddOnRunIssuesUtils {
                         addOn.getSemVer() != null ? addOn.getSemVer() : addOn.getVersion());
             default:
                 LOGGER.warn(
-                        "Failed to handle dependency issue with name \""
-                                + requirements.getDependencyIssue().name()
-                                + "\" and details: "
-                                + issueDetails);
+                        "Failed to handle dependency issue with name \"{}\" and details: {}",
+                        requirements.getDependencyIssue().name(),
+                        issueDetails);
                 return null;
         }
     }

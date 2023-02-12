@@ -46,6 +46,9 @@ public class SqlTableAlertTag extends SqlAbstractTable implements TableAlertTag 
             if (!DbUtils.hasTable(conn, TABLE_NAME)) {
                 DbUtils.execute(conn, DbSQL.getSQL("alerttag.ps.createtable"));
             }
+            if (!DbUtils.hasIndex(conn, "ALERT_TAG", "ALERT_ID_INDEX")) {
+                DbUtils.execute(conn, DbSQL.getSQL("alerttag.ps.indexalertid"));
+            }
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
@@ -126,11 +129,12 @@ public class SqlTableAlertTag extends SqlAbstractTable implements TableAlertTag 
 
     @Override
     public List<RecordAlertTag> getAllRecords() throws DatabaseException {
-        SqlPreparedStatementWrapper psGetAllTags = null;
+        SqlPreparedStatementWrapper psGetAllRecords = null;
         try {
-            psGetAllTags = DbSQL.getSingleton().getPreparedStatement("alerttag.ps.getalltags");
+            psGetAllRecords =
+                    DbSQL.getSingleton().getPreparedStatement("alerttag.ps.getallrecords");
             List<RecordAlertTag> result = new ArrayList<>();
-            try (ResultSet rs = psGetAllTags.getPs().executeQuery()) {
+            try (ResultSet rs = psGetAllRecords.getPs().executeQuery()) {
                 RecordAlertTag rat;
                 while ((rat = build(rs)) != null) {
                     result.add(rat);
@@ -140,7 +144,7 @@ public class SqlTableAlertTag extends SqlAbstractTable implements TableAlertTag 
         } catch (SQLException e) {
             throw new DatabaseException(e);
         } finally {
-            DbSQL.getSingleton().releasePreparedStatement(psGetAllTags);
+            DbSQL.getSingleton().releasePreparedStatement(psGetAllRecords);
         }
     }
 

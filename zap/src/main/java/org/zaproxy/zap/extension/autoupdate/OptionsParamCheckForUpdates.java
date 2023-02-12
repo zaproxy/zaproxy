@@ -67,7 +67,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
     private String dayLastChecked = null;
     private String dayLastInstallWarned = null;
     private String dayLastUpdateWarned = null;
-    private static Logger log = LogManager.getLogger(OptionsParamCheckForUpdates.class);
+    private static final Logger LOGGER = LogManager.getLogger(OptionsParamCheckForUpdates.class);
 
     public OptionsParamCheckForUpdates() {}
 
@@ -88,11 +88,11 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
         for (Object dir : getConfig().getList(ADDON_DIRS)) {
             File f = new File(dir.toString());
             if (!f.exists()) {
-                log.error("Add-on directory does not exist: " + f.getAbsolutePath());
+                LOGGER.error("Add-on directory does not exist: {}", f.getAbsolutePath());
             } else if (!f.isDirectory()) {
-                log.error("Add-on directory is not a directory: " + f.getAbsolutePath());
+                LOGGER.error("Add-on directory is not a directory: {}", f.getAbsolutePath());
             } else if (!f.canRead()) {
-                log.error("Add-on directory not readable: " + f.getAbsolutePath());
+                LOGGER.error("Add-on directory not readable: {}", f.getAbsolutePath());
             } else {
                 this.addonDirectories.add(f);
             }
@@ -148,19 +148,19 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
     @ZapApiIgnore
     public boolean checkOnStart() {
         if (!checkOnStart) {
-            log.debug("isCheckForStart - false");
+            LOGGER.debug("isCheckForStart - false");
             return false;
         }
         String today = getSdf().format(new Date());
         if (today.equals(dayLastChecked)) {
-            log.debug("isCheckForStart - already checked today");
+            LOGGER.debug("isCheckForStart - already checked today");
             return false;
         }
         getConfig().setProperty(DAY_LAST_CHECKED, today);
         try {
             getConfig().save();
         } catch (ConfigurationException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return true;
@@ -215,7 +215,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
         try {
             getConfig().save();
         } catch (ConfigurationException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -224,7 +224,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
         try {
             getConfig().save();
         } catch (ConfigurationException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

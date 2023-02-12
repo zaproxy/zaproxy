@@ -25,21 +25,22 @@
  */
 package ch.csnc.extension.ui;
 
-import ch.csnc.extension.httpclient.AliasCertificate;
-import ch.csnc.extension.httpclient.SSLContextManager;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
+@SuppressWarnings("serial")
 public class AliasTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -4387633069248206563L;
 
     private int _ks = -1;
-    private List<AliasCertificate> _aliases = new ArrayList<>();
-    private SSLContextManager _sslcm;
+    private List<ch.csnc.extension.httpclient.AliasCertificate> _aliases = new ArrayList<>();
+    private ch.csnc.extension.httpclient.SSLContextManager _sslcm;
 
-    public AliasTableModel(SSLContextManager contextManager) {
+    public AliasTableModel(ch.csnc.extension.httpclient.SSLContextManager contextManager) {
         _sslcm = contextManager;
     }
 

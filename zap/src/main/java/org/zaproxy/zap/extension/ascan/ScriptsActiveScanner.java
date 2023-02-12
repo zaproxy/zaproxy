@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -46,7 +45,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     private ExtensionScript extension = null;
     private ScriptsCache<ActiveScript> cachedScripts;
 
-    private static Logger logger = LogManager.getLogger(ScriptsActiveScanner.class);
+    private static final Logger LOGGER = LogManager.getLogger(ScriptsActiveScanner.class);
     /**
      * A {@code Set} containing the scripts that do not implement {@code ActiveScript2}, to show an
      * error if those scripts do not implement {@code ActiveScript} (thus not implementing any of
@@ -160,11 +159,10 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
                     if (s != null) {
                         HttpMessage msg = this.getNewMsg();
-                        logger.debug(
-                                "Calling script "
-                                        + script.getName()
-                                        + " scanNode for "
-                                        + msg.getRequestHeader().getURI());
+                        LOGGER.debug(
+                                "Calling script {} scanNode for {}",
+                                script.getName(),
+                                msg.getRequestHeader().getURI());
                         s.scanNode(this, msg);
                     } else {
                         scriptsNoInterface.add(script);
@@ -216,15 +214,12 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
             ScriptWrapper script = cachedScript.getScriptWrapper();
             try {
-                logger.debug(
-                        "Calling script "
-                                + script.getName()
-                                + " scan for "
-                                + msg.getRequestHeader().getURI()
-                                + "param="
-                                + param
-                                + " value="
-                                + value);
+                LOGGER.debug(
+                        "Calling script {} scan for {} param={} value={}",
+                        script.getName(),
+                        msg.getRequestHeader().getURI(),
+                        param,
+                        value);
                 cachedScript.getScript().scan(this, msg, param, value);
 
             } catch (Exception e) {
@@ -243,19 +238,18 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     }
 
     @Override
-    public void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
+    public void sendAndReceive(HttpMessage msg) throws IOException {
         super.sendAndReceive(msg);
     }
 
     @Override
-    public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect)
-            throws HttpException, IOException {
+    public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws IOException {
         super.sendAndReceive(msg, isFollowRedirect);
     }
 
     @Override
     public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect, boolean handleAntiCSRF)
-            throws HttpException, IOException {
+            throws IOException {
         super.sendAndReceive(msg, isFollowRedirect, handleAntiCSRF);
     }
 

@@ -32,7 +32,7 @@ import org.apache.logging.log4j.Logger;
 
 public class BasicOnlineContentViewerUI extends BasicContentViewerUI {
 
-    private static final Logger logger = LogManager.getLogger(BasicOnlineContentViewerUI.class);
+    private static final Logger LOGGER = LogManager.getLogger(BasicOnlineContentViewerUI.class);
 
     private static final long serialVersionUID = -1640590425627589113L;
 
@@ -48,7 +48,7 @@ public class BasicOnlineContentViewerUI extends BasicContentViewerUI {
             try {
                 Desktop.getDesktop().browse(u.toURI());
             } catch (IOException | URISyntaxException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         } else {
             super.linkActivated(u);

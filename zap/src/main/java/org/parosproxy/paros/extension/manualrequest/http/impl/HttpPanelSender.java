@@ -37,7 +37,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.manualrequest.MessageSender;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -46,7 +45,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
-import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -57,8 +55,13 @@ import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
 
-/** Knows how to send {@link HttpMessage} objects. */
-public class HttpPanelSender implements MessageSender {
+/**
+ * Knows how to send {@link HttpMessage} objects.
+ *
+ * @deprecated (2.12.0) Replaced by Requester add-on.
+ */
+@Deprecated
+public class HttpPanelSender implements org.parosproxy.paros.extension.manualrequest.MessageSender {
 
     private static final Logger logger = LogManager.getLogger(HttpPanelSender.class);
 
@@ -82,6 +85,7 @@ public class HttpPanelSender implements MessageSender {
         extAntiCSRF =
                 Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.class);
 
+        delegate = new HttpSender(HttpSender.MANUAL_REQUEST_INITIATOR);
         requestPanel.addOptions(
                 getButtonUseTrackingSessionState(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         requestPanel.addOptions(getButtonUseCookies(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
@@ -93,12 +97,11 @@ public class HttpPanelSender implements MessageSender {
             requestPanel.addOptions(getButtonUseCsrf(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
         }
 
-        final boolean isSessionTrackingEnabled =
-                Model.getSingleton().getOptionsParam().getConnectionParam().isHttpStateEnabled();
-        getButtonUseTrackingSessionState().setEnabled(isSessionTrackingEnabled);
+        updateButtonTrackingSessionState();
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void handleSendMessage(Message aMessage) throws IllegalArgumentException, IOException {
         final HttpMessage httpMessage = (HttpMessage) aMessage;
         // Reset the user before sending (e.g. Forced User mode sets the user, if needed).
@@ -112,18 +115,17 @@ public class HttpPanelSender implements MessageSender {
             boolean followRedirects = getButtonFollowRedirects().isSelected();
 
             if (extAntiCSRF != null && getButtonUseCsrf().isSelected()) {
-                extAntiCSRF.regenerateAntiCsrfToken(httpMessage, getDelegate()::sendAndReceive);
+                extAntiCSRF.regenerateAntiCsrfToken(httpMessage, delegate::sendAndReceive);
             }
 
             if (followRedirects) {
-                getDelegate()
-                        .sendAndReceive(
-                                httpMessage,
-                                HttpRequestConfig.builder()
-                                        .setRedirectionValidator(redirectionValidator)
-                                        .build());
+                delegate.sendAndReceive(
+                        httpMessage,
+                        HttpRequestConfig.builder()
+                                .setRedirectionValidator(redirectionValidator)
+                                .build());
             } else {
-                getDelegate().sendAndReceive(httpMessage, false);
+                delegate.sendAndReceive(httpMessage, false);
             }
 
             EventQueue.invokeAndWait(
@@ -149,7 +151,17 @@ public class HttpPanelSender implements MessageSender {
                         }
                     });
 
-            ZapGetMethod method = (ZapGetMethod) httpMessage.getUserObject();
+            Object userObject = httpMessage.getUserObject();
+            if (userObject instanceof Socket) {
+                closeSilently((Socket) userObject);
+                return;
+            }
+
+            if (!(userObject instanceof org.zaproxy.zap.ZapGetMethod)) {
+                return;
+            }
+
+            org.zaproxy.zap.ZapGetMethod method = (org.zaproxy.zap.ZapGetMethod) userObject;
             notifyPersistentConnectionListener(httpMessage, null, method);
 
         } catch (final HttpMalformedHeaderException mhe) {
@@ -167,6 +179,14 @@ public class HttpPanelSender implements MessageSender {
 
         } catch (final Exception e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    private static void closeSilently(Socket socket) {
+        try {
+            socket.close();
+        } catch (IOException ignore) {
+            // Nothing to do.
         }
     }
 
@@ -200,7 +220,9 @@ public class HttpPanelSender implements MessageSender {
      * @return Boolean to indicate if socket should be kept open.
      */
     private boolean notifyPersistentConnectionListener(
-            HttpMessage httpMessage, Socket inSocket, ZapGetMethod method) {
+            HttpMessage httpMessage,
+            Socket inSocket,
+            @SuppressWarnings("deprecation") org.zaproxy.zap.ZapGetMethod method) {
         boolean keepSocketOpen = false;
         PersistentConnectionListener listener = null;
         synchronized (persistentConnectionListener) {
@@ -232,24 +254,7 @@ public class HttpPanelSender implements MessageSender {
     }
 
     @Override
-    public void cleanup() {
-        if (delegate != null) {
-            delegate.shutdown();
-            delegate = null;
-        }
-    }
-
-    private HttpSender getDelegate() {
-        if (delegate == null) {
-            delegate =
-                    new HttpSender(
-                            Model.getSingleton().getOptionsParam().getConnectionParam(),
-                            getButtonUseTrackingSessionState().isSelected(),
-                            HttpSender.MANUAL_REQUEST_INITIATOR);
-            delegate.setUseCookies(getButtonUseCookies().isSelected());
-        }
-        return delegate;
-    }
+    public void cleanup() {}
 
     private JToggleButton getButtonFollowRedirects() {
         if (followRedirect == null) {
@@ -278,7 +283,7 @@ public class HttpPanelSender implements MessageSender {
             useTrackingSessionState.setToolTipText(
                     Constant.messages.getString("manReq.checkBox.useSession"));
             useTrackingSessionState.addItemListener(
-                    e -> setUseTrackingSessionState(e.getStateChange() == ItemEvent.SELECTED));
+                    e -> delegate.setUseGlobalState(e.getStateChange() == ItemEvent.SELECTED));
         }
         return useTrackingSessionState;
     }
@@ -293,7 +298,7 @@ public class HttpPanelSender implements MessageSender {
                             true);
             useCookies.setToolTipText(Constant.messages.getString("manReq.checkBox.useCookies"));
             useCookies.addItemListener(
-                    e -> setUseCookies(e.getStateChange() == ItemEvent.SELECTED));
+                    e -> delegate.setUseCookies(e.getStateChange() == ItemEvent.SELECTED));
         }
         return useCookies;
     }
@@ -395,20 +400,13 @@ public class HttpPanelSender implements MessageSender {
         }
     }
 
-    private void setUseTrackingSessionState(boolean shouldUseTrackingSessionState) {
-        if (delegate != null) {
-            delegate.setUseGlobalState(shouldUseTrackingSessionState);
-        }
-    }
-
-    private void setUseCookies(boolean shouldUseCookies) {
-        if (delegate != null) {
-            delegate.setUseCookies(shouldUseCookies);
-        }
+    void updateButtonTrackingSessionState() {
+        setButtonTrackingSessionStateEnabled(delegate.isGlobalStateEnabled());
     }
 
     public void setButtonTrackingSessionStateEnabled(boolean enabled) {
         getButtonUseTrackingSessionState().setEnabled(enabled);
         getButtonUseTrackingSessionState().setSelected(enabled);
+        delegate.setUseGlobalState(enabled);
     }
 }

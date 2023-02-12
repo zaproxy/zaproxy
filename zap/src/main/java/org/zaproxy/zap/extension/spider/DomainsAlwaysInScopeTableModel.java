@@ -22,11 +22,14 @@ package org.zaproxy.zap.extension.spider;
 import java.util.ArrayList;
 import java.util.List;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
+@SuppressWarnings("serial")
+/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+@Deprecated
 class DomainsAlwaysInScopeTableModel
-        extends AbstractMultipleOptionsTableModel<DomainAlwaysInScopeMatcher> {
+        extends AbstractMultipleOptionsTableModel<
+                org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> {
 
     private static final long serialVersionUID = -5411351965957264957L;
 
@@ -38,7 +41,8 @@ class DomainsAlwaysInScopeTableModel
 
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
-    private List<DomainAlwaysInScopeMatcher> domainsInScope = new ArrayList<>(5);
+    private List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domainsInScope =
+            new ArrayList<>(5);
 
     public DomainsAlwaysInScopeTableModel() {
         super();
@@ -93,22 +97,24 @@ class DomainsAlwaysInScopeTableModel
         return String.class;
     }
 
-    public List<DomainAlwaysInScopeMatcher> getDomainsAlwaysInScope() {
+    public List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> getDomainsAlwaysInScope() {
         return domainsInScope;
     }
 
-    public void setDomainsAlwaysInScope(List<DomainAlwaysInScopeMatcher> domainsInScope) {
+    public void setDomainsAlwaysInScope(
+            List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domainsInScope) {
         this.domainsInScope = new ArrayList<>(domainsInScope.size());
 
-        for (DomainAlwaysInScopeMatcher excludedDomain : domainsInScope) {
-            this.domainsInScope.add(new DomainAlwaysInScopeMatcher(excludedDomain));
+        for (org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher excludedDomain : domainsInScope) {
+            this.domainsInScope.add(
+                    new org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher(excludedDomain));
         }
 
         fireTableDataChanged();
     }
 
     @Override
-    public List<DomainAlwaysInScopeMatcher> getElements() {
+    public List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> getElements() {
         return domainsInScope;
     }
 }

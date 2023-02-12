@@ -35,6 +35,7 @@ import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.lang.reflect.UndeclaredThrowableException;
 import java.util.Locale;
@@ -46,12 +47,12 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.stubbing.Answer;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PassiveScanData;
-import org.zaproxy.zap.extension.pscan.PassiveScanTestHelper;
-import org.zaproxy.zap.extension.pscan.PassiveScanThread;
+import org.zaproxy.zap.extension.pscan.PassiveScanTaskHelper;
 import org.zaproxy.zap.extension.pscan.PassiveScript;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
@@ -117,17 +118,21 @@ class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
     }
 
     @Test
-    void shouldAddTagsWithParent() {
+    void shouldAddTagsWithTaskHelper() {
         // Given
         String tag = "Tag";
-        PassiveScanThread parent = mock(PassiveScanThread.class);
+        PassiveScanTaskHelper taskHelper = mock(PassiveScanTaskHelper.class);
+        HistoryReference href = mock(HistoryReference.class);
+        when(message.getHistoryRef()).thenReturn(href);
         ScriptsPassiveScanner scriptsPassiveScanner = new ScriptsPassiveScanner();
-        PassiveScanTestHelper.init(
-                scriptsPassiveScanner, parent, message, mock(PassiveScanData.class));
+        PassiveScanData passiveScanData = mock(PassiveScanData.class);
+        when(passiveScanData.getMessage()).thenReturn(message);
+        scriptsPassiveScanner.setHelper(passiveScanData);
+        scriptsPassiveScanner.setTaskHelper(taskHelper);
         // When
-        scriptsPassiveScanner.addTag(tag);
+        scriptsPassiveScanner.addHistoryTag(tag);
         // Then
-        verify(parent).addTag(tag);
+        verify(taskHelper).addHistoryTag(href, tag);
     }
 
     @Test
@@ -136,7 +141,7 @@ class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
         String tag = "Tag";
         ScriptsPassiveScanner scriptsPassiveScanner = new ScriptsPassiveScanner();
         // When / Then
-        assertThrows(NullPointerException.class, () -> scriptsPassiveScanner.addTag(tag));
+        assertThrows(NullPointerException.class, () -> scriptsPassiveScanner.addHistoryTag(tag));
     }
 
     @ParameterizedTest
@@ -190,6 +195,24 @@ class ScriptsPassiveScannerUnitTest extends WithConfigsTest {
                 ArgumentCaptor.forClass(ScriptsPassiveScanner.class);
         verify(script, times(1)).scan(argumentCaptor.capture(), eq(message), eq(source));
         assertThat(argumentCaptor.getValue(), is(sameInstance(scriptsPassiveScanner)));
+    }
+
+    @Test
+    void shouldScanWithCopy() throws Exception {
+        // Given
+        PassiveScript script = mock(TARGET_INTERFACE);
+        given(script.appliesToHistoryType(anyInt())).willReturn(true);
+        ScriptsCache<PassiveScript> scriptsCache = createScriptsCache(createCachedScript(script));
+        given(extensionScript.<PassiveScript>createScriptsCache(any())).willReturn(scriptsCache);
+        int historyType = 5;
+        ScriptsPassiveScanner scriptsPassiveScanner = new ScriptsPassiveScanner();
+        scriptsPassiveScanner.appliesToHistoryType(historyType);
+        // When
+        ScriptsPassiveScanner copy = scriptsPassiveScanner.copy();
+        copy.scanHttpResponseReceive(message, id, source);
+        // Then
+        verify(script, times(1)).appliesToHistoryType(historyType);
+        verify(script, times(1)).scan(any(), any(), any());
     }
 
     @Test

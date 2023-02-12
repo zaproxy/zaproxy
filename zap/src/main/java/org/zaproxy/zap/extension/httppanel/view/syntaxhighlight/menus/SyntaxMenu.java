@@ -38,6 +38,7 @@ import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.AutoDetectSyntax
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea.SyntaxStyle;
 
+@SuppressWarnings("serial")
 public class SyntaxMenu extends ExtensionPopupMenu {
 
     private static final long serialVersionUID = 8472491919281117716L;

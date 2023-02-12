@@ -6,7 +6,7 @@
 [![Github Releases](https://img.shields.io/github/downloads/zaproxy/zaproxy/latest/total.svg?maxAge=2592000)](https://zapbot.github.io/zap-mgmt-scripts/downloads.html)
 [![javadoc](https://javadoc.io/badge2/org.zaproxy/zap/javadoc.svg)](https://javadoc.io/doc/org.zaproxy/zap)
 [![OWASP Flagship](https://img.shields.io/badge/owasp-flagship-brightgreen.svg)](https://owasp.org/projects#div-flagships)
-[![Language grade: Java](https://img.shields.io/lgtm/grade/java/g/zaproxy/zaproxy.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/zaproxy/zaproxy/context:java)
+[![CodeQL](https://github.com/zaproxy/zaproxy/actions/workflows/codeql.yml/badge.svg)](https://github.com/zaproxy/zaproxy/actions/workflows/codeql.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=zaproxy_zaproxy&metric=alert_status)](https://sonarcloud.io/dashboard?id=zaproxy_zaproxy)
 [![Open Source Helpers](https://www.codetriage.com/zaproxy/zaproxy/badges/users.svg)](https://www.codetriage.com/zaproxy/zaproxy)
 [![Twitter Follow](https://img.shields.io/twitter/follow/zaproxy.svg?style=social&label=Follow&maxAge=2592000)](https://twitter.com/zaproxy)

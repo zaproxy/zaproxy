@@ -29,7 +29,9 @@ import org.apache.logging.log4j.Logger;
  * <p>Contains the host, port, version, and if names should be resolved by the proxy.
  *
  * @since 2.10.0
+ * @deprecated (2.12.0) No longer in use.
  */
+@Deprecated
 public class SocksProxy {
 
     private static final Logger logger = LogManager.getLogger(SocksProxy.class);
@@ -83,7 +85,7 @@ public class SocksProxy {
             try {
                 number = Integer.parseInt(value);
             } catch (NumberFormatException e) {
-                logger.warn("Failed to parse the version: " + value, e);
+                logger.warn("Failed to parse the version: {}", value, e);
                 return SOCKS5;
             }
 
@@ -94,7 +96,7 @@ public class SocksProxy {
                 return SOCKS5;
             }
 
-            logger.warn("Unknown version: " + value);
+            logger.warn("Unknown version: {}", value);
             return SOCKS5;
         }
     }

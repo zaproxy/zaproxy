@@ -29,9 +29,11 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/05/21 Disable unsafe SSL/TLS renegotiation option.
+// ZAP: 2022/05/29 Deprecate the class.
+// ZAP: 2022/06/07 Address deprecation warnings with SSLConnector.
 package org.parosproxy.paros.extension.option;
 
-import ch.csnc.extension.httpclient.SSLContextManager;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
@@ -43,8 +45,9 @@ import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.network.SSLConnector;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class OptionsParamCertificate extends AbstractParam {
 
     private static final Logger logger = LogManager.getLogger(OptionsParamCertificate.class);
@@ -57,15 +60,10 @@ public class OptionsParamCertificate extends AbstractParam {
     private static final String CLIENT_CERT_PASSWORD = CERTIFICATE_BASE_KEY + ".pkcs12.password";
     private static final String CLIENT_CERT_INDEX = CERTIFICATE_BASE_KEY + ".pkcs12.index";
 
-    private static final String ALLOW_UNSAFE_SSL_RENEGOTIATION =
-            CERTIFICATE_BASE_KEY + ".allowUnsafeSslRenegotiation";
-
     private boolean useClientCert = false;
     private String clientCertLocation = "";
     private String clientCertPassword = "";
     private int clientCertIndex = 0;
-
-    private boolean allowUnsafeSslRenegotiation = false;
 
     public OptionsParamCertificate() {}
 
@@ -74,9 +72,6 @@ public class OptionsParamCertificate extends AbstractParam {
 
         clientCertCheck();
         saveClientCertSettings();
-
-        allowUnsafeSslRenegotiation = getBoolean(ALLOW_UNSAFE_SSL_RENEGOTIATION, false);
-        setAllowUnsafeSslRenegotiationSystemProperty(allowUnsafeSslRenegotiation);
     }
 
     /**
@@ -115,7 +110,8 @@ public class OptionsParamCertificate extends AbstractParam {
         if (enableClientCert && !certPath.isEmpty() && !certPass.isEmpty()) {
             try {
 
-                SSLContextManager contextManager = getSSLContextManager();
+                ch.csnc.extension.httpclient.SSLContextManager contextManager =
+                        getSSLContextManager();
                 int ksIndex = contextManager.loadPKCS12Certificate(certPath, certPass);
                 contextManager.unlockKey(ksIndex, certIndex, certPass);
                 contextManager.setDefaultKey(ksIndex, certIndex);
@@ -185,8 +181,9 @@ public class OptionsParamCertificate extends AbstractParam {
     public void setEnableCertificate(boolean enabled) {
         ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
 
-        if (sslFactory instanceof SSLConnector) {
-            SSLConnector ssl = (SSLConnector) sslFactory;
+        if (sslFactory instanceof org.parosproxy.paros.network.SSLConnector) {
+            org.parosproxy.paros.network.SSLConnector ssl =
+                    (org.parosproxy.paros.network.SSLConnector) sslFactory;
             ssl.setEnableClientCert(enabled);
 
             setUseClientCert(enabled);
@@ -197,17 +194,19 @@ public class OptionsParamCertificate extends AbstractParam {
 
         ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
 
-        if (sslFactory instanceof SSLConnector) {
-            SSLConnector ssl = (SSLConnector) sslFactory;
+        if (sslFactory instanceof org.parosproxy.paros.network.SSLConnector) {
+            org.parosproxy.paros.network.SSLConnector ssl =
+                    (org.parosproxy.paros.network.SSLConnector) sslFactory;
             ssl.setActiveCertificate();
         }
     }
 
-    public SSLContextManager getSSLContextManager() {
+    public ch.csnc.extension.httpclient.SSLContextManager getSSLContextManager() {
 
         ProtocolSocketFactory sslFactory = Protocol.getProtocol("https").getSocketFactory();
-        if (sslFactory instanceof SSLConnector) {
-            SSLConnector ssl = (SSLConnector) sslFactory;
+        if (sslFactory instanceof org.parosproxy.paros.network.SSLConnector) {
+            org.parosproxy.paros.network.SSLConnector ssl =
+                    (org.parosproxy.paros.network.SSLConnector) sslFactory;
 
             return ssl.getSSLContextManager();
         }
@@ -221,7 +220,7 @@ public class OptionsParamCertificate extends AbstractParam {
      * @see #setAllowUnsafeSslRenegotiation(boolean)
      */
     public boolean isAllowUnsafeSslRenegotiation() {
-        return allowUnsafeSslRenegotiation;
+        return false;
     }
 
     /**
@@ -236,38 +235,6 @@ public class OptionsParamCertificate extends AbstractParam {
      * @param allow {@code true} if the unsafe SSL renegotiation should be enabled, {@code false}
      *     otherwise.
      * @see #isAllowUnsafeSslRenegotiation()
-     * @see #setAllowUnsafeSslRenegotiationSystemProperty(boolean)
      */
-    public void setAllowUnsafeSslRenegotiation(boolean allow) {
-        if (allowUnsafeSslRenegotiation != allow) {
-            allowUnsafeSslRenegotiation = allow;
-
-            setAllowUnsafeSslRenegotiationSystemProperty(allowUnsafeSslRenegotiation);
-            getConfig().setProperty(ALLOW_UNSAFE_SSL_RENEGOTIATION, allowUnsafeSslRenegotiation);
-        }
-    }
-
-    /**
-     * Sets the given value to system property "sun.security.ssl.allowUnsafeRenegotiation" and sets
-     * the appropriate value to system property "com.ibm.jsse2.renegotiate", which enables or not
-     * the unsafe SSL renegotiation.
-     *
-     * <p>It must be set before establishing any SSL connection. Further changes after establishing
-     * a SSL connection will have no effect.
-     *
-     * @param allow the value to set to the property
-     * @see #setAllowUnsafeSslRenegotiation(boolean)
-     */
-    private static void setAllowUnsafeSslRenegotiationSystemProperty(boolean allow) {
-        String ibmSystemPropertyValue;
-        if (allow) {
-            logger.info("Unsafe SSL renegotiation enabled.");
-            ibmSystemPropertyValue = "ALL";
-        } else {
-            logger.info("Unsafe SSL renegotiation disabled.");
-            ibmSystemPropertyValue = "NONE";
-        }
-        System.setProperty("com.ibm.jsse2.renegotiate", ibmSystemPropertyValue);
-        System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", String.valueOf(allow));
-    }
+    public void setAllowUnsafeSslRenegotiation(boolean allow) {}
 }

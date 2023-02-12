@@ -29,6 +29,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 
+@SuppressWarnings("serial")
 public abstract class PopupContextMenuItemFactory extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 2282358266003940700L;

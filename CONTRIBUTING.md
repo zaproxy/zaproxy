@@ -90,7 +90,7 @@ does not support it.
 ##### What we (ZAP Team), expect from you?
   * "Atomic commits" (logical changes to be in a single commit). Please don't group disjointed changes into a single commit/PR.
   * Descriptive commits (subject and message):
-    * For example: https://github.com/spring-projects/spring-framework/blob/master/CONTRIBUTING.md#format-commit-messages
+    * For example: https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project#_commit_guidelines
   * Please, leave a comment after force pushing changes. It allows everyone to know that new changes are available.
   * Discussion about the changes:
     * Should be done in/on the PR or via the Dev Group and a link to that Dev Group thread added to the PR comments. (i.e.: Shared information is important, if something happens via IRC or private email please ensure a summary makes it to the PR.)

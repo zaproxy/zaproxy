@@ -24,6 +24,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.network.HtmlParameter;
 
+@SuppressWarnings("serial")
 public class PopupMenuAddSession extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;

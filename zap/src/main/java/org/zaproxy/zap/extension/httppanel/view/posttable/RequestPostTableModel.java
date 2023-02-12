@@ -23,6 +23,7 @@
 // ZAP: 2017/05/31 Added multi-catch in a specific handler.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.zaproxy.zap.extension.httppanel.view.posttable;
 
 import java.io.UnsupportedEncodingException;
@@ -49,7 +50,7 @@ public class RequestPostTableModel extends AbstractTableModel {
     private boolean isChanged = false;
 
     // ZAP: Added logger
-    private static final Logger logger = LogManager.getLogger(RequestPostTableModel.class);
+    private static final Logger LOGGER = LogManager.getLogger(RequestPostTableModel.class);
 
     public boolean isEditable() {
         return editable;
@@ -104,7 +105,7 @@ public class RequestPostTableModel extends AbstractTableModel {
                 listPair.add(cell);
             } catch (UnsupportedEncodingException | IllegalArgumentException e) {
                 // ZAP: Log the exception
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
 
@@ -146,7 +147,7 @@ public class RequestPostTableModel extends AbstractTableModel {
                 }
             } catch (UnsupportedEncodingException | IllegalArgumentException e) {
                 // ZAP: Log the exception
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
         return sb.toString();

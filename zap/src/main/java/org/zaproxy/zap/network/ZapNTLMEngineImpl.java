@@ -63,8 +63,9 @@ import org.apache.commons.httpclient.auth.AuthenticationException;
  * Provides an implementation for NTLMv1, NTLMv2, and NTLM2 Session forms of the NTLM
  * authentication protocol.
  *
- * @since 4.1
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 final class ZapNTLMEngineImpl {
 
     /** Unicode encoding */

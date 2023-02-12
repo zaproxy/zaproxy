@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.api;
 import java.util.ArrayList;
 import java.util.List;
 import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.alert.AlertAPI;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfAPI;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
@@ -40,11 +39,9 @@ import org.zaproxy.zap.extension.ruleconfig.RuleConfigAPI;
 import org.zaproxy.zap.extension.script.ScriptAPI;
 import org.zaproxy.zap.extension.search.SearchAPI;
 import org.zaproxy.zap.extension.sessions.SessionManagementAPI;
-import org.zaproxy.zap.extension.spider.SpiderAPI;
 import org.zaproxy.zap.extension.stats.StatsAPI;
 import org.zaproxy.zap.extension.stats.StatsParam;
 import org.zaproxy.zap.extension.users.UsersAPI;
-import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * Utility class for the API generators
@@ -77,11 +74,7 @@ public class ApiGeneratorUtils {
         api.addApiOptions(new OptionsParamCheckForUpdates());
         imps.add(api);
 
-        api = new SpiderAPI(null);
-        api.addApiOptions(new SpiderParam());
-        imps.add(api);
-
-        api = new CoreAPI(new ConnectionParam());
+        api = new CoreAPI();
         imps.add(api);
 
         imps.add(new ParamsAPI(null));

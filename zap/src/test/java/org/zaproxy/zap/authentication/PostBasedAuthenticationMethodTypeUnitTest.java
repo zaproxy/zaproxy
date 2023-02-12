@@ -20,6 +20,10 @@
 package org.zaproxy.zap.authentication;
 
 import static java.util.Arrays.asList;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
@@ -27,21 +31,35 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
+import static org.zaproxy.zap.authentication.PostBasedAuthenticationMethodTypeUnitTest.ReplaceAntiCsrfTokenValueIfRequired.token;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.UnaryOperator;
+import net.sf.json.JSONObject;
+import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.quality.Strictness;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.WithConfigsTest;
+import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
+import org.zaproxy.zap.authentication.PostBasedAuthenticationMethodType.PostBasedAuthenticationMethod;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
+import org.zaproxy.zap.extension.api.ApiException;
+import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.network.HttpRequestBody;
+import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType;
+import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
+import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.I18N;
 
@@ -247,15 +265,17 @@ class PostBasedAuthenticationMethodTypeUnitTest {
             verify(requestMessageBody).setBody("uid=1&acsrf=encoded");
         }
 
-        private static AntiCsrfToken token(String name, String value) {
-            AntiCsrfToken token = mock(AntiCsrfToken.class, withSettings().lenient());
+        static AntiCsrfToken token(String name, String value) {
+            AntiCsrfToken token =
+                    mock(AntiCsrfToken.class, withSettings().strictness(Strictness.LENIENT));
             given(token.getName()).willReturn(name);
             given(token.getValue()).willReturn(value);
             return token;
         }
 
         private static NameValuePair parameter(String name, String value) {
-            NameValuePair parameter = mock(NameValuePair.class, withSettings().lenient());
+            NameValuePair parameter =
+                    mock(NameValuePair.class, withSettings().strictness(Strictness.LENIENT));
             given(parameter.getName()).willReturn(name);
             given(parameter.getValue()).willReturn(value);
             return parameter;
@@ -269,6 +289,93 @@ class PostBasedAuthenticationMethodTypeUnitTest {
             public String apply(String value) {
                 return value;
             }
+        }
+    }
+
+    static class FormBasedAuthenticationMethodTest extends WithConfigsTest {
+
+        private AuthenticationMethod method;
+        private FormBasedAuthenticationMethodType type;
+        private Context context;
+        private ExtensionAntiCSRF extAntiCsrf;
+
+        @BeforeEach
+        void setUp() throws Exception {
+
+            Constant.messages = mock(I18N.class);
+            given(Constant.messages.getString(anyString())).willReturn("message-val");
+            Control.initSingletonForTesting();
+            extAntiCsrf = mock(ExtensionAntiCSRF.class);
+
+            type = spy(new FormBasedAuthenticationMethodType());
+            method = type.createAuthenticationMethod(1);
+            given(type.createAuthenticationMethod(anyInt()))
+                    .willReturn((FormBasedAuthenticationMethod) method);
+
+            context = Model.getSingleton().getSession().getNewContext("test");
+        }
+
+        @Test
+        void shouldSetCorrectContentLengthWithAntiCsrfTokens()
+                throws NullPointerException, ApiException {
+
+            // Given
+            String test = "/shouldSetContentLength/test";
+            String username = "user";
+            String password = "";
+            String csrfTokenName = "_csrf";
+            String csrfTokenValue = "0123456789";
+            PostBasedAuthenticationMethodType.setExtAntiCsrf(extAntiCsrf);
+            List<AntiCsrfToken> tokens = asList(token(csrfTokenName, csrfTokenValue));
+            given(extAntiCsrf.getTokensFromResponse(any(HttpMessage.class))).willReturn(tokens);
+
+            final List<String> orderedReqData = new ArrayList<>();
+
+            setMessageHandler(
+                    msg -> {
+                        URI uri = msg.getRequestHeader().getURI();
+                        if (test.equals(uri.getPath())) {
+                            orderedReqData.add(msg.getRequestBody().toString());
+                            msg.setResponseBody("");
+                        }
+                    });
+
+            UsernamePasswordAuthenticationCredentials creds =
+                    new UsernamePasswordAuthenticationCredentials(username, "");
+
+            User user = mock(User.class);
+            given(user.getAuthenticationState()).willReturn(new AuthenticationState());
+            given(user.getContext()).willReturn(context);
+
+            CookieBasedSessionManagementMethodType sessMethodType =
+                    new CookieBasedSessionManagementMethodType();
+            CookieBasedSessionManagementMethod sessMethod =
+                    sessMethodType.createSessionManagementMethod(context.getId());
+
+            JSONObject params = new JSONObject();
+            params.put(AuthenticationAPI.PARAM_CONTEXT_ID, context.getId());
+            String loginUrl = "http://localhost" + test;
+            params.put("loginUrl", loginUrl);
+            String authRequestBody =
+                    String.format(
+                            "%s=xxxx&username=%s&password=%s",
+                            csrfTokenName,
+                            PostBasedAuthenticationMethod.MSG_USER_PATTERN,
+                            PostBasedAuthenticationMethod.MSG_PASS_PATTERN);
+            params.put("loginRequestData", authRequestBody);
+            type.getSetMethodForContextApiAction().handleAction(params);
+
+            String expectedRequestBody =
+                    String.format(
+                            "%s=%s&username=%s&password=%s",
+                            csrfTokenName, csrfTokenValue, username, password);
+
+            // When
+            method.authenticate(sessMethod, creds, user);
+
+            // Then
+            assertThat(orderedReqData.size(), is(2));
+            assertThat(expectedRequestBody, is(orderedReqData.get(1)));
         }
     }
 }

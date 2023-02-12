@@ -30,6 +30,7 @@ import org.junit.jupiter.api.Test;
  *
  * @author bjoern.kimminich@gmx.de
  */
+@SuppressWarnings("deprecation")
 class URLResolverUnitTest {
 
     @Test
@@ -38,7 +39,8 @@ class URLResolverUnitTest {
         String baseUrl = null;
         // When / Then
         assertThrows(
-                IllegalArgumentException.class, () -> URLResolver.resolveUrl(baseUrl, "notNull"));
+                IllegalArgumentException.class,
+                () -> org.zaproxy.zap.spider.URLResolver.resolveUrl(baseUrl, "notNull"));
     }
 
     @Test
@@ -48,109 +50,122 @@ class URLResolverUnitTest {
         // When / Then
         assertThrows(
                 IllegalArgumentException.class,
-                () -> URLResolver.resolveUrl("notNull", relativeUrl));
+                () -> org.zaproxy.zap.spider.URLResolver.resolveUrl("notNull", relativeUrl));
     }
 
     @Test
     void shouldAppendRelativeUrlToBaseUrlHost() {
         assertThat(
-                URLResolver.resolveUrl("http://www.abc.de", "/xy/z"), is("http://www.abc.de/xy/z"));
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://www.abc.de", "/xy/z"),
+                is("http://www.abc.de/xy/z"));
     }
 
     @Test
     void shouldInsertSlashBetweenBaseUrlAndRelativeUrlIfMissing() {
-        assertThat(URLResolver.resolveUrl("http://www.abc.de", "xyz"), is("http://www.abc.de/xyz"));
+        assertThat(
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://www.abc.de", "xyz"),
+                is("http://www.abc.de/xyz"));
     }
 
     @Test
     void shouldReplaceLastPartOfUrlPathFromBaseUrlWithRelativeUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://www.abc.de/w/x", "y/z"),
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://www.abc.de/w/x", "y/z"),
                 is("http://www.abc.de/w/y/z"));
     }
 
     @Test
     void shouldRemoveFragmentFromBaseUrlBeforeAppendingRelativeUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://www.abc.de#anchor", "y"), is("http://www.abc.de/y"));
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://www.abc.de#anchor", "y"),
+                is("http://www.abc.de/y"));
     }
 
     @Test
     void shouldRemoveQueryFromBaseUrlBeforeAppendingRelativeUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://www.abc.de?y=z", "test"),
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://www.abc.de?y=z", "test"),
                 is("http://www.abc.de/test"));
     }
 
     @Test
     void shouldRemoveParametersFromBaseUrlBeforeAppendingRelativeUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://www.abc.de;y;z", "test"),
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://www.abc.de;y;z", "test"),
                 is("http://www.abc.de/test"));
     }
 
     @Test
     void shouldReturnOriginalBaseUrlForGivenEmptyRelativeUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://www.abc.de/x?y=z&u=v#123", ""),
+                org.zaproxy.zap.spider.URLResolver.resolveUrl(
+                        "http://www.abc.de/x?y=z&u=v#123", ""),
                 is("http://www.abc.de/x?y=z&u=v#123"));
     }
 
     @Test
     void shouldReturnOriginalRelativeUrlForGivenAbsoluteUrlAsRelativeUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://base.url", "http://www.abc.de/x?y=z&u=v#123"),
+                org.zaproxy.zap.spider.URLResolver.resolveUrl(
+                        "http://base.url", "http://www.abc.de/x?y=z&u=v#123"),
                 is("http://www.abc.de/x?y=z&u=v#123"));
     }
 
     @Test
     void shouldUseSchemeOfBaseUrlForGivenUrlWithHostAsRelativeUrl() {
         assertThat(
-                URLResolver.resolveUrl("https://base.url", "//www.test.com"),
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("https://base.url", "//www.test.com"),
                 is("https://www.test.com"));
     }
 
     @Test
     void shouldAppendQueryGivenAsRelativeUrlToBaseUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://abc.de/123", "?x=y"), is("http://abc.de/123?x=y"));
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://abc.de/123", "?x=y"),
+                is("http://abc.de/123?x=y"));
     }
 
     @Test
     void shouldAppendParametersGivenAsRelativeUrlToBaseUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://abc.de/123", ";x=y"), is("http://abc.de/123;x=y"));
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://abc.de/123", ";x=y"),
+                is("http://abc.de/123;x=y"));
     }
 
     @Test
     void shouldAppendFragmentGivenAsRelativeUrlToBaseUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://abc.de/123", "#test"), is("http://abc.de/123#test"));
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://abc.de/123", "#test"),
+                is("http://abc.de/123#test"));
     }
 
     @Test
     void shouldRemoveLeadingSlashPointsFromRelativeUrlBeforeAppendingToBaseUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://abc.de/123/xyz", "../test"),
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://abc.de/123/xyz", "../test"),
                 is("http://abc.de/test"));
     }
 
     @Test
     void shouldRemoveAllSlashPointSlashOccurrencesFromResolvedUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://abc.de/./", "test/./xyz/./123"),
+                org.zaproxy.zap.spider.URLResolver.resolveUrl(
+                        "http://abc.de/./", "test/./xyz/./123"),
                 is("http://abc.de/test/xyz/123"));
     }
 
     @Test
     void shouldRemoveTrailingPointFromResolvedUrl() {
-        assertThat(URLResolver.resolveUrl("http://abc.de", "test/."), is("http://abc.de/test/"));
+        assertThat(
+                org.zaproxy.zap.spider.URLResolver.resolveUrl("http://abc.de", "test/."),
+                is("http://abc.de/test/"));
     }
 
     @Test
     void shouldApplyDirectoryTraversalWithSlashPointsInResolvedUrl() {
         assertThat(
-                URLResolver.resolveUrl("http://abc.de/x/../", "y/../z/../test/123/.."),
+                org.zaproxy.zap.spider.URLResolver.resolveUrl(
+                        "http://abc.de/x/../", "y/../z/../test/123/.."),
                 is("http://abc.de/test/"));
     }
 }

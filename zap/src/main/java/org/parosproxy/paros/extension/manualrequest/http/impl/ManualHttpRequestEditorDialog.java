@@ -33,6 +33,9 @@
 // ZAP: 2020/11/20 Support Send button in response panel in tab mode
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/02/12 Add shortcut key to Send button (Issue 6448).
+// ZAP: 2022/04/28 Call the new message sender method.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2022/09/14 Deprecate the class.
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
@@ -57,8 +60,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.OptionsChangedListener;
-import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.HttpHeader;
@@ -74,7 +75,11 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
+/** @deprecated (2.12.0) Replaced by Requester add-on. */
+@Deprecated
+@SuppressWarnings("serial")
+public class ManualHttpRequestEditorDialog
+        extends org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog
         implements OptionsChangedListener {
 
     private static final long serialVersionUID = -5830450800029295419L;
@@ -292,7 +297,9 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
                     new ZapMenuItem(
                             "menu.tools.manReq",
                             View.getSingleton().getMenuShortcutKeyStroke(KeyEvent.VK_M, 0, false));
-            menuItem.setIcon(ExtensionManualRequestEditor.getIcon());
+            menuItem.setIcon(
+                    org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor
+                            .getIcon());
             menuItem.addActionListener(
                     new ActionListener() {
                         @Override
@@ -438,8 +445,9 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
             tabsButtonView =
                     new JToggleButton(
                             new ImageIcon(
-                                    ManualRequestEditorDialog.class.getResource(
-                                            "/resource/icon/layout_tabbed.png")));
+                                    org.parosproxy.paros.extension.manualrequest
+                                            .ManualRequestEditorDialog.class
+                                            .getResource("/resource/icon/layout_tabbed.png")));
             tabsButtonView.setToolTipText(TABS_VIEW_TOOL_TIP);
 
             tabsButtonView.addActionListener(
@@ -455,8 +463,10 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
             aboveButtonView =
                     new JToggleButton(
                             new ImageIcon(
-                                    ManualRequestEditorDialog.class.getResource(
-                                            "/resource/icon/layout_vertical_split.png")));
+                                    org.parosproxy.paros.extension.manualrequest
+                                            .ManualRequestEditorDialog.class
+                                            .getResource(
+                                                    "/resource/icon/layout_vertical_split.png")));
             aboveButtonView.setToolTipText(ABOVE_VIEW_TOOL_TIP);
 
             aboveButtonView.addActionListener(
@@ -472,8 +482,10 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
             sideBySideButtonView =
                     new JToggleButton(
                             new ImageIcon(
-                                    ManualRequestEditorDialog.class.getResource(
-                                            "/resource/icon/layout_horizontal_split.png")));
+                                    org.parosproxy.paros.extension.manualrequest
+                                            .ManualRequestEditorDialog.class
+                                            .getResource(
+                                                    "/resource/icon/layout_horizontal_split.png")));
             sideBySideButtonView.setToolTipText(SIDE_BY_SIDE_VIEW_TOOL_TIP);
 
             sideBySideButtonView.addActionListener(
@@ -693,8 +705,6 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog
 
     @Override
     public void optionsChanged(OptionsParam optionsParam) {
-        getMessageSender()
-                .setButtonTrackingSessionStateEnabled(
-                        optionsParam.getConnectionParam().isHttpStateEnabled());
+        getMessageSender().updateButtonTrackingSessionState();
     }
 }

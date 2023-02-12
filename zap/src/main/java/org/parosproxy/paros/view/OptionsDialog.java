@@ -23,6 +23,9 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/06/08 Fix resizing issues.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.view;
 
 import java.awt.Frame;
@@ -37,11 +40,12 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public class OptionsDialog extends AbstractParamDialog {
 
     private static final long serialVersionUID = -4374132178769109917L;
-    private static final Logger logger = LogManager.getLogger(OptionsDialog.class);
+    private static final Logger LOGGER = LogManager.getLogger(OptionsDialog.class);
     private JButton[] extraButtons = null;
 
     public OptionsDialog() {
@@ -61,10 +65,7 @@ public class OptionsDialog extends AbstractParamDialog {
     /** This method initializes this */
     private void initialize() {
 
-        // ZAP: Increase width and height of options dialog
-        // if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-        this.setSize(750, 584);
-        // }
+        this.setSize(DisplayUtils.getScaledDimension(750, 584));
     }
 
     @Override
@@ -100,7 +101,7 @@ public class OptionsDialog extends AbstractParamDialog {
                                     OptionsDialog.this.initParam(params);
 
                                 } catch (Exception e1) {
-                                    logger.error("Failed to reset to defaults:", e1);
+                                    LOGGER.error("Failed to reset to defaults:", e1);
                                     View.getSingleton()
                                             .showWarningDialog(
                                                     Constant.messages.getString(
@@ -120,7 +121,7 @@ public class OptionsDialog extends AbstractParamDialog {
             try {
                 panel.reset();
             } catch (Exception e) {
-                logger.error("Failed to reset " + panel.getName() + " options panel:", e);
+                LOGGER.error("Failed to reset {} options panel:", panel.getName(), e);
                 View.getSingleton()
                         .showWarningDialog(
                                 Constant.messages.getString(

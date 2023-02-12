@@ -31,6 +31,7 @@ import javax.swing.JPopupMenu;
 /**
  * A button that shows a dynamic popup menu when pressed. The menu items can be changed as required.
  */
+@SuppressWarnings("serial")
 public abstract class PopupButton extends JButton {
     private static final long serialVersionUID = 1L;
     private ActionListener actionListener;

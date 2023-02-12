@@ -43,6 +43,8 @@
 // ZAP: 2020/03/25 Remove hardcoded colour in titled borders (Issue 5542).
 // ZAP: 2020/04/20 Add SocksProxyPanel (Issue 29).
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/05/04 Remove single cookie request header option.
+// ZAP: 2022/05/20 Deprecate the class.
 package org.parosproxy.paros.extension.option;
 
 import java.awt.BorderLayout;
@@ -67,11 +69,8 @@ import javax.swing.SortOrder;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.option.SocksProxyPanel;
-import org.zaproxy.zap.model.CommonUserAgents;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
@@ -79,8 +78,9 @@ import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
-import org.zaproxy.zap.view.ProxyDialog;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
 public class OptionsConnectionPanel extends AbstractParamPanel {
     // ZAP: i18n
     private static final long serialVersionUID = 1L;
@@ -101,7 +101,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     private JCheckBox chkProxyChainPrompt = null;
     private ZapNumberSpinner spinnerTimeoutInSecs;
     private JPanel panelGeneral = null;
-    private JCheckBox checkBoxSingleCookieRequestHeader;
     private JCheckBox checkBoxHttpStateEnabled;
     private JComboBox<String> commonUserAgents = null;
     private ZapTextField defaultUserAgent = null;
@@ -114,11 +113,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     private ProxyExcludedDomainsMultipleOptionsPanel proxyExcludedDomainsPanel;
     private ProxyExcludedDomainsTableModel proxyExcludedDomainsTableModel;
 
-    private final SocksProxyPanel socksProxyPanel;
+    private final org.zaproxy.zap.extension.option.SocksProxyPanel socksProxyPanel;
 
     public OptionsConnectionPanel() {
         super();
-        socksProxyPanel = new SocksProxyPanel();
+        socksProxyPanel = new org.zaproxy.zap.extension.option.SocksProxyPanel();
         initialize();
     }
 
@@ -457,7 +456,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             dnsTtlSuccessfulQueriesNumberSpinner =
                     new ZapNumberSpinner(
                             -1,
-                            ConnectionParam.DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES,
+                            org.parosproxy.paros.network.ConnectionParam
+                                    .DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES,
                             Integer.MAX_VALUE);
         }
         return dnsTtlSuccessfulQueriesNumberSpinner;
@@ -489,7 +489,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
     private JComboBox<String> getCommonUserAgents() {
         if (commonUserAgents == null) {
-            commonUserAgents = new JComboBox<>(CommonUserAgents.getNames());
+            commonUserAgents = new JComboBox<>(org.zaproxy.zap.model.CommonUserAgents.getNames());
             if (commonUserAgents.getItemCount() == 0) {
                 commonUserAgents.setEnabled(false);
             } else {
@@ -499,7 +499,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
                             @Override
                             public void actionPerformed(ActionEvent e) {
                                 String item = (String) commonUserAgents.getSelectedItem();
-                                String ua = CommonUserAgents.getStringFromName(item);
+                                String ua =
+                                        org.zaproxy.zap.model.CommonUserAgents.getStringFromName(
+                                                item);
                                 if (ua != null) {
                                     getDefaultUserAgent().setText(ua);
                                 }
@@ -538,7 +540,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     }
 
     private void setUaFromString() {
-        String name = CommonUserAgents.getNameFromString(getDefaultUserAgent().getText());
+        String name =
+                org.zaproxy.zap.model.CommonUserAgents.getNameFromString(
+                        getDefaultUserAgent().getText());
         if (name != null) {
             getCommonUserAgents().setSelectedItem(name);
         } else {
@@ -558,12 +562,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     public void initParam(Object obj) {
 
         OptionsParam optionsParam = (OptionsParam) obj;
-        ConnectionParam connectionParam = optionsParam.getConnectionParam();
+        org.parosproxy.paros.network.ConnectionParam connectionParam =
+                optionsParam.getConnectionParam();
 
         this.spinnerTimeoutInSecs.setValue(connectionParam.getTimeoutInSecs());
 
-        checkBoxSingleCookieRequestHeader.setSelected(
-                connectionParam.isSingleCookieRequestHeader());
         checkBoxHttpStateEnabled.setSelected(connectionParam.isHttpStateEnabled());
 
         getProxyExcludedDomainsTableModel()
@@ -665,7 +668,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     public void saveParam(Object obj) throws Exception {
 
         OptionsParam optionsParam = (OptionsParam) obj;
-        ConnectionParam connectionParam = optionsParam.getConnectionParam();
+        org.parosproxy.paros.network.ConnectionParam connectionParam =
+                optionsParam.getConnectionParam();
 
         connectionParam.setProxyChainName(txtProxyChainName.getText());
         // ZAP: Do not allow invalid port numbers
@@ -684,7 +688,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
                 && chkProxyChainPrompt.isSelected()) {
             if (View.isInitialised()) {
                 // And prompt now
-                ProxyDialog dialog = new ProxyDialog(View.getSingleton().getMainFrame(), true);
+                org.zaproxy.zap.view.ProxyDialog dialog =
+                        new org.zaproxy.zap.view.ProxyDialog(
+                                View.getSingleton().getMainFrame(), true);
                 dialog.init(Model.getSingleton().getOptionsParam());
                 dialog.setVisible(true);
             }
@@ -693,8 +699,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             connectionParam.setProxyChainPassword(new String(txtProxyChainPassword.getPassword()));
         }
         connectionParam.setTimeoutInSecs(spinnerTimeoutInSecs.getValue());
-        connectionParam.setSingleCookieRequestHeader(
-                checkBoxSingleCookieRequestHeader.isSelected());
         connectionParam.setHttpStateEnabled(checkBoxHttpStateEnabled.isSelected());
 
         connectionParam.setUseProxyChain(chkUseProxyChain.isSelected());
@@ -821,13 +825,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             panelGeneral.add(jLabel, gridBagConstraints00);
             panelGeneral.add(getTxtTimeoutInSecs(), gridBagConstraints01);
 
-            java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-            gbc.gridy = 3;
-            gbc.gridwidth = 2;
-            gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gbc.insets = new java.awt.Insets(2, 2, 2, 2);
-            gbc.anchor = java.awt.GridBagConstraints.WEST;
-
             JLabel uaLabel =
                     new JLabel(Constant.messages.getString("conn.options.defaultUserAgent"));
             uaLabel.setLabelFor(this.getDefaultUserAgent());
@@ -839,12 +836,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
                     getDefaultUserAgent(),
                     LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(2, 2, 2, 2)));
 
-            panelGeneral.add(getCheckBoxSingleCookeRequestHeader(), gbc);
             panelGeneral.add(
                     getCheckBoxHttpStateEnabled(),
                     LayoutHelper.getGBC(
                             0,
-                            4,
+                            3,
                             3,
                             1.0D,
                             0,
@@ -865,19 +861,12 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     private ZapNumberSpinner getTxtTimeoutInSecs() {
         if (spinnerTimeoutInSecs == null) {
             spinnerTimeoutInSecs =
-                    new ZapNumberSpinner(0, ConnectionParam.DEFAULT_TIMEOUT, Integer.MAX_VALUE);
+                    new ZapNumberSpinner(
+                            0,
+                            org.parosproxy.paros.network.ConnectionParam.DEFAULT_TIMEOUT,
+                            Integer.MAX_VALUE);
         }
         return spinnerTimeoutInSecs;
-    }
-
-    private JCheckBox getCheckBoxSingleCookeRequestHeader() {
-
-        if (checkBoxSingleCookieRequestHeader == null) {
-            checkBoxSingleCookieRequestHeader =
-                    new JCheckBox(
-                            Constant.messages.getString("conn.options.singleCookieRequestHeader"));
-        }
-        return checkBoxSingleCookieRequestHeader;
     }
 
     public JCheckBox getCheckBoxHttpStateEnabled() {

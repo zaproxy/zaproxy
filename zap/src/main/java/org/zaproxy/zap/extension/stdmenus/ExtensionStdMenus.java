@@ -38,10 +38,8 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.manualrequest.ExtensionManualRequestEditor;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
-import org.zaproxy.zap.extension.history.PopupMenuExportContextURLs;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ContextExportDialog;
@@ -60,7 +58,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
     private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
     private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
     private PopupExcludeFromSpiderMenu popupExcludeFromSpiderMenu = null;
-    private PopupMenuResendMessage popupMenuResendMessage = null;
     private PopupMenuShowInHistory popupMenuShowInHistory = null;
     private PopupMenuShowInSites popupMenuShowInSites = null;
     private PopupMenuOpenUrlInBrowser popupMenuOpenUrlInBrowser = null;
@@ -68,16 +65,14 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
     private PopupMenuItemContextSiteInclude popupContextIncludeSiteMenu = null;
     private PopupMenuItemContextExclude popupContextExcludeMenu = null;
     private PopupMenuItemContextDataDriven popupContextDataDrivenMenu = null;
-    private PopupMenuCopyUrls popupMenuCopyUrls = null;
     private PopupContextTreeMenu popupContextTreeMenuInScope = null;
     private PopupContextTreeMenu popupContextTreeMenuOutScope = null;
     private PopupContextTreeMenu popupContextTreeMenuDelete = null;
     private PopupContextTreeMenu popupContextTreeMenuExport;
-    private PopupMenuExportContextURLs popupContextTreeMenuExportUrls;
 
     // Still being developed
     // private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
-    private static Logger log = LogManager.getLogger(ExtensionStdMenus.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionStdMenus.class);
 
     public ExtensionStdMenus() {
         super();
@@ -141,12 +136,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                         .addPopupMenuItem(getPopupMenuActiveScanCustom(++indexMenuItem));
             }
 
-            if (isExtensionHistoryEnabled) {
-                extensionHook
-                        .getHookMenu()
-                        .addPopupMenuItem(getPopupMenuResendMessage(++indexMenuItem));
-            }
-            indexMenuItem += 2;
+            indexMenuItem += 1;
             if (isExtensionHistoryEnabled) {
                 extensionHook
                         .getHookMenu()
@@ -161,13 +151,11 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                     .getHookMenu()
                     .addPopupMenuItem(getPopupMenuOpenUrlInBrowser(++indexMenuItem));
             // extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(indexMenuItem));
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuCopyUrls(++indexMenuItem));
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuInScope());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuOutScope());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExport());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExportUrls());
         }
     }
 
@@ -229,15 +217,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
                     });
         }
         return popupContextTreeMenuOutScope;
-    }
-
-    private PopupMenuExportContextURLs getPopupContextTreeMenuExportUrls() {
-        if (popupContextTreeMenuExportUrls == null) {
-            popupContextTreeMenuExportUrls =
-                    new PopupMenuExportContextURLs(
-                            Constant.messages.getString("context.export.urls.menu"), this);
-        }
-        return popupContextTreeMenuExportUrls;
     }
 
     private PopupContextTreeMenu getPopupContextTreeMenuDelete() {
@@ -340,7 +319,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
             try {
                 return (String) contents.getTransferData(DataFlavor.stringFlavor);
             } catch (UnsupportedFlavorException | IOException e) {
-                log.error("Unable to get data from clipboard");
+                LOGGER.error("Unable to get data from clipboard");
             }
         }
 
@@ -376,15 +355,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
         return popupMenuOpenUrlInBrowser;
     }
 
-    private PopupMenuCopyUrls getPopupMenuCopyUrls(int menuIndex) {
-        if (popupMenuCopyUrls == null) {
-            popupMenuCopyUrls =
-                    new PopupMenuCopyUrls(Constant.messages.getString("stdexts.copyurls.popup"));
-            popupMenuCopyUrls.setMenuIndex(menuIndex);
-        }
-        return popupMenuCopyUrls;
-    }
-
     /*
      * private PopupMenuShowResponseInBrowser getPopupMenuShowResponseInBrowser(int menuIndex) { if
      * (popupMenuShowResponseInBrowser == null) { // TODO! popupMenuShowResponseInBrowser = new
@@ -414,20 +384,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
             popupExcludeFromSpiderMenu.setMenuIndex(menuIndex);
         }
         return popupExcludeFromSpiderMenu;
-    }
-
-    private PopupMenuResendMessage getPopupMenuResendMessage(int menuIndex) {
-        if (popupMenuResendMessage == null) {
-            popupMenuResendMessage =
-                    new PopupMenuResendMessage(
-                            Constant.messages.getString("history.resend.popup"),
-                            Control.getSingleton()
-                                    .getExtensionLoader()
-                                    .getExtension(ExtensionHistory.class));
-            popupMenuResendMessage.setMenuIndex(menuIndex);
-            popupMenuResendMessage.setIcon(ExtensionManualRequestEditor.getIcon());
-        }
-        return popupMenuResendMessage;
     }
 
     private PopupMenuShowInSites getPopupMenuShowInSites(int menuIndex) {

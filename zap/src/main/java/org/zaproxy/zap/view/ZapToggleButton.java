@@ -34,6 +34,7 @@ import javax.swing.JToggleButton;
  * @see #setDisabledToolTipText(String)
  * @see #setDisabledSelectedToolTipText(String)
  */
+@SuppressWarnings("serial")
 public class ZapToggleButton extends JToggleButton {
 
     private static final long serialVersionUID = 1L;

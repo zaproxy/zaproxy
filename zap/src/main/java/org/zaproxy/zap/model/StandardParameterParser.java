@@ -58,7 +58,7 @@ public class StandardParameterParser implements ParameterParser {
     private String keyValueSeparators;
     private List<String> structuralParameters = new ArrayList<>();
 
-    private static Logger log = LogManager.getLogger(StandardParameterParser.class);
+    private static final Logger LOGGER = LogManager.getLogger(StandardParameterParser.class);
 
     public StandardParameterParser(String keyValuePairSeparators, String keyValueSeparators)
             throws PatternSyntaxException {
@@ -97,7 +97,7 @@ public class StandardParameterParser implements ParameterParser {
                 this.structuralParameters.add(obj.toString());
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -257,7 +257,7 @@ public class StandardParameterParser implements ParameterParser {
                         map.put(keyEqValue[0], keyEqValue[1]);
                     }
                 } catch (Exception e) {
-                    log.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
         }
@@ -360,7 +360,7 @@ public class StandardParameterParser implements ParameterParser {
                     }
                 }
                 if (changed) {
-                    log.debug("Changed path from " + uri.getPath() + " to " + path);
+                    LOGGER.debug("Changed path from {} to {}", uri.getPath(), path);
                 }
             }
 

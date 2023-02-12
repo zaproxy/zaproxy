@@ -23,6 +23,7 @@ import java.util.function.Function;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.script.ScriptVars;
 import org.zaproxy.zap.network.HttpSenderListener;
 
 class HttpSenderAuthHeaderListener implements HttpSenderListener {
@@ -31,28 +32,23 @@ class HttpSenderAuthHeaderListener implements HttpSenderListener {
     public static final String ZAP_AUTH_HEADER = "ZAP_AUTH_HEADER";
     public static final String ZAP_AUTH_HEADER_SITE = "ZAP_AUTH_HEADER_SITE";
 
-    private final String authHeaderValue;
-    private final String authHeader;
-    private final String authHeaderSite;
-
     public HttpSenderAuthHeaderListener(Function<String, String> propertyProvider) {
         String authHeaderValueVar = propertyProvider.apply(ZAP_AUTH_HEADER_VALUE);
-        if (authHeaderValueVar != null && authHeaderValueVar.isEmpty()) {
-            authHeaderValueVar = null;
+        if (authHeaderValueVar != null && !authHeaderValueVar.isEmpty()) {
+            ScriptVars.setGlobalVar(ZAP_AUTH_HEADER_VALUE, authHeaderValueVar);
         }
-        authHeaderValue = authHeaderValueVar;
 
         String authHeaderVar = propertyProvider.apply(ZAP_AUTH_HEADER);
-        if (authHeaderVar == null || authHeaderVar.isEmpty()) {
-            authHeaderVar = HttpHeader.AUTHORIZATION;
+        if (authHeaderVar != null && !authHeaderVar.isEmpty()) {
+            ScriptVars.setGlobalVar(ZAP_AUTH_HEADER, authHeaderVar);
+        } else {
+            ScriptVars.setGlobalVar(ZAP_AUTH_HEADER, HttpHeader.AUTHORIZATION);
         }
-        authHeader = authHeaderVar;
 
         String authHeaderSiteVar = propertyProvider.apply(ZAP_AUTH_HEADER_SITE);
-        if (authHeaderSiteVar != null && authHeaderSiteVar.isEmpty()) {
-            authHeaderSiteVar = null;
+        if (authHeaderSiteVar != null && !authHeaderSiteVar.isEmpty()) {
+            ScriptVars.setGlobalVar(ZAP_AUTH_HEADER_SITE, authHeaderSiteVar);
         }
-        authHeaderSite = authHeaderSiteVar;
     }
 
     @Override
@@ -62,7 +58,14 @@ class HttpSenderAuthHeaderListener implements HttpSenderListener {
 
     @Override
     public void onHttpRequestSend(HttpMessage msg, int initiator, HttpSender sender) {
+        String authHeaderValue = ScriptVars.getGlobalVar(ZAP_AUTH_HEADER_VALUE);
         if (authHeaderValue != null) {
+            String authHeader = ScriptVars.getGlobalVar(ZAP_AUTH_HEADER);
+            if (authHeader == null) {
+                authHeader = HttpHeader.AUTHORIZATION;
+                ScriptVars.setGlobalVar(ZAP_AUTH_HEADER, authHeader);
+            }
+            String authHeaderSite = ScriptVars.getGlobalVar(ZAP_AUTH_HEADER_SITE);
             if (authHeaderSite == null
                     || msg.getRequestHeader().getHostName().contains(authHeaderSite)) {
                 msg.getRequestHeader().setHeader(authHeader, authHeaderValue);

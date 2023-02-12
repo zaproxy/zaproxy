@@ -24,6 +24,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 
 /** @since 2.3.0 */
+@SuppressWarnings("serial")
 public abstract class PopupMenuItemContext extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 2282358266003940700L;

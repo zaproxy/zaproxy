@@ -32,6 +32,7 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
+@SuppressWarnings("serial")
 class DialogAddToken extends AbstractFormDialog {
 
     private static final long serialVersionUID = 4460797449668634319L;

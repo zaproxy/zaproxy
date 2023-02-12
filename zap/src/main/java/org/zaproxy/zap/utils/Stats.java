@@ -28,7 +28,7 @@ public final class Stats {
 
     private static final List<StatsListener> listeners = new ArrayList<>();
 
-    private static final Logger logger = LogManager.getLogger(Stats.class);
+    private static final Logger LOGGER = LogManager.getLogger(Stats.class);
 
     private Stats() {}
 
@@ -37,7 +37,7 @@ public final class Stats {
             try {
                 listener.counterInc(key);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -47,7 +47,7 @@ public final class Stats {
             try {
                 listener.counterInc(site, key);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -57,7 +57,7 @@ public final class Stats {
             try {
                 listener.counterInc(key, inc);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -67,7 +67,7 @@ public final class Stats {
             try {
                 listener.counterInc(site, key, inc);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -77,7 +77,7 @@ public final class Stats {
             try {
                 listener.counterDec(key);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -87,7 +87,7 @@ public final class Stats {
             try {
                 listener.counterDec(site, key);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -97,7 +97,7 @@ public final class Stats {
             try {
                 listener.counterDec(key, dec);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -107,7 +107,7 @@ public final class Stats {
             try {
                 listener.counterDec(site, key, dec);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -117,7 +117,7 @@ public final class Stats {
             try {
                 listener.highwaterMarkSet(key, value);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -127,7 +127,7 @@ public final class Stats {
             try {
                 listener.highwaterMarkSet(site, key, value);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -137,7 +137,7 @@ public final class Stats {
             try {
                 listener.lowwaterMarkSet(key, value);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -147,7 +147,7 @@ public final class Stats {
             try {
                 listener.lowwaterMarkSet(site, key, value);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -157,7 +157,7 @@ public final class Stats {
             try {
                 listener.allCleared();
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -167,7 +167,7 @@ public final class Stats {
             try {
                 listener.allCleared(site);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -177,7 +177,7 @@ public final class Stats {
             try {
                 listener.cleared(keyPrefix);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -187,7 +187,7 @@ public final class Stats {
             try {
                 listener.cleared(site, keyPrefix);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }

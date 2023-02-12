@@ -40,16 +40,13 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/05/21 Remove unsafe SSL/TLS renegotiation option.
+// ZAP: 2022/05/29 Deprecate the class.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.extension.option;
 
 // TODO: Buttons should be gray
-import ch.csnc.extension.httpclient.PKCS11Configuration;
-import ch.csnc.extension.httpclient.PKCS11Configuration.PCKS11ConfigurationBuilder;
-import ch.csnc.extension.httpclient.SSLContextManager;
-import ch.csnc.extension.ui.AliasTableModel;
-import ch.csnc.extension.ui.CertificateView;
-import ch.csnc.extension.ui.DriversView;
-import ch.csnc.extension.util.DriverConfiguration;
 import java.awt.CardLayout;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
@@ -78,6 +75,9 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapTextField;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
+@SuppressWarnings("serial")
 public class OptionsCertificatePanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 4350957038174673492L;
@@ -94,8 +94,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
     private javax.swing.JPanel certificatePanel;
     private ZapTextField certificateTextField;
     private javax.swing.JTabbedPane certificatejTabbedPane;
-    private javax.swing.JPanel cryptoApiPanel;
-    private javax.swing.JLabel cryptoApiLabel;
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton driverButton;
     private javax.swing.JComboBox<String> driverComboBox;
@@ -117,12 +115,11 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
     private javax.swing.JLabel textLabel;
     private javax.swing.JCheckBox useClientCertificateCheckBox;
     private javax.swing.JCheckBox usePkcs11ExperimentalSliSupportCheckBox;
-    private javax.swing.JCheckBox enableUnsafeSSLRenegotiationCheckBox;
 
-    private SSLContextManager contextManager;
+    private ch.csnc.extension.httpclient.SSLContextManager contextManager;
     private DefaultListModel<String> keyStoreListModel;
-    private AliasTableModel aliasTableModel;
-    private DriverConfiguration driverConfig;
+    private ch.csnc.extension.ui.AliasTableModel aliasTableModel;
+    private ch.csnc.extension.util.DriverConfiguration driverConfig;
 
     // Issue 182
     private boolean retry = true;
@@ -146,7 +143,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                 Model.getSingleton().getOptionsParam().getCertificateParam().getSSLContextManager();
 
         keyStoreListModel = new DefaultListModel<>();
-        aliasTableModel = new AliasTableModel(contextManager);
+        aliasTableModel = new ch.csnc.extension.ui.AliasTableModel(contextManager);
 
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("options.cert.title"));
@@ -168,13 +165,13 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
         }
     }
 
-    private static DriverConfiguration createDriverConfiguration() {
+    private static ch.csnc.extension.util.DriverConfiguration createDriverConfiguration() {
         String fileName = "drivers.xml";
         Path path = Paths.get(Constant.getZapInstall(), "xml", fileName);
         if (Files.exists(path)) {
-            return new DriverConfiguration(path.toFile());
+            return new ch.csnc.extension.util.DriverConfiguration(path.toFile());
         }
-        return new DriverConfiguration(
+        return new ch.csnc.extension.util.DriverConfiguration(
                 OptionsCertificatePanel.class.getResource(
                         "/org/zaproxy/zap/resources/" + fileName));
     }
@@ -219,12 +216,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
             driverComboBox = new javax.swing.JComboBox<>();
             driverButton = new javax.swing.JButton();
             passwordPkcs11Label = new javax.swing.JLabel();
-            cryptoApiLabel = new javax.swing.JLabel();
             addPkcs11Button = new javax.swing.JButton();
             pkcs11PasswordField = new javax.swing.JPasswordField();
-            cryptoApiPanel = new javax.swing.JPanel();
             useClientCertificateCheckBox = new javax.swing.JCheckBox();
-            enableUnsafeSSLRenegotiationCheckBox = new javax.swing.JCheckBox();
             textLabel = new javax.swing.JLabel();
             certificateLabel = new javax.swing.JLabel();
             certificateTextField = new ZapTextField();
@@ -659,25 +653,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
             certificatejTabbedPane.addTab(
                     Constant.messages.getString("options.cert.tab.pkcs11"), pkcs11Panel);
 
-            javax.swing.GroupLayout cryptoApiPanelLayout =
-                    new javax.swing.GroupLayout(cryptoApiPanel);
-            cryptoApiPanel.setLayout(cryptoApiPanelLayout);
-            cryptoApiLabel.setText(Constant.messages.getString("options.cert.error.crypto"));
-            cryptoApiPanelLayout.setHorizontalGroup(
-                    cryptoApiPanelLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGap(0, 389, Short.MAX_VALUE)
-                            .addComponent(cryptoApiLabel));
-
-            cryptoApiPanelLayout.setVerticalGroup(
-                    cryptoApiPanelLayout
-                            .createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGap(0, 124, Short.MAX_VALUE)
-                            .addComponent(cryptoApiLabel));
-
-            certificatejTabbedPane.addTab(
-                    Constant.messages.getString("options.cert.tab.cryptoapi"), cryptoApiPanel);
-
             useClientCertificateCheckBox.setText(
                     Constant.messages.getString("options.cert.label.useclientcert"));
             useClientCertificateCheckBox.setBorder(
@@ -688,19 +663,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent evt) {
                             useClientCertificateCheckBoxActionPerformed(evt);
-                        }
-                    });
-
-            enableUnsafeSSLRenegotiationCheckBox.setText(
-                    Constant.messages.getString("options.cert.label.enableunsafesslrenegotiation"));
-            enableUnsafeSSLRenegotiationCheckBox.setBorder(
-                    javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
-            enableUnsafeSSLRenegotiationCheckBox.setMargin(new java.awt.Insets(0, 0, 0, 0));
-            enableUnsafeSSLRenegotiationCheckBox.addActionListener(
-                    new java.awt.event.ActionListener() {
-                        @Override
-                        public void actionPerformed(java.awt.event.ActionEvent evt) {
-                            enableUnsafeSSLRenegotiationCheckBoxActionPerformed(evt);
                         }
                     });
 
@@ -772,8 +734,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                                                                                                                             .Alignment
                                                                                                                             .LEADING)
                                                                                                             .addComponent(
-                                                                                                                    enableUnsafeSSLRenegotiationCheckBox)
-                                                                                                            .addComponent(
                                                                                                                     useClientCertificateCheckBox)
                                                                                                             .addComponent(
                                                                                                                     certificateLabel)
@@ -820,7 +780,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                                             .addPreferredGap(
                                                     javax.swing.LayoutStyle.ComponentPlacement
                                                             .UNRELATED)
-                                            .addComponent(enableUnsafeSSLRenegotiationCheckBox)
                                             .addComponent(useClientCertificateCheckBox)
                                             .addPreferredGap(
                                                     javax.swing.LayoutStyle.ComponentPlacement
@@ -951,7 +910,8 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                 kspass = null;
             }
 
-            PCKS11ConfigurationBuilder confBuilder = PKCS11Configuration.builder();
+            ch.csnc.extension.httpclient.PKCS11Configuration.PCKS11ConfigurationBuilder
+                    confBuilder = ch.csnc.extension.httpclient.PKCS11Configuration.builder();
             confBuilder.setName(name).setLibrary(library);
             if (usePkcs11ExperimentalSliSupportCheckBox.isSelected()) {
                 confBuilder.setSlotListIndex(slotListIndex);
@@ -964,9 +924,11 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
             if (ksIndex == -1) {
                 logger.error(
                         "The required PKCS#11 provider is not available ("
-                                + SSLContextManager.SUN_PKCS11_CANONICAL_CLASS_NAME
+                                + ch.csnc.extension.httpclient.SSLContextManager
+                                        .SUN_PKCS11_CANONICAL_CLASS_NAME
                                 + " or "
-                                + SSLContextManager.IBM_PKCS11_CANONICAL_CLASS_NAME
+                                + ch.csnc.extension.httpclient.SSLContextManager
+                                        .IBM_PKCS11_CANONICAL_CLASS_NAME
                                 + ").");
                 showErrorMessageSunPkcs11ProviderNotAvailable();
                 return;
@@ -1016,7 +978,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                                 JOptionPane.ERROR_MESSAGE);
                         // Error message changed to explain that user should try to add it again...
                         retry = true;
-                        logger.warn("Couldn't add key from " + name, e);
+                        logger.warn("Couldn't add key from {}", name, e);
                     }
                 } else {
                     logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(false, name, e);
@@ -1046,11 +1008,9 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                             Constant.messages.getString("options.cert.label.client.cert"),
                             JOptionPane.ERROR_MESSAGE);
                     logger.warn(
-                            "PKCS#11: Incorrect PIN or password"
-                                    + attempts
-                                    + ": "
-                                    + name
-                                    + " *LAST TRY BEFORE BLOCKING*");
+                            "PKCS#11: Incorrect PIN or password {}: {} *LAST TRY BEFORE BLOCKING*",
+                            attempts,
+                            name);
                 } else {
                     JOptionPane.showMessageDialog(
                             null,
@@ -1061,7 +1021,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                             },
                             Constant.messages.getString("options.cert.label.client.cert"),
                             JOptionPane.ERROR_MESSAGE);
-                    logger.warn("PKCS#11: Incorrect PIN or password" + attempts + ": " + name);
+                    logger.warn("PKCS#11: Incorrect PIN or password {}:{}", attempts, name);
                 }
             } else {
                 logAndShowGenericErrorMessagePkcs11CouldNotBeAdded(false, name, e);
@@ -1152,16 +1112,16 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
                     Constant.messages.getString("options.cert.label.client.cert"),
                     JOptionPane.ERROR_MESSAGE);
             if (isErrorLevel) {
-                logger.error("Couldn't add key from " + name, e);
+                logger.error("Couldn't add key from {}", name, e);
             } else {
-                logger.warn("Couldn't add key from " + name, e);
+                logger.warn("Couldn't add key from {}", name, e);
             }
         }
     }
 
     private void driverButtonActionPerformed(
             java.awt.event.ActionEvent evt) { // GEN-FIRST:event_driverButtonActionPerformed
-        new JDialog(new DriversView(driverConfig), true);
+        new JDialog(new ch.csnc.extension.ui.DriversView(driverConfig), true);
     } // GEN-LAST:event_driverButtonActionPerformed
 
     private void addPkcs12ButtonActionPerformed(
@@ -1233,7 +1193,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
     @SuppressWarnings("unused")
     private void showCertificate(Certificate cert) {
         if (cert != null) {
-            new CertificateView(cert.toString());
+            new ch.csnc.extension.ui.CertificateView(cert.toString());
         }
     }
 
@@ -1358,24 +1318,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
         showActiveCertificateButton.setEnabled(useClientCertificateCheckBox.isSelected());
     } // GEN-LAST:event_useClientCertificateCheckBoxActionPerformed
 
-    // Issue 90: Add GUI support for unsecure (unsafe) SSL/TLS renegotiation
-    private void enableUnsafeSSLRenegotiationCheckBoxActionPerformed(
-            java.awt.event.ActionEvent evt) {
-
-        boolean enabled = enableUnsafeSSLRenegotiationCheckBox.isSelected();
-
-        if (enabled) {
-            JOptionPane.showMessageDialog(
-                    null,
-                    new String[] {
-                        Constant.messages.getString(
-                                "options.cert.label.enableunsafesslrenegotiationwarning")
-                    },
-                    Constant.messages.getString("options.cert.label.enableunsafesslrenegotiation"),
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
-    }
-
     private void usePkcs11ExperimentalSliSupportCheckBoxActionPerformed(
             java.awt.event.ActionEvent evt) {
         Model.getSingleton()
@@ -1412,7 +1354,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
 
         // getBtnLocation().setEnabled(getChkUseClientCertificate().isSelected());
         // getTxtLocation().setText(options.getCertificateParam().getClientCertLocation());
-        enableUnsafeSSLRenegotiationCheckBox.setSelected(certParam.isAllowUnsafeSslRenegotiation());
     }
 
     @Override
@@ -1420,8 +1361,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
         OptionsParam options = (OptionsParam) obj;
         OptionsParamCertificate certParam = options.getCertificateParam();
         certParam.setEnableCertificate(useClientCertificateCheckBox.isSelected());
-
-        certParam.setAllowUnsafeSslRenegotiation(enableUnsafeSSLRenegotiationCheckBox.isSelected());
     }
 
     @Override

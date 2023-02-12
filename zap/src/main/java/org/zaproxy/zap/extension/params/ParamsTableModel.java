@@ -26,6 +26,7 @@ import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 import org.parosproxy.paros.Constant;
 
+@SuppressWarnings("serial")
 public class ParamsTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
@@ -119,7 +120,7 @@ public class ParamsTableModel extends AbstractTableModel {
         return paramStats.get(row);
     }
 
-    public void addHtmlParameterStats(HtmlParameterStats param) {
+    public synchronized void addHtmlParameterStats(HtmlParameterStats param) {
         lastAddedRow = -1;
 
         for (int i = 0; i < paramStats.size(); i++) {

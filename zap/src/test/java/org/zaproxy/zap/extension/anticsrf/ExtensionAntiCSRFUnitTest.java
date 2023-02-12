@@ -351,6 +351,20 @@ class ExtensionAntiCSRFUnitTest {
             assertThat(form, is(equalTo(expectedForm(uri, params))));
         }
 
+        @Test
+        void shouldGenerateFormWithCustomActionUrl() throws Exception {
+            // Given
+            TreeSet<HtmlParameter> params =
+                    params(param("Name1", "Value1"), param("Name2", "Value2"));
+            given(message.getFormParams()).willReturn(params);
+            String actionUri = "http://example.com/formWithCustomAction";
+            given(httpRequestHeader.getURI()).willReturn(uri("http://example.com/form"));
+            // When
+            String form = extensionAntiCSRF.generateForm(message, actionUri);
+            // Then
+            assertThat(form, is(equalTo(expectedForm(actionUri, params))));
+        }
+
         private static TreeSet<HtmlParameter> params(HtmlParameter... params) {
             return new TreeSet<>(Arrays.asList(params));
         }

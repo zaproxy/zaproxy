@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 import java.util.regex.PatternSyntaxException;
 import net.sf.json.JSON;
 import net.sf.json.JSONException;
@@ -73,7 +74,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class ActiveScanAPI extends ApiImplementor {
 
-    private static Logger log = LogManager.getLogger(ActiveScanAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(ActiveScanAPI.class);
 
     private static final String PREFIX = "ascan";
     private static final String ACTION_SCAN = "scan";
@@ -292,9 +293,9 @@ public class ActiveScanAPI extends ApiImplementor {
     @SuppressWarnings({"fallthrough"})
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction " + name + " " + params.toString());
+        LOGGER.debug("handleApiAction {} {}", name, params);
         ScanPolicy policy;
-        int policyId;
+        int categoryId;
 
         User user = null;
         Context context = null;
@@ -350,7 +351,7 @@ public class ActiveScanAPI extends ApiImplementor {
                     try {
                         if (policyName != null && policyName.length() > 0) {
                             // Not specified, use the default one
-                            log.debug("handleApiAction scan policy =" + policyName);
+                            LOGGER.debug("handleApiAction scan policy ={}", policyName);
                             policy = controller.getPolicyManager().getPolicy(policyName);
                         }
                     } catch (ConfigurationException e) {
@@ -410,7 +411,7 @@ public class ActiveScanAPI extends ApiImplementor {
                         Session session = Model.getSingleton().getSession();
                         session.setExcludeFromScanRegexs(new ArrayList<>());
                     } catch (DatabaseException e) {
-                        log.error(e.getMessage(), e);
+                        LOGGER.error(e.getMessage(), e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     }
                     break;
@@ -420,7 +421,7 @@ public class ActiveScanAPI extends ApiImplementor {
                         Session session = Model.getSingleton().getSession();
                         session.addExcludeFromScanRegexs(regex);
                     } catch (DatabaseException e) {
-                        log.error(e.getMessage(), e);
+                        LOGGER.error(e.getMessage(), e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     } catch (PatternSyntaxException e) {
                         throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
@@ -448,37 +449,30 @@ public class ActiveScanAPI extends ApiImplementor {
                     break;
                 case ACTION_SET_ENABLED_POLICIES:
                     policy = getScanPolicyFromParams(params);
-                    setEnabledPolicies(policy, getParam(params, PARAM_IDS, "").split(","));
+                    setEnabledCategories(policy, getParam(params, PARAM_IDS, "").split(","));
                     policy.save();
                     break;
                 case ACTION_SET_POLICY_ATTACK_STRENGTH:
-                    policyId = getPolicyIdFromParamId(params);
+                    categoryId = getParam(params, PARAM_ID, -1);
+                    verifyCategoryId(categoryId, PARAM_ID);
                     policy = getScanPolicyFromParams(params);
                     Plugin.AttackStrength attackStrength = getAttackStrengthFromParamAttack(params);
-
-                    for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
-                        if (scanner.getCategory() == policyId) {
-                            scanner.setAttackStrength(attackStrength);
-                        }
-                    }
-                    policy.save();
+                    updateRulesOfCategoryInPolicy(
+                            categoryId, policy, s -> s.setAttackStrength(attackStrength));
                     break;
                 case ACTION_SET_POLICY_ALERT_THRESHOLD:
-                    policyId = getPolicyIdFromParamId(params);
+                    categoryId = getParam(params, PARAM_ID, -1);
+                    verifyCategoryId(categoryId, PARAM_ID);
                     policy = getScanPolicyFromParams(params);
                     Plugin.AlertThreshold alertThreshold1 =
                             getAlertThresholdFromParamAlertThreshold(params);
-
-                    for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
-                        if (scanner.getCategory() == policyId) {
-                            scanner.setAlertThreshold(alertThreshold1);
-                        }
-                    }
-                    policy.save();
+                    updateRulesOfCategoryInPolicy(
+                            categoryId, policy, s -> s.setAlertThreshold(alertThreshold1));
                     break;
                 case ACTION_SET_SCANNER_ATTACK_STRENGTH:
                     policy = getScanPolicyFromParams(params);
-                    Plugin scanner = getScannerFromParamId(policy, params);
+                    Plugin scanner =
+                            getScannerFromId(policy, getParam(params, PARAM_ID, -1), PARAM_ID);
                     scanner.setAttackStrength(getAttackStrengthFromParamAttack(params));
                     policy.save();
                     break;
@@ -486,7 +480,8 @@ public class ActiveScanAPI extends ApiImplementor {
                     policy = getScanPolicyFromParams(params);
                     AlertThreshold alertThreshold2 =
                             getAlertThresholdFromParamAlertThreshold(params);
-                    getScannerFromParamId(policy, params).setAlertThreshold(alertThreshold2);
+                    getScannerFromId(policy, getParam(params, PARAM_ID, -1), PARAM_ID)
+                            .setAlertThreshold(alertThreshold2);
                     policy.save();
                     break;
                 case ACTION_ADD_SCAN_POLICY:
@@ -779,55 +774,65 @@ public class ActiveScanAPI extends ApiImplementor {
     }
 
     private void setScannersEnabled(ScanPolicy policy, String[] ids, boolean enabled)
-            throws ConfigurationException, ApiException {
-        if (ids.length > 0) {
-            for (String id : ids) {
-                try {
-                    Plugin scanner =
-                            policy.getPluginFactory().getPlugin(Integer.valueOf(id.trim()));
-                    if (scanner != null) {
-                        scanner.setEnabled(enabled);
+            throws ApiException {
+        List<String> unknownIds = null;
+        try {
+            for (String idString : ids) {
+                String idTrimmed = idString.trim();
+                int id = Integer.parseInt(idTrimmed);
+                Plugin scanner = policy.getPluginFactory().getPlugin(id);
+                if (scanner != null) {
+                    scanner.setEnabled(enabled);
+                } else {
+                    if (unknownIds == null) {
+                        unknownIds = new ArrayList<>();
                     }
-                } catch (NumberFormatException e) {
-                    log.warn("Failed to parse scanner ID: ", e);
+                    unknownIds.add(idTrimmed);
                 }
             }
+        } catch (NumberFormatException e) {
+            LOGGER.warn("Failed to parse scanner ID: ", e);
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
+        }
+
+        if (unknownIds != null) {
+            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, "IDs: " + unknownIds);
         }
     }
 
-    private void setEnabledPolicies(ScanPolicy policy, String[] ids) {
-        policy.getPluginFactory().setAllPluginEnabled(false);
-        if (ids.length > 0) {
+    private void setEnabledCategories(ScanPolicy policy, String[] ids)
+            throws ApiException, ConfigurationException {
+        try {
+            policy.getPluginFactory().setAllPluginEnabled(false);
             for (String id : ids) {
-                try {
-                    int policyId = Integer.valueOf(id.trim());
-                    if (hasPolicyWithId(policyId)) {
-                        for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
-                            if (scanner.getCategory() == policyId) {
-                                scanner.setEnabled(true);
-                            }
-                        }
-                    }
-                } catch (NumberFormatException e) {
-                    log.warn("Failed to parse policy ID: ", e);
-                }
+                int categoryId = Integer.parseInt(id.trim());
+                verifyCategoryId(categoryId, id.trim());
+                updateRulesOfCategoryInPolicy(categoryId, policy, s -> s.setEnabled(true));
+            }
+        } catch (NumberFormatException e) {
+            LOGGER.warn("Failed to parse category ID: ", e);
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
+        }
+    }
+
+    private static void verifyCategoryId(int categoryId, String paramName) throws ApiException {
+        if (categoryId < 0) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, paramName);
+        }
+        if (!Arrays.asList(Category.getAllNames()).contains(Category.getName(categoryId))) {
+            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, Integer.toString(categoryId));
+        }
+    }
+
+    private void updateRulesOfCategoryInPolicy(
+            int categoryId, ScanPolicy policy, Consumer<Plugin> consumer)
+            throws ConfigurationException {
+        for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
+            if (scanner.getCategory() == categoryId) {
+                consumer.accept(scanner);
             }
         }
-    }
-
-    private static boolean hasPolicyWithId(int policyId) {
-        return Arrays.asList(Category.getAllNames()).contains(Category.getName(policyId));
-    }
-
-    private int getPolicyIdFromParamId(JSONObject params) throws ApiException {
-        final int id = getParam(params, PARAM_ID, -1);
-        if (id == -1) {
-            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_ID);
-        }
-        if (!hasPolicyWithId(id)) {
-            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
-        }
-        return id;
+        policy.save();
     }
 
     private Plugin.AttackStrength getAttackStrengthFromParamAttack(JSONObject params)
@@ -852,14 +857,14 @@ public class ActiveScanAPI extends ApiImplementor {
         }
     }
 
-    private Plugin getScannerFromParamId(ScanPolicy policy, JSONObject params) throws ApiException {
-        final int id = getParam(params, PARAM_ID, -1);
-        if (id == -1) {
-            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_ID);
+    private Plugin getScannerFromId(ScanPolicy policy, int id, String paramName)
+            throws ApiException {
+        if (id < 0) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, paramName);
         }
         Plugin scanner = policy.getPluginFactory().getPlugin(id);
         if (scanner == null) {
-            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
+            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, Integer.toString(id));
         }
         return scanner;
     }
@@ -1069,8 +1074,8 @@ public class ActiveScanAPI extends ApiImplementor {
                 List<Plugin> scanners = policy.getPluginFactory().getAllPlugin();
 
                 categoryId = getParam(params, PARAM_CATEGORY_ID, -1);
-                if (categoryId != -1 && !hasPolicyWithId(categoryId)) {
-                    throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_CATEGORY_ID);
+                if (categoryId != -1) {
+                    verifyCategoryId(categoryId, PARAM_CATEGORY_ID);
                 }
                 resultList = new ApiResponseList(name);
                 for (Plugin scanner : scanners) {
@@ -1328,6 +1333,7 @@ public class ActiveScanAPI extends ApiImplementor {
             scannerData.put("policyId", String.valueOf(scanner.getCategory()));
             scannerData.put("enabled", String.valueOf(scanner.isEnabled()));
             scannerData.put("quality", scanner.getStatus().toString());
+            scannerData.put("status", scanner.getStatus().toString());
 
             boolean allDepsAvailable =
                     policy.getPluginFactory().hasAllDependenciesAvailable(scanner);

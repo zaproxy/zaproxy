@@ -43,6 +43,7 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 
+@SuppressWarnings("serial")
 public class AllCategoryTableModel extends DefaultTableModel {
 
     private static final long serialVersionUID = 1L;

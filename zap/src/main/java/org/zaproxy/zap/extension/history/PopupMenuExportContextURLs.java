@@ -33,6 +33,8 @@ import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 
+/** @deprecated (2.12.0) see the exim add-on */
+@Deprecated
 public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
 
     private static final long serialVersionUID = -4426560452505908380L;
@@ -61,9 +63,7 @@ public class PopupMenuExportContextURLs extends PopupMenuExportURLs {
             View.getSingleton()
                     .showWarningDialog(
                             Constant.messages.getString("exportUrls.popup.context.error"));
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("No context selected, when trying to export URLs for a context.");
-            }
+            LOG.debug("No context selected, when trying to export URLs for a context.");
             return;
         }
 

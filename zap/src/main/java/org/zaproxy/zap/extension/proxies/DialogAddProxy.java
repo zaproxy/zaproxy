@@ -27,6 +27,7 @@ import org.zaproxy.zap.view.AbstractFormDialog;
 
 /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
 @Deprecated
+@SuppressWarnings("serial")
 class DialogAddProxy extends AbstractFormDialog {
 
     private static final long serialVersionUID = 4460797449668634319L;

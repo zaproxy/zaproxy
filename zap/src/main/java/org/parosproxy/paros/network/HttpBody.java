@@ -28,6 +28,8 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2020/12/09 Add content encoding.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -52,7 +54,7 @@ import org.zaproxy.zap.network.HttpEncoding;
  */
 public abstract class HttpBody {
 
-    private static final Logger log = LogManager.getLogger(HttpBody.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpBody.class);
 
     /**
      * The name of the default charset ({@code ISO-8859-1}) used for {@code String} related
@@ -197,7 +199,7 @@ public abstract class HttpBody {
             contentEncodingErrors = false;
             return decoded;
         } catch (IOException e) {
-            log.warn("An error occurred while encoding the body: {}", e.getMessage());
+            LOGGER.warn("An error occurred while encoding the body: {}", e.getMessage());
         }
         contentEncodingErrors = true;
         return value;
@@ -409,7 +411,7 @@ public abstract class HttpBody {
             contentEncodingErrors = false;
             return decoded;
         } catch (IOException e) {
-            log.warn("An error occurred while decoding the body: {}", e.getMessage());
+            LOGGER.warn("An error occurred while decoding the body: {}", e.getMessage());
         }
         contentEncodingErrors = true;
         return value;
@@ -565,7 +567,7 @@ public abstract class HttpBody {
                 setCharsetImpl(newCharset);
             }
         } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
-            log.error("Failed to set charset: " + charsetName, e);
+            LOGGER.error("Failed to set charset: {}", charsetName, e);
         }
     }
 

@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.quality.Strictness;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod.LogicalOperator;
@@ -61,11 +62,12 @@ class BasicAuthorizationDetectionMethodUnitTest {
 
     @BeforeEach
     void setUp() throws Exception {
-        message = Mockito.mock(HttpMessage.class, withSettings().lenient());
+        message = Mockito.mock(HttpMessage.class, withSettings().strictness(Strictness.LENIENT));
         HttpResponseHeader mockedHeader =
-                Mockito.mock(HttpResponseHeader.class, withSettings().lenient());
+                Mockito.mock(
+                        HttpResponseHeader.class, withSettings().strictness(Strictness.LENIENT));
         HttpResponseBody mockedBody =
-                Mockito.mock(HttpResponseBody.class, withSettings().lenient());
+                Mockito.mock(HttpResponseBody.class, withSettings().strictness(Strictness.LENIENT));
         Mockito.when(message.getResponseHeader()).thenReturn(mockedHeader);
         Mockito.when(message.getResponseBody()).thenReturn(mockedBody);
         Mockito.when(mockedBody.toString()).thenReturn(RESPONSE_BODY);

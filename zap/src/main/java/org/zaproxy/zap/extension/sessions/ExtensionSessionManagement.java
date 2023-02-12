@@ -54,7 +54,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
     public static final String CONTEXT_CONFIG_SESSION_TYPE = CONTEXT_CONFIG_SESSION + ".type";
 
     /** The Constant log. */
-    private static final Logger log = LogManager.getLogger(ExtensionSessionManagement.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionSessionManagement.class);
 
     /** The automatically loaded session management method types. */
     List<SessionManagementMethodType> sessionManagementMethodTypes;
@@ -138,9 +138,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
             t.hook(extensionHook);
         }
 
-        if (log.isInfoEnabled()) {
-            log.info("Loaded session management method types: " + sessionManagementMethodTypes);
-        }
+        LOGGER.info("Loaded session management method types: {}", sessionManagementMethodTypes);
     }
 
     @Override
@@ -180,7 +178,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
                 }
             }
         } catch (DatabaseException e) {
-            log.error("Unable to load Session Management method.", e);
+            LOGGER.error("Unable to load Session Management method.", e);
         }
     }
 
@@ -195,7 +193,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
             t.persistMethodToSession(
                     session, context.getId(), context.getSessionManagementMethod());
         } catch (DatabaseException e) {
-            log.error("Unable to persist Session Management method.", e);
+            LOGGER.error("Unable to persist Session Management method.", e);
         }
     }
 

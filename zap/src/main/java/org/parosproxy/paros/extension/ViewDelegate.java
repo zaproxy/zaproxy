@@ -29,19 +29,28 @@
 // ZAP: 2018/07/17 Allow to obtain a KeyStroke with menu shortcut key mask.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/05/29 Allow to obtain the OptionsDialog.
+// ZAP: 2022/11/07 Add convenience methods for help and options buttons.
 package org.parosproxy.paros.extension;
 
 import java.awt.Toolkit;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.KeyStroke;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.MainFrame;
 import org.parosproxy.paros.view.MainPopupMenu;
+import org.parosproxy.paros.view.OptionsDialog;
 import org.parosproxy.paros.view.OutputPanel;
 import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.WaitMessageDialog;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
 public interface ViewDelegate {
@@ -51,6 +60,14 @@ public interface ViewDelegate {
     SiteMapPanel getSiteTreePanel();
 
     OutputPanel getOutputPanel();
+
+    /**
+     * Gets the Options dialogue.
+     *
+     * @return the Options dialogue.
+     * @since 2.12.0
+     */
+    OptionsDialog getOptionsDialog();
 
     // ZAP: expose dialog
     SessionDialog getSessionDialog();
@@ -135,5 +152,43 @@ public interface ViewDelegate {
                 keyCode,
                 Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | modifiers,
                 onKeyRelease);
+    }
+
+    /**
+     * Gets an options button, accepting a tooltip and options panel name (to be displayed when
+     * opening the options dialog).
+     *
+     * @param tooltip the text to be displayed in the button's tooltip.
+     * @param optionsPanelName the name of the panel to be displayed when the Options dialog is
+     *     opened.
+     * @return the options button, never {@code null}.
+     * @since 2.13.0
+     */
+    default JButton getOptionsButton(String tooltip, String optionsPanelName) {
+        JButton optionsButton = new JButton();
+        optionsButton.setToolTipText(tooltip);
+        optionsButton.setIcon(
+                DisplayUtils.getScaledIcon(
+                        new ImageIcon(
+                                ViewDelegate.class.getResource("/resource/icon/16/041.png"))));
+
+        optionsButton.addActionListener(
+                e -> Control.getSingleton().getMenuToolsControl().options(optionsPanelName));
+        return optionsButton;
+    }
+
+    /**
+     * Gets a help button, accepting a help reference to set the initially displayed content.
+     *
+     * @param focus the help reference indicating the content to display when help is opened.
+     * @return the help button, never {@code null}.
+     * @since 2.13.0
+     */
+    default JButton getHelpButton(String focus) {
+        JButton helpButton = new JButton();
+        helpButton.setIcon(ExtensionHelp.getHelpIcon());
+        helpButton.setToolTipText(Constant.messages.getString("help.dialog.button.tooltip"));
+        helpButton.addActionListener(e -> ExtensionHelp.showHelp(focus));
+        return helpButton;
     }
 }

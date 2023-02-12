@@ -29,11 +29,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -41,6 +43,7 @@ import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.parosproxy.paros.core.scanner.Variant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.WithConfigsTest;
@@ -68,6 +71,23 @@ class SessionStructureUnitTest {
     @AfterEach
     void cleanUp() {
         Constant.messages = null;
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "example.com,http://example.com",
+        "example.com:80,http://example.com",
+        "example.com:443,https://example.com",
+        "example.com:8080,http://example.com:8080"
+    })
+    void shouldReturnHostNameFromAuthority(String authority, String expectedHostName)
+            throws Exception {
+        // Given
+        URI uri = URI.fromAuthority(authority);
+        // When
+        String hostName = SessionStructure.getHostName(uri);
+        // Then
+        assertThat(hostName, is(equalTo(expectedHostName)));
     }
 
     static Stream<String> methodProvider() {
@@ -193,10 +213,8 @@ class SessionStructureUnitTest {
     @Test
     void shouldReturnCorrectNameForPostNoPathNoSlashNoUrlParams() throws Exception {
         // Given
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com";
-        msg.getRequestHeader().setURI(new URI(uri, true));
-        msg.setRequestBody("e=f&g=h");
+        createPostMsgWithFormParams(uri, null, "e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -206,10 +224,8 @@ class SessionStructureUnitTest {
     @Test
     void shouldReturnCorrectNameForPostNoPathWithSlashNoUrlParams() throws Exception {
         // Given
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/";
-        msg.getRequestHeader().setURI(new URI(uri, true));
-        msg.setRequestBody("e=f&g=h");
+        createPostMsgWithFormParams(uri, null, "e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -219,10 +235,8 @@ class SessionStructureUnitTest {
     @Test
     void shouldReturnCorrectNameForPostNoPathNoSlashWithParams() throws Exception {
         // Given
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com";
-        msg.getRequestHeader().setURI(new URI(uri + "?a=b&c=d", true));
-        msg.setRequestBody("e=f&g=h");
+        createPostMsgWithFormParams(uri, "a=b&c=d", "e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -232,10 +246,8 @@ class SessionStructureUnitTest {
     @Test
     void shouldReturnCorrectNameForPostNoPathWithSlashWithParams() throws Exception {
         // Given
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/";
-        msg.getRequestHeader().setURI(new URI(uri + "?a=b&c=d", true));
-        msg.setRequestBody("e=f&g=h");
+        createPostMsgWithFormParams(uri, "a=b&c=d", "e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -245,10 +257,8 @@ class SessionStructureUnitTest {
     @Test
     void shouldReturnCorrectNameForPostWithPathNoSlashNoUrlParams() throws Exception {
         // Given
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/path";
-        msg.getRequestHeader().setURI(new URI(uri, true));
-        msg.setRequestBody("e=f&g=h");
+        createPostMsgWithFormParams(uri, null, "e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -258,10 +268,8 @@ class SessionStructureUnitTest {
     @Test
     void shouldReturnCorrectNameForPostWithPathWithSlashNoUrlParams() throws Exception {
         // Given
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/path/";
-        msg.getRequestHeader().setURI(new URI(uri, true));
-        msg.setRequestBody("e=f&g=h");
+        createPostMsgWithFormParams(uri, null, "e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -271,10 +279,8 @@ class SessionStructureUnitTest {
     @Test
     void shouldReturnCorrectNameForPostWithPathNoSlashWithParams() throws Exception {
         // Given
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/path";
-        msg.getRequestHeader().setURI(new URI(uri + "?a=b&c=d", true));
-        msg.setRequestBody("e=f&g=h");
+        createPostMsgWithFormParams(uri, "a=b&c=d", "e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -284,10 +290,8 @@ class SessionStructureUnitTest {
     @Test
     void shouldReturnCorrectNameForPostWithPathWithSlashWithParams() throws Exception {
         // Given
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/path/";
-        msg.getRequestHeader().setURI(new URI(uri + "?a=b&c=d", true));
-        msg.setRequestBody("e=f&g=h");
+        createPostMsgWithFormParams(uri, "a=b&c=d", "e=f&g=h");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -298,10 +302,8 @@ class SessionStructureUnitTest {
     void shouldReturnCorrectNameForPostWithPathWithSlashWithSameUrlAndPostParams()
             throws Exception {
         // Given
-        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
         String uri = "https://www.example.com/path/";
-        msg.getRequestHeader().setURI(new URI(uri + "?a=b&c=d", true));
-        msg.setRequestBody("a=b&c=d");
+        createPostMsgWithFormParams(uri, "a=b&c=d", "a=b&c=d");
         // When
         String nodeName = SessionStructure.getNodeName(model, msg);
         // Then
@@ -468,6 +470,16 @@ class SessionStructureUnitTest {
         for (int i = 0; i < actualTreePath.size(); i++) {
             assertThat(actualTreePath.get(i), is(equalTo(expectedTreePath.get(i))));
         }
+    }
+
+    private void createPostMsgWithFormParams(String uri, String queryParams, String formParams)
+            throws URIException {
+        msg.getRequestHeader().setMethod(HttpRequestHeader.POST);
+        queryParams = queryParams == null ? "" : "?" + queryParams;
+        msg.getRequestHeader().setURI(new URI(uri + queryParams, true));
+        msg.getRequestHeader()
+                .setHeader(HttpHeader.CONTENT_TYPE, "application/x-www-form-urlencoded");
+        msg.setRequestBody(formParams);
     }
 
     public static final class PathTreeVariant implements Variant {

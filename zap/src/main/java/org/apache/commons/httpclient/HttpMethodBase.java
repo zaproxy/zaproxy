@@ -118,7 +118,9 @@ import org.parosproxy.paros.network.HttpHeader;
  * @author Christian Kohlschuetter
  *
  * @version $Revision: 775455 $ $Date: 2009-05-16 13:28:40 +0100 (Sat, 16 May 2009) $
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public abstract class HttpMethodBase implements HttpMethod {
 
     private static final String HOST_HEADER = "Host";

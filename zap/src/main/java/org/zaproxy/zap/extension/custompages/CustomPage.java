@@ -117,7 +117,14 @@ public interface CustomPage extends EnableableInterface {
          * OTHER is intended to provide an option for scan rule scripts for usages that may not yet
          * have been planned.
          */
-        OTHER(4, "custompages.type.other");
+        OTHER(4, "custompages.type.other"),
+        /**
+         * AUTH_4XX represents conditions that would normally be covered by HTTP 401 or 403 type
+         * responses.
+         *
+         * @since 2.12.0
+         */
+        AUTH_4XX(5, "custompages.type.auth");
 
         private final int id;
         private final String name;

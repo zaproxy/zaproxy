@@ -59,6 +59,13 @@ public class VariantMultipartFormParameters implements Variant {
     private List<NameValuePair> params = Collections.emptyList();
     private List<MultipartFormParameter> multiPartParams = new ArrayList<>();
 
+    private static final String SHORT_NAME = "multipart";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
+
     @Override
     public void setMessage(HttpMessage msg) {
         if (msg == null) {
@@ -129,11 +136,8 @@ public class VariantMultipartFormParameters implements Variant {
                                 + part.indexOf(HttpHeader.CRLF + HttpHeader.CRLF)
                                 + 4; // 4 for two CRLFs
                 int end = start + value.length();
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug(
-                            "Name: " + name + " O: " + offset + " S: " + start + " E: " + end
-                                    + " Pos: " + position);
-                }
+                LOGGER.debug(
+                        "Name: {} O: {} S: {} E: {} Pos: {}", name, offset, start, end, position);
                 multiPartParams.add(
                         new MultipartFormParameter(
                                 name,
@@ -142,9 +146,7 @@ public class VariantMultipartFormParameters implements Variant {
                                 end,
                                 position,
                                 MultipartFormParameter.Type.GENERAL));
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Name: " + name + " value: " + valueMatcher.group("value"));
-                }
+                LOGGER.debug("Name: {} value: {}", name, valueMatcher.group("value"));
                 if (isFileParam) {
                     position -= 2;
                     // Extract the filename
@@ -160,11 +162,13 @@ public class VariantMultipartFormParameters implements Variant {
                                     position));
                     int fnStart = offset + part.indexOf(fnValue);
                     int fnEnd = fnStart + fnValue.length();
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(
-                                "Name: " + name + " O: " + offset + " S: " + fnStart + " E: "
-                                        + fnEnd + " Pos: " + position);
-                    }
+                    LOGGER.debug(
+                            "Name: {} O: {} S: {} E: {} Pos: {}",
+                            name,
+                            offset,
+                            fnStart,
+                            fnEnd,
+                            position);
                     multiPartParams.add(
                             multiPartParams.size() - 1,
                             new MultipartFormParameter(
@@ -187,11 +191,13 @@ public class VariantMultipartFormParameters implements Variant {
                                     ++position));
                     int ctStart = offset + part.indexOf(ctValue);
                     int ctEnd = ctStart + ctValue.length();
-                    if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug(
-                                "Name: " + name + " O: " + offset + " S: " + ctStart + " E: "
-                                        + ctEnd + " Pos: " + position);
-                    }
+                    LOGGER.debug(
+                            "Name: {} O: {} S: {} E: {} Pos: {}",
+                            name,
+                            offset,
+                            ctStart,
+                            ctEnd,
+                            position);
                     multiPartParams.add(
                             multiPartParams.size() - 1,
                             new MultipartFormParameter(
@@ -250,19 +256,13 @@ public class VariantMultipartFormParameters implements Variant {
             int idx = originalPosition - 1;
 
             MultipartFormParameter mpPart = this.multiPartParams.get(idx);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(
-                        "i: "
-                                + idx
-                                + " pos: "
-                                + originalPosition
-                                + " S: "
-                                + mpPart.getStart()
-                                + " E: "
-                                + mpPart.getEnd()
-                                + " O: "
-                                + offset);
-            }
+            LOGGER.debug(
+                    "i: {} pos: {} S: {} E: {} O: {}",
+                    idx,
+                    originalPosition,
+                    mpPart.getStart(),
+                    mpPart.getEnd(),
+                    offset);
             newBodyBuilder.replace(mpPart.getStart() + offset, mpPart.getEnd() + offset, value);
             offset = offset + value.length() - mpPart.getEnd() + mpPart.getStart();
         }

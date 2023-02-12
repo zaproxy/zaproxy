@@ -50,6 +50,7 @@ import org.zaproxy.zap.view.messagelocation.MessageLocationProducerFocusListener
 import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlight;
 import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightsManager;
 
+@SuppressWarnings("serial")
 public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView
         implements SelectableContentHttpMessageContainer {
 

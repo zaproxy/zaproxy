@@ -80,7 +80,7 @@
 				<reqUrlRegex/>
 				<reqHeadRegex/>
 				<resHeadRegex/>
-				<resBodyRegex>&lt;.*href\s*=\s*['"]?mailto:</resBodyRegex>
+				<resBodyRegex>href\s*=\s*['"]?mailto:</resBodyRegex>
 				<enabled>true</enabled>
 			</scanner>
 			<scanner>

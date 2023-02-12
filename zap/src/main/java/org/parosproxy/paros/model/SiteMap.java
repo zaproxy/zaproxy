@@ -72,6 +72,12 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove empty statement and add missing override annotation.
 // ZAP: 2022/02/08 Use isEmpty where applicable.
+// ZAP: 2022/07/27 Use hrefMap to return early from addPath and findAndAddChild. Remove getHostName
+// and use SessionStructure#getHostName in its place.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2022/08/23 Make hrefMap an instance variable.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -101,6 +107,7 @@ import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.view.SiteTreeFilter;
 
+@SuppressWarnings("serial")
 public class SiteMap extends SortedTreeModel {
 
     private static final long serialVersionUID = 2311091007687218751L;
@@ -110,26 +117,26 @@ public class SiteMap extends SortedTreeModel {
         REMOVE
     }
 
-    private static Map<Integer, SiteNode> hrefMap = new HashMap<>();
+    private final Map<Integer, SiteNode> hrefMap;
 
     private Model model = null;
 
     private SiteTreeFilter filter = null;
 
     // ZAP: Added log
-    private static Logger log = LogManager.getLogger(SiteMap.class);
+    private static final Logger LOGGER = LogManager.getLogger(SiteMap.class);
 
     public static SiteMap createTree(Model model) {
         SiteMap siteMap = new SiteMap(null, model);
         SiteNode root = new SiteNode(siteMap, -1, Constant.messages.getString("tab.sites"));
         siteMap.setRoot(root);
-        hrefMap = new HashMap<>();
         return siteMap;
     }
 
     public SiteMap(SiteNode root, Model model) {
         super(root);
         this.model = model;
+        this.hrefMap = new HashMap<>();
     }
 
     /**
@@ -146,7 +153,7 @@ public class SiteMap extends SortedTreeModel {
         String folder;
 
         try {
-            String host = getHostName(uri);
+            String host = SessionStructure.getHostName(uri);
 
             // no host yet
             parent = findChild(parent, host);
@@ -174,7 +181,7 @@ public class SiteMap extends SortedTreeModel {
             }
         } catch (URIException e) {
             // ZAP: Added error
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         if (resultNode == null || resultNode.getHistoryReference() == null) {
@@ -186,7 +193,7 @@ public class SiteMap extends SortedTreeModel {
             nodeMsg = resultNode.getHistoryReference().getHttpMessage();
         } catch (Exception e) {
             // ZAP: Added error
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return nodeMsg;
     }
@@ -210,8 +217,7 @@ public class SiteMap extends SortedTreeModel {
         String folder = "";
 
         try {
-
-            String host = getHostName(uri);
+            String host = SessionStructure.getHostName(uri);
 
             // no host yet
             parent = findChild(parent, host);
@@ -243,7 +249,7 @@ public class SiteMap extends SortedTreeModel {
                 }
             }
         } catch (URIException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return resultNode;
@@ -267,7 +273,7 @@ public class SiteMap extends SortedTreeModel {
         String folder = "";
 
         try {
-            String host = getHostName(uri);
+            String host = SessionStructure.getHostName(uri);
 
             // no host yet
             resultNode = findChild(getRoot(), host);
@@ -293,7 +299,7 @@ public class SiteMap extends SortedTreeModel {
                 }
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return resultNode;
@@ -321,7 +327,7 @@ public class SiteMap extends SortedTreeModel {
         String folder = "";
 
         try {
-            String host = getHostName(uri);
+            String host = SessionStructure.getHostName(uri);
 
             // no host yet
             parent = findChild(parent, host);
@@ -346,7 +352,7 @@ public class SiteMap extends SortedTreeModel {
                 }
             }
         } catch (URIException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return lastParent;
@@ -364,12 +370,16 @@ public class SiteMap extends SortedTreeModel {
                     "SiteMap should not be accessed when the low memory option is set");
         }
 
+        if (isReferenceCached(ref)) {
+            return hrefMap.get(ref.getHistoryId());
+        }
+
         HttpMessage msg = null;
         try {
             msg = ref.getHttpMessage();
         } catch (Exception e) {
             // ZAP: Added error
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             return null;
         }
 
@@ -408,13 +418,18 @@ public class SiteMap extends SortedTreeModel {
         if (View.isInitialised() && Constant.isDevMode() && !EventQueue.isDispatchThread()) {
             // In developer mode log an error if we're not on the EDT
             // Adding to the site tree on GUI ('initial') threads causes problems
-            log.error(
-                    "SiteMap.addPath not on EDT " + Thread.currentThread().getName(),
+            LOGGER.error(
+                    "SiteMap.addPath not on EDT {}",
+                    Thread.currentThread().getName(),
                     new Exception());
         }
 
+        if (isReferenceCached(ref)) {
+            return hrefMap.get(ref.getHistoryId());
+        }
+
         URI uri = msg.getRequestHeader().getURI();
-        log.debug("addPath " + uri.toString());
+        LOGGER.debug("addPath {}", uri);
 
         SiteNode parent = getRoot();
         SiteNode leaf = null;
@@ -423,7 +438,7 @@ public class SiteMap extends SortedTreeModel {
 
         try {
 
-            String host = getHostName(uri);
+            String host = SessionStructure.getHostName(uri);
 
             // add host
             parent = findAndAddChild(parent, host, ref, msg);
@@ -455,12 +470,10 @@ public class SiteMap extends SortedTreeModel {
 
         } catch (Exception e) {
             // ZAP: Added error
-            log.error("Exception adding " + uri.toString() + " " + e.getMessage(), e);
+            LOGGER.error("Exception adding {} {}", uri, e.getMessage(), e);
         }
 
-        if (hrefMap.get(ref.getHistoryId()) == null) {
-            hrefMap.put(ref.getHistoryId(), leaf);
-        }
+        hrefMap.putIfAbsent(ref.getHistoryId(), leaf);
 
         if (!newOnly || isNew) {
             return leaf;
@@ -468,11 +481,21 @@ public class SiteMap extends SortedTreeModel {
         return null;
     }
 
+    private boolean isReferenceCached(HistoryReference ref) {
+        // FIXME Use of cache leads to missing alerts in the tree nodes.
+        // return ref.getHistoryType() != HistoryReference.TYPE_TEMPORARY
+        //        && hrefMap.containsKey(ref.getHistoryId());
+        return false;
+    }
+
     private SiteNode findAndAddChild(
             SiteNode parent, String nodeName, HistoryReference baseRef, HttpMessage baseMsg)
             throws URIException, HttpMalformedHeaderException, NullPointerException,
                     DatabaseException {
-        log.debug("findAndAddChild " + parent.getNodeName() + " / " + nodeName);
+        LOGGER.debug("findAndAddChild {} / {}", parent.getNodeName(), nodeName);
+        if (isReferenceCached(baseRef)) {
+            return hrefMap.get(baseRef.getHistoryId());
+        }
         SiteNode result = findChild(parent, nodeName);
         if (result == null) {
             SiteNode newNode = null;
@@ -523,7 +546,7 @@ public class SiteMap extends SortedTreeModel {
 
     private SiteNode findChild(SiteNode parent, String nodeName) {
         // ZAP: Added debug
-        log.debug("findChild " + parent.getNodeName() + " / " + nodeName);
+        LOGGER.debug("findChild {} / {}", parent.getNodeName(), nodeName);
 
         for (int i = 0; i < parent.getChildCount(); i++) {
             SiteNode child = (SiteNode) parent.getChildAt(i);
@@ -537,7 +560,7 @@ public class SiteMap extends SortedTreeModel {
     private SiteNode findAndAddLeaf(
             SiteNode parent, String nodeName, HistoryReference ref, HttpMessage msg) {
         // ZAP: Added debug
-        log.debug("findAndAddLeaf " + parent.getNodeName() + " / " + nodeName);
+        LOGGER.debug("findAndAddLeaf {} / {}", parent.getNodeName(), nodeName);
 
         String leafName = SessionStructure.getLeafName(model, nodeName, msg);
         SiteNode node = findChild(parent, leafName);
@@ -616,16 +639,15 @@ public class SiteMap extends SortedTreeModel {
             if (((SiteNode) path[i]).isDataDriven()) {
                 // Retrieve original name..
                 if (origPath.length > i - 1) {
-                    log.debug(
-                            "Replace Data Driven element " + nodeName + " with " + origPath[i - 1]);
+                    LOGGER.debug(
+                            "Replace Data Driven element {} with {}", nodeName, origPath[i - 1]);
                     sb.append(origPath[i - 1]);
                 } else {
-                    log.error(
-                            "Failed to determine original node name for element "
-                                    + i
-                                    + nodeName
-                                    + " original request: "
-                                    + baseRef.getURI().toString());
+                    LOGGER.error(
+                            "Failed to determine original node name for element {} {} original request: {}",
+                            i,
+                            nodeName,
+                            baseRef.getURI());
                     sb.append(nodeName);
                 }
             } else {
@@ -659,29 +681,6 @@ public class SiteMap extends SortedTreeModel {
 
     public void removeHistoryReference(int historyId) {
         hrefMap.remove(historyId);
-    }
-
-    // returns a representation of the host name in the site map
-    private String getHostName(URI uri) throws URIException {
-        StringBuilder host = new StringBuilder();
-
-        String scheme = uri.getScheme();
-        if (scheme == null) {
-            scheme = "http";
-        } else {
-            scheme = scheme.toLowerCase();
-        }
-        host.append(scheme).append("://").append(uri.getHost());
-
-        int port = uri.getPort();
-        if (port != -1
-                && ((port == 80 && !"http".equals(scheme))
-                        || (port == 443 && !"https".equals(scheme)
-                                || (port != 80 && port != 443)))) {
-            host.append(":").append(port);
-        }
-
-        return host.toString();
     }
 
     /**
@@ -812,6 +811,7 @@ public class SiteMap extends SortedTreeModel {
  * href="http://www.java2s.com/Code/Java/Swing-JFC/AtreemodelusingtheSortTreeModelwithaFilehierarchyasinput.htm">Sorted
  * Tree Example</a>
  */
+@SuppressWarnings("serial")
 class SortedTreeModel extends DefaultTreeModel {
 
     private static final long serialVersionUID = 4130060741120936997L;

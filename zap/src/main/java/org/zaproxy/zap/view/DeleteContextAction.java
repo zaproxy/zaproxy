@@ -64,10 +64,7 @@ public abstract class DeleteContextAction extends AbstractAction {
 
         if (View.getSingleton()
                         .showConfirmDialog(
-                                contexts.size() > 1
-                                        ? Constant.messages.getString(
-                                                "context.delete.warning.multiple", contextList)
-                                        : Constant.messages.getString("context.delete.warning"))
+                                Constant.messages.getString("context.delete.warning", contextList))
                 == JOptionPane.OK_OPTION) {
             for (Context context : contexts) {
                 Model.getSingleton().getSession().deleteContext(context);

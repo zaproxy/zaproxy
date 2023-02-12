@@ -34,6 +34,7 @@ import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxH
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
+@SuppressWarnings("serial")
 public class HttpResponseBodyPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
 
     private ContentSplitter contentSplitter;

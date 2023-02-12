@@ -24,7 +24,10 @@ package org.zaproxy.zap.spider.parser;
  * processing a spiderParser event implements this interface, and the object created with that class
  * is registered with a component using the component's {@code addSpiderParserListener} method. When
  * the spiderParser event occurs, that object's appropriate method is invoked.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public interface SpiderParserListener {
 
     /**

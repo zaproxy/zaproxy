@@ -20,7 +20,7 @@
 package org.zaproxy.zap.session;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -33,23 +33,20 @@ import java.util.Map;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.HttpState;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jdesktop.swingx.JXComboBox;
+import org.jdesktop.swingx.decorator.FontHighlighter;
+import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
@@ -70,6 +67,7 @@ import org.zaproxy.zap.extension.sessions.SessionManagementAPI;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.EncodingUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.DynamicFieldsPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -90,7 +88,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
 
     private static final int METHOD_IDENTIFIER = 2;
 
-    private static final Logger LOG =
+    private static final Logger LOGGER =
             LogManager.getLogger(ScriptBasedSessionManagementMethodType.class);
 
     private static final String METHOD_NAME =
@@ -99,11 +97,6 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
     private static final String API_METHOD_NAME = "scriptBasedSessionManagement";
 
     public static final String SCRIPT_TYPE_SESSION = "session";
-
-    private static final ImageIcon SCRIPT_ICON_SESSION =
-            new ImageIcon(
-                    ScriptBasedSessionManagementMethodType.class.getResource(
-                            "/resource/icon/16/script-session.png"));
 
     private static ExtensionScript extensionScript;
 
@@ -263,6 +256,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
         return method instanceof ScriptBasedSessionManagementMethod;
     }
 
+    @SuppressWarnings("serial")
     public static class ScriptBasedSessionManagementMethodOptionsPanel
             extends AbstractSessionManagementMethodOptionsPanel {
 
@@ -272,7 +266,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                 Constant.messages.getString("session.method.script.field.label.scriptName");
         private final String LABEL_NOT_LOADED =
                 Constant.messages.getString("session.method.script.field.label.notLoaded");
-        private JComboBox<ScriptWrapper> scriptsComboBox;
+        private JXComboBox scriptsComboBox;
         private JButton loadScriptButton;
 
         private ScriptBasedSessionManagementMethod method;
@@ -288,17 +282,34 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
             initialize();
         }
 
-        @SuppressWarnings("unchecked")
         private void initialize() {
             this.setLayout(new GridBagLayout());
 
             this.add(new JLabel(SCRIPT_NAME_LABEL), LayoutHelper.getGBC(0, 0, 1, 0.0d, 0.0d));
 
-            this.scriptsComboBox = new JComboBox<>();
-            this.scriptsComboBox.setRenderer(new ScriptWrapperRenderer(this));
+            scriptsComboBox = new JXComboBox();
+            scriptsComboBox.addHighlighter(
+                    new FontHighlighter(
+                            (renderer, adapter) -> loadedScript == adapter.getValue(),
+                            scriptsComboBox.getFont().deriveFont(Font.BOLD)));
+            scriptsComboBox.setRenderer(
+                    new DefaultListRenderer(
+                            sw -> {
+                                if (sw == null) {
+                                    return null;
+                                }
+
+                                String name = ((ScriptWrapper) sw).getName();
+                                if (loadedScript == sw) {
+                                    return Constant.messages.getString(
+                                            "session.method.script.loaded", name);
+                                }
+                                return name;
+                            }));
             this.add(this.scriptsComboBox, LayoutHelper.getGBC(1, 0, 1, 1.0d, 0.0d));
 
-            this.loadScriptButton = new JButton("Load");
+            this.loadScriptButton =
+                    new JButton(Constant.messages.getString("session.method.script.load.button"));
             this.add(this.loadScriptButton, LayoutHelper.getGBC(2, 0, 1, 0.0d, 0.0d));
             this.loadScriptButton.addActionListener(
                     new ActionListener() {
@@ -320,7 +331,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
 
             this.dynamicContentPanel = new JPanel(new BorderLayout());
             this.add(this.dynamicContentPanel, LayoutHelper.getGBC(0, 1, 3, 1.0d, 0.0d));
-            this.dynamicContentPanel.add(new JLabel(LABEL_NOT_LOADED));
+            this.dynamicContentPanel.add(new ZapHtmlLabel(LABEL_NOT_LOADED));
         }
 
         @Override
@@ -350,10 +361,9 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
             SessionScript script = getScriptInterface(scriptW);
 
             if (script == null) {
-                LOG.warn(
-                        "The script "
-                                + scriptW.getName()
-                                + " does not properly implement the Session Script interface.");
+                LOGGER.warn(
+                        "The script {} does not properly implement the Session Script interface.",
+                        scriptW.getName());
                 warnAndResetPanel(
                         Constant.messages.getString(
                                 "session.method.script.dialog.error.text.interface",
@@ -371,9 +381,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                 Map<String, String> oldValues = null;
                 if (adaptOldValues && dynamicFieldsPanel != null) {
                     oldValues = dynamicFieldsPanel.getFieldValues();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Trying to adapt old values: " + oldValues);
-                    }
+                    LOGGER.debug("Trying to adapt old values: {}", oldValues);
                 }
 
                 this.dynamicFieldsPanel = new DynamicFieldsPanel(requiredParams, optionalParams);
@@ -388,7 +396,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
 
             } catch (Exception e) {
                 getScriptsExtension().handleScriptException(scriptW, e);
-                LOG.error("Error while calling session management script", e);
+                LOGGER.error("Error while calling session management script", e);
                 warnAndResetPanel(
                         Constant.messages.getString(
                                 "session.method.script.dialog.error.text.loading",
@@ -411,6 +419,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         public void bindMethod(SessionManagementMethod method)
                 throws UnsupportedSessionManagementMethodException {
             this.method = (ScriptBasedSessionManagementMethod) method;
@@ -438,50 +447,22 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
         }
     }
 
-    /**
-     * A renderer for properly displaying the name of a {@link ScriptWrapper} in a ComboBox and
-     * putting emphasis on loaded script.
-     */
-    private static class ScriptWrapperRenderer extends BasicComboBoxRenderer {
-        private static final long serialVersionUID = 3654541772447187317L;
-        private static final Border BORDER = new EmptyBorder(2, 3, 3, 3);
-        private ScriptBasedSessionManagementMethodOptionsPanel panel;
-
-        public ScriptWrapperRenderer(ScriptBasedSessionManagementMethodOptionsPanel panel) {
-            super();
-            this.panel = panel;
-        }
-
-        @Override
-        @SuppressWarnings("rawtypes")
-        public Component getListCellRendererComponent(
-                JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-            if (value != null) {
-                setBorder(BORDER);
-                ScriptWrapper item = (ScriptWrapper) value;
-                if (panel.loadedScript == item)
-                    setText(
-                            "<html><b>"
-                                    + StringEscapeUtils.unescapeHtml(item.getName())
-                                    + " (loaded)</b></html>");
-                else setText(item.getName());
-            }
-            return this;
-        }
-    }
-
     @Override
     public void hook(ExtensionHook extensionHook) {
         // Hook up the Script Type
         if (getScriptsExtension() != null) {
-            LOG.debug("Registering Script...");
+            LOGGER.debug("Registering Script...");
             getScriptsExtension()
                     .registerScriptType(
                             new ScriptType(
                                     SCRIPT_TYPE_SESSION,
                                     "session.method.script.type",
-                                    SCRIPT_ICON_SESSION,
+                                    getScriptsExtension().getView() != null
+                                            ? new ImageIcon(
+                                                    getClass()
+                                                            .getResource(
+                                                                    "/resource/icon/16/script-session.png"))
+                                            : null,
                                     false,
                                     new String[] {ScriptType.CAPABILITY_APPEND}));
         }
@@ -558,9 +539,9 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
         if (scriptName != null) {
             ScriptWrapper script = getScriptsExtension().getScript(scriptName);
             if (script == null) {
-                LOG.error(
-                        "Unable to find script while loading Script Based Session Management Method for name: "
-                                + scriptName);
+                LOGGER.error(
+                        "Unable to find script while loading Script Based Session Management Method for name: {}",
+                        scriptName);
                 if (View.isInitialised()) {
                     View.getSingleton()
                             .showMessageDialog(
@@ -570,16 +551,15 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                 }
                 return;
             }
-            LOG.info("Loaded script:" + script.getName());
+            LOGGER.info("Loaded script:{}", script.getName());
             method.script = script;
 
             // Check script interface
             SessionScript s = getScriptInterface(script);
             if (s == null) {
-                LOG.error(
-                        "Unable to load Script Based Session Management method. The script "
-                                + scriptName
-                                + " does not properly implement the Session Management Script interface.");
+                LOGGER.error(
+                        "Unable to load Script Based Session Management method. The script {} does not properly implement the Session Management Script interface.",
+                        scriptName);
                 return;
             }
         }
@@ -591,9 +571,9 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
             method.paramValues = paramValues;
         } else {
             method.paramValues = new HashMap<>();
-            LOG.error(
-                    "Unable to load script parameter values loading Script Based Session Management Method for name: "
-                            + scriptName);
+            LOGGER.error(
+                    "Unable to load script parameter values loading Script Based Session Management Method for name: {}",
+                    scriptName);
         }
     }
 
@@ -645,25 +625,22 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                 // Load the script and make sure it exists and follows the required interface
                 ScriptWrapper script = getScriptsExtension().getScript(scriptName);
                 if (script == null) {
-                    LOG.error(
-                            "Unable to find script while loading Script Based Session Management Method for name: "
-                                    + scriptName);
+                    LOGGER.error(
+                            "Unable to find script while loading Script Based Session Management Method for name: {}",
+                            scriptName);
                     throw new ApiException(ApiException.Type.SCRIPT_NOT_FOUND, scriptName);
                 } else {
-                    LOG.info("Loaded script for API:" + script.getName());
+                    LOGGER.info("Loaded script for API:{}", script.getName());
                 }
                 method.script = script;
 
                 SessionScript sessionScript = getScriptInterface(script);
                 String[] requiredParams = sessionScript.getRequiredParamsNames();
                 String[] optionalParams = sessionScript.getOptionalParamsNames();
-                if (LOG.isDebugEnabled()) {
-                    LOG.debug(
-                            "Loaded session management script - required parameters: "
-                                    + Arrays.toString(requiredParams)
-                                    + " - optional parameters: "
-                                    + Arrays.toString(optionalParams));
-                }
+                LOGGER.debug(
+                        "Loaded session management script - required parameters: {} - optial parameters: {}",
+                        Arrays.toString(requiredParams),
+                        Arrays.toString(optionalParams));
 
                 Map<String, String> paramValues = new HashMap<>();
                 for (String rp : requiredParams) {
@@ -676,8 +653,7 @@ public class ScriptBasedSessionManagementMethodType extends SessionManagementMet
                 for (String op : optionalParams)
                     paramValues.put(op, ApiUtils.getOptionalStringParam(params, op));
                 method.paramValues = paramValues;
-                if (LOG.isDebugEnabled())
-                    LOG.debug("Loaded session management script parameters:" + paramValues);
+                LOGGER.debug("Loaded session management script parameters:{}", paramValues);
 
                 context.setSessionManagementMethod(method);
             }

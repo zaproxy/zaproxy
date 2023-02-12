@@ -21,9 +21,6 @@ package org.zaproxy.zap.network;
 
 import java.io.IOException;
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpConnection;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethodBase;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.ProtocolException;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
@@ -36,7 +33,9 @@ import org.apache.commons.logging.LogFactory;
  * An HTTP HEAD method implementation that ignores malformed HTTP response header lines.
  *
  * @see HeadMethod
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class ZapHeadMethod extends EntityEnclosingMethod {
 
     /** Log object for this class. */
@@ -56,14 +55,12 @@ public class ZapHeadMethod extends EntityEnclosingMethod {
     }
 
     /**
-     * Overrides {@link HttpMethodBase} method to <i>not</i> read a response body, despite the
-     * presence of a <tt>Content-Length</tt> or <tt>Transfer-Encoding</tt> header.
+     * Overrides {@code HttpMethodBase} method to <i>not</i> read a response body, despite the
+     * presence of a {@code Content-Length} or {@code Transfer-Encoding} header.
      *
      * @param state the {@link HttpState state} information associated with this method
-     * @param conn the {@link HttpConnection connection} used to execute this HTTP method
+     * @param conn the {@code HttpConnection connection} used to execute this HTTP method
      * @throws IOException if an I/O (transport) error occurs. Some transport exceptions can be
-     *     recovered from.
-     * @throws HttpException if a protocol exception occurs. Usually protocol exceptions cannot be
      *     recovered from.
      * @see #readResponse
      * @see #processResponseBody
@@ -71,8 +68,8 @@ public class ZapHeadMethod extends EntityEnclosingMethod {
      */
     // Implementation copied from HeadMethod.
     @Override
-    protected void readResponseBody(HttpState state, HttpConnection conn)
-            throws HttpException, IOException {
+    protected void readResponseBody(
+            HttpState state, org.apache.commons.httpclient.HttpConnection conn) throws IOException {
         LOG.trace("enter HeadMethod.readResponseBody(HttpState, HttpConnection)");
 
         int bodyCheckTimeout =
@@ -81,12 +78,10 @@ public class ZapHeadMethod extends EntityEnclosingMethod {
         if (bodyCheckTimeout < 0) {
             responseBodyConsumed();
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(
-                        "Check for non-compliant response body. Timeout in "
-                                + bodyCheckTimeout
-                                + " ms");
-            }
+            LOG.debug(
+                    "Check for non-compliant response body. Timeout in "
+                            + bodyCheckTimeout
+                            + " ms");
             boolean responseAvailable = false;
             try {
                 responseAvailable = conn.isResponseAvailable(bodyCheckTimeout);
@@ -120,8 +115,8 @@ public class ZapHeadMethod extends EntityEnclosingMethod {
      * header parser (ZapHttpParser#parseHeaders(InputStream, String)).
      */
     @Override
-    protected void readResponseHeaders(HttpState state, HttpConnection conn)
-            throws IOException, HttpException {
+    protected void readResponseHeaders(
+            HttpState state, org.apache.commons.httpclient.HttpConnection conn) throws IOException {
         getResponseHeaderGroup().clear();
 
         Header[] headers =

@@ -25,7 +25,9 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -34,15 +36,24 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 /** Unit test for {@link SpiderHttpHeaderParser}. */
+@SuppressWarnings("deprecation")
 class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
 
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
+    private org.zaproxy.zap.spider.parser.SpiderHttpHeaderParser headerParser;
+
+    @BeforeEach
+    void setup() {
+        org.zaproxy.zap.spider.SpiderParam spiderOptions =
+                mock(org.zaproxy.zap.spider.SpiderParam.class);
+        headerParser = new org.zaproxy.zap.spider.parser.SpiderHttpHeaderParser(spiderOptions);
+    }
+
     @Test
     void shouldParseAnyMessage() {
         // Given
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         HttpMessage msg = createMessage();
         // When
         boolean canParse = headerParser.canParseResource(msg, ROOT_PATH, false);
@@ -54,7 +65,6 @@ class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
     void shouldParseAnyMessageEvenIfAlreadyParsed() {
         // Given
         boolean alreadyParsed = true;
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         HttpMessage msg = createMessage();
         // When
         boolean canParse = headerParser.canParseResource(msg, ROOT_PATH, alreadyParsed);
@@ -66,7 +76,6 @@ class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
     void shouldFailToParseAnUndefinedMessage() {
         // Given
         HttpMessage undefinedMessage = null;
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         // When / Then
         assertThrows(
                 NullPointerException.class,
@@ -77,7 +86,6 @@ class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
     void shouldNotExtractUrlIfNoUrlHeadersPresent() {
         // Given
         HttpMessage msg = createMessage();
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         TestSpiderParserListener listener = createAndAddTestSpiderParserListener(headerParser);
         // When
         boolean parsed = headerParser.parseResource(msg, null, BASE_DEPTH);
@@ -92,7 +100,6 @@ class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
         // Given
         HttpMessage msg = createMessage();
         msg.getResponseHeader().addHeader(header, "");
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         TestSpiderParserListener listener = createAndAddTestSpiderParserListener(headerParser);
         // When
         boolean parsed = headerParser.parseResource(msg, null, 0);
@@ -107,7 +114,6 @@ class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
         String value = "http://example.com/contentlocation";
         HttpMessage msg = createMessage();
         msg.getResponseHeader().addHeader(HttpHeader.CONTENT_LOCATION, value);
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         TestSpiderParserListener listener = createAndAddTestSpiderParserListener(headerParser);
         // When
         boolean parsed = headerParser.parseResource(msg, null, BASE_DEPTH);
@@ -122,7 +128,6 @@ class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
         String url = "/rel/redirection";
         HttpMessage msg = createMessage();
         msg.getResponseHeader().addHeader(HttpHeader.CONTENT_LOCATION, url);
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         TestSpiderParserListener listener = createAndAddTestSpiderParserListener(headerParser);
         // When
         boolean parsed = headerParser.parseResource(msg, null, BASE_DEPTH);
@@ -141,7 +146,6 @@ class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
                 .addHeader(
                         HttpHeader.LINK,
                         "<" + url1 + ">; param1=value1; param2=\"value2\";<" + url2 + ">");
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         TestSpiderParserListener listener = createAndAddTestSpiderParserListener(headerParser);
         // When
         boolean parsed = headerParser.parseResource(msg, null, BASE_DEPTH);
@@ -162,7 +166,6 @@ class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
         // Given
         HttpMessage msg = createMessage();
         msg.getResponseHeader().addHeader(HttpHeader.LINK, value);
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         TestSpiderParserListener listener = createAndAddTestSpiderParserListener(headerParser);
         // When
         boolean parsed = headerParser.parseResource(msg, null, BASE_DEPTH);
@@ -177,7 +180,6 @@ class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
         String url = "http://example.com/refresh";
         HttpMessage msg = createMessage();
         msg.getResponseHeader().addHeader(HttpHeader.REFRESH, "999; url=" + url);
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         TestSpiderParserListener listener = createAndAddTestSpiderParserListener(headerParser);
         // When
         boolean parsed = headerParser.parseResource(msg, null, BASE_DEPTH);
@@ -192,7 +194,6 @@ class SpiderHttpHeaderParserUnitTest extends SpiderParserTestUtils {
         String url = "/rel/refresh";
         HttpMessage msg = createMessage();
         msg.getResponseHeader().addHeader(HttpHeader.REFRESH, "999; url=" + url);
-        SpiderHttpHeaderParser headerParser = new SpiderHttpHeaderParser();
         TestSpiderParserListener listener = createAndAddTestSpiderParserListener(headerParser);
         // When
         boolean parsed = headerParser.parseResource(msg, null, BASE_DEPTH);

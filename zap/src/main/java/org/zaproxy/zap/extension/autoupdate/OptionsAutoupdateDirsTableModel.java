@@ -25,6 +25,7 @@ import java.util.List;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTableModel;
 
+@SuppressWarnings("serial")
 public class OptionsAutoupdateDirsTableModel extends AbstractMultipleOptionsBaseTableModel<File> {
 
     private static final long serialVersionUID = 1L;

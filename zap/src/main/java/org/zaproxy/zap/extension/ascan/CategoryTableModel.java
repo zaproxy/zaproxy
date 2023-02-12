@@ -31,6 +31,7 @@
 // not important).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/08/04 Ensure scan rule names are non-blank (Issue 7228)
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.StatusUI;
 
+@SuppressWarnings("serial")
 public class CategoryTableModel extends DefaultTableModel {
 
     private static final long serialVersionUID = 1L;
@@ -57,10 +59,10 @@ public class CategoryTableModel extends DefaultTableModel {
         Constant.messages.getString("ascan.policy.table.testname"),
         Constant.messages.getString("ascan.policy.table.threshold"),
         Constant.messages.getString("ascan.policy.table.strength"),
-        Constant.messages.getString("ascan.policy.table.quality")
+        Constant.messages.getString("ascan.policy.table.status")
     };
 
-    private static final int QUALITY_COLUMN_IDX = 3;
+    private static final int STATUS_COLUMN_IDX = 3;
 
     private List<PluginWrapper> listTestCategory;
 
@@ -88,7 +90,7 @@ public class CategoryTableModel extends DefaultTableModel {
 
     @Override
     public Class<?> getColumnClass(int c) {
-        if (c == QUALITY_COLUMN_IDX) {
+        if (c == STATUS_COLUMN_IDX) {
             return StatusUI.class;
         }
         return String.class;
@@ -108,7 +110,7 @@ public class CategoryTableModel extends DefaultTableModel {
                 return true;
             case 2: // Alert
                 return true;
-            case QUALITY_COLUMN_IDX:
+            case STATUS_COLUMN_IDX:
                 return false;
             default:
                 return false;
@@ -232,7 +234,7 @@ public class CategoryTableModel extends DefaultTableModel {
         PluginWrapper wrapper = listTestCategory.get(row);
         switch (col) {
             case 0:
-                return wrapper.getPlugin().getName();
+                return wrapper.getPlugin().getDisplayName();
             case 1:
                 if (!wrapper.getPlugin().isEnabled()) {
                     return AlertThreshold.OFF;
@@ -240,8 +242,8 @@ public class CategoryTableModel extends DefaultTableModel {
                 return strToI18n(wrapper.getPlugin().getAlertThreshold(true).name());
             case 2:
                 return strToI18n(wrapper.getPlugin().getAttackStrength(true).name());
-            case QUALITY_COLUMN_IDX:
-                return wrapper.getQuality();
+            case STATUS_COLUMN_IDX:
+                return wrapper.getStatus();
             default:
                 return "";
         }
@@ -257,19 +259,19 @@ public class CategoryTableModel extends DefaultTableModel {
     private static class PluginWrapper {
 
         private final Plugin plugin;
-        private final StatusUI quality;
+        private final StatusUI status;
 
-        public PluginWrapper(Plugin plugin, StatusUI quality) {
+        public PluginWrapper(Plugin plugin, StatusUI status) {
             this.plugin = plugin;
-            this.quality = quality;
+            this.status = status;
         }
 
         public Plugin getPlugin() {
             return plugin;
         }
 
-        public StatusUI getQuality() {
-            return quality;
+        public StatusUI getStatus() {
+            return status;
         }
     }
 }

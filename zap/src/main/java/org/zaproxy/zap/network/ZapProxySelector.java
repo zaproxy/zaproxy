@@ -32,7 +32,9 @@ import org.apache.logging.log4j.Logger;
  * ZAP's {@link ProxySelector}.
  *
  * @since 2.10.0
+ * @deprecated (2.12.0) No longer in use, it will be removed in a following version.
  */
+@Deprecated
 public class ZapProxySelector extends ProxySelector {
 
     private static final ProxySelector DEFAULT_PROXY_SELECTOR = ProxySelector.getDefault();
@@ -64,17 +66,13 @@ public class ZapProxySelector extends ProxySelector {
     @Override
     public List<Proxy> select(URI uri) {
         List<Proxy> proxies = getDefaultProxySelector().select(uri);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Selected proxies for " + uri + " " + proxies);
-        }
+        logger.debug("Selected proxies for {} {}", uri, proxies);
         return proxies;
     }
 
     @Override
     public void connectFailed(URI uri, SocketAddress sa, IOException ioe) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Connect failed for " + uri + " " + sa, ioe);
-        }
+        logger.debug("Connect failed for {} {}", uri, sa, ioe);
 
         getDefaultProxySelector().connectFailed(uri, sa, ioe);
     }

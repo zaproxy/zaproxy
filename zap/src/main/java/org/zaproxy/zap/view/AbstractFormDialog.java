@@ -24,6 +24,7 @@ import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.Rectangle;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -235,9 +236,17 @@ public abstract class AbstractFormDialog extends JDialog {
 
     private void centreOnOwner() {
         Dimension frameSize = this.getSize();
-        Rectangle mainrect = getOwner().getBounds();
+        Rectangle mainrect = getMainRectangle();
         int x = mainrect.x + (mainrect.width - frameSize.width) / 2;
         int y = mainrect.y + (mainrect.height - frameSize.height) / 2;
         this.setLocation(x, y);
+    }
+
+    private Rectangle getMainRectangle() {
+        Window owner = getOwner();
+        if (owner != null) {
+            return owner.getBounds();
+        }
+        return new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
     }
 }

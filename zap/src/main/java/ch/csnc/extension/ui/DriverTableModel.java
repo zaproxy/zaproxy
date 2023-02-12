@@ -25,21 +25,23 @@
  */
 package ch.csnc.extension.ui;
 
-import ch.csnc.extension.util.DriverConfiguration;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
+/** @deprecated (2.12.0) No longer in use. */
+@Deprecated
+@SuppressWarnings("serial")
 public class DriverTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -9114670362713975727L;
 
-    private DriverConfiguration driverConfig;
+    private ch.csnc.extension.util.DriverConfiguration driverConfig;
     private Vector<String> names;
     private Vector<String> paths;
     private Vector<Integer> slots;
     private Vector<Integer> slotListIndexes;
 
-    public DriverTableModel(DriverConfiguration driverConfig) {
+    public DriverTableModel(ch.csnc.extension.util.DriverConfiguration driverConfig) {
         this.driverConfig = driverConfig;
         this.driverConfig.addChangeListener(e -> fireTableDataChanged());
 

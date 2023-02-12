@@ -37,6 +37,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.quality.Strictness;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.I18N;
@@ -47,7 +48,7 @@ class PluginFactoryUnitTest extends PluginTestUtils {
 
     @BeforeEach
     void setUp() throws Exception {
-        I18N i18n = mock(I18N.class, withSettings().lenient());
+        I18N i18n = mock(I18N.class, withSettings().strictness(Strictness.LENIENT));
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), any())).willReturn("");
         Constant.messages = i18n;

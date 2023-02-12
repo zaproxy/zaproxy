@@ -15,10 +15,8 @@ var base = '/zap/wrk/configs/plans/contexts'
 var results = '/zap/wrk/output/'
 
 var AutomationPlan = Java.type("org.zaproxy.addon.automation.AutomationPlan");
-var Control = Java.type("org.parosproxy.paros.control.Control");
 var ExtFile = Java.type("java.io.File");
 var File = Java.type("java.io.File");
-var Model = Java.type("org.parosproxy.paros.model.Model");
 
 var dir = new File(base);
 var files = dir.listFiles();
@@ -29,7 +27,7 @@ for (var i in files) {
 		print("Loading: " + files[i].getAbsolutePath());
 	
 		// Import the context file
-		var context = Model.getSingleton().getSession().importContext(files[i])
+		var context = model.getSession().importContext(files[i])
 		var contextName = context.getName();
 	
 		// Create the plan
@@ -37,11 +35,11 @@ for (var i in files) {
 		plan.getEnv().addContext(context);
 	
 		// Register then plan
-		var extAuto = Control.getSingleton().getExtensionLoader().getExtension("ExtensionAutomation");
+		var extAuto = control.getExtensionLoader().getExtension("ExtensionAutomation");
 		extAuto.registerPlan(plan);
 
 		// Delete the existing context
-		Model.getSingleton().getSession().deleteContext(context)
+		model.getSession().deleteContext(context)
 	
 		// Run the plan, which should recreate the context
 		var progress = extAuto.runPlan(plan, true);
@@ -53,13 +51,13 @@ for (var i in files) {
 		}
 	
 		// Export the context - must have the same name as the file
-		context = Model.getSingleton().getSession().getContext(contextName);
+		context = model.getSession().getContext(contextName);
 		var outFile = new File(results + contextName);
 		print("Generating: " + outFile.getAbsolutePath());
-		Model.getSingleton().getSession().exportContext(context, outFile);
+		model.getSession().exportContext(context, outFile);
 	
 		// Tidy up
-		Model.getSingleton().getSession().deleteContext(context);
+		model.getSession().deleteContext(context);
 	}
 	catch (err) {
 		print("FAILED processing: " + files[i].getAbsolutePath());

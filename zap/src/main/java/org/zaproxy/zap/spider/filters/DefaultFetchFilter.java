@@ -26,7 +26,6 @@ import java.util.Set;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 
 /**
  * The DefaultFetchFilter is an implementation of a FetchFilter that is default for spidering
@@ -37,13 +36,17 @@ import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
  *   <li>the resource must be found in the scope (domain) of the spidering process.
  *   <li>the resource must be not be excluded by user request - exclude list.
  * </ul>
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class DefaultFetchFilter extends FetchFilter {
 
     /** The scope. */
     private Set<String> scopes = new LinkedHashSet<>();
 
-    private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = Collections.emptyList();
+    private List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domainsAlwaysInScope =
+            Collections.emptyList();
 
     /** The exclude list. */
     private List<String> excludeList = null;
@@ -53,7 +56,7 @@ public class DefaultFetchFilter extends FetchFilter {
     @Override
     public FetchStatus checkFilter(URI uri) {
 
-        getLogger().debug("Checking: " + uri);
+        getLogger().debug("Checking: {}", uri);
         // Protocol check
         String scheme = uri.getScheme();
         if (scheme == null
@@ -82,7 +85,7 @@ public class DefaultFetchFilter extends FetchFilter {
             }
 
         } catch (URIException e) {
-            getLogger().warn("Error while fetching host for uri: " + uri, e);
+            getLogger().warn("Error while fetching host for uri: {}", uri, e);
             return FetchStatus.OUT_OF_SCOPE;
         }
 
@@ -134,7 +137,8 @@ public class DefaultFetchFilter extends FetchFilter {
      * @see #isDomainInScope(String)
      */
     private boolean isDomainAlwaysInScope(String domain) {
-        for (DomainAlwaysInScopeMatcher domainInScope : domainsAlwaysInScope) {
+        for (org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher domainInScope :
+                domainsAlwaysInScope) {
             if (domainInScope.matches(domain)) {
                 return true;
             }
@@ -157,7 +161,8 @@ public class DefaultFetchFilter extends FetchFilter {
      * @param domainsAlwaysInScope the list containing all domains that are always in scope.
      * @since 2.3.0
      */
-    public void setDomainsAlwaysInScope(List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope) {
+    public void setDomainsAlwaysInScope(
+            List<org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> domainsAlwaysInScope) {
         if (domainsAlwaysInScope == null || domainsAlwaysInScope.isEmpty()) {
             this.domainsAlwaysInScope = Collections.emptyList();
         } else {

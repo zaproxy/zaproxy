@@ -47,7 +47,6 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.control.AddOn.BundleData;
 import org.zaproxy.zap.control.AddOn.HelpSetData;
@@ -973,7 +972,6 @@ class AddOnUnitTest extends AddOnTestUtils {
 
     private static ZapXmlConfiguration createZapVersionsXml() throws Exception {
         ZapXmlConfiguration zapVersionsXml = new ZapXmlConfiguration(ZAP_VERSIONS_XML);
-        zapVersionsXml.setExpressionEngine(new XPathExpressionEngine());
         return zapVersionsXml;
     }
 }

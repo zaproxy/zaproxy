@@ -36,7 +36,6 @@ import org.parosproxy.paros.network.HttpStatusCode;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
-import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.utils.XmlUtils;
 
 /**
@@ -44,7 +43,9 @@ import org.zaproxy.zap.utils.XmlUtils;
  * helpfully) resides in the web root.
  *
  * @author 70pointer
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderSitemapXMLParser extends SpiderParser {
 
     /** a pattern to match the sitemap.xml file name */
@@ -54,9 +55,6 @@ public class SpiderSitemapXMLParser extends SpiderParser {
     private static final Pattern xmlPattern =
             Pattern.compile(
                     "^<\\?xml\\s+version\\s*=\\s*\"[0-9.]+\"\\s+encoding\\s*=\\s*\"[^\"]+\"\\s*\\?>");
-
-    /** The Spider parameters. */
-    private SpiderParam params;
 
     /** used to parse the XML based file format */
     private static DocumentBuilder dBuilder;
@@ -79,23 +77,19 @@ public class SpiderSitemapXMLParser extends SpiderParser {
      * Instantiates a new sitemap.xml parser.
      *
      * @param params the params
-     * @throws IllegalArgumentException if {@code params} is null.
+     * @throws NullPointerException if {@code params} is null.
      */
-    public SpiderSitemapXMLParser(SpiderParam params) {
-        super();
-        if (params == null) {
-            throw new IllegalArgumentException("Parameter params must not be null.");
-        }
-        this.params = params;
+    public SpiderSitemapXMLParser(org.zaproxy.zap.spider.SpiderParam params) {
+        super(params);
     }
 
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
 
-        if (getLogger().isDebugEnabled()) getLogger().debug("Parsing a sitemap.xml resource...");
+        getLogger().debug("Parsing a sitemap.xml resource...");
 
         if (message == null
-                || !params.isParseSitemapXml()
+                || !getSpiderParam().isParseSitemapXml()
                 || !message.getResponseHeader().isXml()
                 || HttpStatusCode.isClientError(message.getResponseHeader().getStatusCode())
                 || HttpStatusCode.isServerError(message.getResponseHeader().getStatusCode())) {
@@ -108,7 +102,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
         Matcher xmlFormatMatcher = xmlPattern.matcher(new String(response));
         if (xmlFormatMatcher.find()) {
 
-            if (getLogger().isDebugEnabled()) getLogger().debug("The format matches XML");
+            getLogger().debug("The format matches XML");
 
             try {
                 Document xmldoc =
@@ -126,20 +120,17 @@ public class SpiderSitemapXMLParser extends SpiderParser {
             return true;
         } else {
             // the file name is right, but the content is not. Pass it to another parser.
-            if (getLogger().isDebugEnabled())
-                getLogger()
-                        .debug(
-                                "The content of the response from '"
-                                        + baseURL
-                                        + "' does not match the expected content for a sitemap.xml file. Ignoring it.");
+            getLogger()
+                    .debug(
+                            "The content of the response from '{}' does not match the expected content for a sitemap.xml file. Ignoring it.",
+                            baseURL);
             return false;
         }
     }
 
     @Override
     public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
-        if (getLogger().isDebugEnabled())
-            getLogger().debug("canParseResource called on '" + path + "'");
+        getLogger().debug("canParseResource called on '{}'", path);
         // matches the file name of files that should be parsed with the sitemap.xml file parser
         Matcher matcher = SITEMAP_XML_FILENAME_PATTERN.matcher(path);
         return matcher.find();

@@ -26,7 +26,10 @@ import org.parosproxy.paros.network.HttpMessage;
 /**
  * A ParseFilter is used to filter which resources should be parsed by the Spider after they have
  * already been fetched and which shouldn't.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public abstract class ParseFilter {
 
     /**

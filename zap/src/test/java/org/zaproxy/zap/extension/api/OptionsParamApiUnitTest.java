@@ -27,8 +27,12 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -409,6 +413,88 @@ class OptionsParamApiUnitTest {
         assertThat(param.isAutofillKey(), is(equalTo(false)));
         assertThat(param.isEnableJSONP(), is(equalTo(false)));
         assertThat(param.getRealKey(), is(equalTo("")));
+    }
+
+    @Test
+    void shouldDefaultToNoPersistentCallbacks() {
+        // Given
+        OptionsParamApi param = new OptionsParamApi();
+        // When
+        param.load(new ZapXmlConfiguration());
+        // Then
+        assertThat(param.getPersistentCallBacks().size(), is(equalTo(0)));
+    }
+
+    @Test
+    void shouldLoadPersistentCallbacks() {
+        // Given
+        OptionsParamApi param = new OptionsParamApi();
+        ZapXmlConfiguration config = new ZapXmlConfiguration();
+        String url1 = "https://zap//zapCallBackUrl/1234";
+        String url2 = "https://zap//zapCallBackUrl/5678";
+        config.setProperty("api.callbacks.callback(0).url", url1);
+        config.setProperty("api.callbacks.callback(0).prefix", "test1");
+        config.setProperty("api.callbacks.callback(1).url", url2);
+        config.setProperty("api.callbacks.callback(1).prefix", "test2");
+        // When
+        param.load(config);
+        // Then
+        assertThat(param.getPersistentCallBacks().size(), is(equalTo(2)));
+        Map<String, String> map = param.getPersistentCallBacks();
+        assertThat(map.get(url1), is(equalTo("test1")));
+        assertThat(map.get(url2), is(equalTo("test2")));
+    }
+
+    @Test
+    void shouldSavePersistentCallbacks() {
+        // Given
+        OptionsParamApi param = new OptionsParamApi();
+        String url1 = "https://zap//zapCallBackUrl/1234";
+        String url2 = "https://zap//zapCallBackUrl/5678";
+        // When
+        ZapXmlConfiguration config = new ZapXmlConfiguration();
+        param.load(config);
+        param.addPersistantCallBack(url1, "test1");
+        param.addPersistantCallBack(url2, "test2");
+        List<HierarchicalConfiguration> fields =
+                ((HierarchicalConfiguration) config).configurationsAt(OptionsParamApi.CALLBACK_KEY);
+        Map<String, String> confMap = new HashMap<>();
+        for (HierarchicalConfiguration sub : fields) {
+            confMap.put(sub.getString(".url", ""), sub.getString(".prefix", ""));
+        }
+
+        // Then
+        Map<String, String> cbMap = param.getPersistentCallBacks();
+        assertThat(cbMap.size(), is(equalTo(2)));
+        assertThat(cbMap.get(url1), is(equalTo("test1")));
+        assertThat(cbMap.get(url2), is(equalTo("test2")));
+        assertThat(fields.size(), is(equalTo(2)));
+        assertThat(confMap.size(), is(equalTo(2)));
+        assertThat(confMap.get(url1), is(equalTo("test1")));
+        assertThat(confMap.get(url2), is(equalTo("test2")));
+        assertThat(config.getProperty("api.callbacks.callback(0).url"), is(equalTo(url2)));
+        assertThat(config.getProperty("api.callbacks.callback(0).prefix"), is(equalTo("test2")));
+        assertThat(config.getProperty("api.callbacks.callback(1).url"), is(equalTo(url1)));
+        assertThat(config.getProperty("api.callbacks.callback(1).prefix"), is(equalTo("test1")));
+    }
+
+    @Test
+    void shouldRemovePersistentCallbacks() {
+        // Given
+        OptionsParamApi param = new OptionsParamApi();
+        ZapXmlConfiguration config = new ZapXmlConfiguration();
+        String url = "https://zap//zapCallBackUrl/1234";
+        config.setProperty(OptionsParamApi.CALLBACK_KEY + ".url", url);
+        config.setProperty(OptionsParamApi.CALLBACK_KEY + ".prefix", "test");
+        // When
+        param.load(config);
+        String val1 = param.removePersistantCallBack(url);
+        // Do it twice just to check it handles unused keys
+        String val2 = param.removePersistantCallBack(url);
+        // Then
+        assertThat(param.getPersistentCallBacks().size(), is(equalTo(0)));
+        assertThat(val1, is(equalTo("test")));
+        assertThat(val2, is(equalTo(null)));
     }
 
     private static OptionsParamApi createOptionsParamApiWithConfig() {

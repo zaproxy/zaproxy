@@ -21,8 +21,6 @@ package org.zaproxy.zap.network;
 
 import java.io.IOException;
 import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpConnection;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.methods.OptionsMethod;
@@ -31,7 +29,9 @@ import org.apache.commons.httpclient.methods.OptionsMethod;
  * An HTTP OPTIONS method implementation that ignores malformed HTTP response header lines.
  *
  * @see OptionsMethod
+ * @deprecated (2.12.0) Implementation details, do not use.
  */
+@Deprecated
 public class ZapOptionsMethod extends EntityEnclosingMethod {
 
     public ZapOptionsMethod() {
@@ -58,8 +58,8 @@ public class ZapOptionsMethod extends EntityEnclosingMethod {
      * header parser (ZapHttpParser#parseHeaders(InputStream, String)).
      */
     @Override
-    protected void readResponseHeaders(HttpState state, HttpConnection conn)
-            throws IOException, HttpException {
+    protected void readResponseHeaders(
+            HttpState state, org.apache.commons.httpclient.HttpConnection conn) throws IOException {
         getResponseHeaderGroup().clear();
 
         Header[] headers =

@@ -40,7 +40,7 @@ import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
 
 public class HttpInputStream extends BufferedInputStream {
-    private static Logger log = LogManager.getLogger(HttpInputStream.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpInputStream.class);
 
     static final int BUFFER_SIZE = 4096;
     private static final String CRLF = "\r\n";
@@ -65,7 +65,7 @@ public class HttpInputStream extends BufferedInputStream {
 
         msg = readHeader();
         if (msg.length() == 0) {
-            log.debug("Read 0 bytes from upstream. Could not read header!");
+            LOGGER.debug("Read 0 bytes from upstream. Could not read header!");
             throw new IOException();
         }
 

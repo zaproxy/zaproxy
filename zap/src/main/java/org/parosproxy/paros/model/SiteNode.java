@@ -58,6 +58,11 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/05/14 Remove redundant type arguments.
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2022/09/21 Use a contains check for DDN prefix. Tweak if conditions in setIncludedFromScope
+// and setExcludedFromScope to short-circuit && operator earlier.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -80,6 +85,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.model.SessionStructure;
 
+@SuppressWarnings("serial")
 public class SiteNode extends DefaultMutableTreeNode {
 
     private static final long serialVersionUID = 7987615016786179150L;
@@ -96,7 +102,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     private ArrayList<String> icons = null;
     private ArrayList<Boolean> clearIfManual = null;
 
-    private static Logger log = LogManager.getLogger(SiteNode.class);
+    private static final Logger LOGGER = LogManager.getLogger(SiteNode.class);
     private boolean isIncludedInScope = false;
     private boolean isExcludedFromScope = false;
     private boolean filtered = false;
@@ -119,9 +125,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         super();
         this.siteMap = siteMap;
         this.nodeName = nodeName;
-        if (nodeName.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {
-            this.dataDriven = true;
-        }
+        this.dataDriven = nodeName.contains(SessionStructure.DATA_DRIVEN_NODE_PREFIX);
         this.icons = new ArrayList<>();
         this.clearIfManual = new ArrayList<>();
         if (type == HistoryReference.TYPE_SPIDER) {
@@ -177,7 +181,7 @@ public class SiteNode extends DefaultMutableTreeNode {
                     if (url == null) {
                         url = ExtensionFactory.getAddOnLoader().getResource(icon);
                         if (url == null) {
-                            log.warn("Failed to find icon: " + icon);
+                            LOGGER.warn("Failed to find icon: {}", icon);
                             it.remove();
                         }
                     }
@@ -411,7 +415,7 @@ public class SiteNode extends DefaultMutableTreeNode {
                             }
                         });
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -649,7 +653,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
         this.nodeChanged();
         // Recurse down
-        if (this.getChildCount() > 0 && applyToChildNodes) {
+        if (applyToChildNodes && this.getChildCount() > 0) {
             SiteNode c = (SiteNode) this.getFirstChild();
             while (c != null) {
                 c.setIncludedInScope(isIncludedInScope, applyToChildNodes);
@@ -673,7 +677,7 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
         this.nodeChanged();
         // Recurse down
-        if (this.getChildCount() > 0 && applyToChildNodes) {
+        if (applyToChildNodes && this.getChildCount() > 0) {
             SiteNode c = (SiteNode) this.getFirstChild();
             while (c != null) {
                 c.setExcludedFromScope(isExcludedFromScope, applyToChildNodes);

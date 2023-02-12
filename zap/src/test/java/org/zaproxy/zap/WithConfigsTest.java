@@ -38,6 +38,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.quality.Strictness;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionLoader;
@@ -91,7 +92,8 @@ public abstract class WithConfigsTest extends TestUtils {
         model = mock(Model.class, withSettings().defaultAnswer(CALLS_REAL_METHODS));
         Model.setSingletonForTesting(model);
 
-        extensionLoader = mock(ExtensionLoader.class, withSettings().lenient());
+        extensionLoader =
+                mock(ExtensionLoader.class, withSettings().strictness(Strictness.LENIENT));
 
         // Init all the things
         Constant.getInstance();
@@ -106,7 +108,7 @@ public abstract class WithConfigsTest extends TestUtils {
     }
 
     public static void setUpConstantMessages() {
-        I18N i18n = Mockito.mock(I18N.class, withSettings().lenient());
+        I18N i18n = Mockito.mock(I18N.class, withSettings().strictness(Strictness.LENIENT));
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), any())).willReturn("");
         given(i18n.getLocal()).willReturn(Locale.getDefault());

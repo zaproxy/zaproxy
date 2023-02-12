@@ -23,6 +23,7 @@ import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -45,6 +46,8 @@ import javax.swing.JToolBar;
 import javax.swing.tree.TreeNode;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jdesktop.swingx.JXComboBox;
+import org.jdesktop.swingx.decorator.FontHighlighter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
@@ -62,6 +65,7 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
+@SuppressWarnings("serial")
 public abstract class ScanPanel extends AbstractPanel {
     private static final long serialVersionUID = 1L;
 
@@ -83,9 +87,8 @@ public abstract class ScanPanel extends AbstractPanel {
     private List<String> activeScans = new ArrayList<>();
 
     private String currentSite = null;
-    private JComboBox<String> siteSelect = null;
-    // The siteModel entries are all HTML, with the active ones in bold
-    private SortedComboBoxModel<String> siteModel = new SortedComboBoxModel<>();
+    private JComboBox<ScanTarget> siteSelect;
+    private SortedComboBoxModel<ScanTarget> siteModel = new SortedComboBoxModel<>();
 
     private JButton startScanButton = null;
     private JButton stopScanButton = null;
@@ -97,7 +100,7 @@ public abstract class ScanPanel extends AbstractPanel {
     private ScanStatus scanStatus = null;
     private Mode mode = Control.getSingleton().getMode();
 
-    private static Logger log = LogManager.getLogger(ScanPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(ScanPanel.class);
 
     /**
      * Constructs a {@code ScanPanel} with the given message resources prefix, tab icon, extension
@@ -115,7 +118,7 @@ public abstract class ScanPanel extends AbstractPanel {
         this.extension = extension;
         this.scanParam = scanParam;
         initialize(icon);
-        log.debug("Constructor " + prefix);
+        LOGGER.debug("Constructor {}", prefix);
     }
 
     /** This method initializes this */
@@ -286,7 +289,7 @@ public abstract class ScanPanel extends AbstractPanel {
                             }
                         });
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -421,11 +424,17 @@ public abstract class ScanPanel extends AbstractPanel {
         return optionsButton;
     }
 
-    protected JComboBox<String> getSiteSelect() {
+    @SuppressWarnings("unchecked")
+    protected JComboBox<ScanTarget> getSiteSelect() {
         if (siteSelect == null) {
-            siteSelect = new JComboBox<>(siteModel);
-            siteSelect.addItem(Constant.messages.getString(prefix + ".toolbar.site.select"));
-            siteSelect.setSelectedIndex(0);
+            siteSelect = new JXComboBox(siteModel);
+            ((JXComboBox) siteSelect)
+                    .addHighlighter(
+                            new FontHighlighter(
+                                    (renderer, adapter) ->
+                                            ((ScanTarget) adapter.getValue()).isScanned(),
+                                    siteSelect.getFont().deriveFont(Font.BOLD)));
+            resetSiteSelect();
 
             siteSelect.addActionListener(
                     new java.awt.event.ActionListener() {
@@ -433,9 +442,9 @@ public abstract class ScanPanel extends AbstractPanel {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
 
-                            String item = (String) siteSelect.getSelectedItem();
+                            ScanTarget item = (ScanTarget) siteSelect.getSelectedItem();
                             if (item != null && siteSelect.getSelectedIndex() > 0) {
-                                siteSelected(item);
+                                siteSelected(item.getSite());
                             } else {
                                 siteSelected(null);
                             }
@@ -446,7 +455,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public boolean isScanning(SiteNode node, boolean incPort) {
-        String site = getSiteFromLabel(cleanSiteName(node, incPort));
+        String site = cleanSiteName(node, incPort);
         if (site != null) {
             GenericScanner scanThread = scanMap.get(site);
             if (scanThread != null) {
@@ -457,7 +466,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public void scanAllInScope() {
-        log.debug("scanSite (all in scope)");
+        LOGGER.debug("scanSite (all in scope)");
         this.setTabFocus();
         if (this.getStartScanButton().isEnabled()) {
             this.startScan(null, true, true, null, null);
@@ -469,7 +478,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public void scanAllInContext(Context context, User user) {
-        log.debug("Scan all in context: " + context.getName());
+        LOGGER.debug("Scan all in context: {}", context.getName());
         this.setTabFocus();
         if (this.getStartScanButton().isEnabled()) {
 
@@ -478,7 +487,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public void scanSite(SiteNode node, boolean incPort) {
-        log.debug("scanSite " + prefix + " node=" + node.getNodeName());
+        LOGGER.debug("scanSite {} node={}", prefix, node.getNodeName());
         this.setTabFocus();
         nodeSelected(node, incPort);
         if (currentSite != null && this.getStartScanButton().isEnabled()) {
@@ -506,32 +515,11 @@ public abstract class ScanPanel extends AbstractPanel {
      * @param user the user
      */
     public void scanNode(SiteNode node, boolean incPort, User user) {
-        log.debug("scanNode" + prefix + " node=" + node.getNodeName());
+        LOGGER.debug("scanNode{} node={}", prefix, node.getNodeName());
         this.setTabFocus();
         nodeSelected(node, incPort);
         if (currentSite != null && this.getStartScanButton().isEnabled()) {
             startScan(node, false, false, null, user);
-        }
-    }
-
-    private String activeSitelabel(String site) {
-        return "<html><b>" + site + "</b></html>";
-    }
-
-    private String passiveSitelabel(String site) {
-        return "<html>" + site + "</html>";
-    }
-
-    private String getSiteFromLabel(String siteLabel) {
-        if (siteLabel == null) {
-            return null;
-        }
-        if (siteLabel.startsWith("<html><b>")) {
-            return siteLabel.substring(9, siteLabel.indexOf("</b>"));
-        } else if (siteLabel.startsWith("<html>")) {
-            return siteLabel.substring(6, siteLabel.indexOf("</html>"));
-        } else {
-            return siteLabel;
         }
     }
 
@@ -544,13 +532,22 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     private boolean isSiteAdded(String site) {
-        return (siteModel.getIndexOf(activeSitelabel(site)) != -1
-                || siteModel.getIndexOf(passiveSitelabel(site)) != -1);
+        return getScanTarget(site) != null;
+    }
+
+    private ScanTarget getScanTarget(String site) {
+        for (int i = 1; i < siteModel.getSize(); i++) {
+            ScanTarget scanTarget = siteModel.getElementAt(i);
+            if (scanTarget.getSite().equals(site)) {
+                return scanTarget;
+            }
+        }
+        return null;
     }
 
     private void addSite(String site) {
-        log.debug("addSite " + site);
-        siteModel.addElement(passiveSitelabel(site));
+        LOGGER.debug("addSite {}", site);
+        siteModel.addElement(new ScanTarget(site));
     }
 
     protected void siteSelected(String site) {
@@ -571,17 +568,13 @@ public abstract class ScanPanel extends AbstractPanel {
             // Safe mode so ignore this
             return;
         }
-        site = getSiteFromLabel(site);
         if (forceRefresh || !site.equals(currentSite)) {
             if (!isSiteAdded(site)) {
                 return;
             }
 
-            if (siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
-                siteModel.setSelectedItem(activeSitelabel(site));
-            } else {
-                siteModel.setSelectedItem(passiveSitelabel(site));
-            }
+            ScanTarget scanTarget = getScanTarget(site);
+            siteModel.setSelectedItem(scanTarget);
 
             GenericScanner scanThread = scanMap.get(site);
             if (scanThread == null) {
@@ -737,7 +730,7 @@ public abstract class ScanPanel extends AbstractPanel {
             Context scanContext,
             User scanUser,
             Object[] contextSpecificObjects) {
-        log.debug("startScan " + prefix + " " + startNode);
+        LOGGER.debug("startScan {} {}", prefix, startNode);
         this.getStartScanButton().setEnabled(false);
         this.getStopScanButton().setEnabled(true);
         this.getPauseScanButton().setEnabled(true);
@@ -778,18 +771,18 @@ public abstract class ScanPanel extends AbstractPanel {
         setActiveScanLabels();
         getProgressBar().setEnabled(true);
         getProgressBar().setMaximum(scanThread.getMaximum());
-        String selectedSite = currentSite; // currentSite can change when we remove elements
-        if (siteModel.getIndexOf(passiveSitelabel(selectedSite)) >= 0) {
-            // Change the site label to be bold
-            siteModel.removeElement(passiveSitelabel(selectedSite));
-            siteModel.addElement(activeSitelabel(selectedSite));
-            siteModel.setSelectedItem(activeSitelabel(selectedSite));
+
+        ScanTarget scanTarget = getScanTarget(currentSite);
+        if (scanTarget != null) {
+            scanTarget.setScanned(true);
+            siteModel.setSelectedItem(scanTarget);
+            siteModel.elementChanged(scanTarget);
         }
         switchView(currentSite);
     }
 
     public void stopScan(String site) {
-        log.debug("stopScan " + prefix + " on " + site);
+        LOGGER.debug("stopScan {} on {}", prefix, site);
         GenericScanner scan = scanMap.get(site);
         if (scan != null) {
             scan.stopScan();
@@ -797,7 +790,7 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public void pauseScan(String site) {
-        log.debug("pauseScan " + prefix + " on " + site);
+        LOGGER.debug("pauseScan {} on  {}", prefix, site);
         GenericScanner scan = scanMap.get(site);
         if (scan != null) {
             if (scan.isPaused()) {
@@ -821,13 +814,13 @@ public abstract class ScanPanel extends AbstractPanel {
                             }
                         });
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
 
     private void scanFinshedEventHandler(String host) {
-        log.debug("scanFinished " + prefix + " on " + currentSite);
+        LOGGER.debug("scanFinished {} on {}", prefix, currentSite);
         if (host != null && host.equals(currentSite)) {
             resetScanButtonsAndProgressBarStates(true);
         }
@@ -859,9 +852,9 @@ public abstract class ScanPanel extends AbstractPanel {
                             }
                         });
             } catch (InterruptedException e) {
-                log.info("Interrupt scan progress update on GUI.");
+                LOGGER.info("Interrupt scan progress update on GUI.");
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -875,11 +868,17 @@ public abstract class ScanPanel extends AbstractPanel {
     }
 
     public void reset() {
-        log.debug("reset " + prefix);
+        LOGGER.debug("reset {}", prefix);
         stopAllScans();
 
+        resetSiteSelect();
+    }
+
+    private void resetSiteSelect() {
         siteModel.removeAllElements();
-        siteSelect.addItem(Constant.messages.getString(prefix + ".toolbar.site.select"));
+        siteSelect.addItem(
+                new ScanTarget(
+                        Constant.messages.getString(prefix + ".toolbar.site.select"), false));
         siteSelect.setSelectedIndex(0);
     }
 
@@ -977,4 +976,45 @@ public abstract class ScanPanel extends AbstractPanel {
     protected abstract Component getWorkPanel();
 
     protected abstract void switchView(String site);
+
+    private static class ScanTarget implements Comparable<ScanTarget> {
+
+        private final String site;
+        private final boolean canScan;
+        private boolean scanned;
+
+        ScanTarget(String site) {
+            this(site, true);
+        }
+
+        ScanTarget(String site, boolean canScan) {
+            this.site = site;
+            this.canScan = canScan;
+        }
+
+        String getSite() {
+            return site;
+        }
+
+        boolean isScanned() {
+            return scanned;
+        }
+
+        void setScanned(boolean scanned) {
+            this.scanned = canScan && scanned;
+        }
+
+        @Override
+        public int compareTo(ScanTarget o) {
+            if (canScan) {
+                return site.compareTo(o.site);
+            }
+            return -1;
+        }
+
+        @Override
+        public String toString() {
+            return site;
+        }
+    }
 }

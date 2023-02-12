@@ -23,12 +23,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 
+import java.util.Arrays;
+import java.util.function.Predicate;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
 /**
  * This test ensure that nothing was broken in the handling of normal URLs during the implementation
@@ -37,6 +38,7 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
  * <p>It checks the canonicalization mechanism used to verify if a URL has already been visited
  * before during the spider phase.
  */
+@SuppressWarnings("deprecation")
 class URLCanonicalizerUnitTest {
 
     @Test
@@ -44,7 +46,7 @@ class URLCanonicalizerUnitTest {
         // Given
         String uri = "http://example.com:80/";
         // When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(canonicalizedUri, is(equalTo("http://example.com/")));
     }
@@ -54,7 +56,7 @@ class URLCanonicalizerUnitTest {
         // Given
         String uri = "http://example.com:443/";
         // When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(canonicalizedUri, is(equalTo("http://example.com:443/")));
     }
@@ -64,7 +66,7 @@ class URLCanonicalizerUnitTest {
         // Given
         String uri = "https://example.com:443/";
         // When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(canonicalizedUri, is(equalTo("https://example.com/")));
     }
@@ -74,7 +76,7 @@ class URLCanonicalizerUnitTest {
         // Given
         String uri = "https://example.com:80/";
         // When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(canonicalizedUri, is(equalTo("https://example.com:80/")));
     }
@@ -84,7 +86,7 @@ class URLCanonicalizerUnitTest {
         // Given
         String uri = "http://example.com";
         // When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(canonicalizedUri, is(equalTo("http://example.com/")));
     }
@@ -95,7 +97,7 @@ class URLCanonicalizerUnitTest {
         String[] uris = {"http://example.com/", "https://example.com/", "ftp://example.com/"};
         for (String uri : uris) {
             // When
-            String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+            String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
             // Then
             assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(uri)));
         }
@@ -115,7 +117,9 @@ class URLCanonicalizerUnitTest {
         };
         for (int i = 0; i < relativeURIs.length; i++) {
             // When
-            String canonicalizedUri = URLCanonicalizer.getCanonicalURL(relativeURIs[i], baseURI);
+            String canonicalizedUri =
+                    org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(
+                            relativeURIs[i], baseURI);
             // Then
             assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(expectedCanonicalURIs[i])));
         }
@@ -138,7 +142,8 @@ class URLCanonicalizerUnitTest {
         };
         for (int i = 0; i < uris.length; i++) {
             // When
-            String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uris[i]);
+            String canonicalizedUri =
+                    org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uris[i]);
             // Then
             assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(expectedCanonicalURIs[i])));
         }
@@ -154,7 +159,7 @@ class URLCanonicalizerUnitTest {
             })
     void shouldIgnoreURIsWithNoAuthority(String uri) {
         // Given / When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(null)));
     }
@@ -164,7 +169,7 @@ class URLCanonicalizerUnitTest {
         // Given
         String uri = new URI("http://example.com/path/%C3%A1/", true).toString();
         // When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(canonicalizedUri, is(equalTo("http://example.com/path/%C3%A1/")));
     }
@@ -174,7 +179,7 @@ class URLCanonicalizerUnitTest {
         // Given
         String uri = new URI("http://example.com/path/?par%C3%A2m=v%C3%A3lue", true).toString();
         // When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(canonicalizedUri, is(equalTo("http://example.com/path/?par%C3%A2m=v%C3%A3lue")));
     }
@@ -185,7 +190,7 @@ class URLCanonicalizerUnitTest {
         // Given
         String uri = new URI("http://example.com/?par%26am%3D1=val%26u%3De1", true).toString();
         // When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(canonicalizedUri, is(equalTo("http://example.com/?par%26am%3D1=val%26u%3De1")));
     }
@@ -199,7 +204,7 @@ class URLCanonicalizerUnitTest {
                                 true)
                         .toString();
         // When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(
                 canonicalizedUri,
@@ -217,7 +222,7 @@ class URLCanonicalizerUnitTest {
                                 true)
                         .toString();
         // When
-        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        String canonicalizedUri = org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(
                 canonicalizedUri,
@@ -232,8 +237,10 @@ class URLCanonicalizerUnitTest {
         URI uri = new URI("http://example.com/path/%C3%A1/?par%C3%A2m=v%C3%A3lue", true);
         // When
         String cleanedUri =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, HandleParametersOption.USE_ALL, false);
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL,
+                        false);
         // Then
         assertThat(
                 cleanedUri, is(equalTo("http://example.com/path/%C3%A1/?par%C3%A2m=v%C3%A3lue")));
@@ -246,8 +253,10 @@ class URLCanonicalizerUnitTest {
         URI uri = new URI("http://example.com/path/%C3%A1/?par%C3%A2m=v%C3%A3lue1", true);
         // When
         String cleanedUri =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, HandleParametersOption.IGNORE_VALUE, false);
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE,
+                        false);
         // Then
         assertThat(cleanedUri, is(equalTo("http://example.com/path/%C3%A1/?par%C3%A2m")));
     }
@@ -259,8 +268,10 @@ class URLCanonicalizerUnitTest {
         URI uri = new URI("http://example.com/path/%C3%A1/?par%C3%A2m=v%C3%A3lue", true);
         // When
         String cleanedUri =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, HandleParametersOption.IGNORE_COMPLETELY, false);
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY,
+                        false);
         // Then
         assertThat(cleanedUri, is(equalTo("http://example.com/path/%C3%A1/")));
     }
@@ -273,8 +284,10 @@ class URLCanonicalizerUnitTest {
         URI uri = new URI("http://example.com/path/?par%3Dam1=val%26ue1&par%26am2=val%3Due2", true);
         // When
         String cleanedUri =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, HandleParametersOption.USE_ALL, false);
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL,
+                        false);
         // Then
         assertThat(
                 cleanedUri,
@@ -289,8 +302,10 @@ class URLCanonicalizerUnitTest {
         URI uri = new URI("http://example.com/path/?par%3Dam1=val%26ue1&par%26am2=val%3Due2", true);
         // When
         String cleanedUri =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, HandleParametersOption.IGNORE_VALUE, false);
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE,
+                        false);
         // Then
         assertThat(cleanedUri, is(equalTo("http://example.com/path/?par%26am2&par%3Dam1")));
     }
@@ -303,8 +318,10 @@ class URLCanonicalizerUnitTest {
         URI uri = new URI("http://example.com/path/?par%3Dam1=val%26ue1&par%26am2=val%3Due2", true);
         // When
         String cleanedUri =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, HandleParametersOption.IGNORE_COMPLETELY, false);
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY,
+                        false);
         // Then
         assertThat(cleanedUri, is(equalTo("http://example.com/path/")));
     }
@@ -319,8 +336,10 @@ class URLCanonicalizerUnitTest {
                         true);
         // When
         String cleanedUri =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, HandleParametersOption.USE_ALL, false);
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL,
+                        false);
         // Then
         assertThat(
                 cleanedUri,
@@ -339,8 +358,10 @@ class URLCanonicalizerUnitTest {
                         true);
         // When
         String cleanedUri =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, HandleParametersOption.IGNORE_VALUE, false);
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE,
+                        false);
         // Then
         assertThat(cleanedUri, is(equalTo("http://example.com/path/?param1&param2")));
     }
@@ -355,8 +376,10 @@ class URLCanonicalizerUnitTest {
                         true);
         // When
         String cleanedUri =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
-                        uri, HandleParametersOption.IGNORE_COMPLETELY, false);
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY,
+                        false);
         // Then
         assertThat(cleanedUri, is(equalTo("http://example.com/path/")));
     }
@@ -367,9 +390,9 @@ class URLCanonicalizerUnitTest {
     void shouldCanonicalizeNormalURLWithoutParametersIn_USE_ALL_mode() throws URIException {
         URI uri = new URI("http", null, "host", 9001, "/myservlet");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri,
-                        HandleParametersOption.USE_ALL,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL,
                         false /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/myservlet"));
     }
@@ -379,9 +402,9 @@ class URLCanonicalizerUnitTest {
             throws URIException {
         URI uri = new URI("http", null, "host", 9001, "/myservlet");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri,
-                        HandleParametersOption.IGNORE_COMPLETELY,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY,
                         false /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/myservlet"));
     }
@@ -390,9 +413,9 @@ class URLCanonicalizerUnitTest {
     void shouldCanonicalizeNormalURLWithoutParametersIn_IGNORE_VALUE_mode() throws URIException {
         URI uri = new URI("http", null, "host", 9001, "/myservlet");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri,
-                        HandleParametersOption.IGNORE_VALUE,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE,
                         false /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/myservlet"));
     }
@@ -402,9 +425,9 @@ class URLCanonicalizerUnitTest {
 
         URI uri = new URI("http", null, "host", 9001, "/myservlet", "p1=2&p2=myparam");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri,
-                        HandleParametersOption.USE_ALL,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL,
                         false /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/myservlet?p1=2&p2=myparam"));
     }
@@ -413,9 +436,9 @@ class URLCanonicalizerUnitTest {
     void shouldCanonicalizeNormalURLWithParametersIn_IGNORE_COMPLETELY_mode() throws URIException {
         URI uri = new URI("http", null, "host", 9001, "/myservlet", "p1=2&p2=myparam");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri,
-                        HandleParametersOption.IGNORE_COMPLETELY,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY,
                         false /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/myservlet"));
     }
@@ -424,9 +447,9 @@ class URLCanonicalizerUnitTest {
     void shouldCanonicalizeNormalURLWithParametersIn_IGNORE_VALUE_mode() throws URIException {
         URI uri = new URI("http", null, "host", 9001, "/myservlet", "p1=2&p2=myparam");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri,
-                        HandleParametersOption.IGNORE_VALUE,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE,
                         false /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/myservlet?p1&p2"));
     }
@@ -435,103 +458,167 @@ class URLCanonicalizerUnitTest {
 
     @Test
     void shouldCanonicalizeODataIDSimpleIn_USE_ALL_mode() throws URIException {
-        HandleParametersOption spiderOption = HandleParametersOption.USE_ALL;
+        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption spiderOption =
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(1)"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)/Author");
         visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(1)/Author"));
     }
 
     @Test
     void shouldCanonicalizeODataIDSimpleIn_IGNORE_COMPLETELY_mode() throws URIException {
-        HandleParametersOption spiderOption = HandleParametersOption.IGNORE_COMPLETELY;
+        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption spiderOption =
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)/Author");
         visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()/Author"));
     }
 
     @Test
     void shouldCanonicalizeODataIDSimpleIn_IGNORE_VALUE_mode() throws URIException {
-        HandleParametersOption spiderOption = HandleParametersOption.IGNORE_VALUE;
+        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption spiderOption =
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(1)/Author");
         visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()/Author"));
     }
 
     @Test
     void shouldCanonicalizeODataIDMultipleIn_USE_ALL_mode() throws URIException {
-        HandleParametersOption spiderOption = HandleParametersOption.USE_ALL;
+        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption spiderOption =
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(title='dummy',year=2012)"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)/Author");
         visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(title='dummy',year=2012)/Author"));
     }
 
     @Test
     void shouldCanonicalizeODataIDMultipleIn_IGNORE_COMPLETELY_mode() throws URIException {
-        HandleParametersOption spiderOption = HandleParametersOption.IGNORE_COMPLETELY;
+        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption spiderOption =
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)/Author");
         visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book()/Author"));
     }
 
     @Test
     void shouldCanonicalizeODataIDMultipleIn_IGNORE_VALUE_mode() throws URIException {
-        HandleParametersOption spiderOption = HandleParametersOption.IGNORE_VALUE;
+        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption spiderOption =
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE;
 
         URI uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)");
         String visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(title,year)"));
 
         uri = new URI("http", null, "host", 9001, "/app.svc/Book(title='dummy',year=2012)/Author");
         visitedURI =
-                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                org.zaproxy.zap.spider.URLCanonicalizer.buildCleanedParametersURIRepresentation(
                         uri, spiderOption, true /* handleODataParametersVisited */);
         assertThat(visitedURI, is("http://host:9001/app.svc/Book(title,year)/Author"));
+    }
+
+    @Test
+    void shouldSkipIrrelevantQueryParametersWhenCanonicalizing() throws URIException {
+        // Given
+        String uri =
+                new URI("http://example.com/?name1=value1&name2=value2&name3=value3", true)
+                        .toString();
+
+        Predicate<String> irrelevantParameters = Arrays.asList("name1", "name3")::contains;
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri, null, irrelevantParameters);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("http://example.com/?name2=value2")));
+    }
+
+    @Test
+    void shouldSkipSessionTokensWhenCanonicalizing() throws URIException {
+        // Given
+        String uri =
+                new URI("http://example.com/?jsessionid=id1&phpsessid=id2&aspsessionid=id3", true)
+                        .toString();
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri, null);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("http://example.com/")));
+    }
+
+    @Test
+    void shouldSkipIrrelevantQueryParametersWhenCleaningParametersIn_IGNORE_VALUE_mode()
+            throws URIException {
+        // Given
+        URI uri = new URI("http://example.com/?name1=value1&name2=value2&name3=value3", true);
+        Predicate<String> irrelevantParameters = Arrays.asList("name1", "name3")::contains;
+        // When
+        String cleanedUri =
+                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE,
+                        false,
+                        irrelevantParameters);
+        // Then
+        assertThat(cleanedUri, is(equalTo("http://example.com/?name2")));
+    }
+
+    @Test
+    void shouldSkipSessionTokensWhenCleaningParametersIn_IGNORE_VALUE_mode() throws URIException {
+        // Given
+        URI uri =
+                new URI("http://example.com/?jsessionid=id1&phpsessid=id2&aspsessionid=id3", true);
+        // When
+        String cleanedUri =
+                URLCanonicalizer.buildCleanedParametersURIRepresentation(
+                        uri,
+                        org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE,
+                        false);
+        // Then
+        assertThat(cleanedUri, is(equalTo("http://example.com/")));
     }
 }

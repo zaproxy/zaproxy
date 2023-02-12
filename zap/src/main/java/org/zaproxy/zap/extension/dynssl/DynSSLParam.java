@@ -46,7 +46,7 @@ public class DynSSLParam extends AbstractParam {
         try {
             return SslCertificateUtils.string2Keystore(rootcastr);
         } catch (final Exception e) {
-            logger.error("Couldn't create Root CA KeyStore from String: " + rootcastr, e);
+            logger.error("Couldn't create Root CA KeyStore from String: {}", rootcastr, e);
         }
         return null;
     }

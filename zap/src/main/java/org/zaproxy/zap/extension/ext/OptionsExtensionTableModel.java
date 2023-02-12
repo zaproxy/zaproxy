@@ -30,6 +30,7 @@ import org.parosproxy.paros.extension.Extension;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.ExtensionFactory;
 
+@SuppressWarnings("serial")
 public class OptionsExtensionTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;
@@ -43,7 +44,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
 
     private List<Extension> extensions = ExtensionFactory.getAllExtensions();
 
-    private static Logger log = LogManager.getLogger(OptionsExtensionTableModel.class);
+    private static final Logger LOGGER = LogManager.getLogger(OptionsExtensionTableModel.class);
 
     private Map<String, Boolean> extensionsState = new HashMap<>();
 
@@ -80,7 +81,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
                         return ext.getUIName();
                 }
             } catch (Exception e) {
-                log.error("Failed on extension " + ext.getName(), e);
+                LOGGER.error("Failed on extension {}", ext.getName(), e);
             }
         }
         return null;

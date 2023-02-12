@@ -31,7 +31,9 @@ import org.parosproxy.paros.network.HttpRequestHeader;
  * Class SpiderResourceFound is used to store information about found resources by spider parsers.
  *
  * @since 2.11.0
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderResourceFound {
     /** The message where the resource was found. */
     private final HttpMessage message;

@@ -33,6 +33,7 @@ import org.parosproxy.paros.model.HistoryReference;
  *
  * @see HistoryReferencesTableModel
  */
+@SuppressWarnings("serial")
 public class DefaultHistoryReferencesTableModel
         extends AbstractHistoryReferencesTableModel<DefaultHistoryReferencesTableEntry> {
 

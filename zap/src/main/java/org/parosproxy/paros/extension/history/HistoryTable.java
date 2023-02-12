@@ -34,7 +34,14 @@ class HistoryTable extends HistoryReferencesTable {
         setAutoCreateColumnsFromModel(false);
 
         setName("History Table");
+        super.loadColumnConfiguration("HistoryTable");
+        if (this.config == null) {
+            this.applyDefaultColumnConfigurations();
+        }
+    }
 
+    @Override
+    protected void applyDefaultColumnConfigurations() {
         getColumnExt(Constant.messages.getString("view.href.table.header.timestamp.response"))
                 .setVisible(false);
         getColumnExt(Constant.messages.getString("view.href.table.header.size.requestheader"))

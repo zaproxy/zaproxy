@@ -21,28 +21,21 @@ package org.zaproxy.zap.extension.dynssl;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
 import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
-import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -50,12 +43,12 @@ import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.network.SSLConnector;
 
 /**
  * Extension enables configuration for Root CA certificate
  *
  * @author MaWoKi
+ * @deprecated (2.12.0)
  */
 @Deprecated
 public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineListener {
@@ -98,7 +91,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
         try {
             startImpl();
         } finally {
-            SSLConnector.setSslCertificateService(
+            org.parosproxy.paros.network.SSLConnector.setSslCertificateService(
                     org.parosproxy.paros.security.CachedSslCertifificateServiceImpl.getService());
         }
     }
@@ -209,19 +202,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
      * @throws KeyStoreException
      * @since 2.8.0
      */
-    public void writeRootPubCaCertificateToFile(Path path) throws IOException, KeyStoreException {
-        KeyStore ks = this.getParams().getRootca();
-        if (ks != null) {
-            final Certificate cert =
-                    ks.getCertificate(
-                            org.parosproxy.paros.security.SslCertificateService.ZAPROXY_JKS_ALIAS);
-            try (final Writer w = Files.newBufferedWriter(path, StandardCharsets.US_ASCII);
-                    final PemWriter pw = new PemWriter(w)) {
-                pw.writeObject(new JcaMiscPEMGenerator(cert));
-                pw.flush();
-            }
-        }
-    }
+    public void writeRootPubCaCertificateToFile(Path path) throws IOException, KeyStoreException {}
 
     /**
      * Writes the Root CA full certificate to the specified file in pem format, suitable for
@@ -237,29 +218,7 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
      */
     public void writeRootFullCaCertificateToFile(Path path)
             throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException,
-                    UnrecoverableKeyException {
-        KeyStore ks = this.getParams().getRootca();
-        if (ks != null) {
-            final Certificate cert =
-                    ks.getCertificate(
-                            org.parosproxy.paros.security.SslCertificateService.ZAPROXY_JKS_ALIAS);
-            try (final Writer w = Files.newBufferedWriter(path, StandardCharsets.US_ASCII);
-                    final PemWriter pw = new PemWriter(w)) {
-                pw.writeObject(new JcaMiscPEMGenerator(cert));
-                pw.flush();
-
-                w.write(SslCertificateUtils.BEGIN_PRIVATE_KEY_TOKEN + "\n");
-                Key key =
-                        ks.getKey(
-                                org.parosproxy.paros.security.SslCertificateService
-                                        .ZAPROXY_JKS_ALIAS,
-                                org.parosproxy.paros.security.SslCertificateService.PASSPHRASE);
-                PrivateKey pk = (PrivateKey) key;
-                w.write(Base64.getMimeEncoder().encodeToString(pk.getEncoded()));
-                w.write("\n" + SslCertificateUtils.END_PRIVATE_KEY_TOKEN + "\n");
-            }
-        }
-    }
+                    UnrecoverableKeyException {}
 
     private static void writeCert(String path, CertWriter writer) {
         File file = new File(path);

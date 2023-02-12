@@ -29,7 +29,6 @@ import javax.swing.JScrollPane;
 import javax.swing.SortOrder;
 import org.jdesktop.swingx.VerticalLayout;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.option.SecurityProtocolsPanel;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
@@ -39,6 +38,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
 @Deprecated
+@SuppressWarnings("serial")
 public class OptionsProxiesPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
@@ -48,7 +48,7 @@ public class OptionsProxiesPanel extends AbstractParamPanel {
     private JScrollPane proxiesScrollPane;
     private JPanel scrollPanel;
     private OptionsLocalProxyPanel mainProxyPanel;
-    private SecurityProtocolsPanel securityProtocolsPanel;
+    private org.parosproxy.paros.extension.option.SecurityProtocolsPanel securityProtocolsPanel;
     private OptionsProxiesTableModel proxiesModel;
     private String currentAddress;
     private int currentPort;
@@ -153,9 +153,11 @@ public class OptionsProxiesPanel extends AbstractParamPanel {
         return mainProxyPanel;
     }
 
-    private SecurityProtocolsPanel getSecurityProtocolsPanel() {
+    private org.parosproxy.paros.extension.option.SecurityProtocolsPanel
+            getSecurityProtocolsPanel() {
         if (securityProtocolsPanel == null) {
-            securityProtocolsPanel = new SecurityProtocolsPanel();
+            securityProtocolsPanel =
+                    new org.parosproxy.paros.extension.option.SecurityProtocolsPanel();
         }
         return securityProtocolsPanel;
     }

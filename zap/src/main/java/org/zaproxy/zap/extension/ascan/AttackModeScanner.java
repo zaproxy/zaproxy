@@ -61,7 +61,7 @@ public class AttackModeScanner implements EventConsumer {
     private AttackModeThread attackModeThread = null;
     private boolean rescanOnChange = false;
 
-    private Logger log = LogManager.getLogger(AttackModeScanner.class);
+    private static final Logger LOGGER = LogManager.getLogger(AttackModeScanner.class);
 
     private List<SiteNode> nodeStack = new ArrayList<>();
 
@@ -81,7 +81,7 @@ public class AttackModeScanner implements EventConsumer {
     }
 
     public void start() {
-        log.debug("Starting");
+        LOGGER.debug("Starting");
         nodeStack.clear();
 
         this.addAllInScope();
@@ -98,14 +98,14 @@ public class AttackModeScanner implements EventConsumer {
     private void addAllInScope() {
         if (this.rescanOnChange) {
             this.nodeStack.addAll(Model.getSingleton().getSession().getNodesInScopeFromSiteTree());
-            log.debug(
-                    "Added existing in scope nodes to attack mode stack " + this.nodeStack.size());
+            LOGGER.debug(
+                    "Added existing in scope nodes to attack mode stack {}", this.nodeStack.size());
             updateCount();
         }
     }
 
     public void stop() {
-        log.debug("Stopping");
+        LOGGER.debug("Stopping");
         if (this.attackModeThread != null) {
             this.attackModeThread.shutdown();
         }
@@ -121,8 +121,9 @@ public class AttackModeScanner implements EventConsumer {
                 if (event.getTarget().getStartNode().getHistoryReference().getHistoryType()
                         != HistoryReference.TYPE_TEMPORARY) {
                     // Add to the stack awaiting attack
-                    log.debug(
-                            "Adding node to attack mode stack " + event.getTarget().getStartNode());
+                    LOGGER.debug(
+                            "Adding node to attack mode stack {}",
+                            event.getTarget().getStartNode());
                     nodeStack.add(event.getTarget().getStartNode());
                     updateCount();
                 }
@@ -263,7 +264,7 @@ public class AttackModeScanner implements EventConsumer {
 
         @Override
         public void run() {
-            log.debug("Starting attack thread");
+            LOGGER.debug("Starting attack thread");
             this.running = true;
 
             RuleConfigParam ruleConfigParam = null;
@@ -279,7 +280,6 @@ public class AttackModeScanner implements EventConsumer {
                     new AttackScan(
                             Constant.messages.getString("ascan.attack.scan"),
                             extension.getScannerParam(),
-                            extension.getModel().getOptionsParam().getConnectionParam(),
                             extension.getPolicyManager().getAttackScanPolicy(),
                             ruleConfigParam,
                             this);
@@ -303,12 +303,11 @@ public class AttackModeScanner implements EventConsumer {
                 }
                 while (nodeStack.size() > 0 && scanners.size() < scannerCount) {
                     SiteNode node = nodeStack.remove(0);
-                    log.debug("Attacking node " + node.getNodeName());
+                    LOGGER.debug("Attacking node {}", node.getNodeName());
 
                     Scanner scanner =
                             new Scanner(
                                     extension.getScannerParam(),
-                                    extension.getModel().getOptionsParam().getConnectionParam(),
                                     extension.getPolicyManager().getAttackScanPolicy(),
                                     ruleConfigParam);
                     scanner.setStartNode(node);
@@ -330,7 +329,7 @@ public class AttackModeScanner implements EventConsumer {
                     scanner.stop();
                 }
             }
-            log.debug("Attack thread finished");
+            LOGGER.debug("Attack thread finished");
         }
 
         @Override
@@ -342,7 +341,7 @@ public class AttackModeScanner implements EventConsumer {
                     if (scanner.isStop()) {
                         SiteNode node = scanner.getStartNode();
                         if (node != null) {
-                            log.debug("Finished attacking node " + node.getNodeName());
+                            LOGGER.debug("Finished attacking node {}", node.getNodeName());
                             if (View.isInitialised()) {
                                 // Remove the icon
                                 node.removeCustomIcon(ATTACK_ICON_RESOURCE);

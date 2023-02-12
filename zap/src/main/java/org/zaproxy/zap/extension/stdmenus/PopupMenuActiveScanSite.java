@@ -27,6 +27,7 @@ import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
+@SuppressWarnings("serial")
 public class PopupMenuActiveScanSite extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 1L;

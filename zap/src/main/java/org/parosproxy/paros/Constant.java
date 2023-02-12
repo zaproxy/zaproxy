@@ -116,6 +116,10 @@
 // ZAP: 2021/10/06 Update user agent when upgrading from 2.10
 // ZAP: 2022/02/03 Removed deprecated FILE_CONFIG_DEFAULT and VULNS_BASE
 // ZAP: 2022/02/25 Remove options that are no longer needed.
+// ZAP: 2022/05/20 Remove usage of ConnectionParam.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2022/12/22 Issue 7663: Default threads based on number of processors.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -156,7 +160,6 @@ import org.apache.logging.log4j.core.config.Configurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.control.ControlOverrides;
@@ -188,11 +191,11 @@ public final class Constant {
     private static final String VERSION_ELEMENT = "version";
 
     // Accessible for tests
-    static final long VERSION_TAG = 20011001;
+    static final long VERSION_TAG = 20012000;
 
     // Old version numbers - for upgrade
+    private static final long V_2_12_0_TAG = 20012000;
     private static final long V_2_11_1_TAG = 20011001;
-    private static final long V_2_10_0_TAG = 20010000;
     private static final long V_2_9_0_TAG = 2009000;
     private static final long V_2_8_0_TAG = 2008000;
     private static final long V_2_7_0_TAG = 2007000;
@@ -278,6 +281,7 @@ public final class Constant {
     private static Constant instance = null;
 
     public static final int MAX_HOST_CONNECTION = 15;
+    @Deprecated // No longer limit in the UI
     public static final int MAX_THREADS_PER_SCAN = 50;
     // ZAP: Dont announce ourselves
     // public static final String USER_AGENT = PROGRAM_NAME + "/" + PROGRAM_VERSION;
@@ -386,7 +390,7 @@ public final class Constant {
     public static final URL SPIDER_IMAGE_URL =
             Constant.class.getResource("/resource/icon/10/spider.png");
 
-    private static Logger LOG = LogManager.getLogger(Constant.class);
+    private static final Logger LOGGER = LogManager.getLogger(Constant.class);
 
     public static String getEyeCatcher() {
         return staticEyeCatcher;
@@ -455,7 +459,7 @@ public final class Constant {
                 && oldf.exists()
                 && Paths.get(zapHome).equals(Paths.get(getDefaultHomeDirectory(true)))) {
             // Dont copy old configs if forcedReset or they've specified a non std directory
-            LOG.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
+            LOGGER.info("Copying defaults from {} to {}", oldf.getAbsolutePath(), FILE_CONFIG);
             copier.copy(oldf, f);
 
             if (isDevMode() || isDailyBuild()) {
@@ -465,7 +469,7 @@ public final class Constant {
                 newConfig.save();
             }
         } else {
-            LOG.info("Copying default configuration to " + FILE_CONFIG);
+            LOGGER.info("Copying default configuration to {}", FILE_CONFIG);
             copyDefaultConfigFile();
         }
     }
@@ -512,7 +516,7 @@ public final class Constant {
             try {
                 return path.toUri().toURL();
             } catch (MalformedURLException e) {
-                LOG.debug("Failed to convert file system path:", e);
+                LOGGER.debug("Failed to convert file system path:", e);
             }
         }
         return Constant.class.getResource(PATH_BUNDLED_CONFIG_XML);
@@ -579,7 +583,7 @@ public final class Constant {
 
             f = new File(FOLDER_SESSION);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory " + FOLDER_SESSION);
+                LOGGER.info("Creating directory {}", FOLDER_SESSION);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -587,7 +591,7 @@ public final class Constant {
             }
             f = new File(DIRBUSTER_CUSTOM_DIR);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory " + DIRBUSTER_CUSTOM_DIR);
+                LOGGER.info("Creating directory {}", DIRBUSTER_CUSTOM_DIR);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -595,7 +599,7 @@ public final class Constant {
             }
             f = new File(FUZZER_DIR);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory " + FUZZER_DIR);
+                LOGGER.info("Creating directory {}", FUZZER_DIR);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -603,7 +607,7 @@ public final class Constant {
             }
             f = new File(FOLDER_LOCAL_PLUGIN);
             if (!f.isDirectory()) {
-                LOG.info("Creating directory " + FOLDER_LOCAL_PLUGIN);
+                LOGGER.info("Creating directory {}", FOLDER_LOCAL_PLUGIN);
                 if (!f.mkdir()) {
                     // ZAP: report failure to create directory
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -633,7 +637,7 @@ public final class Constant {
                     // Nothing to do
                 } else {
                     // Backup the old one
-                    LOG.info("Backing up config file to " + FILE_CONFIG + ".bak");
+                    LOGGER.info("Backing up config file to {}.bak", FILE_CONFIG);
                     f = new File(FILE_CONFIG);
                     try {
                         copier.copy(f, new File(FILE_CONFIG + ".bak"));
@@ -646,7 +650,7 @@ public final class Constant {
                                         + ".bak "
                                         + e.getMessage();
                         System.err.println(msg);
-                        LOG.error(msg, e);
+                        LOGGER.error(msg, e);
                     }
 
                     if (ver == V_PAROS_TAG) {
@@ -704,17 +708,17 @@ public final class Constant {
                     if (ver <= V_2_9_0_TAG) {
                         upgradeFrom2_9_0(config);
                     }
-                    if (ver <= V_2_10_0_TAG) {
-                        upgradeFrom2_10_0(config);
-                    }
                     if (ver <= V_2_11_1_TAG) {
                         upgradeFrom2_11_1(config);
+                    }
+                    if (ver <= V_2_12_0_TAG) {
+                        upgradeFrom2_12(config);
                     }
 
                     // Execute always to pick installer choices.
                     updateCfuFromDefaultConfig(config);
 
-                    LOG.info("Upgraded from " + ver);
+                    LOGGER.info("Upgraded from {}", ver);
 
                     setLatestVersion(config);
                 }
@@ -754,7 +758,7 @@ public final class Constant {
             }
 
             String[] langArray = lang.split("_");
-            return new Locale(langArray[0], langArray[1]);
+            return new Locale.Builder().setLanguage(langArray[0]).setRegion(langArray[1]).build();
 
         } catch (Exception e) {
             System.out.println("Failed to load locale " + e);
@@ -809,13 +813,13 @@ public final class Constant {
     }
 
     private static void logAndPrintError(String message, Exception e) {
-        LOG.error(message, e);
+        LOGGER.error(message, e);
         System.err.println(message);
         e.printStackTrace();
     }
 
     private static void logAndPrintInfo(String message) {
-        LOG.info(message);
+        LOGGER.info(message);
         System.out.println(message);
     }
 
@@ -1014,9 +1018,8 @@ public final class Constant {
                 config.setProperty(OptionsParamCheckForUpdates.DAY_LAST_CHECKED, "");
             }
         } catch (ConversionException e) {
-            LOG.debug(
-                    "The option " + OptionsParamCheckForUpdates.CHECK_ON_START + " is not an int.",
-                    e);
+            LOGGER.debug(
+                    "The option {} is not an int.", OptionsParamCheckForUpdates.CHECK_ON_START, e);
         }
         // Clear the block list - addons were incorrectly added to this if an update failed
         config.setProperty(AddOnLoader.ADDONS_BLOCK_LIST, "");
@@ -1028,10 +1031,9 @@ public final class Constant {
             int oldValue = config.getInt(OptionsParamCheckForUpdates.CHECK_ON_START, 1);
             config.setProperty(OptionsParamCheckForUpdates.CHECK_ON_START, oldValue != 0);
         } catch (ConversionException e) {
-            LOG.debug(
-                    "The option "
-                            + OptionsParamCheckForUpdates.CHECK_ON_START
-                            + " is no longer an int.",
+            LOGGER.debug(
+                    "The option {} is no longer an int.",
+                    OptionsParamCheckForUpdates.CHECK_ON_START,
                     e);
         }
     }
@@ -1111,14 +1113,11 @@ public final class Constant {
             int oldValue = config.getInt(certUseKey, 0);
             config.setProperty(certUseKey, oldValue != 0);
         } catch (ConversionException e) {
-            LOG.debug("The option " + certUseKey + " is no longer an int.", e);
+            LOGGER.debug("The option {} is no longer an int.", certUseKey, e);
         }
     }
 
     private static void upgradeFrom2_8_0(XMLConfiguration config) {
-        // Update to a newer default user agent
-        config.setProperty(
-                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
         updatePscanTagMailtoPattern(config);
     }
 
@@ -1135,9 +1134,6 @@ public final class Constant {
                                 config.clearProperty(key);
                             }
                         });
-        // Update to a newer default user agent
-        config.setProperty(
-                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
         // Use new Look and Feel
         config.setProperty(
                 OptionsParamView.LOOK_AND_FEEL, OptionsParamView.DEFAULT_LOOK_AND_FEEL_NAME);
@@ -1145,15 +1141,27 @@ public final class Constant {
                 OptionsParamView.LOOK_AND_FEEL_CLASS, OptionsParamView.DEFAULT_LOOK_AND_FEEL_CLASS);
     }
 
-    private static void upgradeFrom2_10_0(XMLConfiguration config) {
-        // Update to a newer default user agent
-        config.setProperty(
-                ConnectionParam.DEFAULT_USER_AGENT, ConnectionParam.DEFAULT_DEFAULT_USER_AGENT);
-    }
-
     private static void upgradeFrom2_11_1(XMLConfiguration config) {
         config.setProperty("view.largeRequest", null);
         config.setProperty("view.largeResponse", null);
+        config.setProperty("hud.enableTelemetry", null);
+    }
+
+    private static void updateDefaultInt(
+            XMLConfiguration config, String key, int oldDefault, int newDefault) {
+        try {
+            if (config.getInteger(key, oldDefault) == oldDefault) {
+                config.setProperty(key, newDefault);
+            }
+        } catch (Exception e) {
+            // Don't bother reporting, just fix
+            config.setProperty(key, newDefault);
+        }
+    }
+
+    static void upgradeFrom2_12(XMLConfiguration config) {
+        updateDefaultInt(config, "scanner.threadPerHost", 2, getDefaultThreadCount());
+        updateDefaultInt(config, "pscans.threads", 4, getDefaultThreadCount() / 2);
     }
 
     private static void updatePscanTagMailtoPattern(XMLConfiguration config) {
@@ -1204,7 +1212,8 @@ public final class Constant {
 
     public static void setLocale(String loc) {
         String[] langArray = loc.split("_");
-        Locale locale = new Locale(langArray[0], langArray[1]);
+        Locale locale =
+                new Locale.Builder().setLanguage(langArray[0]).setRegion(langArray[1]).build();
 
         Locale.setDefault(locale);
         if (messages == null) {
@@ -1639,5 +1648,15 @@ public final class Constant {
     public static String getContainerName() {
         isInContainer();
         return containerName;
+    }
+
+    /**
+     * Returns the recommended default number of threads. Note that add-ons should use the
+     * equivalent method in the commonlib add-on.
+     *
+     * @return the recommended default number of threads.
+     */
+    public static int getDefaultThreadCount() {
+        return Runtime.getRuntime().availableProcessors() * 2;
     }
 }

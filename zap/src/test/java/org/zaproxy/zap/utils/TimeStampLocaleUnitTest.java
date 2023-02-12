@@ -70,7 +70,11 @@ class TimeStampLocaleUnitTest extends TestUtils {
                                 .split("_");
 
                 if (localeParts.length > 1) {
-                    Locale locale = new Locale(localeParts[0], localeParts[1]);
+                    Locale locale =
+                            new Locale.Builder()
+                                    .setLanguage(localeParts[0])
+                                    .setRegion(localeParts[1])
+                                    .build();
                     ResourceBundle rb =
                             ResourceBundle.getBundle(
                                     BASE_NAME, locale, classLoader, new ZapResourceBundleControl());

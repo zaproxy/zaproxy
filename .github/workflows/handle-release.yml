@@ -9,14 +9,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
       with:
         fetch-depth: 0
         persist-credentials: false
-    - name: Setup Java 8
-      uses: actions/setup-java@v1
+    - name: Setup Java
+      uses: actions/setup-java@v3
       with:
-        java-version: 8
+        distribution: 'temurin'
+        java-version: 11
     - name: Handle Release
       run: ./gradlew handleReleaseFromGitHubRef
       env:

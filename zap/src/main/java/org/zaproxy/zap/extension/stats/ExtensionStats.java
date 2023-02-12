@@ -40,7 +40,7 @@ public class ExtensionStats extends ExtensionAdaptor implements OptionsChangedLi
     private OptionsStatsPanel optionsStatsPanel;
     private StatsParam statsParam;
 
-    private static final Logger LOG = LogManager.getLogger(ExtensionStats.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionStats.class);
 
     public ExtensionStats() {
         super();
@@ -123,11 +123,11 @@ public class ExtensionStats extends ExtensionAdaptor implements OptionsChangedLi
         if (inMemStatsInit != this.getStatsParam().isInMemoryEnabled()) {
             // Somethings changed
             if (!inMemStatsInit) {
-                LOG.info("Start recording in memory stats");
+                LOGGER.info("Start recording in memory stats");
                 inMemStats = new InMemoryStats();
                 Stats.addListener(inMemStats);
             } else {
-                LOG.info("Stop recording in memory stats");
+                LOGGER.info("Stop recording in memory stats");
                 Stats.removeListener(inMemStats);
                 inMemStats.allCleared();
                 inMemStats = null;
@@ -138,15 +138,15 @@ public class ExtensionStats extends ExtensionAdaptor implements OptionsChangedLi
         if (statsdInit != this.getStatsParam().isStatsdEnabled()) {
             // Somethings changed
             if (!statsdInit) {
-                LOG.info("Start sending stats to statsd server");
+                LOGGER.info("Start sending stats to statsd server");
                 try {
                     statsd = newStatsD(this.getStatsParam());
                     Stats.addListener(statsd);
                 } catch (Exception e) {
-                    LOG.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             } else {
-                LOG.info("Stop sending stats to statsd server");
+                LOGGER.info("Stop sending stats to statsd server");
                 Stats.removeListener(statsd);
                 statsd = null;
             }
@@ -154,13 +154,13 @@ public class ExtensionStats extends ExtensionAdaptor implements OptionsChangedLi
             if (!StringUtils.equals(this.getStatsParam().getStatsdHost(), statsd.getHost())
                     || this.getStatsParam().getStatsdPort() != statsd.getPort()) {
                 // Have to re-initialise it
-                LOG.info("Restart sending stats to statsd server");
+                LOGGER.info("Restart sending stats to statsd server");
                 try {
                     Stats.removeListener(statsd);
                     statsd = newStatsD(this.getStatsParam());
                     Stats.addListener(statsd);
                 } catch (Exception e) {
-                    LOG.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             } else if (!StringUtils.equals(
                     this.getStatsParam().getStatsdPrefix(), statsd.getPrefix())) {

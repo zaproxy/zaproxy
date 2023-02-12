@@ -31,6 +31,7 @@ import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.extension.autoupdate.AddOnWrapper.Status;
 
+@SuppressWarnings("serial")
 public class InstalledAddOnsTableModel extends AddOnsTableModel {
 
     private static final long serialVersionUID = 1L;

@@ -47,6 +47,8 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/10/04 Add dialog/menu icon.
+// ZAP: 2022/06/13 Add HrefTypeInfo on hook.
+// ZAP: 2022/09/14 Deprecate the class.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.EventQueue;
@@ -62,15 +64,19 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
-import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.view.HrefTypeInfo;
 
+/** @deprecated (2.12.0) Replaced by Requester add-on. */
+@Deprecated
 public class ExtensionManualRequestEditor extends ExtensionAdaptor
         implements SessionChangedListener {
 
     private Map<Class<? extends Message>, ManualRequestEditorDialog> dialogues = new HashMap<>();
-    private ManualHttpRequestEditorDialog httpSendEditorDialog;
+    private org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog
+            httpSendEditorDialog;
 
     /** Name of this extension. */
     public static final String NAME = "ExtensionManualRequest";
@@ -91,7 +97,8 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor
 
         // add default manual request editor
         httpSendEditorDialog =
-                new ManualHttpRequestEditorDialog(true, "manual", "ui.dialogs.manreq");
+                new org.parosproxy.paros.extension.manualrequest.http.impl
+                        .ManualHttpRequestEditorDialog(true, "manual", "ui.dialogs.manreq");
         httpSendEditorDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));
 
         addManualSendEditor(httpSendEditorDialog);
@@ -136,6 +143,13 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
+
+        extensionHook.addHrefType(
+                new HrefTypeInfo(
+                        HistoryReference.TYPE_ZAP_USER,
+                        Constant.messages.getString("view.href.type.name.manual"),
+                        hasView() ? ExtensionManualRequestEditor.getIcon() : null));
+
         if (getView() != null) {
             for (Entry<Class<? extends Message>, ManualRequestEditorDialog> dialogue :
                     dialogues.entrySet()) {

@@ -89,6 +89,9 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/09 Remove code no longer needed and deprecate a method.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
+// ZAP: 2022/08/23 Use SiteMap#createTree to create a new Sites Tree when loading a session.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -137,7 +140,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 public class Session {
 
     // ZAP: Added logger
-    private static Logger log = LogManager.getLogger(Session.class);
+    private static final Logger LOGGER = LogManager.getLogger(Session.class);
 
     private static final String ROOT = "session";
 
@@ -205,7 +208,7 @@ public class Session {
             model.getDb().discardSession(getSessionId());
         } catch (DatabaseException e) {
             // ZAP: Log exceptions
-            log.warn(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
         }
         discardContexts();
     }
@@ -309,8 +312,7 @@ public class Session {
         }
 
         if (!Constant.isLowMemoryOptionSet()) {
-            SiteNode newRoot = new SiteNode(siteTree, -1, Constant.messages.getString("tab.sites"));
-            siteTree.setRoot(newRoot);
+            siteTree = SiteMap.createTree(model);
         }
 
         // update history reference
@@ -380,7 +382,7 @@ public class Session {
                 if (i % 100 == 99) Thread.yield();
             } catch (Exception e) {
                 // ZAP: Log exceptions
-                log.warn(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
 
@@ -423,7 +425,7 @@ public class Session {
 
             } catch (Exception e) {
                 // ZAP: Log exceptions
-                log.warn(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
         List<RecordContext> contextData = model.getDb().getTableContext().getAllData();
@@ -473,11 +475,10 @@ public class Session {
                 if (strs.size() == 1) {
                     Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
                     if (c == null) {
-                        log.error(
-                                "Failed to load URL parser for context "
-                                        + ctx.getId()
-                                        + " : "
-                                        + strs.get(0));
+                        LOGGER.error(
+                                "Failed to load URL parser for context {} : {}",
+                                ctx.getId(),
+                                strs.get(0));
                     } else {
                         ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
                         strs =
@@ -491,7 +492,7 @@ public class Session {
                     }
                 }
             } catch (Exception e) {
-                log.error("Failed to load URL parser for context " + ctx.getId(), e);
+                LOGGER.error("Failed to load URL parser for context {}", ctx.getId(), e);
             }
             try {
                 // Set up the URL parameter parser
@@ -501,11 +502,10 @@ public class Session {
                 if (strs.size() == 1) {
                     Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
                     if (c == null) {
-                        log.error(
-                                "Failed to load POST parser for context "
-                                        + ctx.getId()
-                                        + " : "
-                                        + strs.get(0));
+                        LOGGER.error(
+                                "Failed to load POST parser for context {} : {}",
+                                ctx.getId(),
+                                strs.get(0));
                     } else {
                         ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
                         strs =
@@ -519,7 +519,7 @@ public class Session {
                     }
                 }
             } catch (Exception e) {
-                log.error("Failed to load POST parser for context " + ctx.getId(), e);
+                LOGGER.error("Failed to load POST parser for context {}", ctx.getId(), e);
             }
 
             try {
@@ -531,7 +531,7 @@ public class Session {
                     ctx.addDataDrivenNodes(new StructuralNodeModifier(str));
                 }
             } catch (Exception e) {
-                log.error("Failed to load data driven nodes for context " + ctx.getId(), e);
+                LOGGER.error("Failed to load data driven nodes for context {}", ctx.getId(), e);
             }
 
             ctx.restructureSiteTree();
@@ -593,7 +593,7 @@ public class Session {
                                     save(fileName);
                                 } catch (Exception e) {
                                     // ZAP: Log exceptions
-                                    log.warn(e.getMessage(), e);
+                                    LOGGER.warn(e.getMessage(), e);
                                     thrownException = e;
                                 }
                                 if (callback != null) {
@@ -670,7 +670,7 @@ public class Session {
                                     snapshot(fileName);
                                 } catch (Exception e) {
                                     // ZAP: Log exceptions
-                                    log.warn(e.getMessage(), e);
+                                    LOGGER.warn(e.getMessage(), e);
                                     thrownException = e;
                                 }
                                 if (callback != null) {
@@ -731,7 +731,7 @@ public class Session {
                 saveSiteTree((SiteNode) node.getChildAt(i));
             } catch (Exception e) {
                 // ZAP: Log exceptions
-                log.warn(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
     }
@@ -809,7 +809,7 @@ public class Session {
                             }
                         });
             } catch (Exception e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -870,7 +870,7 @@ public class Session {
         try {
             return this.isInScope(href.getURI().toString());
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return false;
     }
@@ -1183,7 +1183,7 @@ public class Session {
             try {
                 return Integer.parseInt(dataList.get(0).getData());
             } catch (NumberFormatException e) {
-                log.error("Failed to parse context value type " + type, e);
+                LOGGER.error("Failed to parse context value type {}", type, e);
             }
         }
         return defaultValue;
@@ -1266,7 +1266,7 @@ public class Session {
 
             model.saveContext(c);
         } catch (DatabaseException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         if (View.isInitialised()) {
@@ -1364,7 +1364,7 @@ public class Session {
         try {
             this.clearContextData(c.getId());
         } catch (DatabaseException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         for (OnContextsChangedListener l : contextsChangedListeners) {
@@ -1722,13 +1722,13 @@ public class Session {
         return this.getFormParamParser(uri.toString()).parseParameters(formData);
     }
 
-    /** @deprecated use {@link SessionStructure#getTeeePath(Model, URI)} */
+    /** @deprecated use {@link SessionStructure#getTreePath(Model, URI)} */
     @Deprecated
     public List<String> getTreePath(URI uri) throws URIException {
         return SessionStructure.getTreePath(Model.getSingleton(), uri);
     }
 
-    /** @deprecated use {@link SessionStructure#getTeeePath(Model, HttpMessage)} */
+    /** @deprecated use {@link SessionStructure#getTreePath(Model, HttpMessage)} */
     @Deprecated
     public List<String> getTreePath(HttpMessage msg) throws URIException {
         return SessionStructure.getTreePath(Model.getSingleton(), msg);

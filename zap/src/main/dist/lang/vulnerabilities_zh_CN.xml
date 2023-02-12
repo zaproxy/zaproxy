@@ -7,8 +7,8 @@
 	<desc>当一个 Web 站点允许攻击者访问敏感内容或功能而无需正确验证时，判定为身份验证不足。 基于Web的管理工具是Web站点提供对敏感功能访问能力的很好的例子。 虽然Web应用种类多样，然而这些Web应用应需要用户来正确验证他们的身份后才可允许访问敏感内容。
 
 To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
-	<solution>Phase: Architecture and Design
-Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
+	<solution>阶段：架构设计
+使用含有诸如 OWASP ESAPI 认证功能的认证框架或库。</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
@@ -17,28 +17,28 @@ Use an authentication framework or library such as the OWASP ESAPI Authenticatio
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
 	<alert>授权方式不充分</alert>
-	<desc>Insufficient Authorization results when an application does not perform adequate authorization checks to ensure that the user is performing a function or accessing data in a manner consistent with the security policy. Authorization procedures should enforce what a user, service or application is permitted to do. When a user is authenticated to a web site, it does not necessarily mean that the user should have full access to all content and functionality.
+	<desc>授权方式不充分可能会导致应用程序不能实行足够的认证检查，来保证用户在安全策略内一致实行功能或访问数据。 授权过程应强制执行允许用户、服务或应用程序执行的操作。 当用户在某个 Web 站点上认证时，并不意味着他需要具有所有内容和功能的访问权限。
 
-Insufficient Function Authorization
+授权功能不充分
 
-Many applications grant different application functionality to different users. A news site will allows users to view news stories, but not publish them. An accounting system will have different permissions for an Accounts Payable clerk and an Accounts Receivable clerk. Insufficient Function Authorization happens when an application does not prevent users from accessing application functionality in violation of security policy.
+很多应用程序对不同用户授权不同的应用功能使用权限。 新闻站点允许一般用户阅读新闻文章，而不是发表它们。 会计学系统给予应付账款业务员和应收账款业务员的权限也不会相同。 授权功能不充分会在应用程序不能阻挡用户违反安全策略访问程序功能的情况发现。
 
-A very visible example was the 2005 hack of the Harvard Business School's application process. An authorization failure allowed users to view their own data when they should not have been allowed to access that part of the web site.
+一个明确的事例是 2005 年对哈佛商学院的申请过程的破解。 一个认证过程的失误使得用户可以查看他们不该访问到那一部分网站的个人数据。
  
-Insufficient Data Authorization
+授权数据不充分
 
-Many applications expose underlying data identifiers in a URL. 比如，访问某个医疗系统的医疗记录的 URL 可能如下所示：
+许多应用程序将数据标识符暴露在 URL 之下。 比如，访问某个医疗系统的医疗记录的 URL 可能如下所示：
 
 http://example.com/RecordView?id=12345
 
 如果应用没有检查验证的用户 ID 是否具有读权限，可能会给不应阅读到记录的用户呈现数据，
 
 授权数据不充分比授权方法不充足更加常见，因为程序员通常可以完全保证应用的功能性，但不太注意所访问应用数据是否有正确地映射。 程序员通常会在认证机制函数中收缩控制，而依赖诸如数据库等其它系统来保证数据认证。</desc>
-	<solution>フェーズ： アーキテクチャと設計；オペレーション
-特に注意して、設定、マネジメント、および権限の操作を管理してください。 明確に、ソフトウェアの信頼範囲を管理してください。
+	<solution>阶段：架构设计；运行
+小心地管理权限的设置、管理与处理过程。 在软件中明确管理信任区域。
 
-フェーズ： アーキテクチャと設計
-システム設計に組み込まれた適切な区分や、権限分離機能を強化・許可するサーバ区分を確認してください。 Les architectes et designers devraient se baser sur le principe du moindre privilège au moment de décider quand il convient d'utiliser et d'abandonner les privilèges d'accès système.</solution>
+阶段：架构设计
+确保在系统设计中内置适当的划分机制，并确保划分用于允许并进一步加强权限分离功能。 架构师和设计师应该依靠最小权限原则来决定何时使用和放弃系统权限。</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
@@ -47,31 +47,31 @@ http://example.com/RecordView?id=12345
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
 	<alert>整数溢出</alert>
-	<desc>Un dépassement d'entier (integer overflow) est la condition qui se produit lorsque le résultat d'une opération arithmétique, par exemple multiplication ou addition, dépasse la taille maximale du type d'entier utilisé pour le stocker. En cas de dépassement d'entier, la valeur interprétée paraîtra avoir "été retournée" autour de la valeur maximale en recommençant à la valeur minimale, de la même manière qu'une horloge représenterait 13:00 en pointant à 01:00.
+	<desc>当算术运算（如乘法或加法运算）的计算结果超过整数类型所能存储的最大值时，会发生整数溢出现象。 当整数溢出问题发生时，解析出的值会在最大值附近发生"回卷"，从最小值重新开始，就像钟表使用指向1：00的位置表示13：00一样。
 
-Na primer, 8-bitni celi broj s predznakom na većini računarskih arhitektura ima maksimalnu  vrednost 127 i minimalnu vrednost -128. Ako programer pohranjuje vrijednost 127 u takvu varijablu i dodaje joj 1, rezultat bi trebao biti 128. Međutim, ova vrednost premašuje maksimum za ovu celobrojnu vrstu, tako interpretirana vrednost će se "zaokrenuti" i postati -128.</desc>
-	<solution>フェーズ： 要件
-全てのプロトコルは厳格に定義されている、領域を超えた全てのものは簡単に認識されているかを確認してください。プロトコルに対して、厳密な整合性を要求してください。
+例如，在常见计算机架构中的8位的有符号整数的最大值为127，最小值为-128。 如果程序员在该类型变量中存储了值127，然后对此变量进行加一操作，那么结果本应该为128， 但是，这超出了这个整数类型的最大值，因此解析出的值将发生"回卷"从而变成-128。</desc>
+	<solution>阶段：需求
+保证所有协议严格定义，以保证所有越界行为能够简单标识出来，并要求遵守所有协议。
 
-Faz: Gereksinimler
-Bu zayıflığın oluşmasına izin vermeyecek bir dil kullanın, ya da bu zayıflıktan kolay bir şekilde kaçınılabilecek yapılar oluşturun.
-Si possible, choisissez un langage ou un compilateur qui effectue la vérification automatique de limites.
+阶段：需求
+使用不允许发生此弱点的编程语言，或提供更容易避免这个弱点的机制。
+如果可能，选择能够实行自动边界检查的编程语言或编译器。
 
-フェーズ： アーキテクチャと設計
-同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
-Sayıları beklenmedik sonuçlara izin vermeden kullanabilen kütüphane veya frameworkler kullanın. 
-Örnek olarak, SafeInt(C++) veya IntegerLib(C or C++) gibi güvenli integer yönetimi kütüphaneleri projenize ekleyin.
+阶段：架构设计
+使用经过审查的不允许发生此弱点的库或框架，或者提供更容易避免的这个弱点的机制。
+使用能够轻松处理数字的库或架构，避免意外后果。
+例如安全整数处理库 SafeInt (C++) 或 IntegerLib (C 或 C++)。
 
-Phase: Implémentation
-Effectuez une validation de chaque entrée numérique afin de s'assurer que la valeur numérique fournie figure dans la gamme attendue. Primorajte da ulaz zadovoljava i minimalne i maksimalne uvjete za očekivani raspon.
-Mümkün oldukça unsigned integer kullanın. To ga čini lakšim za obavljanjem provjera cijelobrojnih prelijeva. Si vous devez utiliser des entiers signés, assurez-vous que votre contrôle d'intervalle inclut les valeurs minimales ainsi que les valeurs maximales.
+阶段：实现
+对任何数字输入实行输入验证，保证其在预期的范围内。 让输入强制满足预期范围的最大值和最小值需求。
+如果可能，使用无符号整数类型。 这使得整数溢出健全性检查更加容易。 如果必须使用有符号整数类型，请保证您的边界检查同时包含最小值和最大值。
 
-Faz: Gerçekleme
-Programlama dilinizin temelini ve sayısal hesaplamalarla nasıl etkileştiğini anlayın (CWE-681). Portez une attention particulière aux différences de taille octets, à la précision, aux différences entre signé et non signé, à la troncation, à la conversion et typage entre les types, aux calculs de "pas-un-nombre", attention également à la manière dont votre langage gère des nombres trop grands ou trop petits pour la représentation sous-jacente.
-Veillez également à tenir compte de 32 bits, 64 bits et d'autres différences peuvant potentiellement influer sur la représentation numérique.
+阶段：实现
+理解您所用编程语言的底层表示，以及在数学运算时如何产生联系 (CWE-681)。 请密切注意字节大小的差异、精度、有符号/无符号的区别、截断、类型之间的转换和强制转换、"非数字"计算，以及对于其基础表示形式而言，您的语言如何处理太大或太小的数字。
+也需要小心32位程序、64位程序及其他可能影响数字表示的因素。
 
-Faz: Gerçekleme
-Derleyici uyarılarını yakından inceleyin ve signed / unsigned uyumsuzlukları gibi, potansiyel kritik güvenlik sorunlarını bertaraf edin. Čak i ako je slabost rijetko iskoristiva, jedan neuspjeh može dovesti do kompromitovanja cijelog sistema.</solution>
+阶段：实现
+仔细检查编译器警告，并排除可能的严重安全问题，如有符号/无符号类型不匹配。 即使此弱点几乎无人利用，一个简单的失误可能也会引起整个系统的破坏。</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
@@ -165,7 +165,7 @@ Many file inclusion problems occur because the programmer assumed that certain i
 <vuln_items>wasc_6</vuln_items>
 <vuln_item_wasc_6>
 	<alert>格式化字符串</alert>
-	<desc>Format String Attacks alter the flow of an application by using string formatting library features to access other memory space. Vulnerabilities occur when user-supplied data are used directly as formatting string input for certain C/C++ functions (e.g. fprintf, printf, sprintf, setproctitle, syslog, ...).
+	<desc>格式字符串攻击通过字符串格式化库访问其他内存空间改变了应用程序的执行流程。 当用户提供的数据直接作为某些 C/C++ 函数（如 fprintf、printf、sprintf、setproctitle、syslog……）的字符串输入时，就会产生漏洞。
 
 如果某个攻击者在网络应用中提交了一个包含 printf 转义字符串（如 "%f"、"%p”、"%n" 等）标志作为参数，他们将可能会：
     * 执行服务器上的任意代码
@@ -185,24 +185,24 @@ Build: Heed the warnings of compilers and linkers, since they may alert you to i
 <vuln_items>wasc_7</vuln_items>
 <vuln_item_wasc_7>
 	<alert>缓冲区溢出</alert>
-	<desc>A Buffer Overflow is a flaw that occurs when more data is written to a block of memory, or buffer, than the buffer is allocated to hold. Exploiting a buffer overflow allows an attacker to modify portions of the target process’ address space. This ability can be used for a number of purposes, including the following:
-    * Control the process execution
-    * Crash the process
-    * Modify internal variables
+	<desc>当写入内存块或缓冲区的数据多于分配给缓冲区保存的数据时，就会发生缓冲区溢出现象。 Exploiting a buffer overflow allows an attacker to modify portions of the target process’ address space. 这种能力可用于如下所示的多种目的：
+    * 控制进程执行
+    * 使进程崩溃
+    * 更改内部变量
 
-The attacker’s goal is almost always to control the target process’ execution. This is accomplished by identifying a function pointer in memory that can be modified, directly or indirectly, using the overflow. When such a pointer is used by the program to direct program execution through a jump or call instruction, the attacker-supplied instruction location will be used, thereby allowing the attacker to control the process.
+攻击者的目标几乎总是控制目标进程的执行。 This is accomplished by identifying a function pointer in memory that can be modified, directly or indirectly, using the overflow. When such a pointer is used by the program to direct program execution through a jump or call instruction, the attacker-supplied instruction location will be used, thereby allowing the attacker to control the process.
 
 In many cases, the function pointer is modified to reference a location where the attacker has placed assembled machine-specific instructions. These instructions are commonly referred to as shellcode, in reference to the fact that attackers often wish to spawn a command-line environment, or shell, in the context of the running process.
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
-	<solution>Faz: Gereksinimler
-Bu zayıflığın oluşmasına izin vermeyecek bir dil kullanın, ya da bu zayıflıktan kolay bir şekilde kaçınılabilecek yapılar oluşturun.
+	<solution>阶段：需求
+使用不允许发生此弱点的编程语言，或提供更容易避免这个弱点的机制。
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
-フェーズ： アーキテクチャと設計
-同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
+阶段：架构设计
+使用经过审查的不允许发生此弱点的库或框架，或者提供更容易避免的这个弱点的机制。
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -240,8 +240,8 @@ When an attacker gets a user's browser to execute his/her code, the code will ru
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
-	<solution>フェーズ： アーキテクチャと設計
-同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
+	<solution>阶段：架构设计
+使用经过审查的不允许发生此弱点的库或框架，或者提供更容易避免的这个弱点的机制。
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -280,8 +280,8 @@ CSRF attacks are effective in a number of situations, including:
     * The victim is on the same local network as the target site.
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
-	<solution>フェーズ： アーキテクチャと設計
-同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
+	<solution>阶段：架构设计
+使用经过审查的不允许发生此弱点的库或框架，或者提供更容易避免的这个弱点的机制。
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -459,7 +459,7 @@ Likewise, default installations may include well-known usernames and passwords, 
 <vuln_item_wasc_17>
 	<alert>不合适的文件系统权限</alert>
 	<desc>Improper filesystem permissions are a threat to the confidentiality, integrity and availability of a web application. The problem arises when incorrect filesystem permissions are set on files, folders, and symbolic links. When improper permissions are set, an attacker may be able to access restricted files or directories and modify or delete their contents. For example, if an anonymous user account has write permission to a file, then an attacker may be able to modify the contents of the file influencing the web application in undesirable ways. An attacker may also exploit improper symlinks to escalate their privileges and/or access unauthorized files; for example, a symlink that points to a directory outside of the web root.</desc>
-	<solution>Very carefully manage the setting, management and handling of permissions. 明確に、ソフトウェアの信頼範囲を管理してください。</solution>
+	<solution>Very carefully manage the setting, management and handling of permissions. 在软件中明确管理信任区域。</solution>
 	<reference>http://projects.webappsec.org/Improper-Filesystem-Permissions</reference>
 	<reference>http://cwe.mitre.org/data/definitions/280.html</reference>
 </vuln_item_wasc_17>
@@ -481,8 +481,8 @@ Many web sites are designed to authenticate and track a user when communication 
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
-	<solution>フェーズ： アーキテクチャと設計
-同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
+	<solution>阶段：架构设计
+使用经过审查的不允许发生此弱点的库或框架，或者提供更容易避免的这个弱点的机制。
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.

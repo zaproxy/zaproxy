@@ -68,7 +68,7 @@ import org.zaproxy.zap.utils.ZapResourceBundleControl;
  */
 public final class AddOnInstaller {
 
-    private static final Logger logger = LogManager.getLogger(AddOnInstaller.class);
+    private static final Logger LOGGER = LogManager.getLogger(AddOnInstaller.class);
 
     /** The base directory to where add-on data (e.g. libraries) is copied. */
     private static final String ADD_ON_DATA_DIR = "addOnData";
@@ -124,11 +124,10 @@ public final class AddOnInstaller {
             try {
                 ext.postInstall();
             } catch (Exception e) {
-                logger.error(
-                        "Post install method failed for add-on "
-                                + addOn.getId()
-                                + " extension "
-                                + ext.getName());
+                LOGGER.error(
+                        "Post install method failed for add-on {} extension {}",
+                        addOn.getId(),
+                        ext.getName());
             }
         }
     }
@@ -187,9 +186,46 @@ public final class AddOnInstaller {
      * @see Extension
      * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
+     * @deprecated (2.13.0) Use {@link #uninstall(AddOn, AddOnUninstallationProgressCallback, Set,
+     *     PostponedTasksRunner)} instead.
      */
+    @Deprecated
     public static boolean uninstall(
             AddOn addOn, AddOnUninstallationProgressCallback callback, Set<AddOn> installedAddOns) {
+        return uninstall(addOn, callback, installedAddOns, null);
+    }
+
+    /**
+     * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s,
+     * {@code PassiveScanner}s and files) of the given {@code addOn}.
+     *
+     * <p>The components are uninstalled in the following order (inverse to installation):
+     *
+     * <ol>
+     *   <li>Passive scanners;
+     *   <li>Active scanners;
+     *   <li>Extensions;
+     *   <li>Files (if not in use by other add-ons);
+     *   <li>{@link java.util.ResourceBundle ResourceBundle};
+     * </ol>
+     *
+     * @param addOn the add-on that will be uninstalled.
+     * @param callback the callback that will be notified of the progress of the uninstallation.
+     * @param installedAddOns the add-ons currently installed.
+     * @param postponedTasks the container for postponed tasks.
+     * @return {@code true} if the add-on was uninstalled without errors, {@code false} otherwise.
+     * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
+     * @since 2.13.0
+     * @see #softUninstall(AddOn, AddOnUninstallationProgressCallback)
+     * @see Extension
+     * @see PassiveScanner
+     * @see org.parosproxy.paros.core.scanner.Plugin
+     */
+    public static boolean uninstall(
+            AddOn addOn,
+            AddOnUninstallationProgressCallback callback,
+            Set<AddOn> installedAddOns,
+            PostponedTasksRunner postponedTasks) {
         Validate.notNull(addOn, "Parameter addOn must not be null.");
         validateCallbackNotNull(callback);
 
@@ -198,12 +234,13 @@ public final class AddOnInstaller {
             uninstalledWithoutErrors &= uninstallAddOnPassiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn, callback);
-            uninstalledWithoutErrors &= uninstallAddOnFiles(addOn, callback, installedAddOns);
+            uninstalledWithoutErrors &=
+                    uninstallAddOnFiles(addOn, callback, installedAddOns, postponedTasks);
             uninstallResourceBundle(addOn);
 
             return uninstalledWithoutErrors;
         } catch (Throwable e) {
-            logger.error("An error occurred while uninstalling the add-on: " + addOn.getId(), e);
+            LOGGER.error("An error occurred while uninstalling the add-on: {}", addOn.getId(), e);
             return false;
         }
     }
@@ -241,7 +278,7 @@ public final class AddOnInstaller {
 
             return uninstalledWithoutErrors;
         } catch (Throwable e) {
-            logger.error("An error occurred while uninstalling the add-on: " + addOn.getId(), e);
+            LOGGER.error("An error occurred while uninstalling the add-on: {}", addOn.getId(), e);
             return false;
         }
     }
@@ -273,7 +310,7 @@ public final class AddOnInstaller {
                 Constant.messages.addMessageBundle(bundlePrefix, resourceBundle);
             }
         } catch (MissingResourceException e) {
-            logger.error("Declared bundle not found in " + addOn.getId() + " add-on:", e);
+            LOGGER.error("Declared bundle not found in {} add-on:", addOn.getId(), e);
         }
     }
 
@@ -308,13 +345,13 @@ public final class AddOnInstaller {
     private static void installAddOnExtensionImpl(
             AddOn addOn, Extension ext, ExtensionLoader extensionLoader) {
         if (ext.isEnabled()) {
-            logger.debug("Starting extension " + ext.getName());
+            LOGGER.debug("Starting extension {}", ext.getName());
             try {
                 extensionLoader.startLifeCycle(ext);
             } catch (Throwable e) {
                 // Catch Throwable to (try) prevent extensions' issues from breaking the
                 // installation process.
-                logger.error("An error occurred while installing the add-on: " + addOn.getId(), e);
+                LOGGER.error("An error occurred while installing the add-on: {}", addOn.getId(), e);
             }
         }
     }
@@ -349,23 +386,21 @@ public final class AddOnInstaller {
         if (extension.isEnabled()) {
             String extUiName = extension.getUIName();
             if (extension.canUnload()) {
-                logger.debug("Unloading ext: " + extension.getName());
+                LOGGER.debug("Unloading extension: {}", extension.getName());
                 try {
                     extension.unload();
                     Control.getSingleton().getExtensionLoader().removeExtension(extension);
                     ExtensionFactory.unloadAddOnExtension(extension);
                 } catch (Exception e) {
-                    logger.error(
-                            "An error occurred while uninstalling the extension \""
-                                    + extension.getName()
-                                    + "\" bundled in the add-on \""
-                                    + addOn.getId()
-                                    + "\":",
+                    LOGGER.error(
+                            "An error occurred while uninstalling the extension \"{}\" bundled in the add-on \"{}\":",
+                            extension.getName(),
+                            addOn.getId(),
                             e);
                     uninstalledWithoutErrors = false;
                 }
             } else {
-                logger.debug("Cant dynamically unload ext: " + extension.getName());
+                LOGGER.debug("Can't dynamically unload extension: {}", extension.getName());
                 uninstalledWithoutErrors = false;
             }
             callback.extensionRemoved(extUiName);
@@ -384,10 +419,10 @@ public final class AddOnInstaller {
         if (!ascanrules.isEmpty()) {
             for (AbstractPlugin ascanrule : ascanrules) {
                 String name = ascanrule.getClass().getCanonicalName();
-                logger.debug("Install ascanrule: " + name);
+                LOGGER.debug("Install ascanrule: {}", name);
                 PluginFactory.loadedPlugin(ascanrule);
                 if (!PluginFactory.isPluginLoaded(ascanrule)) {
-                    logger.error("Failed to install ascanrule: " + name);
+                    LOGGER.error("Failed to install ascanrule: {}", name);
                 }
             }
         }
@@ -399,14 +434,14 @@ public final class AddOnInstaller {
 
         List<AbstractPlugin> loadedAscanrules = addOn.getLoadedAscanrules();
         if (!loadedAscanrules.isEmpty()) {
-            logger.debug("Uninstall ascanrules: " + addOn.getAscanrules());
+            LOGGER.debug("Uninstall ascanrules: {}", addOn.getAscanrules());
             callback.activeScanRulesWillBeRemoved(loadedAscanrules.size());
             for (AbstractPlugin ascanrule : loadedAscanrules) {
                 String name = ascanrule.getClass().getCanonicalName();
-                logger.debug("Uninstall ascanrule: " + name);
+                LOGGER.debug("Uninstall ascanrule: {}", name);
                 PluginFactory.unloadedPlugin(ascanrule);
                 if (PluginFactory.isPluginLoaded(ascanrule)) {
-                    logger.error("Failed to uninstall ascanrule: " + name);
+                    LOGGER.error("Failed to uninstall ascanrule: {}", name);
                     uninstalledWithoutErrors = false;
                 }
                 callback.activeScanRuleRemoved(name);
@@ -430,9 +465,9 @@ public final class AddOnInstaller {
         if (!pscanrules.isEmpty() && extPscan != null) {
             for (PluginPassiveScanner pscanrule : pscanrules) {
                 String name = pscanrule.getClass().getCanonicalName();
-                logger.debug("Install pscanrule: " + name);
+                LOGGER.debug("Install pscanrule: {}", name);
                 if (!extPscan.addPassiveScanner(pscanrule)) {
-                    logger.error("Failed to install pscanrule: " + name);
+                    LOGGER.error("Failed to install pscanrule: {}", name);
                 }
             }
         }
@@ -448,13 +483,13 @@ public final class AddOnInstaller {
                         .getExtensionLoader()
                         .getExtension(ExtensionPassiveScan.class);
         if (!loadedPscanrules.isEmpty()) {
-            logger.debug("Uninstall pscanrules: " + addOn.getPscanrules());
+            LOGGER.debug("Uninstall pscanrules: {}", addOn.getPscanrules());
             callback.passiveScanRulesWillBeRemoved(loadedPscanrules.size());
             for (PluginPassiveScanner pscanrule : loadedPscanrules) {
                 String name = pscanrule.getClass().getCanonicalName();
-                logger.debug("Uninstall pscanrule: " + name);
+                LOGGER.debug("Uninstall pscanrule: {}", name);
                 if (!extPscan.removePassiveScanner(pscanrule)) {
-                    logger.error("Failed to uninstall pscanrule: " + name);
+                    LOGGER.error("Failed to uninstall pscanrule: {}", name);
                     uninstalledWithoutErrors = false;
                 }
                 callback.passiveScanRuleRemoved(name);
@@ -470,7 +505,7 @@ public final class AddOnInstaller {
      * Installs the libraries declared by the given add-on.
      *
      * <p>The libraries are copied to the directory with the following path: {@code
-     * <zapHome>/addOnData/<addOnId>/libs/}
+     * <zapHome>/addOnData/<addOnId>/<version>/libs/}
      *
      * @param addOn the add-on that will have the declared libraries installed.
      * @return {@code true} if no error occurred while installing the libraries, {@code false}
@@ -493,23 +528,22 @@ public final class AddOnInstaller {
         try {
             Files.createDirectories(targetDir);
         } catch (IOException e) {
-            logger.warn("Failed to create libs directory for " + addOn.getId(), e);
+            LOGGER.warn("Failed to create libs directory for {}", addOn.getId(), e);
             return false;
         }
 
         try (ZipFile zip = new ZipFile(addOn.getFile())) {
             for (AddOn.Lib lib : libs) {
                 String name = lib.getName();
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Installing library for " + addOn + ": " + name);
-                }
+                LOGGER.debug("Installing library for {}: {}", addOn, name);
 
                 Path targetFile = targetDir.resolve(name);
                 try {
                     lib.setFileSystemUrl(targetFile.toUri().toURL());
                 } catch (MalformedURLException e) {
-                    logger.warn(
-                            "Failed to convert lib's filesystem path to URL for " + addOn.getId(),
+                    LOGGER.warn(
+                            "Failed to convert lib's filesystem path to URL for {}",
+                            addOn.getId(),
                             e);
                     return false;
                 }
@@ -520,19 +554,19 @@ public final class AddOnInstaller {
 
                 ZipEntry libZipEntry = zip.getEntry(lib.getJarPath());
                 if (libZipEntry == null) {
-                    logger.warn("Library not found in " + addOn + " add-on: " + lib);
+                    LOGGER.warn("Library not found in {} add-on: {}", addOn, lib);
                     return false;
                 }
 
                 try (InputStream in = zip.getInputStream(libZipEntry)) {
                     Files.copy(in, targetFile, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
-                    logger.warn("Failed to copy the library for " + addOn + ": " + targetFile, e);
+                    LOGGER.warn("Failed to copy the library for {}: {}", addOn, targetFile, e);
                     return false;
                 }
             }
         } catch (IOException e) {
-            logger.error("An error occurred while installing libraries for " + addOn, e);
+            LOGGER.error("An error occurred while installing libraries for {}", addOn, e);
             return false;
         }
 
@@ -542,20 +576,43 @@ public final class AddOnInstaller {
     /**
      * Gets the path to the data directory of the given add-on.
      *
-     * <p>The path is built as: {@code <zapHome>/addOnData/<addOnId>/}
+     * <p>The path is built as: {@code <zapHome>/addOnData/<addOnId>/<version>/}
      *
      * @param addOn the add-on.
      * @return the path to the directory.
      * @see #ADD_ON_DATA_DIR
      */
     static Path getAddOnDataDir(AddOn addOn) {
-        return Paths.get(Constant.getZapHome(), ADD_ON_DATA_DIR, addOn.getId());
+        return Paths.get(
+                Constant.getZapHome(),
+                ADD_ON_DATA_DIR,
+                addOn.getId(),
+                addOn.getVersion().toString());
+    }
+
+    static void deleteLegacyAddOnLibsDir(List<AddOn> addOns) {
+        for (AddOn addOn : addOns) {
+            Path libsDir =
+                    Paths.get(
+                            Constant.getZapHome(),
+                            ADD_ON_DATA_DIR,
+                            addOn.getId(),
+                            ADD_ON_DATA_LIBS_DIR);
+            try {
+                deleteDir(libsDir);
+            } catch (IOException e) {
+                LOGGER.warn(
+                        "An error occurred while removing legacy add-on libs directory {}",
+                        libsDir,
+                        e);
+            }
+        }
     }
 
     /**
      * Gets the path to the libraries directory of the given add-on.
      *
-     * <p>The path is built as: {@code <zapHome>/addOnData/<addOnId>/libs/}
+     * <p>The path is built as: {@code <zapHome>/addOnData/<addOnId>/<version>/libs/}
      *
      * @param addOn the add-on.
      * @return the path to the directory.
@@ -597,7 +654,7 @@ public final class AddOnInstaller {
         try {
             deleteDir(addOnLibsDir);
         } catch (IOException e) {
-            logger.error("An error occurred while uninstalling libraries for " + addOn, e);
+            LOGGER.error("An error occurred while uninstalling libraries for {}", addOn, e);
             return false;
         }
 
@@ -607,7 +664,7 @@ public final class AddOnInstaller {
                 Files.delete(addOnDataDir);
             }
         } catch (IOException e) {
-            logger.warn("An error occurred while removing the directory " + addOnDataDir, e);
+            LOGGER.warn("An error occurred while removing the directory {}", addOnDataDir, e);
             return false;
         }
 
@@ -685,18 +742,17 @@ public final class AddOnInstaller {
                 continue;
             }
             if (!outfile.getParentFile().exists() && !outfile.getParentFile().mkdirs()) {
-                logger.error(
-                        "Failed to create directories for add-on "
-                                + addOn
-                                + ": "
-                                + outfile.getAbsolutePath());
+                LOGGER.error(
+                        "Failed to create directories for add-on {}: {}",
+                        addOn,
+                        outfile.getAbsolutePath());
                 continue;
             }
 
-            logger.debug("Installing file: " + name);
+            LOGGER.debug("Installing file: {}", name);
             URL fileURL = addOnClassLoader.findResource(name);
             if (fileURL == null) {
-                logger.error("File not found in add-on " + addOn + ": " + name);
+                LOGGER.error("File not found in add-on {}: {}", addOn, name);
                 continue;
             }
             try (InputStream in = fileURL.openStream();
@@ -707,11 +763,10 @@ public final class AddOnInstaller {
                     out.write(buffer, 0, bytesRead);
                 }
             } catch (IOException e) {
-                logger.error(
-                        "Failed to install a file from add-on "
-                                + addOn
-                                + ": "
-                                + outfile.getAbsolutePath(),
+                LOGGER.error(
+                        "Failed to install a file from add-on {}: {}",
+                        addOn,
+                        outfile.getAbsolutePath(),
                         e);
             }
         }
@@ -751,9 +806,35 @@ public final class AddOnInstaller {
      * @return {@code true} if no error occurred while removing the files, {@code false} otherwise.
      * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
      * @since 2.8.0
+     * @deprecated (2.13.0) Use {@link #uninstallAddOnFiles(AddOn,
+     *     AddOnUninstallationProgressCallback, Set, PostponedTasksRunner)} instead.
      */
+    @Deprecated
     public static boolean uninstallAddOnFiles(
             AddOn addOn, AddOnUninstallationProgressCallback callback, Set<AddOn> installedAddOns) {
+        return uninstallAddOnFiles(addOn, callback, installedAddOns, null);
+    }
+
+    /**
+     * Uninstalls the files of the given add-on.
+     *
+     * <p><strong>Note:</strong> Files that are in use by other installed add-ons are not
+     * uninstalled.
+     *
+     * @param addOn the add-on whose files should be uninstalled.
+     * @param callback the callback for notification of progress.
+     * @param installedAddOns the add-ons currently installed (to check if the files can be safely
+     *     uninstalled).
+     * @param postponedTasks the container for postponed tasks.
+     * @return {@code true} if no error occurred while removing the files, {@code false} otherwise.
+     * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
+     * @since 2.13.0
+     */
+    public static boolean uninstallAddOnFiles(
+            AddOn addOn,
+            AddOnUninstallationProgressCallback callback,
+            Set<AddOn> installedAddOns,
+            PostponedTasksRunner postponedTasks) {
         Validate.notNull(addOn, "Parameter addOn must not be null.");
         validateCallbackNotNull(callback);
 
@@ -770,25 +851,28 @@ public final class AddOnInstaller {
             if (name == null) {
                 continue;
             }
-            logger.debug("Uninstall file: " + name);
+            LOGGER.debug("Uninstall file: {}", name);
             File file = new File(Constant.getZapHome(), name);
             try {
                 File parent = file.getParentFile();
                 if (file.exists() && !file.delete()) {
-                    logger.error("Failed to delete: " + file.getAbsolutePath());
+                    LOGGER.error("Failed to delete: {}", file.getAbsolutePath());
                     uninstalledWithoutErrors = false;
+                    if (postponedTasks != null) {
+                        postponedTasks.addDeleteFileTask(file.toPath());
+                    }
                 }
                 callback.fileRemoved();
                 if (parent.isDirectory() && parent.list().length == 0) {
-                    logger.debug("Deleting: " + parent.getAbsolutePath());
+                    LOGGER.debug("Deleting: {}", parent.getAbsolutePath());
                     if (!parent.delete()) {
                         // Ignore - check for <= 2 as on *nix '.' and '..' are returned
-                        logger.debug("Failed to delete: " + parent.getAbsolutePath());
+                        LOGGER.debug("Failed to delete: {}", parent.getAbsolutePath());
                     }
                 }
                 deleteEmptyDirsCreatedForAddOnFiles(file);
             } catch (Exception e) {
-                logger.error("Failed to uninstall file " + file.getAbsolutePath(), e);
+                LOGGER.error("Failed to uninstall file {}", file.getAbsolutePath(), e);
             }
         }
 
@@ -850,14 +934,14 @@ public final class AddOnInstaller {
     }
 
     private static void deleteEmptyDirs(File dir) {
-        logger.debug("Deleting dir " + dir.getAbsolutePath());
+        LOGGER.debug("Deleting dir {}", dir.getAbsolutePath());
         for (File d : dir.listFiles()) {
             if (d.isDirectory()) {
                 deleteEmptyDirs(d);
             }
         }
         if (!dir.delete()) {
-            logger.debug("Failed to delete: " + dir.getAbsolutePath());
+            LOGGER.debug("Failed to delete: {}", dir.getAbsolutePath());
         }
     }
 }

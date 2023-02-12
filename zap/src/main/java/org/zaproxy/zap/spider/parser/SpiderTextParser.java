@@ -28,13 +28,24 @@ import org.parosproxy.paros.network.HttpMessage;
  * The Class SpiderTextParser is used for parsing of simple text (non-HTML) files, gathering
  * resource urls from them. For example it is used for parsing CSS, less, javascript files,
  * searching for urls.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class SpiderTextParser extends SpiderParser {
 
     /** The Constant urlPattern defining the pattern for an url. */
     private static final Pattern patternURL =
             Pattern.compile(
                     "\\W(http(s?)://[^\\x00-\\x1f\"'\\s<>#()\\[\\]{}]+)", Pattern.CASE_INSENSITIVE);
+
+    public SpiderTextParser() {
+        this(null);
+    }
+
+    public SpiderTextParser(org.zaproxy.zap.spider.SpiderParam params) {
+        super(params);
+    }
 
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {

@@ -28,6 +28,7 @@ import org.parosproxy.paros.Constant;
  * @author KSASAN preetkaran20@gmail.com
  * @since 2.9.0
  */
+@SuppressWarnings("serial")
 class FilterMessageTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -6380136823410869457L;

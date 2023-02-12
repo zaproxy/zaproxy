@@ -159,7 +159,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         String address = param.getAddress();
         int port = param.getPort();
         String key = createProxyKey(address, port);
-        log.info("Starting alt proxy server: " + key);
+        log.info("Starting alt proxy server: {}", key);
         org.parosproxy.paros.core.proxy.ProxyServer proxyServer =
                 new org.parosproxy.paros.core.proxy.ProxyServer(ZAP_PROXY_THREAD_PREFIX + key) {
 
@@ -198,7 +198,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
 
     private void stopProxyServer(
             String proxyKey, org.parosproxy.paros.core.proxy.ProxyServer proxyServer) {
-        log.info("Stopping alt proxy server: " + proxyKey);
+        log.info("Stopping alt proxy server: {}", proxyKey);
         proxyServer.stopServer();
         Control.getSingleton().getExtensionLoader().removeProxyServer(proxyServer);
     }

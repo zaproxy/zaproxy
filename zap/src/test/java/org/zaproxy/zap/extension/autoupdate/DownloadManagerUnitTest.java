@@ -19,55 +19,41 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.mock;
 
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
-import fi.iki.elonen.NanoHTTPD.Response;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.junit.jupiter.api.io.TempDir;
-import org.parosproxy.paros.network.ConnectionParam;
-import org.zaproxy.zap.testutils.NanoServerHandler;
-import org.zaproxy.zap.testutils.TestUtils;
+import org.zaproxy.zap.WithConfigsTest;
 
 /** Unit test for {@link DownloadManager}. */
-class DownloadManagerUnitTest extends TestUtils {
+class DownloadManagerUnitTest extends WithConfigsTest {
 
     private static final String HASH =
             "SHA-256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-
-    @TempDir static Path tempDir;
 
     private DownloadManager downloadManager;
 
     @BeforeEach
     void setUp() throws Exception {
-        downloadManager = new DownloadManager(mock(ConnectionParam.class));
-
-        startServer();
+        downloadManager = new DownloadManager(-1);
     }
 
     @AfterEach
-    void cleanUp() {
+    void tearDown() {
         downloadManager.shutdown(true);
-
-        stopServer();
     }
 
     @Test
@@ -83,16 +69,10 @@ class DownloadManagerUnitTest extends TestUtils {
     }
 
     @Test
-    @Timeout(30)
+    @Timeout(5)
     void shouldDownloadAllFiles() throws Exception {
         // Given
-        nano.addHandler(
-                new NanoServerHandler("/") {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        return newFixedLengthResponse("");
-                    }
-                });
+        setFileHandler((msg, file) -> Files.write(file, new byte[0]));
         downloadManager.start();
         int numberOfDownloads = 1000;
         // When
@@ -105,12 +85,13 @@ class DownloadManagerUnitTest extends TestUtils {
         assertThat(progress, hasSize(numberOfDownloads));
         progress.forEach(
                 download -> {
+                    assertThat(download.getException(), is(nullValue()));
                     assertThat(download.getFinished(), is(not(nullValue())));
                 });
     }
 
-    private URL createDownloadUrl(int i) throws MalformedURLException {
-        return new URL("http://127.0.0.1:" + nano.getListeningPort() + "/" + i);
+    private static URL createDownloadUrl(int i) throws MalformedURLException {
+        return new URL("http://127.0.0.1:42/" + i);
     }
 
     private static File createTargetFile(int i) throws IOException {

@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -41,10 +40,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.SingleColumnTableModel;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
+@SuppressWarnings("serial")
 public class PolicyManagerDialog extends StandardFieldsDialog {
 
     private static final long serialVersionUID = 1L;
@@ -60,10 +61,10 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
 
     private ExtensionActiveScan extension;
 
-    private static final Logger logger = LogManager.getLogger(PolicyManagerDialog.class);
+    private static final Logger LOGGER = LogManager.getLogger(PolicyManagerDialog.class);
 
     public PolicyManagerDialog(Frame owner) {
-        super(owner, "ascan.policymgr.title", new Dimension(512, 400));
+        super(owner, "ascan.policymgr.title", DisplayUtils.getScaledDimension(512, 400));
     }
 
     public void init(ExtensionActiveScan extension) {
@@ -104,7 +105,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                             try {
                                 extension.showPolicyDialog(PolicyManagerDialog.this);
                             } catch (ConfigurationException e1) {
-                                logger.error(e1.getMessage(), e1);
+                                LOGGER.error(e1.getMessage(), e1);
                             }
                         }
                     });
@@ -130,7 +131,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                                 try {
                                     extension.showPolicyDialog(PolicyManagerDialog.this, name);
                                 } catch (ConfigurationException e1) {
-                                    logger.error(e1.getMessage(), e1);
+                                    LOGGER.error(e1.getMessage(), e1);
                                 }
                             }
                         }
@@ -196,7 +197,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                                     extension.getPolicyManager().importPolicy(file);
                                     policyNamesChanged();
                                 } catch (ConfigurationException | IOException e1) {
-                                    logger.error(e1.getMessage(), e1);
+                                    LOGGER.error(e1.getMessage(), e1);
                                     View.getSingleton()
                                             .showWarningDialog(
                                                     Constant.messages.getString(
@@ -250,7 +251,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                                             extension.getPolicyManager().exportPolicy(policy, file);
                                         }
                                     } catch (ConfigurationException e1) {
-                                        logger.error(e1.getMessage(), e1);
+                                        LOGGER.error(e1.getMessage(), e1);
                                         View.getSingleton()
                                                 .showWarningDialog(
                                                         Constant.messages.getString(
@@ -300,7 +301,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                                             extension.showPolicyDialog(
                                                     PolicyManagerDialog.this, name);
                                         } catch (ConfigurationException e1) {
-                                            logger.error(e1.getMessage(), e1);
+                                            LOGGER.error(e1.getMessage(), e1);
                                         }
                                     }
                                 }

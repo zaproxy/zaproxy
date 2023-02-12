@@ -29,6 +29,7 @@ import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
+@SuppressWarnings("serial")
 public class BreakAddEditDialog extends StandardFieldsDialog {
 
     private static final String FIELD_LOCATION = "brk.brkpoint.location.label";

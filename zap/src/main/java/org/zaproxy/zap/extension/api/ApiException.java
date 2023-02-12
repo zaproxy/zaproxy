@@ -96,7 +96,7 @@ public class ApiException extends Exception {
          */
         BAD_EXTERNAL_DATA,
         /**
-         * Indicates that the request could not fulfilled with the current API state.
+         * Indicates that the request could not be fulfilled with the current API state.
          *
          * <p>The actual reason should be provided in {@code detail} of the exception.
          *
@@ -106,9 +106,10 @@ public class ApiException extends Exception {
     }
 
     private final Type type;
+    private final String code;
     private final String detail;
 
-    private final Logger logger = LogManager.getLogger(this.getClass());
+    private static final Logger LOGGER = LogManager.getLogger(ApiException.class);
 
     public ApiException(Type type) {
         this(type, null, null);
@@ -123,8 +124,9 @@ public class ApiException extends Exception {
     }
 
     public ApiException(Type type, String detail, Throwable cause) {
-        super(type.name().toLowerCase(Locale.ROOT), cause);
+        super(type.name() + (detail != null ? " (" + detail + ')' : ""), cause);
         this.type = type;
+        code = type.name().toLowerCase(Locale.ROOT);
         this.detail = detail;
     }
 
@@ -139,18 +141,11 @@ public class ApiException extends Exception {
 
     public String toString(boolean incDetails) {
         if (!incDetails) {
-            return Constant.messages.getString("api.error." + super.getMessage());
+            return Constant.messages.getString("api.error." + code);
         } else if (detail != null) {
-            return Constant.messages.getString("api.error." + super.getMessage())
-                    + " ("
-                    + super.getMessage()
-                    + ") : "
-                    + detail;
+            return Constant.messages.getString("api.error." + code) + " (" + code + "): " + detail;
         } else {
-            return Constant.messages.getString("api.error." + super.getMessage())
-                    + " ("
-                    + super.getMessage()
-                    + ")";
+            return Constant.messages.getString("api.error." + code) + " (" + code + ")";
         }
     }
 
@@ -170,7 +165,7 @@ public class ApiException extends Exception {
                     doc.appendChild(rootElement);
 
                     rootElement.setAttribute("type", "exception");
-                    rootElement.setAttribute("code", this.getMessage());
+                    rootElement.setAttribute("code", code);
                     if (incDetails && detail != null) {
                         rootElement.setAttribute(
                                 "detail", XMLStringUtil.escapeControlChrs(this.detail));
@@ -191,7 +186,7 @@ public class ApiException extends Exception {
                     return sw.toString();
 
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
                 break;
 
@@ -206,8 +201,8 @@ public class ApiException extends Exception {
 
     private JSONObject toJSON(boolean incDetails) {
         JSONObject ja = new JSONObject();
-        ja.put("code", super.getMessage());
-        ja.put("message", Constant.messages.getString("api.error." + super.getMessage()));
+        ja.put("code", code);
+        ja.put("message", Constant.messages.getString("api.error." + code));
         if (incDetails && detail != null) {
             ja.put("detail", detail);
         }

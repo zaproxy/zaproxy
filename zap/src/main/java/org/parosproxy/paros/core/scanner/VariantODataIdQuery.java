@@ -46,7 +46,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantODataIdQuery implements Variant {
 
-    private static final Logger LOG = LogManager.getLogger(VariantODataIdQuery.class);
+    private static final Logger LOGGER = LogManager.getLogger(VariantODataIdQuery.class);
 
     /** In order to identify the unnamed id we add this prefix to the resource name * */
     public static final String RESOURCE_ID_PREFIX = "__ID__";
@@ -78,6 +78,13 @@ public class VariantODataIdQuery implements Variant {
 
     // Store the composite IDs if any
     private List<NameValuePair> listParams = null;
+
+    private static final String SHORT_NAME = "odataid";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
 
     @Override
     public void setMessage(HttpMessage msg) {
@@ -153,7 +160,7 @@ public class VariantODataIdQuery implements Variant {
             }
 
         } catch (URIException e) {
-            LOG.error(e.getMessage() + uri, e);
+            LOGGER.error("{} {}", e.getMessage(), uri, e);
         }
     }
 

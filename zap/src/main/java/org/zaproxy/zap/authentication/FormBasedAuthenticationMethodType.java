@@ -70,7 +70,7 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
                 } catch (UnsupportedEncodingException ignore) {
                     // Standard charset.
                 } catch (IllegalArgumentException e) {
-                    LOGGER.debug("Failed to URL decode: " + value, e);
+                    LOGGER.debug("Failed to URL decode: {}", value, e);
                 }
                 return "";
             };

@@ -41,6 +41,7 @@ import org.zaproxy.zap.view.AbstractFormDialog;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /** The Dialog for adding and configuring a new {@link User}. */
+@SuppressWarnings("serial")
 public class DialogAddUser extends AbstractFormDialog {
 
     /** The Constant serialVersionUID. */

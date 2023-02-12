@@ -30,6 +30,7 @@ import org.zaproxy.zap.model.StructuralNodeModifier;
  *
  * @since 2.4.3
  */
+@SuppressWarnings("serial")
 public class StructuralNodeModifiersTableModel
         extends AbstractMultipleOptionsTableModel<StructuralNodeModifier> {
 

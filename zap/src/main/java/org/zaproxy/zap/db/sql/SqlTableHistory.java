@@ -66,7 +66,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     private static boolean isExistStatusCode = false;
 
     // ZAP: Added logger
-    private static final Logger log = LogManager.getLogger(SqlTableHistory.class);
+    private static final Logger LOGGER = LogManager.getLogger(SqlTableHistory.class);
 
     private boolean bodiesAsBytes;
 
@@ -111,9 +111,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                     try {
                         stmt.close();
                     } catch (SQLException e) {
-                        if (log.isDebugEnabled()) {
-                            log.debug(e.getMessage(), e);
-                        }
+                        LOGGER.debug(e.getMessage(), e);
                     }
                 }
             }
@@ -174,16 +172,14 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                     }
                 }
             } catch (SQLException e) {
-                log.error("An error occurred while modifying a column length on " + TABLE_NAME);
-                log.error(
-                        "The 'Maximum Request Body Size' value in the Database Options needs to be set to at least "
-                                + requestbodysizeindb
-                                + " to avoid this error");
-                log.error(
-                        "The 'Maximum Response Body Size' value in the Database Options needs to be set to at least "
-                                + responsebodysizeindb
-                                + " to avoid this error");
-                log.error("The SQL Exception was:", e);
+                LOGGER.error("An error occurred while modifying a column length on {}", TABLE_NAME);
+                LOGGER.error(
+                        "The 'Maximum Request Body Size' value in the Database Options needs to be set to at least {} to avoid this error",
+                        requestbodysizeindb);
+                LOGGER.error(
+                        "The 'Maximum Response Body Size' value in the Database Options needs to be set to at least {}  to avoid this error",
+                        responsebodysizeindb);
+                LOGGER.error("The SQL Exception was:", e);
                 throw e;
             }
         } catch (SQLException e) {
@@ -775,7 +771,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                     psReadCache.close();
                 } catch (Exception e) {
                     // ZAP: Log exceptions
-                    log.warn(e.getMessage(), e);
+                    LOGGER.warn(e.getMessage(), e);
                 }
             }
 
@@ -826,7 +822,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                     psReadCache.close();
                 } catch (Exception e) {
                     // ZAP: Log exceptions
-                    log.warn(e.getMessage(), e);
+                    LOGGER.warn(e.getMessage(), e);
                 }
             }
 

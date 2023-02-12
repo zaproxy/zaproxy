@@ -13,16 +13,19 @@ jobs:
     name: Build and Release
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
         persist-credentials: false
     - name: Setup Java
-      uses: actions/setup-java@v1
+      uses: actions/setup-java@v3
       with:
+        distribution: 'temurin'
         java-version: 11
     - name: Build and Release
       env:
         INSTALL4J_LICENSE: ${{ secrets.INSTALL4J_LICENSE }}
         ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
+        ZAP_RELEASE: 1
+        ZAP_JAVA_VERSION: 11
       run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createMainRelease

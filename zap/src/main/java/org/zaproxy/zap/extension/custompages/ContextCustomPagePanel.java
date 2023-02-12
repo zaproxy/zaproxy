@@ -34,6 +34,7 @@ import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
+@SuppressWarnings("serial")
 class ContextCustomPagePanel extends AbstractContextPropertiesPanel {
 
     // The i18n prefix

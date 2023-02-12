@@ -48,11 +48,11 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.InvalidMessageDataException;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
-import org.zaproxy.zap.extension.tab.Tab;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ZapToggleButton;
 
-public class BreakPanel extends AbstractPanel implements Tab, BreakpointManagementInterface {
+@SuppressWarnings("serial")
+public class BreakPanel extends AbstractPanel implements BreakpointManagementInterface {
 
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = LogManager.getLogger(BreakPanel.class);

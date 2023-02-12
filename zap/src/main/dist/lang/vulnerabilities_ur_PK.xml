@@ -68,17 +68,17 @@ Use unsigned integers where possible. This makes it easier to perform sanity che
 
 Phase: Implementation
 Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Pay close attention to byte size discrepancies, precision, signed/unsigned distinctions, truncation, conversion and casting between types, "not-a-number" calculations, and how your language handles numbers that are too large or too small for its underlying representation.
-Also be careful to account for 32-bit, 64-bit, and other potential differences that may affect the numeric representation.
+32-bit-64 ,bit، اور دوسرے ممکنہ اختلافات جو کہ عددی نمائندگی کو متاثر کر سکتے ہیں، کے لیے بھی محتاط رہیں۔
 
 Phase: Implementation
-Examine compiler warnings closely and eliminate potentially security critical problems, such as signed / unsigned mismatch. Even if the weakness is rarely exploitable, a single failure may lead to the compromise of the entire system.</solution>
+Examine compiler warnings closely and eliminate potentially security critical problems, such as signed / unsigned mismatch. یہاں تک کہ اگر کمزوری شاذ و نادر ہی استحصالی کی وجہ بنے، تو ایک ناکامی پورے نظام کے سمجھوتہ کا باعث بن سکتی ہے۔</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
 
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
-	<alert>Insufficient Transport Layer Protection</alert>
+	<alert>نقل و حمل کی تہہ کی ناکافی حفاظت</alert>
 	<desc>Insufficient Transport Layer Protection
 Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
  
@@ -235,12 +235,12 @@ Replace unbounded copy functions with analogous functions that support length ar
 
 <vuln_items>wasc_8</vuln_items>
 <vuln_item_wasc_8>
-	<alert>Cross-site Scripting</alert>
-	<desc>Cross-site Scripting (XSS) is an attack technique that involves echoing attacker-supplied code into a user's browser instance. A browser instance can be a standard web browser client, or a browser object embedded in a software product such as the browser within WinAmp, an RSS reader, or an email client. The code itself is usually written in HTML/JavaScript, but may also extend to VBScript, ActiveX, Java, Flash, or any other browser-supported technology.
-When an attacker gets a user's browser to execute his/her code, the code will run within the security context (or zone) of the hosting web site. With this level of privilege, the code has the ability to read, modify and transmit any sensitive data accessible by the browser. A Cross-site Scripted user could have his/her account hijacked (cookie theft), their browser redirected to another location, or possibly shown fraudulent content delivered by the web site they are visiting. Cross-site Scripting attacks essentially compromise the trust relationship between a user and the web site. Applications utilizing browser object instances which load content from the file system may execute code under the local machine zone allowing for system compromise.
+	<alert>کراس سائٹ سکرپٹ</alert>
+	<desc>کراس سائٹ اسکرپٹنگ (XSS) ایک حملہ کرنے والی تکنیک ہے جس میں حملہ آور کے فراہم کردہ کوڈ کو صارف کے براؤزر میں بازگشت کرنا شامل ہے۔ براؤزر کی مثال معیاری ویب براؤزر کلائنٹ، یا سافٹ ویئر پروڈکٹ میں سرایت شدہ براؤزر آبجیکٹ ہو سکتی ہے جیسے WinAmp کے اندر براؤزر، RSS ریڈر، یا ای میل کلائنٹ۔ کوڈ بذات خود عام طور پر HTML/JavaScript میں لکھا جاتا ہے، لیکن VBScript، ActiveX، Java، Flash، یا کسی دوسری براؤزر سے تعاون یافتہ ٹیکنالوجی تک بھی پھیل سکتا ہے۔
+جب حملہ آور کو صارف کا براؤزر اس کے کوڈ پر عمل کرنے کے لیے ملتا ہے، تو کوڈ ہوسٹنگ ویب سائٹ کے سیکیورٹی سیاق و سباق (یا زون) کے اندر چلے گا۔ استحقاق کی اس سطح کے ساتھ، کوڈ میں براؤزر کے ذریعے قابل رسائی کسی بھی حساس ڈیٹا کو پڑھنے، اس میں ترمیم کرنے اور منتقل کرنے کی صلاحیت ہے۔ ایک کراس سائٹ اسکرپٹڈ صارف اس کا اکاؤنٹ ہائی جیک کر سکتا ہے (کوکی چوری)، ان کے براؤزر کو کسی اور جگہ پر بھیج دیا جا سکتا ہے، یا ممکنہ طور پر وہ جس ویب سائٹ پر جا رہے ہیں اس کے ذریعے فراہم کردہ دھوکہ دہی والا مواد دکھایا جا سکتا ہے۔ کراس سائٹ اسکرپٹنگ حملے بنیادی طور پر صارف اور ویب سائٹ کے درمیان اعتماد کے رشتے کو سمجھوتہ کرتے ہیں۔ براؤزر آبجیکٹ کی مثالوں کو استعمال کرنے والی ایپلی کیشنز جو فائل سسٹم سے مواد کو لوڈ کرتی ہیں مقامی مشین زون کے تحت کوڈ کو لاگو کر سکتی ہیں جس سے سسٹم میں سمجھوتہ ہو سکتا ہے۔
 
-There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
-Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
+کراس سائٹ اسکرپٹ حملوں کی تین قسمیں ہیں: غیر مستقل، مستقل اور DOM پر مبنی۔
+غیر مسلسل حملوں اور DOM پر مبنی حملوں کے لیے صارف کو یا تو نقصان دہ کوڈ کے ساتھ خصوصی طور پر تیار کیے گئے لنک پر جانے کی ضرورت ہوتی ہے، یا ویب فارم پر مشتمل ایک بدنیتی پر مبنی ویب صفحہ ملاحظہ کرنا پڑتا ہے، جسے کمزور سائٹ پر پوسٹ کرنے پر، حملے میں اضافہ ہو جاتا ہے۔ نقصان دہ فارم کا استعمال اکثر اس وقت ہوتا ہے جب کمزور وسیلہ صرف HTTP POST درخواستوں کو قبول کرتا ہے۔ In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
 	<solution>مرحلہ: فن تعمیر اور ڈیزائن
 ایک ایسی لائبریری یا فریم ورک کا استعمال کریں جو اس ضعیف کی وجہ سے ہونے کی اجازت نہیں دیتا ہے یا اس کی تعمیر کو فراہم کرتا ہے جو اس کمزوری سے بچنے کے لئے آسان ہے.

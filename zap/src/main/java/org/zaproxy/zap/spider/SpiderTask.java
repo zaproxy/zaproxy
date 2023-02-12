@@ -44,12 +44,13 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
-import org.zaproxy.zap.spider.filters.ParseFilter;
-import org.zaproxy.zap.spider.filters.ParseFilter.FilterResult;
-import org.zaproxy.zap.spider.parser.SpiderParser;
-import org.zaproxy.zap.spider.parser.SpiderResourceFound;
 
-/** The SpiderTask representing a spidering task performed during the Spidering process. */
+/**
+ * The SpiderTask representing a spidering task performed during the Spidering process.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
+@Deprecated
 public class SpiderTask implements Runnable {
 
     /** The parent spider. */
@@ -69,7 +70,7 @@ public class SpiderTask implements Runnable {
     private HistoryReference reference;
 
     /** The spider resource found. */
-    private SpiderResourceFound resourceFound;
+    private org.zaproxy.zap.spider.parser.SpiderResourceFound resourceFound;
 
     private ExtensionHistory extHistory = null;
 
@@ -89,15 +90,16 @@ public class SpiderTask implements Runnable {
      * @param uri the uri that this task should process
      * @since 2.11.0
      */
-    public SpiderTask(Spider parent, SpiderResourceFound resourceFound, URI uri) {
+    public SpiderTask(
+            Spider parent,
+            org.zaproxy.zap.spider.parser.SpiderResourceFound resourceFound,
+            URI uri) {
         super();
         this.parent = parent;
         this.resourceFound = resourceFound;
 
         // Log the new task
-        if (log.isDebugEnabled()) {
-            log.debug("New task submitted for uri: " + uri);
-        }
+        log.debug("New task submitted for uri: {}", uri);
 
         // Create a new HttpMessage that will be used for the request and persist it in the database
         // using
@@ -125,9 +127,9 @@ public class SpiderTask implements Runnable {
                     new HistoryReference(
                             parent.getModel().getSession(), HistoryReference.TYPE_SPIDER_TASK, msg);
         } catch (HttpMalformedHeaderException e) {
-            log.error("Error while building HttpMessage for uri: " + uri, e);
+            log.error("Error while building HttpMessage for uri: {}", uri, e);
         } catch (DatabaseException e) {
-            log.error("Error while persisting HttpMessage for uri: " + uri, e);
+            log.error("Error while persisting HttpMessage for uri: {}", uri, e);
         }
     }
 
@@ -135,17 +137,14 @@ public class SpiderTask implements Runnable {
     public void run() {
         try {
             if (reference == null) {
-                log.warn("Null URI. Skipping crawling task: " + this);
+                log.warn("Null URI. Skipping crawling task: {}", this);
                 return;
             }
 
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Spider Task Started. Processing uri at depth "
-                                + resourceFound.getDepth()
-                                + " using already constructed message: "
-                                + reference.getURI());
-            }
+            log.debug(
+                    "Spider Task Started. Processing uri at depth {} using already constructed message: {}",
+                    resourceFound.getDepth(),
+                    reference.getURI());
 
             runImpl();
         } finally {
@@ -194,25 +193,26 @@ public class SpiderTask implements Runnable {
         parent.checkPauseAndWait();
 
         // Check the parse filters to see if the resource should be skipped from parsing
-        FilterResult filterResult = FilterResult.NOT_FILTERED;
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                org.zaproxy.zap.spider.filters.ParseFilter.FilterResult.NOT_FILTERED;
         boolean wanted = false;
-        for (ParseFilter filter : parent.getController().getParseFilters()) {
+        for (org.zaproxy.zap.spider.filters.ParseFilter filter :
+                parent.getController().getParseFilters()) {
             filterResult = filter.filtered(msg);
             if (filterResult.isFiltered()) {
                 break;
-            } else if (filterResult == FilterResult.WANTED) wanted = true;
+            } else if (filterResult
+                    == org.zaproxy.zap.spider.filters.ParseFilter.FilterResult.WANTED)
+                wanted = true;
         }
         if (!wanted && !filterResult.isFiltered()) {
             filterResult = parent.getController().getDefaultParseFilter().filtered(msg);
         }
         if (filterResult.isFiltered()) {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Resource ["
-                                + msg.getRequestHeader().getURI()
-                                + "] fetched, but will not be parsed due to a ParseFilter rule: "
-                                + filterResult.getReason());
-            }
+            log.debug(
+                    "Resource [{}] fetched, but will not be parsed due to a ParseFilter rule: {}",
+                    msg.getRequestHeader().getURI(),
+                    filterResult.getReason());
 
             parent.notifyListenersSpiderTaskResult(
                     new SpiderTaskResult(msg, filterResult.getReason()));
@@ -359,7 +359,8 @@ public class SpiderTask implements Runnable {
      * @param message the HTTP Message
      */
     private void processResource(HttpMessage message) {
-        List<SpiderParser> parsers = parent.getController().getParsers();
+        List<org.zaproxy.zap.spider.parser.SpiderParser> parsers =
+                parent.getController().getParsers();
 
         // Prepare the Jericho source
         Source source = new Source(message.getResponseBody().toString());
@@ -376,16 +377,14 @@ public class SpiderTask implements Runnable {
 
         // Parse the resource
         boolean alreadyConsumed = false;
-        for (SpiderParser parser : parsers) {
+        for (org.zaproxy.zap.spider.parser.SpiderParser parser : parsers) {
             if (parser.canParseResource(message, path, alreadyConsumed)) {
-                if (log.isDebugEnabled())
-                    log.debug("Parser " + parser + " can parse resource '" + path + "'");
+                log.debug("Parser {} can parse resource '{}'", parser, path);
                 if (parser.parseResource(message, source, resourceFound.getDepth())) {
                     alreadyConsumed = true;
                 }
             } else {
-                if (log.isDebugEnabled())
-                    log.debug("Parser " + parser + " cannot parse resource '" + path + "'");
+                log.debug("Parser {} cannot parse resource '{}'", parser, path);
             }
         }
     }
@@ -414,23 +413,22 @@ public class SpiderTask implements Runnable {
         try {
             parent.getHttpSender().sendAndReceive(msg);
         } catch (ConnectException e) {
-            log.debug("Failed to connect to: " + msg.getRequestHeader().getURI(), e);
+            log.debug("Failed to connect to: {}", msg.getRequestHeader().getURI(), e);
             throw e;
         } catch (SocketTimeoutException e) {
-            log.debug("Socket timeout: " + msg.getRequestHeader().getURI(), e);
+            log.debug("Socket timeout: {}", msg.getRequestHeader().getURI(), e);
             throw e;
         } catch (SocketException e) {
-            log.debug("Socket exception: " + msg.getRequestHeader().getURI(), e);
+            log.debug("Socket exception: {}", msg.getRequestHeader().getURI(), e);
             throw e;
         } catch (UnknownHostException e) {
-            log.debug("Unknown host: " + msg.getRequestHeader().getURI(), e);
+            log.debug("Unknown host: {}", msg.getRequestHeader().getURI(), e);
             throw e;
         } catch (Exception e) {
             log.error(
-                    "An error occurred while fetching the resource ["
-                            + msg.getRequestHeader().getURI()
-                            + "]: "
-                            + e.getMessage(),
+                    "An error occurred while fetching the resource [{}]: {}",
+                    msg.getRequestHeader().getURI(),
+                    e.getMessage(),
                     e);
             throw e;
         }

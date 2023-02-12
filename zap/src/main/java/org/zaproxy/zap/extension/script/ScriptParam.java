@@ -47,7 +47,7 @@ public class ScriptParam extends AbstractParam {
     private static final String SCRIPT_DIRS = "dirs";
     private static final String SCRIPT_CONFIRM_REMOVE_DIR = "confRemdir";
 
-    private static final Logger logger = LogManager.getLogger(ScriptParam.class);
+    private static final Logger LOGGER = LogManager.getLogger(ScriptParam.class);
 
     private String defaultScript = null;
     private String defaultDir = null;
@@ -75,7 +75,7 @@ public class ScriptParam extends AbstractParam {
 
                         File file = new File(sub.getString(SCRIPT_FILE_KEY));
                         if (!file.exists()) {
-                            logger.error("Script '" + file.getAbsolutePath() + "' does not exist");
+                            LOGGER.error("Script '{}' does not exist", file.getAbsolutePath());
                             continue;
                         }
 
@@ -93,11 +93,11 @@ public class ScriptParam extends AbstractParam {
                         scripts.add(script);
                     }
                 } catch (Exception e) {
-                    logger.error("Error while loading the script: " + name, e);
+                    LOGGER.error("Error while loading the script: {}", name, e);
                 }
             }
         } catch (Exception e) {
-            logger.error("Error while loading the scripts: " + e.getMessage(), e);
+            LOGGER.error("Error while loading the scripts: {}", e.getMessage(), e);
         }
 
         try {
@@ -105,14 +105,14 @@ public class ScriptParam extends AbstractParam {
             for (Object dirName : getConfig().getList(SCRIPT_DIRS)) {
                 File f = new File((String) dirName);
                 if (!f.exists() || !f.isDirectory()) {
-                    logger.error("Not a valid script directory: " + dirName);
+                    LOGGER.error("Not a valid script directory: {}", dirName);
                 } else {
                     scriptDirs.add(f);
                 }
             }
 
         } catch (Exception e) {
-            logger.error("Error while loading the script dirs: " + e.getMessage(), e);
+            LOGGER.error("Error while loading the script dirs: {}", e.getMessage(), e);
         }
         confirmRemoveDir = getBoolean(SCRIPT_CONFIRM_REMOVE_DIR, true);
     }

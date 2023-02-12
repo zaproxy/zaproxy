@@ -37,28 +37,22 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
-import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.spider.filters.DefaultFetchFilter;
-import org.zaproxy.zap.spider.filters.DefaultParseFilter;
-import org.zaproxy.zap.spider.filters.FetchFilter;
-import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
-import org.zaproxy.zap.spider.filters.ParseFilter;
-import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 
-/** The Class Spider. */
+/**
+ * The Class Spider.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
+@Deprecated
 public class Spider {
 
     /** The spider parameters. */
     private SpiderParam spiderParam;
-
-    /** The connection parameters. */
-    private ConnectionParam connectionParam;
 
     /** The model. */
     private Model model;
@@ -88,13 +82,13 @@ public class Spider {
     private ExecutorService threadPool;
 
     /** The default fetch filter. */
-    private DefaultFetchFilter defaultFetchFilter;
+    private org.zaproxy.zap.spider.filters.DefaultFetchFilter defaultFetchFilter;
 
     /** The seed list. */
     private LinkedHashSet<URI> seedList;
 
     /** The extension. */
-    private ExtensionSpider extension;
+    private org.zaproxy.zap.extension.spider.ExtensionSpider extension;
 
     /** The Constant log. */
     private static final Logger log = LogManager.getLogger(Spider.class);
@@ -149,19 +143,41 @@ public class Spider {
      * @param scanContext if a scan context is set, only URIs within the context are fetched and
      *     processed
      * @since 2.6.0
+     * @deprecated (2.12.0) Use {@code #Spider(String, ExtensionSpider, SpiderParam, Model,
+     *     Context)} instead.
+     */
+    @Deprecated
+    public Spider(
+            String id,
+            org.zaproxy.zap.extension.spider.ExtensionSpider extension,
+            SpiderParam spiderParam,
+            org.parosproxy.paros.network.ConnectionParam connectionParam,
+            Model model,
+            Context scanContext) {
+        this(id, extension, spiderParam, model, scanContext);
+    }
+
+    /**
+     * Constructs a {@code Spider} with the given data.
+     *
+     * @param id the ID of the spider, usually a unique integer
+     * @param extension the extension
+     * @param spiderParam the spider param
+     * @param model the model
+     * @param scanContext if a scan context is set, only URIs within the context are fetched and
+     *     processed
+     * @since 2.12.0
      */
     public Spider(
             String id,
-            ExtensionSpider extension,
+            org.zaproxy.zap.extension.spider.ExtensionSpider extension,
             SpiderParam spiderParam,
-            ConnectionParam connectionParam,
             Model model,
             Context scanContext) {
         super();
         log.info("Spider initializing...");
         this.id = id;
         this.spiderParam = spiderParam;
-        this.connectionParam = connectionParam;
         this.model = model;
         this.extension = extension;
         this.controller = new SpiderController(this, extension.getCustomParsers());
@@ -181,17 +197,20 @@ public class Spider {
         this.initialized = false;
 
         // Add a default fetch filter and any custom ones
-        defaultFetchFilter = new DefaultFetchFilter();
+        defaultFetchFilter = new org.zaproxy.zap.spider.filters.DefaultFetchFilter();
         this.addFetchFilter(defaultFetchFilter);
 
-        for (FetchFilter filter : extension.getCustomFetchFilters()) {
+        for (org.zaproxy.zap.spider.filters.FetchFilter filter :
+                extension.getCustomFetchFilters()) {
             this.addFetchFilter(filter);
         }
 
         // Add a default parse filter and any custom ones
         controller.setDefaultParseFilter(
-                new DefaultParseFilter(spiderParam, extension.getMessages()));
-        for (ParseFilter filter : extension.getCustomParseFilters()) this.addParseFilter(filter);
+                new org.zaproxy.zap.spider.filters.DefaultParseFilter(
+                        spiderParam, extension.getMessages()));
+        for (org.zaproxy.zap.spider.filters.ParseFilter filter : extension.getCustomParseFilters())
+            this.addParseFilter(filter);
 
         // Add the scan context, if any
         defaultFetchFilter.setScanContext(this.scanContext);
@@ -222,7 +241,7 @@ public class Spider {
             host = uri.getHost();
             defaultFetchFilter.addScopeRegex(host);
         } catch (URIException e) {
-            log.error("There was an error while adding seed value: " + uri, e);
+            log.error("There was an error while adding seed value: {}", uri, e);
             return;
         }
         // Add the seed to the list -- it will be added to the task list only when the spider is
@@ -267,7 +286,7 @@ public class Spider {
         try {
             this.seedList.add(new URI(seed, true));
         } catch (Exception e) {
-            log.warn("Error while creating [" + fileName + "] seed: " + seed, e);
+            log.warn("Error while creating [{}] seed: {}", fileName, seed, e);
         }
     }
 
@@ -335,13 +354,10 @@ public class Spider {
             this.seedList.add(new URI(uri, true));
         } catch (Exception e) {
             log.warn(
-                    "Error while creating a seed URI for file ["
-                            + fileName
-                            + "] from ["
-                            + baseUri
-                            + "] using ["
-                            + uri
-                            + "]:",
+                    "Error while creating a seed URI for file [{}] from [{}] using [{}]:",
+                    fileName,
+                    baseUri,
+                    uri,
                     e);
         }
     }
@@ -379,7 +395,7 @@ public class Spider {
      * @param excludeList the new exclude list
      */
     public void setExcludeList(List<String> excludeList) {
-        log.debug("New Exclude list: " + excludeList);
+        log.debug("New Exclude list: {}", excludeList);
         defaultFetchFilter.setExcludeRegexes(excludeList);
     }
 
@@ -388,7 +404,7 @@ public class Spider {
      *
      * @param filter the filter
      */
-    public void addFetchFilter(FetchFilter filter) {
+    public void addFetchFilter(org.zaproxy.zap.spider.filters.FetchFilter filter) {
         controller.addFetchFilter(filter);
     }
 
@@ -397,7 +413,7 @@ public class Spider {
      *
      * @param filter the filter
      */
-    public void addParseFilter(ParseFilter filter) {
+    public void addParseFilter(org.zaproxy.zap.spider.filters.ParseFilter filter) {
         controller.addParseFilter(filter);
     }
 
@@ -444,28 +460,22 @@ public class Spider {
      */
     protected synchronized void submitTask(SpiderTask task) {
         if (isStopped()) {
-            log.debug("Submitting task skipped (" + task + ") as the Spider process is stopped.");
+            log.debug("Submitting task skipped ({}) as the Spider process is stopped.", task);
             return;
         }
         if (isTerminated()) {
-            log.debug(
-                    "Submitting task skipped (" + task + ") as the Spider process is terminated.");
+            log.debug("Submitting task skipped ({}) as the Spider process is terminated.", task);
             return;
         }
         this.tasksTotalCount++;
         try {
             this.threadPool.execute(task);
         } catch (RejectedExecutionException e) {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Submitted task was rejected ("
-                                + task
-                                + "), spider state: [stopped="
-                                + isStopped()
-                                + ", terminated="
-                                + isTerminated()
-                                + "].");
-            }
+            log.debug(
+                    "Submitted task was rejected ({}), spider state: [stopped={}, terminated={}].",
+                    task,
+                    isStopped(),
+                    isTerminated());
         }
     }
 
@@ -474,7 +484,7 @@ public class Spider {
      *
      * @return the extension
      */
-    protected ExtensionSpider getExtensionSpider() {
+    protected org.zaproxy.zap.extension.spider.ExtensionSpider getExtensionSpider() {
         return this.extension;
     }
 
@@ -500,7 +510,8 @@ public class Spider {
 
         if (scanUser != null)
             log.info(
-                    "Scan will be performed from the point of view of User: " + scanUser.getName());
+                    "Scan will be performed from the point of view of User: {}",
+                    scanUser.getName());
 
         this.controller.init();
         this.stopped = false;
@@ -514,22 +525,17 @@ public class Spider {
                         new SpiderThreadFactory("ZAP-SpiderThreadPool-" + id + "-thread-"));
 
         // Initialize the HTTP sender
-        httpSender =
-                new HttpSender(
-                        connectionParam,
-                        connectionParam.isHttpStateEnabled()
-                                ? true
-                                : !spiderParam.isAcceptCookies(),
-                        HttpSender.SPIDER_INITIATOR);
+        httpSender = new HttpSender(HttpSender.SPIDER_INITIATOR);
+        httpSender.setUseGlobalState(
+                httpSender.isGlobalStateEnabled() || !spiderParam.isAcceptCookies());
+
         // Do not follow redirections because the request is not updated, the redirections will be
         // handled manually.
         httpSender.setFollowRedirect(false);
 
         // Add the seeds
         for (URI uri : seedList) {
-            if (log.isDebugEnabled()) {
-                log.debug("Adding seed for spider: " + uri);
-            }
+            log.debug("Adding seed for spider: {}", uri);
             controller.addSeed(uri, HttpRequestHeader.GET);
         }
         // Mark the process as completely initialized
@@ -552,12 +558,11 @@ public class Spider {
 
         for (Iterator<URI> it = seedList.iterator(); it.hasNext(); ) {
             URI seed = it.next();
-            for (FetchFilter filter : controller.getFetchFilters()) {
-                FetchStatus filterReason = filter.checkFilter(seed);
-                if (filterReason != FetchStatus.VALID) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("Seed: " + seed + " was filtered with reason: " + filterReason);
-                    }
+            for (org.zaproxy.zap.spider.filters.FetchFilter filter : controller.getFetchFilters()) {
+                org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus filterReason =
+                        filter.checkFilter(seed);
+                if (filterReason != org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus.VALID) {
+                    log.debug("Seed: {} was filtered with reason: {}", seed, filterReason);
                     it.remove();
                     break;
                 }
@@ -591,10 +596,7 @@ public class Spider {
         } catch (InterruptedException ignore) {
             log.warn("Interrupted while awaiting for all spider threads to stop...");
         }
-        if (httpSender != null) {
-            this.getHttpSender().shutdown();
-            httpSender = null;
-        }
+        httpSender = null;
 
         // Notify the controller to clean up memory
         controller.reset();
@@ -612,10 +614,7 @@ public class Spider {
 
         log.info("Spidering process is complete. Shutting down...");
         this.stopped = true;
-        if (httpSender != null) {
-            this.getHttpSender().shutdown();
-            httpSender = null;
-        }
+        httpSender = null;
 
         // Notify the controller to clean up memory
         controller.reset();
@@ -748,9 +747,8 @@ public class Spider {
             if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - this.timeStarted)
                     > this.spiderParam.getMaxDuration()) {
                 log.info(
-                        "Spidering process has exceeded maxDuration of "
-                                + this.spiderParam.getMaxDuration()
-                                + " minute(s)");
+                        "Spidering process has exceeded maxDuration of {} minute(s)",
+                        this.spiderParam.getMaxDuration());
                 this.complete();
             }
         }
@@ -805,11 +803,13 @@ public class Spider {
      *
      * @param uri the uri
      * @param method the method used for fetching the resource
-     * @param status the {@link FetchStatus} stating if this uri will be processed, and, if not,
+     * @param status the {@code FetchStatus} stating if this uri will be processed, and, if not,
      *     stating the reason of the filtering
      */
     protected synchronized void notifyListenersFoundURI(
-            String uri, String method, FetchStatus status) {
+            String uri,
+            String method,
+            org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus status) {
         for (SpiderListener l : listeners) {
             l.foundURI(uri, method, status);
         }
@@ -838,7 +838,7 @@ public class Spider {
         }
     }
 
-    public void addCustomParser(SpiderParser sp) {
+    public void addCustomParser(org.zaproxy.zap.spider.parser.SpiderParser sp) {
         this.controller.addSpiderParser(sp);
     }
 

@@ -42,15 +42,14 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.WithConfigsTest;
-import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.ValueGenerator;
-import org.zaproxy.zap.spider.parser.SpiderResourceFound;
 
 /** Unit test for {@link SpiderController}. */
+@SuppressWarnings("deprecation")
 class SpiderControllerUnitTest extends WithConfigsTest {
 
-    private Spider spider;
-    private SpiderController spiderController;
+    private org.zaproxy.zap.spider.Spider spider;
+    private org.zaproxy.zap.spider.SpiderController spiderController;
 
     @BeforeAll
     static void setUpTables() throws Exception {
@@ -68,16 +67,18 @@ class SpiderControllerUnitTest extends WithConfigsTest {
 
     @BeforeEach
     void setUp() {
-        spider = mock(Spider.class);
+        spider = mock(org.zaproxy.zap.spider.Spider.class);
 
-        given(spider.getSpiderParam()).willReturn(new SpiderParam());
+        given(spider.getSpiderParam()).willReturn(new org.zaproxy.zap.spider.SpiderParam());
         given(spider.getModel()).willReturn(Model.getSingleton());
 
-        ExtensionSpider extensionSpider = mock(ExtensionSpider.class);
+        org.zaproxy.zap.extension.spider.ExtensionSpider extensionSpider =
+                mock(org.zaproxy.zap.extension.spider.ExtensionSpider.class);
         given(extensionSpider.getValueGenerator()).willReturn(mock(ValueGenerator.class));
         given(spider.getExtensionSpider()).willReturn(extensionSpider);
 
-        spiderController = new SpiderController(spider, Collections.emptyList());
+        spiderController =
+                new org.zaproxy.zap.spider.SpiderController(spider, Collections.emptyList());
     }
 
     @Test
@@ -109,28 +110,28 @@ class SpiderControllerUnitTest extends WithConfigsTest {
     @Test
     void shouldSubmitTasksForDifferentMethods() {
         // Given
-        SpiderResourceFound getResource =
-                SpiderResourceFound.builder()
+        org.zaproxy.zap.spider.parser.SpiderResourceFound getResource =
+                org.zaproxy.zap.spider.parser.SpiderResourceFound.builder()
                         .setMethod(HttpRequestHeader.GET)
                         .setUri("http://test.com")
                         .build();
-        SpiderResourceFound postResource =
-                SpiderResourceFound.builder()
+        org.zaproxy.zap.spider.parser.SpiderResourceFound postResource =
+                org.zaproxy.zap.spider.parser.SpiderResourceFound.builder()
                         .setMethod(HttpRequestHeader.POST)
                         .setUri("http://test.com")
                         .build();
-        SpiderResourceFound putResource =
-                SpiderResourceFound.builder()
+        org.zaproxy.zap.spider.parser.SpiderResourceFound putResource =
+                org.zaproxy.zap.spider.parser.SpiderResourceFound.builder()
                         .setMethod(HttpRequestHeader.PUT)
                         .setUri("http://test.com")
                         .build();
-        SpiderResourceFound deleteResource =
-                SpiderResourceFound.builder()
+        org.zaproxy.zap.spider.parser.SpiderResourceFound deleteResource =
+                org.zaproxy.zap.spider.parser.SpiderResourceFound.builder()
                         .setMethod(HttpRequestHeader.DELETE)
                         .setUri("http://test.com")
                         .build();
-        SpiderResourceFound headResource =
-                SpiderResourceFound.builder()
+        org.zaproxy.zap.spider.parser.SpiderResourceFound headResource =
+                org.zaproxy.zap.spider.parser.SpiderResourceFound.builder()
                         .setMethod(HttpRequestHeader.HEAD)
                         .setUri("http://test.com")
                         .build();
@@ -147,10 +148,10 @@ class SpiderControllerUnitTest extends WithConfigsTest {
     @Test
     void shouldNotSubmitSameGetTaskWithDifferentDepthAndIgnore() {
         // Given
-        SpiderResourceFound spiderResourceFoundDepth1 =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFoundDepth1 =
                 createGetSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", 1, false, Collections.emptyList());
-        SpiderResourceFound spiderResourceFoundDepth2Ignore =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFoundDepth2Ignore =
                 createGetSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", 2, true, Collections.emptyList());
         // When
@@ -164,10 +165,10 @@ class SpiderControllerUnitTest extends WithConfigsTest {
     @Test
     void shouldNotSubmitSamePostTaskWithDifferentDepthAndIgnore() {
         // Given
-        SpiderResourceFound spiderResourceFoundDepth1 =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFoundDepth1 =
                 createPostSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", "body", 1, false, Collections.emptyList());
-        SpiderResourceFound spiderResourceFoundDepth2Ignore =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFoundDepth2Ignore =
                 createPostSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", "body", 2, true, Collections.emptyList());
         // When
@@ -187,10 +188,10 @@ class SpiderControllerUnitTest extends WithConfigsTest {
         List<HttpHeaderField> requestHeadersOrder2 = new ArrayList<>();
         requestHeadersOrder2.add(new HttpHeaderField("X-Custom-Header-2", "123"));
         requestHeadersOrder2.add(new HttpHeaderField("X-Custom-Header-1", "xyz"));
-        SpiderResourceFound spiderResourceFound1 =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFound1 =
                 createGetSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", 2, false, requestHeadersOrder1);
-        SpiderResourceFound spiderResourceFound2 =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFound2 =
                 createGetSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", 2, false, requestHeadersOrder2);
         // When
@@ -207,10 +208,10 @@ class SpiderControllerUnitTest extends WithConfigsTest {
         requestHeadersWithoutWS.add(new HttpHeaderField("X-Custom-Header-1", "xyz"));
         List<HttpHeaderField> requestHeadersWithWS = new ArrayList<>();
         requestHeadersWithWS.add(new HttpHeaderField("\tX-Custom-Header-1  ", "\nxyz "));
-        SpiderResourceFound spiderResourceFound1 =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFound1 =
                 createGetSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", 2, false, requestHeadersWithoutWS);
-        SpiderResourceFound spiderResourceFound2 =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFound2 =
                 createGetSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", 2, false, requestHeadersWithWS);
         // When
@@ -227,10 +228,10 @@ class SpiderControllerUnitTest extends WithConfigsTest {
         requestHeadersUpperCase.add(new HttpHeaderField("X-CUSTOM-HEADER-1", "XYZ"));
         List<HttpHeaderField> requestHeadersLowerCase = new ArrayList<>();
         requestHeadersLowerCase.add(new HttpHeaderField("x-custom-header-1", "xyz"));
-        SpiderResourceFound spiderResourceFound1 =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFound1 =
                 createGetSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", 2, false, requestHeadersUpperCase);
-        SpiderResourceFound spiderResourceFound2 =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFound2 =
                 createGetSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", 2, false, requestHeadersLowerCase);
         // When
@@ -249,10 +250,10 @@ class SpiderControllerUnitTest extends WithConfigsTest {
         requestHeadersWithDuplicates.add(new HttpHeaderField("X-Custom-Header-1", "xyz"));
         requestHeadersWithDuplicates.add(new HttpHeaderField("X-Custom-Header-1", "xyz"));
         requestHeadersWithDuplicates.add(new HttpHeaderField("X-Custom-Header-1", "xyz"));
-        SpiderResourceFound spiderResourceFound1 =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFound1 =
                 createGetSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", 2, false, requestHeadersWithoutDuplicates);
-        SpiderResourceFound spiderResourceFound2 =
+        org.zaproxy.zap.spider.parser.SpiderResourceFound spiderResourceFound2 =
                 createGetSpiderResourceFoundWithHeaders(
                         "https://example.com/test.html", 2, false, requestHeadersWithDuplicates);
         // When
@@ -262,13 +263,21 @@ class SpiderControllerUnitTest extends WithConfigsTest {
         verify(spider).submitTask(any());
     }
 
-    private static SpiderResourceFound createBasicGetSpiderResourceFound(String uri, int depth) {
-        return SpiderResourceFound.builder().setDepth(depth).setUri(uri).build();
+    private static org.zaproxy.zap.spider.parser.SpiderResourceFound
+            createBasicGetSpiderResourceFound(String uri, int depth) {
+        return org.zaproxy.zap.spider.parser.SpiderResourceFound.builder()
+                .setDepth(depth)
+                .setUri(uri)
+                .build();
     }
 
-    private static SpiderResourceFound createGetSpiderResourceFoundWithHeaders(
-            String uri, int depth, boolean shouldIgnore, List<HttpHeaderField> requestHeaders) {
-        return SpiderResourceFound.builder()
+    private static org.zaproxy.zap.spider.parser.SpiderResourceFound
+            createGetSpiderResourceFoundWithHeaders(
+                    String uri,
+                    int depth,
+                    boolean shouldIgnore,
+                    List<HttpHeaderField> requestHeaders) {
+        return org.zaproxy.zap.spider.parser.SpiderResourceFound.builder()
                 .setDepth(depth)
                 .setUri(uri)
                 .setShouldIgnore(shouldIgnore)
@@ -276,9 +285,9 @@ class SpiderControllerUnitTest extends WithConfigsTest {
                 .build();
     }
 
-    private static SpiderResourceFound createBasicPostSpiderResourceFound(
-            String uri, String body, int depth) {
-        return SpiderResourceFound.builder()
+    private static org.zaproxy.zap.spider.parser.SpiderResourceFound
+            createBasicPostSpiderResourceFound(String uri, String body, int depth) {
+        return org.zaproxy.zap.spider.parser.SpiderResourceFound.builder()
                 .setDepth(depth)
                 .setUri(uri)
                 .setMethod(HttpRequestHeader.POST)
@@ -286,13 +295,14 @@ class SpiderControllerUnitTest extends WithConfigsTest {
                 .build();
     }
 
-    private static SpiderResourceFound createPostSpiderResourceFoundWithHeaders(
-            String uri,
-            String body,
-            int depth,
-            boolean shouldIgnore,
-            List<HttpHeaderField> requestHeaders) {
-        return SpiderResourceFound.builder()
+    private static org.zaproxy.zap.spider.parser.SpiderResourceFound
+            createPostSpiderResourceFoundWithHeaders(
+                    String uri,
+                    String body,
+                    int depth,
+                    boolean shouldIgnore,
+                    List<HttpHeaderField> requestHeaders) {
+        return org.zaproxy.zap.spider.parser.SpiderResourceFound.builder()
                 .setDepth(depth)
                 .setUri(uri)
                 .setShouldIgnore(shouldIgnore)

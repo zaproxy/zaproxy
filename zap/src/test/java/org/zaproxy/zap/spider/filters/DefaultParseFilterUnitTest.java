@@ -33,10 +33,9 @@ import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
-import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.spider.filters.ParseFilter.FilterResult;
 
 /** Unit test for {@link DefaultParseFilter}. */
+@SuppressWarnings("deprecation")
 class DefaultParseFilterUnitTest {
 
     private static final String FILTERED_REASON_EMPTY = "empty";
@@ -79,7 +78,7 @@ class DefaultParseFilterUnitTest {
     @Test
     void shouldCreateDefaultParseFilterWithConfigsAndResourceBundleSet() {
         // Given
-        SpiderParam configs = new SpiderParam();
+        org.zaproxy.zap.spider.SpiderParam configs = new org.zaproxy.zap.spider.SpiderParam();
         // When / Then
         assertDoesNotThrow(() -> new DefaultParseFilter(configs, resourceBundle));
     }
@@ -87,7 +86,7 @@ class DefaultParseFilterUnitTest {
     @Test
     void shouldFailToCreateDefaultParseFilterWithNullConfigs() {
         // Given
-        SpiderParam configs = null;
+        org.zaproxy.zap.spider.SpiderParam configs = null;
         // When / Then
         assertThrows(
                 IllegalArgumentException.class,
@@ -98,7 +97,7 @@ class DefaultParseFilterUnitTest {
     void shouldFailToCreateDefaultParseFilterWithNullResourceBundle() {
         // Given
         ResourceBundle resourceBundle = null;
-        SpiderParam configs = new SpiderParam();
+        org.zaproxy.zap.spider.SpiderParam configs = new org.zaproxy.zap.spider.SpiderParam();
         // When / Then
         assertThrows(
                 IllegalArgumentException.class,
@@ -111,7 +110,8 @@ class DefaultParseFilterUnitTest {
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = null;
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(true)));
         assertThat(filterResult.getReason(), is(equalTo(FILTERED_REASON_EMPTY)));
@@ -123,7 +123,8 @@ class DefaultParseFilterUnitTest {
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = new HttpMessage();
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(true)));
         assertThat(filterResult.getReason(), is(equalTo(FILTERED_REASON_EMPTY)));
@@ -135,7 +136,8 @@ class DefaultParseFilterUnitTest {
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createDefaultRequest();
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(true)));
         assertThat(filterResult.getReason(), is(equalTo(FILTERED_REASON_EMPTY)));
@@ -156,7 +158,8 @@ class DefaultParseFilterUnitTest {
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/.svn/wc.db");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -167,7 +170,8 @@ class DefaultParseFilterUnitTest {
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/.svn/entries");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -178,7 +182,8 @@ class DefaultParseFilterUnitTest {
         DefaultParseFilter filter = createDefaultParseFilter();
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/.git/index");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -190,7 +195,8 @@ class DefaultParseFilterUnitTest {
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/robots.txt");
         httpMessage.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -202,7 +208,8 @@ class DefaultParseFilterUnitTest {
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/robots.txt");
         httpMessage.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "text/plain");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -214,7 +221,8 @@ class DefaultParseFilterUnitTest {
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/sitemap.xml");
         httpMessage.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -226,7 +234,8 @@ class DefaultParseFilterUnitTest {
         HttpMessage httpMessage = createHttpMessageWithRequestUri("/sitemap.xml");
         httpMessage.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, "application/xml");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -238,7 +247,8 @@ class DefaultParseFilterUnitTest {
         HttpMessage httpMessage = createDefaultRequest();
         httpMessage.setResponseHeader("HTTP/1.1 200 OK\r\nContent-Type: application/x-binary\r\n");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(true)));
         assertThat(filterResult.getReason(), is(equalTo(FILTERED_REASON_NOT_TEXT)));
@@ -251,7 +261,8 @@ class DefaultParseFilterUnitTest {
         HttpMessage httpMessage = createDefaultRequest();
         httpMessage.setResponseHeader("HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -263,7 +274,8 @@ class DefaultParseFilterUnitTest {
         HttpMessage httpMessage = createDefaultRequest();
         httpMessage.setResponseHeader("HTTP/1.1 303 See Other\r\n");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -276,7 +288,8 @@ class DefaultParseFilterUnitTest {
                 new DefaultParseFilter(createSpiderParam(maxParseSizeBytes), resourceBundle);
         HttpMessage httpMessage = createHttpMessageWithResponseBody("ABC");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(true)));
         assertThat(filterResult.getReason(), is(equalTo(FILTERED_REASON_MAX_SIZE)));
@@ -290,7 +303,8 @@ class DefaultParseFilterUnitTest {
                 new DefaultParseFilter(createSpiderParam(maxParseSizeBytes), resourceBundle);
         HttpMessage httpMessage = createHttpMessageWithResponseBody("AB");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -303,7 +317,8 @@ class DefaultParseFilterUnitTest {
                 new DefaultParseFilter(createSpiderParam(maxParseSizeBytes), resourceBundle);
         HttpMessage httpMessage = createHttpMessageWithResponseBody("A");
         // When
-        FilterResult filterResult = filter.filtered(httpMessage);
+        org.zaproxy.zap.spider.filters.ParseFilter.FilterResult filterResult =
+                filter.filtered(httpMessage);
         // Then
         assertThat(filterResult.isFiltered(), is(equalTo(false)));
     }
@@ -312,8 +327,9 @@ class DefaultParseFilterUnitTest {
         return new DefaultParseFilter(createSpiderParam(Integer.MAX_VALUE), resourceBundle);
     }
 
-    private static SpiderParam createSpiderParam(final int maxParseSizeBytes) {
-        return new SpiderParam() {
+    private static org.zaproxy.zap.spider.SpiderParam createSpiderParam(
+            final int maxParseSizeBytes) {
+        return new org.zaproxy.zap.spider.SpiderParam() {
 
             @Override
             public int getMaxParseSizeBytes() {

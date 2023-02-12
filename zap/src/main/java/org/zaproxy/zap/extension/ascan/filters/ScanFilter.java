@@ -23,7 +23,7 @@ import org.zaproxy.zap.model.StructuralNode;
 
 /**
  * ScanFilter is called for each message to be scanned to check if it's filtered or not. New Filters
- * are added to the scan through {@link ExtensionActiveScan#startScan(String, Target, User,
+ * are added to the scan through {@code ExtensionActiveScan#startScan(String, Target, User,
  * Object[]) }.
  *
  * @author KSASAN preetkaran20@gmail.com

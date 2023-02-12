@@ -28,7 +28,6 @@ import org.apache.commons.lang.StringUtils;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.utils.Stats;
@@ -49,6 +48,11 @@ public class StatsPassiveScanner extends PluginPassiveScanner {
     @Override
     public int getPluginId() {
         return 50003;
+    }
+
+    @Override
+    public StatsPassiveScanner copy() {
+        return new StatsPassiveScanner();
     }
 
     @Override
@@ -86,10 +90,5 @@ public class StatsPassiveScanner extends PluginPassiveScanner {
     @Override
     public boolean appliesToHistoryType(int historyType) {
         return true;
-    }
-
-    @Override
-    public void setParent(PassiveScanThread parent) {
-        // Ignore
     }
 }

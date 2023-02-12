@@ -52,7 +52,7 @@ public class CallbackTableModel
     }
 
     private static CustomColumn<CallbackRequest> createHandlerColumn() {
-        return new CustomColumn<CallbackRequest>(
+        return new CustomColumn<>(
                 String.class, Constant.messages.getString("callback.panel.table.column.handler")) {
 
             @Override
@@ -63,7 +63,7 @@ public class CallbackTableModel
     }
 
     private static CustomColumn<CallbackRequest> createRefererColumn() {
-        return new CustomColumn<CallbackRequest>(
+        return new CustomColumn<>(
                 String.class, Constant.messages.getString("callback.panel.table.column.referer")) {
 
             @Override

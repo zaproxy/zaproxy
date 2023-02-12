@@ -56,7 +56,7 @@ public class DbSQL implements DatabaseListener {
     private static DbSQL singleton = null;
     private static SqlDatabaseServer dbServer = null;
 
-    private static final Logger logger = LogManager.getLogger(DbSQL.class);
+    private static final Logger LOGGER = LogManager.getLogger(DbSQL.class);
 
     private Map<String, StatementPool> stmtPool = new HashMap<>();
 
@@ -119,7 +119,7 @@ public class DbSQL implements DatabaseListener {
         try (Reader sqlReader = new FileReader(sqlFile)) {
             sqlProperties.load(sqlReader);
         } catch (Exception e) {
-            logger.error("No SQL properties file for db type " + sqlFile.getAbsolutePath());
+            LOGGER.error("No SQL properties file for db type {}", sqlFile.getAbsolutePath());
             throw new DatabaseException(
                     "Missing SQL properties file: " + sqlFile.getAbsolutePath());
         }
@@ -260,11 +260,11 @@ public class DbSQL implements DatabaseListener {
                         ps.close();
                         Stats.incCounter("sqldb.conn.closed");
                     } catch (SQLException e) {
-                        logger.error("Error closing prepared statement", e);
+                        LOGGER.error("Error closing prepared statement", e);
                     }
                 }
             } else {
-                logger.error(
+                LOGGER.error(
                         "Releasing prepared statement not in a pool",
                         new InvalidParameterException());
             }

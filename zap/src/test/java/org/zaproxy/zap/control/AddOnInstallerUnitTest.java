@@ -29,6 +29,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +53,7 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // Then
         assertThat(
                 Paths.get(Constant.getZapHome()).relativize(addOnDataDir),
-                is(equalTo(Paths.get("addOnData/addOnId"))));
+                is(equalTo(Paths.get("addOnData/addOnId/1.0.0"))));
     }
 
     @Test
@@ -64,7 +65,26 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // Then
         assertThat(
                 Paths.get(Constant.getZapHome()).relativize(addOnLibsDir),
-                is(equalTo(Paths.get("addOnData/addOnId/libs"))));
+                is(equalTo(Paths.get("addOnData/addOnId/1.0.0/libs"))));
+    }
+
+    @Test
+    void shouldDeleteLegacyAddOnLibsDir() throws Exception {
+        // Given
+        AddOn addOnA = new AddOn(createAddOnFile("addOnA.zap"));
+        Path addOnALibsDir = Paths.get(Constant.getZapHome(), "addOnData/addOnA/libs");
+        createFile(addOnALibsDir.resolve("a_a.jar"));
+        createFile(addOnALibsDir.resolve("a_b.jar"));
+        AddOn addOnB = new AddOn(createAddOnFile("addOnB.zap"));
+        Path addOnBLibsDir = Paths.get(Constant.getZapHome(), "addOnData/addOnB/libs");
+        createFile(addOnBLibsDir.resolve("b_a.jar"));
+        createFile(addOnBLibsDir.resolve("b_b.jar"));
+        List<AddOn> addOns = List.of(addOnA, addOnB);
+        // When
+        AddOnInstaller.deleteLegacyAddOnLibsDir(addOns);
+        // Then
+        assertThat(Files.notExists(addOnALibsDir), is(equalTo(true)));
+        assertThat(Files.notExists(addOnBLibsDir), is(equalTo(true)));
     }
 
     @Test
@@ -177,30 +197,6 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // Then
         assertThat(successfully, is(equalTo(true)));
         assertInstalledLibs(addOn, "lib1", "lib2");
-    }
-
-    private static Path addOnDataLibsDir(AddOn addOn) {
-        return AddOnInstaller.getAddOnDataDir(addOn).resolve("libs");
-    }
-
-    private static Path installLib(AddOn addOn, String name) throws IOException {
-        return installLib(addOn, name, null);
-    }
-
-    private static Path installLib(AddOn addOn, String name, String contents) throws IOException {
-        Path addOnLibsDir = addOnDataLibsDir(addOn);
-        return createFile(addOnLibsDir.resolve(name), contents);
-    }
-
-    private static Path createFile(Path file) throws IOException {
-        return createFile(file, null);
-    }
-
-    private static Path createFile(Path file, String contents) throws IOException {
-        Files.createDirectories(file.getParent());
-        String data = contents != null ? contents : DEFAULT_LIB_CONTENTS;
-        Files.write(file, data.getBytes(StandardCharsets.UTF_8));
-        return file;
     }
 
     private static void assertInstalledLibs(AddOn addOn, String... fileNames) throws IOException {

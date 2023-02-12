@@ -31,14 +31,10 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
-import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.spider.filters.FetchFilter;
-import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
-import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
-import org.zaproxy.zap.spider.filters.ParseFilter;
-import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 
+/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+@Deprecated
 public class SpiderScanController implements ScanController<SpiderScan> {
 
     private static final Logger log = LogManager.getLogger(SpiderScanController.class);
@@ -97,41 +93,44 @@ public class SpiderScanController implements ScanController<SpiderScan> {
         try {
             int id = this.scanIdCounter++;
 
-            SpiderParam spiderParams = extension.getSpiderParam();
-            List<SpiderParser> customSpiderParsers = new ArrayList<>();
-            List<FetchFilter> customFetchFilters = new ArrayList<>();
-            List<ParseFilter> customParseFilters = new ArrayList<>();
+            org.zaproxy.zap.spider.SpiderParam spiderParams = extension.getSpiderParam();
+            List<org.zaproxy.zap.spider.parser.SpiderParser> customSpiderParsers =
+                    new ArrayList<>();
+            List<org.zaproxy.zap.spider.filters.FetchFilter> customFetchFilters = new ArrayList<>();
+            List<org.zaproxy.zap.spider.filters.ParseFilter> customParseFilters = new ArrayList<>();
             URI startUri = null;
 
             if (contextSpecificObjects != null) {
                 for (Object obj : contextSpecificObjects) {
-                    if (obj instanceof SpiderParam) {
+                    if (obj instanceof org.zaproxy.zap.spider.SpiderParam) {
                         log.debug("Setting custom spider params");
-                        spiderParams = (SpiderParam) obj;
-                    } else if (obj instanceof SpiderParser) {
-                        customSpiderParsers.add((SpiderParser) obj);
-                    } else if (obj instanceof FetchFilter) {
-                        customFetchFilters.add((FetchFilter) obj);
-                    } else if (obj instanceof ParseFilter) {
-                        customParseFilters.add((ParseFilter) obj);
+                        spiderParams = (org.zaproxy.zap.spider.SpiderParam) obj;
+                    } else if (obj instanceof org.zaproxy.zap.spider.parser.SpiderParser) {
+                        customSpiderParsers.add((org.zaproxy.zap.spider.parser.SpiderParser) obj);
+                    } else if (obj instanceof org.zaproxy.zap.spider.filters.FetchFilter) {
+                        customFetchFilters.add((org.zaproxy.zap.spider.filters.FetchFilter) obj);
+                    } else if (obj instanceof org.zaproxy.zap.spider.filters.ParseFilter) {
+                        customParseFilters.add((org.zaproxy.zap.spider.filters.ParseFilter) obj);
                     } else if (obj instanceof URI) {
                         startUri = (URI) obj;
                     } else {
                         log.error(
-                                "Unexpected contextSpecificObject: "
-                                        + obj.getClass().getCanonicalName());
+                                "Unexpected contextSpecificObject: {}",
+                                obj.getClass().getCanonicalName());
                     }
                 }
             }
 
             if (spiderParams.getMaxChildren() > 0) {
                 // Add the filters to filter on maximum number of children
-                MaxChildrenFetchFilter maxChildrenFetchFilter = new MaxChildrenFetchFilter();
+                org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter maxChildrenFetchFilter =
+                        new org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter();
                 maxChildrenFetchFilter.setMaxChildren(spiderParams.getMaxChildren());
                 maxChildrenFetchFilter.setModel(extension.getModel());
 
-                MaxChildrenParseFilter maxChildrenParseFilter =
-                        new MaxChildrenParseFilter(extension.getMessages());
+                org.zaproxy.zap.spider.filters.MaxChildrenParseFilter maxChildrenParseFilter =
+                        new org.zaproxy.zap.spider.filters.MaxChildrenParseFilter(
+                                extension.getMessages());
                 maxChildrenParseFilter.setMaxChildren(spiderParams.getMaxChildren());
                 maxChildrenParseFilter.setModel(extension.getModel());
 

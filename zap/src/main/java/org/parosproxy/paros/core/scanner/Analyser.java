@@ -43,15 +43,22 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2019/07/26 Remove null check in sendAndReceive(HttpMessage). (LGTM Issue)
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/06/05 Remove usage of HttpException.
+// ZAP: 2022/06/09 Quote the query component used in the regular expression.
+// ZAP: 2022/06/09 Use Analyser in more circumstances.
+// ZAP: 2022/09/07 Remove unnecessary comments and address SonarLint issues
+// ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.time.StopWatch;
@@ -67,15 +74,16 @@ import org.zaproxy.zap.model.StructuralNode;
 
 public class Analyser {
 
-    private static final Logger logger = LogManager.getLogger(Analyser.class);
+    private static final Logger LOGGER = LogManager.getLogger(Analyser.class);
 
     /** remove HTML HEAD as this may contain expiry time which dynamic changes */
-    private static final String p_REMOVE_HEADER = "(?m)(?i)(?s)<HEAD>.*?</HEAD>";
+    private static final String PATTERN_REMOVE_HEADER = "(?m)(?i)(?s)<HEAD>.*?</HEAD>";
 
-    private static final Pattern patternNotFound =
+    private static final Pattern PATTERN_NOT_FOUND =
             Pattern.compile(
                     "(\\bnot\\b(found|exist))|(\\b404\\berror\\b)|(\\berror\\b404\\b)",
                     Pattern.CASE_INSENSITIVE | Pattern.MULTILINE);
+    private static final String PATTERN_THREE_SEGMENT_TIME = "\\s[012]\\d:[0-5]\\d:[0-5]\\d\\s";
 
     private static Random staticRandomGenerator = new Random();
     private static final String[] staticSuffixList = {
@@ -89,7 +97,6 @@ public class Analyser {
     private StopWatch stopWatch;
     private boolean stopWatchStarted;
 
-    // ZAP Added delayInMs
     private int delayInMs;
 
     /**
@@ -100,7 +107,6 @@ public class Analyser {
      */
     private int requestCount;
 
-    // ZAP: Added parent
     HostProcess parent = null;
 
     public Analyser() {}
@@ -128,7 +134,7 @@ public class Analyser {
         }
 
         try {
-            inOrderAnalyse(node);
+            inOrderAnalyse(new HashSet<>(), node);
         } finally {
             stopWatch.suspend();
         }
@@ -139,7 +145,7 @@ public class Analyser {
             mapVisited.put(uri.toString(), new SampleResponse(msg, errorIndicator));
 
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            logger.error("Failed to persist the message: " + e.getMessage(), e);
+            LOGGER.error("Failed to persist the message: {}", e.getMessage(), e);
         }
     }
 
@@ -151,25 +157,26 @@ public class Analyser {
      *     the message)
      */
     private void analyse(StructuralNode node) throws Exception {
-        // if analysed already, return;
-        // move to host part
+        // if analysed already, return; move to host part
         if (node.getHistoryReference() == null) {
+            LOGGER.debug("Node being analysed has no History Reference");
             return;
         }
 
         if (!parent.nodeInScope(node.getName())) {
+            LOGGER.debug("Node being analysed is out of scope");
             return;
         }
 
-        // ZAP: Removed unnecessary cast.
         HttpMessage baseMsg = node.getHistoryReference().getHttpMessage();
         URI baseUri = (URI) baseMsg.getRequestHeader().getURI().clone();
+        LOGGER.debug("Analysing {}", baseUri);
 
         baseUri.setQuery(null);
-        // System.out.println("analysing: " + baseUri.toString());
 
         // already exist one.  no need to test
         if (mapVisited.get(baseUri.toString()) != null) {
+            LOGGER.debug("Skipping: This node has already been analysed");
             return;
         }
 
@@ -179,23 +186,26 @@ public class Analyser {
         URI uri = (URI) baseUri.clone();
         uri.setPath(path);
         msg.getRequestHeader().setURI(uri);
-        // System.out.println("analysing 2: " + uri);
 
+        LOGGER.debug("Sending first analyse request {}", uri);
         sendAndReceive(msg);
 
         // standard RFC response, no further check is needed
         if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.NOT_FOUND) {
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_RFC);
+            LOGGER.debug("Analysis determined standard 404 handling");
             return;
         }
 
         if (HttpStatusCode.isRedirection(msg.getResponseHeader().getStatusCode())) {
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_REDIRECT);
+            LOGGER.debug("Analysis determined error page redirect handling");
             return;
         }
 
         if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_NON_RFC);
+            LOGGER.debug("Analysis determined non-RFC error page handling");
             return;
         }
 
@@ -205,34 +215,38 @@ public class Analyser {
         uri2 = (URI) baseUri.clone();
         uri2.setPath(path2);
         msg2.getRequestHeader().setURI(uri2);
+        LOGGER.debug("Sending second analyse request {}", uri2);
         sendAndReceive(msg2);
 
         // remove HTML HEAD as this may contain expiry time which dynamic changes
-        String resBody1 = msg.getResponseBody().toString().replaceAll(p_REMOVE_HEADER, "");
-        String resBody2 = msg2.getResponseBody().toString().replaceAll(p_REMOVE_HEADER, "");
+        String resBody1 = msg.getResponseBody().toString().replaceAll(PATTERN_REMOVE_HEADER, "");
+        String resBody2 = msg2.getResponseBody().toString().replaceAll(PATTERN_REMOVE_HEADER, "");
 
         // check if page is static.  If so, remember this static page
         if (resBody1.equals(resBody2)) {
             msg.getResponseBody().setBody(resBody1);
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_STATIC);
+            LOGGER.debug("Analysis determined static error page handling");
             return;
         }
 
         // else check if page is dynamic but deterministic
         resBody1 =
                 resBody1.replaceAll(getPathRegex(uri), "")
-                        .replaceAll("\\s[012]\\d:[0-5]\\d:[0-5]\\d\\s", "");
+                        .replaceAll(PATTERN_THREE_SEGMENT_TIME, "");
         resBody2 =
                 resBody2.replaceAll(getPathRegex(uri2), "")
-                        .replaceAll("\\s[012]\\d:[0-5]\\d:[0-5]\\d\\s", "");
+                        .replaceAll(PATTERN_THREE_SEGMENT_TIME, "");
         if (resBody1.equals(resBody2)) {
             msg.getResponseBody().setBody(resBody1);
             addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_DYNAMIC_BUT_DETERMINISTIC);
+            LOGGER.debug("Analysis determined dynamic but deterministic error page handling");
             return;
         }
 
         // else mark app "undeterministic".
         addAnalysedHost(baseUri, msg, SampleResponse.ERROR_PAGE_UNDETERMINISTIC);
+        LOGGER.debug("Analysis fell all the way through to non-deterministic error page handling");
     }
 
     /**
@@ -262,6 +276,7 @@ public class Analyser {
                             return suffix;
                         }
                     } catch (Exception e) {
+                        // Nothing to do
                     }
                 }
             }
@@ -278,14 +293,14 @@ public class Analyser {
             }
 
         } catch (Exception e) {
+            // Nothing to do
         }
 
         return resultSuffix;
     }
 
-    private String getPathRegex(URI uri) throws URIException {
+    static String getPathRegex(URI uri) throws URIException {
         URI newUri;
-        // ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
         try {
             newUri = (URI) uri.clone();
 
@@ -296,13 +311,12 @@ public class Analyser {
         String query = newUri.getQuery();
         StringBuilder sb = new StringBuilder(100);
 
-        // case should be sensitive
-        // sb.append("(?i)");
+        // case should be sensitive sb.append("(?i)");
         newUri.setQuery(null);
 
-        sb.append(newUri.toString().replaceAll("\\.", "\\."));
+        sb.append(newUri.toString());
         if (query != null) {
-            String queryPattern = "(\\?" + query + ")?";
+            String queryPattern = "(\\?" + Pattern.quote(query) + ")?";
             sb.append(queryPattern);
         }
 
@@ -344,39 +358,44 @@ public class Analyser {
     /**
      * Analyse node (should be a folder unless it is host level) in-order.
      *
+     * @param traversedNodes the nodes that were traversed during the analysis.
      * @param node the node to analyse
      * @return the number of nodes available at this layer
      */
-    private int inOrderAnalyse(StructuralNode node) {
+    private int inOrderAnalyse(Set<StructuralNode> traversedNodes, StructuralNode node) {
+        if (isStop || node == null) {
+            return 0;
+        }
+
         int subtreeNodes = 0;
 
-        if (isStop) {
+        if (traversedNodes.contains(node)) {
             return 0;
         }
+        traversedNodes.add(node);
 
-        if (node == null) {
-            return 0;
-        }
-
-        // analyse entity if not root and not leaf.
-        // Leaf is not analysed because only folder entity is used to determine if path exist.
         try {
             if (!node.isRoot()) {
                 if (!node.isLeaf() || node.isLeaf() && node.getParent().isRoot()) {
+                    LOGGER.debug(
+                            "Node being analysed isn't a leaf or is a leaf whose parent is root");
                     analyse(node);
-
+                } else if (node.isLeaf() && !node.getParent().isRoot()) {
+                    LOGGER.debug("Node being analysed is a leaf whose parent is not root");
+                    inOrderAnalyse(traversedNodes, node.getParent());
                 } else {
-                    // ZAP: it's a Leaf then no children are available
                     return 1;
                 }
             }
 
         } catch (Exception e) {
+            // Nothing to do
         }
 
         Iterator<StructuralNode> iter = node.getChildIterator();
+        LOGGER.debug("Iterating children of {} with URI {}", node.getName(), node.getURI());
         while (iter.hasNext()) {
-            subtreeNodes += inOrderAnalyse(iter.next());
+            subtreeNodes += inOrderAnalyse(traversedNodes, iter.next());
         }
 
         return subtreeNodes + 1;
@@ -393,7 +412,6 @@ public class Analyser {
             return false;
         }
 
-        // ZAP: catch CloneNotSupportedException as introduced with version 3.1 of HttpClient
         URI uri = null;
         String sUri = null;
         try {
@@ -406,6 +424,7 @@ public class Analyser {
             uri.setPath(path);
 
         } catch (Exception e) {
+            // Nothing to do
         } finally {
             if (uri != null) {
                 sUri = uri.toString();
@@ -414,29 +433,23 @@ public class Analyser {
 
         // get sample with same relative path position when possible.
         // if not exist, use the host only
-        // ZAP: Removed unnecessary cast.
         SampleResponse sample = mapVisited.get(sUri);
         if (sample == null) {
             try {
                 uri.setPath(null);
 
             } catch (URIException e2) {
+                // Nothing to do
             }
 
             String sHostOnly = uri.toString();
 
-            // ZAP: Removed unnecessary cast.
             sample = mapVisited.get(sHostOnly);
         }
 
         // check if any analysed result.
         if (sample == null) {
-            if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
-                // no analysed result to confirm, assume file exist and return
-                return true;
-            } else {
-                return false;
-            }
+            return msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK;
         }
 
         // check for redirect response.  If redirect to same location, then file does not exist
@@ -454,7 +467,7 @@ public class Analyser {
                     }
                 }
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
             return true;
         }
@@ -466,13 +479,13 @@ public class Analyser {
 
         // remain only OK response here
         // nothing more to determine.  Check for possible not found page pattern.
-        Matcher matcher = patternNotFound.matcher(msg.getResponseBody().toString());
+        Matcher matcher = PATTERN_NOT_FOUND.matcher(msg.getResponseBody().toString());
         if (matcher.find()) {
             return false;
         }
 
         // static response
-        String body = msg.getResponseBody().toString().replaceAll(p_REMOVE_HEADER, "");
+        String body = msg.getResponseBody().toString().replaceAll(PATTERN_REMOVE_HEADER, "");
         if (sample.getErrorPageType() == SampleResponse.ERROR_PAGE_STATIC) {
             try {
                 if (sample.getMessage().getResponseBody().toString().equals(body)) {
@@ -480,7 +493,7 @@ public class Analyser {
                 }
 
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                logger.error("Failed to read the message: " + e.getMessage(), e);
+                LOGGER.error("Failed to read the message: {}", e.getMessage(), e);
             }
             return true;
         }
@@ -492,22 +505,18 @@ public class Analyser {
                         msg.getResponseBody()
                                 .toString()
                                 .replaceAll(getPathRegex(uri), "")
-                                .replaceAll("\\s[012]\\d:[0-5]\\d:[0-5]\\d\\s", "");
-                // ZAP: FindBugs fix - added call to HttpBody.toString()
-                if (sample.getMessage().getResponseBody().toString().equals(body)) {
-                    return false;
-                }
-                return true;
+                                .replaceAll(PATTERN_THREE_SEGMENT_TIME, "");
+                return !sample.getMessage().getResponseBody().toString().equals(body);
             }
 
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         return true;
     }
 
-    private void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
+    private void sendAndReceive(HttpMessage msg) throws IOException {
         if (this.getDelayInMs() > 0) {
             try {
                 Thread.sleep(this.getDelayInMs());

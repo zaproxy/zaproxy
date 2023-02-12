@@ -36,7 +36,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
 public class ScriptsPassiveScanner extends PluginPassiveScanner {
 
-    private static final Logger logger = LogManager.getLogger(ScriptsPassiveScanner.class);
+    private static final Logger LOGGER = LogManager.getLogger(ScriptsPassiveScanner.class);
 
     private final ScriptsCache<PassiveScript> scripts;
 
@@ -84,6 +84,13 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
                 });
     }
 
+    @Override
+    public ScriptsPassiveScanner copy() {
+        ScriptsPassiveScanner copy = new ScriptsPassiveScanner();
+        copy.currentHistoryType = currentHistoryType;
+        return copy;
+    }
+
     private boolean appliesToCurrentHistoryType(ScriptWrapper wrapper, PassiveScript ps) {
         try {
             return ps.appliesToHistoryType(currentHistoryType);
@@ -95,8 +102,8 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
             // use the default method).
             if (e.getCause() instanceof NoSuchMethodException
                     && "appliesToHistoryType".equals(e.getCause().getMessage())) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
                             "Script [Name={}, Engine={}]  does not implement the optional method appliesToHistoryType: ",
                             wrapper.getName(),
                             wrapper.getEngineName(),
@@ -188,9 +195,16 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
                 .raise();
     }
 
+    /** @deprecated 2.12.0 Replaced by {@link #addHistoryTag(String)} */
     @Override
+    @Deprecated
     public void addTag(String tag) {
-        super.addTag(tag);
+        super.addHistoryTag(tag);
+    }
+
+    @Override
+    public void addHistoryTag(String tag) {
+        super.addHistoryTag(tag);
     }
 
     @Override

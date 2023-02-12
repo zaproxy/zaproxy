@@ -36,9 +36,11 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
-import org.zaproxy.zap.extension.spider.SpiderMessagesTableModel.ProcessedCellItem;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
+@SuppressWarnings("serial")
+/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+@Deprecated
 class SpiderMessagesTable extends HistoryReferencesTable {
 
     private static final long serialVersionUID = -1910120966638329368L;
@@ -125,7 +127,9 @@ class SpiderMessagesTable extends HistoryReferencesTable {
 
         @Override
         protected Component doHighlight(Component component, ComponentAdapter adapter) {
-            ProcessedCellItem cell = (ProcessedCellItem) adapter.getValue(columnIndex);
+            org.zaproxy.zap.extension.spider.SpiderMessagesTableModel.ProcessedCellItem cell =
+                    (org.zaproxy.zap.extension.spider.SpiderMessagesTableModel.ProcessedCellItem)
+                            adapter.getValue(columnIndex);
 
             boolean processed = cell.isSuccessful();
             Icon icon = getProcessedIcon(processed);

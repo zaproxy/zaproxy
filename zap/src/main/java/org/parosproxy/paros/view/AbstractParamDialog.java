@@ -222,9 +222,7 @@ public class AbstractParamDialog extends AbstractDialog {
                                 AbstractParamDialog.this.setVisible(false);
 
                             } catch (Exception ex) {
-                                if (LOGGER.isDebugEnabled()) {
-                                    LOGGER.debug("Failed to validate or save the panels: ", ex);
-                                }
+                                LOGGER.debug("Failed to validate or save the panels: ", ex);
                                 View.getSingleton()
                                         .showWarningDialog(
                                                 AbstractParamDialog.this,
