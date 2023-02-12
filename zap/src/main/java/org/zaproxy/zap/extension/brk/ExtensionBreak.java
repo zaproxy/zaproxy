@@ -62,7 +62,7 @@ public class ExtensionBreak extends ExtensionAdaptor
 
     public static final String NAME = "ExtensionBreak";
 
-    private static final Logger logger = LogManager.getLogger(ExtensionBreak.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionBreak.class);
 
     public static final String BREAK_POINT_HIT_STATS = "stats.break.hit";
     public static final String BREAK_POINT_STEP_STATS = "stats.break.step";
@@ -560,7 +560,7 @@ public class ExtensionBreak extends ExtensionAdaptor
                             }
                         });
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -628,7 +628,7 @@ public class ExtensionBreak extends ExtensionAdaptor
     }
 
     public void setBreakOnId(String id, boolean enable) {
-        logger.debug("setBreakOnId " + id + " " + enable);
+        LOGGER.debug("setBreakOnId {} {}", id, enable);
         if (enable) {
             breakpointMessageHandler.getEnabledKeyBreakpoints().add(id);
         } else {

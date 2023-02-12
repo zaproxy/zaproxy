@@ -34,7 +34,7 @@ public class DesktopUtils {
     private static BrowserInvoker invoker =
             Desktop.isDesktopSupported() ? BrowserInvoker.desktop : BrowserInvoker.none;
 
-    private static Logger log = LogManager.getLogger(DesktopUtils.class);
+    private static final Logger LOGGER = LogManager.getLogger(DesktopUtils.class);
 
     public static boolean openUrlInBrowser(URI uri) {
 
@@ -44,7 +44,7 @@ public class DesktopUtils {
                 return true;
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             invoker = BrowserInvoker.none;
         }
         return false;
@@ -54,7 +54,7 @@ public class DesktopUtils {
         try {
             return openUrlInBrowser(new URI(uri));
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             invoker = BrowserInvoker.none;
         }
         return false;
@@ -64,7 +64,7 @@ public class DesktopUtils {
         try {
             return openUrlInBrowser(uri.toString());
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             invoker = BrowserInvoker.none;
         }
         return false;

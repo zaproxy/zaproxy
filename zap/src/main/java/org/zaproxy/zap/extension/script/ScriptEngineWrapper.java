@@ -80,6 +80,20 @@ public abstract class ScriptEngineWrapper {
     }
 
     /**
+     * Tells whether or not this engine is single threaded.
+     *
+     * <p>Engines that are single threaded have their cached scripts executed by a single thread at
+     * a time.
+     *
+     * @return {@code true} if the engine is single threaded, {@code false} otherwise.
+     * @since 2.12.0
+     * @see ScriptsCache
+     */
+    public boolean isSingleThreaded() {
+        return false;
+    }
+
+    /**
      * Tells whether or not this engine should be visible to the user.
      *
      * <p>Engines that are not visible are not shown in the GUI nor listed through the API.

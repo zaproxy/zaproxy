@@ -19,21 +19,17 @@
  */
 package org.zaproxy.zap.authentication;
 
-import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
-import fi.iki.elonen.NanoHTTPD.Response;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
+import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
@@ -41,7 +37,6 @@ import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
 import org.zaproxy.zap.authentication.PostBasedAuthenticationMethodType.PostBasedAuthenticationMethod;
-import org.zaproxy.zap.testutils.NanoServerHandler;
 import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 
@@ -66,13 +61,6 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
         method.setPollFrequencyUnits(AuthPollFrequencyUnits.REQUESTS);
         method.setPollFrequency(5);
         method.setLoggedInIndicatorPattern(LOGGED_IN_INDICATOR);
-
-        this.startServer();
-    }
-
-    @AfterEach
-    void cleanUpServer() {
-        stopServer();
     }
 
     @Test
@@ -89,20 +77,13 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
         final List<String> orderedReqUrls = new ArrayList<>();
         final List<String> orderedReqData = new ArrayList<>();
 
-        this.nano.addHandler(
-                new NanoServerHandler(pollUrl.replace(encodedPattern, username)) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        orderedReqUrls.add(
-                                session.getUri() + "?" + session.getQueryParameterString());
-
-                        HashMap<String, String> map = new HashMap<>();
-                        try {
-                            session.parseBody(map);
-                            orderedReqData.add(map.get("postData"));
-                        } catch (Exception e) {
-                        }
-                        return newFixedLengthResponse(LOGGED_IN_BODY);
+        setMessageHandler(
+                msg -> {
+                    URI uri = msg.getRequestHeader().getURI();
+                    if (pollUrl.equals(uri.getPath())) {
+                        orderedReqUrls.add(uri.getEscapedPathQuery());
+                        orderedReqData.add(msg.getRequestBody().toString());
+                        msg.setResponseBody(LOGGED_IN_BODY);
                     }
                 });
         HttpMessage testMsg = this.getHttpMessage(test);
@@ -135,17 +116,12 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
         String password = "password123!";
         final List<String> orderedReqData = new ArrayList<>();
 
-        this.nano.addHandler(
-                new NanoServerHandler(pollUrl) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        HashMap<String, String> map = new HashMap<>();
-                        try {
-                            session.parseBody(map);
-                            orderedReqData.add(map.get("postData"));
-                        } catch (Exception e) {
-                        }
-                        return newFixedLengthResponse(LOGGED_IN_BODY);
+        setMessageHandler(
+                msg -> {
+                    URI uri = msg.getRequestHeader().getURI();
+                    if (pollUrl.equals(uri.getPath())) {
+                        orderedReqData.add(msg.getRequestBody().toString());
+                        msg.setResponseBody(LOGGED_IN_BODY);
                     }
                 });
         HttpMessage testMsg = this.getHttpMessage(test);
@@ -174,17 +150,12 @@ class FormBasedAuthenticationMethodTypeUnitTest extends WithConfigsTest {
         String username = "user name";
         final List<String> orderedReqData = new ArrayList<>();
 
-        this.nano.addHandler(
-                new NanoServerHandler(pollUrl) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        HashMap<String, String> map = new HashMap<>();
-                        try {
-                            session.parseBody(map);
-                            orderedReqData.add(map.get("postData"));
-                        } catch (Exception e) {
-                        }
-                        return newFixedLengthResponse(LOGGED_IN_BODY);
+        setMessageHandler(
+                msg -> {
+                    URI uri = msg.getRequestHeader().getURI();
+                    if (pollUrl.equals(uri.getPath())) {
+                        orderedReqData.add(msg.getRequestBody().toString());
+                        msg.setResponseBody(LOGGED_IN_BODY);
                     }
                 });
         HttpMessage testMsg = this.getHttpMessage(test);

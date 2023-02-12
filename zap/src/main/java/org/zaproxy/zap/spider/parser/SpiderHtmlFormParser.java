@@ -45,10 +45,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.DefaultValueGenerator;
 import org.zaproxy.zap.model.ValueGenerator;
-import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.spider.URLCanonicalizer;
 
-/** The Class SpiderHtmlFormParser is used for parsing HTML files for processing forms. */
+/**
+ * The Class SpiderHtmlFormParser is used for parsing HTML files for processing forms.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
+@Deprecated
 public class SpiderHtmlFormParser extends SpiderParser {
 
     private static final String ENCODING_TYPE = "UTF-8";
@@ -61,9 +64,6 @@ public class SpiderHtmlFormParser extends SpiderParser {
     /** The form attributes */
     private Map<String, String> envAttributes = new HashMap<>();
 
-    /** The spider parameters. */
-    private final SpiderParam param;
-
     /** Create new Value Generator field */
     private final ValueGenerator valueGenerator;
 
@@ -73,7 +73,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
      * @param param the parameters for the spider
      * @throws IllegalArgumentException if {@code param} is null.
      */
-    public SpiderHtmlFormParser(SpiderParam param) {
+    public SpiderHtmlFormParser(org.zaproxy.zap.spider.SpiderParam param) {
         this(param, new DefaultValueGenerator());
     }
 
@@ -82,17 +82,15 @@ public class SpiderHtmlFormParser extends SpiderParser {
      *
      * @param param the parameters for the spider
      * @param valueGenerator the ValueGenerator
-     * @throws IllegalArgumentException if {@code param} or {@code valueGenerator} is null.
+     * @throws IllegalArgumentException if {@code valueGenerator} is null.
+     * @throws NullPointerException if {@code param} is null.
      */
-    public SpiderHtmlFormParser(SpiderParam param, ValueGenerator valueGenerator) {
-        super();
-        if (param == null) {
-            throw new IllegalArgumentException("Parameter param must not be null.");
-        }
+    public SpiderHtmlFormParser(
+            org.zaproxy.zap.spider.SpiderParam param, ValueGenerator valueGenerator) {
+        super(param);
         if (valueGenerator == null) {
             throw new IllegalArgumentException("Parameter valueGenerator must not be null.");
         }
-        this.param = param;
         this.valueGenerator = valueGenerator;
     }
 
@@ -100,7 +98,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
     public boolean parseResource(HttpMessage message, Source source, int depth) {
         getLogger().debug("Parsing an HTML message for forms...");
         // If form processing is disabled, don't parse anything
-        if (!param.isProcessForm()) {
+        if (!getSpiderParam().isProcessForm()) {
             return false;
         }
 
@@ -116,12 +114,10 @@ public class SpiderHtmlFormParser extends SpiderParser {
         // Try to see if there's any BASE tag that could change the base URL
         Element base = source.getFirstElement(HTMLElementName.BASE);
         if (base != null) {
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("Base tag was found in HTML: " + base.getDebugInfo());
-            }
+            getLogger().debug("Base tag was found in HTML: {}", base.getDebugInfo());
             String href = base.getAttributeValue("href");
             if (href != null && !href.isEmpty()) {
-                baseURL = URLCanonicalizer.getCanonicalURL(href, baseURL);
+                baseURL = getCanonicalURL(href, baseURL);
             }
         }
 
@@ -144,14 +140,10 @@ public class SpiderHtmlFormParser extends SpiderParser {
                 String action = fAction.action;
                 String method = fAction.method;
                 getLogger()
-                        .debug(
-                                "Found new form with method: '"
-                                        + method
-                                        + "' and action: "
-                                        + action);
+                        .debug("Found new form with method: '{}' and action: {}", method, action);
 
                 // If POSTing forms is not enabled, skip processing of forms with POST method
-                if (!param.isPostForm()
+                if (!getSpiderParam().isPostForm()
                         && method != null
                         && method.trim().equalsIgnoreCase(METHOD_POST)) {
                     getLogger().debug("Skipping form with POST method because of user settings.");
@@ -164,18 +156,17 @@ public class SpiderHtmlFormParser extends SpiderParser {
                     action = action.substring(0, fs);
                 }
 
-                url = URLCanonicalizer.getCanonicalURL(action, baseURL);
+                url = getCanonicalURL(action, baseURL);
                 FormData formData = prepareFormDataSet(source, form);
 
                 // Process the case of a POST method
                 if (method != null && method.trim().equalsIgnoreCase(METHOD_POST)) {
                     // Build the absolute canonical URL
-                    String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
+                    String fullURL = getCanonicalURL(action, baseURL);
                     if (fullURL == null) {
                         return false;
                     }
-                    getLogger()
-                            .debug("Canonical URL constructed using '" + action + "': " + fullURL);
+                    getLogger().debug("Canonical URL constructed using '{}: {}", action, fullURL);
 
                     /*
                      * Ignore encoding, as we will not POST files anyway, so using
@@ -235,7 +226,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
         String action = form.getAttributeValue("action");
         // If no action, use the base url
         if (action == null) {
-            getLogger().debug("No form 'action' defined. Using base URL: " + baseURL);
+            getLogger().debug("No form 'action' defined. Using base URL: {}", baseURL);
             action = baseURL;
         }
 
@@ -336,8 +327,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
         for (String submitData : formData) {
             getLogger()
                     .debug(
-                            "Submitting form with GET method and query with form parameters: "
-                                    + submitData);
+                            "Submitting form with GET method and query with form parameters: {}",
+                            submitData);
             processURL(message, depth, action + submitData, baseURL);
         }
     }
@@ -362,9 +353,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
         Iterator<FormField> it = getFormFields(source, form).iterator();
         while (it.hasNext()) {
             FormField field = it.next();
-            if (getLogger().isDebugEnabled()) {
-                getLogger().debug("New form field: " + field.getDebugInfo());
-            }
+            getLogger().debug("New form field: {}", field.getDebugInfo());
             for (String value : getDefaultTextValue(field)) {
                 formDataFields.add(
                         new FormDataField(
@@ -463,9 +452,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
             defaultValue = field.getFormControl().getAttributesMap().get("value");
         }
 
-        if (getLogger().isDebugEnabled()) {
-            getLogger().debug("Existing values: " + values);
-        }
+        getLogger().debug("Existing values: {}", values);
 
         // If there are no values at all or only an empty value
         if (values.isEmpty() || (values.size() == 1 && values.get(0).isEmpty())) {
@@ -504,7 +491,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
                         envAttributes,
                         fieldAttributes);
 
-        getLogger().debug("Generated: " + finalValue + "For field " + field.getName());
+        getLogger().debug("Generated: {}For field {}", finalValue, field.getName());
 
         values = new ArrayList<>(1);
         values.add(finalValue);
@@ -525,8 +512,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
             HttpMessage message, int depth, String url, String requestBody) {
         getLogger()
                 .debug(
-                        "Submitting form with POST method and message body with form parameters (normal encoding): "
-                                + requestBody);
+                        "Submitting form with POST method and message body with form parameters (normal encoding): {}",
+                        requestBody);
         notifyListenersResourceFound(
                 SpiderResourceFound.builder()
                         .setMessage(message)

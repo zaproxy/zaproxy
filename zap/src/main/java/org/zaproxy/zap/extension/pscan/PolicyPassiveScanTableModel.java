@@ -30,6 +30,7 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.StatusUI;
 
+@SuppressWarnings("serial")
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
     private static final long serialVersionUID = 1L;
@@ -249,7 +250,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         }
 
         public String getName() {
-            return scanner.getName();
+            return scanner.getDisplayName();
         }
 
         public AlertThreshold getThreshold() {

@@ -43,6 +43,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/09 Deprecate the class.
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -477,9 +478,7 @@ public class ProxyServer implements Runnable {
             for (Pattern p : excludeUrls) {
                 if (p.matcher(uriString).matches()) {
                     ignore = true;
-                    if (log.isDebugEnabled()) {
-                        log.debug("URL excluded: " + uriString + " Regex: " + p.pattern());
-                    }
+                    log.debug("URL excluded: {} Regex: {}", uriString, p.pattern());
 
                     break;
                 }
@@ -502,7 +501,7 @@ public class ProxyServer implements Runnable {
     private synchronized void createListenersComparator() {
         if (listenersComparator == null) {
             listenersComparator =
-                    new Comparator<ArrangeableProxyListener>() {
+                    new Comparator<>() {
                         @Override
                         public int compare(
                                 ArrangeableProxyListener o1, ArrangeableProxyListener o2) {

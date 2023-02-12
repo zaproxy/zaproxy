@@ -87,7 +87,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor
     private static final int NO_FORCED_USER = -1;
 
     /** The Constant log. */
-    private static final Logger log = LogManager.getLogger(ExtensionForcedUser.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionForcedUser.class);
 
     /** The map of context panels. */
     private Map<Integer, ContextForcedUserPanel> contextPanelsMap = new HashMap<>();
@@ -357,13 +357,10 @@ public class ExtensionForcedUser extends ExtensionAdaptor
 
         if (requestingUser == null || !requestingUser.isEnabled()) return;
 
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "Modifying request message ("
-                            + msg.getRequestHeader().getURI()
-                            + ") to match user: "
-                            + requestingUser);
-        }
+        LOGGER.debug(
+                "Modifying request message ({}) to match user: {}",
+                msg.getRequestHeader().getURI(),
+                requestingUser);
         msg.setRequestingUser(requestingUser);
     }
 
@@ -384,7 +381,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor
                 setForcedUser(context.getId(), forcedUserId);
             }
         } catch (Exception e) {
-            log.error("Unable to load forced user.", e);
+            LOGGER.error("Unable to load forced user.", e);
         }
     }
 
@@ -404,7 +401,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor
                 session.clearContextDataForType(context.getId(), RecordContext.TYPE_FORCED_USER_ID);
             }
         } catch (Exception e) {
-            log.error("Unable to persist forced user.", e);
+            LOGGER.error("Unable to persist forced user.", e);
         }
     }
 

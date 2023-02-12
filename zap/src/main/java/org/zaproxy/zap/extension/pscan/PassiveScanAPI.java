@@ -39,7 +39,7 @@ import org.zaproxy.zap.utils.ApiUtils;
 
 public class PassiveScanAPI extends ApiImplementor {
 
-    private static final Logger logger = LogManager.getLogger(PassiveScanAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(PassiveScanAPI.class);
 
     private static final String PREFIX = "pscan";
 
@@ -60,6 +60,7 @@ public class PassiveScanAPI extends ApiImplementor {
     private static final String ACTION_SET_MAX_ALERTS_PER_RULE = "setMaxAlertsPerRule";
     private static final String ACTION_DISABLE_ALL_TAGS = "disableAllTags";
     private static final String ACTION_ENABLE_ALL_TAGS = "enableAllTags";
+    private static final String ACTION_CLEAR_QUEUE = "clearQueue";
 
     private static final String PARAM_ENABLED = "enabled";
     private static final String PARAM_ONLY_IN_SCOPE = "onlyInScope";
@@ -88,6 +89,7 @@ public class PassiveScanAPI extends ApiImplementor {
                 new ApiAction(ACTION_SET_MAX_ALERTS_PER_RULE, new String[] {PARAM_MAX_ALERTS}));
         this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_TAGS));
         this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_TAGS));
+        this.addApiAction(new ApiAction(ACTION_CLEAR_QUEUE));
 
         this.addApiView(new ApiView(VIEW_SCAN_ONLY_IN_SCOPE));
         this.addApiView(new ApiView(VIEW_RECORDS_TO_SCAN));
@@ -164,6 +166,9 @@ public class PassiveScanAPI extends ApiImplementor {
                         .getAutoTagScanners()
                         .forEach(tagScanner -> tagScanner.setEnabled(true));
                 break;
+            case ACTION_CLEAR_QUEUE:
+                extension.clearQueue();
+                break;
             default:
                 throw new ApiException(ApiException.Type.BAD_ACTION);
         }
@@ -183,7 +188,7 @@ public class PassiveScanAPI extends ApiImplementor {
                 extension.setPluginPassiveScannerEnabled(pluginId, enabled);
             }
         } catch (NumberFormatException e) {
-            logger.error("Failed to parse scanner ID: {}", e.getMessage(), e);
+            LOGGER.error("Failed to parse scanner ID: {}", e.getMessage(), e);
             throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
         }
     }

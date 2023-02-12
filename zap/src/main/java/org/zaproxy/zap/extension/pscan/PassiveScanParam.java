@@ -25,6 +25,7 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
@@ -32,7 +33,7 @@ import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 public class PassiveScanParam extends AbstractParam {
 
-    private static final Logger logger = LogManager.getLogger(PassiveScanParam.class);
+    private static final Logger LOGGER = LogManager.getLogger(PassiveScanParam.class);
 
     static final String PASSIVE_SCANS_BASE_KEY = "pscans";
     private static final String ALL_AUTO_TAG_SCANNERS_KEY =
@@ -59,7 +60,7 @@ public class PassiveScanParam extends AbstractParam {
     private static final String MAX_BODY_SIZE_IN_BYTES =
             PASSIVE_SCANS_BASE_KEY + ".maxBodySizeInBytes";
 
-    public static final int PASSIVE_SCAN_DEFAULT_THREADS = 4;
+    @Deprecated public static final int PASSIVE_SCAN_DEFAULT_THREADS = 4;
 
     private List<RegexAutoTagScanner> autoTagScanners = new ArrayList<>(0);
 
@@ -123,17 +124,19 @@ public class PassiveScanParam extends AbstractParam {
                 }
             }
         } catch (ConversionException e) {
-            logger.error("Error while loading the auto tag scanners: {}", e.getMessage(), e);
+            LOGGER.error("Error while loading the auto tag scanners: {}", e.getMessage(), e);
         }
 
         this.confirmRemoveAutoTagScanner = getBoolean(CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY, true);
         this.scanOnlyInScope = getBoolean(SCAN_ONLY_IN_SCOPE_KEY, false);
         this.scanFuzzerMessages = getBoolean(SCAN_FUZZER_MESSAGES_KEY, false);
         setFuzzerOptin(this.scanFuzzerMessages);
-        this.passiveScanThreads = this.getInt(PASSIVE_SCAN_THREADS, PASSIVE_SCAN_DEFAULT_THREADS);
+        // Default threads to number of processors as passive scanning is not blocked on I/O
+        this.passiveScanThreads =
+                this.getInt(PASSIVE_SCAN_THREADS, Constant.getDefaultThreadCount() / 2);
         if (this.passiveScanThreads <= 0) {
             // Must be greater that zero
-            this.passiveScanThreads = PASSIVE_SCAN_DEFAULT_THREADS;
+            this.passiveScanThreads = Constant.getDefaultThreadCount() / 2;
         }
         this.maxAlertsPerRule = this.getInt(MAX_ALERTS_PER_RULE, 0);
         this.maxBodySizeInBytesToScan = this.getInt(MAX_BODY_SIZE_IN_BYTES, 0);
@@ -295,7 +298,7 @@ public class PassiveScanParam extends AbstractParam {
     /**
      * Set the number of passive scan threads
      *
-     * @param passiveScanThreads the number of passive scan threads, must be > 0
+     * @param passiveScanThreads the number of passive scan threads, must be &gt; 0
      * @since 2.12.0
      */
     public void setPassiveScanThreads(int passiveScanThreads) {

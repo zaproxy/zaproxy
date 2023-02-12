@@ -60,7 +60,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     // the HttpMessage.
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
 
-    private static final Logger logger = LogManager.getLogger(ExtensionPassiveScan.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionPassiveScan.class);
     private PassiveScannerList scannerList;
     private OptionsPassiveScan optionsPassiveScan = null;
     private PolicyPassiveScanPanel policyPanel = null;
@@ -266,16 +266,16 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
                 getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
             }
 
-            logger.info("loaded passive scan rule: {}", scanner.getName());
+            LOGGER.info("loaded passive scan rule: {}", scanner.getName());
             if (scanner.getPluginId() == -1) {
-                logger.error(
+                LOGGER.error(
                         "The passive scan rule \"{}\" [{}] does not have a defined ID.",
                         scanner.getName(),
                         scanner.getClass().getCanonicalName());
             }
 
         } catch (Exception e) {
-            logger.error("Failed to load passive scan rule {}", scanner.getName(), e);
+            LOGGER.error("Failed to load passive scan rule {}", scanner.getName(), e);
         }
 
         return added;
@@ -434,11 +434,24 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
                             extensionLoader.getExtension(ExtensionHistory.class),
                             extensionLoader.getExtension(ExtensionAlert.class),
                             getPassiveScanParam(),
-                            getScanStatus());
+                            hasView() ? getScanStatus() : null);
             psc.setSession(Model.getSingleton().getSession());
             psc.start();
         }
         return psc;
+    }
+
+    /**
+     * Empties the passive scan queue without passively scanning the messages. Currently running
+     * rules will run to completion but new rules will only be run when new messages are added to
+     * the queue.
+     *
+     * @since 2.12.0
+     */
+    public void clearQueue() {
+        if (passiveScanEnabled) {
+            getPassiveScanController().clearQueue();
+        }
     }
 
     PassiveScanParam getPassiveScanParam() {
@@ -450,7 +463,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
     private PassiveScannerOptionsPanel getPassiveScannerOptionsPanel() {
         if (passiveScannerOptionsPanel == null) {
-            passiveScannerOptionsPanel = new PassiveScannerOptionsPanel(Constant.messages);
+            passiveScannerOptionsPanel = new PassiveScannerOptionsPanel(this, Constant.messages);
         }
         return passiveScannerOptionsPanel;
     }

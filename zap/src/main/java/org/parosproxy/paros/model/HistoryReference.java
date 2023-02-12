@@ -64,10 +64,11 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2021/07/07 Add TYPE_OAST.
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
-// ZAP: 2022/06/27 Add TYPE_PARAM_MINER.
+// ZAP: 2022/06/27 Add TYPE_PARAM_DIGGER.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.model;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -276,11 +277,11 @@ public class HistoryReference {
     public static final int TYPE_OAST = 22;
 
     /**
-     * An HTTP message sent by the param miner.
+     * An HTTP message sent by the param digger.
      *
      * @since 2.12.0
      */
-    public static final int TYPE_PARAM_MINER = 23;
+    public static final int TYPE_PARAM_DIGGER = 23;
 
     private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
     private static TableHistory staticTableHistory = null;
@@ -320,7 +321,7 @@ public class HistoryReference {
     private List<String> tags = new ArrayList<>();
     private boolean webSocketUpgrade;
 
-    private static Logger log = LogManager.getLogger(HistoryReference.class);
+    private static final Logger LOGGER = LogManager.getLogger(HistoryReference.class);
 
     private HttpMessage httpMessage;
     private HttpMessageCachedData httpMessageCachedData;
@@ -449,7 +450,7 @@ public class HistoryReference {
      *
      * @return the http message
      * @throws HttpMalformedHeaderException the http malformed header exception
-     * @throws SQLException the sQL exception
+     * @throws DatabaseException if an error occurred while reading the HTTP message.
      */
     public HttpMessage getHttpMessage() throws HttpMalformedHeaderException, DatabaseException {
         if (httpMessage != null) {
@@ -515,7 +516,7 @@ public class HistoryReference {
                 staticTableHistory.delete(historyId);
                 notifyEvent(HistoryReferenceEventPublisher.EVENT_REMOVED);
             } catch (DatabaseException e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -556,7 +557,7 @@ public class HistoryReference {
             staticTableTag.insert(historyId, tag);
             return true;
         } catch (DatabaseException e) {
-            log.error("Failed to persist tag: " + e.getMessage(), e);
+            LOGGER.error("Failed to persist tag: {}", e.getMessage(), e);
         }
         return false;
     }
@@ -588,7 +589,7 @@ public class HistoryReference {
             staticTableTag.delete(historyId, tag);
             return true;
         } catch (DatabaseException e) {
-            log.error("Failed to delete tag: " + e.getMessage(), e);
+            LOGGER.error("Failed to delete tag: {}", e.getMessage(), e);
         }
         return false;
     }
@@ -604,7 +605,7 @@ public class HistoryReference {
             httpMessageCachedData.setNote(note != null && note.length() > 0);
             notifyEvent(HistoryReferenceEventPublisher.EVENT_NOTE_SET);
         } catch (DatabaseException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -617,7 +618,7 @@ public class HistoryReference {
                 this.addAlert(new Alert(alert, this));
             }
         } catch (DatabaseException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -833,8 +834,9 @@ public class HistoryReference {
                 requestBody = getHttpMessage().getRequestBody().toString();
                 httpMessageCachedData.setRequestBody(requestBody);
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                log.error(
-                        "Failed to reload request body from database with history ID: " + historyId,
+                LOGGER.error(
+                        "Failed to reload request body from database with history ID: {}",
+                        historyId,
                         e);
                 requestBody = "";
             }

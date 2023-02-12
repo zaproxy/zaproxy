@@ -49,6 +49,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
     private static final String SOLUTION = DbSQL.getSQL("alert.field.solution");
     private static final String REFERENCE = DbSQL.getSQL("alert.field.reference");
     private static final String EVIDENCE = DbSQL.getSQL("alert.field.evidence");
+    private static final String INPUT_VECTOR = DbSQL.getSQL("alert.field.inputvector");
     private static final String CWEID = DbSQL.getSQL("alert.field.cweid");
     private static final String WASCID = DbSQL.getSQL("alert.field.wascid");
     private static final String HISTORYID = DbSQL.getSQL("alert.field.historyid");
@@ -85,6 +86,10 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
                 DbUtils.execute(connection, DbSQL.getSQL("alert.ps.addevidence"));
                 DbUtils.execute(connection, DbSQL.getSQL("alert.ps.addcweid"));
                 DbUtils.execute(connection, DbSQL.getSQL("alert.ps.addwascid"));
+            }
+
+            if (!DbUtils.hasColumn(connection, TABLE_NAME, INPUT_VECTOR)) {
+                DbUtils.execute(connection, DbSQL.getSQL("alert.ps.addinputvector"));
             }
 
             if (!DbUtils.hasIndex(connection, TABLE_NAME, ALERT_INDEX)) {
@@ -141,7 +146,8 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
             int historyId,
             int sourceHistoryId,
             int sourceId,
-            String alertRef)
+            String alertRef,
+            String inputVector)
             throws DatabaseException {
 
         SqlPreparedStatementWrapper psInsert = null;
@@ -166,6 +172,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
             psInsert.getPs().setInt(17, sourceHistoryId);
             psInsert.getPs().setInt(18, sourceId);
             psInsert.getPs().setString(19, alertRef);
+            psInsert.getPs().setString(20, inputVector);
 
             psInsert.getPs().executeUpdate();
 
@@ -207,7 +214,8 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
                                 rs.getInt(HISTORYID),
                                 rs.getInt(SOURCEHISTORYID),
                                 rs.getInt(SOURCEID),
-                                rs.getString(ALERTREF));
+                                rs.getString(ALERTREF),
+                                rs.getString(INPUT_VECTOR));
             }
             return alert;
         } catch (SQLException e) {
@@ -258,7 +266,8 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
             String evidence,
             int cweId,
             int wascId,
-            int sourceHistoryId)
+            int sourceHistoryId,
+            String inputVector)
             throws DatabaseException {
 
         SqlPreparedStatementWrapper psUpdate = null;
@@ -278,7 +287,8 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
             psUpdate.getPs().setInt(12, cweId);
             psUpdate.getPs().setInt(13, wascId);
             psUpdate.getPs().setInt(14, sourceHistoryId);
-            psUpdate.getPs().setInt(15, alertId);
+            psUpdate.getPs().setString(15, inputVector);
+            psUpdate.getPs().setInt(16, alertId);
             psUpdate.getPs().executeUpdate();
         } catch (SQLException e) {
             throw new DatabaseException(e);

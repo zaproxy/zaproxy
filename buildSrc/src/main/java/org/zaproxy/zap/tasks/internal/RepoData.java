@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2019 The ZAP Development Team
+ * Copyright 2022 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.internal
+package org.zaproxy.zap.tasks.internal;
 
-data class RepoData(val cloneUrl: String, val branch: String?, val projects: List<String>)
+import java.util.List;
+
+public class RepoData {
+
+    private String cloneUrl;
+    private String branch;
+    private List<String> projects;
+
+    public String getCloneUrl() {
+        return cloneUrl;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public List<String> getProjects() {
+        return projects;
+    }
+}

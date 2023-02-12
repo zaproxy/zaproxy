@@ -39,7 +39,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantURLPath implements Variant {
 
-    private final Logger LOGGER = LogManager.getLogger(this.getClass());
+    private static final Logger LOGGER = LogManager.getLogger(VariantURLPath.class);
 
     private static final char ESCAPE = '%';
 
@@ -83,6 +83,13 @@ public class VariantURLPath implements Variant {
 
     private final List<NameValuePair> stringParam = new ArrayList<>();
     private String[] segments;
+
+    private static final String SHORT_NAME = "urlpath";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
 
     @Override
     public void setMessage(HttpMessage msg) {

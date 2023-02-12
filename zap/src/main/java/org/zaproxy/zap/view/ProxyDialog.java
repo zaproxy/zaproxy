@@ -34,6 +34,7 @@ import org.parosproxy.paros.model.OptionsParam;
 
 /** @deprecated (2.12.0) No longer in use. */
 @Deprecated
+@SuppressWarnings("serial")
 public class ProxyDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;

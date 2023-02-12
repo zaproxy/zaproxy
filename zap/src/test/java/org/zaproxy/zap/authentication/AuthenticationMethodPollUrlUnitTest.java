@@ -19,19 +19,15 @@
  */
 package org.zaproxy.zap.authentication;
 
-import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
-import fi.iki.elonen.NanoHTTPD.Response;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.httpclient.URI;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -39,7 +35,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.authentication.AuthenticationMethod.AuthPollFrequencyUnits;
-import org.zaproxy.zap.testutils.NanoServerHandler;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
@@ -64,13 +59,6 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         loginMessage.setRequestHeader(header);
         method = Mockito.mock(AuthenticationMethod.class, Mockito.CALLS_REAL_METHODS);
         method.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_RESP);
-
-        this.startServer();
-    }
-
-    @AfterEach
-    void shutDownServer() throws Exception {
-        stopServer();
     }
 
     @Test
@@ -80,12 +68,12 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         String pollUrl = "/shouldPollOnFirstRequest/pollUrl";
         final List<String> orderedReqs = new ArrayList<>();
 
-        this.nano.addHandler(
-                new NanoServerHandler(pollUrl) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        orderedReqs.add(session.getUri());
-                        return newFixedLengthResponse(LOGGED_IN_BODY);
+        setMessageHandler(
+                msg -> {
+                    String path = msg.getRequestHeader().getURI().getPath();
+                    if (pollUrl.equals(path)) {
+                        orderedReqs.add(path);
+                        msg.setResponseBody(LOGGED_IN_BODY);
                     }
                 });
         HttpMessage testMsg = this.getHttpMessage(test);
@@ -113,12 +101,12 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         String pollUrl = "/shouldPollOnFirstRequest/pollUrl";
         final List<String> orderedReqs = new ArrayList<>();
 
-        this.nano.addHandler(
-                new NanoServerHandler(pollUrl) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        orderedReqs.add(session.getUri());
-                        return newFixedLengthResponse(LOGGED_IN_BODY);
+        setMessageHandler(
+                msg -> {
+                    String path = msg.getRequestHeader().getURI().getPath();
+                    if (pollUrl.equals(path)) {
+                        orderedReqs.add(path);
+                        msg.setResponseBody(LOGGED_IN_BODY);
                     }
                 });
         HttpMessage testMsg = this.getHttpMessage(test);
@@ -155,12 +143,11 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         String pollUrl = "/shouldPollEveryFailingRequest/pollUrl";
         final List<String> orderedReqs = new ArrayList<>();
 
-        this.nano.addHandler(
-                new NanoServerHandler(pollUrl) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        orderedReqs.add(session.getUri());
-                        return newFixedLengthResponse("");
+        setMessageHandler(
+                msg -> {
+                    String path = msg.getRequestHeader().getURI().getPath();
+                    if (pollUrl.equals(path)) {
+                        orderedReqs.add(path);
                     }
                 });
         HttpMessage testMsg = this.getHttpMessage(test);
@@ -196,12 +183,12 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         User user = mock(User.class);
         given(user.getAuthenticationState()).willReturn(new AuthenticationState());
 
-        this.nano.addHandler(
-                new NanoServerHandler(pollUrl) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        orderedReqs.add(session.getUri());
-                        return newFixedLengthResponse(LOGGED_IN_BODY);
+        setMessageHandler(
+                msg -> {
+                    String path = msg.getRequestHeader().getURI().getPath();
+                    if (pollUrl.equals(path)) {
+                        orderedReqs.add(path);
+                        msg.setResponseBody(LOGGED_IN_BODY);
                     }
                 });
         HttpMessage testMsg = this.getHttpMessage(test);
@@ -237,12 +224,12 @@ class AuthenticationMethodPollUrlUnitTest extends TestUtils {
         String pollUrl = "/shouldPollOnFirstRequest/pollUrl";
         final List<String> orderedReqs = new ArrayList<>();
 
-        this.nano.addHandler(
-                new NanoServerHandler(pollUrl) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        orderedReqs.add(session.getUri());
-                        return newFixedLengthResponse(LOGGED_IN_BODY);
+        setMessageHandler(
+                msg -> {
+                    String path = msg.getRequestHeader().getURI().getPath();
+                    if (pollUrl.equals(path)) {
+                        orderedReqs.add(path);
+                        msg.setResponseBody(LOGGED_IN_BODY);
                     }
                 });
         HttpMessage testMsg = this.getHttpMessage(test);

@@ -22,7 +22,7 @@ tasks.register("distDebian", Deb) {
     url = "https://github.com/zaproxy/zaproxy"
     priority = "extra"
 
-    requires("java8-runtime")
+    requires("java11-runtime")
 
     user = "0"
 

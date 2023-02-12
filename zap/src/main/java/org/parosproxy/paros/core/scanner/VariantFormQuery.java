@@ -30,6 +30,7 @@
 // ZAP: 2016/05/04 Changed to use setParameters(int, List<NameValuePair>)
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2020/05/06 Add method to get a short name of the variant
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.model.Model;
@@ -40,6 +41,13 @@ import org.parosproxy.paros.network.HttpMessage;
 public class VariantFormQuery extends VariantAbstractQuery {
 
     private static final String WWW_APP_URL_ENCODED = "application/x-www-form-urlencoded";
+
+    private static final String SHORT_NAME = "form";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
 
     public VariantFormQuery() {
         super();

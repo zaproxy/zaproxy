@@ -31,7 +31,7 @@ public class SqlDatabaseServer implements DatabaseServer {
 
     public static final int DEFAULT_SERVER_PORT = 9001;
 
-    private static final Logger logger = LogManager.getLogger(SqlDatabaseServer.class);
+    private static final Logger LOGGER = LogManager.getLogger(SqlDatabaseServer.class);
 
     private String dbUrl = null;
     private String dbUser = null;
@@ -63,19 +63,17 @@ public class SqlDatabaseServer implements DatabaseServer {
                 conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword);
                 return conn;
             } catch (SQLException e) {
-                logger.warn(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
                 if (i == 4) {
                     throw e;
                 }
-                logger.warn("Recovering " + i + " times.");
+                LOGGER.warn("Recovering {} times", i);
             }
 
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                LOGGER.debug(e.getMessage(), e);
             }
         }
         return conn;

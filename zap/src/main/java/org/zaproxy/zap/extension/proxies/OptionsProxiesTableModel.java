@@ -26,6 +26,7 @@ import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
 /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
 @Deprecated
+@SuppressWarnings("serial")
 public class OptionsProxiesTableModel extends AbstractMultipleOptionsTableModel<ProxiesParamProxy> {
 
     private static final long serialVersionUID = 1L;

@@ -28,6 +28,7 @@
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/09 Remove proxy related code.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.control;
 
 import javax.swing.JOptionPane;
@@ -41,7 +42,7 @@ import org.parosproxy.paros.view.View;
 
 public class MenuToolsControl {
 
-    private static final Logger logger = LogManager.getLogger(MenuToolsControl.class);
+    private static final Logger LOGGER = LogManager.getLogger(MenuToolsControl.class);
 
     private View view = null;
     private Model model = null;
@@ -76,7 +77,7 @@ public class MenuToolsControl {
             try {
                 model.getOptionsParam().getConfig().save();
             } catch (ConfigurationException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 view.showWarningDialog(
                         Constant.messages.getString("menu.tools.options.errorSavingOptions"));
                 return;

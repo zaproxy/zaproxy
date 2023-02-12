@@ -42,6 +42,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  * you have to enable them via: <code>ToolTipManager.sharedInstance().registerComponent(tree);
  * </code>
  */
+@SuppressWarnings("serial")
 public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
     private static final ImageIcon ROOT_ICON =
@@ -84,7 +85,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
     private static final long serialVersionUID = -4278691012245035225L;
 
-    private static Logger log = LogManager.getLogger(SiteMapPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(SiteMapTreeCellRenderer.class);
 
     private List<SiteMapListener> listeners;
     private JPanel component;
@@ -207,7 +208,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
                 try {
                     return node.getHistoryReference();
                 } catch (Exception e) {
-                    log.warn(e.getMessage(), e);
+                    LOGGER.warn(e.getMessage(), e);
                 }
             }
         }

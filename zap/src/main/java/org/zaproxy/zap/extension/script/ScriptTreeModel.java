@@ -35,6 +35,7 @@ import javax.swing.tree.DefaultTreeModel;
  * @see #addScript(ScriptWrapper)
  * @see #addTemplate(ScriptWrapper)
  */
+@SuppressWarnings("serial")
 public class ScriptTreeModel extends DefaultTreeModel {
 
     private static final long serialVersionUID = 1L;

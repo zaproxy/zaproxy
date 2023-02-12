@@ -43,7 +43,7 @@ public class Downloader extends Thread {
     private boolean validated = false;
     private final int initiator;
 
-    private static final Logger logger = LogManager.getLogger(Downloader.class);
+    private static final Logger LOGGER = LogManager.getLogger(Downloader.class);
 
     /** @deprecated (2.12.0) */
     @Deprecated
@@ -77,12 +77,12 @@ public class Downloader extends Thread {
                     validateHashDownload();
                 }
             } else {
-                logger.debug(
-                        "Not downloading file, hash field does not have valid content (\"<ALGORITHM>:<HASH>\"): "
-                                + hash);
+                LOGGER.debug(
+                        "Not downloading file, hash field does not have valid content (\"<ALGORITHM>:<HASH>\"): {}",
+                        hash);
             }
         } else {
-            logger.debug("Not downloading file, does not have a hash: " + url);
+            LOGGER.debug("Not downloading file, does not have a hash: {}", url);
         }
 
         this.complete = true;
@@ -111,11 +111,11 @@ public class Downloader extends Thread {
             if (realHash.equalsIgnoreCase(hashValue)) {
                 validated = true;
             } else {
-                logger.debug("Wrong hash - expected " + hashValue + " got " + realHash);
+                LOGGER.debug("Wrong hash - expected {} got {}", hashValue, realHash);
             }
         } catch (Exception e) {
             // Ignore - we default to unvalidated
-            logger.debug("Error checking hash", e);
+            LOGGER.debug("Error checking hash", e);
         }
     }
 

@@ -179,7 +179,7 @@ public class TableExportAction<T extends JTable> extends AbstractAction {
                         Constant.messages.getString("export.button.error")
                                 + "\n"
                                 + ex.getMessage());
-                LOGGER.error("Export Failed: " + ex.getMessage(), ex);
+                LOGGER.error("Export Failed: {}", ex.getMessage(), ex);
             }
 
             // Delay the presentation of success message, to ensure all the data was already

@@ -117,7 +117,7 @@ public class ExtensionSearch extends ExtensionAdaptor {
         }
         final String searcherName = searcher.getName();
         if (customSearchers.containsKey(searcherName)) {
-            LOGGER.warn("Attempting to add an HTTP searcher with the same name: " + searcherName);
+            LOGGER.warn("Attempting to add an HTTP searcher with the same name: {}", searcherName);
             return;
         }
         customSearchers.put(searcherName, searcher);

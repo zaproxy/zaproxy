@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.authentication;
 
-import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -34,16 +33,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 import static org.zaproxy.zap.authentication.PostBasedAuthenticationMethodTypeUnitTest.ReplaceAntiCsrfTokenValueIfRequired.token;
 
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
-import fi.iki.elonen.NanoHTTPD.Response;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.UnaryOperator;
 import net.sf.json.JSONObject;
-import org.junit.jupiter.api.AfterEach;
+import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.quality.Strictness;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
@@ -61,7 +59,6 @@ import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType;
 import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
-import org.zaproxy.zap.testutils.NanoServerHandler;
 import org.zaproxy.zap.users.AuthenticationState;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.I18N;
@@ -269,14 +266,16 @@ class PostBasedAuthenticationMethodTypeUnitTest {
         }
 
         static AntiCsrfToken token(String name, String value) {
-            AntiCsrfToken token = mock(AntiCsrfToken.class, withSettings().lenient());
+            AntiCsrfToken token =
+                    mock(AntiCsrfToken.class, withSettings().strictness(Strictness.LENIENT));
             given(token.getName()).willReturn(name);
             given(token.getValue()).willReturn(value);
             return token;
         }
 
         private static NameValuePair parameter(String name, String value) {
-            NameValuePair parameter = mock(NameValuePair.class, withSettings().lenient());
+            NameValuePair parameter =
+                    mock(NameValuePair.class, withSettings().strictness(Strictness.LENIENT));
             given(parameter.getName()).willReturn(name);
             given(parameter.getValue()).willReturn(value);
             return parameter;
@@ -314,13 +313,6 @@ class PostBasedAuthenticationMethodTypeUnitTest {
                     .willReturn((FormBasedAuthenticationMethod) method);
 
             context = Model.getSingleton().getSession().getNewContext("test");
-
-            this.startServer();
-        }
-
-        @AfterEach
-        void cleanUpServer() {
-            stopServer();
         }
 
         @Test
@@ -339,16 +331,12 @@ class PostBasedAuthenticationMethodTypeUnitTest {
 
             final List<String> orderedReqData = new ArrayList<>();
 
-            this.nano.addHandler(
-                    new NanoServerHandler(test) {
-                        @Override
-                        protected Response serve(IHTTPSession session) {
-                            try {
-                                String body = getBody(session);
-                                orderedReqData.add(body);
-                            } catch (Exception e) {
-                            }
-                            return newFixedLengthResponse("");
+            setMessageHandler(
+                    msg -> {
+                        URI uri = msg.getRequestHeader().getURI();
+                        if (test.equals(uri.getPath())) {
+                            orderedReqData.add(msg.getRequestBody().toString());
+                            msg.setResponseBody("");
                         }
                     });
 
@@ -366,8 +354,7 @@ class PostBasedAuthenticationMethodTypeUnitTest {
 
             JSONObject params = new JSONObject();
             params.put(AuthenticationAPI.PARAM_CONTEXT_ID, context.getId());
-            String loginUrl =
-                    String.format("http://localhost:%s%s", this.nano.getListeningPort(), test);
+            String loginUrl = "http://localhost" + test;
             params.put("loginUrl", loginUrl);
             String authRequestBody =
                     String.format(

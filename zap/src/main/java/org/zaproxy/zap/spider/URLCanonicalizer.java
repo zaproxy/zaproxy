@@ -26,13 +26,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
 /**
  * The URLCanonicalizer is used for the process of converting an URL into a canonical (normalized)
@@ -43,7 +43,10 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
  * href="http://stackoverflow.com/a/4057470/405418">stackoverflow</a>
  *
  * <p>Added support for OData URLs
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public final class URLCanonicalizer {
 
     /** The Constant log. */
@@ -65,6 +68,9 @@ public final class URLCanonicalizer {
         IRRELEVANT_PARAMETERS.add("phpsessid");
         IRRELEVANT_PARAMETERS.add("aspsessionid");
     }
+
+    private static final Predicate<String> DEFAULT_IRRELEVANT_PARAMETERS =
+            name -> IRRELEVANT_PARAMETERS.contains(name) || name.startsWith("utm_");
 
     /**
      * OData support Extract the ID of a resource including the surrounding quote First group is the
@@ -103,6 +109,20 @@ public final class URLCanonicalizer {
      * @return the canonical url
      */
     public static String getCanonicalURL(String url, String baseURL) {
+        return getCanonicalURL(url, baseURL, DEFAULT_IRRELEVANT_PARAMETERS);
+    }
+
+    /**
+     * Gets the canonical url, starting from a relative or absolute url found in a given context
+     * (baseURL).
+     *
+     * @param url the url string defining the reference
+     * @param baseURL the context in which this url was found
+     * @param irrelevantParameter a predicate to ignore parameters.
+     * @return the canonical url
+     */
+    public static String getCanonicalURL(
+            String url, String baseURL, Predicate<String> irrelevantParameter) {
         if ("javascript:".equals(url)) {
             return null;
         }
@@ -110,7 +130,7 @@ public final class URLCanonicalizer {
         try {
             /* Build the absolute URL, from the url and the baseURL */
             String resolvedURL = URLResolver.resolveUrl(baseURL == null ? "" : baseURL, url);
-            log.debug("Resolved URL: " + resolvedURL);
+            log.debug("Resolved URL: {}", resolvedURL);
             URI canonicalURI;
             try {
                 canonicalURI = new URI(resolvedURL);
@@ -121,30 +141,25 @@ public final class URLCanonicalizer {
             /* Some checking. */
             if (canonicalURI.getScheme() == null) {
                 log.warn(
-                        "Protocol could not be reliably evaluated from uri: "
-                                + canonicalURI
-                                + " and base url: "
-                                + baseURL);
+                        "Protocol could not be reliably evaluated from uri: {} and base url: {}",
+                        canonicalURI,
+                        baseURL);
                 return null;
             }
 
             if (canonicalURI.getRawAuthority() == null) {
                 log.debug(
-                        "Ignoring URI with no authority (host[\":\"port]): "
-                                + canonicalURI
-                                + " (on base "
-                                + baseURL
-                                + ")");
+                        "Ignoring URI with no authority (host[\":\"port]): {} (on base {})",
+                        canonicalURI,
+                        baseURL);
                 return null;
             }
 
             if (canonicalURI.getHost() == null) {
                 log.warn(
-                        "Host could not be reliably evaluated from: "
-                                + canonicalURI
-                                + " (on base "
-                                + baseURL
-                                + ")");
+                        "Host could not be reliably evaluated from: {} (on base {})",
+                        canonicalURI,
+                        baseURL);
                 return null;
             }
 
@@ -173,7 +188,7 @@ public final class URLCanonicalizer {
             final SortedSet<QueryParameter> params =
                     createSortedParameters(canonicalURI.getRawQuery());
             final String queryString;
-            String canonicalParams = canonicalize(params);
+            String canonicalParams = canonicalize(params, irrelevantParameter);
             queryString = (canonicalParams.isEmpty() ? "" : "?" + canonicalParams);
 
             /* Add starting slash if needed */
@@ -197,12 +212,11 @@ public final class URLCanonicalizer {
 
         } catch (Exception ex) {
             log.warn(
-                    "Error while Processing URL ["
-                            + url
-                            + "] in the spidering process (on base "
-                            + baseURL
-                            + "): "
-                            + ex.getMessage());
+                    "Error while Processing URL [{}"
+                            + "] in the spidering process (on base {}): {}",
+                    url,
+                    baseURL,
+                    ex.getMessage());
             return null;
         }
     }
@@ -243,14 +257,43 @@ public final class URLCanonicalizer {
             SpiderParam.HandleParametersOption handleParameters,
             boolean handleODataParametersVisited)
             throws URIException {
+        return buildCleanedParametersURIRepresentation(
+                uri, handleParameters, handleODataParametersVisited, DEFAULT_IRRELEVANT_PARAMETERS);
+    }
+
+    /**
+     * Builds a String representation of the URI with cleaned parameters, that can be used when
+     * checking if an URI was already visited. The URI provided as a parameter should be already
+     * cleaned and canonicalized, so it should be build with a result from {@link
+     * #getCanonicalURL(String)}.
+     *
+     * <p>When building the URI representation, the same format should be used for all the cases, as
+     * it may affect the number of times the pages are visited and reported if the option
+     * HandleParametersOption is changed while the spider is running.
+     *
+     * @param uri the uri
+     * @param handleParameters the handle parameters option
+     * @param handleODataParametersVisited Should we handle specific OData parameters
+     * @param irrelevantParameter a predicate to ignore parameters.
+     * @return the string representation of the URI
+     * @throws URIException the URI exception
+     */
+    static String buildCleanedParametersURIRepresentation(
+            org.apache.commons.httpclient.URI uri,
+            SpiderParam.HandleParametersOption handleParameters,
+            boolean handleODataParametersVisited,
+            Predicate<String> irrelevantParameter)
+            throws URIException {
         // If the option is set to use all the information, just use the default string
         // representation
-        if (handleParameters.equals(HandleParametersOption.USE_ALL)) {
+        if (handleParameters.equals(
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL)) {
             return uri.toString();
         }
 
         // If the option is set to ignore parameters completely, ignore the query completely
-        if (handleParameters.equals(HandleParametersOption.IGNORE_COMPLETELY)) {
+        if (handleParameters.equals(
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY)) {
             return createBaseUriWithCleanedPath(
                     uri, handleParameters, handleODataParametersVisited);
         }
@@ -258,13 +301,14 @@ public final class URLCanonicalizer {
         // If the option is set to ignore the value, we get the parameters and we only add their
         // name to the
         // query
-        if (handleParameters.equals(HandleParametersOption.IGNORE_VALUE)) {
+        if (handleParameters.equals(
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE)) {
             StringBuilder retVal =
                     new StringBuilder(
                             createBaseUriWithCleanedPath(
                                     uri, handleParameters, handleODataParametersVisited));
 
-            String cleanedQuery = getCleanedQuery(uri.getEscapedQuery());
+            String cleanedQuery = getCleanedQuery(uri.getEscapedQuery(), irrelevantParameter);
 
             // Add the parameters' names to the uri representation.
             if (cleanedQuery.length() > 0) {
@@ -280,7 +324,7 @@ public final class URLCanonicalizer {
 
     private static String createBaseUriWithCleanedPath(
             org.apache.commons.httpclient.URI uri,
-            HandleParametersOption handleParameters,
+            org.zaproxy.zap.spider.SpiderParam.HandleParametersOption handleParameters,
             boolean handleODataParametersVisited)
             throws URIException {
         StringBuilder uriBuilder = new StringBuilder(createBaseUri(uri));
@@ -303,7 +347,7 @@ public final class URLCanonicalizer {
 
     private static String getCleanedPath(
             String escapedPath,
-            HandleParametersOption handleParameters,
+            org.zaproxy.zap.spider.SpiderParam.HandleParametersOption handleParameters,
             boolean handleODataParametersVisited) {
         if (escapedPath == null) {
             return "";
@@ -319,7 +363,8 @@ public final class URLCanonicalizer {
         return cleanedPath;
     }
 
-    private static String getCleanedQuery(String escapedQuery) {
+    private static String getCleanedQuery(
+            String escapedQuery, Predicate<String> irrelevantParameter) {
         // Get the parameters' names
         SortedSet<QueryParameter> params = createSortedParameters(escapedQuery);
         Set<String> parameterNames = new HashSet<>();
@@ -331,8 +376,7 @@ public final class URLCanonicalizer {
                     continue;
                 }
                 parameterNames.add(name);
-                // Ignore irrelevant parameters
-                if (IRRELEVANT_PARAMETERS.contains(name) || name.startsWith("utm_")) {
+                if (irrelevantParameter.test(name)) {
                     continue;
                 }
                 if (cleanedQueryBuilder.length() > 0) {
@@ -353,10 +397,13 @@ public final class URLCanonicalizer {
      * @param handleParameters tThe cleaning mode
      * @return A cleaned path
      */
-    private static String cleanODataPath(String path, HandleParametersOption handleParameters) {
+    private static String cleanODataPath(
+            String path,
+            org.zaproxy.zap.spider.SpiderParam.HandleParametersOption handleParameters) {
         String cleanedPath = path;
 
-        if (HandleParametersOption.USE_ALL.equals(handleParameters)) {
+        if (org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL.equals(
+                handleParameters)) {
             cleanedPath = path;
         } else {
 
@@ -373,8 +420,10 @@ public final class URLCanonicalizer {
                 String beforeSubstring = path.substring(0, begin);
                 String afterSubstring = path.substring(end);
 
-                if (HandleParametersOption.IGNORE_COMPLETELY.equals(handleParameters)
-                        || HandleParametersOption.IGNORE_VALUE.equals(handleParameters)) {
+                if (org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY
+                                .equals(handleParameters)
+                        || org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_VALUE
+                                .equals(handleParameters)) {
 
                     StringBuilder sb = new StringBuilder(beforeSubstring);
                     sb.append(resourceName).append("()").append(afterSubstring);
@@ -395,7 +444,8 @@ public final class URLCanonicalizer {
                     String beforeSubstring = path.substring(0, begin);
                     String afterSubstring = path.substring(end);
 
-                    if (HandleParametersOption.IGNORE_COMPLETELY.equals(handleParameters)) {
+                    if (org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.IGNORE_COMPLETELY
+                            .equals(handleParameters)) {
                         cleanedPath = beforeSubstring + afterSubstring;
                     } else {
                         StringBuilder sb = new StringBuilder(beforeSubstring);
@@ -466,9 +516,12 @@ public final class URLCanonicalizer {
      * Canonicalize the query string.
      *
      * @param sortedParameters Parameter name-value pairs in lexicographical order.
+     * @param irrelevantParameter url parameters that are skipped
      * @return Canonical form of query string.
      */
-    private static String canonicalize(final SortedSet<QueryParameter> sortedParameters) {
+    private static String canonicalize(
+            final SortedSet<QueryParameter> sortedParameters,
+            Predicate<String> irrelevantParameter) {
         if (sortedParameters == null || sortedParameters.isEmpty()) {
             return "";
         }
@@ -476,8 +529,7 @@ public final class URLCanonicalizer {
         final StringBuilder sb = new StringBuilder(100);
         for (QueryParameter parameter : sortedParameters) {
             final String name = parameter.getName().toLowerCase();
-            // Ignore irrelevant parameters
-            if (IRRELEVANT_PARAMETERS.contains(name) || name.startsWith("utm_")) {
+            if (irrelevantParameter.test(name)) {
                 continue;
             }
             if (sb.length() > 0) {

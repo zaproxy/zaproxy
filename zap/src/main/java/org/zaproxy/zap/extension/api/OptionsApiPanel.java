@@ -37,6 +37,7 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -107,7 +108,8 @@ public class OptionsApiPanel extends AbstractParamPanel {
             panelMisc.add(jPanel, LayoutHelper.getGBC(0, y++, 2, 1.0, 1.0));
 
             JLabel warning =
-                    new JLabel(Constant.messages.getString("api.options.label.testingWarning"));
+                    new ZapHtmlLabel(
+                            Constant.messages.getString("api.options.label.testingWarning"));
             warning.setForeground(Color.RED);
             panelMisc.add(warning, LayoutHelper.getGBC(0, y++, 2, 0.5D));
             panelMisc.add(getDisableKey(), LayoutHelper.getGBC(0, y++, 1, 0.5));

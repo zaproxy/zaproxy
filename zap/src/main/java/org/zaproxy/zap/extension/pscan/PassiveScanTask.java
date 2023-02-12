@@ -54,7 +54,7 @@ public class PassiveScanTask implements Runnable {
     private long startTime;
     private long stopTime;
 
-    private static final Logger logger = LogManager.getLogger(PassiveScanTask.class);
+    private static final Logger LOGGER = LogManager.getLogger(PassiveScanTask.class);
 
     @SuppressWarnings("deprecation")
     public PassiveScanTask(HistoryReference hr, PassiveScanTaskHelper helper) {
@@ -119,16 +119,14 @@ public class PassiveScanTask implements Runnable {
                                             .contains(hrefHistoryType))) {
 
                         if (scanner instanceof PluginPassiveScanner) {
-                            PluginPassiveScanner pps = (PluginPassiveScanner) scanner;
-                            PluginPassiveScanner pps2 = pps.copy();
-                            pps2.init(psThread, msg, passiveScanData);
-                            scanner = pps2;
-                        } else {
-                            scanner.setParent(psThread);
+                            PluginPassiveScanner pps = ((PluginPassiveScanner) scanner).copy();
+                            pps.setHelper(passiveScanData);
+                            scanner = pps;
                         }
+                        scanner.setParent(psThread);
                         scanner.setTaskHelper(helper);
 
-                        logger.debug(
+                        LOGGER.debug(
                                 "Running scan rule, URL {} plugin {}",
                                 msg.getRequestHeader().getURI(),
                                 scanner.getName());
@@ -139,13 +137,11 @@ public class PassiveScanTask implements Runnable {
                             scanned = true;
                         } else {
                             Stats.incCounter("stats.pscan.reqBodyTooBig");
-                            if (logger.isDebugEnabled()) {
-                                logger.debug(
-                                        "Request to {} body size {} larger than max configured {}",
-                                        msg.getRequestHeader().getURI(),
-                                        msg.getRequestBody().length(),
-                                        maxBodySize);
-                            }
+                            LOGGER.debug(
+                                    "Request to {} body size {} larger than max configured {}",
+                                    msg.getRequestHeader().getURI(),
+                                    msg.getRequestBody().length(),
+                                    maxBodySize);
                         }
                         if (msg.isResponseFromTargetHost()) {
                             if (maxBodySize <= 0 || msg.getResponseBody().length() < maxBodySize) {
@@ -153,13 +149,11 @@ public class PassiveScanTask implements Runnable {
                                 scanned = true;
                             } else {
                                 Stats.incCounter("stats.pscan.respBodyTooBig");
-                                if (logger.isDebugEnabled()) {
-                                    logger.debug(
-                                            "Response from {} body size {} larger than max configured {}",
-                                            msg.getRequestHeader().getURI(),
-                                            msg.getResponseBody().length(),
-                                            maxBodySize);
-                                }
+                                LOGGER.debug(
+                                        "Response from {} body size {} larger than max configured {}",
+                                        msg.getRequestHeader().getURI(),
+                                        msg.getResponseBody().length(),
+                                        maxBodySize);
                             }
                         }
                         if (scanned) {
@@ -181,7 +175,7 @@ public class PassiveScanTask implements Runnable {
                                                     + " "
                                                     + msg.getResponseBody().length();
                                 }
-                                logger.warn(
+                                LOGGER.warn(
                                         "Passive Scan rule {} took {} seconds to scan {} {}",
                                         scanner.getName(),
                                         timeTaken / 1000,
@@ -191,7 +185,7 @@ public class PassiveScanTask implements Runnable {
                         }
                     }
                 } catch (Exception e) {
-                    logger.error(
+                    LOGGER.error(
                             "Scan rule '{}' failed on record {} from History table: {} {}",
                             scanner.getName(),
                             href.getHistoryId(),
@@ -203,10 +197,7 @@ public class PassiveScanTask implements Runnable {
 
         } catch (Exception e) {
             if (HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
-                            "Temporary record {} no longer available:", href.getHistoryId(), e);
-                }
+                LOGGER.debug("Temporary record {} no longer available:", href.getHistoryId(), e);
             } else {
                 RecordHistory rec = null;
                 try {
@@ -217,12 +208,12 @@ public class PassiveScanTask implements Runnable {
                 if (rec == null) {
                     return;
                 }
-                logger.error(
+                LOGGER.error(
                         "Parser failed on record {} from History table", href.getHistoryId(), e);
                 HttpMessage msg;
                 try {
                     msg = href.getHttpMessage();
-                    logger.error("Req Header {}", msg.getRequestHeader(), e);
+                    LOGGER.error("Req Header {}", msg.getRequestHeader(), e);
                 } catch (Exception e1) {
                     // Ignore
                 }

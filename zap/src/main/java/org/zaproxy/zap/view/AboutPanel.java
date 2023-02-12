@@ -32,6 +32,7 @@ import javax.swing.UIManager;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 
 public class AboutPanel extends JPanel {
 
@@ -84,14 +85,14 @@ public class AboutPanel extends JPanel {
         this.setBackground(backgroundColor);
         this.setBorder(BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 
-        JLabel lblDisclaimer = new JLabel();
+        JLabel lblDisclaimer = new ZapHtmlLabel();
         JLabel lblCopyright = new JLabel();
-        JLabel lblOtherCopyright = new JLabel();
+        JLabel lblOtherCopyright = new ZapHtmlLabel();
         JLabel lblVersion = new JLabel();
         JLabel lblProgramName = new JLabel();
-        JLabel lblCopyrightDetail = new JLabel();
+        JLabel lblCopyrightDetail = new ZapHtmlLabel();
         JLabel lblLogo = new JLabel();
-        JLabel lblHomepage = new JLabel();
+        JLabel lblHomepage = new ZapHtmlLabel();
 
         lblDisclaimer.setText(
                 "<html><body><p>Disclaimer: You should only use this software to test "

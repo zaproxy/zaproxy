@@ -45,6 +45,7 @@ import org.zaproxy.zap.view.SingleColumnTableModel;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
+@SuppressWarnings("serial")
 public class PolicyManagerDialog extends StandardFieldsDialog {
 
     private static final long serialVersionUID = 1L;
@@ -60,7 +61,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
 
     private ExtensionActiveScan extension;
 
-    private static final Logger logger = LogManager.getLogger(PolicyManagerDialog.class);
+    private static final Logger LOGGER = LogManager.getLogger(PolicyManagerDialog.class);
 
     public PolicyManagerDialog(Frame owner) {
         super(owner, "ascan.policymgr.title", DisplayUtils.getScaledDimension(512, 400));
@@ -104,7 +105,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                             try {
                                 extension.showPolicyDialog(PolicyManagerDialog.this);
                             } catch (ConfigurationException e1) {
-                                logger.error(e1.getMessage(), e1);
+                                LOGGER.error(e1.getMessage(), e1);
                             }
                         }
                     });
@@ -130,7 +131,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                                 try {
                                     extension.showPolicyDialog(PolicyManagerDialog.this, name);
                                 } catch (ConfigurationException e1) {
-                                    logger.error(e1.getMessage(), e1);
+                                    LOGGER.error(e1.getMessage(), e1);
                                 }
                             }
                         }
@@ -196,7 +197,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                                     extension.getPolicyManager().importPolicy(file);
                                     policyNamesChanged();
                                 } catch (ConfigurationException | IOException e1) {
-                                    logger.error(e1.getMessage(), e1);
+                                    LOGGER.error(e1.getMessage(), e1);
                                     View.getSingleton()
                                             .showWarningDialog(
                                                     Constant.messages.getString(
@@ -250,7 +251,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                                             extension.getPolicyManager().exportPolicy(policy, file);
                                         }
                                     } catch (ConfigurationException e1) {
-                                        logger.error(e1.getMessage(), e1);
+                                        LOGGER.error(e1.getMessage(), e1);
                                         View.getSingleton()
                                                 .showWarningDialog(
                                                         Constant.messages.getString(
@@ -300,7 +301,7 @@ public class PolicyManagerDialog extends StandardFieldsDialog {
                                             extension.showPolicyDialog(
                                                     PolicyManagerDialog.this, name);
                                         } catch (ConfigurationException e1) {
-                                            logger.error(e1.getMessage(), e1);
+                                            LOGGER.error(e1.getMessage(), e1);
                                         }
                                     }
                                 }

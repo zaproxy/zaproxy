@@ -23,8 +23,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
@@ -37,6 +35,7 @@ import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxH
 import org.zaproxy.zap.extension.httppanel.view.util.HttpTextViewUtils;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
+@SuppressWarnings("serial")
 public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
 
     private static final String CSS =
@@ -82,9 +81,6 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
             extends AutoDetectSyntaxHttpPanelTextArea {
 
         private static final long serialVersionUID = 3665478428546560762L;
-
-        private static final Logger log =
-                LogManager.getLogger(HttpResponseAllPanelSyntaxHighlightTextArea.class);
 
         // private static final String HTTP_RESPONSE_HEADER_AND_BODY = "HTTP Response Header and
         // Body";

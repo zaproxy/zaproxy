@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Alert.Source;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
@@ -83,19 +84,14 @@ public abstract class PluginPassiveScanner extends Enableable
     private Configuration config = null;
     private AddOn.Status status = AddOn.Status.unknown;
 
-    private HttpMessage message;
     private PassiveScanData passiveScanData;
 
     public PluginPassiveScanner() {
         super(true);
     }
 
-    @SuppressWarnings("deprecation")
-    void init(PassiveScanThread parent, HttpMessage message, PassiveScanData psd) {
-        this.message = message;
-        this.passiveScanData = psd;
-
-        setParent(parent);
+    public void setHelper(PassiveScanData passiveScanData) {
+        this.passiveScanData = passiveScanData;
     }
 
     /**
@@ -107,11 +103,6 @@ public abstract class PluginPassiveScanner extends Enableable
     @SuppressWarnings("deprecation")
     public void setParent(PassiveScanThread parent) {
         // Nothing to do.
-    }
-
-    void clean() {
-        message = null;
-        passiveScanData = null;
     }
 
     /**
@@ -424,7 +415,7 @@ public abstract class PluginPassiveScanner extends Enableable
      * @since 2.12.0
      */
     protected void addHistoryTag(String tag) {
-        this.taskHelper.addHistoryTag(this.message.getHistoryRef(), tag);
+        this.taskHelper.addHistoryTag(passiveScanData.getMessage().getHistoryRef(), tag);
     }
 
     /**
@@ -436,6 +427,18 @@ public abstract class PluginPassiveScanner extends Enableable
      */
     public Map<String, String> getAlertTags() {
         return null;
+    }
+
+    /**
+     * Gets the name of the scan rule, falling back to the simple name of the class as last resort.
+     *
+     * @return a name representing the scan rule.
+     * @since 2.12.0
+     */
+    public final String getDisplayName() {
+        return StringUtils.isBlank(this.getName())
+                ? this.getClass().getSimpleName()
+                : this.getName();
     }
 
     /**
@@ -484,7 +487,7 @@ public abstract class PluginPassiveScanner extends Enableable
      * @since 2.9.0
      */
     protected AlertBuilder newAlert() {
-        return new AlertBuilder(this, message);
+        return new AlertBuilder(this, passiveScanData.getMessage());
     }
 
     /**
@@ -584,6 +587,12 @@ public abstract class PluginPassiveScanner extends Enableable
         @Override
         public AlertBuilder setEvidence(String evidence) {
             super.setEvidence(evidence);
+            return this;
+        }
+
+        @Override
+        public AlertBuilder setInputVector(String inputVector) {
+            super.setInputVector(inputVector);
             return this;
         }
 

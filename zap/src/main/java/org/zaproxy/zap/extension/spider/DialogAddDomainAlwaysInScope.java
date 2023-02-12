@@ -29,10 +29,12 @@ import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
+@SuppressWarnings("serial")
+/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+@Deprecated
 class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
 
     private static final long serialVersionUID = -7356390753317082681L;
@@ -61,7 +63,7 @@ class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
     private JCheckBox regexCheckBox;
     private JCheckBox enabledCheckBox;
 
-    protected DomainAlwaysInScopeMatcher domainAlwaysInScope;
+    protected org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher domainAlwaysInScope;
 
     private ConfirmButtonValidatorDocListener confirmButtonValidatorDocListener;
 
@@ -134,7 +136,8 @@ class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
     protected boolean validateFields() {
         if (getRegexCheckBox().isSelected()) {
             try {
-                DomainAlwaysInScopeMatcher.createPattern(getDomainTextField().getText());
+                org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher.createPattern(
+                        getDomainTextField().getText());
             } catch (IllegalArgumentException e) {
                 JOptionPane.showMessageDialog(
                         this,
@@ -153,10 +156,11 @@ class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
     protected void performAction() {
         String value = getDomainTextField().getText();
         if (getRegexCheckBox().isSelected()) {
-            Pattern pattern = DomainAlwaysInScopeMatcher.createPattern(value);
-            domainAlwaysInScope = new DomainAlwaysInScopeMatcher(pattern);
+            Pattern pattern =
+                    org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher.createPattern(value);
+            domainAlwaysInScope = new org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher(pattern);
         } else {
-            domainAlwaysInScope = new DomainAlwaysInScopeMatcher(value);
+            domainAlwaysInScope = new org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher(value);
         }
 
         domainAlwaysInScope.setEnabled(getEnabledCheckBox().isSelected());
@@ -168,7 +172,7 @@ class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
         getDomainTextField().discardAllEdits();
     }
 
-    public DomainAlwaysInScopeMatcher getDomainAlwaysInScope() {
+    public org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher getDomainAlwaysInScope() {
         return domainAlwaysInScope;
     }
 

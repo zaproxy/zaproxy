@@ -55,11 +55,11 @@ public class ZapHeadMethod extends EntityEnclosingMethod {
     }
 
     /**
-     * Overrides {@link HttpMethodBase} method to <i>not</i> read a response body, despite the
-     * presence of a <tt>Content-Length</tt> or <tt>Transfer-Encoding</tt> header.
+     * Overrides {@code HttpMethodBase} method to <i>not</i> read a response body, despite the
+     * presence of a {@code Content-Length} or {@code Transfer-Encoding} header.
      *
      * @param state the {@link HttpState state} information associated with this method
-     * @param conn the {@link HttpConnection connection} used to execute this HTTP method
+     * @param conn the {@code HttpConnection connection} used to execute this HTTP method
      * @throws IOException if an I/O (transport) error occurs. Some transport exceptions can be
      *     recovered from.
      * @see #readResponse
@@ -78,12 +78,10 @@ public class ZapHeadMethod extends EntityEnclosingMethod {
         if (bodyCheckTimeout < 0) {
             responseBodyConsumed();
         } else {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(
-                        "Check for non-compliant response body. Timeout in "
-                                + bodyCheckTimeout
-                                + " ms");
-            }
+            LOG.debug(
+                    "Check for non-compliant response body. Timeout in "
+                            + bodyCheckTimeout
+                            + " ms");
             boolean responseAvailable = false;
             try {
                 responseAvailable = conn.isResponseAvailable(bodyCheckTimeout);

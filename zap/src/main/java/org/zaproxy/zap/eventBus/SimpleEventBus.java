@@ -56,7 +56,7 @@ public class SimpleEventBus implements EventBus {
      */
     private final Lock regMgmtLock = new ReentrantLock(true);
 
-    private static Logger log = LogManager.getLogger(SimpleEventBus.class);
+    private static final Logger LOGGER = LogManager.getLogger(SimpleEventBus.class);
 
     @Override
     public void registerPublisher(EventPublisher publisher, String... eventTypes) {
@@ -80,7 +80,7 @@ public class SimpleEventBus implements EventBus {
                                         .getClass()
                                         .getCanonicalName());
             }
-            log.debug("registerPublisher " + publisherName);
+            LOGGER.debug("registerPublisher {}", publisherName);
 
             RegisteredPublisher regProd =
                     new RegisteredPublisher(publisher, new HashSet<>(asList(eventTypes)));
@@ -122,7 +122,7 @@ public class SimpleEventBus implements EventBus {
         regMgmtLock.lock();
         try {
             String publisherName = publisher.getPublisherName();
-            log.debug("unregisterPublisher " + publisherName);
+            LOGGER.debug("unregisterPublisher {}", publisherName);
             if (nameToPublisher.remove(publisherName) == null) {
                 throw new InvalidParameterException(
                         "Publisher with name " + publisherName + " not registered");
@@ -149,11 +149,10 @@ public class SimpleEventBus implements EventBus {
 
         regMgmtLock.lock();
         try {
-            log.debug(
-                    "registerConsumer "
-                            + consumer.getClass().getCanonicalName()
-                            + " for "
-                            + publisherName);
+            LOGGER.debug(
+                    "registerConsumer {} for {}",
+                    consumer.getClass().getCanonicalName(),
+                    publisherName);
             RegisteredPublisher publisher = nameToPublisher.get(publisherName);
             if (publisher == null) {
                 // Cache until the publisher registers
@@ -175,7 +174,7 @@ public class SimpleEventBus implements EventBus {
 
         regMgmtLock.lock();
         try {
-            log.debug("unregisterConsumer " + consumer.getClass().getCanonicalName());
+            LOGGER.debug("unregisterConsumer {}", consumer.getClass().getCanonicalName());
             nameToPublisher.values().forEach(publisher -> publisher.removeConsumer(consumer));
             // Check to see if its cached waiting for a publisher
             removeDanglingConsumer(consumer);
@@ -197,11 +196,10 @@ public class SimpleEventBus implements EventBus {
 
         regMgmtLock.lock();
         try {
-            log.debug(
-                    "unregisterConsumer "
-                            + consumer.getClass().getCanonicalName()
-                            + " for "
-                            + publisherName);
+            LOGGER.debug(
+                    "unregisterConsumer {} for {}",
+                    consumer.getClass().getCanonicalName(),
+                    publisherName);
             RegisteredPublisher publisher = nameToPublisher.get(publisherName);
             if (publisher == null) {
                 // Check to see if its cached waiting for the publisher
@@ -228,7 +226,7 @@ public class SimpleEventBus implements EventBus {
             throw new InvalidParameterException("Publisher not registered: " + publisherName);
         }
 
-        log.debug("publishSyncEvent " + eventType + " from " + publisherName);
+        LOGGER.debug("publishSyncEvent {} from {}", eventType, publisherName);
         if (!regPublisher.isEventRegistered(eventType)) {
             throw new InvalidParameterException(
                     "Event type: " + eventType + " not registered for publisher: " + publisherName);
@@ -242,7 +240,7 @@ public class SimpleEventBus implements EventBus {
                             try {
                                 regCon.getConsumer().eventReceived(event);
                             } catch (Exception e) {
-                                log.error(e.getMessage(), e);
+                                LOGGER.error(e.getMessage(), e);
                             }
                         });
     }

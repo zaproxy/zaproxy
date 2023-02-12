@@ -20,11 +20,14 @@
 package org.zaproxy.zap.extension.pscan;
 
 import java.awt.GridBagLayout;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.I18N;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -49,18 +52,20 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
     private final ZapNumberSpinner passiveScanThreads;
     private final ZapNumberSpinner maxAlertsPerRule;
     private final ZapNumberSpinner maxBodySizeInBytes;
+    private final JButton clearQueue;
 
-    public PassiveScannerOptionsPanel(I18N messages) {
+    public PassiveScannerOptionsPanel(ExtensionPassiveScan extPassiveScan, I18N messages) {
         setName(messages.getString("pscan.options.main.name"));
 
         scanOnlyInScopeCheckBox =
                 new JCheckBox(messages.getString("pscan.options.main.label.scanOnlyInScope"));
         scanFuzzerMessagesCheckBox =
                 new JCheckBox(messages.getString("pscan.options.main.label.scanFuzzerMessages"));
-        passiveScanThreads =
-                new ZapNumberSpinner(1, PassiveScanParam.PASSIVE_SCAN_DEFAULT_THREADS, 50);
+        passiveScanThreads = new ZapNumberSpinner(1, Constant.getDefaultThreadCount(), 50);
         maxAlertsPerRule = new ZapNumberSpinner();
         maxBodySizeInBytes = new ZapNumberSpinner();
+        clearQueue = new JButton(messages.getString("pscan.options.main.label.clearQueue"));
+        clearQueue.addActionListener(al -> extPassiveScan.clearQueue());
 
         this.setLayout(new GridBagLayout());
 
@@ -85,10 +90,11 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
         maxBodySizeLabel.setLabelFor(maxBodySizeInBytes);
         this.add(maxBodySizeLabel, LayoutHelper.getGBC(0, ++y, 1, 1.0));
         this.add(maxBodySizeInBytes, LayoutHelper.getGBC(1, y, 1, 1.0));
-
+        this.add(clearQueue, LayoutHelper.getGBC(1, ++y, 1, 0.5));
         this.add(
-                new JLabel(messages.getString("pscan.options.main.footer.threadsApply")),
+                new ZapHtmlLabel(messages.getString("pscan.options.main.footer.threadsApply")),
                 LayoutHelper.getGBC(0, ++y, 2, 1.0));
+
         this.add(new JLabel(""), LayoutHelper.getGBC(0, ++y, 2, 1.0, 1.0));
     }
 

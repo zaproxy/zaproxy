@@ -31,6 +31,7 @@ import javax.swing.table.AbstractTableModel;
 
 /** @deprecated (2.12.0) No longer in use. */
 @Deprecated
+@SuppressWarnings("serial")
 public class AliasTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -4387633069248206563L;

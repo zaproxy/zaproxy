@@ -35,6 +35,7 @@ import javax.swing.table.TableCellRenderer;
  * @see TextMessageLocationHighlight
  * @see TextMessageLocationHighlightEditor
  */
+@SuppressWarnings("serial")
 public class TextMessageLocationHighlightRenderer extends JLabel implements TableCellRenderer {
 
     private static final long serialVersionUID = -2552011824130705284L;

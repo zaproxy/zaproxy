@@ -26,7 +26,10 @@ import org.apache.logging.log4j.Logger;
 /**
  * A FetchFilter is used to filter which resources should be fetched and processed by the Spider and
  * which shouldn't. This filter is applied before adding the resource in the processing queue.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public abstract class FetchFilter {
 
     /**

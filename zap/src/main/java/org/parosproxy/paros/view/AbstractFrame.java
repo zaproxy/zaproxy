@@ -28,6 +28,9 @@
 // ZAP: 2020/11/05 Remove abstract modifier.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/03 Removed deprecated loadIconImages()
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.view;
 
 import java.awt.Dimension;
@@ -62,6 +65,7 @@ import org.zaproxy.zap.utils.DisplayUtils;
  * #setPreferredSize(Dimension)} instead. Also, don't use {@link #setLocation(Point)}. This abstract
  * class will automatically take care of size and position.
  */
+@SuppressWarnings("serial")
 public class AbstractFrame extends JFrame {
 
     private static final long serialVersionUID = 6751593232255236597L;
@@ -77,7 +81,7 @@ public class AbstractFrame extends JFrame {
     private final Preferences preferences;
 
     private final String prefnzPrefix = this.getClass().getSimpleName() + ".";
-    private final Logger logger = LogManager.getLogger(AbstractFrame.class);
+    private static final Logger LOGGER = LogManager.getLogger(AbstractFrame.class);
 
     /** This is the default constructor */
     public AbstractFrame() {
@@ -125,28 +129,16 @@ public class AbstractFrame extends JFrame {
         if ((windowstate & Frame.ICONIFIED) == Frame.ICONIFIED) {
             preferences.put(
                     prefnzPrefix + PREF_WINDOW_STATE, SimpleWindowState.ICONIFIED.toString());
-            if (logger.isDebugEnabled())
-                logger.debug(
-                        "Saving preference "
-                                + PREF_WINDOW_STATE
-                                + "="
-                                + SimpleWindowState.ICONIFIED);
+            LOGGER.debug("Saving preference {}={}", PREF_WINDOW_STATE, SimpleWindowState.ICONIFIED);
         }
         if ((windowstate & Frame.MAXIMIZED_BOTH) == Frame.MAXIMIZED_BOTH) {
             preferences.put(
                     prefnzPrefix + PREF_WINDOW_STATE, SimpleWindowState.MAXIMIZED.toString());
-            if (logger.isDebugEnabled())
-                logger.debug(
-                        "Saving preference "
-                                + PREF_WINDOW_STATE
-                                + "="
-                                + SimpleWindowState.MAXIMIZED);
+            LOGGER.debug("Saving preference {}={}", PREF_WINDOW_STATE, SimpleWindowState.MAXIMIZED);
         }
         if (windowstate == Frame.NORMAL) { // hint: Frame.NORMAL = 0, thats why no masking
             preferences.put(prefnzPrefix + PREF_WINDOW_STATE, SimpleWindowState.NORMAL.toString());
-            if (logger.isDebugEnabled())
-                logger.debug(
-                        "Saving preference " + PREF_WINDOW_STATE + "=" + SimpleWindowState.NORMAL);
+            LOGGER.debug("Saving preference {}={}", PREF_WINDOW_STATE, SimpleWindowState.NORMAL);
         }
     }
 
@@ -159,8 +151,7 @@ public class AbstractFrame extends JFrame {
     private SimpleWindowState restoreWindowState() {
         SimpleWindowState laststate = null;
         final String statestr = preferences.get(prefnzPrefix + PREF_WINDOW_STATE, null);
-        if (logger.isDebugEnabled())
-            logger.debug("Restoring preference " + PREF_WINDOW_STATE + "=" + statestr);
+        LOGGER.debug("Restoring preference {}={}", PREF_WINDOW_STATE, statestr);
         if (statestr != null) {
             SimpleWindowState state = null;
             try {
@@ -180,7 +171,8 @@ public class AbstractFrame extends JFrame {
                         this.setExtendedState(Frame.MAXIMIZED_BOTH);
                         break;
                     default:
-                        logger.error("Invalid window state (nothing will changed): " + statestr);
+                        LOGGER.error(
+                                "Invalid window state (nothing will be changed): {}", statestr);
                 }
             }
             laststate = state;
@@ -197,22 +189,14 @@ public class AbstractFrame extends JFrame {
     private void saveWindowSize(Dimension size) {
         if (size != null) {
             if (getExtendedState() == Frame.NORMAL) {
-                if (logger.isDebugEnabled())
-                    logger.debug(
-                            "Saving preference "
-                                    + PREF_WINDOW_SIZE
-                                    + "="
-                                    + size.width
-                                    + ","
-                                    + size.height);
+                LOGGER.debug(
+                        "Saving preference {}={},{}", PREF_WINDOW_SIZE, size.width, size.height);
                 this.preferences.put(
                         prefnzPrefix + PREF_WINDOW_SIZE, size.width + "," + size.height);
             } else {
-                if (logger.isDebugEnabled())
-                    logger.debug(
-                            "Preference "
-                                    + PREF_WINDOW_SIZE
-                                    + " not saved, cause window state is not 'normal'.");
+                LOGGER.debug(
+                        "Preference {} not saved, cause window state is not 'normal'.",
+                        PREF_WINDOW_SIZE);
             }
         }
     }
@@ -237,14 +221,11 @@ public class AbstractFrame extends JFrame {
             }
             if (width > 0 && height > 0) {
                 result = new Dimension(width, height);
-                if (logger.isDebugEnabled())
-                    logger.debug(
-                            "Restoring preference "
-                                    + PREF_WINDOW_SIZE
-                                    + "="
-                                    + result.width
-                                    + ","
-                                    + result.height);
+                LOGGER.debug(
+                        "Restoring preference {}={},{}",
+                        PREF_WINDOW_SIZE,
+                        result.width,
+                        result.height);
                 this.setSize(result);
             }
         }
@@ -260,21 +241,12 @@ public class AbstractFrame extends JFrame {
     private void saveWindowLocation(Point point) {
         if (point != null) {
             if (getExtendedState() == Frame.NORMAL) {
-                if (logger.isDebugEnabled())
-                    logger.debug(
-                            "Saving preference "
-                                    + PREF_WINDOW_POSITION
-                                    + "="
-                                    + point.x
-                                    + ","
-                                    + point.y);
+                LOGGER.debug("Saving preference {}={},{}", PREF_WINDOW_POSITION, point.x, point.y);
                 this.preferences.put(prefnzPrefix + PREF_WINDOW_POSITION, point.x + "," + point.y);
             } else {
-                if (logger.isDebugEnabled())
-                    logger.debug(
-                            "Preference "
-                                    + PREF_WINDOW_POSITION
-                                    + " not saved, cause window state is not 'normal'.");
+                LOGGER.debug(
+                        "Preference {} not saved, cause window state is not 'normal'.",
+                        PREF_WINDOW_POSITION);
             }
         }
     }
@@ -299,14 +271,8 @@ public class AbstractFrame extends JFrame {
             }
             if (x > 0 && y > 0) {
                 result = new Point(x, y);
-                if (logger.isDebugEnabled())
-                    logger.debug(
-                            "Restoring preference "
-                                    + PREF_WINDOW_POSITION
-                                    + "="
-                                    + result.x
-                                    + ","
-                                    + result.y);
+                LOGGER.debug(
+                        "Restoring preference {}={},{}", PREF_WINDOW_POSITION, result.x, result.y);
                 this.setLocation(result);
             }
         }
@@ -319,7 +285,7 @@ public class AbstractFrame extends JFrame {
         try {
             this.preferences.flush();
         } catch (final BackingStoreException e) {
-            logger.error("Error while saving the preferences", e);
+            LOGGER.error("Error while saving the preferences", e);
         }
     }
 

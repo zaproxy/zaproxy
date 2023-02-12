@@ -442,5 +442,10 @@ class PluginTestUtils {
         public Map<String, String> getAlertTags() {
             return null;
         }
+
+        @Override
+        public String getDisplayName() {
+            return null;
+        }
     }
 }

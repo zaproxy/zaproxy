@@ -27,6 +27,7 @@ import org.parosproxy.paros.core.scanner.Alert;
  *
  * @since 1.4.0
  */
+@SuppressWarnings("serial")
 public class PopupMenuAlertEdit extends PopupMenuItemAlert {
 
     private static final long serialVersionUID = 1L;

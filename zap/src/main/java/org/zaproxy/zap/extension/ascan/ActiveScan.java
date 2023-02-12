@@ -79,7 +79,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
     private ScheduledExecutorService scheduler;
     private ScheduledFuture<?> schedHandle;
 
-    private static final Logger log = LogManager.getLogger(ActiveScan.class);
+    private static final Logger LOGGER = LogManager.getLogger(ActiveScan.class);
 
     @Deprecated
     public ActiveScan(
@@ -288,7 +288,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner
                 msg.setHistoryRef(null);
                 hRefs.add(hRef.getHistoryId());
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         } else {
             hRefs.add(hRef.getHistoryId());

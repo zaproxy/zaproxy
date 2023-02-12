@@ -27,11 +27,12 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
+@SuppressWarnings("serial")
 public class PopupMenuAlert extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = LogManager.getLogger(PopupMenuAlert.class);
+    private static final Logger LOGGER = LogManager.getLogger(PopupMenuAlert.class);
 
     private final ExtensionAlert extension;
 
@@ -54,13 +55,13 @@ public class PopupMenuAlert extends PopupMenuItemHistoryReferenceContainer {
             try {
                 extension.showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_SCANNER);
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         } else if (invoker == Invoker.FUZZER_PANEL) {
             try {
                 extension.showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_FUZZER);
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         } else {
             extension.showAlertAddDialog(href);

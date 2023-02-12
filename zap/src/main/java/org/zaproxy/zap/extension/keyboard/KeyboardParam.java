@@ -64,7 +64,7 @@ public class KeyboardParam extends AbstractParam {
                 }
             }
         } catch (ConversionException e) {
-            logger.error("Error while loading keyboard shortcuts " + e.getMessage(), e);
+            logger.error("Error while loading keyboard shortcuts {}", e.getMessage(), e);
         }
     }
 

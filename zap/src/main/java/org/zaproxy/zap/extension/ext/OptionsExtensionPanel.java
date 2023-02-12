@@ -40,6 +40,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.utils.ZapLabel;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ZapTable;
@@ -61,7 +62,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
     private JScrollPane extDescScrollPane = null;
     private JButton urlLaunchButton = null;
 
-    private static Logger log = LogManager.getLogger(OptionsExtensionPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(OptionsExtensionPanel.class);
 
     public OptionsExtensionPanel(ExtensionExtension ext) {
         super();
@@ -76,7 +77,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
         gbc.insets = new Insets(0, 0, 10, 0);
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        this.add(new JLabel(Constant.messages.getString("options.ext.label.enable")), gbc);
+        this.add(new ZapHtmlLabel(Constant.messages.getString("options.ext.label.enable")), gbc);
 
         gbc.insets = new Insets(0, 0, 0, 0);
         this.add(new TableFilterPanel<>(getTableExtension()), gbc);
@@ -170,7 +171,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
                                         }
                                     } catch (Exception e) {
                                         // Just to be safe
-                                        log.error(e.getMessage(), e);
+                                        LOGGER.error(e.getMessage(), e);
                                     }
                                 }
                             }

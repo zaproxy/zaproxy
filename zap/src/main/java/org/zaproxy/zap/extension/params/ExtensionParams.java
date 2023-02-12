@@ -74,7 +74,7 @@ public class ExtensionParams extends ExtensionAdaptor
     private PopupMenuRemoveSession popupMenuRemoveSession = null;
     private Map<String, SiteParameters> siteParamsMap = new HashMap<>();
 
-    private Logger logger = LogManager.getLogger(ExtensionParams.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionParams.class);
 
     private ExtensionHttpSessions extensionHttpSessions;
     private ParamScanner paramScanner;
@@ -209,7 +209,7 @@ public class ExtensionParams extends ExtensionAdaptor
                             }
                         });
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -259,7 +259,7 @@ public class ExtensionParams extends ExtensionAdaptor
                 sps.addParam(param.getSite(), param);
             }
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -289,7 +289,7 @@ public class ExtensionParams extends ExtensionAdaptor
                 persist(sps.addParam(site, iter.next(), msg));
             }
         } catch (IllegalArgumentException e) {
-            logger.warn("Failed to obtain the cookies: " + e.getMessage(), e);
+            LOGGER.warn("Failed to obtain the cookies: {}", e.getMessage(), e);
         }
 
         // URL Parameters
@@ -382,15 +382,13 @@ public class ExtensionParams extends ExtensionAdaptor
             }
         } catch (DatabaseException e) {
             if (e.getCause().getMessage().contains("truncation")) {
-                logger.warn("Could not add or update param: " + param.getName());
-                logger.warn(
+                LOGGER.warn("Could not add or update param: {}", param.getName());
+                LOGGER.warn(
                         "It is likely that the length of one of the data elements exceeded the column size.");
-                logger.warn(e.getMessage());
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                LOGGER.warn(e.getMessage());
+                LOGGER.debug(e.getMessage(), e);
             } else {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -415,7 +413,7 @@ public class ExtensionParams extends ExtensionAdaptor
                 persist(sps.addParam(site, iter.next(), msg));
             }
         } catch (IllegalArgumentException e) {
-            logger.warn("Failed to obtain the cookies: " + e.getMessage(), e);
+            LOGGER.warn("Failed to obtain the cookies: {}", e.getMessage(), e);
         }
 
         // Header "Parameters"

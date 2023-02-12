@@ -92,6 +92,9 @@
 // ZAP: 2022/02/09 Remove method call no longer needed.
 // ZAP: 2022/02/26 Remove code deprecated in 2.5.0
 // ZAP: 2022/05/29 Implement getOptionsDialog().
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2022/09/27 Added dialog methods with ZapHtmlLabel parameter.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -139,6 +142,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.keyboard.ExtensionKeyboard;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextExcludePanel;
 import org.zaproxy.zap.view.ContextGeneralPanel;
@@ -195,7 +199,7 @@ public class View implements ViewDelegate {
     private Map<ContextPanelFactory, List<AbstractContextPropertiesPanel>>
             contextPanelFactoriesPanels = new HashMap<>();
 
-    private static final Logger logger = LogManager.getLogger(View.class);
+    private static final Logger LOGGER = LogManager.getLogger(View.class);
 
     // ZAP: splash screen
     private SplashScreen splashScreen = null;
@@ -433,9 +437,20 @@ public class View implements ViewDelegate {
         return showConfirmDialog(getMainFrame(), msg);
     }
 
+    /** @since 2.12.0 */
+    public int showConfirmDialog(ZapHtmlLabel label) {
+        return showConfirmDialog(getMainFrame(), label);
+    }
+
     public int showConfirmDialog(JPanel parent, String msg) {
         return JOptionPane.showConfirmDialog(
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
+    }
+
+    /** @since 2.12.0 */
+    public int showConfirmDialog(JPanel parent, ZapHtmlLabel label) {
+        return JOptionPane.showConfirmDialog(
+                parent, label, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
     }
 
     public int showConfirmDialog(Window parent, String msg) {
@@ -443,9 +458,20 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
     }
 
+    /** @since 2.12.0 */
+    public int showConfirmDialog(Window parent, ZapHtmlLabel label) {
+        return JOptionPane.showConfirmDialog(
+                parent, label, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
+    }
+
     @Override
     public int showYesNoCancelDialog(String msg) {
         return showYesNoCancelDialog(getMainFrame(), msg);
+    }
+
+    /** @since 2.12.0 */
+    public int showYesNoCancelDialog(ZapHtmlLabel label) {
+        return showYesNoCancelDialog(getMainFrame(), label);
     }
 
     public int showYesNoCancelDialog(JPanel parent, String msg) {
@@ -453,9 +479,21 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
     }
 
+    /** @since 2.12.0 */
+    public int showYesNoCancelDialog(JPanel parent, ZapHtmlLabel label) {
+        return JOptionPane.showConfirmDialog(
+                parent, label, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
+    }
+
     public int showYesNoCancelDialog(Window parent, String msg) {
         return JOptionPane.showConfirmDialog(
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
+    }
+
+    /** @since 2.12.0 */
+    public int showYesNoCancelDialog(Window parent, ZapHtmlLabel label) {
+        return JOptionPane.showConfirmDialog(
+                parent, label, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
     }
 
     @Override
@@ -463,9 +501,20 @@ public class View implements ViewDelegate {
         showWarningDialog(getMainFrame(), msg);
     }
 
+    /** @since 2.12.0 */
+    public void showWarningDialog(ZapHtmlLabel label) {
+        showWarningDialog(getMainFrame(), label);
+    }
+
     public void showWarningDialog(JPanel parent, String msg) {
         JOptionPane.showMessageDialog(
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+    }
+
+    /** @since 2.12.0 */
+    public void showWarningDialog(JPanel parent, ZapHtmlLabel label) {
+        JOptionPane.showMessageDialog(
+                parent, label, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
     }
 
     public void showWarningDialog(Window parent, String msg) {
@@ -473,9 +522,20 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
     }
 
+    /** @since 2.12.0 */
+    public void showWarningDialog(Window parent, ZapHtmlLabel label) {
+        JOptionPane.showMessageDialog(
+                parent, label, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+    }
+
     @Override
     public void showMessageDialog(String msg) {
         showMessageDialog(getMainFrame(), msg);
+    }
+
+    /** @since 2.12.0 */
+    public void showMessageDialog(ZapHtmlLabel label) {
+        showMessageDialog(getMainFrame(), label);
     }
 
     public void showMessageDialog(JPanel parent, String msg) {
@@ -483,9 +543,21 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /** @since 2.12.0 */
+    public void showMessageDialog(JPanel parent, ZapHtmlLabel label) {
+        JOptionPane.showMessageDialog(
+                parent, label, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
+    }
+
     public void showMessageDialog(Window parent, String msg) {
         JOptionPane.showMessageDialog(
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    /** @since 2.12.0 */
+    public void showMessageDialog(Window parent, ZapHtmlLabel label) {
+        JOptionPane.showMessageDialog(
+                parent, label, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
     }
 
     private JCheckBox getRememberCheckbox() {
@@ -555,11 +627,11 @@ public class View implements ViewDelegate {
         if (view == null) {
             if (daemon) {
                 Exception e = new Exception("Attempting to initialise View in daemon mode");
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 return null;
             }
 
-            logger.info("Initialising View");
+            LOGGER.info("Initialising View");
             view = new View();
             view.init();
         }
@@ -1030,7 +1102,7 @@ public class View implements ViewDelegate {
         }
 
         if (!(message instanceof HttpMessage)) {
-            logger.warn("Unable to display message: " + message.getClass().getCanonicalName());
+            LOGGER.warn("Unable to display message: {}", message.getClass().getCanonicalName());
             return;
         }
 

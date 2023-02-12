@@ -39,11 +39,9 @@ import org.zaproxy.zap.extension.ruleconfig.RuleConfigAPI;
 import org.zaproxy.zap.extension.script.ScriptAPI;
 import org.zaproxy.zap.extension.search.SearchAPI;
 import org.zaproxy.zap.extension.sessions.SessionManagementAPI;
-import org.zaproxy.zap.extension.spider.SpiderAPI;
 import org.zaproxy.zap.extension.stats.StatsAPI;
 import org.zaproxy.zap.extension.stats.StatsParam;
 import org.zaproxy.zap.extension.users.UsersAPI;
-import org.zaproxy.zap.spider.SpiderParam;
 
 /**
  * Utility class for the API generators
@@ -74,10 +72,6 @@ public class ApiGeneratorUtils {
 
         api = new AutoUpdateAPI(null);
         api.addApiOptions(new OptionsParamCheckForUpdates());
-        imps.add(api);
-
-        api = new SpiderAPI(null);
-        api.addApiOptions(new SpiderParam());
         imps.add(api);
 
         api = new CoreAPI();

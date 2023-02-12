@@ -55,6 +55,8 @@
 // ZAP: 2022/04/23 Use new HttpSender constructor.
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
 // ZAP: 2022/06/09 Name the threads.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -105,7 +107,7 @@ public class Scanner implements Runnable {
     public static final String TIME_POSTFIX = ".time";
     public static final String URLS_POSTFIX = ".urls";
 
-    private static Logger log = LogManager.getLogger(Scanner.class);
+    private static final Logger LOGGER = LogManager.getLogger(Scanner.class);
     private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
 
     private Vector<ScannerListener> listenerList = new Vector<>();
@@ -196,7 +198,7 @@ public class Scanner implements Runnable {
 
     public void start(Target target) {
         isStop = false;
-        log.info("scanner started");
+        LOGGER.info("scanner started");
         startTimeMillis = System.currentTimeMillis();
         this.target = target;
         Thread thread = new Thread(this);
@@ -209,7 +211,7 @@ public class Scanner implements Runnable {
 
     public void stop() {
         if (!isStop) {
-            log.info("scanner stopped");
+            LOGGER.info("scanner stopped");
 
             isStop = true;
 
@@ -250,7 +252,7 @@ public class Scanner implements Runnable {
             //	    }
             pool.waitAllThreadComplete(0);
         } catch (Exception e) {
-            log.error("An error occurred while active scanning:", e);
+            LOGGER.error("An error occurred while active scanning:", e);
         } finally {
             notifyScannerComplete();
         }
@@ -400,7 +402,7 @@ public class Scanner implements Runnable {
     void notifyScannerComplete() {
         long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
         String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
-        log.info("scanner completed in " + diffTimeString);
+        LOGGER.info("scanner completed in {}", diffTimeString);
         isStop = true;
 
         ActiveScanEventPublisher.publishScanEvent(
@@ -419,9 +421,9 @@ public class Scanner implements Runnable {
                 ScannerHook hook = hookList.get(i);
                 hook.scannerComplete();
             } catch (Exception e) {
-                log.info(
-                        "An exception occurred while notifying a ScannerHook about scanner completion: "
-                                + e.getMessage(),
+                LOGGER.info(
+                        "An exception occurred while notifying a ScannerHook about scanner completion: {}",
+                        e.getMessage(),
                         e);
             }
         }
@@ -501,9 +503,7 @@ public class Scanner implements Runnable {
         if (excludeUrls != null) {
             for (Pattern p : excludeUrls) {
                 if (p.matcher(nodeName).matches()) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("URL excluded: " + nodeName + " Regex: " + p.pattern());
-                    }
+                    LOGGER.debug("URL excluded: {} Regex: {}", nodeName, p.pattern());
                     // Explicitly excluded
                     return false;
                 }

@@ -28,6 +28,8 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
+// ZAP: 2022/09/21 Remove unnecessary debug level checking.
+// ZAP: 2023/01/10 Tidy up logger.
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
@@ -51,7 +53,7 @@ public class ParosDatabaseServer implements DatabaseServer {
     public static final int DEFAULT_SERVER_PORT = 9001;
 
     // ZAP: Added the class variable.
-    private static final Logger logger = LogManager.getLogger(ParosDatabaseServer.class);
+    private static final Logger LOGGER = LogManager.getLogger(ParosDatabaseServer.class);
 
     //  change the url to reflect your preferred db location and name
     //  String url = "jdbc:hsqldb:hsql://localhost/yourtest";
@@ -92,9 +94,7 @@ public class ParosDatabaseServer implements DatabaseServer {
                         propsStream.close();
                     }
                 } catch (IOException e) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug(e.getMessage(), e);
-                    }
+                    LOGGER.debug(e.getMessage(), e);
                 }
             }
             String version = (String) dbProps.get("version");
@@ -154,12 +154,12 @@ public class ParosDatabaseServer implements DatabaseServer {
                 return conn;
             } catch (SQLException e) {
                 // ZAP: Changed to log the exception.
-                logger.warn(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
                 if (i == 4) {
                     throw e;
                 }
                 // ZAP: Changed to log the message.
-                logger.warn("Recovering " + i + " times.");
+                LOGGER.warn("Recovering {} times.", i);
             }
 
             try {
@@ -167,9 +167,7 @@ public class ParosDatabaseServer implements DatabaseServer {
                 // ZAP: Changed to catch the InterruptedException.
             } catch (InterruptedException e) {
                 // ZAP: Added the log.
-                if (logger.isDebugEnabled()) {
-                    logger.debug(e.getMessage(), e);
-                }
+                LOGGER.debug(e.getMessage(), e);
             }
         }
         return conn;

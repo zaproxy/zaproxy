@@ -83,7 +83,7 @@ import org.zaproxy.zap.utils.HarUtils;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
-    private static final Logger logger = LogManager.getLogger(CoreAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(CoreAPI.class);
 
     private enum ScanReportType {
         HTML,
@@ -391,18 +391,23 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_HTML_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_JSON_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_MD_REPORT)));
-        this.addApiOthers(new ApiOther(OTHER_MESSAGE_HAR, new String[] {PARAM_ID}));
         this.addApiOthers(
-                new ApiOther(
-                        OTHER_MESSAGES_HAR,
-                        null,
-                        new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
-        this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR_BY_ID, new String[] {PARAM_IDS}));
+                depreciatedEximApi(new ApiOther(OTHER_MESSAGE_HAR, new String[] {PARAM_ID})));
         this.addApiOthers(
-                new ApiOther(
-                        OTHER_SEND_HAR_REQUEST,
-                        new String[] {PARAM_REQUEST},
-                        new String[] {PARAM_FOLLOW_REDIRECTS}));
+                depreciatedEximApi(
+                        new ApiOther(
+                                OTHER_MESSAGES_HAR,
+                                null,
+                                new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT})));
+        this.addApiOthers(
+                depreciatedEximApi(
+                        new ApiOther(OTHER_MESSAGES_HAR_BY_ID, new String[] {PARAM_IDS})));
+        this.addApiOthers(
+                depreciatedEximApi(
+                        new ApiOther(
+                                OTHER_SEND_HAR_REQUEST,
+                                new String[] {PARAM_REQUEST},
+                                new String[] {PARAM_FOLLOW_REDIRECTS})));
 
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
@@ -473,6 +478,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         return depreciatedApi(element, Constant.messages.getString("core.api.depreciated.report"));
     }
 
+    private <T extends ApiElement> T depreciatedEximApi(T element) {
+        return depreciatedApi(element, Constant.messages.getString("core.api.deprecated.exim"));
+    }
+
     private <T extends ApiElement> T depreciatedApi(T element, String description) {
         element.setDeprecated(true);
         element.setDeprecatedDescription(description);
@@ -524,9 +533,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                                         .getOptionsParam()
                                                         .getDatabaseParam()
                                                         .isCompactDatabase());
-                                logger.info(Constant.PROGRAM_TITLE + " terminated.");
+                                LOGGER.info("{} terminated.", Constant.PROGRAM_TITLE);
                             } catch (Throwable e) {
-                                logger.error("An error occurred while shutting down:", e);
+                                LOGGER.error("An error occurred while shutting down:", e);
                             } finally {
                                 System.exit(Control.getSingleton().getExitStatus());
                             }
@@ -536,7 +545,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
         } else if (ACTION_SAVE_SESSION.equalsIgnoreCase(
                 name)) { // Ignore case for backwards compatibility
-            Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
+            Path sessionPath = getSessionPath(params.getString(PARAM_SESSION));
             String filename = sessionPath.toAbsolutePath().toString();
 
             final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
@@ -548,7 +557,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         sameSession =
                                 Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
                     } catch (IOException e) {
-                        logger.error("Failed to check if same session path:", e);
+                        LOGGER.error("Failed to check if same session path:", e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     }
                 }
@@ -561,7 +570,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 Control.getSingleton().saveSession(filename, this);
             } catch (Exception e) {
-                logger.error("Failed to save the session:", e);
+                LOGGER.error("Failed to save the session:", e);
                 this.savingSession = false;
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             }
@@ -572,9 +581,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 }
             } catch (InterruptedException e) {
                 // Probably not an error
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            logger.debug("Can now return after saving session");
+            LOGGER.debug("Can now return after saving session");
 
         } else if (ACTION_SNAPSHOT_SESSION.equalsIgnoreCase(
                 name)) { // Ignore case for backwards compatibility
@@ -599,7 +608,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 }
                 fileName += "-" + dateFormat.format(new Date()) + ".session";
             } else {
-                Path sessionPath = SessionUtils.getSessionPath(fileName);
+                Path sessionPath = getSessionPath(fileName);
                 fileName = sessionPath.toAbsolutePath().toString();
 
                 if (Files.exists(sessionPath)) {
@@ -609,7 +618,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         sameSession =
                                 Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
                     } catch (IOException e) {
-                        logger.error("Failed to check if same session path:", e);
+                        LOGGER.error("Failed to check if same session path:", e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     }
 
@@ -623,7 +632,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 Control.getSingleton().snapshotSession(fileName, this);
             } catch (Exception e) {
-                logger.error("Failed to snapshot the session:", e);
+                LOGGER.error("Failed to snapshot the session:", e);
                 this.savingSession = false;
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             }
@@ -634,13 +643,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 }
             } catch (InterruptedException e) {
                 // Probably not an error
-                logger.debug(e.getMessage(), e);
+                LOGGER.debug(e.getMessage(), e);
             }
-            logger.debug("Can now return after saving session");
+            LOGGER.debug("Can now return after saving session");
 
         } else if (ACTION_LOAD_SESSION.equalsIgnoreCase(
                 name)) { // Ignore case for backwards compatibility
-            Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
+            Path sessionPath = getSessionPath(params.getString(PARAM_SESSION));
             String filename = sessionPath.toAbsolutePath().toString();
 
             if (!Files.exists(sessionPath)) {
@@ -649,7 +658,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 Control.getSingleton().runCommandLineOpenSession(filename);
             } catch (Exception e) {
-                logger.error("Failed to load the session:", e);
+                LOGGER.error("Failed to load the session:", e);
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             }
 
@@ -667,11 +676,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 try {
                     Control.getSingleton().newSession();
                 } catch (Exception e) {
-                    logger.error("Failed to create a new session:", e);
+                    LOGGER.error("Failed to create a new session:", e);
                     throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                 }
             } else {
-                Path sessionPath = SessionUtils.getSessionPath(sessionName);
+                Path sessionPath = getSessionPath(sessionName);
                 String filename = sessionPath.toAbsolutePath().toString();
 
                 final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
@@ -682,7 +691,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 try {
                     Control.getSingleton().runCommandLineNewSession(filename);
                 } catch (Exception e) {
-                    logger.error("Failed to create a new session:", e);
+                    LOGGER.error("Failed to create a new session:", e);
                     throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                 }
             }
@@ -697,7 +706,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 session.addExcludeFromProxyRegex(regex);
             } catch (DatabaseException e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
                 throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             } catch (PatternSyntaxException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
@@ -871,6 +880,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         return ApiResponseElement.OK;
     }
 
+    private static Path getSessionPath(String path) throws ApiException {
+        try {
+            return SessionUtils.getSessionPath(path);
+        } catch (IllegalArgumentException e) {
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_SESSION, e);
+        }
+    }
+
     private static ApiImplementor getNetworkImplementor() throws ApiException {
         return API.getInstance().getImplementors().get("network");
     }
@@ -969,7 +986,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         } catch (ApiException e) {
             throw e;
         } catch (Exception e) {
-            logger.warn("Failed to send the HTTP request:", e);
+            LOGGER.warn("Failed to send the HTTP request:", e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
         }
     }
@@ -1029,7 +1046,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                             HistoryReference.TYPE_ZAP_USER,
                             message);
         } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
+            LOGGER.warn(e.getMessage(), e);
             return;
         }
 
@@ -1242,7 +1259,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         try {
             recordHistory = tableHistory.read(id);
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            logger.error("Failed to read the history record:", e);
+            LOGGER.error("Failed to read the history record:", e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
         }
         if (recordHistory == null) {
@@ -1320,7 +1337,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         e.toString(API.Format.JSON, incErrorDetails())
                                 .getBytes(StandardCharsets.UTF_8);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
 
                 ApiException apiException =
                         new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -1335,7 +1352,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         API.getDefaultResponseHeader(
                                 "application/json; charset=UTF-8", responseBody.length));
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: " + e.getMessage(), e);
+                LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
             }
             msg.setResponseBody(responseBody);
 
@@ -1367,7 +1384,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         e.toString(API.Format.JSON, incErrorDetails())
                                 .getBytes(StandardCharsets.UTF_8);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
 
                 ApiException apiException =
                         new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -1382,7 +1399,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         API.getDefaultResponseHeader(
                                 "application/json; charset=UTF-8", responseBody.length));
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: " + e.getMessage(), e);
+                LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
             }
             msg.setResponseBody(responseBody);
 
@@ -1433,7 +1450,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 e.toString(API.Format.JSON, incErrorDetails())
                                         .getBytes(StandardCharsets.UTF_8);
                     } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
+                        LOGGER.error(e.getMessage(), e);
 
                         ApiException apiException =
                                 new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -1450,7 +1467,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                         API.getDefaultResponseHeader(
                                 "application/json; charset=UTF-8", responseBody.length));
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: " + e.getMessage(), e);
+                LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
             }
             msg.setResponseBody(responseBody);
 
@@ -1464,7 +1481,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 msg.getResponseHeader()
                         .addHeader(HttpResponseHeader.CACHE_CONTROL, API_SCRIPT_CACHE_CONTROL);
             } catch (HttpMalformedHeaderException e) {
-                logger.error("Failed to create response header: " + e.getMessage(), e);
+                LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
             }
 
             return msg;
@@ -1565,10 +1582,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 
             if (!xmlFile.delete()) {
-                logger.debug("Failed to delete temporary report file " + xmlFile.getAbsolutePath());
+                LOGGER.debug(
+                        "Failed to delete temporary report file {}", xmlFile.getAbsolutePath());
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
         }
     }
@@ -1580,7 +1598,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 return this.handleApiOther(msg, OTHER_SCRIPT_JS, new JSONObject());
             }
         } catch (URIException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR);
         }
         throw new ApiException(
@@ -1638,7 +1656,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 }
             }
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR);
         }
     }
@@ -1673,13 +1691,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
     @Override
     public void sessionSaved(Exception e) {
-        logger.debug("Saved session notification");
+        LOGGER.debug("Saved session notification");
         this.savingSession = false;
     }
 
     @Override
     public void sessionSnapshot(Exception e) {
-        logger.debug("Snapshot session notification");
+        LOGGER.debug("Snapshot session notification");
         this.savingSession = false;
     }
 

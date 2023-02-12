@@ -24,6 +24,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 /** Unit test for {@link Analyser}. */
 class AnalyserUnitTest {
@@ -32,6 +34,23 @@ class AnalyserUnitTest {
     void shouldNotFailToCreatePathRegexWithReservedCharsInQuery() throws Exception {
         // Given
         URI uri = new URI("http://example.com/path?query=**", true);
+        // When
+        String regex = Analyser.getPathRegex(uri);
+        // Then
+        assertDoesNotThrow(() -> Pattern.compile(regex));
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "https://example.com/",
+                "https://example.com/path",
+                "http://example.com/path?query=foo",
+                "http://example.com/path?query=foo.bar.oof"
+            })
+    void shouldReturnCompileableRegexString(String url) throws Exception {
+        // Given
+        URI uri = new URI(url, true);
         // When
         String regex = Analyser.getPathRegex(uri);
         // Then

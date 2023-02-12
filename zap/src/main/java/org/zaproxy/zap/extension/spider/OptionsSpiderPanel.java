@@ -34,6 +34,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SortOrder;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -45,10 +46,8 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
-import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
+import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.PositiveValuesSlider;
@@ -56,7 +55,10 @@ import org.zaproxy.zap.view.PositiveValuesSlider;
 /**
  * The Class OptionsSpiderPanel defines the Options Panel showed when configuring settings related
  * to the spider.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public class OptionsSpiderPanel extends AbstractParamPanel {
 
     /** The Constant serialVersionUID. */
@@ -83,8 +85,10 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
     private JCheckBox chkAcceptCookies;
     private DomainsAlwaysInScopeMultipleOptionsPanel domainsAlwaysInScopePanel;
     private DomainsAlwaysInScopeTableModel domainsAlwaysInScopeTableModel;
+    private ZapTextArea irrelevantUrlParameters;
 
-    private JComboBox<HandleParametersOption> handleParameters = null;
+    private JComboBox<org.zaproxy.zap.spider.SpiderParam.HandleParametersOption> handleParameters =
+            null;
 
     /** Instantiates a new options spider panel. */
     public OptionsSpiderPanel() {
@@ -188,6 +192,20 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
             innerPanel.add(getChkParseGit(), gbc);
             innerPanel.add(getHandleODataSpecificParameters(), gbc);
 
+            ZapTextArea irrelevantUrlParameters = getIrrelevantUrlParameters();
+            JLabel label =
+                    new JLabel(
+                            Constant.messages.getString(
+                                    "spider.options.label.irrelevantUrlParameters"));
+            label.setLabelFor(irrelevantUrlParameters);
+            JScrollPane irrelevantUrlParametersScrollPane = new JScrollPane();
+            irrelevantUrlParametersScrollPane.setVerticalScrollBarPolicy(
+                    ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+            irrelevantUrlParametersScrollPane.setViewportView(irrelevantUrlParameters);
+
+            innerPanel.add(label, gbc);
+            innerPanel.add(irrelevantUrlParametersScrollPane, gbc);
+
             JScrollPane scrollPane = new JScrollPane(innerPanel);
             scrollPane.setBorder(BorderFactory.createEmptyBorder());
 
@@ -200,7 +218,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
     public void initParam(Object obj) {
         OptionsParam options = (OptionsParam) obj;
 
-        SpiderParam param = options.getParamSet(SpiderParam.class);
+        org.zaproxy.zap.spider.SpiderParam param =
+                options.getParamSet(org.zaproxy.zap.spider.SpiderParam.class);
         getSliderMaxDepth().setValue(param.getMaxDepth());
         getSliderThreads().setValue(param.getThreadCount());
         getDurationNumberSpinner().setValue(param.getMaxDuration());
@@ -221,12 +240,15 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         getChkParseGit().setSelected(param.isParseGit());
         getComboHandleParameters().setSelectedItem(param.getHandleParameters());
         getHandleODataSpecificParameters().setSelected(param.isHandleODataParametersVisited());
+        getIrrelevantUrlParameters().setText(param.getIrrelevantUrlParametersAsString());
+        getIrrelevantUrlParameters().discardAllEdits();
     }
 
     @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam options = (OptionsParam) obj;
-        SpiderParam param = options.getParamSet(SpiderParam.class);
+        org.zaproxy.zap.spider.SpiderParam param =
+                options.getParamSet(org.zaproxy.zap.spider.SpiderParam.class);
         param.setMaxDepth(getSliderMaxDepth().getValue());
         param.setThreadCount(getSliderThreads().getValue());
         param.setMaxDuration(getDurationNumberSpinner().getValue());
@@ -246,8 +268,10 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         param.setParseSVNEntries(getChkParseSVNEntries().isSelected());
         param.setParseGit(getChkParseGit().isSelected());
         param.setHandleParameters(
-                (HandleParametersOption) getComboHandleParameters().getSelectedItem());
+                (org.zaproxy.zap.spider.SpiderParam.HandleParametersOption)
+                        getComboHandleParameters().getSelectedItem());
         param.setHandleODataParametersVisited(getHandleODataSpecificParameters().isSelected());
+        param.setIrrelevantUrlParameters(getIrrelevantUrlParameters().getText());
     }
 
     /**
@@ -451,14 +475,17 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
      * @return the combo handle parameters
      */
     @SuppressWarnings("unchecked")
-    private JComboBox<HandleParametersOption> getComboHandleParameters() {
+    private JComboBox<org.zaproxy.zap.spider.SpiderParam.HandleParametersOption>
+            getComboHandleParameters() {
         if (handleParameters == null) {
             handleParameters =
                     new JComboBox<>(
-                            new HandleParametersOption[] {
-                                HandleParametersOption.USE_ALL,
-                                HandleParametersOption.IGNORE_VALUE,
-                                HandleParametersOption.IGNORE_COMPLETELY
+                            new org.zaproxy.zap.spider.SpiderParam.HandleParametersOption[] {
+                                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption.USE_ALL,
+                                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption
+                                        .IGNORE_VALUE,
+                                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption
+                                        .IGNORE_COMPLETELY
                             });
             handleParameters.setRenderer(new HandleParametersOptionRenderer());
         }
@@ -481,6 +508,14 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         return domainsAlwaysInScopeTableModel;
     }
 
+    private ZapTextArea getIrrelevantUrlParameters() {
+        if (irrelevantUrlParameters == null) {
+            irrelevantUrlParameters = new ZapTextArea();
+            irrelevantUrlParameters.setLineWrap(true);
+        }
+        return irrelevantUrlParameters;
+    }
+
     /** A renderer for properly displaying the name of the HandleParametersOptions in a ComboBox. */
     private static class HandleParametersOptionRenderer extends BasicComboBoxRenderer {
         private static final long serialVersionUID = 3654541772447187317L;
@@ -493,7 +528,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
             super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
             if (value != null) {
                 setBorder(BORDER);
-                HandleParametersOption item = (HandleParametersOption) value;
+                org.zaproxy.zap.spider.SpiderParam.HandleParametersOption item =
+                        (org.zaproxy.zap.spider.SpiderParam.HandleParametersOption) value;
                 setText(item.getName());
             }
             return this;
@@ -511,7 +547,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
     }
 
     private static class DomainsAlwaysInScopeMultipleOptionsPanel
-            extends AbstractMultipleOptionsTablePanel<DomainAlwaysInScopeMatcher> {
+            extends AbstractMultipleOptionsTablePanel<
+                    org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher> {
 
         private static final long serialVersionUID = 2332044353650231701L;
 
@@ -542,7 +579,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         }
 
         @Override
-        public DomainAlwaysInScopeMatcher showAddDialogue() {
+        public org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher showAddDialogue() {
             if (addDialog == null) {
                 addDialog =
                         new DialogAddDomainAlwaysInScope(
@@ -551,14 +588,16 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
             }
             addDialog.setVisible(true);
 
-            DomainAlwaysInScopeMatcher hostAuthentication = addDialog.getDomainAlwaysInScope();
+            org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher hostAuthentication =
+                    addDialog.getDomainAlwaysInScope();
             addDialog.clear();
 
             return hostAuthentication;
         }
 
         @Override
-        public DomainAlwaysInScopeMatcher showModifyDialogue(DomainAlwaysInScopeMatcher e) {
+        public org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher showModifyDialogue(
+                org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher e) {
             if (modifyDialog == null) {
                 modifyDialog =
                         new DialogModifyDomainAlwaysInScope(
@@ -568,7 +607,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
             modifyDialog.setDomainAlwaysInScope(e);
             modifyDialog.setVisible(true);
 
-            DomainAlwaysInScopeMatcher excludedDomain = modifyDialog.getDomainAlwaysInScope();
+            org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher excludedDomain =
+                    modifyDialog.getDomainAlwaysInScope();
             modifyDialog.clear();
 
             if (!excludedDomain.equals(e)) {
@@ -579,7 +619,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
         }
 
         @Override
-        public boolean showRemoveDialogue(DomainAlwaysInScopeMatcher e) {
+        public boolean showRemoveDialogue(org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher e) {
             JCheckBox removeWithoutConfirmationCheckBox =
                     new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
             Object[] messages = {REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox};

@@ -51,7 +51,8 @@ public interface TableAlert extends DatabaseListener {
             int historyId,
             int sourceHistoryId,
             int sourceId,
-            String alertRef)
+            String alertRef,
+            String inputVector)
             throws DatabaseException;
 
     Vector<Integer> getAlertListBySession(long sessionId) throws DatabaseException;
@@ -75,7 +76,8 @@ public interface TableAlert extends DatabaseListener {
             String evidence,
             int cweId,
             int wascId,
-            int sourceHistoryId)
+            int sourceHistoryId,
+            String inputVector)
             throws DatabaseException;
 
     void updateHistoryIds(int alertId, int historyId, int sourceHistoryId) throws DatabaseException;

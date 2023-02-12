@@ -99,6 +99,11 @@
 // the exim add-on.
 // ZAP: 2022/06/12 Deprecate getResendDialog().
 // ZAP: 2022/06/27 Make delete more consistent and protective (Issue 7336).
+// ZAP: 2022/09/14 Address deprecation warnings.
+// ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/01/11 Add "jump to" right-click menu item (Issue 7362).
+// ZAP: 2023/01/11 Prevent NPE in "showInHistory" when tab doesn't have focus.
+// ZAP: 2023/01/22 Add utility getHistoryIds() method.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -122,8 +127,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
-import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
 import org.parosproxy.paros.model.Model;
@@ -142,6 +145,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.history.ManageTagsDialog;
 import org.zaproxy.zap.extension.history.NotesAddDialog;
+import org.zaproxy.zap.extension.history.PopupMenuJumpTo;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
@@ -164,6 +168,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuPurgeHistory popupMenuPurgeHistory = null;
 
     private PopupMenuTag popupMenuTag = null;
+    private PopupMenuJumpTo popupMenuJumpTo;
 
     // ZAP: Added history notes
     private PopupMenuNote popupMenuNote = null;
@@ -189,7 +194,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      */
     private boolean sessionChanging;
 
-    private Logger logger = LogManager.getLogger(ExtensionHistory.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionHistory.class);
 
     public ExtensionHistory() {
         super(NAME);
@@ -260,6 +265,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             pv.addStatusPanel(getLogPanel());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuTag());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuJumpTo());
             // ZAP: Added history notes
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
 
@@ -384,7 +390,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         try {
             this.addHistory(new HistoryReference(Model.getSingleton().getSession(), type, msg));
         } catch (final Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -426,7 +432,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                 }
             }
         } catch (final Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -458,26 +464,37 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
     }
 
-    private void searchHistory(HistoryFilter historyFilter) {
+    /**
+     * Returns a sorted list of History IDs for the visible history references.
+     *
+     * @return a list of History IDs for the visible history references.
+     * @since 2.13.0
+     */
+    public List<Integer> getHistoryIds() {
         Session session = getModel().getSession();
 
-        synchronized (historyTableModel) {
-            try {
-                // ZAP: Added type argument.
-                List<Integer> list =
-                        getModel()
-                                .getDb()
-                                .getTableHistory()
-                                .getHistoryIdsOfHistType(
-                                        session.getSessionId(),
-                                        HistoryReference.TYPE_PROXIED,
-                                        HistoryReference.TYPE_ZAP_USER,
-                                        HistoryReference.TYPE_PROXY_CONNECT);
+        try {
+            List<Integer> list =
+                    getModel()
+                            .getDb()
+                            .getTableHistory()
+                            .getHistoryIdsOfHistType(
+                                    session.getSessionId(),
+                                    HistoryReference.TYPE_PROXIED,
+                                    HistoryReference.TYPE_ZAP_USER,
+                                    HistoryReference.TYPE_PROXY_CONNECT);
+            Collections.sort(list);
+            return list;
+        } catch (DatabaseException e) {
+            LOGGER.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
+    }
 
-                buildHistory(list, historyFilter);
-            } catch (DatabaseException e) {
-                logger.error(e.getMessage(), e);
-            }
+    private void searchHistory(HistoryFilter historyFilter) {
+        synchronized (historyTableModel) {
+            List<Integer> list = getHistoryIds();
+            buildHistory(list, historyFilter);
         }
     }
 
@@ -522,7 +539,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                     historyTableModel.addHistoryReference(historyRef);
 
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
             if (hasView()) {
@@ -544,7 +561,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         try {
             dialog.setAllTags(getModel().getDb().getTableTag().getAllTags());
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         int exit = dialog.showDialog();
@@ -577,9 +594,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      * @deprecated (2.12.0) Replaced by Requester add-on.
      */
     @Deprecated
-    public ManualRequestEditorDialog getResendDialog() {
-        ManualRequestEditorDialog resendDialog =
-                new ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.manreq");
+    public org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog
+            getResendDialog() {
+        org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog resendDialog =
+                new org.parosproxy.paros.extension.manualrequest.http.impl
+                        .ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.manreq");
         resendDialog.setTitle(Constant.messages.getString("manReq.dialog.title")); // ZAP: i18n
         return resendDialog;
     }
@@ -589,6 +608,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             popupMenuTag = new PopupMenuTag(this);
         }
         return popupMenuTag;
+    }
+
+    private PopupMenuJumpTo getPopupMenuJumpTo() {
+        if (popupMenuJumpTo == null) {
+            popupMenuJumpTo = new PopupMenuJumpTo(this);
+        }
+        return popupMenuJumpTo;
     }
 
     private PopupMenuNote getPopupMenuNote() {
@@ -676,7 +702,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         try {
             manageTags.setAllTags(getModel().getDb().getTableTag().getAllTags());
         } catch (DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         manageTags.setTags(tags);
         manageTags.setHistoryRef(ref);
@@ -693,6 +719,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
     public void showInHistory(HistoryReference href) {
+        this.getLogPanel().setTabFocus();
         this.getLogPanel().display(href);
         this.getLogPanel().setTabFocus();
     }
@@ -719,7 +746,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                         });
             } catch (Exception e) {
                 // ZAP: Added logging.
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }
@@ -750,7 +777,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                     child = (SiteNode) node.getChildAt(0);
                     purge(map, child);
                 } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+                    LOGGER.error(e.getMessage(), e);
                 }
             }
 
@@ -966,7 +993,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                             | HttpMalformedHeaderException
                             | NullPointerException
                             | DatabaseException e) {
-                        logger.error("Failed to create temporary node:", e);
+                        LOGGER.error("Failed to create temporary node:", e);
                     }
                 }
             }
@@ -987,5 +1014,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         SiteNode parent = node.getParent();
         purge(map, node);
         purgeTemporaryParents(map, parent);
+    }
+
+    @Override
+    public void destroy() {
+        super.destroy();
+        if (hasView()) {
+            this.getHistoryReferencesTable().persistColumnConfiguration();
+        }
     }
 }

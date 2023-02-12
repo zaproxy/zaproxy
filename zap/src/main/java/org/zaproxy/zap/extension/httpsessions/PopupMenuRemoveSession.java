@@ -27,6 +27,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
  * The PopupMenuRemoveSession is used to delete a http session from the {@link
  * ExtensionHttpSessions} .
  */
+@SuppressWarnings("serial")
 public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
 
     /** The Constant serialVersionUID. */

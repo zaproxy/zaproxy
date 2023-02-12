@@ -1,16 +1,29 @@
+# syntax=docker/dockerfile:1
 # This dockerfile builds a 'live' zap docker image using the latest files in the repos
-FROM ubuntu:20.04 AS builder
+FROM --platform=linux/amd64 debian:bullseye-slim AS builder
+
+ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
+	openjdk-11-jdk \
 	wget \
 	curl \
-	unzip && \
-	apt-get clean
+	unzip \
+	git && \
+	rm -rf /var/lib/apt/lists/* && \
+	mkdir /zap-src
+
+WORKDIR /zap-src
+
+# Pull the ZAP repo and build ZAP with weekly add-ons
+RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
+	cd zaproxy && \
+	ZAP_WEEKLY_ADDONS_NO_TEST=true ./gradlew :zap:prepareDistWeekly
 
 WORKDIR /zap
 
 # Setup Webswing
-ENV WEBSWING_VERSION 22.1.2
+ENV WEBSWING_VERSION 22.2.4
 ARG WEBSWING_URL=""
 RUN if [ -z "$WEBSWING_URL" ] ; \
 	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
@@ -21,7 +34,7 @@ RUN if [ -z "$WEBSWING_URL" ] ; \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
 
-FROM ubuntu:20.04
+FROM debian:bullseye-slim AS final
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -43,73 +56,49 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	net-tools \
 	python3-pip \
 	python-is-python3 \
-	firefox \
+	firefox-esr \
 	vim \
 	xvfb \
 	x11vnc && \
-	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*  && \
-	useradd -d /home/zap -m -s /bin/bash zap && \
+	useradd -u 1000 -d /home/zap -m -s /bin/bash zap && \
 	echo zap:zap | chpasswd && \
 	mkdir /zap  && \
-	chown zap /zap && \
-	chgrp zap /zap && \
-	mkdir /zap-src  && \
-	chown zap /zap-src && \
-	chgrp zap /zap-src
+	chown zap:zap /zap
 
-RUN pip3 install --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3 zapcli
+RUN pip3 install --no-cache-dir --upgrade awscli pip python-owasp-zap-v2.4 pyyaml requests urllib3
 
 #Change to the zap user so things get done as the right person (apart from copy)
 USER zap
 
 RUN mkdir /home/zap/.vnc
 
-ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64/
+ARG TARGETARCH
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-$TARGETARCH
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 
-WORKDIR /zap-src
-
-# Pull the ZAP repo
-RUN git clone --depth 1 https://github.com/zaproxy/zaproxy.git && \
-	# Build ZAP with weekly add-ons
-	cd zaproxy && \
-	ZAP_WEEKLY_ADDONS_NO_TEST=true ./gradlew :zap:prepareDistWeekly && \
-	cp -R /zap-src/zaproxy/zap/build/distFilesWeekly/* /zap/ && \
-	rm -rf /zap-src/*
-
 ENV ZAP_PATH /zap/zap.sh
-# Default port for use with zapcli
+# Default port for use with health check
 ENV ZAP_PORT 8080
 ENV IS_CONTAINERIZED true
 ENV HOME /home/zap/
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-COPY zap* CHANGELOG.md /zap/
-COPY --from=builder /zap/webswing /zap/webswing
-COPY webswing.config /zap/webswing/
-COPY webswing.properties /zap/webswing/
-COPY policies /home/zap/.ZAP_D/policies/
-COPY policies /root/.ZAP_D/policies/
-COPY scripts /home/zap/.ZAP_D/scripts/
-COPY .xinitrc /home/zap/
+COPY --link --from=builder --chown=1000:1000 /zap-src/zaproxy/zap/build/distFilesWeekly/ /zap/
+COPY --link --chown=1000:1000 zap* CHANGELOG.md /zap/
+COPY --link --from=builder --chown=1000:1000 /zap/webswing /zap/webswing
+COPY --link --chown=1000:1000 webswing.config /zap/webswing/
+COPY --link --chown=1000:1000 webswing.properties /zap/webswing/
+COPY --link --chown=1000:1000 policies /home/zap/.ZAP_D/policies/
+COPY --link --chown=1000:1000 policies /root/.ZAP_D/policies/
+COPY --link --chown=1000:1000 scripts /home/zap/.ZAP_D/scripts/
+COPY --link --chown=1000:1000 .xinitrc /home/zap/
 
-RUN echo "zap2docker-live" > /zap/container
-
-#Copy doesn't respect USER directives so we need to chown and to do that we need to be root
-USER root
-
-RUN chown zap:zap /zap/* && \
-	chown zap:zap /zap/webswing/webswing.config && \
-	chown zap:zap /zap/webswing/webswing.properties && \
-	chown zap:zap -R /home/zap/.ZAP_D/ && \
-	chown zap:zap /home/zap/.xinitrc && \
-	chmod a+x /home/zap/.xinitrc && \
-	chmod +x /zap/zap.sh && \
-	rm -rf /zap-src
+RUN echo "zap2docker-live" > /zap/container && \
+    chmod a+x /home/zap/.xinitrc && \
+    chmod +x /zap/zap.sh
 
 WORKDIR /zap
 
-USER zap
-HEALTHCHECK --retries=5 --interval=5s CMD zap-cli status
+HEALTHCHECK CMD curl --silent --output /dev/null --fail http://localhost:$ZAP_PORT/ || exit 1

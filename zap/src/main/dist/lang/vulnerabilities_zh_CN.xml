@@ -165,7 +165,7 @@ Many file inclusion problems occur because the programmer assumed that certain i
 <vuln_items>wasc_6</vuln_items>
 <vuln_item_wasc_6>
 	<alert>格式化字符串</alert>
-	<desc>Format String Attacks alter the flow of an application by using string formatting library features to access other memory space. Vulnerabilities occur when user-supplied data are used directly as formatting string input for certain C/C++ functions (e.g. fprintf, printf, sprintf, setproctitle, syslog, ...).
+	<desc>格式字符串攻击通过字符串格式化库访问其他内存空间改变了应用程序的执行流程。 当用户提供的数据直接作为某些 C/C++ 函数（如 fprintf、printf、sprintf、setproctitle、syslog……）的字符串输入时，就会产生漏洞。
 
 如果某个攻击者在网络应用中提交了一个包含 printf 转义字符串（如 "%f"、"%p”、"%n" 等）标志作为参数，他们将可能会：
     * 执行服务器上的任意代码
@@ -185,12 +185,12 @@ Build: Heed the warnings of compilers and linkers, since they may alert you to i
 <vuln_items>wasc_7</vuln_items>
 <vuln_item_wasc_7>
 	<alert>缓冲区溢出</alert>
-	<desc>当写入内存块或缓冲区的数据多于分配给缓冲区保存的数据时，就会发生缓冲区溢出现象。 Exploiting a buffer overflow allows an attacker to modify portions of the target process’ address space. This ability can be used for a number of purposes, including the following:
-    * Control the process execution
-    * Crash the process
-    * Modify internal variables
+	<desc>当写入内存块或缓冲区的数据多于分配给缓冲区保存的数据时，就会发生缓冲区溢出现象。 Exploiting a buffer overflow allows an attacker to modify portions of the target process’ address space. 这种能力可用于如下所示的多种目的：
+    * 控制进程执行
+    * 使进程崩溃
+    * 更改内部变量
 
-The attacker’s goal is almost always to control the target process’ execution. This is accomplished by identifying a function pointer in memory that can be modified, directly or indirectly, using the overflow. When such a pointer is used by the program to direct program execution through a jump or call instruction, the attacker-supplied instruction location will be used, thereby allowing the attacker to control the process.
+攻击者的目标几乎总是控制目标进程的执行。 This is accomplished by identifying a function pointer in memory that can be modified, directly or indirectly, using the overflow. When such a pointer is used by the program to direct program execution through a jump or call instruction, the attacker-supplied instruction location will be used, thereby allowing the attacker to control the process.
 
 In many cases, the function pointer is modified to reference a location where the attacker has placed assembled machine-specific instructions. These instructions are commonly referred to as shellcode, in reference to the fact that attackers often wish to spawn a command-line environment, or shell, in the context of the running process.
 

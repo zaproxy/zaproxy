@@ -47,7 +47,7 @@ public class MainToolbarPanel extends JPanel {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Logger logger = LogManager.getLogger(MainToolbarPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(MainToolbarPanel.class);
 
     private JToolBar toolbar = null;
     private JComboBox<String> modeSelect = null;
@@ -130,6 +130,7 @@ public class MainToolbarPanel extends JPanel {
             addButton((JToggleButton) component);
         } else {
             getToolbar().add(component);
+            revalidateAndRepaintToolbar();
         }
     }
 
@@ -145,6 +146,11 @@ public class MainToolbarPanel extends JPanel {
         }
     }
 
+    private void revalidateAndRepaintToolbar() {
+        getToolbar().revalidate();
+        getToolbar().repaint();
+    }
+
     /**
      * Removes the given component to the tool bar.
      *
@@ -156,13 +162,13 @@ public class MainToolbarPanel extends JPanel {
         validateComponentNonNull(component);
 
         getToolbar().remove(component);
-        getToolbar().validate();
-        getToolbar().repaint();
+        revalidateAndRepaintToolbar();
     }
 
     public void addButton(JButton button) {
         DisplayUtils.scaleIcon(button);
         getToolbar().add(button);
+        revalidateAndRepaintToolbar();
     }
 
     public void removeButton(JButton button) {
@@ -172,6 +178,7 @@ public class MainToolbarPanel extends JPanel {
     public void addButton(JToggleButton button) {
         DisplayUtils.scaleIcon(button);
         getToolbar().add(button);
+        revalidateAndRepaintToolbar();
     }
 
     public void removeButton(JToggleButton button) {
@@ -180,10 +187,12 @@ public class MainToolbarPanel extends JPanel {
 
     public void addSeparator() {
         getToolbar().addSeparator();
+        revalidateAndRepaintToolbar();
     }
 
     public void addSeparator(JToolBar.Separator separator) {
         getToolbar().add(separator);
+        revalidateAndRepaintToolbar();
     }
 
     public void removeSeparator(JToolBar.Separator separator) {
@@ -286,7 +295,7 @@ public class MainToolbarPanel extends JPanel {
                             try {
                                 Control.getSingleton().getMenuFileControl().newSession(true);
                             } catch (Exception ex) {
-                                logger.error(ex.getMessage(), ex);
+                                LOGGER.error(ex.getMessage(), ex);
                                 View.getSingleton()
                                         .showWarningDialog(
                                                 Constant.messages.getString(
@@ -318,7 +327,7 @@ public class MainToolbarPanel extends JPanel {
                             try {
                                 Control.getSingleton().getMenuFileControl().openSession();
                             } catch (Exception ex) {
-                                logger.error(ex.getMessage(), ex);
+                                LOGGER.error(ex.getMessage(), ex);
                                 View.getSingleton()
                                         .showWarningDialog(
                                                 Constant.messages.getString(
@@ -357,7 +366,7 @@ public class MainToolbarPanel extends JPanel {
                                                             "menu.file.sessionExists.error"));
                                 }
                             } catch (Exception ex) {
-                                logger.error(ex.getMessage(), ex);
+                                LOGGER.error(ex.getMessage(), ex);
                                 View.getSingleton()
                                         .showWarningDialog(
                                                 Constant.messages.getString(
@@ -397,7 +406,7 @@ public class MainToolbarPanel extends JPanel {
                                     Control.getSingleton().getMenuFileControl().saveSnapshot();
                                 }
                             } catch (Exception ex) {
-                                logger.error(ex.getMessage(), ex);
+                                LOGGER.error(ex.getMessage(), ex);
                                 View.getSingleton()
                                         .showWarningDialog(
                                                 Constant.messages.getString(

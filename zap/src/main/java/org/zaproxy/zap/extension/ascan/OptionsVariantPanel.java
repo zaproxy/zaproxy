@@ -39,6 +39,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -353,7 +354,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
 
             // Excluded Parameters
             panelVariant.add(
-                    new JLabel(
+                    new ZapHtmlLabel(
                             Constant.messages.getString(
                                     "variant.options.excludedparam.label.tokens")),
                     LayoutHelper.getGBC(

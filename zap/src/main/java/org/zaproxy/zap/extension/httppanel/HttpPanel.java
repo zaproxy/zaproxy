@@ -59,6 +59,7 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelComponent;
 
+@SuppressWarnings("serial")
 public abstract class HttpPanel extends AbstractPanel {
 
     public enum OptionsLocation {
@@ -69,7 +70,7 @@ public abstract class HttpPanel extends AbstractPanel {
 
     private static final long serialVersionUID = 5221591643257366570L;
 
-    private static final Logger logger = LogManager.getLogger(HttpPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpPanel.class);
 
     private static final String NO_SUITABLE_COMPONENT_FOUND_LABEL =
             Constant.messages.getString("http.panel.noSuitableComponentFound");
@@ -369,7 +370,7 @@ public abstract class HttpPanel extends AbstractPanel {
         HttpPanelComponentInterface newComponent = components.get(name);
 
         if (newComponent == null) {
-            logger.info("No component found with name: " + name);
+            LOGGER.info("No component found with name: {}", name);
             return;
         }
 
@@ -599,6 +600,11 @@ public abstract class HttpPanel extends AbstractPanel {
             Iterator<HttpPanelComponentInterface> it = components.values().iterator();
             while (it.hasNext()) {
                 it.next().loadConfig(fileConfiguration);
+            }
+
+            if (savedLastSelectedComponentName != null
+                    && components.containsKey(savedLastSelectedComponentName)) {
+                switchComponent(savedLastSelectedComponentName);
             }
         }
     }

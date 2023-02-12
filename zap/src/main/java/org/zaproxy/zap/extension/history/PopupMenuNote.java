@@ -29,11 +29,12 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
+@SuppressWarnings("serial")
 public class PopupMenuNote extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = -5692544221103745600L;
 
-    private static final Logger logger = LogManager.getLogger(PopupMenuNote.class);
+    private static final Logger LOGGER = LogManager.getLogger(PopupMenuNote.class);
 
     private final ExtensionHistory extension;
 
@@ -54,7 +55,7 @@ public class PopupMenuNote extends PopupMenuItemHistoryReferenceContainer {
             extension.showNotesAddDialog(href, href.getHttpMessage().getNote());
 
         } catch (HttpMalformedHeaderException | DatabaseException e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

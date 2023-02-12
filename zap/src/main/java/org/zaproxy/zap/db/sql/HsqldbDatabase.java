@@ -30,7 +30,7 @@ public class HsqldbDatabase extends SqlDatabase {
     @Override
     public void deleteSession(String sessionName) {
         super.deleteSession(sessionName);
-        getLogger().debug("deleteSession " + sessionName);
+        getLogger().debug("deleteSession {}", sessionName);
 
         deleteDbFile(new File(sessionName));
         deleteDbFile(new File(sessionName + ".data"));
@@ -41,10 +41,10 @@ public class HsqldbDatabase extends SqlDatabase {
     }
 
     private void deleteDbFile(File file) {
-        getLogger().debug("Deleting " + file.getAbsolutePath());
+        getLogger().debug("Deleting {}", file.getAbsolutePath());
         if (file.exists()) {
             if (!file.delete()) {
-                getLogger().error("Failed to delete " + file.getAbsolutePath());
+                getLogger().error("Failed to delete {}", file.getAbsolutePath());
             }
         }
     }

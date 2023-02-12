@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2021 The ZAP Development Team
+ * Copyright 2022 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.extension.pscan;
+package org.zaproxy.zap.tasks.internal;
 
-import org.parosproxy.paros.network.HttpMessage;
+public class MarketplaceAddOn {
 
-public final class PassiveScanTestHelper {
+    private final String id;
+    private final String url;
+    private final String hash;
 
-    private PassiveScanTestHelper() {}
+    public MarketplaceAddOn(String id, String url, String hash) {
+        this.id = id;
+        this.url = url;
+        this.hash = hash;
+    }
 
-    @SuppressWarnings("deprecation")
-    public static void init(
-            PluginPassiveScanner rule,
-            PassiveScanThread parent,
-            HttpMessage message,
-            PassiveScanData passiveScanData) {
-        rule.init(parent, message, passiveScanData);
+    public String getId() {
+        return id;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getHash() {
+        return hash;
     }
 }

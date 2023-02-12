@@ -38,6 +38,9 @@ import org.zaproxy.zap.view.table.AbstractCustomColumnHistoryReferencesTableMode
 import org.zaproxy.zap.view.table.AbstractHistoryReferencesTableEntry;
 import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
 
+@SuppressWarnings("serial")
+/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+@Deprecated
 class SpiderMessagesTableModel
         extends AbstractCustomColumnHistoryReferencesTableModel<
                 SpiderMessagesTableModel.SpiderTableEntry> {

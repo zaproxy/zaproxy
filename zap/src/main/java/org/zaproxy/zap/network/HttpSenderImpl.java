@@ -35,6 +35,20 @@ public interface HttpSenderImpl<T extends HttpSenderContext> {
 
     T createContext(HttpSender parent, int initiator);
 
-    void sendAndReceive(T ctx, HttpRequestConfig config, HttpMessage msg, Path file)
-            throws IOException;
+    default T getContext(HttpSender httpSender) {
+        return null;
+    }
+
+    default void sendAndReceive(T ctx, HttpRequestConfig config, HttpMessage msg, Path file)
+            throws IOException {}
+
+    default void sendAndReceive(
+            HttpSender parent, HttpRequestConfig config, HttpMessage msg, Path file)
+            throws IOException {}
+
+    default Object saveState() {
+        return null;
+    }
+
+    default void restoreState(Object implState) {}
 }

@@ -59,6 +59,8 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 
     @Override
     public void initView(ViewDelegate view) {
+        super.initView(view);
+
         Arrays.asList(
                         new LookAndFeelInfo("Flat Light", "com.formdev.flatlaf.FlatLightLaf"),
                         new LookAndFeelInfo("Flat Dark", "com.formdev.flatlaf.FlatDarkLaf"),
@@ -97,6 +99,10 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
     }
 
     private void sessionChangedEventHandler(Session session) {
+        if (session != null && !session.isNewState()) {
+            getModel().getOptionsParam().getViewParam().addLatestSession(session.getFileName());
+        }
+
         MainFrame mainFrame = getView().getMainFrame();
         mainFrame.getMainMenuBar().sessionChanged(session);
         mainFrame.getMainToolbarPanel().sessionChanged(session);

@@ -108,7 +108,8 @@
 // ZAP: 2022/06/03 Move implementation to HttpSenderParos.
 // ZAP: 2022/06/05 Remove usage of HttpException.
 // ZAP: 2022/06/07 Address deprecation warnings with HttpSenderParos.
-// ZAP: 2022/06/13 Added param miner initiator.
+// ZAP: 2022/06/13 Added param digger initiator.
+// ZAP: 2022/12/09 Allow to restore HttpSenderImpl state.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -140,7 +141,7 @@ public class HttpSender {
     public static final int AUTHENTICATION_HELPER_INITIATOR = 14;
     public static final int AUTHENTICATION_POLL_INITIATOR = 15;
     public static final int OAST_INITIATOR = 16;
-    public static final int PARAM_MINER_INITIATOR = 17;
+    public static final int PARAM_DIGGER_INITIATOR = 17;
 
     private static final HttpRequestConfig NO_REDIRECTS = HttpRequestConfig.builder().build();
     private static final HttpRequestConfig FOLLOW_REDIRECTS =
@@ -152,12 +153,24 @@ public class HttpSender {
     @SuppressWarnings("rawtypes")
     private static HttpSenderImpl impl = PAROS_IMPL;
 
-    private final HttpSenderContext ctx;
+    private static Object implState;
+
+    private HttpSenderContext ctx;
+
     private final int initiator;
 
     /** <strong>Note:</strong> Not part of the public API. */
     public static <T extends HttpSenderContext> void setImpl(HttpSenderImpl<T> impl) {
+        if (HttpSender.impl != PAROS_IMPL) {
+            implState = HttpSender.impl.saveState();
+        }
+
         HttpSender.impl = impl == null ? PAROS_IMPL : impl;
+
+        if (HttpSender.impl != PAROS_IMPL) {
+            HttpSender.impl.restoreState(implState);
+            implState = null;
+        }
     }
 
     /**
@@ -199,10 +212,20 @@ public class HttpSender {
 
     private HttpSender(boolean useGlobalState, int initiator) {
         this.initiator = initiator;
-        ctx = impl.createContext(this, initiator);
+        HttpSenderContext createdCtx = impl.createContext(this, initiator);
+        if (impl.getContext(this) == null) {
+            ctx = createdCtx;
+        }
 
         setUseGlobalState(useGlobalState);
         setUseCookies(true);
+    }
+
+    private HttpSenderContext getContext() {
+        if (ctx != null) {
+            return ctx;
+        }
+        return impl.getContext(this);
     }
 
     /**
@@ -234,7 +257,7 @@ public class HttpSender {
      * @see #setUseCookies(boolean)
      */
     public void setUseGlobalState(boolean enableGlobalState) {
-        ctx.setUseGlobalState(enableGlobalState);
+        getContext().setUseGlobalState(enableGlobalState);
     }
 
     /**
@@ -256,7 +279,7 @@ public class HttpSender {
      * @see #setUseGlobalState(boolean)
      */
     public void setUseCookies(boolean shouldUseCookies) {
-        ctx.setUseCookies(shouldUseCookies);
+        getContext().setUseCookies(shouldUseCookies);
     }
 
     /**
@@ -271,7 +294,7 @@ public class HttpSender {
      */
     @Deprecated
     public int executeMethod(HttpMethod method, HttpState state) throws IOException {
-        HttpSenderContext ctxTemp = ctx;
+        HttpSenderContext ctxTemp = getContext();
         if (!(ctxTemp instanceof HttpSenderContextParos)) {
             ctxTemp = PAROS_IMPL.createContext(this, initiator);
         }
@@ -293,14 +316,12 @@ public class HttpSender {
      * @since 2.12.0
      * @see #setFollowRedirect(boolean)
      */
-    @SuppressWarnings("unchecked")
     public void sendAndReceive(HttpMessage message, Path file) throws IOException {
-        impl.sendAndReceive(ctx, null, message, file);
+        sendImpl(null, message, file);
     }
 
-    @SuppressWarnings("unchecked")
     public void sendAndReceive(HttpMessage msg) throws IOException {
-        impl.sendAndReceive(ctx, null, msg, null);
+        sendImpl(null, msg, null);
     }
 
     /**
@@ -311,9 +332,8 @@ public class HttpSender {
      * @throws IOException
      * @see #sendAndReceive(HttpMessage, HttpRequestConfig)
      */
-    @SuppressWarnings("unchecked")
     public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws IOException {
-        impl.sendAndReceive(ctx, isFollowRedirect ? FOLLOW_REDIRECTS : NO_REDIRECTS, msg, null);
+        sendImpl(isFollowRedirect ? FOLLOW_REDIRECTS : NO_REDIRECTS, msg, null);
     }
 
     /**
@@ -329,11 +349,11 @@ public class HttpSender {
      * @see HttpMessage#getRequestingUser()
      */
     public User getUser(HttpMessage msg) {
-        return ctx.getUser(msg);
+        return getContext().getUser(msg);
     }
 
     public void setFollowRedirect(boolean followRedirect) {
-        ctx.setFollowRedirects(followRedirect);
+        getContext().setFollowRedirects(followRedirect);
     }
 
     /**
@@ -385,7 +405,7 @@ public class HttpSender {
      * @param user
      */
     public void setUser(User user) {
-        ctx.setUser(user);
+        getContext().setUser(user);
     }
 
     /**
@@ -416,7 +436,7 @@ public class HttpSender {
      *     removed when challenged, {@code false} otherwise
      */
     public void setRemoveUserDefinedAuthHeaders(boolean removeHeaders) {
-        ctx.setRemoveUserDefinedAuthHeaders(removeHeaders);
+        getContext().setRemoveUserDefinedAuthHeaders(removeHeaders);
     }
 
     /**
@@ -429,7 +449,7 @@ public class HttpSender {
      * @since 2.4.0
      */
     public void setMaxRetriesOnIOError(int retries) {
-        ctx.setMaxRetriesOnIoError(retries);
+        getContext().setMaxRetriesOnIoError(retries);
     }
 
     /**
@@ -442,7 +462,7 @@ public class HttpSender {
      * @since 2.4.0
      */
     public void setMaxRedirects(int maxRedirects) {
-        ctx.setMaxRedirects(maxRedirects);
+        getContext().setMaxRedirects(maxRedirects);
     }
 
     /**
@@ -472,9 +492,18 @@ public class HttpSender {
      * @since 2.6.0
      * @see #sendAndReceive(HttpMessage, boolean)
      */
-    @SuppressWarnings("unchecked")
     public void sendAndReceive(HttpMessage message, HttpRequestConfig requestConfig)
             throws IOException {
-        impl.sendAndReceive(ctx, requestConfig, message, null);
+        sendImpl(requestConfig, message, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void sendImpl(HttpRequestConfig requestConfig, HttpMessage message, Path file)
+            throws IOException {
+        if (ctx == null) {
+            impl.sendAndReceive(this, requestConfig, message, file);
+        } else {
+            impl.sendAndReceive(ctx, requestConfig, message, file);
+        }
     }
 }

@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 /**
  * A collection of cached scripts.
@@ -121,7 +122,11 @@ public class ScriptsCache<T> {
         cachedScripts.forEach(
                 e -> {
                     try {
-                        action.apply(e.getScript());
+                        e.execute(
+                                () -> {
+                                    action.apply(e.getScript());
+                                    return null;
+                                });
                     } catch (Exception ex) {
                         extensionScript.handleScriptException(e.getScriptWrapper(), ex);
                     }
@@ -157,7 +162,11 @@ public class ScriptsCache<T> {
                     ScriptWrapper sw = e.getScriptWrapper();
                     try {
                         ExtensionScript.recordScriptCalledStats(sw);
-                        action.apply(sw, e.getScript());
+                        e.execute(
+                                () -> {
+                                    action.apply(sw, e.getScript());
+                                    return null;
+                                });
                     } catch (Exception ex) {
                         extensionScript.handleScriptException(sw, ex);
                     }
@@ -221,6 +230,21 @@ public class ScriptsCache<T> {
 
         void setScript(T script) {
             this.script = script;
+        }
+
+        void execute(Callable<T> action) throws Exception {
+            if (isSyncAccess()) {
+                synchronized (this) {
+                    action.call();
+                }
+            } else {
+                action.call();
+            }
+        }
+
+        private boolean isSyncAccess() {
+            ScriptEngineWrapper engine = scriptWrapper.getEngine();
+            return engine != null && engine.isSingleThreaded();
         }
 
         boolean hasChanged() {

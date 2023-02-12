@@ -29,7 +29,10 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
  * {@link SiteNode}.
  *
  * @see org.zaproxy.zap.extension.spider.ExtensionSpider#showSpiderDialog(SiteNode)
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@SuppressWarnings("serial")
+@Deprecated
 public class PopupMenuItemSpiderDialog extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 1L;

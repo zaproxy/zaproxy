@@ -54,7 +54,7 @@ public class SearchThread extends Thread {
 
     private boolean searchAllOccurrences;
 
-    private static Logger log = LogManager.getLogger(SearchThread.class);
+    private static final Logger LOGGER = LogManager.getLogger(SearchThread.class);
 
     public SearchThread(
             String filter,
@@ -404,14 +404,14 @@ public class SearchThread extends Thread {
                     }
 
                 } catch (HttpMalformedHeaderException e1) {
-                    log.error(e1.getMessage(), e1);
+                    LOGGER.error(e1.getMessage(), e1);
                 }
                 if (pcc.hasPageEnded()) {
                     break;
                 }
             }
         } catch (DatabaseException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

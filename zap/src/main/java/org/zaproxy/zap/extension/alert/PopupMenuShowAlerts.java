@@ -29,6 +29,7 @@ import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
 import org.zaproxy.zap.view.popup.PopupMenuHistoryReferenceContainer;
 
+@SuppressWarnings("serial")
 public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 
     private static final long serialVersionUID = 1L;

@@ -21,7 +21,10 @@ package org.zaproxy.zap.extension.api;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -52,6 +55,9 @@ public class OptionsParamApi extends AbstractParam {
     private static final String ADDRESS_REGEX_KEY = "regex";
     private static final String ADDRESS_ENABLED_KEY = "enabled";
     private static final String CONFIRM_REMOVE_ADDRESS = "api.addrs.confirmRemoveAddr";
+    protected static final String CALLBACK_KEY = "api.callbacks.callback";
+    private static final String CALLBACK_URL_KEY = "url";
+    private static final String CALLBACK_PREFIX_KEY = "prefix";
 
     private static final int DEFAULT_NONCE_TTL_IN_SECS = 5 * 60; // 5 mins
 
@@ -70,6 +76,7 @@ public class OptionsParamApi extends AbstractParam {
     private List<DomainMatcher> permittedAddresses = new ArrayList<>(0);
     private List<DomainMatcher> permittedAddressesEnabled = new ArrayList<>(0);
     private int nonceTimeToLiveInSecs = DEFAULT_NONCE_TTL_IN_SECS;
+    private Map<String, String> persistentCallBacks = new HashMap<>();
 
     private String key = "";
 
@@ -91,6 +98,7 @@ public class OptionsParamApi extends AbstractParam {
         key = getString(API_KEY, "");
         loadPermittedAddresses();
         this.confirmRemovePermittedAddress = getBoolean(CONFIRM_REMOVE_ADDRESS, true);
+        loadPersistentCallBacks();
     }
 
     @Override
@@ -317,7 +325,7 @@ public class OptionsParamApi extends AbstractParam {
                     addr = new DomainMatcher(pattern);
                 } catch (IllegalArgumentException e) {
                     LOGGER.error(
-                            "Failed to read a permitted address entry with regex: " + value, e);
+                            "Failed to read a permitted address entry with regex: {}", value, e);
                 }
             } else {
                 addr = new DomainMatcher(value);
@@ -379,5 +387,78 @@ public class OptionsParamApi extends AbstractParam {
     public void setConfirmRemovePermittedAddress(boolean confirmRemove) {
         this.confirmRemovePermittedAddress = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_ADDRESS, confirmRemovePermittedAddress);
+    }
+
+    private void loadPersistentCallBacks() {
+        List<HierarchicalConfiguration> fields =
+                ((HierarchicalConfiguration) getConfig()).configurationsAt(CALLBACK_KEY);
+
+        persistentCallBacks = new HashMap<>(fields.size());
+
+        for (HierarchicalConfiguration sub : fields) {
+            String cbUrl = sub.getString(CALLBACK_URL_KEY, "");
+            if (cbUrl.isEmpty()) {
+                LOGGER.warn("Failed to read a callback entry, required url is empty.");
+                continue;
+            }
+            String cbPrefix = sub.getString(CALLBACK_PREFIX_KEY, null);
+            if (cbPrefix == null) {
+                LOGGER.warn("Failed to read a callback entry, required prefix is empty.");
+                continue;
+            }
+            persistentCallBacks.put(cbUrl, cbPrefix);
+        }
+    }
+
+    private void savePersistentCallBacks() {
+        ((HierarchicalConfiguration) getConfig()).clearTree(CALLBACK_KEY);
+
+        int i = 0;
+        for (Entry<String, String> entry : persistentCallBacks.entrySet()) {
+            String elementBaseKey = CALLBACK_KEY + "(" + i + ").";
+            getConfig().setProperty(elementBaseKey + CALLBACK_URL_KEY, entry.getKey());
+            getConfig().setProperty(elementBaseKey + CALLBACK_PREFIX_KEY, entry.getValue());
+            i++;
+        }
+        try {
+            getConfig().save();
+        } catch (ConfigurationException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Add a callback which persists over ZAP restarts
+     *
+     * @param url the callback URL
+     * @param prefix the prefix of the APIImplementor
+     * @since 2.12.0
+     */
+    public void addPersistantCallBack(String url, String prefix) {
+        this.persistentCallBacks.put(url, prefix);
+        savePersistentCallBacks();
+    }
+
+    /**
+     * Remove a callback which persists over ZAP restarts
+     *
+     * @param url a callback URL returned from addPersistantCallBack
+     * @return the prefix associated with the callback URL
+     * @since 2.12.0
+     */
+    public String removePersistantCallBack(String url) {
+        String value = this.persistentCallBacks.remove(url);
+        savePersistentCallBacks();
+        return value;
+    }
+
+    /**
+     * Returns a map of persistent callbacks (which persist over ZAP restarts)
+     *
+     * @return a Map of callback URL to implementor prefixes
+     * @since 2.12.0
+     */
+    public Map<String, String> getPersistentCallBacks() {
+        return this.persistentCallBacks;
     }
 }

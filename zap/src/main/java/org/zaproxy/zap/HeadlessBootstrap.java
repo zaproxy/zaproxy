@@ -87,9 +87,14 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
         }
 
         if (getArgs().isEnabled(CommandLine.SESSION)) {
-            Path sessionPath =
-                    SessionUtils.getSessionPath(getArgs().getArgument(CommandLine.SESSION));
-
+            String path = getArgs().getArgument(CommandLine.SESSION);
+            Path sessionPath;
+            try {
+                sessionPath = SessionUtils.getSessionPath(path);
+            } catch (IllegalArgumentException e) {
+                System.err.println("Failed to open session, file path is not valid: " + path);
+                return false;
+            }
             String absolutePath = sessionPath.toAbsolutePath().toString();
             try {
                 control.runCommandLineOpenSession(absolutePath);
@@ -102,8 +107,15 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
             }
 
         } else if (getArgs().isEnabled(CommandLine.NEW_SESSION)) {
-            Path sessionPath =
-                    SessionUtils.getSessionPath(getArgs().getArgument(CommandLine.NEW_SESSION));
+            String path = getArgs().getArgument(CommandLine.NEW_SESSION);
+            Path sessionPath;
+            try {
+                sessionPath = SessionUtils.getSessionPath(path);
+            } catch (IllegalArgumentException e) {
+                System.err.println(
+                        "Failed to create a new session, file path is not valid: " + path);
+                return false;
+            }
 
             String absolutePath = sessionPath.toAbsolutePath().toString();
             if (Files.exists(sessionPath)) {
@@ -153,10 +165,9 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
 
             getLogger()
                     .warn(
-                            "Add-on \""
-                                    + addOn.getId()
-                                    + "\" or its extensions will no longer be run until its requirements are restored: "
-                                    + issues);
+                            "Add-on \"{}\" or its extensions will no longer be run until its requirements are restored: {}",
+                            addOn.getId(),
+                            issues);
         }
     }
 

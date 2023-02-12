@@ -31,6 +31,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.LocaleUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.ViewLocale;
 
 public class OptionsLocalePanel extends AbstractParamPanel {
@@ -39,7 +40,7 @@ public class OptionsLocalePanel extends AbstractParamPanel {
     private JPanel panelMisc = null;
     private JComboBox<ViewLocale> localeSelect = null;
     private JLabel localeLabel = null;
-    private JLabel localeChangeLabel = null;
+    private ZapHtmlLabel localeChangeLabel = null;
 
     public OptionsLocalePanel() {
         super();
@@ -120,7 +121,7 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 
             localeLabel = new JLabel(Constant.messages.getString("locale.options.label.language"));
             localeChangeLabel =
-                    new JLabel(Constant.messages.getString("locale.options.label.change"));
+                    new ZapHtmlLabel(Constant.messages.getString("locale.options.label.change"));
 
             panelMisc.add(localeLabel, gbc1_0);
             panelMisc.add(getLocaleSelect(), gbc1_1);

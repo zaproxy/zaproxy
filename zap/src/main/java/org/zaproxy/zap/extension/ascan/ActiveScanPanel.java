@@ -50,6 +50,7 @@ import org.zaproxy.zap.view.ScanPanel2;
 import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
+@SuppressWarnings("serial")
 public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<ActiveScan>>
         implements ScanListenner2, ScannerListener {
 
@@ -307,7 +308,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
                             }
                         });
             } catch (InvocationTargetException | InterruptedException e) {
-                LOGGER.error("Failed to switch view: " + e.getMessage(), e);
+                LOGGER.error("Failed to switch view: {}", e.getMessage(), e);
             }
             return;
         }

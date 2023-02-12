@@ -36,9 +36,10 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 
+@SuppressWarnings("serial")
 public class AlertAddDialog extends AbstractDialog {
 
-    private static final Logger logger = LogManager.getLogger(AlertAddDialog.class);
+    private static final Logger LOGGER = LogManager.getLogger(AlertAddDialog.class);
 
     private static final long serialVersionUID = 1L;
 
@@ -202,7 +203,7 @@ public class AlertAddDialog extends AbstractDialog {
                                     extAlert.alertFound(alert, historyRef);
                                 }
                             } catch (Exception ex) {
-                                logger.error(ex.getMessage(), ex);
+                                LOGGER.error(ex.getMessage(), ex);
                             }
                             clearAndCloseDialog();
                         }

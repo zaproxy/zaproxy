@@ -31,7 +31,6 @@ import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
-import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.testutils.TestUtils;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -41,14 +40,15 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  *
  * @see org.zaproxy.zap.spider.parser.SpiderParser
  */
+@SuppressWarnings("deprecation")
 class SpiderParserTestUtils extends TestUtils {
 
     protected static Source createSource(HttpMessage messageHtmlResponse) {
         return new Source(messageHtmlResponse.getResponseBody().toString());
     }
 
-    protected static SpiderParam createSpiderParamWithConfig() {
-        SpiderParam spiderParam = new SpiderParam();
+    protected static org.zaproxy.zap.spider.SpiderParam createSpiderParamWithConfig() {
+        org.zaproxy.zap.spider.SpiderParam spiderParam = new org.zaproxy.zap.spider.SpiderParam();
         spiderParam.load(new ZapXmlConfiguration());
         return spiderParam;
     }

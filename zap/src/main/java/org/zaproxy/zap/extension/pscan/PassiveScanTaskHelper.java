@@ -39,7 +39,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 /** @since 2.12.0 */
 public class PassiveScanTaskHelper {
 
-    private static final Logger logger = LogManager.getLogger(PassiveScanTaskHelper.class);
+    private static final Logger LOGGER = LogManager.getLogger(PassiveScanTaskHelper.class);
 
     private static Set<Integer> optedInHistoryTypes = new HashSet<>();
 
@@ -154,7 +154,7 @@ public class PassiveScanTaskHelper {
                 // Disable the plugin
                 PassiveScanner scanner = getPassiveScannerList().getScanner(alert.getPluginId());
                 if (scanner != null) {
-                    logger.info(
+                    LOGGER.info(
                             "Disabling passive scan rule {} as it has raised more than {} alerts.",
                             scanner.getName(),
                             this.pscanParams.getMaxAlertsPerRule());
@@ -179,7 +179,7 @@ public class PassiveScanTaskHelper {
                 href.addTag(tag);
             }
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 

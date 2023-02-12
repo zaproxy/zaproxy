@@ -59,7 +59,7 @@ public class AuthenticationHelper {
         this.user = user;
     }
 
-    private static final Logger log = LogManager.getLogger(AuthenticationHelper.class);
+    private static final Logger LOGGER = LogManager.getLogger(AuthenticationHelper.class);
 
     private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
     public static final String AUTH_SUCCESS_STATS = "stats.auth.success";
@@ -140,7 +140,7 @@ public class AuthenticationHelper {
                 }
             }
         } catch (Exception ex) {
-            log.error("Cannot add authentication message to History tab.", ex);
+            LOGGER.error("Cannot add authentication message to History tab.", ex);
         }
     }
 
@@ -183,8 +183,10 @@ public class AuthenticationHelper {
                             PostBasedAuthenticationMethodType::encodeParameter);
             msg.getRequestHeader().setURI(new URI(uri, true));
         } catch (Exception e) {
-            log.error(
-                    "Failed to replace user data in request " + msg.getRequestHeader().getURI(), e);
+            LOGGER.error(
+                    "Failed to replace user data in request {}",
+                    msg.getRequestHeader().getURI(),
+                    e);
         }
         if (msg.getRequestBody().length() > 0) {
             msg.setRequestBody(

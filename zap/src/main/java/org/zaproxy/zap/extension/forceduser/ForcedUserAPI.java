@@ -30,7 +30,6 @@ import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiView;
-import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
@@ -38,7 +37,7 @@ import org.zaproxy.zap.utils.ApiUtils;
 /** The API for managing the Forced User for a Context. */
 public class ForcedUserAPI extends ApiImplementor {
 
-    private static final Logger log = LogManager.getLogger(AuthenticationAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(ForcedUserAPI.class);
 
     private static final String PREFIX = "forcedUser";
 
@@ -71,7 +70,7 @@ public class ForcedUserAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiView " + name + " " + params.toString());
+        LOGGER.debug("handleApiView {} {}", name, params);
 
         switch (name) {
             case VIEW_GET_FORCED_USER:
@@ -91,7 +90,7 @@ public class ForcedUserAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction " + name + " " + params.toString());
+        LOGGER.debug("handleApiAction {} {}", name, params);
         Context context;
         switch (name) {
             case ACTION_SET_FORCED_USER:

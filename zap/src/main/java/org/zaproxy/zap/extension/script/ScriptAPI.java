@@ -451,7 +451,7 @@ public class ScriptAPI extends ApiImplementor {
             super(name);
 
             defaultResponse =
-                    new ApiResponseSet<String>(name, vars) {
+                    new ApiResponseSet<>(name, vars) {
 
                         @Override
                         public JSON toJSON() {

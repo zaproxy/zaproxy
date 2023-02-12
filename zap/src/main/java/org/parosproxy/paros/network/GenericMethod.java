@@ -71,9 +71,9 @@ public class GenericMethod extends EntityEnclosingMethod {
 
 
     /**
-     * Returns <tt>"Generic"</tt>.
+     * Returns {@code Generic}.
      *
-     * @return <tt>"Generic"</tt>
+     * @return {@code Generic}
      *
      */
     @Override
@@ -83,7 +83,7 @@ public class GenericMethod extends EntityEnclosingMethod {
 
 
     /**
-     * Returns <tt>true</tt> if there is a request body to be sent.
+     * Returns {@code true} if there is a request body to be sent.
      * 
      * <P>This method must be overwritten by sub-classes that implement
      * alternative request content input methods

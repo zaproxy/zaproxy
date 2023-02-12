@@ -19,7 +19,7 @@ Use un framework de autenticación o librería como OWASP ESAPI Authentication f
 	<alert>Permisos de autorización insuficientes</alert>
 	<desc>Insuficientes resultados de autorización cuando una aplicación no realiza comprobaciones de autorización adecuada para garantizar que el usuario es realizar una función o acceder a los datos de manera consistente con la política de seguridad. Procedimientos de autorización deben asegurar que un usuario, servicio o aplicación realizan acciones que les están permitidas. Cuando un usuario se autentica a un sitio web, no necesariamente significa que el usuario debe tener acceso completo a todo el contenido y funcionalidad.
 
-La autorización de funciones es insuficiente
+Autorización de función insuficiente
 
 Muchas aplicaciones conceden varias funcionalidades de aplicación a usuarios diferentes. Un lugar de noticias aceptará que los usuarios puedan ver noticias, pero no publicarlas. Un sistema de contabilidad tendrá varios permisos para un empleado de Cuentas por pagar y también para un empleado de Cuentas por cobrar. La autorización de función insuficiente ocurre cuando una aplicación no restringe a los usuarios acceder a la funcionalidad de la aplicación en violación de la política de seguridad.
 
@@ -476,7 +476,7 @@ Muchos sitios web se encuentran diseñados para poder autenticar y seguir a un u
 
 <vuln_items>wasc_19</vuln_items>
 <vuln_item_wasc_19>
-	<alert>Falla por Inyección SQL</alert>
+	<alert>Inyección SQL</alert>
 	<desc>La inyección SQL es un médodo de ataque que es utilizada para poder explotar las aplicaciones que construyen algun sentencias SQL a partir de entradas que son proporcionadas por el usuario. Cuando el método tiene exito, el atacante puede modificar la lógica de las sentencias de SQL que se encuentran activadas en la base de datos.
 
 Structured Query Language (SQL) es un lenguaje de programación el cual está especializado para poder enviar las consultas a las bases de datos. El lenguaje de programación de SQL es al mismo tiempo un ANSI y un estándar ISO, aunque una gran cantidad de productos de bases de datos que son compatibles con SQL lo hace por medio de extensiones propietarias del lenguaje estándar. Las aplicaciones normalmente utilizan datos que son proporcionados por el usuario para poder crear declaraciones SQL. Si una aplicación no puede contruir de forma correcta la sentencias de SQL, es posible que un atacante pueda alterar la estructura de la sentencia y active comandos no planificados y que pueden ser potencialmente hostiles. Cuando se activan los comandos mencionados, lo hacen bajo el contexto del usuaro determinado por la aplicación que activa el enunciado. Esta capacidad le permite a los atacantes poseer el control de todos los recursos de la base de datos a los que puede ingresar el usuario, incluyendo la posibilidad de ejecutar comandos en el sistema de hospedaje.</desc>
@@ -1023,7 +1023,7 @@ Una aplicación Web debería invalidar una sesión después de que ha pasado un 
 <vuln_items>wasc_48</vuln_items>
 <vuln_item_wasc_48>
 	<alert>Indexación Insegura</alert>
-	<desc>La Indexación insegura es una amenaza a la confidencialidad de los datos de un sitio web. Indexar contenido del sitio web vía un proceso que tiene acceso a los archivos que no se suponen son de acceso publico tiene el potencial de filtrar información acerca de la existencia de dichos archivos, y acerca de su contenido. En el proceso de indexar, dicha información es recogida y almacenada por el proceso de indexación, la cual puede ser recuperada después (aunque no de forma trivial) por un determinado atacante, normalmente a través de una serie de consultas al motor de búsqueda. Al atacante no le impide el modelo de seguridad del motor de búsqueda. Como tal, este ataque es sutil y muy difícil de detectar y frustrar -no es fácil distinguir las consultas del atacante de las consultas de un usuario legítimo.</desc>
+	<desc>La Indexación insegura es una amenaza a la confidencialidad de los datos de un sitio web. La indexación de contenidos de sitios web a través de un proceso que tiene acceso a archivos que se supone que no son de acceso público tiene el potencial de filtrar información sobre la existencia de dichos archivos y sobre su contenido. En el proceso de indexar, dicha información es recogida y almacenada por el proceso de indexación, la cual puede ser recuperada después (aunque no de forma trivial) por un determinado atacante, normalmente a través de una serie de consultas al motor de búsqueda. Al atacante no le impide el modelo de seguridad del motor de búsqueda. Como tal, este ataque es sutil y muy difícil de detectar y frustrar -no es fácil distinguir las consultas del atacante de las consultas de un usuario legítimo.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insecure-Indexing</reference>
 	<reference/>

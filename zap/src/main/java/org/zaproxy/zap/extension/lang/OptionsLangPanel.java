@@ -43,9 +43,11 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.LocaleUtils;
+import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.ViewLocale;
 
+@SuppressWarnings("serial")
 public class OptionsLangPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
@@ -83,7 +85,8 @@ public class OptionsLangPanel extends AbstractParamPanel {
 
             languageLabel = new JLabel(Constant.messages.getString("options.lang.selector.label"));
             importLabel = new JLabel(Constant.messages.getString("options.lang.importer.label"));
-            restartLabel = new JLabel(Constant.messages.getString("options.lang.label.restart"));
+            restartLabel =
+                    new ZapHtmlLabel(Constant.messages.getString("options.lang.label.restart"));
 
             panelLang.add(languageLabel, getGridBagConstraints(0, 0, 0.5, 0, 0, 0, 0));
             panelLang.add(getLocaleSelect(), getGridBagConstraints(1, 0, 0.5, 0, 0, 0, 0));

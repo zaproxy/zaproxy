@@ -33,7 +33,6 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.view.ScanStatus;
@@ -45,7 +44,7 @@ import org.zaproxy.zap.view.ScanStatus;
  */
 public class PassiveScanController extends Thread implements ProxyListener {
 
-    private static final Logger logger = LogManager.getLogger(PassiveScanController.class);
+    private static final Logger LOGGER = LogManager.getLogger(PassiveScanController.class);
 
     private ExtensionHistory extHist;
     private PassiveScanParam pscanOptions;
@@ -85,7 +84,15 @@ public class PassiveScanController extends Thread implements ProxyListener {
 
     @Override
     public void run() {
-        logger.debug("Starting passive scan monitoring");
+        LOGGER.debug("Starting passive scan monitoring");
+        try {
+            scan();
+        } finally {
+            LOGGER.debug("Stopping passive scan monitoring");
+        }
+    }
+
+    private void scan() {
         // Get the last id - in case we've just opened an existing session
         currentId = this.getLastHistoryId();
         lastId = currentId;
@@ -120,12 +127,16 @@ public class PassiveScanController extends Thread implements ProxyListener {
 
                 if (href != null
                         && (!pscanOptions.isScanOnlyInScope() || session.isInScope(href))) {
-                    logger.debug("Submitting request to executor: {}", href.getURI());
+                    LOGGER.debug(
+                            "Submitting request to executor: {} id {} type {}",
+                            href.getURI(),
+                            currentId,
+                            href.getHistoryType());
                     getExecutor().submit(new PassiveScanTask(href, helper));
                 }
                 int recordsToScan = this.getRecordsToScan();
                 Stats.setHighwaterMark("stats.pscan.recordsToScan", recordsToScan);
-                if (View.isInitialised()) {
+                if (scanStatus != null) {
                     scanStatus.setScanCount(recordsToScan);
                 }
 
@@ -135,21 +146,18 @@ public class PassiveScanController extends Thread implements ProxyListener {
                 }
                 if (href != null
                         && HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
-                    if (logger.isDebugEnabled()) {
-                        logger.debug("Temporary record {} no longer available:", currentId, e);
-                    }
+                    LOGGER.debug("Temporary record {} no longer available:", currentId, e);
                 } else {
-                    logger.error("Failed on record {} from History table", currentId, e);
+                    LOGGER.error("Failed on record {} from History table", currentId, e);
                 }
             }
         }
-        logger.debug("Stopping passive scan monitoring");
     }
 
     private ThreadPoolExecutor getExecutor() {
         if (this.executor == null || this.executor.isShutdown()) {
             int threads = pscanOptions.getPassiveScanThreads();
-            logger.debug("Creating new executor with {} threads", threads);
+            LOGGER.debug("Creating new executor with {} threads", threads);
 
             this.executor =
                     (ThreadPoolExecutor)
@@ -187,7 +195,7 @@ public class PassiveScanController extends Thread implements ProxyListener {
     }
 
     protected void shutdown() {
-        logger.debug("Shutdown");
+        LOGGER.debug("Shutdown");
         this.shutDown = true;
         if (this.executor != null) {
             this.executor.shutdown();
@@ -201,6 +209,19 @@ public class PassiveScanController extends Thread implements ProxyListener {
 
     public PassiveScanTask getOldestRunningTask() {
         return this.helper.getOldestRunningTask();
+    }
+
+    /**
+     * Empties the passive scan queue without passively scanning the messages. Currently running
+     * rules will run to completion but new rules will only be run when new messages are added to
+     * the queue.
+     *
+     * @since 2.12.0
+     */
+    public void clearQueue() {
+        currentId = this.getLastHistoryId();
+        lastId = currentId;
+        this.helper.shutdownTasks();
     }
 
     @Override

@@ -30,6 +30,7 @@ import javax.swing.table.AbstractTableModel;
 
 /** @deprecated (2.12.0) No longer in use. */
 @Deprecated
+@SuppressWarnings("serial")
 public class DriverTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = -9114670362713975727L;

@@ -42,7 +42,7 @@ import org.zaproxy.zap.view.panelsearch.items.TreeNodeElementSearch;
 
 public class Highlighter {
 
-    private Logger LOGGER = LogManager.getLogger(Highlighter.class);
+    private static final Logger LOGGER = LogManager.getLogger(Highlighter.class);
 
     public static final List<ComponentHighlighter> DefaultComponentHighlighterItems =
             Arrays.asList(

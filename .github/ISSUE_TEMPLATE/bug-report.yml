@@ -38,7 +38,11 @@ body:
     id: version
     attributes:
       label: Software versions
-      description: "Please add version information from ZAPs menu Help > Support Info, or from the CLI using the -suppinfo switch"
+      description: |
+        Please add version information from ZAPs menu Help > Support Info, or from the CLI using the -suppinfo switch
+        
+        **Note:** If you're reporting a docker issue please ensure you include the image id.
+        Also please be aware that if you've wrapped or customized the image it is very difficult for us to support you.
     validations:
       required: true
   - type: textarea

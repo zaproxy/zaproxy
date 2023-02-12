@@ -72,7 +72,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
     private OptionsAntiCsrfPanel optionsAntiCsrfPanel = null;
     private PopupMenuGenerateForm popupMenuGenerateForm = null;
 
-    private static Logger log = LogManager.getLogger(ExtensionAntiCSRF.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionAntiCSRF.class);
 
     private AntiCsrfParam antiCsrfParam;
     private AntiCsrfDetectScanner antiCsrfDetectScanner;
@@ -233,11 +233,10 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
     }
 
     public void registerAntiCsrfToken(AntiCsrfToken token) {
-        log.debug(
-                "registerAntiCsrfToken "
-                        + token.getMsg().getRequestHeader().getURI().toString()
-                        + " "
-                        + token.getValue());
+        LOGGER.debug(
+                "registerAntiCsrfToken {} {}",
+                token.getMsg().getRequestHeader().getURI(),
+                token.getValue());
         synchronized (valueToToken) {
             try {
                 HistoryReference hRef = token.getMsg().getHistoryRef();
@@ -253,7 +252,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                 token.setHistoryReferenceId(hRef.getHistoryId());
                 valueToToken.put(getURLEncode(token.getValue()), token);
             } catch (HttpMalformedHeaderException | DatabaseException e) {
-                log.error("Failed to persist the message: ", e);
+                LOGGER.error("Failed to persist the message: ", e);
             }
         }
     }
@@ -352,7 +351,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
         if (formElements != null && formElements.size() > 0) {
             // Loop through all of the FORM tags
-            log.debug("Found " + formElements.size() + " forms");
+            LOGGER.debug("Found {} forms", formElements.size());
             int formIndex = 0;
 
             for (Element formElement : formElements) {
@@ -360,7 +359,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
                 if (inputElements != null && inputElements.size() > 0) {
                     // Loop through all of the INPUT elements
-                    log.debug("Found " + inputElements.size() + " inputs");
+                    LOGGER.debug("Found {} inputs", inputElements.size());
                     for (Element inputElement : inputElements) {
                         String value = inputElement.getAttributeValue("VALUE");
                         if (value == null) {
@@ -438,7 +437,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
                 }
             }
         } catch (DatabaseException | HttpMalformedHeaderException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -589,16 +588,17 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
             tokenValue = getTokenValue(tokenMsg, antiCsrfToken.getName());
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
 
         if (tokenValue != null) {
             // Replace token value - only supported in the body right now
-            log.debug(
-                    "regenerateAntiCsrfToken replacing "
-                            + antiCsrfToken.getValue()
-                            + " with "
-                            + getURLEncode(tokenValue));
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug(
+                        "regenerateAntiCsrfToken replacing {} with {}",
+                        antiCsrfToken.getValue(),
+                        getURLEncode(tokenValue));
+            }
             String replaced = message.getRequestBody().toString();
             replaced =
                     replaced.replace(
@@ -618,7 +618,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         try {
             result = URLEncoder.encode(msg, "UTF8");
         } catch (UnsupportedEncodingException e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
         return result;
     }

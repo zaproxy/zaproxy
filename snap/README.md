@@ -1,10 +1,6 @@
 This directory contains all of the files required to build a ZAP [snap].
 
-Docker is used to build the snap as `snapcraft` is only supported on a limited number of Linux distros.
-
-In order to build the snap run:
-
-`./build-snap.sh`
+In order to manually build the snap run `snapcraft` in the current directory.
 
 To install the snap you've built locally run:
 
@@ -17,7 +13,7 @@ You should then be able to run the ZAP snap using:
 
 `zaproxy`
 
-In order to publish the snap you will need appropriate permissions.
+In order to manually publish the snap you will need appropriate permissions.
 Those people who have then can upload the snap using:
 
 ```

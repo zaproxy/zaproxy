@@ -30,7 +30,7 @@ import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 public class PassiveScannerList {
 
-    private static final Logger logger = LogManager.getLogger(PassiveScannerList.class);
+    private static final Logger LOGGER = LogManager.getLogger(PassiveScannerList.class);
 
     private List<PassiveScanner> passiveScanners = new CopyOnWriteArrayList<>();
     private Set<String> scannerNames = new HashSet<>();
@@ -64,7 +64,7 @@ public class PassiveScannerList {
 
         for (PassiveScanner scanner : autoTagScanners) {
             if (scannerNames.contains(scanner.getName())) {
-                logger.error("Duplicate passive scan rule name: {}", scanner.getName());
+                LOGGER.error("Duplicate passive scan rule name: {}", scanner.getName());
             } else {
                 tempScanners.add(scanner);
                 scannerNames.add(scanner.getName());

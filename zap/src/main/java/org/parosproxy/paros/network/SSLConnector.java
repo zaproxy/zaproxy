@@ -45,6 +45,8 @@
 // ZAP: 2021/11/23 Allow to set certificates service.
 // ZAP: 2022/05/29 Address deprecations related to client certificates.
 // ZAP: 2022/06/07 Deprecate the class.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2022/09/27 Remove usage of Commons Validator class.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -91,7 +93,6 @@ import org.apache.commons.collections.MapIterator;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
-import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -234,7 +235,7 @@ public class SSLConnector
             }
 
             clientSSLSockFactory = clientSSLSockCertFactory;
-            logger.info("ClientCert enabled using: " + sslContextManager.getDefaultKey());
+            logger.info("ClientCert enabled using: {}", sslContextManager.getDefaultKey());
         } else {
             clientSSLSockFactory = getClientSocketFactory(SSL);
             logger.info("ClientCert disabled");
@@ -247,7 +248,7 @@ public class SSLConnector
         SSLContext sslcont = sslContextManager.getSSLContext(sslContextManager.getDefaultKey());
         clientSSLSockCertFactory =
                 createDecoratedClientSslSocketFactory(sslcont.getSocketFactory());
-        logger.info("ActiveCertificate set to: " + sslContextManager.getDefaultKey());
+        logger.info("ActiveCertificate set to: {}", sslContextManager.getDefaultKey());
     }
 
     // ZAP: removed server socket methods
@@ -343,9 +344,8 @@ public class SSLConnector
                     }
                 } catch (NoSuchAlgorithmException | KeyManagementException | IOException e) {
                     logger.error(
-                            "Failed to read the SSL/TLS supported protocols."
-                                    + " Using default protocol versions: "
-                                    + Arrays.toString(FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS),
+                            "Failed to read the SSL/TLS supported protocols. Using default protocol versions: {}",
+                            Arrays.toString(FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS),
                             e);
                     tempSupportedProtocols = FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS;
                 }
@@ -353,8 +353,8 @@ public class SSLConnector
             Arrays.sort(tempSupportedProtocols);
             supportedProtocols = tempSupportedProtocols;
             logger.info(
-                    "Done reading supported SSL/TLS protocols: "
-                            + Arrays.toString(supportedProtocols));
+                    "Done reading supported SSL/TLS protocols: {}",
+                    Arrays.toString(supportedProtocols));
         }
     }
 
@@ -518,7 +518,7 @@ public class SSLConnector
         try {
             return new SNIHostName(hostname);
         } catch (IllegalArgumentException e) {
-            logger.warn("Failed to create the SNI hostname for: " + hostname, e);
+            logger.warn("Failed to create the SNI hostname for: {}", hostname, e);
         }
         return null;
     }
@@ -539,13 +539,10 @@ public class SSLConnector
             }
 
             logger.info(
-                    "Caching address of misconfigured (\"unrecognized_name\") host [host="
-                            + host
-                            + ", port="
-                            + port
-                            + "] for the next "
-                            + MAX_AGE_MISCONFIGURED_HOST_IN_MIN
-                            + " minutes, following connections will not use the hostname.");
+                    "Caching address of misconfigured (\"unrecognized_name\") host [host={}, port={}] for the next {} minutes, following connections will not use the hostname.",
+                    host,
+                    port,
+                    MAX_AGE_MISCONFIGURED_HOST_IN_MIN);
             misconfiguredHosts.put(
                     host + port, new MisconfiguredHostCacheEntry(host, port, address));
         }
@@ -574,11 +571,9 @@ public class SSLConnector
             MisconfiguredHostCacheEntry entry = (MisconfiguredHostCacheEntry) it.getValue();
             if (entry.isStale(currentTime)) {
                 logger.info(
-                        "Removing stale cached address of misconfigured (\"unrecognized_name\") host [host="
-                                + entry.getHost()
-                                + ", port="
-                                + entry.getPort()
-                                + "], following connections will be attempted with the hostname.");
+                        "Removing stale cached address of misconfigured (\"unrecognized_name\") host [host={}, port={}], following connections will be attempted with the hostname.",
+                        entry.getHost(),
+                        entry.getPort());
                 it.remove();
             }
         }
@@ -611,9 +606,6 @@ public class SSLConnector
                 "Method no longer supported since it's no longer required/called by Commons HttpClient library (version >= 3.0).");
     }
 
-    /**
-     * @see SecureProtocolSocketFactory#createSocket(java.net.Socket,java.lang.String,int,boolean)
-     */
     @Override
     public Socket createSocket(Socket socket, String host, int port, boolean autoClose)
             throws IOException, UnknownHostException {
@@ -776,9 +768,7 @@ public class SSLConnector
     }
 
     private static boolean isIpAddress(String value) {
-        return value != null
-                && !value.isEmpty()
-                && InetAddressValidator.getInstance().isValid(value);
+        return false;
     }
 
     private static SSLSocketFactory createDecoratedServerSslSocketFactory(

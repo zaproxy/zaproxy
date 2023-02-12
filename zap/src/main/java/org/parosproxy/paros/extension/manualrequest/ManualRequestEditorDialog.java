@@ -43,6 +43,8 @@
 // ZAP: 2021/02/12 Add shortcut key to Send button (Issue 6448).
 // ZAP: 2022/06/08 Fix resizing issues.
 // ZAP: 2022/06/23 Do not implement Tab.
+// ZAP: 2022/09/14 Deprecate the class.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.extension.manualrequest;
 
 import java.awt.BorderLayout;
@@ -71,7 +73,12 @@ import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-/** Send custom crafted messages via HTTP or other TCP based protocols. */
+/**
+ * Send custom crafted messages via HTTP or other TCP based protocols.
+ *
+ * @deprecated (2.12.0) Replaced by Requester add-on.
+ */
+@Deprecated
 public abstract class ManualRequestEditorDialog extends AbstractFrame {
     private static final long serialVersionUID = 1L;
 
@@ -279,17 +286,13 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame {
                                                     "network.ssl.error.help",
                                                     Constant.messages.getString(
                                                             "network.ssl.error.help.url")));
-                                    if (logger.isDebugEnabled()) {
-                                        logger.debug(sslEx, sslEx);
-                                    }
+                                    logger.debug(sslEx, sslEx);
                                     View.getSingleton()
                                             .showWarningDialog(
                                                     ManualRequestEditorDialog.this,
                                                     strBuilder.toString());
                                 } catch (Exception e) {
-                                    if (logger.isDebugEnabled()) {
-                                        logger.debug(e.getMessage(), e);
-                                    }
+                                    logger.debug(e.getMessage(), e);
                                     View.getSingleton()
                                             .showWarningDialog(
                                                     ManualRequestEditorDialog.this, e.getMessage());

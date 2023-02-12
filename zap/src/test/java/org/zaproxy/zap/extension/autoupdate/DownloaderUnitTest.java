@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import static fi.iki.elonen.NanoHTTPD.newFixedLengthResponse;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.instanceOf;
@@ -27,23 +26,16 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
-import fi.iki.elonen.NanoHTTPD;
-import fi.iki.elonen.NanoHTTPD.IHTTPSession;
-import fi.iki.elonen.NanoHTTPD.Response;
-import fi.iki.elonen.NanoHTTPD.Response.Status;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URL;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.zaproxy.zap.WithConfigsTest;
-import org.zaproxy.zap.testutils.NanoServerHandler;
 
 /** Unit test for {@link Downloader}. */
 class DownloaderUnitTest extends WithConfigsTest {
@@ -52,30 +44,17 @@ class DownloaderUnitTest extends WithConfigsTest {
     private static final int FILE_LENGTH = FILE_CONTENTS.length();
 
     private static final String FILE_PATH = "/file.txt";
-    private NanoServerHandler defaultHandler;
 
     private URL downloadUrl;
     private Downloader downloader;
 
     @BeforeEach
     void setUp() throws IOException {
-        startServer();
 
-        defaultHandler =
-                new NanoServerHandler(FILE_PATH) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        return newFixedLengthResponse(FILE_CONTENTS);
-                    }
-                };
-        nano.addHandler(defaultHandler);
-
-        downloadUrl = new URL("http://127.0.0.1:" + nano.getListeningPort() + FILE_PATH);
-    }
-
-    @AfterEach
-    void tearDown() {
-        stopServer();
+        setFileHandler(
+                (msg, file) ->
+                        Files.write(file, FILE_CONTENTS.getBytes(StandardCharsets.US_ASCII)));
+        downloadUrl = new URL("http://127.0.0.1" + FILE_PATH);
     }
 
     void createDowloader(String hash) throws IOException {
@@ -155,57 +134,16 @@ class DownloaderUnitTest extends WithConfigsTest {
     }
 
     @Test
-    void shouldDownloadBigFile() throws Exception {
-        // Given
-        long size = 10485760L;
-        nano.removeHandler(defaultHandler);
-        nano.addHandler(
-                new NanoServerHandler(FILE_PATH) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        return newFixedLengthResponse(
-                                Status.OK,
-                                NanoHTTPD.MIME_PLAINTEXT,
-                                new InputStream() {
-                                    @Override
-                                    public int read() throws IOException {
-                                        return 'A';
-                                    }
-                                },
-                                size);
-                    }
-                });
-        createDowloader(
-                "SHA-256:eb6183addde05c2196ce25e6fa34a4baf20f9bf30d33892f452a9a1e88c9a472", size);
-        // When
-        downloader.start();
-        // Then
-        waitDownloadFinish();
-        assertThat(downloader.getException(), is(nullValue()));
-        assertThat(downloader.getFinished(), is(not(nullValue())));
-        assertThat(downloader.isValidated(), is(equalTo(true)));
-        assertThat(downloader.getTargetFile().length(), is(equalTo(size)));
-    }
-
-    @Test
-    @Timeout(25)
+    @Timeout(5)
     void shouldCancelDownload() throws Exception {
         // Given
-        nano.removeHandler(defaultHandler);
-        nano.addHandler(
-                new NanoServerHandler(FILE_PATH) {
-                    @Override
-                    protected Response serve(IHTTPSession session) {
-                        return newFixedLengthResponse(
-                                Status.OK,
-                                NanoHTTPD.MIME_PLAINTEXT,
-                                new InputStream() {
-                                    @Override
-                                    public int read() throws IOException {
-                                        return 'A';
-                                    }
-                                },
-                                Integer.MAX_VALUE);
+        setFileHandler(
+                (msg, file) -> {
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new ClosedByInterruptException();
                     }
                 });
         createDowloader(

@@ -39,10 +39,11 @@ import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.MultipleOptionsTablePanel;
 import org.zaproxy.zap.view.panels.TableFilterPanel;
 
+@SuppressWarnings("serial")
 public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = LogManager.getLogger(OptionsKeyboardShortcutPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(OptionsKeyboardShortcutPanel.class);
 
     private ExtensionKeyboard extension;
     private KeyboardOptionsPanel tkeyboardOptionsPanel;
@@ -194,11 +195,10 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
                 }
             }
             if (setShortcut) {
-                logger.debug(
-                        "Setting keyboard shortcut for "
-                                + ks.getIdentifier()
-                                + " to "
-                                + ks.getKeyStroke());
+                LOGGER.debug(
+                        "Setting keyboard shortcut for {} to {}",
+                        ks.getIdentifier(),
+                        ks.getKeyStroke());
                 extension.setShortcut(ks.getIdentifier(), ks.getKeyStroke());
             }
         }

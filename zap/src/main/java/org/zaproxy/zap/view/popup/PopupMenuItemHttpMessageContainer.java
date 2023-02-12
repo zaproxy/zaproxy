@@ -32,7 +32,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.AlertPanel;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.search.SearchPanel;
-import org.zaproxy.zap.extension.spider.SpiderPanel;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHttpMessagesContainer;
@@ -47,12 +46,13 @@ import org.zaproxy.zap.view.messagecontainer.http.SingleHttpMessageContainer;
  * @see HttpMessageContainer
  * @see #isEnableForMessageContainer(MessageContainer)
  */
+@SuppressWarnings("serial")
 public abstract class PopupMenuItemHttpMessageContainer
         extends ExtensionPopupMenuItemMessageContainer {
 
     private static final long serialVersionUID = -4769111731197641466L;
 
-    private static final Logger logger =
+    private static final Logger LOGGER =
             LogManager.getLogger(PopupMenuItemHttpMessageContainer.class);
 
     /** The invokers of the the pop up menu. */
@@ -269,6 +269,7 @@ public abstract class PopupMenuItemHttpMessageContainer
      * @return the invoker or {@code Invoker#UNKNOWN} if the message container was not identified.
      * @see Invoker
      */
+    @SuppressWarnings("deprecation")
     private static Invoker getInvoker(HttpMessageContainer httpMessageContainer) {
         Invoker invoker;
         switch (httpMessageContainer.getName()) {
@@ -285,7 +286,7 @@ public abstract class PopupMenuItemHttpMessageContainer
             case SearchPanel.HTTP_MESSAGE_CONTAINER_NAME:
                 invoker = Invoker.SEARCH_PANEL;
                 break;
-            case SpiderPanel.HTTP_MESSAGE_CONTAINER_NAME:
+            case org.zaproxy.zap.extension.spider.SpiderPanel.HTTP_MESSAGE_CONTAINER_NAME:
                 invoker = Invoker.SPIDER_PANEL;
                 break;
             case ActiveScanPanel.MESSAGE_CONTAINER_NAME:
@@ -592,18 +593,15 @@ public abstract class PopupMenuItemHttpMessageContainer
 
         @Override
         public void actionPerformed(ActionEvent evt) {
-            if (logger.isDebugEnabled()) {
-                logger.debug(
-                        "actionPerformed "
-                                + (invoker != null ? invoker.name() : "null invoker")
-                                + " "
-                                + evt.getActionCommand());
-            }
+            LOGGER.debug(
+                    "actionPerformed {} {}",
+                    invoker != null ? invoker.name() : "null invoker",
+                    evt.getActionCommand());
 
             try {
                 performActions(httpMessageContainer);
             } catch (Exception e) {
-                logger.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
 
             resetState();

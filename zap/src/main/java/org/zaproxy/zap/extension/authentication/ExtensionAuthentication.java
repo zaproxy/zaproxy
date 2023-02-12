@@ -66,7 +66,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     private static final int NO_AUTH_METHOD = -1;
 
     /** The Constant log. */
-    private static final Logger log = LogManager.getLogger(ExtensionAuthentication.class);
+    private static final Logger LOGGER = LogManager.getLogger(ExtensionAuthentication.class);
 
     /** The automatically loaded authentication method types. */
     List<AuthenticationMethodType> authenticationMethodTypes = new ArrayList<>();
@@ -204,9 +204,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
             a.hook(hook);
         }
 
-        if (log.isInfoEnabled()) {
-            log.info("Loaded authentication method types: " + authenticationMethodTypes);
-        }
+        LOGGER.info("Loaded authentication method types: {}", authenticationMethodTypes);
     }
 
     /**
@@ -271,7 +269,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                                     .setAuthCheckingStrategy(
                                             AuthCheckingStrategy.valueOf(strategy));
                         } catch (Exception e) {
-                            log.error("Failed to parse auth checking strategy " + strategy, e);
+                            LOGGER.error("Failed to parse auth checking strategy {}", strategy, e);
                         }
                     }
 
@@ -310,7 +308,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
                                     .setPollFrequencyUnits(
                                             AuthPollFrequencyUnits.valueOf(freqUnits));
                         } catch (Exception e) {
-                            log.error("Failed to parse auth frequency units " + freqUnits, e);
+                            LOGGER.error("Failed to parse auth frequency units {}", freqUnits, e);
                         }
                     }
 
@@ -331,7 +329,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
             }
 
         } catch (DatabaseException e) {
-            log.error("Unable to load Authentication method.", e);
+            LOGGER.error("Unable to load Authentication method.", e);
         }
     }
 
@@ -406,7 +404,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
             t.persistMethodToSession(session, contextIdx, context.getAuthenticationMethod());
         } catch (DatabaseException e) {
-            log.error("Unable to persist Authentication method.", e);
+            LOGGER.error("Unable to persist Authentication method.", e);
         }
     }
 
@@ -479,7 +477,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
 
         AuthenticationMethodType authMethodType = getAuthenticationMethodTypeForIdentifier(typeId);
         if (authMethodType == null) {
-            log.warn("No authentication method type found for ID: " + typeId);
+            LOGGER.warn("No authentication method type found for ID: {}", typeId);
             return;
         }
         ctx.setAuthenticationMethod(authMethodType.createAuthenticationMethod(ctx.getId()));

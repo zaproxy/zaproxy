@@ -40,6 +40,7 @@ import org.zaproxy.zap.view.popup.ExtensionPopupMenuMessageContainer;
  * Depending on the initialization, it can be shown by itself containing the Popup Menus for each
  * User or it can just place the Popup Menus in its parent.
  */
+@SuppressWarnings("serial")
 public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageContainer {
 
     /** The Constant serialVersionUID. */
@@ -79,8 +80,8 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageC
         if (extensionUserAuth == null || !extensionUserAuth.isEnabled()) {
             LogManager.getLogger(PopupUserMenuItemHolder.class)
                     .warn(
-                            ExtensionUserManagement.class
-                                    + " is not enabled but is required for getting info about Users.");
+                            "{} is not enabled but is required for getting info about Users.",
+                            ExtensionUserManagement.class);
             extensionUserAuth = null;
         }
     }

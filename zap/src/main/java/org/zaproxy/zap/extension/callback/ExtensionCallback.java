@@ -109,10 +109,9 @@ public class ExtensionCallback extends ExtensionAdaptor
         // this will close the previous listener (if there was one)
         actualPort = proxyServer.startServer(this.getCallbackParam().getLocalAddress(), port, true);
         LOGGER.info(
-                "Started callback server on "
-                        + this.getCallbackParam().getLocalAddress()
-                        + ":"
-                        + actualPort);
+                "Started callback server on {}:{}",
+                this.getCallbackParam().getLocalAddress(),
+                actualPort);
     }
 
     public String getCallbackAddress() {
@@ -143,9 +142,9 @@ public class ExtensionCallback extends ExtensionAdaptor
 
     public void registerCallbackImplementor(CallbackImplementor impl) {
         for (String prefix : impl.getCallbackPrefixes()) {
-            LOGGER.debug("Registering callback prefix: " + prefix);
+            LOGGER.debug("Registering callback prefix: {}", prefix);
             if (this.callbacks.containsKey(prefix)) {
-                LOGGER.error("Duplicate callback prefix: " + prefix);
+                LOGGER.error("Duplicate callback prefix: {}", prefix);
             }
             this.callbacks.put("/" + prefix, impl);
         }
@@ -155,7 +154,7 @@ public class ExtensionCallback extends ExtensionAdaptor
         for (String shortcut : impl.getCallbackPrefixes()) {
             String key = "/" + shortcut;
             if (this.callbacks.containsKey(key)) {
-                LOGGER.debug("Removing registered callback prefix: " + shortcut);
+                LOGGER.debug("Removing registered callback prefix: {}", shortcut);
                 this.callbacks.remove(key);
             }
         }
@@ -303,12 +302,10 @@ public class ExtensionCallback extends ExtensionAdaptor
                 String url = msg.getRequestHeader().getURI().toString();
                 String path = msg.getRequestHeader().getURI().getPath();
                 LOGGER.debug(
-                        "Callback received for URL : "
-                                + url
-                                + " path : "
-                                + path
-                                + " from "
-                                + msg.getRequestHeader().getSenderAddress());
+                        "Callback received for URL : {} path : {} from {}",
+                        url,
+                        path,
+                        msg.getRequestHeader().getSenderAddress());
 
                 msg.setResponseHeader(HttpHeader.HTTP11 + " " + HttpStatusCode.OK);
 
@@ -344,10 +341,9 @@ public class ExtensionCallback extends ExtensionAdaptor
 
                 callbackReceived(Constant.messages.getString("callback.handler.none.name"), msg);
                 LOGGER.error(
-                        "No callback handler for URL : "
-                                + url
-                                + " from "
-                                + msg.getRequestHeader().getSenderAddress());
+                        "No callback handler for URL : {} from {}",
+                        url,
+                        msg.getRequestHeader().getSenderAddress());
             } catch (URIException | HttpMalformedHeaderException e) {
                 LOGGER.error(e.getMessage(), e);
             }

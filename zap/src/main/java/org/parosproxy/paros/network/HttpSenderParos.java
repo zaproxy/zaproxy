@@ -20,6 +20,7 @@
  */
 // ZAP: 2022/06/03 Move implementation from HttpSender.
 // ZAP: 2022/06/07 Deprecate the class.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -381,7 +382,7 @@ public class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
             }
         }
 
-        log.debug("Sending message to: " + msg.getRequestHeader().getURI().toString());
+        log.debug("Sending message to: {}", msg.getRequestHeader().getURI());
         // Send the message
         send(ctx, msg, params, responseBodyConsumer);
 
@@ -393,9 +394,8 @@ public class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
                 && !msg.getRequestHeader().isImage()
                 && !forceUser.isAuthenticated(msg)) {
             log.debug(
-                    "First try to send authenticated message failed for "
-                            + msg.getRequestHeader().getURI()
-                            + ". Authenticating and trying again...");
+                    "First try to send authenticated message failed for {}. Authenticating and trying again...",
+                    msg.getRequestHeader().getURI());
             forceUser.queueAuthentication(msg);
             forceUser.processMessageToMatchUser(msg);
             send(ctx, msg, params, responseBodyConsumer);
@@ -503,13 +503,10 @@ public class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
             HttpRequestConfig requestConfig,
             ResponseBodyConsumer responseBodyConsumer)
             throws IOException {
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "Sending "
-                            + message.getRequestHeader().getMethod()
-                            + " "
-                            + message.getRequestHeader().getURI());
-        }
+        log.debug(
+                "Sending {} {}",
+                message.getRequestHeader().getMethod(),
+                message.getRequestHeader().getURI());
         message.setTimeSentMillis(System.currentTimeMillis());
 
         try {
@@ -528,15 +525,11 @@ public class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
             message.setTimeElapsedMillis(
                     (int) (System.currentTimeMillis() - message.getTimeSentMillis()));
 
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Received response after "
-                                + message.getTimeElapsedMillis()
-                                + "ms for "
-                                + message.getRequestHeader().getMethod()
-                                + " "
-                                + message.getRequestHeader().getURI());
-            }
+            log.debug(
+                    "Received response after {}ms for {} {}",
+                    message.getTimeElapsedMillis(),
+                    message.getRequestHeader().getMethod(),
+                    message.getRequestHeader().getURI());
 
             if (requestConfig.isNotifyListeners()) {
                 notifyResponseListeners(ctx, message);
@@ -664,9 +657,7 @@ public class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
             throws InvalidRedirectLocationException {
         String location = message.getResponseHeader().getHeader(HttpHeader.LOCATION);
         if (location == null) {
-            if (log.isDebugEnabled()) {
-                log.debug("No Location header found: " + message.getResponseHeader());
-            }
+            log.debug("No Location header found: {}", message.getResponseHeader());
             return null;
         }
 

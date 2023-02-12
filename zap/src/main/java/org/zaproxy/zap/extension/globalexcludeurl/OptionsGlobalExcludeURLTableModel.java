@@ -25,6 +25,7 @@ import java.util.List;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
+@SuppressWarnings("serial")
 public class OptionsGlobalExcludeURLTableModel
         extends AbstractMultipleOptionsTableModel<GlobalExcludeURLParamToken> {
 

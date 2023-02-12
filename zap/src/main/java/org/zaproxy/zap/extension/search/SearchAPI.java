@@ -51,7 +51,7 @@ import org.zaproxy.zap.utils.HarUtils;
 
 public class SearchAPI extends ApiImplementor {
 
-    private static Logger log = LogManager.getLogger(SearchAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(SearchAPI.class);
 
     private static final String PREFIX = "search";
 
@@ -224,7 +224,7 @@ public class SearchAPI extends ApiImplementor {
             search(params, searchType, processor);
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
             throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
         }
         return result;
@@ -284,7 +284,7 @@ public class SearchAPI extends ApiImplementor {
             responseBody = HarUtils.harLogToByteArray(harLog);
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
 
             ApiException apiException =
                     new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -299,7 +299,7 @@ public class SearchAPI extends ApiImplementor {
                     API.getDefaultResponseHeader(
                             "application/json; charset=UTF-8", responseBody.length));
         } catch (HttpMalformedHeaderException e) {
-            log.error("Failed to create response header: " + e.getMessage(), e);
+            LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
         }
         msg.setResponseBody(responseBody);
 
@@ -335,7 +335,7 @@ public class SearchAPI extends ApiImplementor {
             try {
                 processor.processRecordHistory(tableHistory.read(hRefId));
             } catch (DatabaseException | HttpMalformedHeaderException e) {
-                log.error(e.getMessage(), e);
+                LOGGER.error(e.getMessage(), e);
             }
         }
     }

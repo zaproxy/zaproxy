@@ -24,6 +24,7 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
+@SuppressWarnings("serial")
 public class SingleColumnTableModel extends AbstractTableModel {
 
     private static final long serialVersionUID = 1L;

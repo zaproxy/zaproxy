@@ -37,6 +37,7 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/02/09 Remove method call no longer needed.
 // ZAP: 2022/02/26 Remove code deprecated in 2.5.0
+// ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
@@ -70,6 +71,7 @@ import org.zaproxy.zap.view.MainToolbarPanel;
 import org.zaproxy.zap.view.ZapToggleButton;
 import org.zaproxy.zap.view.widgets.PopupButton;
 
+@SuppressWarnings("serial")
 public class MainFrame extends AbstractFrame {
 
     private static final Logger LOGGER = LogManager.getLogger(MainFrame.class);

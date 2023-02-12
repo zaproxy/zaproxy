@@ -90,6 +90,8 @@
 // ZAP: 2022/05/20 Address deprecation warnings with ConnectionParam.
 // ZAP: 2022/06/05 Address deprecation warnings with HttpException.
 // ZAP: 2022/06/07 Address deprecation warnings with ZapGetMethod.
+// ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2022/09/26 Remove usage of org.ice4j classes.
 package org.parosproxy.paros.core.proxy;
 
 import java.io.BufferedInputStream;
@@ -109,8 +111,6 @@ import javax.net.ssl.SSLException;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ice4j.TransportAddress;
-import org.ice4j.ice.harvest.AwsCandidateHarvester;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
@@ -167,16 +167,6 @@ public class ProxyThread implements Runnable {
     private static int id = 1;
 
     private static Vector<Thread> proxyThreadList = new Vector<>();
-
-    /**
-     * Used to obtain the public address of AWS EC2 instance.
-     *
-     * <p>Lazily initialised.
-     *
-     * @see #getAwsCandidateHarvester()
-     * @see #isOwnPublicAddress(InetAddress)
-     */
-    private static AwsCandidateHarvester awsCandidateHarvester;
 
     protected ProxyThread(ProxyServer server, Socket socket) {
         this(server, socket, null);
@@ -257,13 +247,10 @@ public class ProxyThread implements Runnable {
         }
 
         if (bytesRead < 3) {
-            if (log.isDebugEnabled()) {
-                log.debug(
-                        "Failed to check if SSL/TLS handshake, got just "
-                                + bytesRead
-                                + " bytes: "
-                                + Arrays.toString(bytes));
-            }
+            log.debug(
+                    "Failed to check if SSL/TLS handshake, got just {} bytes: {}",
+                    bytesRead,
+                    Arrays.toString(bytes));
             return false;
         }
         // Check if ContentType is handshake(22)
@@ -340,16 +327,14 @@ public class ProxyThread implements Runnable {
             if (firstHeader != null) {
                 if (HttpRequestHeader.CONNECT.equalsIgnoreCase(firstHeader.getMethod())) {
                     log.warn(
-                            "Timeout reading (client) message after CONNECT to "
-                                    + firstHeader.getURI());
+                            "Timeout reading (client) message after CONNECT to {}",
+                            firstHeader.getURI());
                 } else {
-                    log.warn("Timeout accessing " + firstHeader.getURI());
+                    log.warn("Timeout accessing {}", firstHeader.getURI());
                 }
             } else {
                 log.warn("Socket timeout while reading first message.");
-                if (log.isDebugEnabled()) {
-                    log.debug(e, e);
-                }
+                log.debug(e, e);
             }
         } catch (HttpMalformedHeaderException e) {
             log.warn("Malformed Header: ", e);
@@ -488,9 +473,7 @@ public class ProxyThread implements Runnable {
 
                 } catch (SocketTimeoutException e) {
                     // ZAP: Log the exception
-                    if (log.isDebugEnabled()) {
-                        log.debug("Timed out while reading a new HTTP request.");
-                    }
+                    log.debug("Timed out while reading a new HTTP request.");
                     return;
                 }
             }
@@ -672,9 +655,7 @@ public class ProxyThread implements Runnable {
                 httpIn.close();
             }
         } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
-            }
+            log.debug(e.getMessage(), e);
         }
 
         try {
@@ -682,9 +663,7 @@ public class ProxyThread implements Runnable {
                 httpOut.close();
             }
         } catch (Exception e) {
-            if (log.isDebugEnabled()) {
-                log.debug(e.getMessage(), e);
-            }
+            log.debug(e.getMessage(), e);
         }
 
         org.parosproxy.paros.network.HttpUtil.closeSocket(inSocket);
@@ -852,9 +831,7 @@ public class ProxyThread implements Runnable {
      */
     private boolean isProxyAddress(InetAddress address) {
         if (parentServer.getProxyParam().isProxyIpAnyLocalAddress()) {
-            if (isLocalAddress(address)
-                    || isNetworkInterfaceAddress(address)
-                    || isOwnPublicAddress(address)) {
+            if (isLocalAddress(address) || isNetworkInterfaceAddress(address)) {
                 return true;
             }
         } else if (address.equals(inSocket.getLocalAddress())) {
@@ -897,47 +874,6 @@ public class ProxyThread implements Runnable {
             log.warn("Failed to check if an address is from a network interface:", e);
         }
         return false;
-    }
-
-    /**
-     * Tells whether or not the given {@code address} is a public address of the host, when behind
-     * NAT.
-     *
-     * <p>Returns {@code false} if the proxy is not behind NAT.
-     *
-     * <p><strong>Implementation Note:</strong> Only AWS EC2 NAT detection is supported, by
-     * requesting the public IP address from <a href=
-     * "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-instance-addressing.html#working-with-ip-addresses">
-     * AWS EC2 instance's metadata</a>.
-     *
-     * @param address the address that will be checked
-     * @return {@code true} if the address is public address of the host, {@code false} otherwise.
-     * @see ProxyParam#isBehindNat()
-     */
-    private boolean isOwnPublicAddress(InetAddress address) {
-        if (!proxyParam.isBehindNat()) {
-            return false;
-        }
-
-        // Support just AWS for now.
-        TransportAddress publicAddress = getAwsCandidateHarvester().getMask();
-        if (publicAddress == null) {
-            return false;
-        }
-        return Arrays.equals(address.getAddress(), publicAddress.getAddress().getAddress());
-    }
-
-    private static AwsCandidateHarvester getAwsCandidateHarvester() {
-        if (awsCandidateHarvester == null) {
-            createAwsCandidateHarvester();
-        }
-        return awsCandidateHarvester;
-    }
-
-    private static synchronized void createAwsCandidateHarvester() {
-        if (awsCandidateHarvester == null) {
-            awsCandidateHarvester = new AwsCandidateHarvester();
-        }
     }
 
     private void removeUnsupportedEncodings(HttpMessage msg) {

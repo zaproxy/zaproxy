@@ -47,6 +47,7 @@ import org.zaproxy.zap.control.AddOnUninstallationProgressCallback;
  *
  * @since 2.4.0
  */
+@SuppressWarnings("serial")
 class UninstallationProgressDialogue extends AbstractDialog {
 
     private static final long serialVersionUID = 6544278337930125848L;

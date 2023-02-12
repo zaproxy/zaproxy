@@ -38,6 +38,13 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
     private SimpleStringReader sr;
     private boolean scanNullValues;
 
+    private static final String SHORT_NAME = "json";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
+
     public VariantJSONQuery() {
         super(NameValuePair.TYPE_JSON);
     }

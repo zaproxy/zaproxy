@@ -76,10 +76,11 @@ import org.zaproxy.zap.view.LayoutHelper;
  *
  * @author yhawke (2014)
  */
+@SuppressWarnings("serial")
 public class ScanProgressDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;
-    private static Logger log = LogManager.getLogger(ScanProgressDialog.class);
+    private static final Logger LOGGER = LogManager.getLogger(ScanProgressDialog.class);
 
     private ExtensionActiveScan extension;
     private JScrollPane jScrollPane;
@@ -320,7 +321,7 @@ public class ScanProgressDialog extends AbstractDialog {
                                                 ScanProgressDialog.this,
                                                 Constant.messages.getString(
                                                         "ascan.progress.copyclipboard.error"));
-                                log.warn("Failed to copy the contents to clipboard:", e);
+                                LOGGER.warn("Failed to copy the contents to clipboard:", e);
                             }
                         }
                     });
@@ -446,7 +447,7 @@ public class ScanProgressDialog extends AbstractDialog {
                             }
                         }
                     } catch (Exception e) {
-                        log.error(e.getMessage(), e);
+                        LOGGER.error(e.getMessage(), e);
                         snapshot = null;
                     }
                 }

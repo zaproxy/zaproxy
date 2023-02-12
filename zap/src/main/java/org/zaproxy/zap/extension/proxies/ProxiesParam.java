@@ -73,7 +73,7 @@ public class ProxiesParam extends AbstractParam {
                                 sub.getBoolean(PROXY_BEHIND_NAT_KEY, false)));
             }
         } catch (ConversionException e) {
-            logger.error("Error while loading proxies: " + e.getMessage(), e);
+            logger.error("Error while loading proxies: {}", e.getMessage(), e);
         }
 
         this.confirmRemoveProxy = getBoolean(CONFIRM_REMOVE_PROXY_KEY, true);

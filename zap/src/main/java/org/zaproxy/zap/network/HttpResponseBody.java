@@ -30,7 +30,7 @@ import org.parosproxy.paros.network.HttpBody;
 
 public class HttpResponseBody extends HttpBody {
 
-    private static final Logger log = LogManager.getLogger(HttpResponseBody.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpResponseBody.class);
 
     // private static Pattern patternCharset = Pattern.compile("<META
     // +[^>]+charset=['\"]*([^>'\"])+['\"]*>", Pattern.CASE_INSENSITIVE| Pattern.MULTILINE);
@@ -94,9 +94,9 @@ public class HttpResponseBody extends HttpBody {
             try {
                 return Charset.forName(matcher.group(1));
             } catch (IllegalArgumentException e) {
-                log.warn(
-                        "Unable to determine (valid) charset with the (X)HTML meta charset: "
-                                + e.getMessage());
+                LOGGER.warn(
+                        "Unable to determine (valid) charset with the (X)HTML meta charset: {}",
+                        e.getMessage());
             }
         } else if (isUtf8String(contents)) {
             return StandardCharsets.UTF_8;
@@ -140,8 +140,8 @@ public class HttpResponseBody extends HttpBody {
                 }
             }
         } catch (UnsupportedEncodingException e) {
-            log.error("Unable to encode with the (X)HTML meta charset: " + e.getMessage());
-            log.warn("Using default charset: " + DEFAULT_CHARSET);
+            LOGGER.error("Unable to encode with the (X)HTML meta charset: {}", e.getMessage());
+            LOGGER.warn("Using default charset: {}", DEFAULT_CHARSET);
 
             result = resultDefaultCharset;
         }

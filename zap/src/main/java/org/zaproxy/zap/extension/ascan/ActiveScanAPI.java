@@ -74,7 +74,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public class ActiveScanAPI extends ApiImplementor {
 
-    private static Logger log = LogManager.getLogger(ActiveScanAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(ActiveScanAPI.class);
 
     private static final String PREFIX = "ascan";
     private static final String ACTION_SCAN = "scan";
@@ -293,7 +293,7 @@ public class ActiveScanAPI extends ApiImplementor {
     @SuppressWarnings({"fallthrough"})
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        log.debug("handleApiAction " + name + " " + params.toString());
+        LOGGER.debug("handleApiAction {} {}", name, params);
         ScanPolicy policy;
         int categoryId;
 
@@ -351,7 +351,7 @@ public class ActiveScanAPI extends ApiImplementor {
                     try {
                         if (policyName != null && policyName.length() > 0) {
                             // Not specified, use the default one
-                            log.debug("handleApiAction scan policy =" + policyName);
+                            LOGGER.debug("handleApiAction scan policy ={}", policyName);
                             policy = controller.getPolicyManager().getPolicy(policyName);
                         }
                     } catch (ConfigurationException e) {
@@ -411,7 +411,7 @@ public class ActiveScanAPI extends ApiImplementor {
                         Session session = Model.getSingleton().getSession();
                         session.setExcludeFromScanRegexs(new ArrayList<>());
                     } catch (DatabaseException e) {
-                        log.error(e.getMessage(), e);
+                        LOGGER.error(e.getMessage(), e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     }
                     break;
@@ -421,7 +421,7 @@ public class ActiveScanAPI extends ApiImplementor {
                         Session session = Model.getSingleton().getSession();
                         session.addExcludeFromScanRegexs(regex);
                     } catch (DatabaseException e) {
-                        log.error(e.getMessage(), e);
+                        LOGGER.error(e.getMessage(), e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     } catch (PatternSyntaxException e) {
                         throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
@@ -775,15 +775,28 @@ public class ActiveScanAPI extends ApiImplementor {
 
     private void setScannersEnabled(ScanPolicy policy, String[] ids, boolean enabled)
             throws ApiException {
+        List<String> unknownIds = null;
         try {
             for (String idString : ids) {
-                int id = Integer.parseInt(idString.trim());
-                Plugin scanner = getScannerFromId(policy, id, idString.trim());
-                scanner.setEnabled(enabled);
+                String idTrimmed = idString.trim();
+                int id = Integer.parseInt(idTrimmed);
+                Plugin scanner = policy.getPluginFactory().getPlugin(id);
+                if (scanner != null) {
+                    scanner.setEnabled(enabled);
+                } else {
+                    if (unknownIds == null) {
+                        unknownIds = new ArrayList<>();
+                    }
+                    unknownIds.add(idTrimmed);
+                }
             }
         } catch (NumberFormatException e) {
-            log.warn("Failed to parse scanner ID: ", e);
+            LOGGER.warn("Failed to parse scanner ID: ", e);
             throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
+        }
+
+        if (unknownIds != null) {
+            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, "IDs: " + unknownIds);
         }
     }
 
@@ -797,7 +810,7 @@ public class ActiveScanAPI extends ApiImplementor {
                 updateRulesOfCategoryInPolicy(categoryId, policy, s -> s.setEnabled(true));
             }
         } catch (NumberFormatException e) {
-            log.warn("Failed to parse category ID: ", e);
+            LOGGER.warn("Failed to parse category ID: ", e);
             throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage(), e);
         }
     }

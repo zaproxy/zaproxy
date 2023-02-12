@@ -21,18 +21,21 @@ package org.zaproxy.zap.spider.parser;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 import net.htmlparser.jericho.Source;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
-import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
  * The Abstract Class SpiderParser is the base for parsers used by the spider. The main purpose of
  * these Parsers is to find links (uris) to resources in the provided content. Uses the Jericho
  * Library for parsing.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
  */
+@Deprecated
 public abstract class SpiderParser {
 
     /** The listeners to spider parsing events. */
@@ -48,6 +51,23 @@ public abstract class SpiderParser {
             org.apache.log4j.Logger.getLogger(SpiderParser.class);
 
     private final Logger logger = LogManager.getLogger(getClass());
+
+    private org.zaproxy.zap.spider.SpiderParam spiderParam;
+
+    public SpiderParser() {}
+
+    public SpiderParser(org.zaproxy.zap.spider.SpiderParam spiderParam) {
+        this.spiderParam =
+                Objects.requireNonNull(spiderParam, "Parameter spiderParam must not be null.");
+    }
+
+    public void setSpiderParam(org.zaproxy.zap.spider.SpiderParam spiderParam) {
+        this.spiderParam = spiderParam;
+    }
+
+    protected org.zaproxy.zap.spider.SpiderParam getSpiderParam() {
+        return spiderParam;
+    }
 
     /**
      * Gets the logger.
@@ -140,7 +160,7 @@ public abstract class SpiderParser {
      */
     protected void processURL(HttpMessage message, int depth, String localURL, String baseURL) {
         // Build the absolute canonical URL
-        String fullURL = URLCanonicalizer.getCanonicalURL(localURL, baseURL);
+        String fullURL = getCanonicalURL(localURL, baseURL);
         if (fullURL == null) {
             return;
         }
@@ -152,6 +172,11 @@ public abstract class SpiderParser {
                         .setDepth(depth + 1)
                         .setUri(fullURL)
                         .build());
+    }
+
+    protected String getCanonicalURL(String localURL, String baseURL) {
+        return org.zaproxy.zap.spider.URLCanonicalizer.getCanonicalURL(
+                localURL, baseURL, spiderParam::isIrrelevantUrlParameter);
     }
 
     /**

@@ -27,6 +27,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
  * The PopupMenuUnsetActiveSession is used to unset the active http session for the {@link
  * ExtensionHttpSessions}.
  */
+@SuppressWarnings("serial")
 public class PopupMenuUnsetActiveSession extends ExtensionPopupMenuItem {
 
     /** The Constant serialVersionUID. */

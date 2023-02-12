@@ -146,7 +146,7 @@ class VulnerabilitiesLoaderUnitTest extends TestUtils {
     @Test
     void shouldLoadDefaultFileEvenIfFileWithSameLanguageButDifferentCountryIsAvailable() {
         // Given
-        Locale.setDefault(new Locale("nl", "XX"));
+        Locale.setDefault(new Locale.Builder().setLanguage("nl").setRegion("XX").build());
         Locale locale = new Locale.Builder().setLanguage("nl").setRegion("XX").build();
         loader = new VulnerabilitiesLoader(DIRECTORY, FILE_NAME, FILE_EXTENSION);
         // When

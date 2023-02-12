@@ -48,7 +48,7 @@ import org.zaproxy.zap.utils.XMLStringUtil;
 public class HttpSessionsAPI extends ApiImplementor {
 
     /** The Constant log. */
-    private static final Logger log = LogManager.getLogger(HttpSessionsAPI.class);
+    private static final Logger LOGGER = LogManager.getLogger(HttpSessionsAPI.class);
 
     /** The Constant PREFIX defining the name/prefix of the api. */
     private static final String PREFIX = "httpSessions";
@@ -217,14 +217,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "Request for handleApiAction: "
-                            + name
-                            + " (params: "
-                            + params.toString()
-                            + ")");
-        }
+        LOGGER.debug("Request for handleApiAction: {} (params: {}]", name, params);
 
         HttpSessionsSite site;
         switch (name) {
@@ -364,10 +357,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 
     @Override
     public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
-        if (log.isDebugEnabled()) {
-            log.debug(
-                    "Request for handleApiView: " + name + " (params: " + params.toString() + ")");
-        }
+        LOGGER.debug("Request for handleApiView: {} (params: {})", name, params);
 
         HttpSessionsSite site;
         switch (name) {
@@ -392,14 +382,12 @@ public class HttpSessionsAPI extends ApiImplementor {
                 // If a session name was not provided
                 if (vsName == null || vsName.isEmpty()) {
                     Set<HttpSession> sessions = site.getHttpSessions();
-                    if (log.isDebugEnabled()) {
-                        log.debug(
-                                "API View for sessions for "
-                                        + ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE))
-                                        + ": "
-                                        + site);
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug(
+                                "API View for sessions for {}:{}",
+                                ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE)),
+                                site);
                     }
-
                     // Build the response
                     for (HttpSession session : sessions) {
                         // Dont include 'null' sessions
@@ -424,14 +412,12 @@ public class HttpSessionsAPI extends ApiImplementor {
                 if (site == null) {
                     throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
                 }
-                if (log.isDebugEnabled()) {
-                    log.debug(
-                            "API View for active session for "
-                                    + ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE))
-                                    + ": "
-                                    + site);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
+                            "API View for active session for {}:{}",
+                            ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE)),
+                            site);
                 }
-
                 if (site.getActiveSession() != null) {
                     return new ApiResponseElement(
                             "active_session", site.getActiveSession().getName());

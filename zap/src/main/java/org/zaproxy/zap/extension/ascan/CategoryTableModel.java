@@ -31,6 +31,7 @@
 // not important).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2022/08/04 Ensure scan rule names are non-blank (Issue 7228)
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.StatusUI;
 
+@SuppressWarnings("serial")
 public class CategoryTableModel extends DefaultTableModel {
 
     private static final long serialVersionUID = 1L;
@@ -232,7 +234,7 @@ public class CategoryTableModel extends DefaultTableModel {
         PluginWrapper wrapper = listTestCategory.get(row);
         switch (col) {
             case 0:
-                return wrapper.getPlugin().getName();
+                return wrapper.getPlugin().getDisplayName();
             case 1:
                 if (!wrapper.getPlugin().isEnabled()) {
                     return AlertThreshold.OFF;

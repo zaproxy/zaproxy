@@ -31,6 +31,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.extension.custompages.CustomPage;
+import org.zaproxy.zap.extension.custompages.ExtensionCustomPages;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.TechSet;
@@ -69,23 +70,24 @@ public class PassiveScanData {
         }
     }
 
+    public HttpMessage getMessage() {
+        return message;
+    }
+
     private static Context getContext(HttpMessage message) {
         List<Context> contextList =
                 Model.getSingleton()
                         .getSession()
                         .getContextsForUrl(message.getRequestHeader().getURI().toString());
         if (contextList.isEmpty()) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(
-                        "No Context found for: " + message.getRequestHeader().getURI().toString());
-            }
+            LOGGER.debug("No Context found for: {}", message.getRequestHeader().getURI());
             return null;
         }
         return contextList.get(0);
     }
 
     /**
-     * Returns an unmodifiable list of {@Code User}s for the {@code HttpMessage} being passively
+     * Returns an unmodifiable list of {@code User}s for the {@code HttpMessage} being passively
      * scanned. The list returned is based on the first {@code Context} matched.
      *
      * @return A list of users if some are available, an empty list otherwise.
@@ -245,6 +247,27 @@ public class PassiveScanData {
      */
     public boolean isPageOther(HttpMessage msg) {
         return isCustomPage(msg, CustomPage.Type.OTHER);
+    }
+
+    /**
+     * Tells whether or not the message matches {@code CustomPage.Type.AUTH_4XX} definitions. Falls
+     * back to simply checking the response status code for "401 - Unauthorized" or "403 -
+     * Forbidden". Checks if the message matches {@code CustomPage.Type.OK_200} first, in case the
+     * user is trying to override something.
+     *
+     * @param msg the message that will be checked
+     * @return {@code true} if the message matches, {@code false} otherwise
+     * @since 2.12.0
+     */
+    public boolean isPageAuthIssue(HttpMessage msg) {
+        if (isCustomPage(msg, CustomPage.Type.OK_200)) {
+            return false;
+        }
+        if (isCustomPage(msg, CustomPage.Type.AUTH_4XX)) {
+            return true;
+        }
+        return ExtensionCustomPages.AUTH_HTTP_STATUS_CODES.contains(
+                msg.getResponseHeader().getStatusCode());
     }
 
     /**

@@ -36,7 +36,7 @@ import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
 public class ScriptsPassiveScanner extends PluginPassiveScanner {
 
-    private static final Logger logger = LogManager.getLogger(ScriptsPassiveScanner.class);
+    private static final Logger LOGGER = LogManager.getLogger(ScriptsPassiveScanner.class);
 
     private final ScriptsCache<PassiveScript> scripts;
 
@@ -102,8 +102,8 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
             // use the default method).
             if (e.getCause() instanceof NoSuchMethodException
                     && "appliesToHistoryType".equals(e.getCause().getMessage())) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug(
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug(
                             "Script [Name={}, Engine={}]  does not implement the optional method appliesToHistoryType: ",
                             wrapper.getName(),
                             wrapper.getEngineName(),

@@ -63,6 +63,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.view.WorkbenchPanel.Layout;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -72,12 +73,13 @@ import org.zaproxy.zap.view.ZapToggleButton;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 
+@SuppressWarnings("serial")
 public class AlertPanel extends AbstractPanel {
 
     public static final String ALERT_TREE_PANEL_NAME = "treeAlert";
 
     private static final long serialVersionUID = 1L;
-    private static final Logger logger = LogManager.getLogger(AlertPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(AlertPanel.class);
 
     private ViewDelegate view = null;
     private JTree treeAlert = null;
@@ -657,7 +659,7 @@ public class AlertPanel extends AbstractPanel {
                         }
                     });
         } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -690,6 +692,7 @@ public class AlertPanel extends AbstractPanel {
             SearchMatch sm = null;
             int start;
 
+            HttpPanel focusPanel = null;
             // Highlight the 'attack' / evidence
             if (highlight == null || highlight.length() == 0) {
                 // ignore
@@ -701,7 +704,7 @@ public class AlertPanel extends AbstractPanel {
                                 start,
                                 start + highlight.length());
                 responsePanel.highlightHeader(sm);
-                responsePanel.setTabFocus();
+                focusPanel = responsePanel;
 
             } else if ((start = msg.getResponseBody().toString().indexOf(highlight)) >= 0) {
                 sm =
@@ -711,7 +714,7 @@ public class AlertPanel extends AbstractPanel {
                                 start,
                                 start + highlight.length());
                 responsePanel.highlightBody(sm);
-                responsePanel.setTabFocus();
+                focusPanel = responsePanel;
 
             } else if ((start = msg.getRequestHeader().toString().indexOf(highlight)) >= 0) {
                 sm =
@@ -721,7 +724,7 @@ public class AlertPanel extends AbstractPanel {
                                 start,
                                 start + highlight.length());
                 requestPanel.highlightHeader(sm);
-                requestPanel.setTabFocus();
+                focusPanel = requestPanel;
 
             } else if ((start = msg.getRequestBody().toString().indexOf(highlight)) >= 0) {
                 sm =
@@ -731,7 +734,12 @@ public class AlertPanel extends AbstractPanel {
                                 start,
                                 start + highlight.length());
                 requestPanel.highlightBody(sm);
-                requestPanel.setTabFocus();
+                focusPanel = requestPanel;
+            }
+
+            if (focusPanel != null
+                    && getView().getMainFrame().getWorkbenchLayout() != Layout.FULL) {
+                focusPanel.setTabFocus();
             }
         }
     }

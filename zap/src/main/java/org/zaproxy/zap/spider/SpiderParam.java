@@ -20,9 +20,13 @@
 package org.zaproxy.zap.spider;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.httpclient.URI;
@@ -30,9 +34,16 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.control.Control;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
+import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 
-/** The SpiderParam wraps all the parameters that are given to the spider. */
+/**
+ * The SpiderParam wraps all the parameters that are given to the spider.
+ *
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
+@Deprecated
 public class SpiderParam extends AbstractParam {
 
     /**
@@ -118,6 +129,11 @@ public class SpiderParam extends AbstractParam {
      * @see #maxParseSizeBytes
      */
     private static final int DEFAULT_MAX_PARSE_SIZE_BYTES = 2621440; // 2.5 MiB
+
+    /** Configuration key to write/read the {@link #irrelevantUrlParameters} property. */
+    private static final String SPIDER_IRRELEVANT_URL_PARAMETERS = "spider.irrelevantUrlParameters";
+
+    private static ExtensionHttpSessions extensionHttpSessions;
 
     /**
      * This option is used to define how the parameters are used when checking if an URI was already
@@ -233,12 +249,24 @@ public class SpiderParam extends AbstractParam {
      */
     private int maxParseSizeBytes = DEFAULT_MAX_PARSE_SIZE_BYTES;
 
+    /**
+     * Parameter names which are ignored in the {@link URLCanonicalizer}.
+     *
+     * @see #SPIDER_IRRELEVANT_URL_PARAMETERS
+     */
+    private Set<String> irrelevantUrlParameters = Collections.emptySet();
+
     /** Instantiates a new spider param. */
     public SpiderParam() {}
 
     @Override
     protected void parse() {
         updateOptions();
+
+        extensionHttpSessions =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionHttpSessions.class);
 
         this.threadCount = getInt(SPIDER_THREAD, 2);
 
@@ -298,6 +326,9 @@ public class SpiderParam extends AbstractParam {
         this.acceptCookies = getBoolean(SPIDER_ACCEPT_COOKIES, true);
 
         this.maxParseSizeBytes = getInt(SPIDER_MAX_PARSE_SIZE_BYTES, DEFAULT_MAX_PARSE_SIZE_BYTES);
+
+        this.irrelevantUrlParameters =
+                getStringSet(SPIDER_IRRELEVANT_URL_PARAMETERS, this.irrelevantUrlParameters);
     }
 
     private void updateOptions() {
@@ -334,7 +365,7 @@ public class SpiderParam extends AbstractParam {
                         Pattern pattern = Pattern.compile(domain, Pattern.CASE_INSENSITIVE);
                         domainsInScope.add(new DomainAlwaysInScopeMatcher(pattern));
                     } catch (IllegalArgumentException e) {
-                        log.error("Failed to migrate a domain always in scope, name: " + name, e);
+                        log.error("Failed to migrate a domain always in scope, name: {}", name, e);
                     }
                 } else {
                     domainsInScope.add(new DomainAlwaysInScopeMatcher(domain));
@@ -769,7 +800,8 @@ public class SpiderParam extends AbstractParam {
                     excludedDomain = new DomainAlwaysInScopeMatcher(pattern);
                 } catch (IllegalArgumentException e) {
                     log.error(
-                            "Failed to read an spider domain in scope entry with regex: " + value,
+                            "Failed to read an spider domain in scope entry with regex: {}",
+                            value,
                             e);
                 }
             } else {
@@ -966,5 +998,54 @@ public class SpiderParam extends AbstractParam {
      */
     public int getMaxParseSizeBytes() {
         return maxParseSizeBytes;
+    }
+
+    public Set<String> getIrrelevantUrlParameters() {
+        return irrelevantUrlParameters;
+    }
+
+    public void setIrrelevantUrlParameters(Set<String> irrelevantUrlParameters) {
+        this.irrelevantUrlParameters = irrelevantUrlParameters;
+        getConfig().setProperty(SPIDER_IRRELEVANT_URL_PARAMETERS, irrelevantUrlParameters);
+    }
+
+    public String getIrrelevantUrlParametersAsString() {
+        return this.getIrrelevantUrlParameters().stream().collect(Collectors.joining(", "));
+    }
+
+    public void setIrrelevantUrlParameters(String irrelevantUrlParameters) {
+        this.setIrrelevantUrlParameters(
+                (Set<String>)
+                        Arrays.stream(irrelevantUrlParameters.split(","))
+                                .map(String::trim)
+                                .filter(str -> !str.isEmpty())
+                                .collect(Collectors.toCollection(LinkedHashSet::new)));
+    }
+
+    public boolean isIrrelevantUrlParameter(String name) {
+        return getIrrelevantUrlParameters().contains(name)
+                || name.startsWith("utm_")
+                || isSessionToken(name);
+    }
+
+    private static boolean isSessionToken(String paramName) {
+        if (extensionHttpSessions == null) {
+            return false;
+        }
+        return extensionHttpSessions.isDefaultSessionToken(paramName);
+    }
+
+    private Set<String> getStringSet(String key, Set<String> defaultSet) {
+        try {
+            List<Object> parsedList = getConfig().getList(key, Collections.emptyList());
+            return parsedList.isEmpty()
+                    ? defaultSet
+                    : parsedList.stream()
+                            .map(Object::toString)
+                            .collect(Collectors.toCollection(LinkedHashSet::new));
+        } catch (ConversionException e) {
+            logConversionException(key, e);
+        }
+        return defaultSet;
     }
 }

@@ -42,6 +42,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
+import org.mockito.quality.Strictness;
 import org.mockito.stubbing.Answer;
 import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.parosproxy.paros.core.scanner.ScannerParam;
@@ -115,7 +116,8 @@ class VariantFactoryUnitTest extends WithConfigsTest {
     @Test
     void shouldReturnNoVariantsWhenUnset() {
         // Given
-        ScannerParam scanOptions = Mockito.mock(ScannerParam.class, withSettings().lenient());
+        ScannerParam scanOptions =
+                Mockito.mock(ScannerParam.class, withSettings().strictness(Strictness.LENIENT));
         Mockito.when(scanOptions.getConfig()).thenReturn(new ZapXmlConfiguration());
         HttpMessage message = new HttpMessage();
 
@@ -131,7 +133,8 @@ class VariantFactoryUnitTest extends WithConfigsTest {
     @Test
     void shouldReturnAllVariantsWhenSet() throws Exception {
         // Given
-        ScannerParam scanOptions = Mockito.mock(ScannerParam.class, withSettings().lenient());
+        ScannerParam scanOptions =
+                Mockito.mock(ScannerParam.class, withSettings().strictness(Strictness.LENIENT));
         Mockito.when(scanOptions.getConfig()).thenReturn(new ZapXmlConfiguration());
         Mockito.when(scanOptions.getTargetParamsInjectable()).thenReturn(-1);
         Mockito.when(scanOptions.getTargetParamsEnabledRPC()).thenReturn(-1);

@@ -53,6 +53,13 @@ public class VariantDirectWebRemotingQuery extends VariantAbstractRPCQuery {
     private static final Pattern patternNullValue =
             Pattern.compile("null:null", Pattern.CASE_INSENSITIVE);
 
+    private static final String SHORT_NAME = "dwr";
+
+    @Override
+    public String getShortName() {
+        return SHORT_NAME;
+    }
+
     /**
      * @param contentType
      * @return

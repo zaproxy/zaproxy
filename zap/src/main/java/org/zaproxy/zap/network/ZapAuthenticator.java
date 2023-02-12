@@ -74,7 +74,7 @@ public class ZapAuthenticator extends Authenticator {
                 strBuilder.append("[Username: ").append(passwordAuthentication.getUserName());
                 strBuilder.append(", Password: *****]");
             }
-            logger.debug(strBuilder.toString());
+            logger.debug(strBuilder);
         }
         return passwordAuthentication;
     }

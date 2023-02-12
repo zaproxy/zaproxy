@@ -80,9 +80,10 @@ import org.zaproxy.zap.view.widgets.ContextSelectComboBox;
  *
  * @author psiinon
  */
+@SuppressWarnings("serial")
 public abstract class StandardFieldsDialog extends AbstractDialog {
 
-    private static final Logger logger = LogManager.getLogger(StandardFieldsDialog.class);
+    private static final Logger LOGGER = LogManager.getLogger(StandardFieldsDialog.class);
 
     private static final long serialVersionUID = 1L;
     private static final EmptyBorder FULL_BORDER = new EmptyBorder(8, 8, 8, 8);
@@ -1176,20 +1177,18 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
             }
         } else if (c == null) {
             // Ignore - could be during init
-            logger.debug("No field for " + fieldLabel);
+            LOGGER.debug("No field for {}", fieldLabel);
         } else {
             handleUnexpectedFieldClass(fieldLabel, c);
         }
     }
 
     private static void handleUnexpectedFieldClass(String fieldLabel, Component component) {
-        logger.error(
-                "Unexpected field class "
-                        + fieldLabel
-                        + ": "
-                        + component.getClass().getCanonicalName()
-                        + "\n\t"
-                        + StringUtils.join(Thread.currentThread().getStackTrace(), "\n\t"));
+        LOGGER.error(
+                "Unexpected field class {}: {}\n\t{}",
+                fieldLabel,
+                component.getClass().getCanonicalName(),
+                StringUtils.join(Thread.currentThread().getStackTrace(), "\n\t"));
     }
 
     public void setComboFields(String fieldLabel, List<String> choices, String value) {
@@ -1206,7 +1205,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
             }
         } else if (c == null) {
             // Ignore - could be during init
-            logger.debug("No field for " + fieldLabel);
+            LOGGER.debug("No field for {}", fieldLabel);
         } else {
             handleUnexpectedFieldClass(fieldLabel, c);
         }
@@ -1233,7 +1232,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
             comboBox.setModel(comboBoxModel);
         } else if (c == null) {
             // Ignore - could be during init
-            logger.debug("No field for " + fieldLabel);
+            LOGGER.debug("No field for {}", fieldLabel);
         } else {
             handleUnexpectedFieldClass(fieldLabel, c);
         }

@@ -1,6 +1,62 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-02-03
+ - Alert_on_Unexpected_Content_Types.js > Added Content-Type application/hal+json to the list of expected types.
+
+### 2023-01-27
+ - Updated to use Webswing 22.2.4 (Issue 7704).
+
+### 2023-01-10
+- Rework Docker build files to not leave cached files and to not do unnecessary work.
+
+### 2022-12-16
+ - Changed the UID and GID of the `zap` user to 1000 (Issue 7655).
+
+### 2022-12-05
+ - Changed all images to use debian:bullseye-slim instead of unstable-slim.
+
+### 2022-11-07
+ - Updated packaged scans to use full path to `zap-x.sh`.
+
+### 2022-11-04
+  - Fixed `zap-x.sh` to return the exit code from `zap.sh` instead of `rm -f`
+
+### 2022-10-27
+ - Updated to use Webswing 22.2
+
+### 2022-10-07
+ - Changed stable image to use debian:unstable-slim.
+ - Changed bare image to use eclipse-temurin:11-jre-alpine.
+ - Removed zap-cli from stable.
+ - Updated to use Webswing 22.1.5.
+ - Alert_on_Unexpected_Content_Types.js > Added Content-Type application/x-ndjson to the list of expected types.
+
+### 2022-09-28
+ - Removed zap-cli from weekly/live.
+
+### 2022-09-27
+ - Fixed problem where python-owasp-zap-v2.4 was getting an older version.
+ - Use curl for the weekly/live health checks.
+
+### 2022-09-26
+ - Changed weekly image to use debian:unstable-slim.
+
+### 2022-09-20
+ - Changed live image to use debian:unstable-slim.
+
+### 2022-09-15
+ - No longer include depreciated addOns job.
+
+### 2022-08-10
+ - The packaged scans will no longer warn if the default hooks file is not found.
+
+### 2022-08-05
+ - Alert_on_Unexpected_Content_Types.js > Added Content-Type text/plain to the list of expected types.
+ 
+### 2022-07-30
+ - Updated to use Webswing 22.1.3.
+
 ### 2022-06-06
  - Updated to use Webswing 22.1.2
 

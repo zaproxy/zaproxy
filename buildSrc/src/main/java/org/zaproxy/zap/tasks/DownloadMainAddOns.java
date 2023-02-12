@@ -22,16 +22,11 @@ package org.zaproxy.zap.tasks;
 import de.undercouch.gradle.tasks.download.DownloadAction;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
+import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.codec.digest.DigestUtils;
+import java.util.stream.Stream;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.file.DirectoryProperty;
@@ -40,14 +35,16 @@ import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.OutputDirectory;
 import org.gradle.api.tasks.TaskAction;
-import org.zaproxy.zap.internal.AddOnDownloadData;
+import org.zaproxy.zap.tasks.internal.MainAddOn;
+import org.zaproxy.zap.tasks.internal.MainAddOnsData;
+import org.zaproxy.zap.tasks.internal.Utils;
 
-public class DownloadAddOns extends DefaultTask {
+public class DownloadMainAddOns extends DefaultTask {
 
     private final RegularFileProperty addOnsData;
     private final DirectoryProperty outputDir;
 
-    public DownloadAddOns() {
+    public DownloadMainAddOns() {
         ObjectFactory objects = getProject().getObjects();
         this.addOnsData = objects.fileProperty();
         this.outputDir = objects.directoryProperty();
@@ -65,84 +62,73 @@ public class DownloadAddOns extends DefaultTask {
 
     @TaskAction
     public void download() throws IOException {
-        Set<AddOnDownloadData> downloads = parseAddOnsData();
-        checkExistingFiles(downloads);
+        MainAddOnsData data = parseData();
+        checkExistingFiles(data);
 
-        for (AddOnDownloadData downloadData : downloads) {
-            downloadFile(downloadData);
+        for (MainAddOn addOn : data.getAddOns()) {
+            downloadFile(addOn);
         }
     }
 
-    private void checkExistingFiles(Set<AddOnDownloadData> downloads) {
+    private void checkExistingFiles(MainAddOnsData data) {
         File[] files = getOutputDir().get().getAsFile().listFiles();
-        if (files == null) {
+        if (files == null || files.length == 0) {
             return;
         }
 
-        List<File> existingFiles = new ArrayList<>(Arrays.asList(files));
-        for (Iterator<AddOnDownloadData> it = downloads.iterator(); it.hasNext(); ) {
-            AddOnDownloadData downloadData = it.next();
-            File file = downloadData.getOutputFile();
-            if (existingFiles.contains(file) && hasSameHash(file, downloadData.getHash())) {
+        List<Path> existingFiles = Stream.of(files).map(File::toPath).collect(Collectors.toList());
+        for (Iterator<MainAddOn> it = data.getAddOns().iterator(); it.hasNext(); ) {
+            MainAddOn addOn = it.next();
+            Path file = addOn.getOutputFile();
+            if (existingFiles.contains(file) && hasSameHash(file, addOn)) {
                 existingFiles.remove(file);
                 it.remove();
             }
         }
 
-        for (File file : existingFiles) {
+        for (Path file : existingFiles) {
             getProject().delete(file);
         }
     }
 
-    private void downloadFile(AddOnDownloadData downloadData) throws IOException {
-        File file = downloadData.getOutputFile();
+    private void downloadFile(MainAddOn addOn) throws IOException {
+        Path file = addOn.getOutputFile();
         DownloadAction downloadAction = new DownloadAction(getProject());
-        downloadAction.src(downloadData.getUrl());
-        downloadAction.dest(file);
+        downloadAction.src(addOn.getUrl());
+        downloadAction.dest(file.toFile());
         downloadAction.execute();
 
-        String computedHash = hash(file);
-        if (!computedHash.equalsIgnoreCase(downloadData.getHash())) {
+        String computedHash = Utils.hash(file, addOn);
+        if (!computedHash.equalsIgnoreCase(addOn.getHash())) {
             throw new IOException(
                     "Hash mismatch for file "
                             + file
                             + " expected "
-                            + downloadData.getHash()
+                            + addOn.getHash()
                             + " but got "
                             + computedHash);
         }
     }
 
-    private static boolean hasSameHash(File file, String hash) {
+    private static boolean hasSameHash(Path file, MainAddOn addOn) {
         try {
-            return hash(file).equalsIgnoreCase(hash);
-        } catch (IOException ignore) {
+            return Utils.hash(file, addOn).equalsIgnoreCase(addOn.getHash());
+        } catch (Exception ignore) {
             // Ignore
         }
         return false;
     }
 
-    private static String hash(File file) throws IOException {
-        try (InputStream is = Files.newInputStream(file.toPath())) {
-            return DigestUtils.sha256Hex(is);
-        }
-    }
-
-    private Set<AddOnDownloadData> parseAddOnsData() throws IOException {
-        File outputDirectory = getOutputDir().get().getAsFile();
-        List<String> lines = Files.readAllLines(addOnsData.get().getAsFile().toPath());
-        return lines.stream()
-                .map(String::trim)
-                .filter(line -> !(line.isEmpty() || line.startsWith("#")))
-                .map(
-                        line -> {
-                            String[] lineData = line.split(" ", 2);
-                            String url = lineData[0];
-                            String hash = lineData[1];
-                            File file = new File(outputDirectory, getFileName(url));
-                            return new AddOnDownloadData(url, hash, file);
-                        })
-                .collect(Collectors.toCollection(HashSet::new));
+    private MainAddOnsData parseData() throws IOException {
+        MainAddOnsData data = Utils.parseData(getAddOnsData().get().getAsFile().toPath());
+        Path outputDirectory = getOutputDir().get().getAsFile().toPath();
+        data.getAddOns()
+                .forEach(
+                        addOn -> {
+                            String fileName = getFileName(addOn.getUrl());
+                            addOn.setOutputFile(outputDirectory.resolve(fileName));
+                        });
+        return data;
     }
 
     private static String getFileName(String url) {

@@ -38,6 +38,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
 
+@SuppressWarnings("serial")
 public class BreakpointsPanel extends AbstractPanel {
 
     private static final long serialVersionUID = 1L;
@@ -56,7 +57,7 @@ public class BreakpointsPanel extends AbstractPanel {
     private final Preferences preferences;
     private final String prefnzPrefix = this.getClass().getSimpleName() + ".";
 
-    private static Logger log = LogManager.getLogger(BreakpointsPanel.class);
+    private static final Logger LOGGER = LogManager.getLogger(BreakpointsPanel.class);
 
     public BreakpointsPanel(ExtensionBreak extension) {
         super();
@@ -240,7 +241,7 @@ public class BreakpointsPanel extends AbstractPanel {
                         }
                     });
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -266,7 +267,7 @@ public class BreakpointsPanel extends AbstractPanel {
                         }
                     });
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
@@ -288,28 +289,21 @@ public class BreakpointsPanel extends AbstractPanel {
                         }
                     });
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOGGER.error(e.getMessage(), e);
         }
     }
 
     private void saveColumnWidth(String prefix, int width) {
         if (width > 0) {
-            if (log.isDebugEnabled())
-                log.debug(
-                        "Saving preference "
-                                + prefnzPrefix
-                                + prefix
-                                + "."
-                                + PREF_COLUMN_WIDTH
-                                + "="
-                                + width);
+            LOGGER.debug(
+                    "Saving preference {}{}.{}={}", prefnzPrefix, prefix, PREF_COLUMN_WIDTH, width);
             this.preferences.put(
                     prefnzPrefix + prefix + "." + PREF_COLUMN_WIDTH, Integer.toString(width));
             // immediate flushing
             try {
                 this.preferences.flush();
             } catch (final BackingStoreException e) {
-                log.error("Error while saving the preferences", e);
+                LOGGER.error("Error while saving the preferences", e);
             }
         }
     }
@@ -327,15 +321,12 @@ public class BreakpointsPanel extends AbstractPanel {
             }
             if (width > 0) {
                 result = width;
-                if (log.isDebugEnabled())
-                    log.debug(
-                            "Restoring preference "
-                                    + prefnzPrefix
-                                    + prefix
-                                    + "."
-                                    + PREF_COLUMN_WIDTH
-                                    + "="
-                                    + width);
+                LOGGER.debug(
+                        "Restoring preference {}{}.{}={}",
+                        prefnzPrefix,
+                        prefix,
+                        PREF_COLUMN_WIDTH,
+                        width);
             }
         }
         return result;
@@ -355,14 +346,8 @@ public class BreakpointsPanel extends AbstractPanel {
         public void propertyChange(PropertyChangeEvent evt) {
             TableColumn column = (TableColumn) evt.getSource();
             if (column != null) {
-                if (log.isDebugEnabled())
-                    log.debug(
-                            prefnzPrefix
-                                    + prefix
-                                    + "."
-                                    + PREF_COLUMN_WIDTH
-                                    + "="
-                                    + column.getWidth());
+                LOGGER.debug(
+                        "{}{}.{}={}", prefnzPrefix, prefix, PREF_COLUMN_WIDTH, column.getWidth());
                 saveColumnWidth(prefix, column.getWidth());
             }
         }

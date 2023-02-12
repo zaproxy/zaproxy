@@ -39,11 +39,12 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
-import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
+@SuppressWarnings("serial")
+/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+@Deprecated
 public class SpiderDialog extends StandardFieldsDialog {
 
     private static final String FIELD_START = "spider.custom.label.start";
@@ -67,6 +68,8 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_PARSE_SVN = "spider.custom.label.parseSvn";
     private static final String FIELD_PARSE_GIT = "spider.custom.label.parseGit";
     private static final String FIELD_HANDLE_ODATA = "spider.custom.label.handleOdata";
+    private static final String FIELD_IRRELEVANT_URL_PARAMETERS =
+            "spider.custom.label.irrelevantUrlParameters";
 
     private static Logger logger = LogManager.getLogger(SpiderDialog.class);
 
@@ -75,7 +78,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private JButton[] extraButtons = null;
 
     private ExtensionSpider extension = null;
-    private SpiderParam spiderParam = null;
+    private org.zaproxy.zap.spider.SpiderParam spiderParam = null;
 
     /**
      * Flag that holds the previous checked state of the "Subtree Only" checkbox.
@@ -108,7 +111,7 @@ public class SpiderDialog extends StandardFieldsDialog {
             // If one isn't specified then leave the previously selected one
             this.target = target;
         }
-        logger.debug("init " + this.target);
+        logger.debug("init {}", this.target);
 
         this.removeAllFields();
 
@@ -145,6 +148,10 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addCheckBoxField(1, FIELD_PARSE_GIT, getSpiderParam().isParseGit());
         this.addCheckBoxField(
                 1, FIELD_HANDLE_ODATA, getSpiderParam().isHandleODataParametersVisited());
+        this.addMultilineField(
+                1,
+                FIELD_IRRELEVANT_URL_PARAMETERS,
+                getSpiderParam().getIrrelevantUrlParametersAsString());
         this.addPadding(1);
 
         if (!getBoolValue(FIELD_PROCESS_FORMS)) {
@@ -198,10 +205,10 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.pack();
     }
 
-    private SpiderParam getSpiderParam() {
+    private org.zaproxy.zap.spider.SpiderParam getSpiderParam() {
         if (spiderParam == null) {
             // First time in clone the global options, after that keep the last ones the user set
-            spiderParam = (SpiderParam) extension.getSpiderParam().clone();
+            spiderParam = (org.zaproxy.zap.spider.SpiderParam) extension.getSpiderParam().clone();
         }
         return spiderParam;
     }
@@ -338,6 +345,8 @@ public class SpiderDialog extends StandardFieldsDialog {
             spiderParam.setParseGit(this.getBoolValue(FIELD_PARSE_GIT));
             spiderParam.setHandleODataParametersVisited(this.getBoolValue(FIELD_HANDLE_ODATA));
             spiderParam.setThreadCount(extension.getSpiderParam().getThreadCount());
+            spiderParam.setIrrelevantUrlParameters(
+                    this.getStringValue(FIELD_IRRELEVANT_URL_PARAMETERS));
 
             contextSpecificObjects.add(spiderParam);
         }
@@ -346,7 +355,8 @@ public class SpiderDialog extends StandardFieldsDialog {
             contextSpecificObjects.add(startUri);
 
             if (getBoolValue(FIELD_SUBTREE_ONLY)) {
-                contextSpecificObjects.add(new HttpPrefixFetchFilter(startUri));
+                contextSpecificObjects.add(
+                        new org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter(startUri));
             }
         }
 

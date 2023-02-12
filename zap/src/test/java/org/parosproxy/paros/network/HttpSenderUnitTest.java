@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2019 The ZAP Development Team
+ * Copyright 2022 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,302 +19,85 @@
  */
 package org.parosproxy.paros.network;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.any;
-import static com.github.tomakehurst.wiremock.client.WireMock.anyUrl;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.matching;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
-import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.options;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.client.VerificationException;
-import com.github.tomakehurst.wiremock.core.Options;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.matching.RequestPattern;
-import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
-import com.github.tomakehurst.wiremock.stubbing.Scenario;
-import com.github.tomakehurst.wiremock.verification.LoggedRequest;
-import com.github.tomakehurst.wiremock.verification.diff.Diff;
-import java.util.List;
-import org.apache.commons.httpclient.URI;
-import org.junit.jupiter.api.AfterEach;
+import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.OptionsParam;
-import org.zaproxy.zap.utils.ZapXmlConfiguration;
+import org.zaproxy.zap.network.HttpSenderContext;
+import org.zaproxy.zap.network.HttpSenderImpl;
 
 /** Unit test for {@link HttpSender}. */
-@SuppressWarnings("deprecation")
 class HttpSenderUnitTest {
 
-    private static final String PROXY_RESPONSE = "Proxy Response";
-    private static final String SERVER_RESPONSE = "Server Response";
-
-    private WireMockSequence proxy =
-            new WireMockSequence(defaultOptions().enableBrowserProxying(true));
-
-    private WireMockSequence server = new WireMockSequence(defaultOptions());
-
-    private ConnectionParam options;
+    private HttpMessage msg;
+    private HttpSenderImpl<HttpSenderContext> impl;
 
     @BeforeEach
+    @SuppressWarnings("unchecked")
     void setup() {
-        proxy.start();
-        server.start();
-        server.stubFor(
-                any(anyUrl())
-                        .willReturn(
-                                aResponse()
-                                        .withStatus(200)
-                                        .withStatusMessage("OK")
-                                        .withBody(SERVER_RESPONSE)));
-
-        options = new org.parosproxy.paros.network.ConnectionParam();
-        options.load(new ZapXmlConfiguration());
-        Model model = mock(Model.class);
-        Model.setSingletonForTesting(model);
-        OptionsParam optionsParam = mock(OptionsParam.class);
-        given(optionsParam.getConnectionParam()).willReturn(options);
-        given(model.getOptionsParam()).willReturn(optionsParam);
-
-        HttpSender.setImpl(new HttpSenderParos());
-    }
-
-    @AfterEach
-    void teardown() {
-        proxy.stop();
-        server.stop();
+        impl = mock(HttpSenderImpl.class);
+        HttpSender.setImpl(impl);
     }
 
     @Test
-    void shouldProxyIfEnabled() throws Exception {
+    void shouldRestoreSavedStateAfterRemovingImplementation() {
         // Given
-        setupOptionsWithProxy("localhost", proxy.port());
-        options.setUseProxyChain(true);
-        HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = createHttpSender();
+        Object state = mock(Object.class);
+        given(impl.saveState()).willReturn(state);
+        HttpSenderImpl<?> otherImpl = mock(HttpSenderImpl.class);
         // When
-        httpSender.sendAndReceive(message);
+        HttpSender.setImpl(null);
+        HttpSender.setImpl(otherImpl);
         // Then
-        proxy.verifyExactly(
-                getRequestedFor(urlMatching("/"))
-                        .withHeader("Host", matching("localhost:" + server.port())));
-        server.verifyExactly(
-                getRequestedFor(urlMatching("/"))
-                        .withHeader("Host", matching("localhost:" + server.port())));
-        assertThat(message.getResponseBody().toString(), is(equalTo(SERVER_RESPONSE)));
+        verify(otherImpl).restoreState(state);
     }
 
     @Test
-    void shouldNotProxyIfDisabled() throws Exception {
+    void shouldRestoreSavedStateReplacingImplementation() {
         // Given
-        setupOptionsWithProxy("localhost", proxy.port());
-        options.setUseProxyChain(false);
-        HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = createHttpSender();
+        Object state = mock(Object.class);
+        given(impl.saveState()).willReturn(state);
+        HttpSenderImpl<?> otherImpl = mock(HttpSenderImpl.class);
         // When
-        httpSender.sendAndReceive(message);
+        HttpSender.setImpl(otherImpl);
         // Then
-        proxy.verifyNoRequests();
-        server.verifyExactly(
-                getRequestedFor(urlMatching("/"))
-                        .withHeader("Host", matching("localhost:" + server.port())));
-        assertThat(message.getResponseBody().toString(), is(equalTo(SERVER_RESPONSE)));
+        verify(otherImpl).restoreState(state);
     }
 
     @Test
-    void shouldNotAuthenticateToProxyIfAuthDisabled() throws Exception {
+    void shouldUseAndSendWithCreatedContext() throws IOException {
         // Given
-        proxy.stubFor(
-                get(urlMatching("/"))
-                        .willReturn(
-                                aResponse()
-                                        .withStatus(407)
-                                        .withHeader("Proxy-Authenticate", "Basic realm=\"\"")
-                                        .withBody(PROXY_RESPONSE)));
-        setupOptionsWithProxy("localhost", proxy.port());
-        options.setUseProxyChain(true);
-        options.setUseProxyChainAuth(false);
-        HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = createHttpSender();
+        HttpSenderContext createdCtx = mock(HttpSenderContext.class);
+        given(impl.createContext(any(), anyInt())).willReturn(createdCtx);
         // When
-        httpSender.sendAndReceive(message);
+        HttpSender httpSender = new HttpSender(1);
+        httpSender.sendAndReceive(msg);
         // Then
-        proxy.verifyExactly(
-                getRequestedFor(urlMatching("/"))
-                        .withoutHeader("Proxy-Authorization")
-                        .withHeader("Host", matching("localhost:" + server.port())));
-        server.verifyNoRequests();
-        assertThat(message.getResponseBody().toString(), is(equalTo(PROXY_RESPONSE)));
+        verify(impl).createContext(httpSender, 1);
+        verify(impl).getContext(httpSender);
+        verify(impl).sendAndReceive(eq(createdCtx), any(), eq(msg), eq(null));
     }
 
     @Test
-    void shouldBasicAuthenticateToProxy() throws Exception {
+    void shouldUseAndSendWithGetContext() throws IOException {
         // Given
-        String authRealm = "SomeRealm";
-        proxy.stubFor(
-                get(urlMatching("/"))
-                        .inScenario("Basic Proxy Auth")
-                        .whenScenarioStateIs(Scenario.STARTED)
-                        .willReturn(
-                                aResponse()
-                                        .withStatus(407)
-                                        .withHeader(
-                                                "Proxy-Authenticate",
-                                                "Basic realm=\"" + authRealm + "\""))
-                        .willSetStateTo("Challenged"));
-
-        setupOptionsWithProxy("localhost", proxy.port());
-        options.setUseProxyChain(true);
-        options.setUseProxyChainAuth(true);
-        options.setProxyChainRealm(authRealm);
-        HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = createHttpSender();
+        HttpSenderContext createdCtx = mock(HttpSenderContext.class);
+        given(impl.createContext(any(), anyInt())).willReturn(createdCtx);
+        HttpSenderContext getCtx = mock(HttpSenderContext.class);
+        given(impl.getContext(any())).willReturn(getCtx);
         // When
-        httpSender.sendAndReceive(message);
+        HttpSender httpSender = new HttpSender(1);
+        httpSender.sendAndReceive(msg);
         // Then
-        proxy.verifyExactly(
-                getRequestedFor(urlMatching("/"))
-                        .withoutHeader("Proxy-Authorization")
-                        .withHeader("Host", matching("localhost:" + server.port())),
-                getRequestedFor(urlMatching("/"))
-                        .withHeader(
-                                "Proxy-Authorization", matching("Basic dXNlcm5hbWU6cGFzc3dvcmQ="))
-                        .withHeader("Host", matching("localhost:" + server.port())));
-        server.verifyExactly(
-                getRequestedFor(urlMatching("/"))
-                        .withHeader("Host", matching("localhost:" + server.port())));
-        assertThat(message.getResponseBody().toString(), is(equalTo(SERVER_RESPONSE)));
-    }
-
-    @Test
-    void shouldNotBasicAuthenticateToProxyIfRealmMismatch() throws Exception {
-        // Given
-        proxy.stubFor(
-                get(urlMatching("/"))
-                        .willReturn(
-                                aResponse()
-                                        .withStatus(407)
-                                        .withHeader(
-                                                "Proxy-Authenticate", "Basic realm=\"SomeRealm\"")
-                                        .withBody(PROXY_RESPONSE)));
-        setupOptionsWithProxy("localhost", proxy.port());
-        options.setUseProxyChain(true);
-        options.setUseProxyChainAuth(true);
-        options.setProxyChainRealm("NotSomeRealm");
-        HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = createHttpSender();
-        // When
-        httpSender.sendAndReceive(message);
-        // Then
-        proxy.verifyExactly(
-                getRequestedFor(urlMatching("/"))
-                        .withoutHeader("Proxy-Authorization")
-                        .withHeader("Host", matching("localhost:" + server.port())));
-        server.verifyNoRequests();
-        assertThat(message.getResponseBody().toString(), is(equalTo(PROXY_RESPONSE)));
-    }
-
-    @Test
-    void shouldSetContentEncodingsToResponse() throws Exception {
-        // Given
-        server.stubFor(
-                get(urlMatching("/"))
-                        .willReturn(
-                                aResponse()
-                                        .withHeader(HttpHeader.CONTENT_ENCODING, HttpHeader.GZIP)));
-        HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = createHttpSender();
-        // When
-        httpSender.sendAndReceive(message);
-        // Then
-        server.verifyExactly(
-                getRequestedFor(urlMatching("/"))
-                        .withHeader("Host", matching("localhost:" + server.port())));
-        assertThat(message.getResponseBody().getContentEncodings(), is(not(empty())));
-    }
-
-    @Test
-    void shouldNotSetContentEncodingsToResponseIfNoneInHeader() throws Exception {
-        // Given
-        HttpMessage message = createMessage("GET", "/");
-        HttpSender httpSender = createHttpSender();
-        // When
-        httpSender.sendAndReceive(message);
-        // Then
-        server.verifyExactly(
-                getRequestedFor(urlMatching("/"))
-                        .withHeader("Host", matching("localhost:" + server.port())));
-        assertThat(message.getResponseBody().getContentEncodings(), is(empty()));
-    }
-
-    private static HttpSender createHttpSender() {
-        return new HttpSender(-1);
-    }
-
-    private HttpMessage createMessage(String method, String path) throws Exception {
-        URI uri = new URI("http://localhost:" + server.port() + path, true);
-        HttpRequestHeader requestHeader = new HttpRequestHeader(method, uri, "HTTP/1.1");
-        return new HttpMessage(requestHeader);
-    }
-
-    private void setupOptionsWithProxy(String address, int port) {
-        options.setProxyChainName(address);
-        options.setProxyChainPort(port);
-        options.setProxyChainUserName("username");
-        options.setProxyChainPassword("password");
-    }
-
-    private static WireMockConfiguration defaultOptions() {
-        return options()
-                .dynamicPort()
-                .useChunkedTransferEncoding(Options.ChunkedEncodingPolicy.NEVER);
-    }
-
-    private static class WireMockSequence extends WireMockServer {
-
-        WireMockSequence(WireMockConfiguration options) {
-            super(options);
-        }
-
-        void verifyNoRequests() {
-            List<LoggedRequest> requests =
-                    findRequestsMatching(RequestPattern.everything()).getRequests();
-            verifyRequestCount(requests, 0);
-        }
-
-        void verifyExactly(RequestPatternBuilder... requestPatternBuilders) {
-            List<LoggedRequest> requests =
-                    findRequestsMatching(RequestPattern.everything()).getRequests();
-            verifyRequestCount(requests, requestPatternBuilders.length);
-            int i = 0;
-            for (LoggedRequest request : requests) {
-                RequestPattern requestPattern = requestPatternBuilders[i].build();
-                if (!requestPattern.match(request).isExactMatch()) {
-                    Diff diff = new Diff(requestPattern, request);
-                    throw VerificationException.forUnmatchedRequestPattern(diff);
-                }
-                i++;
-            }
-        }
-
-        private void verifyRequestCount(List<LoggedRequest> requests, int expected) {
-            if (requests.size() != expected) {
-                throw new VerificationException(
-                        String.format(
-                                "Expected %s request(s) but received %d",
-                                expected, requests.size()));
-            }
-        }
+        verify(impl).createContext(httpSender, 1);
+        verify(impl, times(3)).getContext(httpSender);
+        verify(impl).sendAndReceive(eq(httpSender), any(), eq(msg), eq(null));
     }
 }
