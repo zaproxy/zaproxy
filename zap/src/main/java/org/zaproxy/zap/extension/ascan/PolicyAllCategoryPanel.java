@@ -279,7 +279,6 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
                                 policy = extension.getPolicyManager().getPolicy(policyName);
                                 if (policy != null) {
                                     setScanPolicy(policy);
-                                    fireScanPolicyChanged(policy);
                                 }
                             } catch (ConfigurationException e1) {
                                 LOGGER.error(e1.getMessage(), e1);
@@ -511,11 +510,12 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
             throw new InvalidParameterException(
                     "Cannot change policy if the panel has not been defined as switchable");
         }
-        this.policy = scanPolicy;
         this.getPolicySelector().setSelectedItem(scanPolicy.getName());
+        this.policy = scanPolicy;
         this.setThreshold(scanPolicy.getDefaultThreshold());
         this.setStrength(scanPolicy.getDefaultStrength());
         this.getAllCategoryTableModel().setPluginFactory(scanPolicy.getPluginFactory());
+        fireScanPolicyChanged(policy);
     }
 
     @Override
