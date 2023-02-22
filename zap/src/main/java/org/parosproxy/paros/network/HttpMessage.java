@@ -1017,6 +1017,8 @@ public class HttpMessage implements Message {
                 }
                 // Clear the body
                 body = "";
+                // Remove Content-Type if present
+                getRequestHeader().setHeader(HttpRequestHeader.CONTENT_TYPE, null);
 
             } else if (method.equals(HttpRequestHeader.POST)) {
                 // To be a port, move all URL query params into the body
@@ -1036,6 +1038,10 @@ public class HttpMessage implements Message {
                             sb.append('=');
                         }
                     }
+                    getRequestHeader()
+                            .setHeader(
+                                    HttpRequestHeader.CONTENT_TYPE,
+                                    HttpRequestHeader.FORM_URLENCODED_CONTENT_TYPE);
                     body = sb.toString();
                     uri.setQuery(null);
                 }
