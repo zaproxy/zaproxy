@@ -67,7 +67,7 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
         }
 
         FileConfiguration config = Model.getSingleton().getOptionsParam().getConfig();
-        boolean confirmRemoval = config.getBoolean(REMOVE_CONFIRMATION_KEY, false);
+        boolean confirmRemoval = config.getBoolean(REMOVE_CONFIRMATION_KEY, true);
 
         if (confirmRemoval) {
             JCheckBox removeWithoutConfirmationCheckBox =
@@ -98,7 +98,7 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
                     .getConfig()
                     .setProperty(
                             REMOVE_CONFIRMATION_KEY,
-                            removeWithoutConfirmationCheckBox.isSelected());
+                            !removeWithoutConfirmationCheckBox.isSelected());
         }
         super.performHistoryReferenceActions(hrefs);
     }
