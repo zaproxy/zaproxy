@@ -104,6 +104,7 @@
 // ZAP: 2023/01/11 Add "jump to" right-click menu item (Issue 7362).
 // ZAP: 2023/01/11 Prevent NPE in "showInHistory" when tab doesn't have focus.
 // ZAP: 2023/01/22 Add utility getHistoryIds() method.
+// ZAP: 2023/02/22 Correct delete consistency fix.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -917,7 +918,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
         if (hasView()) {
             FileConfiguration config = Model.getSingleton().getOptionsParam().getConfig();
-            boolean confirmRemoval = config.getBoolean(REMOVE_CONFIRMATION_KEY, false);
+            boolean confirmRemoval = config.getBoolean(REMOVE_CONFIRMATION_KEY, true);
 
             if (confirmRemoval) {
                 JCheckBox removeWithoutConfirmationCheckBox =
@@ -948,7 +949,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                         .getConfig()
                         .setProperty(
                                 REMOVE_CONFIRMATION_KEY,
-                                removeWithoutConfirmationCheckBox.isSelected());
+                                !removeWithoutConfirmationCheckBox.isSelected());
             }
         }
         synchronized (this) {
