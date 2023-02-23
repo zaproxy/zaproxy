@@ -49,6 +49,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -58,6 +59,7 @@ import java.util.Map;
 import java.util.function.Predicate;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -67,8 +69,6 @@ import javax.swing.JScrollPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -97,6 +97,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
             Constant.messages.getString("timestamp.format.timeonly");
     // ISO Standards compliant format
     private static final String TIME_STAMP_FORMAT_ISO8601 = "yyyy-MM-dd'T'HH:mm:ssZ";
+    private static final ImageIcon EXAMPLE_ICON =
+            new ImageIcon(OptionsViewPanel.class.getResource("/resource/icon/16/032.png"));
 
     public enum BreakLocation {
         TOOL_BAR_ONLY(0),
@@ -153,6 +155,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
             new EnumMap<>(FontUtils.FontType.class);
     private Map<FontUtils.FontType, String> fontTypeLabels =
             new EnumMap<>(FontUtils.FontType.class);
+    private ZapNumberSpinner iconSize;
+    private JLabel exampleIcon;
 
     public OptionsViewPanel() {
         super();
@@ -409,15 +413,49 @@ public class OptionsViewPanel extends AbstractParamPanel {
             }
 
             row++;
+            JPanel iconPanel = new JPanel();
+            iconPanel.setLayout(new GridBagLayout());
+            iconPanel.setBorder(
+                    BorderFactory.createTitledBorder(
+                            null,
+                            Constant.messages.getString("view.options.label.icons"),
+                            TitledBorder.DEFAULT_JUSTIFICATION,
+                            TitledBorder.DEFAULT_POSITION,
+                            FontUtils.getFont(FontUtils.Size.standard)));
+            panelMisc.add(
+                    iconPanel,
+                    LayoutHelper.getGBC(0, row, 2, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
+            int iconPanelRow = -1;
             JLabel scaleImagesLabel =
                     new JLabel(Constant.messages.getString("view.options.label.scaleImages"));
             scaleImagesLabel.setLabelFor(getScaleImages());
-            panelMisc.add(
+            iconPanel.add(
                     scaleImagesLabel,
-                    LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
-            panelMisc.add(
+                    LayoutHelper.getGBC(
+                            0, ++iconPanelRow, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
+            iconPanel.add(
                     getScaleImages(),
-                    LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, iconPanelRow, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
+            JLabel iconSizeLabel =
+                    new JLabel(Constant.messages.getString("view.options.label.iconSize"));
+            iconSizeLabel.setLabelFor(getIconSize());
+            iconPanel.add(
+                    iconSizeLabel,
+                    LayoutHelper.getGBC(
+                            0, ++iconPanelRow, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
+            iconPanel.add(
+                    getIconSize(),
+                    LayoutHelper.getGBC(1, iconPanelRow, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
+            JLabel iconExampleLabel =
+                    new JLabel(Constant.messages.getString("view.options.label.iconExample"));
+            iconExampleLabel.setLabelFor(getIconExample());
+            iconPanel.add(
+                    iconExampleLabel,
+                    LayoutHelper.getGBC(
+                            0, ++iconPanelRow, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
+            iconPanel.add(
+                    getIconExample(),
+                    LayoutHelper.getGBC(1, iconPanelRow, 1, 1.0D, new java.awt.Insets(2, 2, 2, 2)));
 
             row++;
             lookAndFeelLabel.setLabelFor(getLookAndFeelSelect());
@@ -601,20 +639,49 @@ public class OptionsViewPanel extends AbstractParamPanel {
         return showLocalConnectRequestsCheckbox;
     }
 
+    private ZapNumberSpinner getIconSize() {
+        if (iconSize == null) {
+            iconSize = new ZapNumberSpinner(0, 16, 100);
+            iconSize.addChangeListener(
+                    e -> {
+                        int size = iconSize.getValue();
+                        if (size == 0) {
+                            size = 16;
+                        }
+                        getIconExample()
+                                .setIcon(
+                                        new ImageIcon(
+                                                EXAMPLE_ICON
+                                                        .getImage()
+                                                        .getScaledInstance(
+                                                                size, size, Image.SCALE_SMOOTH)));
+                    });
+        }
+        return iconSize;
+    }
+
+    private JLabel getIconExample() {
+        if (exampleIcon == null) {
+            exampleIcon = new JLabel(EXAMPLE_ICON);
+        }
+        return exampleIcon;
+    }
+
     private ZapNumberSpinner initFontSize(FontUtils.FontType fontType) {
         ZapNumberSpinner fontSize;
         fontSize = new ZapNumberSpinner(-1, 8, 100);
         if (!FontUtils.canChangeSize()) {
             fontSize.setEnabled(false);
         }
-        fontSize.addChangeListener(
-                new ChangeListener() {
-                    @Override
-                    public void stateChanged(ChangeEvent e) {
-                        // Show what the default font will look like
-                        setExampleFont(fontType);
-                    }
-                });
+        fontSize.addChangeListener(e -> setExampleFont(fontType));
+        if (fontType == FontUtils.FontType.general) {
+            fontSize.addChangeListener(
+                    e -> {
+                        if (getScaleImages().isSelected()) {
+                            getIconSize().setValue(fontSize.getValue());
+                        }
+                    });
+        }
         return fontSize;
     }
 
@@ -690,6 +757,14 @@ public class OptionsViewPanel extends AbstractParamPanel {
             if (!FontUtils.canChangeSize()) {
                 scaleImages.setEnabled(false);
             }
+            scaleImages.addActionListener(
+                    l -> {
+                        getIconSize().setEnabled(!scaleImages.isSelected());
+                        if (scaleImages.isSelected()) {
+                            getIconSize()
+                                    .setValue(getFontSize(FontUtils.FontType.general).getValue());
+                        }
+                    });
         }
         return scaleImages;
     }
@@ -740,8 +815,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
             getFontSize(fontType).setValue(options.getViewParam().getFontSize(fontType));
             getFontName(fontType).setSelectedItem(options.getViewParam().getFontName(fontType));
         }
-
         getScaleImages().setSelected(options.getViewParam().isScaleImages());
+        getIconSize().setValue(options.getViewParam().getIconSize());
+
         String nameLaf = options.getViewParam().getLookAndFeelInfo().getName();
         selectItem(
                 getLookAndFeelSelect(),
@@ -795,6 +871,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
                     .setFontName(fontType, (String) getFontName(fontType).getSelectedItem());
         }
         options.getViewParam().setScaleImages(getScaleImages().isSelected());
+        options.getViewParam().setIconSize(getIconSize().getValue());
         options.getViewParam()
                 .setLookAndFeelInfo(
                         ((LookAndFeelInfoUi) getLookAndFeelSelect().getSelectedItem())

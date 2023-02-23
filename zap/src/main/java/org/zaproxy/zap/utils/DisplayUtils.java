@@ -43,13 +43,35 @@ public class DisplayUtils {
     private static List<Image> zapIconImages;
 
     private static Boolean scaleImages = null;
+    private static int iconSize = 0;
     private static final int STD_HEIGHT = 16;
 
-    private static boolean isScaleImages() {
+    private static int getIconSize() {
         if (scaleImages == null) {
             scaleImages = Model.getSingleton().getOptionsParam().getViewParam().isScaleImages();
+            if (scaleImages) {
+                iconSize =
+                        Model.getSingleton()
+                                .getOptionsParam()
+                                .getViewParam()
+                                .getFontSize(FontUtils.FontType.general);
+            }
         }
-        return scaleImages;
+        if (iconSize < 1) {
+            iconSize = Model.getSingleton().getOptionsParam().getViewParam().getIconSize();
+            if (iconSize < 1) {
+                iconSize = STD_HEIGHT;
+            }
+        }
+        return iconSize;
+    }
+
+    private static float getScale() {
+        return Math.max(FontUtils.getScale(), (float) getIconSize() / STD_HEIGHT);
+    }
+
+    private static int getScaledIconWidth(Icon icon) {
+        return getIconSize() * icon.getIconWidth() / icon.getIconHeight();
     }
 
     /**
@@ -67,89 +89,69 @@ public class DisplayUtils {
     }
 
     public static ImageIcon getScaledIcon(ImageIcon icon) {
-        if (!isScaleImages()
-                || icon == null
-                || FontUtils.getScale() == 1
-                || icon.getIconHeight() > STD_HEIGHT) {
-            // don't need to scale
+        if (icon == null || icon.getIconHeight() > STD_HEIGHT) {
             return icon;
         }
         return new ImageIcon(
-                (icon)
-                        .getImage()
+                icon.getImage()
                         .getScaledInstance(
-                                (int) (icon.getIconWidth() * FontUtils.getScale()),
-                                (int) (icon.getIconHeight() * FontUtils.getScale()),
-                                Image.SCALE_SMOOTH));
+                                getScaledIconWidth(icon), getIconSize(), Image.SCALE_SMOOTH));
     }
 
     public static Icon getScaledIcon(Icon icon) {
-        if (!isScaleImages()
-                || icon == null
-                || FontUtils.getScale() == 1
-                || !(icon instanceof ImageIcon)) {
-            // don't need to scale (or can't)
+        if (!(icon instanceof ImageIcon)) {
             return icon;
         }
         return getScaledIcon((ImageIcon) icon);
     }
 
     public static Dimension getScaledDimension(int width, int height) {
-        if (FontUtils.getScale() == 1) {
+        if (getScale() == 1) {
             // don't need to scale
             return new Dimension(width, height);
         }
-        return new Dimension(
-                (int) (width * FontUtils.getScale()), (int) (height * FontUtils.getScale()));
+        return new Dimension((int) (width * getScale()), (int) (height * getScale()));
     }
 
     public static int getScaledSize(int size) {
-        return (int) (size * FontUtils.getScale());
+        return (int) (size * getScale());
     }
 
     public static void scaleIcon(JLabel label) {
-        if (isScaleImages()
-                && label != null
-                && label.getIcon() != null
-                && label.getIcon() instanceof ImageIcon) {
+        if (label != null && label.getIcon() instanceof ImageIcon) {
             label.setIcon(getScaledIcon((ImageIcon) label.getIcon()));
         }
     }
 
     public static void scaleIcon(JButton button) {
-        if (isScaleImages()
-                && button != null
-                && button.getIcon() != null
-                && button.getIcon() instanceof ImageIcon) {
+        if (button != null && button.getIcon() instanceof ImageIcon) {
             button.setIcon(getScaledIcon((ImageIcon) button.getIcon()));
         }
     }
 
     public static void scaleIcon(JToggleButton button) {
-        if (isScaleImages() && button != null) {
-            if (button.getIcon() != null && button.getIcon() instanceof ImageIcon) {
+        if (button != null) {
+            if (button.getIcon() instanceof ImageIcon) {
                 button.setIcon(getScaledIcon((ImageIcon) button.getIcon()));
             }
-            if (button.getSelectedIcon() != null && button.getSelectedIcon() instanceof ImageIcon) {
+            if (button.getSelectedIcon() instanceof ImageIcon) {
                 button.setSelectedIcon(getScaledIcon((ImageIcon) button.getSelectedIcon()));
             }
-            if (button.getRolloverIcon() != null && button.getRolloverIcon() instanceof ImageIcon) {
+            if (button.getRolloverIcon() instanceof ImageIcon) {
                 button.setRolloverIcon(getScaledIcon((ImageIcon) button.getRolloverIcon()));
             }
-            if (button.getRolloverSelectedIcon() != null
-                    && button.getRolloverSelectedIcon() instanceof ImageIcon) {
+            if (button.getRolloverSelectedIcon() instanceof ImageIcon) {
                 button.setRolloverSelectedIcon(
                         getScaledIcon((ImageIcon) button.getRolloverSelectedIcon()));
             }
-            if (button.getDisabledIcon() != null && button.getDisabledIcon() instanceof ImageIcon) {
+            if (button.getDisabledIcon() instanceof ImageIcon) {
                 button.setDisabledIcon(getScaledIcon((ImageIcon) button.getDisabledIcon()));
             }
-            if (button.getDisabledSelectedIcon() != null
-                    && button.getDisabledSelectedIcon() instanceof ImageIcon) {
+            if (button.getDisabledSelectedIcon() instanceof ImageIcon) {
                 button.setDisabledSelectedIcon(
                         getScaledIcon((ImageIcon) button.getDisabledSelectedIcon()));
             }
-            if (button.getPressedIcon() != null && button.getPressedIcon() instanceof ImageIcon) {
+            if (button.getPressedIcon() instanceof ImageIcon) {
                 button.setPressedIcon(getScaledIcon((ImageIcon) button.getPressedIcon()));
             }
         }
@@ -208,13 +210,13 @@ public class DisplayUtils {
      * @since 2.7.0
      */
     public static Insets getScaledInsets(int top, int left, int bottom, int right) {
-        if (FontUtils.getScale() == 1) {
+        if (getScale() == 1) {
             // don't need to scale
             return new Insets(top, left, bottom, right);
         }
         return new Insets(
-                (int) (top * FontUtils.getScale()), (int) (left * FontUtils.getScale()),
-                (int) (bottom * FontUtils.getScale()), (int) (right * FontUtils.getScale()));
+                (int) (top * getScale()), (int) (left * getScale()),
+                (int) (bottom * getScale()), (int) (right * getScale()));
     }
 
     /**
