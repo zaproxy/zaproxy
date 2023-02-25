@@ -228,6 +228,7 @@ val generateAllApiEndpoints by tasks.registering {
 }
 
 listOf(
+    "org.zaproxy.zap.extension.api.DotNetAPIGenerator",
     "org.zaproxy.zap.extension.api.GoAPIGenerator",
     "org.zaproxy.zap.extension.api.JavaAPIGenerator",
     "org.zaproxy.zap.extension.api.NodeJSAPIGenerator",
