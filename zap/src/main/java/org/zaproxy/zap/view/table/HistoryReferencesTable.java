@@ -172,6 +172,22 @@ public class HistoryReferencesTable extends ZapTable {
         return hrefList;
     }
 
+    public List<HistoryReference> getAllHistoryReferences() {
+        int rowCount = this.getRowCount();
+        if (rowCount == 0) {
+            return Collections.emptyList();
+        }
+
+        final List<HistoryReference> hrefList = new ArrayList<>(rowCount);
+        for (int row = 0; row < rowCount; row++) {
+            HistoryReference hRef = getHistoryReferenceAtViewRow(row);
+            if (hRef != null) {
+                hrefList.add(hRef);
+            }
+        }
+        return hrefList;
+    }
+
     protected HistoryReference getHistoryReferenceAtViewRow(final int row) {
         HistoryReferencesTableEntry entry = getModel().getEntry(convertRowIndexToModel(row));
         if (entry != null) {

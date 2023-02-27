@@ -55,6 +55,7 @@
 // ZAP: 2022/02/26 Remove code deprecated in 2.5.0
 // ZAP: 2022/02/28 Remove code deprecated in 2.6.0
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
+// ZAP: 2022/01/15 Added Clear Button for History Tab (Issue 7477).
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
@@ -97,6 +98,7 @@ public class LogPanel extends AbstractPanel {
     private JButton filterButton = null;
     private JLabel filterStatus = null;
     private ZapToggleButton scopeButton = null;
+    private JButton clearButton;
 
     private ExtensionHistory extension = null;
 
@@ -220,6 +222,9 @@ public class LogPanel extends AbstractPanel {
             panelToolbar.add(getExportButton(), gbc);
 
             ++gbc.gridx;
+            panelToolbar.add(getClearButton(), gbc);
+
+            ++gbc.gridx;
             gbc.weightx = 1.0;
             gbc.weighty = 1.0;
             gbc.anchor = java.awt.GridBagConstraints.EAST;
@@ -251,6 +256,19 @@ public class LogPanel extends AbstractPanel {
                     });
         }
         return filterButton;
+    }
+
+    private JButton getClearButton() {
+        if (clearButton == null) {
+            clearButton = new JButton();
+            clearButton.setIcon(
+                    DisplayUtils.getScaledIcon(
+                            getClass().getResource("/resource/icon/fugue/broom.png")));
+            clearButton.setToolTipText(Constant.messages.getString("history.clear.tooltip"));
+
+            clearButton.addActionListener(e -> doClear());
+        }
+        return clearButton;
     }
 
     private JToggleButton getScopeButton() {
@@ -313,6 +331,10 @@ public class LogPanel extends AbstractPanel {
             exportButton = new TableExportButton<>(getHistoryReferenceTable());
         }
         return exportButton;
+    }
+
+    private void doClear() {
+        extension.purgeHistory(extension.getHistoryReferencesTable().getAllHistoryReferences());
     }
 
     public void setLinkWithSitesTreeSelection(boolean enabled) {
