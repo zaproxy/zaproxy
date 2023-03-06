@@ -172,8 +172,8 @@ public final class AddOnInstaller {
      *   <li>Passive scanners;
      *   <li>Active scanners;
      *   <li>Extensions;
+     *   <li>{@link ResourceBundle}, of the extensions and the add-on;
      *   <li>Files (if not in use by other add-ons);
-     *   <li>{@link java.util.ResourceBundle ResourceBundle};
      * </ol>
      *
      * @param addOn the add-on that will be uninstalled.
@@ -229,26 +229,16 @@ public final class AddOnInstaller {
         Validate.notNull(addOn, "Parameter addOn must not be null.");
         validateCallbackNotNull(callback);
 
-        try {
-            boolean uninstalledWithoutErrors = true;
-            uninstalledWithoutErrors &= uninstallAddOnPassiveScanRules(addOn, callback);
-            uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn, callback);
-            uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn, callback);
-            uninstalledWithoutErrors &=
-                    uninstallAddOnFiles(addOn, callback, installedAddOns, postponedTasks);
-            uninstallResourceBundle(addOn);
-
-            return uninstalledWithoutErrors;
-        } catch (Throwable e) {
-            LOGGER.error("An error occurred while uninstalling the add-on: {}", addOn.getId(), e);
-            return false;
-        }
+        boolean uninstalledWithoutErrors = softUninstall(addOn, callback);
+        uninstalledWithoutErrors &=
+                uninstallAddOnFiles(addOn, callback, installedAddOns, postponedTasks);
+        return uninstalledWithoutErrors;
     }
 
     /**
-     * Uninstalls Java classes ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s) of the
-     * given {@code addOn}. Should be called when the add-on must be temporarily uninstalled for an
-     * update of a dependency.
+     * Uninstalls Java classes ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s) and
+     * the {@code ResourceBundle}s of the given {@code addOn}. Should be called when the add-on must
+     * be temporarily uninstalled for an update of a dependency.
      *
      * <p>The Java classes are uninstalled in the following order (inverse to installation):
      *
@@ -275,6 +265,7 @@ public final class AddOnInstaller {
             uninstalledWithoutErrors &= uninstallAddOnPassiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn, callback);
+            uninstallResourceBundle(addOn);
 
             return uninstalledWithoutErrors;
         } catch (Throwable e) {

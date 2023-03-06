@@ -23,6 +23,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -32,9 +37,12 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.control.AddOn.BundleData;
+import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link AddOnInstaller}. */
 class AddOnInstallerUnitTest extends AddOnTestUtils {
@@ -42,6 +50,11 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
     @BeforeEach
     void createZapHome() throws Exception {
         Constant.setZapHome(newTempDir("home").toAbsolutePath().toString());
+    }
+
+    @AfterEach
+    void afterEach() {
+        Constant.messages = null;
     }
 
     @Test
@@ -197,6 +210,40 @@ class AddOnInstallerUnitTest extends AddOnTestUtils {
         // Then
         assertThat(successfully, is(equalTo(true)));
         assertInstalledLibs(addOn, "lib1", "lib2");
+    }
+
+    @Test
+    void shouldRemoveAddOnResourceBundleOnSoftUninstall() throws Exception {
+        // Given
+        Constant.messages = mock(I18N.class);
+        var addOn = mock(AddOn.class);
+        var bundleData = mock(BundleData.class);
+        given(addOn.getBundleData()).willReturn(bundleData);
+        var bundlePrefix = "prefix";
+        given(bundleData.getPrefix()).willReturn(bundlePrefix);
+        var callback = mock(AddOnUninstallationProgressCallback.class);
+        // When
+        boolean successfully = AddOnInstaller.softUninstall(addOn, callback);
+        // Then
+        assertThat(successfully, is(equalTo(true)));
+        verify(Constant.messages).removeMessageBundle(bundlePrefix);
+        verifyNoMoreInteractions(Constant.messages);
+    }
+
+    @Test
+    void shouldNotRemoveAddOnResourceBundleIfNoneOnSoftUninstall() throws Exception {
+        // Given
+        Constant.messages = mock(I18N.class);
+        var addOn = mock(AddOn.class);
+        var bundleData = mock(BundleData.class);
+        given(addOn.getBundleData()).willReturn(bundleData);
+        given(bundleData.getPrefix()).willReturn("");
+        var callback = mock(AddOnUninstallationProgressCallback.class);
+        // When
+        boolean successfully = AddOnInstaller.softUninstall(addOn, callback);
+        // Then
+        assertThat(successfully, is(equalTo(true)));
+        verifyNoInteractions(Constant.messages);
     }
 
     private static void assertInstalledLibs(AddOn addOn, String... fileNames) throws IOException {
