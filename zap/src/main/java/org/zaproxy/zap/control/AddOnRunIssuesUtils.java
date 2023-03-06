@@ -209,7 +209,7 @@ public final class AddOnRunIssuesUtils {
                 case CYCLIC:
                     message =
                             Constant.messages.getString(
-                                    "cfu.warn.addon.with.missing.requirements.addon.id");
+                                    "cfu.warn.addon.with.missing.requirements.addon.cyclic");
                     break;
                 case OLDER_VERSION:
                     // Do not set a message, the state is already reported as requiring an update.
