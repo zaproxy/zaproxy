@@ -89,6 +89,7 @@ dependencies {
         setTransitive(false)
     }
 
+    testImplementation("net.bytebuddy:byte-buddy:1.14.0")
     testImplementation("org.hamcrest:hamcrest-core:2.2")
     val jupiterVersion = "5.9.2"
     testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")

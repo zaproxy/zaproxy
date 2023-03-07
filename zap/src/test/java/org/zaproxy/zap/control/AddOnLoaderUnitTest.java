@@ -26,15 +26,28 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.verify;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
+import net.bytebuddy.ByteBuddy;
+import net.bytebuddy.dynamic.DynamicType;
+import net.bytebuddy.implementation.FixedValue;
+import net.bytebuddy.matcher.ElementMatchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.Extension;
+import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.zaproxy.zap.control.AddOn.InstallationStatus;
 
 /** Unit test for {@link AddOnLoader}. */
@@ -87,10 +100,161 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
     }
 
     @Test
+    void shouldLoadExtensionsFromAddOn() throws Exception {
+        // Given
+        Path dir = newTempDir();
+        String extensionA = "org.zaproxy.a.ExtensionA";
+        String extensionB = "org.zaproxy.a.ExtensionB";
+        createAddOnWithExtensions(dir, "addOnA", List.of(extensionA, extensionB));
+        AddOnLoader addOnLoader = new AddOnLoader(new File[] {dir.toFile()});
+        // When
+        List<Extension> extensions = sorted(addOnLoader.getExtensions());
+        // Then
+        assertThat(extensions, hasSize(2));
+        assertExtensionCanonicalName(extensions.get(0), extensionA);
+        assertExtensionCanonicalName(extensions.get(1), extensionB);
+    }
+
+    private static void assertExtensionCanonicalName(Extension extension, String extensionA) {
+        assertThat(extension.getClass().getCanonicalName(), is(equalTo(extensionA)));
+    }
+
+    @Test
+    void shouldLoadExtensionsFromAddOns() throws Exception {
+        // Given
+        Path dir = newTempDir();
+        String extensionA = "org.zaproxy.a.ExtensionA";
+        createAddOnWithExtensions(dir, "addOnA", List.of(extensionA));
+        String extensionB = "org.zaproxy.b.ExtensionB";
+        createAddOnWithExtensions(dir, "addOnB", List.of(extensionB));
+        AddOnLoader addOnLoader = new AddOnLoader(new File[] {dir.toFile()});
+        // When
+        List<Extension> extensions = sorted(addOnLoader.getExtensions());
+        // Then
+        assertThat(extensions, hasSize(2));
+        assertExtensionCanonicalName(extensions.get(0), extensionA);
+        assertExtensionCanonicalName(extensions.get(1), extensionB);
+    }
+
+    @Test
+    void shouldLoadOptionalExtensionsFromAddOns() throws Exception {
+        // Given
+        Path dir = newTempDir();
+        String addOnA = "addOnA";
+        String extensionA = "org.zaproxy.a.ExtensionA";
+        createAddOnWithExtensions(dir, addOnA, List.of(extensionA));
+        String extensionB = "org.zaproxy.b.ExtensionB";
+        String extensionOptional = "org.zaproxy.b.optional.ExtensionOptional";
+        createAddOnWithExtensions(
+                dir,
+                "addOnB",
+                List.of(extensionB, extensionOptional),
+                (manifest, classname) -> {
+                    if (extensionOptional.equals(classname)) {
+                        optionalExtension(manifest, classname, addOnA);
+                        return true;
+                    }
+                    return false;
+                });
+        AddOnLoader addOnLoader = new AddOnLoader(new File[] {dir.toFile()});
+        // When
+        List<Extension> extensions = sorted(addOnLoader.getExtensions());
+        // Then
+        assertThat(extensions, hasSize(3));
+        assertExtensionCanonicalName(extensions.get(2), extensionOptional);
+    }
+
+    @Test
+    void shouldRemoveOptionalExtensionsWhenDependencyAddOnUninstalled() throws Exception {
+        // Given
+        Path dir = newTempDir();
+        String addOnIdA = "addOnA";
+        String extensionA = "org.zaproxy.a.ExtensionA";
+        createAddOnWithExtensions(dir, addOnIdA, List.of(extensionA));
+        String addOnIdB = "addOnB";
+        String extensionB = "org.zaproxy.b.ExtensionB";
+        String extensionOptionalA = "org.zaproxy.b.optionala.ExtensionOptionalA";
+        String extensionOptionalB = "org.zaproxy.b.optionalb.ExtensionOptionalB";
+        createAddOnWithExtensions(
+                dir,
+                addOnIdB,
+                List.of(extensionB, extensionOptionalA, extensionOptionalB),
+                (manifest, classname) -> {
+                    if (extensionOptionalA.equals(classname)
+                            || extensionOptionalB.equals(classname)) {
+                        optionalExtension(manifest, classname, addOnIdA);
+                        return true;
+                    }
+                    return false;
+                });
+        AddOnLoader addOnLoader = new AddOnLoader(new File[] {dir.toFile()});
+        addOnLoader.getExtensions();
+        AddOn addOnA = getAddOn(addOnLoader, addOnIdA);
+        AddOn addOnB = getAddOn(addOnLoader, addOnIdB);
+        List<Extension> addOnBExtensions = sorted(addOnB.getLoadedExtensions());
+        // When
+        addOnLoader.removeAddOn(addOnA, false, AddOnLoader.NULL_CALLBACK);
+        // Then
+        assertExtensionRemoved(addOnBExtensions.get(1));
+        assertExtensionRemoved(addOnBExtensions.get(2));
+        List<Extension> extensions = addOnLoader.getExtensions();
+        assertThat(extensions, hasSize(1));
+        assertExtensionCanonicalName(extensions.get(0), extensionB);
+    }
+
+    @Test
+    void shouldRemoveOptionalExtensionsWhenTransitiveDependencyAddOnUninstalled() throws Exception {
+        // Given
+        Path dir = newTempDir();
+        String addOnIdA = "addOnA";
+        String extensionA = "org.zaproxy.a.ExtensionA";
+        createAddOnWithExtensions(dir, addOnIdA, List.of(extensionA));
+        String addOnIdB = "addOnB";
+        String extensionB = "org.zaproxy.b.ExtensionB";
+        createAddOnWithExtensions(
+                dir,
+                addOnIdB,
+                List.of(extensionB),
+                (manifest, classname) -> {
+                    if ("".equals(classname)) {
+                        appendAddOnDependencies(manifest, addOnIdA);
+                    }
+                    return false;
+                });
+        String addOnIdC = "addOnC";
+        String extensionC = "org.zaproxy.c.ExtensionC";
+        String extensionCOptional = "org.zaproxy.c.optionala.ExtensionCOptional";
+        createAddOnWithExtensions(
+                dir,
+                addOnIdC,
+                List.of(extensionC, extensionCOptional),
+                (manifest, classname) -> {
+                    if (extensionCOptional.equals(classname)) {
+                        optionalExtension(manifest, classname, addOnIdB);
+                        return true;
+                    }
+                    return false;
+                });
+        AddOnLoader addOnLoader = new AddOnLoader(new File[] {dir.toFile()});
+        addOnLoader.getExtensions();
+        AddOn addOnA = getAddOn(addOnLoader, addOnIdA);
+        AddOn addOnC = getAddOn(addOnLoader, addOnIdC);
+        List<Extension> addOnCExtensions = sorted(addOnC.getLoadedExtensions());
+        // When
+        addOnLoader.removeAddOn(addOnA, false, AddOnLoader.NULL_CALLBACK);
+        // Then
+        assertExtensionRemoved(addOnCExtensions.get(1));
+        List<Extension> extensions = addOnLoader.getExtensions();
+        assertThat(extensions, hasSize(1));
+        assertExtensionCanonicalName(extensions.get(0), extensionC);
+    }
+
+    @Test
     void shouldCreateAddOnLoaderFromDirectoryWithAddOnsWithIssues() throws Exception {
         // Given
         Path dir = newTempDir();
-        createAddOnFile(dir, "addon1.zap", this::manifestWithAddOnMissingDependency);
+        createAddOnFile(
+                dir, "addon1.zap", manifest -> appendAddOnDependencies(manifest, "missingId"));
         createAddOnFile(dir, "addon2.zap");
         File[] dirWithAddOns = {dir.toFile()};
         // When
@@ -117,7 +281,8 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         // 1st run
         new AddOnLoader(dirWithAddOns);
         // Now with issues
-        createAddOnFile(dir, "addon1.zap", this::manifestWithAddOnMissingDependency);
+        createAddOnFile(
+                dir, "addon1.zap", manifest -> appendAddOnDependencies(manifest, "missingId"));
         // 2nd run
         AddOnLoader addOnLoader = new AddOnLoader(dirWithAddOns);
         // Then
@@ -135,14 +300,16 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
     void shouldReportAddOnsWithExtensionsWithRunningIssuesSinceLastRun() throws Exception {
         // Given
         Path dir = newTempDir();
-        createAddOnFile(dir, "addon1.zap", manifest -> manifestWithExtensions(manifest, "addon2"));
+        createAddOnFile(
+                dir, "addon1.zap", manifest -> appendExtensionWithIssues(manifest, "addon2"));
         createAddOnFile(dir, "addon2.zap");
         File[] dirWithAddOns = {dir.toFile()};
         // When
         // 1st run
         new AddOnLoader(dirWithAddOns);
         // Now with extension issues
-        createAddOnFile(dir, "addon1.zap", manifest -> manifestWithExtensions(manifest, "addon3"));
+        createAddOnFile(
+                dir, "addon1.zap", manifest -> appendExtensionWithIssues(manifest, "addon3"));
         // 2nd run
         AddOnLoader addOnLoader = new AddOnLoader(dirWithAddOns);
         // Then
@@ -156,34 +323,36 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
                 is(equalTo(InstallationStatus.INSTALLED)));
     }
 
-    private void manifestWithAddOnMissingDependency(StringBuilder manifest) {
+    private void assertExtensionRemoved(Extension extension) {
+        verify(extensionLoader).removeExtension(extension);
+    }
+
+    private static void appendAddOnDependencies(StringBuilder manifest, String addOnId) {
         manifest.append("<dependencies>")
                 .append("<addons>")
                 .append("<addon>")
-                .append("<id>missingAddOn</id>")
+                .append("<id>")
+                .append(addOnId)
+                .append("</id>")
                 .append("</addon>")
                 .append("</addons>")
                 .append("</dependencies>");
     }
 
-    private void manifestWithExtensions(StringBuilder manifest, String addOnIdExtDep) {
-        manifest.append("<extensions>")
-                .append("<extension>extension.no.issues</extension>")
-                .append("<extension v=\"1\">")
+    private static void appendExtensionWithIssues(StringBuilder manifest, String addOnId) {
+        manifest.append("<extensions>").append("<extension>extension.no.issues</extension>");
+        optionalExtension(manifest, "extension.for.issues", addOnId);
+        manifest.append("</extensions>");
+    }
+
+    private static void optionalExtension(
+            StringBuilder manifest, String extension, String addOnId) {
+        manifest.append("<extension v=\"1\">")
                 .append("<classname>")
-                .append("extension.for.issues")
-                .append("</classname>")
-                .append("<dependencies>")
-                .append("<addons>")
-                .append("<addon>")
-                .append("<id>")
-                .append(addOnIdExtDep)
-                .append("</id>")
-                .append("</addon>")
-                .append("</addons>")
-                .append("</dependencies>")
-                .append("</extension>")
-                .append("</extensions>");
+                .append(extension)
+                .append("</classname>");
+        appendAddOnDependencies(manifest, addOnId);
+        manifest.append("</extension>");
     }
 
     private Path createAddOnFile(Path dir, String fileName) {
@@ -205,5 +374,77 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
                     manifestConsumer.accept(manifest);
                 },
                 null);
+    }
+
+    private Path createAddOnWithExtensions(Path dir, String addOnId, List<String> extensionNames)
+            throws IOException {
+        return createAddOnWithExtensions(dir, addOnId, extensionNames, null);
+    }
+
+    private Path createAddOnWithExtensions(
+            Path dir,
+            String addOnId,
+            List<String> extensionNames,
+            BiPredicate<StringBuilder, String> manifestConsumer)
+            throws IOException {
+        return createAddOnWithExtensions(dir, addOnId, extensionNames, manifestConsumer, null);
+    }
+
+    private Path createAddOnWithExtensions(
+            Path dir,
+            String addOnId,
+            List<String> extensionNames,
+            BiPredicate<StringBuilder, String> manifestConsumer,
+            BiFunction<DynamicType.Builder<?>, String, DynamicType.Builder<?>> extensionImpl)
+            throws IOException {
+        Path addOn =
+                createAddOnFile(
+                        dir,
+                        addOnId + ".zap",
+                        manifest -> {
+                            manifest.append("<extensions>");
+                            for (String extensionName : extensionNames) {
+                                boolean consumed = false;
+                                if (manifestConsumer != null) {
+                                    consumed = manifestConsumer.test(manifest, extensionName);
+                                }
+
+                                if (!consumed) {
+                                    manifest.append("<extension>")
+                                            .append(extensionName)
+                                            .append("</extension>");
+                                }
+                            }
+                            manifest.append("</extensions>");
+
+                            if (manifestConsumer != null) {
+                                manifestConsumer.test(manifest, "");
+                            }
+                        });
+        for (String extensionName : extensionNames) {
+            DynamicType.Builder<?> builder =
+                    new ByteBuddy().subclass(ExtensionAdaptor.class).name(extensionName);
+            if (extensionImpl != null) {
+                builder = extensionImpl.apply(builder, extensionName);
+            }
+            builder.method(ElementMatchers.named("canUnload"))
+                    .intercept(FixedValue.value(true))
+                    .make()
+                    .inject(addOn.toFile());
+        }
+        return addOn;
+    }
+
+    private static List<Extension> sorted(List<Extension> list) {
+        List<Extension> extensions = new ArrayList<>(list);
+        Collections.sort(
+                extensions,
+                (a, b) ->
+                        a.getClass().getCanonicalName().compareTo(b.getClass().getCanonicalName()));
+        return extensions;
+    }
+
+    private static AddOn getAddOn(AddOnLoader addOnLoader, String id) {
+        return addOnLoader.getAddOnCollection().getAddOn(id);
     }
 }
