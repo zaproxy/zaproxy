@@ -29,6 +29,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
+import javax.swing.SwingConstants;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
@@ -226,6 +227,7 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
     protected final JCheckBox getRemoveWithoutConfirmationCheckBox() {
         if (removeWithoutConfirmationCheckBox == null) {
             removeWithoutConfirmationCheckBox = new JCheckBox(getRemoveWithoutConfirmationLabel());
+            removeWithoutConfirmationCheckBox.setHorizontalTextPosition(SwingConstants.LEFT);
         }
         return removeWithoutConfirmationCheckBox;
     }
