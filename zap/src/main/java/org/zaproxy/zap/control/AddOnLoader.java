@@ -89,7 +89,7 @@ public class AddOnLoader extends URLClassLoader {
     private static final String ADDON_RUNNABLE_ALL_EXTENSIONS_KEY = "extensions.extension";
 
     /** A "null" object, for use when no callback is given during the uninstallation process. */
-    private static final AddOnUninstallationProgressCallback NULL_CALLBACK =
+    static final AddOnUninstallationProgressCallback NULL_CALLBACK =
             NullUninstallationProgressCallBack.getSingleton();
 
     private static final Logger LOGGER = LogManager.getLogger(AddOnLoader.class);
@@ -294,7 +294,7 @@ public class AddOnLoader extends URLClassLoader {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug(
                         "Can't run add-on {} because of missing requirements: {}",
-                        ao.getName(),
+                        ao.getId(),
                         AddOnRunIssuesUtils.getRunningIssues(reqs));
             }
         }
@@ -773,6 +773,7 @@ public class AddOnLoader extends URLClassLoader {
             if (runningAddOn.dependsOn(ao)) {
                 softUninstallDependentAddOns(runningAddOn);
 
+                unloadDependentExtensions(runningAddOn);
                 softUninstall(runningAddOn);
             }
         }
@@ -890,7 +891,7 @@ public class AddOnLoader extends URLClassLoader {
                     LOGGER.debug(
                             "Can't run extension '{}' of add-on '{}' because of missing requirements: {}",
                             extReqs.getClassname(),
-                            addOn.getName(),
+                            addOn.getId(),
                             AddOnRunIssuesUtils.getRunningIssues(extReqs));
                 }
             }
