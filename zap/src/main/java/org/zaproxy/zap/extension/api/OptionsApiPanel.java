@@ -61,8 +61,6 @@ public class OptionsApiPanel extends AbstractParamPanel {
     private PermittedAddressesPanel permittedAddressesPanel;
     private PermittedAddressesTableModel permittedAddressesTableModel;
 
-    // private JCheckBox chkPostActions = null;
-
     public OptionsApiPanel() {
         super();
         initialize();
@@ -257,18 +255,6 @@ public class OptionsApiPanel extends AbstractParamPanel {
         return generateKeyButton;
     }
 
-    /*
-    public JCheckBox getChkPostActions() {
-    	if (chkPostActions == null) {
-    		chkPostActions = new JCheckBox();
-    		chkPostActions.setText(Constant.messages.getString("api.options.postactions"));
-    		chkPostActions.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-    		chkPostActions.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
-    	}
-    	return chkPostActions;
-    }
-    */
-
     @Override
     public void initParam(Object obj) {
         OptionsParam options = (OptionsParam) obj;
@@ -282,7 +268,6 @@ public class OptionsApiPanel extends AbstractParamPanel {
         getReportPermErrors().setSelected(options.getApiParam().isReportPermErrors());
         getNoKeyForSafeOps().setSelected(options.getApiParam().isNoKeyForSafeOps());
         getKeyField().setText(options.getApiParam().getKey());
-        // getChkPostActions().setSelected(options.getApiParam().isPostActions());
 
         getKeyField().setEnabled(!disableKey.isSelected());
         getGenerateKeyButton().setEnabled(!disableKey.isSelected());
@@ -318,7 +303,6 @@ public class OptionsApiPanel extends AbstractParamPanel {
             // Dont loose the old value on disabling
             options.getApiParam().setKey(getKeyField().getText());
         }
-        // options.getApiParam().setPostActions(getChkPostActions().isEnabled());
 
         options.getApiParam()
                 .setPermittedAddresses(getPermittedAddressesTableModel().getElements());
