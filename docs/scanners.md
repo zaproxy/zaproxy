@@ -214,6 +214,9 @@ Scan rules:
 90034   Cloud Metadata Attack
 90035   Server Side Template Injection
 90036   Server Side Template Injection (Blind)
+90037   Command Injection (Timing Based)
+90038   SQL Injection SQLite (Timing Based)
+90039   NoSQL Injection MongoDB (Timing Based)
 
 100000  Client/Server HTTP Error Response Codes [Script]
 100001  Unexpected Content Types [Script]
