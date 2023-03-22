@@ -558,8 +558,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                         @Override
                         public void run() {
                             while (downloadManager.getCurrentDownloadCount() > 0) {
-                                getScanStatus()
-                                        .setScanCount(downloadManager.getCurrentDownloadCount());
+                                updateScanCount(downloadManager.getCurrentDownloadCount());
                                 if (addonsDialog != null && addonsDialog.isVisible()) {
                                     addonsDialog.showProgress();
                                 }
@@ -573,13 +572,19 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                             if (addonsDialog != null) {
                                 addonsDialog.showProgress();
                             }
-                            getScanStatus().setScanCount(0);
+                            updateScanCount(0);
                             installNewExtensions();
                         }
                     };
             this.installsOk = true;
             this.installsCompleted = false;
             this.downloadProgressThread.start();
+        }
+    }
+
+    private void updateScanCount(int count) {
+        if (hasView()) {
+            getScanStatus().setScanCount(count);
         }
     }
 
