@@ -9,6 +9,7 @@ plugins {
     `java-library`
     jacoco
     id("me.champeau.gradle.japicmp")
+    id("org.zaproxy.common") version "0.1.0"
     id("org.zaproxy.crowdin") version "0.3.1"
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
