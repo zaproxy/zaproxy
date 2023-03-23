@@ -53,6 +53,7 @@
 // ZAP: 2022/04/11 Remove -nouseragent option.
 // ZAP: 2022/08/18 Support parameters supplied to newly installed or updated add-ons.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/03/23 Read ZAP_SILENT env var.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -65,6 +66,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.UnaryOperator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.extension.CommandLineArgument;
@@ -97,6 +99,7 @@ public class CommandLine {
     public static final String EXPERIMENTALDB = "-experimentaldb";
     public static final String SUPPORT_INFO = "-suppinfo";
     public static final String SILENT = "-silent";
+    static final String SILENT_ENV_VAR = "ZAP_SILENT";
 
     /**
      * Command line option to disable the default logging through standard output.
@@ -144,11 +147,16 @@ public class CommandLine {
     private boolean devMode;
 
     public CommandLine(String[] args) throws Exception {
+        this(args, System::getenv);
+    }
+
+    CommandLine(String[] args, UnaryOperator<String> env) throws Exception {
         this.args = args == null ? new String[0] : args;
         this.argsBackup = new String[this.args.length];
         System.arraycopy(this.args, 0, argsBackup, 0, this.args.length);
 
         parseFirst(this.args);
+        readEnv(env);
 
         if (isEnabled(CommandLine.CMD) && isEnabled(CommandLine.DAEMON)) {
             throw new IllegalArgumentException(
@@ -158,6 +166,17 @@ public class CommandLine {
                             + CommandLine.DAEMON
                             + " cannot be used at the same time.");
         }
+    }
+
+    private void readEnv(UnaryOperator<String> env) {
+        if (env.apply(SILENT_ENV_VAR) != null) {
+            setSilent();
+        }
+    }
+
+    private void setSilent() {
+        silent = true;
+        Constant.setSilent(true);
     }
 
     private boolean checkPair(String[] args, String paramName, int i) throws Exception {
@@ -393,8 +412,7 @@ public class CommandLine {
             devMode = true;
             Constant.setDevMode(true);
         } else if (checkSwitch(args, SILENT, i)) {
-            silent = true;
-            Constant.setSilent(true);
+            setSilent();
         }
 
         return result;
