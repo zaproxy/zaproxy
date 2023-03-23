@@ -47,10 +47,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Vector;
+import java.util.function.UnaryOperator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.extension.CommandLineArgument;
@@ -87,6 +91,7 @@ class CommandLineUnitTest {
         given(i18n.getString(anyString())).willReturn("");
         given(i18n.getString(anyString(), any())).willReturn("");
         Constant.messages = i18n;
+        Constant.setSilent(false);
     }
 
     @Test
@@ -217,6 +222,43 @@ class CommandLineUnitTest {
         cmdLine = new CommandLine(new String[] {CommandLine.NOSTDOUT});
         // Then
         assertThat(cmdLine.isNoStdOutLog(), is(equalTo(true)));
+    }
+
+    @Test
+    void shouldHaveSilentArgumentDisabledByDefault() throws Exception {
+        // Given / When
+        cmdLine = new CommandLine(new String[] {});
+        // Then
+        assertThat(cmdLine.isSilent(), is(equalTo(false)));
+        assertThat(Constant.isSilent(), is(equalTo(false)));
+    }
+
+    @Test
+    void shouldParseSilentArgument() throws Exception {
+        // Given / When
+        cmdLine = new CommandLine(new String[] {CommandLine.SILENT});
+        // Then
+        assertThat(cmdLine.isSilent(), is(equalTo(true)));
+        assertThat(Constant.isSilent(), is(equalTo(true)));
+    }
+
+    @ParameterizedTest
+    @EmptySource
+    @ValueSource(strings = {"1", "0", "true", "false"})
+    void shouldReadSilentEnvVar(String value) throws Exception {
+        // Given
+        UnaryOperator<String> env =
+                name -> {
+                    if (CommandLine.SILENT_ENV_VAR.equals(name)) {
+                        return value;
+                    }
+                    return null;
+                };
+        // When
+        cmdLine = new CommandLine(new String[] {}, env);
+        // Then
+        assertThat(cmdLine.isSilent(), is(equalTo(true)));
+        assertThat(Constant.isSilent(), is(equalTo(true)));
     }
 
     @Test
