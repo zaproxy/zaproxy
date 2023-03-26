@@ -147,15 +147,15 @@ Scan rules:
 40016   Persistent XSS (Prime)
 40017   Persistent XSS (Spider)
 40018   SQL Injection
-40019   SQL Injection MySQL
-40020   SQL Injection Hypersonic
-40021   SQL Injection Oracle
-40022   SQL Injection Postgresql
+40019   SQL Injection MySQL (Timing Based)
+40020   SQL Injection Hypersonic (Timing Based)
+40021   SQL Injection Oracle (Timing Based)
+40022   SQL Injection Postgresql (Timing Based)
 40023   Username Enumeration
 40024   SQL Injection SQLite
 40025   Proxy Disclosure
 40026   Cross site scripting (DOM)
-40027   SQL Injection MsSQL
+40027   SQL Injection MsSQL (Timing Based)
 40028   ELMAH Scanner
 40029   trace.axd Scanner
 40030   Backslash Powered Scanner
