@@ -96,7 +96,7 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
     private void populateAddDialogAndSetVisible(String url, HttpBreakpointMessage.Match match) {
         breakDialog.init(
                 new HttpBreakpointMessage(
-                        url, HttpBreakpointMessage.Location.url, match, false, true),
+                        url, HttpBreakpointMessage.Location.url, match, false, true, false, true),
                 true);
         breakDialog.setVisible(true);
     }
@@ -127,7 +127,7 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
         if (breakDialog == null) {
             breakDialog =
                     new BreakAddEditDialog(
-                            this, View.getSingleton().getMainFrame(), new Dimension(407, 255));
+                            this, View.getSingleton().getMainFrame(), new Dimension(407, 375));
         }
         populateAddDialogAndSetVisible(url, match);
     }
@@ -141,7 +141,7 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
         if (breakDialog == null) {
             breakDialog =
                     new BreakAddEditDialog(
-                            this, View.getSingleton().getMainFrame(), new Dimension(407, 255));
+                            this, View.getSingleton().getMainFrame(), new Dimension(407, 375));
         }
         populateEditDialogAndSetVisible(breakpoint);
     }

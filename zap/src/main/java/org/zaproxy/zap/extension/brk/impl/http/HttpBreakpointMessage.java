@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.extension.brk.impl.http;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.logging.log4j.LogManager;
@@ -28,6 +30,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.brk.AbstractBreakPointMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.model.SessionStructure;
 
 public class HttpBreakpointMessage extends AbstractBreakPointMessage {
 
@@ -49,11 +52,36 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
     private static final String TYPE = "HTTP";
 
     private String string;
+    private URL url;
     private Pattern pattern;
     private Location location;
     private Match match;
     private boolean inverse;
     private boolean ignoreCase;
+    private boolean onRequest;
+    private boolean onResponse;
+    private int brkId = -1;
+
+    public HttpBreakpointMessage(
+            String string,
+            Location location,
+            Match match,
+            boolean inverse,
+            boolean ignoreCase,
+            boolean onRequest,
+            boolean onResponse) {
+        super();
+        this.string = string;
+        this.location = location;
+        this.match = match;
+        this.inverse = inverse;
+        this.ignoreCase = ignoreCase;
+        this.onRequest = onRequest;
+        this.onResponse = onResponse;
+
+        compilePattern();
+        getUrlFromString();
+    }
 
     public HttpBreakpointMessage(
             String string, Location location, Match match, boolean inverse, boolean ignoreCase) {
@@ -76,9 +104,35 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
         return string;
     }
 
+    private void getUrlFromString() {
+        url = null;
+        try {
+            url = new URL(string);
+        } catch (MalformedURLException e) {
+            // Ignore
+        }
+    }
+
+    public String getProtocol() {
+        return url == null ? "" : url.getProtocol();
+    }
+
+    public String getPath() {
+        return url == null ? "" : url.getPath();
+    }
+
+    public String getQuery() {
+        return url == null ? "" : url.getQuery();
+    }
+
+    public String getHost() {
+        return url == null ? "" : url.getHost();
+    }
+
     public void setString(String str) {
         this.string = str;
         compilePattern();
+        getUrlFromString();
     }
 
     public Pattern getPattern() {
@@ -123,6 +177,30 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
         compilePattern();
     }
 
+    public boolean isOnRequest() {
+        return onRequest;
+    }
+
+    public void setOnRequest(boolean onRequest) {
+        this.onRequest = onRequest;
+    }
+
+    public boolean isOnResponse() {
+        return onResponse;
+    }
+
+    public void setOnResponse(boolean onResponse) {
+        this.onResponse = onResponse;
+    }
+
+    public int getBrkId() {
+        return brkId;
+    }
+
+    public void setBrkId(int brkId) {
+        this.brkId = brkId;
+    }
+
     @Override
     public boolean match(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
         if (aMessage instanceof HttpMessage) {
@@ -135,6 +213,10 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
                     if (!Model.getSingleton().getSession().isInScope(uri)) {
                         return false;
                     }
+                }
+
+                if (isRequest && !this.isOnRequest() || !isRequest && !this.isOnResponse()) {
+                    return false;
                 }
 
                 String src;
@@ -235,7 +317,9 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
                 && this.getLocation().equals(hbm.getLocation())
                 && this.getMatch().equals(hbm.getMatch())
                 && this.isIgnoreCase() == hbm.isIgnoreCase()
-                && this.isInverse() == hbm.isInverse();
+                && this.isInverse() == hbm.isInverse()
+                && this.isOnRequest() == hbm.isOnRequest()
+                && this.isOnResponse() == hbm.isOnResponse();
     }
 
     @Override
@@ -247,6 +331,8 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
                 .append(match)
                 .append(ignoreCase)
                 .append(inverse)
+                .append(onRequest)
+                .append(onResponse)
                 .toHashCode();
     }
 }

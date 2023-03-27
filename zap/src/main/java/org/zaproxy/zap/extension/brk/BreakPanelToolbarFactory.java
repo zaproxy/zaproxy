@@ -142,6 +142,8 @@ public class BreakPanelToolbarFactory {
                         HttpBreakpointMessage.Location.url,
                         HttpBreakpointMessage.Match.regex,
                         false,
+                        true,
+                        false,
                         true);
         ignoreRulesEnable.add(ignoreJavascriptBreakpointMessage);
 
@@ -151,6 +153,8 @@ public class BreakPanelToolbarFactory {
                         HttpBreakpointMessage.Location.url,
                         HttpBreakpointMessage.Match.regex,
                         false,
+                        true,
+                        false,
                         true);
         ignoreRulesEnable.add(ignoreCssAndFontsBreakpointMessage);
 
@@ -159,6 +163,8 @@ public class BreakPanelToolbarFactory {
                         breakpointsParams.getMultimediaUrlRegex(),
                         HttpBreakpointMessage.Location.url,
                         HttpBreakpointMessage.Match.regex,
+                        false,
+                        true,
                         false,
                         true);
         ignoreRulesEnable.add(ignoreMultimediaBreakpointMessage);

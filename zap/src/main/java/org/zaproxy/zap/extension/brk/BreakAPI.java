@@ -62,6 +62,8 @@ public class BreakAPI extends ApiImplementor {
     private static final String PARAM_MATCH = "match";
     private static final String PARAM_INVERSE = "inverse";
     private static final String PARAM_IGNORECASE = "ignorecase";
+    private static final String PARAM_ON_REQUEST = "onRequest";
+    private static final String PARAM_ON_RESPONSE = "onResponse";
     private static final String PARAM_KEY = "key";
     private static final String PARAM_SCOPE = "scope";
     private static final String PARAM_STATE = "state";
@@ -221,7 +223,9 @@ public class BreakAPI extends ApiImplementor {
                         params.getString(PARAM_LOCATION),
                         params.getString(PARAM_MATCH),
                         ApiUtils.getBooleanParam(params, PARAM_INVERSE),
-                        ApiUtils.getBooleanParam(params, PARAM_IGNORECASE));
+                        ApiUtils.getBooleanParam(params, PARAM_IGNORECASE),
+                        ApiUtils.getBooleanParam(params, PARAM_ON_REQUEST),
+                        ApiUtils.getBooleanParam(params, PARAM_ON_RESPONSE));
             } catch (IllegalArgumentException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage());
             }
@@ -233,7 +237,9 @@ public class BreakAPI extends ApiImplementor {
                         params.getString(PARAM_LOCATION),
                         params.getString(PARAM_MATCH),
                         ApiUtils.getBooleanParam(params, PARAM_INVERSE),
-                        ApiUtils.getBooleanParam(params, PARAM_IGNORECASE));
+                        ApiUtils.getBooleanParam(params, PARAM_IGNORECASE),
+                        ApiUtils.getBooleanParam(params, PARAM_ON_REQUEST),
+                        ApiUtils.getBooleanParam(params, PARAM_ON_RESPONSE));
             } catch (IllegalArgumentException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, e.getMessage());
             }
