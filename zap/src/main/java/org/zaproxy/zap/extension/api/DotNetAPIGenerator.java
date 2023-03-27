@@ -180,7 +180,7 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
 
         if (type.equals(OTHER_ENDPOINT)) {
             out.write(
-                    "\t\t\treturn api.CallApiOther(\""
+                    "\t\t\treturn this.api.CallApiOther(\""
                             + component
                             + "\", \""
                             + type
@@ -189,7 +189,7 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
                             + "\", parameters);\n");
         } else {
             out.write(
-                    "\t\t\treturn api.CallApi(\""
+                    "\t\t\treturn this.api.CallApi(\""
                             + component
                             + "\", \""
                             + type
