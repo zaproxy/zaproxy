@@ -109,7 +109,6 @@ public class PassiveScanController extends Thread implements ProxyListener {
                         if (shutDown) {
                             return;
                         }
-                        lastId = this.getLastHistoryId();
                     } catch (InterruptedException e) {
                         // New URL, but give it a chance to be processed first
                         try {
@@ -118,6 +117,7 @@ public class PassiveScanController extends Thread implements ProxyListener {
                             // Ignore
                         }
                     }
+                    lastId = this.getLastHistoryId();
                 }
                 href = getHistoryReference(currentId);
 
