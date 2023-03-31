@@ -69,7 +69,7 @@ public class TestHttpSender implements HttpSenderImpl<TestHttpSender.TestHttpSen
             throws IOException {
         try {
             if (file != null) {
-                fileHandler.handle(msg, file);
+                fileHandler.handle(msg, config, file);
             } else {
                 messageHandler.handle(msg);
             }
@@ -87,7 +87,7 @@ public class TestHttpSender implements HttpSenderImpl<TestHttpSender.TestHttpSen
 
     public interface FileHandler {
 
-        void handle(HttpMessage msg, Path file) throws Exception;
+        void handle(HttpMessage msg, HttpRequestConfig config, Path file) throws Exception;
     }
 
     public abstract static class TestHttpSenderCtx implements HttpSenderContext {}

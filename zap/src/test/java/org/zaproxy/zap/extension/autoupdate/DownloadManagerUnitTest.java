@@ -72,7 +72,7 @@ class DownloadManagerUnitTest extends WithConfigsTest {
     @Timeout(5)
     void shouldDownloadAllFiles() throws Exception {
         // Given
-        setFileHandler((msg, file) -> Files.write(file, new byte[0]));
+        setFileHandler((msg, config, file) -> Files.write(file, new byte[0]));
         downloadManager.start();
         int numberOfDownloads = 1000;
         // When

@@ -333,7 +333,6 @@ public class ExtensionForcedUser extends ExtensionAdaptor
         if (!forcedUserModeEnabled
                 || msg.getRequestHeader().isImage()
                 || (initiator == HttpSender.AUTHENTICATION_INITIATOR
-                        || initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR
                         || initiator == HttpSender.AUTHENTICATION_POLL_INITIATOR)) {
             // Not relevant
             return;
