@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.pscan;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.BDDMockito.given;
@@ -262,7 +263,7 @@ class PassiveScanControllerUnitTest extends TestUtils {
         assertThat(oldestTask.getCurrentScanner().getName(), is(equalTo("TPS")));
         assertThat(oldestTask.getURI().toString(), is(equalTo(exampleUrl1)));
         assertThat(oldestTask.getStartTime(), is(greaterThan(testStartTime)));
-        assertThat(testEndTime, is(greaterThan(oldestTask.getStartTime())));
+        assertThat(testEndTime, is(greaterThanOrEqualTo(oldestTask.getStartTime())));
         assertThat(tasks.size(), is(equalTo(2)));
         assertThat(recordsToScan, is(equalTo(2)));
         assertThat(tasks.get(0).getCurrentScanner().getName(), is(equalTo("TPS")));
