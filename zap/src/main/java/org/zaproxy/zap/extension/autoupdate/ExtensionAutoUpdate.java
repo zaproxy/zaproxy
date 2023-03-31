@@ -139,13 +139,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
     private CommandLineArgument[] arguments = new CommandLineArgument[ARG_IDXS.length];
     private Supplier<ZapXmlConfiguration> checkForUpdatesSupplier;
 
+    @SuppressWarnings("deprecation")
     public ExtensionAutoUpdate() {
         super();
-        initialize();
-    }
 
-    /** This method initializes this */
-    private void initialize() {
         this.setName(NAME);
         this.setOrder(1); // High order so that cmdline updates are installed asap
         this.downloadManager = new DownloadManager(HttpSender.CHECK_FOR_UPDATES_INITIATOR);

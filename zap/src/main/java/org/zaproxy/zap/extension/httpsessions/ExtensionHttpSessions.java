@@ -589,8 +589,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
 
     @Override
     public void onHttpRequestSend(HttpMessage msg, int initiator, HttpSender sender) {
-        if (initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR
-                || initiator == HttpSender.AUTHENTICATION_INITIATOR
+        if (initiator == HttpSender.AUTHENTICATION_INITIATOR
                 || initiator == HttpSender.AUTHENTICATION_POLL_INITIATOR) {
             return;
         }

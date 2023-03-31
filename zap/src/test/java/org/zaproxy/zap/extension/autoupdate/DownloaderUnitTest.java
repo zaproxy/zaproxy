@@ -36,6 +36,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.zaproxy.zap.WithConfigsTest;
+import org.zaproxy.zap.network.HttpRequestConfig;
 
 /** Unit test for {@link Downloader}. */
 class DownloaderUnitTest extends WithConfigsTest {
@@ -47,13 +48,16 @@ class DownloaderUnitTest extends WithConfigsTest {
 
     private URL downloadUrl;
     private Downloader downloader;
+    private HttpRequestConfig requestConfig;
 
     @BeforeEach
     void setUp() throws IOException {
 
         setFileHandler(
-                (msg, file) ->
-                        Files.write(file, FILE_CONTENTS.getBytes(StandardCharsets.US_ASCII)));
+                (msg, config, file) -> {
+                    requestConfig = config;
+                    Files.write(file, FILE_CONTENTS.getBytes(StandardCharsets.US_ASCII));
+                });
         downloadUrl = new URL("http://127.0.0.1" + FILE_PATH);
     }
 
@@ -69,6 +73,28 @@ class DownloaderUnitTest extends WithConfigsTest {
                         size,
                         hash,
                         -1);
+    }
+
+    @Test
+    void shouldFollowRedirects() throws Exception {
+        // Given
+        createDowloader("SHA1:ce27cb141098feb00714e758646be3e99c185b71");
+        // When
+        downloader.start();
+        // Then
+        waitDownloadFinish();
+        assertThat(requestConfig.isFollowRedirects(), is(equalTo(true)));
+    }
+
+    @Test
+    void shouldNotNotifyHttpSenderListeners() throws Exception {
+        // Given
+        createDowloader("SHA1:ce27cb141098feb00714e758646be3e99c185b71");
+        // When
+        downloader.start();
+        // Then
+        waitDownloadFinish();
+        assertThat(requestConfig.isNotifyListeners(), is(equalTo(false)));
     }
 
     @Test
@@ -138,7 +164,7 @@ class DownloaderUnitTest extends WithConfigsTest {
     void shouldCancelDownload() throws Exception {
         // Given
         setFileHandler(
-                (msg, file) -> {
+                (msg, config, file) -> {
                     try {
                         Thread.sleep(10);
                     } catch (InterruptedException e) {

@@ -110,6 +110,7 @@
 // ZAP: 2022/06/07 Address deprecation warnings with HttpSenderParos.
 // ZAP: 2022/06/13 Added param digger initiator.
 // ZAP: 2022/12/09 Allow to restore HttpSenderImpl state.
+// ZAP: 2023/03/31 Deprecate CFU initiator and add file download with configs.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -131,7 +132,10 @@ public class HttpSender {
     public static final int FUZZER_INITIATOR = 4;
     public static final int AUTHENTICATION_INITIATOR = 5;
     public static final int MANUAL_REQUEST_INITIATOR = 6;
+    /** @deprecated (2.13.0) CFU requests are sent without notifying listeners. */
+    @Deprecated(since = "2.13.0")
     public static final int CHECK_FOR_UPDATES_INITIATOR = 7;
+
     public static final int BEAN_SHELL_INITIATOR = 8;
     public static final int ACCESS_CONTROL_SCANNER_INITIATOR = 9;
     public static final int AJAX_SPIDER_INITIATOR = 10;
@@ -317,7 +321,23 @@ public class HttpSender {
      * @see #setFollowRedirect(boolean)
      */
     public void sendAndReceive(HttpMessage message, Path file) throws IOException {
-        sendImpl(null, message, file);
+        sendAndReceive(message, null, file);
+    }
+
+    /**
+     * Downloads the response (body) to the given file, using the given request configurations.
+     *
+     * <p>The body in the given {@code message} will be empty.
+     *
+     * @param message the message containing the request to send.
+     * @param requestConfig the request configurations.
+     * @param file the file where to save the response body.
+     * @throws IOException if an error occurred while sending the request or while downloading.
+     * @since 2.13.0
+     */
+    public void sendAndReceive(HttpMessage message, HttpRequestConfig requestConfig, Path file)
+            throws IOException {
+        sendImpl(requestConfig, message, file);
     }
 
     public void sendAndReceive(HttpMessage msg) throws IOException {
