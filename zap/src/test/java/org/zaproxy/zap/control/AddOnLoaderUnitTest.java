@@ -25,12 +25,15 @@ import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.verify;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -56,6 +59,7 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
     @BeforeEach
     void createZapHome() throws Exception {
         Constant.setZapHome(newTempDir("home").toAbsolutePath().toString());
+        Constant.setZapInstall(newTempDir("install").toAbsolutePath().toString());
     }
 
     @ParameterizedTest
@@ -321,6 +325,52 @@ class AddOnLoaderUnitTest extends AddOnTestUtils {
         assertThat(
                 addOnLoader.getAddOnCollection().getAddOn("addon2").getInstallationStatus(),
                 is(equalTo(InstallationStatus.INSTALLED)));
+    }
+
+    @Test
+    void shouldRemoveAddOnWhenNotInInstallationPluginDir() throws Exception {
+        // Given
+        Path dir = newTempDir();
+        String addOnId = "id";
+        createAddOnFile(dir, addOnId + ".zap");
+        AddOnLoader addOnLoader = new AddOnLoader(new File[] {dir.toFile()});
+        AddOn addOn = getAddOn(addOnLoader, addOnId);
+        // When
+        addOnLoader.removeAddOn(addOn, false, AddOnLoader.NULL_CALLBACK);
+        // Then
+        assertThat(Files.exists(addOn.getFile().toPath()), is(equalTo(false)));
+        assertThat(addOnLoader.getBlockList(), not(contains("id")));
+    }
+
+    @Test
+    void shouldKeepAndBlockAddOnInInstallationPluginDir() throws Exception {
+        // Given
+        Path dir = Paths.get(Constant.getZapInstall(), Constant.FOLDER_PLUGIN);
+        String addOnId = "id";
+        createAddOnFile(dir, addOnId + ".zap");
+        AddOnLoader addOnLoader = new AddOnLoader(new File[] {dir.toFile()});
+        AddOn addOn = getAddOn(addOnLoader, addOnId);
+        // When
+        addOnLoader.removeAddOn(addOn, false, AddOnLoader.NULL_CALLBACK);
+        // Then
+        assertThat(Files.exists(addOn.getFile().toPath()), is(equalTo(true)));
+        assertThat(addOnLoader.getBlockList(), contains("id"));
+    }
+
+    @Test
+    void shouldKeepButNotBlockMandatoryAddOnInInstallationPluginDir() throws Exception {
+        // Given
+        Path dir = Paths.get(Constant.getZapInstall(), Constant.FOLDER_PLUGIN);
+        String addOnId = "id";
+        createAddOnFile(dir, addOnId + ".zap");
+        AddOnLoader addOnLoader = new AddOnLoader(new File[] {dir.toFile()});
+        AddOn addOn = getAddOn(addOnLoader, addOnId);
+        addOn.setMandatory(true);
+        // When
+        addOnLoader.removeAddOn(addOn, false, AddOnLoader.NULL_CALLBACK);
+        // Then
+        assertThat(Files.exists(addOn.getFile().toPath()), is(equalTo(true)));
+        assertThat(addOnLoader.getBlockList(), not(contains("id")));
     }
 
     private void assertExtensionRemoved(Extension extension) {

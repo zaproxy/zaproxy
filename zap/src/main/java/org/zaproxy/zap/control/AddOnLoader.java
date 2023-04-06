@@ -23,6 +23,7 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
@@ -30,6 +31,9 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -713,12 +717,53 @@ public class AddOnLoader extends URLClassLoader {
     private void deleteAddOn(AddOn addOn, boolean upgrading) {
         AddOnInstaller.uninstallAddOnLibs(addOn);
 
+        File addOnFile = addOn.getFile();
+        if (addOnFile == null || !addOnFile.exists()) {
+            return;
+        }
+
+        if (isInstallationAddOn(addOnFile.toPath())) {
+            LOGGER.debug(
+                    "Not removing add-on in the installation directory: {}",
+                    addOnFile.getAbsolutePath());
+            if (!upgrading) {
+                saveBlockedAddOn(addOn);
+            }
+            return;
+        }
+
         if (addOn.getFile() != null && addOn.getFile().exists()) {
             if (!addOn.getFile().delete() && !upgrading) {
                 LOGGER.debug("Can't delete {}", addOn.getFile().getAbsolutePath());
-                this.blockList.add(addOn.getId());
-                this.saveBlockList();
+                saveBlockedAddOn(addOn);
             }
+        }
+    }
+
+    private void saveBlockedAddOn(AddOn addOn) {
+        if (addOn.isMandatory()) {
+            return;
+        }
+
+        blockList.add(addOn.getId());
+        saveBlockList();
+    }
+
+    List<String> getBlockList() {
+        return blockList;
+    }
+
+    private static boolean isInstallationAddOn(Path file) {
+        Path installDir = Paths.get(Constant.getZapInstall()).resolve(Constant.FOLDER_PLUGIN);
+        if (Files.notExists(installDir)) {
+            return false;
+        }
+
+        try {
+            return Files.isSameFile(installDir, file.getParent());
+        } catch (IOException e) {
+            LOGGER.warn("An error occurred while checking the add-on's dir:", e);
+            return false;
         }
     }
 

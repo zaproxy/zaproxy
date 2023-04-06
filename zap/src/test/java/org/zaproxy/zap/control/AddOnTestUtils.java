@@ -152,6 +152,7 @@ class AddOnTestUtils extends WithConfigsTest {
             Consumer<StringBuilder> manifestConsumer,
             Consumer<ZipOutputStream> addOnConsumer) {
         try {
+            Files.createDirectories(dir);
             Path file = dir.resolve(fileName);
             try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(file))) {
                 ZipEntry manifest = new ZipEntry(AddOn.MANIFEST_FILE_NAME);
