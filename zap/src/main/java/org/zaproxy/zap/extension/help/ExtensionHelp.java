@@ -514,7 +514,8 @@ public class ExtensionHelp extends ExtensionAdaptor {
 
         @Override
         public void addOnUninstalled(AddOn addOn, boolean successfully) {
-            if (hb == null) {
+            HelpBroker hbLocal = hb;
+            if (hbLocal == null) {
                 return;
             }
 
@@ -524,7 +525,8 @@ public class ExtensionHelp extends ExtensionAdaptor {
                 addOnHelpSets.computeIfPresent(
                         addOn,
                         (k, helpsets) -> {
-                            EventQueue.invokeLater(() -> helpsets.forEach(hb.getHelpSet()::remove));
+                            EventQueue.invokeLater(
+                                    () -> helpsets.forEach(hbLocal.getHelpSet()::remove));
                             return null;
                         });
             }
