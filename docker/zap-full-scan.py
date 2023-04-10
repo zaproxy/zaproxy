@@ -282,9 +282,7 @@ def main(argv):
     if running_in_docker():
         try:
             params = [
-                      '-config', 'spider.maxDuration=' + str(mins),
-                      '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
-                      '-addoninstall', 'ascanrulesBeta']
+                      '-config', 'spider.maxDuration=' + str(mins)]
 
             if zap_alpha:
                 params.extend(['-addoninstall', 'pscanrulesAlpha'])

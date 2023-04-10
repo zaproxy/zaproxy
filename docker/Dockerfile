@@ -1,5 +1,5 @@
 # This dockerfile builds the zap stable release
-FROM debian:unstable-slim AS builder
+FROM --platform=linux/amd64 debian:bullseye-slim AS builder
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	wget \
@@ -34,8 +34,8 @@ RUN if [ -z "$WEBSWING_URL" ] ; \
 	# Remove Webswing bundled examples
 	rm -Rf webswing/apps/
 
-FROM debian:unstable-slim
-LABEL maintainer="psiinon@gmail.com"
+FROM debian:bullseye-slim AS final
+LABEL maintainer="support@soos.io"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -55,13 +55,13 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	net-tools \
 	python3-pip \
 	python-is-python3 \
-	firefox \
+	firefox-esr \
 	xvfb \
 	x11vnc && \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3
+RUN pip3 install --no-cache-dir --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3
 
 RUN useradd -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
