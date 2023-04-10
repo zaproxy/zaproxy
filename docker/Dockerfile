@@ -36,7 +36,7 @@ RUN --mount=type=secret,id=webswing_url \
 	rm -Rf webswing/apps/
 
 FROM debian:bullseye-slim AS final
-LABEL maintainer="psiinon@gmail.com"
+LABEL maintainer="support@soos.io"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -61,7 +61,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	x11vnc && \
 	rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install --no-cache-dir --upgrade awscli pip zaproxy pyyaml urllib3
+RUN pip3 install --no-cache-dir --upgrade awscli pip python-owasp-zap-v2.4 pyyaml urllib3
 
 RUN useradd -u 1000 -d /home/zap -m -s /bin/bash zap
 RUN echo zap:zap | chpasswd
