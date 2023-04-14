@@ -243,7 +243,7 @@ public class PassiveScanParam extends AbstractParam {
      *     types should be disabled (removed)
      * @since 2.8.0
      * @see #isScanFuzzerMessages()
-     * @see #setScanFuzzerMessages()
+     * @see #setScanFuzzerMessages(boolean)
      */
     private void setFuzzerOptin(boolean shouldOptin) {
         if (shouldOptin) {

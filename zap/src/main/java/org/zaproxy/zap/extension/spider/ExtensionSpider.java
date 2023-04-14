@@ -419,7 +419,7 @@ public class ExtensionSpider extends ExtensionAdaptor
      *
      * @param parser the parser
      * @throws IllegalArgumentException if the given parameter is {@code null}.
-     * @see #removeCustomParser(SpiderParser)
+     * @see #removeCustomParser(org.zaproxy.zap.spider.parser.SpiderParser)
      */
     public void addCustomParser(org.zaproxy.zap.spider.parser.SpiderParser parser) {
         validateParameterNonNull(parser, "parser");
@@ -440,7 +440,7 @@ public class ExtensionSpider extends ExtensionAdaptor
      * @param parser the parser
      * @throws IllegalArgumentException if the given parameter is {@code null}.
      * @since 2.6.0
-     * @see #addCustomParser(SpiderParser)
+     * @see #addCustomParser(org.zaproxy.zap.spider.parser.SpiderParser)
      */
     public void removeCustomParser(org.zaproxy.zap.spider.parser.SpiderParser parser) {
         validateParameterNonNull(parser, "parser");
@@ -455,7 +455,7 @@ public class ExtensionSpider extends ExtensionAdaptor
      *
      * @param filter the filter
      * @throws IllegalArgumentException if the given parameter is {@code null}.
-     * @see #removeCustomFetchFilter(FetchFilter)
+     * @see #removeCustomFetchFilter(org.zaproxy.zap.spider.filters.FetchFilter)
      */
     public void addCustomFetchFilter(org.zaproxy.zap.spider.filters.FetchFilter filter) {
         validateParameterNonNull(filter, "filter");
@@ -470,7 +470,7 @@ public class ExtensionSpider extends ExtensionAdaptor
      * @param filter the filter
      * @throws IllegalArgumentException if the given parameter is {@code null}.
      * @since 2.6.0
-     * @see #addCustomFetchFilter(FetchFilter)
+     * @see #addCustomFetchFilter(org.zaproxy.zap.spider.filters.FetchFilter)
      */
     public void removeCustomFetchFilter(org.zaproxy.zap.spider.filters.FetchFilter filter) {
         validateParameterNonNull(filter, "filter");
@@ -485,7 +485,7 @@ public class ExtensionSpider extends ExtensionAdaptor
      *
      * @param filter the filter
      * @throws IllegalArgumentException if the given parameter is {@code null}.
-     * @see #removeCustomParseFilter(ParseFilter)
+     * @see #removeCustomParseFilter(org.zaproxy.zap.spider.filters.ParseFilter)
      */
     public void addCustomParseFilter(org.zaproxy.zap.spider.filters.ParseFilter filter) {
         validateParameterNonNull(filter, "filter");
@@ -500,7 +500,7 @@ public class ExtensionSpider extends ExtensionAdaptor
      * @param filter the filter
      * @throws IllegalArgumentException if the given parameter is {@code null}.
      * @since 2.6.0
-     * @see #addCustomParseFilter(ParseFilter)
+     * @see #addCustomParseFilter(org.zaproxy.zap.spider.filters.ParseFilter)
      */
     public void removeCustomParseFilter(org.zaproxy.zap.spider.filters.ParseFilter filter) {
         validateParameterNonNull(filter, "filter");

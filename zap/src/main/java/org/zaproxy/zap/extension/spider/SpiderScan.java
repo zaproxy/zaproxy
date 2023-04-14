@@ -88,7 +88,7 @@ public class SpiderScan
      *
      * <p>The counter is incremented when a new URI is found.
      *
-     * @see #foundURI(String, String, FetchStatus)
+     * @see #foundURI(String, String, org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus)
      * @see #getNumberOfURIsFound()
      */
     private AtomicInteger numberOfURIsFound;
@@ -117,7 +117,7 @@ public class SpiderScan
      * <p>Lazily initialised.
      *
      * @see #getMessagesTableModel()
-     * @see #addMessageToMessagesTableModel(SpiderTaskResult)
+     * @see #addMessageToMessagesTableModel(org.zaproxy.zap.spider.SpiderTaskResult)
      */
     private SpiderMessagesTableModel messagesTableModel;
 

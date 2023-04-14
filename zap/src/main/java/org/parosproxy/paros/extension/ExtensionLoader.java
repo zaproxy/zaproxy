@@ -277,7 +277,7 @@ public class ExtensionLoader {
      *
      * @param proxyServer the proxy server to add, must not be null.
      * @since 2.8.0
-     * @see #removeProxyServer(ProxyServer)
+     * @see #removeProxyServer(org.parosproxy.paros.core.proxy.ProxyServer)
      */
     @SuppressWarnings("deprecation")
     public void addProxyServer(org.parosproxy.paros.core.proxy.ProxyServer proxyServer) {
@@ -320,7 +320,7 @@ public class ExtensionLoader {
      *
      * @param proxyServer the proxy server to remove, must not be null.
      * @since 2.8.0
-     * @see #addProxyServer(ProxyServer)
+     * @see #addProxyServer(org.parosproxy.paros.core.proxy.ProxyServer)
      */
     @SuppressWarnings("deprecation")
     public void removeProxyServer(org.parosproxy.paros.core.proxy.ProxyServer proxyServer) {
