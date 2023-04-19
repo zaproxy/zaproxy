@@ -1,0 +1,85 @@
+---
+env:
+  contexts:
+  - name: "non-std-json-bearer"
+    urls:
+    - "http://localhost:9091/auth/non-std-json-bearer"
+    includePaths:
+    - "http://localhost:9091/auth/non-std-json-bearer.*"
+    excludePaths: []
+    authentication:
+      method: "browser"
+      parameters:
+        loginPageUrl: "http://localhost:9091/auth/non-std-json-bearer/ "
+        loginPageWait: 5
+        browserId: "firefox-headless"
+      verification:
+        method: "poll"
+        loggedInRegex: "\\Q\"result\":\"OK\\E"
+        loggedOutRegex: "\\Q\"result\":\"FAIL\\E"
+        pollFrequency: 60
+        pollUnits: "requests"
+        pollUrl: "http://localhost:9091/auth/non-std-json-bearer/user"
+        pollPostData: ""
+    sessionManagement:
+      method: "autodetect"
+      parameters: {}
+    technology:
+      exclude: []
+    users:
+    - name: "test"
+      credentials:
+        username: "test@test.com"
+        password: "password123"
+  parameters:
+    failOnError: true
+    failOnWarning: false
+    progressToStdout: true
+  vars: {}
+jobs:
+- parameters:
+    maxAlertsPerRule: 0
+    scanOnlyInScope: true
+    maxBodySizeInBytesToScan: 0
+    enableTags: false
+    disableAllRules: true
+  rules:
+  - id: 10111
+    name: "Authentication Request Identified"
+    threshold: "medium"
+  - id: 10112
+    name: "Session Management Response Identified"
+    threshold: "medium"
+  name: "passiveScan-config"
+  type: "passiveScan-config"
+- parameters:
+    user: "test"
+  requests:
+  - url: "http://localhost:9091/auth/non-std-json-bearer/user"
+    name: ""
+    method: ""
+    httpVersion: ""
+    headers: []
+    data: ""
+  name: "requestor"
+  type: "requestor"
+  tests:
+  - type: "stats"
+    statistic: "stats.auth.success"
+    site: "http://localhost:9091"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.state.loggedin"
+    site: "http://localhost:9091"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.sessiontoken.nonstd"
+    site: "http://localhost:9091"
+    operator: ">="
+    value: 1
+    onFail: "error"
+

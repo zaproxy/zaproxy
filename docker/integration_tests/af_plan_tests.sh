@@ -13,12 +13,15 @@ cd /zap/wrk/configs/plans/
 export JIGSAW_USER="guest"
 export JIGSAW_PWORD="guest"
 
+# Install dev add-on
+/zap/zap.sh -cmd -addoninstall dev
+
 for file in *.yaml
 do
 	echo
 	echo "Plan: $file"
 
-    /zap/zap.sh -cmd -autorun /zap/wrk/configs/plans/$file 
+    /zap/zap.sh -cmd -autorun /zap/wrk/configs/plans/$file -dev
     RET=$?
     
 	if [ "$RET" != 0 ] 
