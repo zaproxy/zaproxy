@@ -92,6 +92,7 @@
 // ZAP: 2022/08/23 Use SiteMap#createTree to create a new Sites Tree when loading a session.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/05/21 Allow context import functionality to accept an XML config as input (Issue 7421).
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -1490,8 +1491,30 @@ public class Session {
             throws ConfigurationException, ClassNotFoundException, InstantiationException,
                     IllegalAccessException, IllegalArgumentException, InvocationTargetException,
                     NoSuchMethodException, SecurityException {
-        ZapXmlConfiguration config = new ZapXmlConfiguration(file);
+        return importContext(new ZapXmlConfiguration(file));
+    }
 
+    /**
+     * Imports a context from the specified XML config.
+     *
+     * @param config the XML config that contains the context data
+     * @return the imported {@code Context}, already added to the session.
+     * @throws ConfigurationException
+     * @throws ClassNotFoundException
+     * @throws InstantiationException
+     * @throws IllegalAccessException
+     * @throws IllegalArgumentException
+     * @throws InvocationTargetException
+     * @throws NoSuchMethodException
+     * @throws SecurityException
+     * @throws IllegalContextNameException if context's name is not provided or it's empty or if a
+     *     context with the same name already exists.
+     * @since 2.13.0
+     */
+    public Context importContext(ZapXmlConfiguration config)
+            throws ConfigurationException, ClassNotFoundException, InstantiationException,
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+                    NoSuchMethodException, SecurityException {
         String name = config.getString(Context.CONTEXT_CONFIG_NAME);
         validateContextName(name);
 

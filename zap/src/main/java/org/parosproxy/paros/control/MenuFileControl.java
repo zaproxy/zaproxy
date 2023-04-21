@@ -58,6 +58,8 @@
 // ZAP: 2022/08/05 Address warns with Java 18.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/05/21 Handle duplicate context names when importing in a more userfriendly way (Issue
+// 7421).
 package org.parosproxy.paros.control;
 
 import java.awt.EventQueue;
@@ -82,8 +84,10 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.utils.ZapHtmlLabel;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.PersistSessionDialog;
 import org.zaproxy.zap.view.SessionTableSelectDialog;
@@ -594,15 +598,36 @@ public class MenuFileControl implements SessionListener {
                 if (file == null || !file.exists()) {
                     return;
                 }
-                // Import the context
-                Model.getSingleton().getSession().importContext(file);
-
-                // Show the dialog
-                View.getSingleton()
-                        .showSessionDialog(
-                                Model.getSingleton().getSession(),
-                                Constant.messages.getString("context.list"),
-                                true);
+                ZapXmlConfiguration config = new ZapXmlConfiguration(file);
+                String ctxName = config.getString(Context.CONTEXT_CONFIG_NAME);
+                Session session = Model.getSingleton().getSession();
+                boolean forcedImport = true;
+                while (session.getContext(ctxName) != null) {
+                    forcedImport = false;
+                    ctxName =
+                            (String)
+                                    JOptionPane.showInputDialog(
+                                            View.getSingleton().getMainFrame(),
+                                            Constant.messages.getString(
+                                                    "context.import.duplicate.dialog.message",
+                                                    ctxName),
+                                            Constant.messages.getString(
+                                                    "context.import.duplicate.dialog.title"),
+                                            JOptionPane.QUESTION_MESSAGE,
+                                            null,
+                                            null,
+                                            ctxName);
+                }
+                if (forcedImport || (ctxName != null && !ctxName.isBlank())) {
+                    config.setProperty(Context.CONTEXT_CONFIG_NAME, ctxName);
+                    session.importContext(config);
+                    // Show the dialog
+                    View.getSingleton()
+                            .showSessionDialog(
+                                    Model.getSingleton().getSession(),
+                                    Constant.messages.getString("context.list"),
+                                    true);
+                }
 
             } catch (IllegalContextNameException e) {
                 String detailError;
