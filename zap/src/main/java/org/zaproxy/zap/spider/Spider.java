@@ -547,7 +547,7 @@ public class Spider {
      * being accessed.
      *
      * @see #seedList
-     * @see FetchFilter
+     * @see org.zaproxy.zap.spider.filters.FetchFilter
      * @see SpiderController#getFetchFilters()
      * @since 2.5.0
      */

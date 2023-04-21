@@ -966,7 +966,7 @@ public class ConnectionParam extends AbstractParam {
      *     false} otherwise.
      * @since 2.10.0
      * @see #isUseSocksProxy()
-     * @see #setSocksProxy(SocksProxy)
+     * @see #setSocksProxy(org.zaproxy.zap.network.SocksProxy)
      */
     public void setUseSocksProxy(boolean useSocksProxy) {
         if (this.useSocksProxy == useSocksProxy) {
@@ -986,7 +986,7 @@ public class ConnectionParam extends AbstractParam {
      * @return the SOCKS proxy, never {@code null}.
      * @since 2.10.0
      * @see #isUseSocksProxy()
-     * @see #setSocksProxy(SocksProxy)
+     * @see #setSocksProxy(org.zaproxy.zap.network.SocksProxy)
      */
     @ZapApiIgnore
     public org.zaproxy.zap.network.SocksProxy getSocksProxy() {

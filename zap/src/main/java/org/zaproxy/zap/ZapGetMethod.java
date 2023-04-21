@@ -99,7 +99,7 @@ public class ZapGetMethod extends EntityEnclosingMethod {
     /**
      * Allow response code 101, that is Switching Protocols.
      *
-     * @see GetMethod#readResponse(HttpState, HttpConnection)
+     * @see GetMethod#readResponse(HttpState, org.apache.commons.httpclient.HttpConnection)
      */
     @Override
     protected void readResponse(HttpState state, org.apache.commons.httpclient.HttpConnection conn)
