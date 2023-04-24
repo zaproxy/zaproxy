@@ -103,11 +103,11 @@ Scan rules:
 10112   Session Handling Detection (info)
 10113   Verification Detection (info)
 
-10200   Beast (via HTTPS Info Extension)
-10201   Crime (via HTTPS Info Extension)
+10200   Beast (via HTTPS Info Extension) [Deprecated]
+10201   Crime (via HTTPS Info Extension) [Deprecated]
 10202   Absence of Anti-CSRF Tokens
-10203   Freak (via HTTPS Info Extension)
-10204   Robot (via HTTPS Info Extension)
+10203   Freak (via HTTPS Info Extension) [Deprecated]
+10204   Robot (via HTTPS Info Extension) [Deprecated]
 
 20000   Cold Fusion default file [Deprecated]
 20001   Lotus Domino default files [Deprecated]
@@ -185,6 +185,7 @@ Scan rules:
 50004   Zest scripts (Action - Fail)
 50005   Client side Active Scan scripts
 50006   Client side Passive Scan scripts
+50007   GraphQL Add-on
 
 60000   Example simple passive rule
 60001   Example file passive rule
