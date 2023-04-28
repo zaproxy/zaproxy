@@ -110,8 +110,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
-import org.zaproxy.zap.control.AddOn;
-import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.control.ExtensionFactory;
@@ -151,22 +149,7 @@ public class Control extends AbstractControl implements SessionListener {
                 ExtensionFactory.getAddOnLoader(
                         model.getOptionsParam().getCheckForUpdatesParam().getAddonDirectories());
         if (overrides != null) {
-            AddOnCollection addOnCollection = addOnLoader.getAddOnCollection();
-            overrides
-                    .getMandatoryAddOns()
-                    .forEach(
-                            id -> {
-                                AddOn addOn = addOnCollection.getAddOn(id);
-                                if (addOn == null) {
-                                    String message =
-                                            "The mandatory add-on was not found: "
-                                                    + id
-                                                    + "\nRefer to https://www.zaproxy.org/docs/developer/ if you are building ZAP from source.";
-                                    LOGGER.error(message);
-                                    throw new IllegalStateException(message);
-                                }
-                                addOn.setMandatory(true);
-                            });
+            addOnLoader.getAddOnCollection().setMandatoryAddOns(overrides.getMandatoryAddOns());
         }
 
         // Load extensions first as message bundles are loaded as a side effect
