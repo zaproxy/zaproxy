@@ -99,6 +99,7 @@
 // ZAP: 2022/08/17 Install updates before running other cmdline args.
 // ZAP: 2022/11/23 Refresh tabs menu when tabs are removed.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/04/28 Deprecate Proxy and ProxyServer related methods.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -278,8 +279,9 @@ public class ExtensionLoader {
      * @param proxyServer the proxy server to add, must not be null.
      * @since 2.8.0
      * @see #removeProxyServer(org.parosproxy.paros.core.proxy.ProxyServer)
+     * @deprecated (2.13.0) Use the network add-on to create proxies.
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated(since = "2.13.0", forRemoval = true)
     public void addProxyServer(org.parosproxy.paros.core.proxy.ProxyServer proxyServer) {
         proxyServers.add(proxyServer);
         extensionHooks.values().forEach(extHook -> hookProxyServer(extHook, proxyServer));
@@ -321,8 +323,9 @@ public class ExtensionLoader {
      * @param proxyServer the proxy server to remove, must not be null.
      * @since 2.8.0
      * @see #addProxyServer(org.parosproxy.paros.core.proxy.ProxyServer)
+     * @deprecated (2.13.0) Use the network add-on to create proxies.
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated(since = "2.13.0", forRemoval = true)
     public void removeProxyServer(org.parosproxy.paros.core.proxy.ProxyServer proxyServer) {
         proxyServers.remove(proxyServer);
         extensionHooks.values().forEach(extHook -> unhookProxyServer(extHook, proxyServer));
@@ -350,7 +353,11 @@ public class ExtensionLoader {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    /**
+     * @param proxy the proxy to hook.
+     * @deprecated (2.13.0) Use the network add-on to create proxies.
+     */
+    @Deprecated(since = "2.13.0", forRemoval = true)
     public void hookProxyListener(org.parosproxy.paros.control.Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
             hookProxyListeners(proxy, hook.getProxyListenerList());
@@ -371,7 +378,11 @@ public class ExtensionLoader {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    /**
+     * @param proxy the proxy to hook.
+     * @deprecated (2.13.0) Use the network add-on to create proxies.
+     */
+    @Deprecated(since = "2.13.0", forRemoval = true)
     public void hookOverrideMessageProxyListener(org.parosproxy.paros.control.Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
             hookOverrideMessageProxyListeners(proxy, hook.getOverrideMessageProxyListenerList());
@@ -402,8 +413,9 @@ public class ExtensionLoader {
      *
      * @param proxy the local proxy
      * @since 2.5.0
+     * @deprecated (2.13.0) Use the network add-on to create proxies.
      */
-    @SuppressWarnings("deprecation")
+    @Deprecated(since = "2.13.0", forRemoval = true)
     public void hookConnectRequestProxyListeners(org.parosproxy.paros.control.Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
             hookConnectRequestProxyListeners(proxy, hook.getConnectRequestProxyListeners());
@@ -418,7 +430,11 @@ public class ExtensionLoader {
         }
     }
 
-    @SuppressWarnings("deprecation")
+    /**
+     * @param proxy the proxy to hook.
+     * @deprecated (2.13.0) Use the network add-on to create proxies.
+     */
+    @Deprecated(since = "2.13.0", forRemoval = true)
     public void hookPersistentConnectionListener(org.parosproxy.paros.control.Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
             hookPersistentConnectionListeners(proxy, hook.getPersistentConnectionListener());
