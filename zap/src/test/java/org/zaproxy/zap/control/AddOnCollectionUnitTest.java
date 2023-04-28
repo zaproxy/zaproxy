@@ -23,6 +23,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.StringReader;
 import java.util.List;
@@ -267,6 +268,51 @@ class AddOnCollectionUnitTest {
         String releaseDate = addOn.getReleaseDate();
         // Then
         assertThat(releaseDate, is(equalTo("2020-05-22")));
+    }
+
+    @Test
+    void shouldThrowWhenSettingNullMandatoryAddOns() throws Exception {
+        // Given
+        AddOnCollection coll = new AddOnCollection(configA, Platform.windows);
+        List<String> mandatoryAddOns = null;
+        // When / Then
+        assertThrows(NullPointerException.class, () -> coll.setMandatoryAddOns(mandatoryAddOns));
+    }
+
+    @Test
+    void shouldThrowWhenMissingMandatoryAddOns() throws Exception {
+        // Given
+        AddOnCollection coll = new AddOnCollection(configA, Platform.windows);
+        List<String> mandatoryAddOns = List.of("missing-mandatory-add-on");
+        // When / Then
+        assertThrows(IllegalStateException.class, () -> coll.setMandatoryAddOns(mandatoryAddOns));
+    }
+
+    @Test
+    void shouldSetMandatoryStateToMandatoryAddOns() throws Exception {
+        // Given
+        AddOnCollection coll = new AddOnCollection(configA, Platform.windows);
+        List<String> mandatoryAddOns = List.of("bbb");
+        // When
+        coll.setMandatoryAddOns(mandatoryAddOns);
+        // Then
+        assertThat(coll.getAddOn("bbb").isMandatory(), is(equalTo(true)));
+        assertThat(coll.getAddOn("ddd").isMandatory(), is(equalTo(false)));
+    }
+
+    @Test
+    void shouldSetMandatoryStateWhenAddingAddOn() throws Exception {
+        // Given
+        AddOnCollection coll = new AddOnCollection(configA, Platform.windows);
+        List<String> mandatoryAddOns = List.of("bbb");
+        coll.setMandatoryAddOns(mandatoryAddOns);
+        AddOn addOn = coll.getAddOn("bbb");
+        coll.removeAddOn(addOn);
+        addOn.setMandatory(false);
+        // When
+        coll.addAddOn(addOn);
+        // Then
+        assertThat(coll.getAddOn("bbb").isMandatory(), is(equalTo(true)));
     }
 
     private ZapXmlConfiguration createConfiguration(String file) throws ConfigurationException {

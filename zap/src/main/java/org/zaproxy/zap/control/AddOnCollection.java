@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,6 +45,7 @@ public class AddOnCollection {
     private static final Logger LOGGER = LogManager.getLogger(AddOnCollection.class);
     private ZapRelease zapRelease = null;
     private List<AddOn> addOns = new ArrayList<>();
+    private List<String> mandatoryAddOns = List.of();
     private File downloadDir = new File(Constant.FOLDER_LOCAL_PLUGIN);
     private Platform platform;
 
@@ -144,8 +146,7 @@ public class AddOnCollection {
                     continue;
                 }
                 if (ao.canLoadInCurrentVersion()) {
-                    // Ignore ones that dont apply to this version
-                    this.addOns.add(ao);
+                    addAddOnImpl(ao);
                 } else {
                     LOGGER.debug("Ignoring add-on {} can't load in this version", ao.getName());
                 }
@@ -230,7 +231,7 @@ public class AddOnCollection {
                                                 "Found add-on {} version {}",
                                                 ao.getId(),
                                                 ao.getVersion());
-                                        this.addOns.add(ao);
+                                        addAddOnImpl(ao);
                                     }
                                 });
             }
@@ -348,8 +349,13 @@ public class AddOnCollection {
         if (this.includesAddOn(ao.getId())) {
             return false;
         }
-        this.addOns.add(ao);
+        addAddOnImpl(ao);
         return true;
+    }
+
+    private void addAddOnImpl(AddOn ao) {
+        ao.setMandatory(mandatoryAddOns.contains(ao.getId()));
+        addOns.add(ao);
     }
 
     public boolean removeAddOn(AddOn ao) {
@@ -360,5 +366,32 @@ public class AddOnCollection {
             }
         }
         return false;
+    }
+
+    /**
+     * Sets the IDs of the mandatory add-ons.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @param mandatoryAddOns the IDs of the mandatory add-ons.
+     * @throws NullPointerException if the given parameter is {@code null}.
+     * @throws IllegalStateException if any of the mandatory add-ons is missing.
+     */
+    public void setMandatoryAddOns(List<String> mandatoryAddOns) {
+        this.mandatoryAddOns = Objects.requireNonNull(mandatoryAddOns);
+
+        mandatoryAddOns.forEach(
+                id -> {
+                    AddOn addOn = getAddOn(id);
+                    if (addOn == null) {
+                        String message =
+                                "The mandatory add-on was not found: "
+                                        + id
+                                        + "\nRefer to https://www.zaproxy.org/docs/developer/ if you are building ZAP from source.";
+                        LOGGER.error(message);
+                        throw new IllegalStateException(message);
+                    }
+                    addOn.setMandatory(true);
+                });
     }
 }
