@@ -155,6 +155,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         return address + ":" + port;
     }
 
+    @SuppressWarnings("removal")
     private org.parosproxy.paros.core.proxy.ProxyServer startProxyServer(ProxiesParamProxy param) {
         String address = param.getAddress();
         int port = param.getPort();
@@ -196,6 +197,7 @@ public class ExtensionProxies extends ExtensionAdaptor implements OptionsChanged
         return proxyServer;
     }
 
+    @SuppressWarnings("removal")
     private void stopProxyServer(
             String proxyKey, org.parosproxy.paros.core.proxy.ProxyServer proxyServer) {
         log.info("Stopping alt proxy server: {}", proxyKey);
