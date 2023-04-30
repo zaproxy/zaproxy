@@ -55,6 +55,7 @@ public class ZapXmlConfiguration extends XMLConfiguration {
 
         super.setEncoding("UTF-8");
         super.setDelimiterParsingDisabled(true);
+        super.setListDelimiter('\0');
     }
 
     /**
@@ -80,6 +81,19 @@ public class ZapXmlConfiguration extends XMLConfiguration {
     public ZapXmlConfiguration(String fileName) throws ConfigurationException {
         this();
         setFileName(fileName);
+        load();
+    }
+
+    /**
+     * Creates a new instance of {@code ZapXmlConfiguration}. The configuration is loaded from the
+     * specified {@code url}.
+     *
+     * @param url the URL
+     * @throws ConfigurationException if loading the configuration fails
+     */
+    public ZapXmlConfiguration(URL url) throws ConfigurationException {
+        this();
+        setURL(url);
         load();
     }
 
@@ -132,19 +146,6 @@ public class ZapXmlConfiguration extends XMLConfiguration {
         Transformer transformer = super.createTransformer();
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
         return transformer;
-    }
-
-    /**
-     * Creates a new instance of {@code ZapXmlConfiguration}. The configuration is loaded from the
-     * specified {@code url}.
-     *
-     * @param url the URL
-     * @throws ConfigurationException if loading the configuration fails
-     */
-    public ZapXmlConfiguration(URL url) throws ConfigurationException {
-        this();
-        setURL(url);
-        load();
     }
 
     /**
