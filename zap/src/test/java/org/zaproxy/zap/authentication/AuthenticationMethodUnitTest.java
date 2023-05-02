@@ -22,9 +22,12 @@ package org.zaproxy.zap.authentication;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
 
+import org.apache.commons.httpclient.URI;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.authentication.AuthenticationMethod.AuthCheckingStrategy;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
@@ -178,6 +181,71 @@ class AuthenticationMethodUnitTest {
         boolean equals = authMethod.equals(otherAuthMethod) | otherAuthMethod.equals(authMethod);
         // Then
         assertThat(equals, is(false));
+    }
+
+    @Test
+    void shouldFailAuthIfMessageNull() {
+        // Given
+        AuthenticationMethod authMethod = new AuthenticationMethodTest();
+        User user = mock(User.class);
+        // When
+        boolean auth = authMethod.isAuthenticated(null, user);
+        // Then
+        assertThat(auth, is(false));
+    }
+
+    @Test
+    void shouldFailAuthIfUserNull() {
+        // Given
+        AuthenticationMethod authMethod = new AuthenticationMethodTest();
+        HttpMessage msg = mock(HttpMessage.class);
+        // When
+        boolean auth = authMethod.isAuthenticated(msg, null);
+        // Then
+        assertThat(auth, is(false));
+    }
+
+    @Test
+    void shouldFailAuthIfVerifIsAutoDetect() {
+        // Given
+        AuthenticationMethod authMethod = new AuthenticationMethodTest();
+        authMethod.setAuthCheckingStrategy(AuthCheckingStrategy.AUTO_DETECT);
+        HttpMessage msg = mock(HttpMessage.class);
+        User user = mock(User.class);
+        // When
+        boolean auth = authMethod.isAuthenticated(msg, user);
+        // Then
+        assertThat(auth, is(false));
+    }
+
+    @Test
+    void shouldPassAuthIfMsgContainsLoggedInIndicator() throws Exception {
+        // Given
+        AuthenticationMethod authMethod = new AuthenticationMethodTest();
+        authMethod.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_RESP);
+        authMethod.setLoggedInIndicatorPattern("loggedin");
+        HttpMessage msg = new HttpMessage(new URI("http://example.com/", true));
+        msg.setResponseBody("The user is loggedin again.");
+        User user = mock(User.class);
+        // When
+        boolean auth = authMethod.isAuthenticated(msg, user);
+        // Then
+        assertThat(auth, is(true));
+    }
+
+    @Test
+    void shouldFailAuthIfMsgContainsLoggedOutIndicator() throws Exception {
+        // Given
+        AuthenticationMethod authMethod = new AuthenticationMethodTest();
+        authMethod.setAuthCheckingStrategy(AuthCheckingStrategy.EACH_RESP);
+        authMethod.setLoggedOutIndicatorPattern("loggedout");
+        HttpMessage msg = new HttpMessage(new URI("http://example.com/", true));
+        msg.setResponseBody("The user is loggedout this time.");
+        User user = mock(User.class);
+        // When
+        boolean auth = authMethod.isAuthenticated(msg, user);
+        // Then
+        assertThat(auth, is(false));
     }
 
     private static AuthenticationMethod createAuthenticationMethod(

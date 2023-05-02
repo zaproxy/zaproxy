@@ -199,7 +199,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
         }
 
         @Override
-        protected AuthenticationMethod duplicate() {
+        public AuthenticationMethod duplicate() {
             ScriptBasedAuthenticationMethod method = new ScriptBasedAuthenticationMethod();
             method.script = script;
             method.paramValues = this.paramValues != null ? new HashMap<>(this.paramValues) : null;

@@ -386,6 +386,9 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
         getPollUrlField().setEnabled(isPoll);
         getPollDataField().setEnabled(isPoll);
         getPollHeadersField().setEnabled(isPoll);
+        boolean isAutoDetect = type.getStrategy().equals(AuthCheckingStrategy.AUTO_DETECT);
+        this.getLoggedInIndicatorRegexField().setEnabled(!isAutoDetect);
+        this.getLoggedOutIndicatorRegexField().setEnabled(!isAutoDetect);
     }
 
     private JComboBox<AuthPollFrequencyUnitsType> getAuthFrequencyUnitsComboBox() {

@@ -92,7 +92,7 @@ public class JsonBasedAuthenticationMethodType extends PostBasedAuthenticationMe
         }
 
         @Override
-        protected AuthenticationMethod duplicate() {
+        public AuthenticationMethod duplicate() {
             return new JsonBasedAuthenticationMethod(this);
         }
 

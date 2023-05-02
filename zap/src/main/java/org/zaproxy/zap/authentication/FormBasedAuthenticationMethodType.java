@@ -114,7 +114,7 @@ public class FormBasedAuthenticationMethodType extends PostBasedAuthenticationMe
         }
 
         @Override
-        protected AuthenticationMethod duplicate() {
+        public AuthenticationMethod duplicate() {
             return new FormBasedAuthenticationMethod(this);
         }
 
