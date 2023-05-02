@@ -141,7 +141,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
      * @param postDataRequired {@code true} if the POST data is required by the authentication
      *     method, {@code false} otherwise.
      */
-    protected PostBasedAuthenticationMethodType(
+    public PostBasedAuthenticationMethodType(
             String methodName,
             int methodIdentifier,
             String apiMethodName,
@@ -198,7 +198,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
          * @param authenticationMethod the authentication method to copy from, might be {@code
          *     null}.
          */
-        protected PostBasedAuthenticationMethod(
+        public PostBasedAuthenticationMethod(
                 String contentType,
                 UnaryOperator<String> paramEncoder,
                 PostBasedAuthenticationMethod authenticationMethod) {
@@ -466,7 +466,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
          * @param postData the post data, or {@code null} if the request should be a GET one
          * @throws Exception the exception
          */
-        protected void setLoginRequest(String url, String postData) throws Exception {
+        public void setLoginRequest(String url, String postData) throws Exception {
             if (url == null || url.length() == 0) {
                 this.loginRequestURL = null;
                 this.loginRequestBody = null;
@@ -494,11 +494,11 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
             }
         }
 
-        protected void setLoginPageUrl(String loginPageUrl) {
+        public void setLoginPageUrl(String loginPageUrl) {
             this.loginPageUrl = loginPageUrl;
         }
 
-        protected void setLoginPageUrl(SiteNode loginFormSiteNode)
+        public void setLoginPageUrl(SiteNode loginFormSiteNode)
                 throws HttpMalformedHeaderException, DatabaseException {
             this.loginPageUrl =
                     loginFormSiteNode
@@ -686,7 +686,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
     /** The Options Panel used for configuring a {@link PostBasedAuthenticationMethod}. */
     @SuppressWarnings("serial")
-    protected abstract class PostBasedAuthenticationMethodOptionsPanel
+    public abstract class PostBasedAuthenticationMethodOptionsPanel
             extends AbstractAuthenticationMethodOptionsPanel {
 
         private static final long serialVersionUID = 1L;
@@ -891,7 +891,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
          *
          * @return the context, never {@code null}.
          */
-        protected Context getContext() {
+        public Context getContext() {
             return context;
         }
 

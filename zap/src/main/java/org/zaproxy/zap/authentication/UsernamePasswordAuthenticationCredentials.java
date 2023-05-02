@@ -140,7 +140,7 @@ public class UsernamePasswordAuthenticationCredentials implements Authentication
     /**
      * The Options Panel used for configuring a {@link UsernamePasswordAuthenticationCredentials}.
      */
-    protected static class UsernamePasswordAuthenticationCredentialsOptionsPanel
+    public static class UsernamePasswordAuthenticationCredentialsOptionsPanel
             extends AbstractCredentialsOptionsPanel<UsernamePasswordAuthenticationCredentials> {
 
         private static final long serialVersionUID = 8881019014296985804L;

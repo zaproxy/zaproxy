@@ -81,7 +81,8 @@ public abstract class AuthenticationMethod {
         EACH_RESP,
         EACH_REQ,
         EACH_REQ_RESP,
-        POLL_URL
+        POLL_URL,
+        AUTO_DETECT
     }
 
     public static enum AuthPollFrequencyUnits {
@@ -259,7 +260,9 @@ public abstract class AuthenticationMethod {
      */
     public boolean isAuthenticated(HttpMessage msg, User user, boolean force) {
 
-        if (msg == null || user == null) {
+        if (msg == null
+                || user == null
+                || AuthCheckingStrategy.AUTO_DETECT.equals(this.authCheckingStrategy)) {
             return false;
         }
         AuthenticationState authState = user.getAuthenticationState();
@@ -359,6 +362,9 @@ public abstract class AuthenticationMethod {
             case POLL_URL:
                 contentToTest.add(msg.getResponseHeader().toString());
                 contentToTest.add(msg.getResponseBody().toString());
+                break;
+            case AUTO_DETECT:
+                return false;
         }
         if (patternMatchesAny(loggedInIndicatorPattern, contentToTest)) {
             // Looks like we're authenticated
