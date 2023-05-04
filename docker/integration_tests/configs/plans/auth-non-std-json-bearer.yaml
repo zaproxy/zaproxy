@@ -14,13 +14,8 @@ env:
         loginPageWait: 5
         browserId: "firefox-headless"
       verification:
+        # Checking 2.12 compatibility
         method: "poll"
-        loggedInRegex: "\\Q\"result\":\"OK\\E"
-        loggedOutRegex: "\\Q\"result\":\"FAIL\\E"
-        pollFrequency: 60
-        pollUnits: "requests"
-        pollUrl: "http://localhost:9091/auth/non-std-json-bearer/user"
-        pollPostData: ""
     sessionManagement:
       method: "autodetect"
       parameters: {}
@@ -50,6 +45,9 @@ jobs:
   - id: 10112
     name: "Session Management Response Identified"
     threshold: "medium"
+  - id: 10113
+    name: "Verification Request Identified"
+    threshold: "medium"
   name: "passiveScan-config"
   type: "passiveScan-config"
 - parameters:
@@ -73,6 +71,11 @@ jobs:
   - type: "stats"
     statistic: "stats.auth.state.loggedin"
     site: "http://localhost:9091"
+    operator: ">="
+    value: 1
+    onFail: "error"
+  - type: "stats"
+    statistic: "stats.auth.configure.verification"
     operator: ">="
     value: 1
     onFail: "error"
