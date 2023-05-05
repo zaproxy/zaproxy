@@ -224,6 +224,10 @@ def main(argv):
         usage()
         sys.exit(3)
 
+    if "-silent" in zap_options and zap_alpha:
+        logging.warning('You cannot use the \'-a\' option with the ZAP \'-silent\' option')
+        sys.exit(3)
+
     if running_in_docker():
         base_dir = '/zap/wrk/'
         if config_file or generate or report_html or report_xml or report_json or report_md or progress_file or context_file:
@@ -277,15 +281,17 @@ def main(argv):
 
     if running_in_docker():
         try:
-            params = [
-                      '-config', 'spider.maxDuration=' + str(mins),
-                      '-addonupdate',
-                      '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
-                      '-addoninstall', 'ascanrulesBeta']
-
-            if zap_alpha:
-                params.extend(['-addoninstall', 'pscanrulesAlpha'])
-                params.extend(['-addoninstall', 'ascanrulesAlpha'])
+            params = ['-config', 'spider.maxDuration=' + str(mins)]
+            
+            if "-silent" not in zap_options:
+                params.append('-addonupdate')
+                # In case we're running in the stable container
+                params.extend(['-addoninstall', 'pscanrulesBeta'])
+                params.extend(['-addoninstall', 'ascanrulesBeta'])
+                      
+                if zap_alpha:
+                    params.extend(['-addoninstall', 'pscanrulesAlpha'])
+                    params.extend(['-addoninstall', 'ascanrulesAlpha'])
 
             add_zap_options(params, zap_options)
 
@@ -301,15 +307,17 @@ def main(argv):
         if context_file:
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
-        params = [
-                  '-config', 'spider.maxDuration=' + str(mins),
-                  '-addonupdate',
-                  '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
-                  '-addoninstall', 'ascanrulesBeta']
+        params = ['-config', 'spider.maxDuration=' + str(mins)]
 
-        if (zap_alpha):
-            params.extend(['-addoninstall', 'pscanrulesAlpha'])
-            params.extend(['-addoninstall', 'ascanrulesAlpha'])
+        if "-silent" not in zap_options:
+            params.append('-addonupdate')
+            # In case we're running in the stable container
+            params.extend(['-addoninstall', 'pscanrulesBeta'])
+            params.extend(['-addoninstall', 'ascanrulesBeta'])
+
+            if (zap_alpha):
+                params.extend(['-addoninstall', 'pscanrulesAlpha'])
+                params.extend(['-addoninstall', 'ascanrulesAlpha'])
 
         add_zap_options(params, zap_options)
 

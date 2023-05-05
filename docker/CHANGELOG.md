@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-05-05
+ - Do not install/update add-ons if ZAP '-silent' option specified (Issue 4633).
+
 ### 2023-02-03
  - Alert_on_Unexpected_Content_Types.js > Added Content-Type application/hal+json to the list of expected types.
 
