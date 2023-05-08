@@ -191,7 +191,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
             }
         }
         out.write(
-                "    return await this.api.request"
+                "    return this.api.request"
                         + "('/"
                         + component
                         + "/"
