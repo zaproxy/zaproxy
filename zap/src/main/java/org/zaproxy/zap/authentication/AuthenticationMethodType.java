@@ -121,7 +121,7 @@ public abstract class AuthenticationMethodType {
 
     /**
      * Hooks the Authentication Method Type with other components of ZAP, if needed. This method
-     * should is called only ones, when authentication types are loaded.
+     * should be called only once, when authentication types are loaded.
      *
      * <p>For example, PopupMenus can be registered.
      *

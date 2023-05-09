@@ -50,6 +50,7 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.extension.authentication.AuthenticationMethodsChangeListener;
 import org.zaproxy.zap.extension.authentication.ExtensionAuthentication;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.WebSession;
@@ -58,7 +59,7 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 
 /** The API for manipulating {@link User Users}. */
-public class UsersAPI extends ApiImplementor {
+public class UsersAPI extends ApiImplementor implements AuthenticationMethodsChangeListener {
 
     private static final Logger LOGGER = LogManager.getLogger(UsersAPI.class);
 
@@ -99,8 +100,10 @@ public class UsersAPI extends ApiImplementor {
 
     private static final String TIME_NOW = "NOW";
 
-    private ExtensionUserManagement extension;
-    private Map<Integer, ApiDynamicActionImplementor> loadedAuthenticationMethodActions;
+    private final ExtensionUserManagement extension;
+
+    private final Map<Integer, ApiDynamicActionImplementor> loadedAuthenticationMethodActions =
+            new HashMap<>();
 
     public UsersAPI(ExtensionUserManagement extension) {
         super();
@@ -167,21 +170,16 @@ public class UsersAPI extends ApiImplementor {
                             PARAM_COOKIE_PATH, PARAM_COOKIE_SECURE,
                         }));
 
-        // Load the authentication method actions
-        if (Control.getSingleton() != null) {
-            ExtensionAuthentication authenticationExtension =
-                    Control.getSingleton()
-                            .getExtensionLoader()
-                            .getExtension(ExtensionAuthentication.class);
-            this.loadedAuthenticationMethodActions = new HashMap<>();
+        final Control control = Control.getSingleton();
+        if (control != null) {
+            final ExtensionAuthentication authenticationExtension =
+                    control.getExtensionLoader().getExtension(ExtensionAuthentication.class);
+
             if (authenticationExtension != null) {
-                for (AuthenticationMethodType t :
-                        authenticationExtension.getAuthenticationMethodTypes()) {
-                    ApiDynamicActionImplementor i = t.getSetCredentialsForUserApiAction();
-                    if (i != null) {
-                        loadedAuthenticationMethodActions.put(t.getUniqueIdentifier(), i);
-                    }
-                }
+                authenticationExtension.addAuthenticationMethodStateChangeListener(this);
+            } else {
+                throw new IllegalStateException(
+                        "The AuthenticationExtension is not accessible or was not properly initialised!");
             }
         }
     }
@@ -423,6 +421,19 @@ public class UsersAPI extends ApiImplementor {
             default:
                 throw new ApiException(Type.BAD_ACTION);
         }
+    }
+
+    @Override
+    public void onStateChanged(List<AuthenticationMethodType> authenticationMethodTypes) {
+        authenticationMethodTypes.forEach(
+                authenticationMethodType -> {
+                    final ApiDynamicActionImplementor implementor =
+                            authenticationMethodType.getSetCredentialsForUserApiAction();
+                    if (implementor != null) {
+                        loadedAuthenticationMethodActions.put(
+                                authenticationMethodType.getUniqueIdentifier(), implementor);
+                    }
+                });
     }
 
     /**

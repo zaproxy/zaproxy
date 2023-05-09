@@ -47,7 +47,10 @@ import org.zaproxy.zap.utils.ApiUtils;
  * The API for manipulating the {@link org.zaproxy.zap.authentication.AuthenticationMethod
  * AuthenticationMethod} for {@link Context Contexts}.
  */
-public class AuthenticationAPI extends ApiImplementor {
+public class AuthenticationAPI extends ApiImplementor
+        implements AuthenticationMethodsChangeListener {
+
+    public static final String PARAM_CONTEXT_ID = "contextId";
 
     private static final Logger LOGGER = LogManager.getLogger(AuthenticationAPI.class);
 
@@ -63,14 +66,12 @@ public class AuthenticationAPI extends ApiImplementor {
     private static final String ACTION_SET_LOGGED_IN_INDICATOR = "setLoggedInIndicator";
     private static final String ACTION_SET_LOGGED_OUT_INDICATOR = "setLoggedOutIndicator";
     private static final String ACTION_SET_METHOD = "setAuthenticationMethod";
-
-    public static final String PARAM_CONTEXT_ID = "contextId";
     private static final String PARAM_LOGGED_IN_INDICATOR = "loggedInIndicatorRegex";
     private static final String PARAM_LOGGED_OUT_INDICATOR = "loggedOutIndicatorRegex";
     private static final String PARAM_METHOD_NAME = "authMethodName";
     private static final String PARAM_METHOD_CONFIG_PARAMS = "authMethodConfigParams";
 
-    private Map<String, AuthMethodEntry> loadedAuthenticationMethodActions;
+    private final Map<String, AuthMethodEntry> loadedAuthenticationMethodActions = new HashMap<>();
 
     public AuthenticationAPI(ExtensionAuthentication extension) {
         super();
@@ -82,17 +83,6 @@ public class AuthenticationAPI extends ApiImplementor {
         this.addApiView(new ApiView(VIEW_GET_LOGGED_IN_INDICATOR, new String[] {PARAM_CONTEXT_ID}));
         this.addApiView(
                 new ApiView(VIEW_GET_LOGGED_OUT_INDICATOR, new String[] {PARAM_CONTEXT_ID}));
-
-        this.loadedAuthenticationMethodActions = new HashMap<>();
-        // Load the authentication method actions
-        if (extension != null) {
-            for (AuthenticationMethodType t : extension.getAuthenticationMethodTypes()) {
-                ApiDynamicActionImplementor i = t.getSetMethodForContextApiAction();
-                if (i != null) {
-                    loadedAuthenticationMethodActions.put(i.getName(), new AuthMethodEntry(t, i));
-                }
-            }
-        }
 
         this.addApiAction(
                 new ApiAction(
@@ -107,6 +97,10 @@ public class AuthenticationAPI extends ApiImplementor {
                 new ApiAction(
                         ACTION_SET_LOGGED_OUT_INDICATOR,
                         new String[] {PARAM_CONTEXT_ID, PARAM_LOGGED_OUT_INDICATOR}));
+
+        if (extension != null) {
+            extension.addAuthenticationMethodStateChangeListener(this);
+        }
     }
 
     @Override
@@ -240,6 +234,18 @@ public class AuthenticationAPI extends ApiImplementor {
      */
     private Context getContext(JSONObject params) throws ApiException {
         return ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+    }
+
+    @Override
+    public void onStateChanged(List<AuthenticationMethodType> authenticationMethodTypes) {
+        for (final AuthenticationMethodType methodType : authenticationMethodTypes) {
+            final ApiDynamicActionImplementor implementor =
+                    methodType.getSetMethodForContextApiAction();
+            if (implementor != null) {
+                this.loadedAuthenticationMethodActions.put(
+                        implementor.getName(), new AuthMethodEntry(methodType, implementor));
+            }
+        }
     }
 
     /** An {@link AuthenticationMethodType} and its {@link ApiDynamicActionImplementor API}. */
