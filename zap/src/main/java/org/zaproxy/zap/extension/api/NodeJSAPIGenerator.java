@@ -147,7 +147,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
                 className
                         + ".prototype."
                         + createMethodName(element.getName())
-                        + " = async function (");
+                        + " = function (");
 
         if (hasParams) {
             out.write("args");
