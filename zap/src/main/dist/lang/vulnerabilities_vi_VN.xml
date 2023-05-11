@@ -47,9 +47,9 @@ Ensure that appropriate compartmentalization is built into the system design and
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
 	<alert>Integer Overflows</alert>
-	<desc>An Integer Overflow is the condition that occurs when the result of an arithmetic operation, such as multiplication or addition, exceeds the maximum size of the integer type used to store it. When an integer overflow occurs, the interpreted value will appear to have “wrapped around” the maximum value and started again at the minimum value, similar to a clock that represents 13:00 by pointing at 1:00.
+	<desc>Tràn số nguyên là điều kiện xảy ra khi kết quả của một phép toán (ví dụ phép nhân hoặc phép cộng) vượt quá kích thước tối đa của kiểu dữ liệu số nguyên dùng để chứa nó. Khi xảy ra tràn số nguyên, giá trị sẽ được thể hiện dưới dạng "quay vòng", vượt qua giá trị cực đại và xuất hiện ở giá trị nhỏ hơn (ví dụ như đồng hồ biểu thị 13:00 tương tự 1:00).
 
-For example, an 8-bit signed integer on most common computer architectures has a maximum value of 127 and a minimum value of -128. If a programmer stores the value 127 in such a variable and adds 1 to it, the result should be 128. However, this value exceeds the maximum for this integer type, so the interpreted value will “wrap around” and become -128.</desc>
+Ví dụ, một số nguyên 8-bit có dấu trong đa số kiến trúc máy tính phổ biến có giá trị tối đa là 127 và giá trị tối thiểu là -128. Nếu như lập trình viên lưu giá trị 127 vào một biến và thực hiện cộng 1, kết quả sẽ là 128. Tuy nhiên, giá trị này vượt quá mức tối đa của kiểu số nguyên này, cho nên giá trị được biểu diễn sẽ bị "quay vòng" về -128. </desc>
 	<solution>Phase: Requirements
 Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
 
@@ -186,8 +186,8 @@ Build: Heed the warnings of compilers and linkers, since they may alert you to i
 
 <vuln_items>wasc_7</vuln_items>
 <vuln_item_wasc_7>
-	<alert>Buffer Overflow</alert>
-	<desc>A Buffer Overflow is a flaw that occurs when more data is written to a block of memory, or buffer, than the buffer is allocated to hold. Exploiting a buffer overflow allows an attacker to modify portions of the target process’ address space. This ability can be used for a number of purposes, including the following:
+	<alert>Tràn bộ đệm</alert>
+	<desc>Tràn bộ đệm là lỗi xảy ra khi lượng dữ liệu được ghi vào bộ đệm nhiều hơn lượng dữ liệu bộ đệm có thể chứa. Exploiting a buffer overflow allows an attacker to modify portions of the target process’ address space. This ability can be used for a number of purposes, including the following:
     * Control the process execution
     * Crash the process
     * Modify internal variables
