@@ -41,5 +41,5 @@ done
 # Tidy up
 rm ~/.ZAP_D/config.xml
 
-echo "End result: $RES"
+echo "Exit Code: $RES"
 exit $RES
