@@ -16,6 +16,8 @@ export JIGSAW_PWORD="guest"
 # Install dev add-on
 /zap/zap.sh -cmd -addoninstall dev
 
+summary="\nSummary:\n"
+
 for file in *.yaml
 do
 	echo
@@ -27,14 +29,17 @@ do
 	if [ "$RET" != 0 ] 
 	then
 	    echo "ERROR"
+		summary="${summary}  Plan: $file\tERROR\n"
 		RES=1
 	else
     	echo "PASS"
+		summary="${summary}  Plan: $file\tPASS\n"
 	fi
     sleep 2
     # Tidy up
     rm ~/.ZAP_D/config.xml
 done
 
-echo "End result: $RES"
+echo -e $summary
+echo "Exit Code: $RES"
 exit $RES
