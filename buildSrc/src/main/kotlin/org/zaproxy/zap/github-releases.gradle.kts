@@ -5,6 +5,7 @@ import com.netflix.gradle.plugins.deb.Deb
 import java.util.regex.Pattern
 import org.zaproxy.zap.GitHubUser
 import org.zaproxy.zap.GitHubRepo
+import org.zaproxy.zap.tasks.CreateDmg
 import org.zaproxy.zap.tasks.CreateGitHubRelease
 import org.zaproxy.zap.tasks.CreateMainRelease
 import org.zaproxy.zap.tasks.CreatePullRequest
@@ -13,6 +14,7 @@ import org.zaproxy.zap.tasks.HandleMainRelease
 import org.zaproxy.zap.tasks.HandleWeeklyRelease
 import org.zaproxy.zap.tasks.PrepareMainRelease
 import org.zaproxy.zap.tasks.PrepareNextDevIter
+import org.zaproxy.zap.tasks.UploadAssetsGitHubRelease
 
 val ghUser = GitHubUser("zapbot", "12745184+zapbot@users.noreply.github.com", System.getenv("ZAPBOT_TOKEN"))
 val zaproxyRepo = GitHubRepo("zaproxy", "zaproxy", rootDir)
@@ -85,6 +87,7 @@ val createPullRequestMainRelease by tasks.registering(CreatePullRequest::class) 
     pullRequestDescription.set("")
 }
 
+val checksumAlg = "SHA-256"
 tasks.register<CreateMainRelease>("createMainRelease") {
     val tagName = "v${project.version}"
 
@@ -95,7 +98,7 @@ tasks.register<CreateMainRelease>("createMainRelease") {
 
     title.set(tagName)
     body.set("Release notes: https://www.zaproxy.org/docs/desktop/releases/${project.version}/")
-    checksumAlgorithm.set("SHA-256")
+    checksumAlgorithm.set(checksumAlg)
     draft.set(true)
 
     if (!"${project.version}".endsWith("-SNAPSHOT")) {
@@ -132,6 +135,29 @@ tasks.register<CreateMainRelease>("createMainRelease") {
             register("windows32-installer") {
                 file.set(mapToFile(installersFileTree, "ZAP_${version.toString().replace('.', '_')}_windows-x32.exe"))
                 contentType.set("application/x-ms-dos-executable")
+            }
+        }
+    }
+}
+
+tasks.register<UploadAssetsGitHubRelease>("uploadMacDist") {
+    val tagName = "v${project.version}"
+
+    user.set(ghUser)
+    repo.set(System.getenv("GITHUB_REPOSITORY"))
+    tag.set(tagName)
+
+    checksumAlgorithm.set(checksumAlg)
+
+    if (!"${project.version}".endsWith("-SNAPSHOT")) {
+        assets {
+            register("macos") {
+                file.set(tasks.named<CreateDmg>("distMac").flatMap { it.dmg })
+                contentType.set("application/x-diskcopy")
+            }
+            register("macos-arm64") {
+                file.set(tasks.named<CreateDmg>("distMacArm64").flatMap { it.dmg })
+                contentType.set("application/x-diskcopy")
             }
         }
     }

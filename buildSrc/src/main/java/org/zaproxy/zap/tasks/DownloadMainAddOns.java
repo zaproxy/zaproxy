@@ -96,7 +96,14 @@ public class DownloadMainAddOns extends DefaultTask {
         DownloadAction downloadAction = new DownloadAction(getProject());
         downloadAction.src(addOn.getUrl());
         downloadAction.dest(file.toFile());
-        downloadAction.execute();
+        try {
+            downloadAction.execute().get();
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+            throw new IOException("Failed to download:", e);
+        }
 
         String computedHash = Utils.hash(file, addOn);
         if (!computedHash.equalsIgnoreCase(addOn.getHash())) {

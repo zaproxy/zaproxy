@@ -4,6 +4,7 @@ import de.undercouch.gradle.tasks.download.Download
 import de.undercouch.gradle.tasks.download.Verify
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.zaproxy.zap.tasks.CreateDmg
 import org.zaproxy.zap.tasks.DownloadMainAddOns
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
 import org.zaproxy.zap.tasks.UpdateMainAddOns
@@ -248,30 +249,14 @@ listOf(
         }
     }
 
-    tasks.register<Exec>("distMac${it.suffix}") {
+    tasks.register<CreateDmg>("distMac${it.suffix}") {
         group = "Distribution"
         description = "Bundles the macOS${it.taskDesc} distribution."
 
         dependsOn(prepareDistMac)
 
-        val outputDir = file("$buildDir/distributions")
-        workingDir = macOsDistDataDir
-        executable = "hdiutil"
-        args(
-            listOf(
-                "create",
-                "-format", "UDBZ",
-                "-megabytes", "800",
-                "-fs", "HFS+",
-                "-srcfolder", macOsDistDataDir,
-                "-volname", "OWASP ZAP",
-                "$outputDir/ZAP_$version${it.fileNameSuffix}.dmg"
-            )
-        )
-
-        doFirst {
-            mkdir(outputDir)
-        }
+        workingDir.set(macOsDistDataDir)
+        dmg.set(file("$buildDir/distributions/ZAP_$version${it.fileNameSuffix}.dmg"))
     }
 }
 
