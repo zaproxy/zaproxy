@@ -144,10 +144,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
         }
 
         out.write(
-                className
-                        + ".prototype."
-                        + createMethodName(element.getName())
-                        + " = async function (");
+                className + ".prototype." + createMethodName(element.getName()) + " = function (");
 
         if (hasParams) {
             out.write("args");
@@ -191,7 +188,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
             }
         }
         out.write(
-                "    return await this.api.request"
+                "    return this.api.request"
                         + "('/"
                         + component
                         + "/"
