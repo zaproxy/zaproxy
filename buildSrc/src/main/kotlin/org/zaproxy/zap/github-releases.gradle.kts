@@ -42,20 +42,13 @@ tasks.register<CreateTagAndGitHubRelease>("createWeeklyRelease") {
     }
 }
 
-val buildFileVersionPattern = Pattern.compile("""version = "([^"]+)"""")
-
 val prepareNextDevIter by tasks.registering(PrepareNextDevIter::class) {
-    buildFile.set(File(projectDir, "zap.gradle.kts"))
+    propertiesFile.set(File(projectDir, "gradle.properties"))
 
-    versionPattern.set(buildFileVersionPattern)
-    versionBcPattern.set(Pattern.compile("""val versionBC = "([^"]+)""""))
+    versionProperty.set("version")
+    versionBcProperty.set("zap.japicmp.baseversion")
 
-    val listOfExpression = """(?sm)listOf\((.*?)\)$"""
-    clearDataPatterns.set(listOf(
-        Pattern.compile("packageExcludes = $listOfExpression"),
-        Pattern.compile("fieldExcludes = $listOfExpression"),
-        Pattern.compile("classExcludes = $listOfExpression"),
-        Pattern.compile("methodExcludes = $listOfExpression")))
+    japicmpExcludedDataFile.set(File(projectDir, "gradle/japicmp.yaml"))
 }
 
 val createPullRequestNextDevIter by tasks.registering(CreatePullRequest::class) {
@@ -70,9 +63,9 @@ val createPullRequestNextDevIter by tasks.registering(CreatePullRequest::class) 
 }
 
 val prepareMainRelease by tasks.registering(PrepareMainRelease::class) {
-    buildFile.set(File(projectDir, "zap.gradle.kts"))
+    propertiesFile.set(File(projectDir, "gradle.properties"))
 
-    versionPattern.set(buildFileVersionPattern)
+    versionProperty.set("version")
 }
 
 val createPullRequestMainRelease by tasks.registering(CreatePullRequest::class) {

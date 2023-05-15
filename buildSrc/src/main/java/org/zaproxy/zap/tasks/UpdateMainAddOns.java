@@ -19,12 +19,7 @@
  */
 package org.zaproxy.zap.tasks;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import org.gradle.api.DefaultTask;
@@ -63,7 +58,10 @@ public abstract class UpdateMainAddOns extends DefaultTask {
         MainAddOnsData data = Utils.parseData(getAddOnsData().get().getAsFile().toPath());
         updateAddOns(data, marketplace);
 
-        save(data);
+        Utils.updateYaml(
+                data,
+                getAddOnsData().get().getAsFile().toPath(),
+                getAddOnsDataUpdated().get().getAsFile().toPath());
     }
 
     private void updateAddOns(MainAddOnsData data, Map<String, MarketplaceAddOn> marketplace)
@@ -77,19 +75,6 @@ public abstract class UpdateMainAddOns extends DefaultTask {
 
             mainAddOn.setUrl(marketplaceAddOn.getUrl());
             mainAddOn.setHash(marketplaceAddOn.getHash());
-        }
-    }
-
-    private void save(MainAddOnsData data) throws IOException {
-        Path outputFile = getAddOnsDataUpdated().get().getAsFile().toPath();
-        String header =
-                new String(
-                        Files.readAllBytes(getAddOnsData().get().getAsFile().toPath()),
-                        StandardCharsets.UTF_8);
-        header = header.substring(0, header.indexOf("---"));
-        try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
-            writer.write(header);
-            new ObjectMapper(new YAMLFactory()).writer().writeValue(writer, data);
         }
     }
 }

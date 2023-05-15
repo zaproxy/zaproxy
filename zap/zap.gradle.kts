@@ -2,6 +2,7 @@ import japicmp.model.JApiChangeStatus
 import me.champeau.gradle.japicmp.JapicmpTask
 import org.zaproxy.zap.japicmp.AcceptMethodAbstractNowDefaultRule
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
+import org.zaproxy.zap.tasks.internal.JapicmpExcludedData
 import java.time.LocalDate
 import java.util.stream.Collectors
 
@@ -21,8 +22,7 @@ plugins {
 }
 
 group = "org.zaproxy"
-version = "2.13.0-SNAPSHOT"
-val versionBC = "2.12.0"
+val versionBC = project.property("zap.japicmp.baseversion") as String
 
 val versionLangFile = "1"
 val creationDate by extra { project.findProperty("creationDate") ?: LocalDate.now().toString() }
@@ -141,22 +141,14 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     newClasspath.from(tasks.named<Jar>(JavaPlugin.JAR_TASK_NAME))
     ignoreMissingClasses.set(true)
 
-    packageExcludes.set(listOf())
+    var excludedDataFile = "$projectDir/gradle/japicmp.yaml"
+    inputs.file(excludedDataFile)
 
-    fieldExcludes.set(listOf())
-
-    classExcludes.set(
-        listOf(
-            "org.zaproxy.zap.network.HttpSenderImpl",
-        ),
-    )
-
-    methodExcludes.set(
-        listOf(
-            "org.parosproxy.paros.extension.ViewDelegate#getOptionsButton(java.lang.String, java.lang.String)",
-            "org.parosproxy.paros.extension.ViewDelegate#getHelpButton(java.lang.String)",
-        ),
-    )
+    var excludedData = JapicmpExcludedData.from(excludedDataFile)
+    packageExcludes.set(excludedData.packageExcludes)
+    fieldExcludes.set(excludedData.fieldExcludes)
+    classExcludes.set(excludedData.classExcludes)
+    methodExcludes.set(excludedData.methodExcludes)
 
     richReport {
         destinationDir.set(file("$buildDir/reports/japicmp/"))

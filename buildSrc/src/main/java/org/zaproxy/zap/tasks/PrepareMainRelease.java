@@ -19,67 +19,34 @@
  */
 package org.zaproxy.zap.tasks;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.PathSensitive;
-import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.zaproxy.zap.tasks.internal.ProjectProperties;
 
 /** A task that prepares the main release of ZAP. */
 public abstract class PrepareMainRelease extends DefaultTask {
 
-    @InputFile
-    @PathSensitive(PathSensitivity.NONE)
-    public abstract RegularFileProperty getBuildFile();
+    @Input
+    public abstract Property<File> getPropertiesFile();
 
     @Input
-    public abstract Property<Pattern> getVersionPattern();
+    public abstract Property<String> getVersionProperty();
 
     @TaskAction
     public void prepare() throws Exception {
-        Path updatedBuildFile = updateBuildFile();
-
-        Files.copy(
-                updatedBuildFile,
-                getBuildFile().getAsFile().get().toPath(),
-                StandardCopyOption.REPLACE_EXISTING);
+        updatePropertiesFile();
     }
 
-    private Path updateBuildFile() throws IOException {
-        Path buildFilePath = getBuildFile().getAsFile().get().toPath();
-        String contents = new String(Files.readAllBytes(buildFilePath), StandardCharsets.UTF_8);
-
-        Matcher version = getVersionPattern().get().matcher(contents);
-        if (!version.find()) {
-            throw new BuildException("Version pattern not found.");
-        }
-        String currentVersion = version.group(1);
-        String newVersion = removePreReleaseVersion(currentVersion);
-        contents = replace(contents, version, newVersion);
-
-        Path updatedBuildFile =
-                getTemporaryDir().toPath().resolve("updated-" + buildFilePath.getFileName());
-        Files.write(updatedBuildFile, contents.getBytes(StandardCharsets.UTF_8));
-
-        return updatedBuildFile;
-    }
-
-    private static String replace(String value, Matcher matcher, String replacement) {
-        return new StringBuilder()
-                .append(value, 0, matcher.start(1))
-                .append(replacement)
-                .append(value, matcher.end(1), value.length())
-                .toString();
+    private void updatePropertiesFile() throws IOException {
+        String versionProperty = getVersionProperty().get();
+        ProjectProperties properties = new ProjectProperties(getPropertiesFile().get().toPath());
+        String newVersion = removePreReleaseVersion(properties.getProperty(versionProperty));
+        properties.setProperty(getVersionProperty().get(), newVersion);
+        properties.store();
     }
 
     private static String removePreReleaseVersion(String version) {
