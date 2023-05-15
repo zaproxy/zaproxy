@@ -29,3 +29,23 @@ jobs:
         ZAP_RELEASE: 1
         ZAP_JAVA_VERSION: 11
       run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createMainRelease
+
+  upload-macos:
+    needs: release
+    name: Build and Upload macOS Dist
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'
+        java-version: 11
+    - name: Build and Upload
+      env:
+        ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
+        ZAP_RELEASE: 1
+        ZAP_JAVA_VERSION: 11
+      run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:uploadMacDist

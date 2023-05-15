@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2019 The ZAP Development Team
+ * Copyright 2023 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,6 @@ package org.zaproxy.zap.tasks;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,51 +29,38 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.InvalidUserDataException;
 import org.gradle.api.NamedDomainObjectContainer;
-import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.model.ObjectFactory;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
-import org.gradle.api.tasks.PathSensitive;
-import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
-import org.kohsuke.github.GHFileNotFoundException;
 import org.kohsuke.github.GHRelease;
 import org.kohsuke.github.GHRepository;
 import org.kohsuke.github.GitHub;
 import org.zaproxy.zap.GitHubUser;
 
-/** A task that creates a GitHub release. */
-public abstract class CreateGitHubRelease extends DefaultTask {
+/** A task that uploads assets to a GitHub release. */
+public abstract class UploadAssetsGitHubRelease extends DefaultTask {
+
+    private static final String TABLE_HEADER_END = "|---|---|\r\n";
 
     private final Property<String> repo;
     private final Property<String> tag;
-    private final Property<String> title;
-    private final Property<String> body;
     private final Property<Boolean> addChecksums;
     private final Property<String> checksumAlgorithm;
-    private final RegularFileProperty bodyFile;
-    private final Property<Boolean> draft;
-    private final Property<Boolean> prerelease;
     private NamedDomainObjectContainer<Asset> assets;
 
-    public CreateGitHubRelease() {
+    public UploadAssetsGitHubRelease() {
         ObjectFactory objects = getProject().getObjects();
         this.repo = objects.property(String.class);
         this.tag = objects.property(String.class);
-        this.title = objects.property(String.class);
-        this.body = objects.property(String.class);
         this.addChecksums = objects.property(Boolean.class).value(true);
         this.checksumAlgorithm = objects.property(String.class);
-        this.bodyFile = objects.fileProperty();
-        this.draft = objects.property(Boolean.class).value(false);
-        this.prerelease = objects.property(Boolean.class).value(false);
         this.assets = getProject().container(Asset.class, label -> new Asset(label, getProject()));
 
         setGroup("ZAP Misc");
-        setDescription("Creates a GitHub release.");
+        setDescription("Uploads assets to a GitHub release.");
     }
 
     @Input
@@ -93,17 +77,6 @@ public abstract class CreateGitHubRelease extends DefaultTask {
     }
 
     @Input
-    public Property<String> getTitle() {
-        return title;
-    }
-
-    @Input
-    @Optional
-    public Property<String> getBody() {
-        return body;
-    }
-
-    @Input
     public Property<Boolean> getAddChecksums() {
         return addChecksums;
     }
@@ -111,23 +84,6 @@ public abstract class CreateGitHubRelease extends DefaultTask {
     @Input
     public Property<String> getChecksumAlgorithm() {
         return checksumAlgorithm;
-    }
-
-    @InputFile
-    @Optional
-    @PathSensitive(PathSensitivity.NONE)
-    public RegularFileProperty getBodyFile() {
-        return bodyFile;
-    }
-
-    @Input
-    public Property<Boolean> getDraft() {
-        return draft;
-    }
-
-    @Input
-    public Property<Boolean> getPrerelease() {
-        return prerelease;
     }
 
     @Nested
@@ -146,9 +102,6 @@ public abstract class CreateGitHubRelease extends DefaultTask {
 
     @TaskAction
     public void createRelease() throws IOException {
-        if (bodyFile.isPresent() && body.isPresent()) {
-            throw new InvalidUserDataException("Only one type of body property must be set.");
-        }
         if (checksumAlgorithm.get().isEmpty()) {
             throw new IllegalArgumentException("The checksum algorithm must not be empty.");
         }
@@ -157,68 +110,37 @@ public abstract class CreateGitHubRelease extends DefaultTask {
         GHRepository ghRepo =
                 GitHub.connect(ghUser.getName(), ghUser.getAuthToken()).getRepository(repo.get());
 
-        validateTagExists(ghRepo, tag.get());
-        validateReleaseDoesNotExist(ghRepo, tag.get());
-
-        StringBuilder releaseBody = new StringBuilder(250);
-        releaseBody.append(
-                bodyFile.isPresent()
-                        ? readContents(bodyFile.getAsFile().get().toPath())
-                        : body.getOrElse(""));
-
-        if (addChecksums.get()) {
-            if (releaseBody.length() != 0) {
-                releaseBody.append("\n\n---\n");
-            }
-            appendChecksumsTable(releaseBody);
+        GHRelease release = ghRepo.getReleaseByTagName(tag.get());
+        if (release == null) {
+            throw new InvalidUserDataException("Release for tag " + tag + " does not exist.");
         }
 
-        GHRelease release =
-                ghRepo.createRelease(tag.get())
-                        .name(title.get())
-                        .body(releaseBody.toString())
-                        .prerelease(prerelease.get())
-                        .draft(true)
-                        .create();
+        String releaseBody = release.getBody();
+        if (addChecksums.get()) {
+            releaseBody = updateChecksumsTable(releaseBody);
+            release.update().body(releaseBody).update();
+        }
 
         for (Asset asset : assets) {
             release.uploadAsset(asset.getFile().getAsFile().get(), asset.getContentType().get());
         }
+    }
 
-        if (!draft.get()) {
-            release.update().draft(false).update();
+    private String updateChecksumsTable(String previousBody) throws IOException {
+        int idx = previousBody.indexOf(TABLE_HEADER_END);
+        if (idx == -1) {
+            getProject().getLogger().warn("Table header not found, not adding checksums.");
+            return previousBody;
         }
-    }
 
-    private static void validateTagExists(GHRepository repo, String tag) throws IOException {
-        try {
-            repo.getRef("tags/" + tag);
-        } catch (GHFileNotFoundException e) {
-            throw new InvalidUserDataException("Tag does not exist: " + tag, e);
-        }
-    }
+        idx += TABLE_HEADER_END.length();
 
-    private static void validateReleaseDoesNotExist(GHRepository repo, String tag)
-            throws IOException {
-        GHRelease release = repo.getReleaseByTagName(tag);
-        if (release != null) {
-            throw new InvalidUserDataException(
-                    "Release for tag " + tag + " already exists: " + release.getHtmlUrl());
-        }
-    }
-
-    private static String readContents(Path file) throws IOException {
-        return new String(Files.readAllBytes(file), StandardCharsets.UTF_8);
-    }
-
-    private void appendChecksumsTable(StringBuilder body) throws IOException {
-        String algorithm = checksumAlgorithm.get();
-        body.append("| File | Checksum (").append(algorithm).append(") |\n");
-        body.append("|---|---|\n");
+        StringBuilder body = new StringBuilder(previousBody.length() + 400);
+        body.append(previousBody.substring(0, idx));
 
         String baseDownloadLink =
                 "https://github.com/" + repo.get() + "/releases/download/" + tag.get() + "/";
-        DigestUtils digestUtils = new DigestUtils(algorithm);
+        DigestUtils digestUtils = new DigestUtils(checksumAlgorithm.get());
 
         List<File> files =
                 assets.stream()
@@ -236,5 +158,7 @@ public abstract class CreateGitHubRelease extends DefaultTask {
                     .append(digestUtils.digestAsHex(file))
                     .append("` |\n");
         }
+        body.append(previousBody.substring(idx));
+        return body.toString();
     }
 }
