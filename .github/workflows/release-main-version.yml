@@ -6,7 +6,7 @@ on:
     branches:
       - main
     paths:
-      - 'zap/zap.gradle.kts'
+      - 'zap/gradle.properties'
 
 jobs:
   release:
