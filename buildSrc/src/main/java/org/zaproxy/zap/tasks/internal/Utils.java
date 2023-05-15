@@ -25,6 +25,8 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -90,6 +92,15 @@ public final class Utils {
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
             throw new IOException(e);
+        }
+    }
+
+    public static void updateYaml(Object data, Path from, Path to) throws IOException {
+        String header = new String(Files.readAllBytes(from), StandardCharsets.UTF_8);
+        header = header.substring(0, header.indexOf("---"));
+        try (Writer writer = Files.newBufferedWriter(to, StandardCharsets.UTF_8)) {
+            writer.write(header);
+            new ObjectMapper(new YAMLFactory()).writer().writeValue(writer, data);
         }
     }
 }

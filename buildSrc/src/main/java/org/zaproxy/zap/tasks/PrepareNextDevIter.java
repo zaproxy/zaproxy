@@ -20,90 +20,51 @@
 package org.zaproxy.zap.tasks;
 
 import com.github.zafarkhaja.semver.Version;
+import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.gradle.api.DefaultTask;
-import org.gradle.api.file.RegularFileProperty;
-import org.gradle.api.provider.ListProperty;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.PathSensitive;
-import org.gradle.api.tasks.PathSensitivity;
 import org.gradle.api.tasks.TaskAction;
+import org.zaproxy.zap.tasks.internal.JapicmpExcludedData;
+import org.zaproxy.zap.tasks.internal.ProjectProperties;
+import org.zaproxy.zap.tasks.internal.Utils;
 
 /** A task that prepares the next development iteration of ZAP. */
 public abstract class PrepareNextDevIter extends DefaultTask {
 
-    @InputFile
-    @PathSensitive(PathSensitivity.NONE)
-    public abstract RegularFileProperty getBuildFile();
+    @Input
+    public abstract Property<File> getPropertiesFile();
 
     @Input
-    public abstract Property<Pattern> getVersionPattern();
+    public abstract Property<String> getVersionProperty();
 
     @Input
-    public abstract Property<Pattern> getVersionBcPattern();
+    public abstract Property<String> getVersionBcProperty();
 
     @Input
-    public abstract ListProperty<Pattern> getClearDataPatterns();
+    public abstract Property<File> getJapicmpExcludedDataFile();
 
     @TaskAction
     public void prepare() throws Exception {
-        Path updatedBuildFile = updateBuildFile();
+        updatePropertiesFile();
 
-        Files.copy(
-                updatedBuildFile,
-                getBuildFile().getAsFile().get().toPath(),
-                StandardCopyOption.REPLACE_EXISTING);
+        Path japicmpExcludedDataFile = getJapicmpExcludedDataFile().get().toPath();
+        Utils.updateYaml(
+                new JapicmpExcludedData(), japicmpExcludedDataFile, japicmpExcludedDataFile);
     }
 
-    private Path updateBuildFile() throws IOException {
-        Path buildFilePath = getBuildFile().getAsFile().get().toPath();
-        String contents = new String(Files.readAllBytes(buildFilePath), StandardCharsets.UTF_8);
-
-        Matcher version = getVersionPattern().get().matcher(contents);
-        if (!version.find()) {
-            throw new BuildException("Version pattern not found.");
-        }
-        String currentVersion = version.group(1);
+    private void updatePropertiesFile() throws IOException {
+        String versionProperty = getVersionProperty().get();
+        ProjectProperties properties = new ProjectProperties(getPropertiesFile().get().toPath());
+        String currentVersion = properties.getProperty(versionProperty);
         Version newVersion =
                 Version.valueOf(currentVersion)
                         .incrementMinorVersion()
                         .setPreReleaseVersion("SNAPSHOT");
-        contents = replace(contents, version, newVersion.toString());
-
-        Matcher versionBc = getVersionBcPattern().get().matcher(contents);
-        if (!versionBc.find()) {
-            throw new BuildException("Version BC pattern not found.");
-        }
-        contents = replace(contents, versionBc, currentVersion);
-
-        for (Pattern clearDataPattern : getClearDataPatterns().get()) {
-            Matcher clearData = clearDataPattern.matcher(contents);
-            if (!clearData.find()) {
-                throw new BuildException("Clear data pattern not found: " + clearDataPattern);
-            }
-            contents = replace(contents, clearData, "");
-        }
-
-        Path updatedBuildFile =
-                getTemporaryDir().toPath().resolve("updated-" + buildFilePath.getFileName());
-        Files.write(updatedBuildFile, contents.getBytes(StandardCharsets.UTF_8));
-
-        return updatedBuildFile;
-    }
-
-    private static String replace(String value, Matcher matcher, String replacement) {
-        return new StringBuilder()
-                .append(value, 0, matcher.start(1))
-                .append(replacement)
-                .append(value, matcher.end(1), value.length())
-                .toString();
+        properties.setProperty(versionProperty, newVersion.toString());
+        properties.setProperty(getVersionBcProperty().get(), currentVersion);
+        properties.store();
     }
 }
