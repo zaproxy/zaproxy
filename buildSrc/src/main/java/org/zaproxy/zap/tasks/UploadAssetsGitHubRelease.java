@@ -102,6 +102,12 @@ public abstract class UploadAssetsGitHubRelease extends DefaultTask {
 
     @TaskAction
     public void createRelease() throws IOException {
+        String tagName = tag.get();
+        if (tagName.endsWith("-SNAPSHOT")) {
+            getLogger().lifecycle("Ignoring, version is still SNAPSHOT: {}", tagName);
+            return;
+        }
+
         if (checksumAlgorithm.get().isEmpty()) {
             throw new IllegalArgumentException("The checksum algorithm must not be empty.");
         }
@@ -110,9 +116,9 @@ public abstract class UploadAssetsGitHubRelease extends DefaultTask {
         GHRepository ghRepo =
                 GitHub.connect(ghUser.getName(), ghUser.getAuthToken()).getRepository(repo.get());
 
-        GHRelease release = ghRepo.getReleaseByTagName(tag.get());
+        GHRelease release = ghRepo.getReleaseByTagName(tagName);
         if (release == null) {
-            throw new InvalidUserDataException("Release for tag " + tag + " does not exist.");
+            throw new InvalidUserDataException("Release for tag " + tagName + " does not exist.");
         }
 
         String releaseBody = release.getBody();
