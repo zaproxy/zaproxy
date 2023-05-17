@@ -105,6 +105,7 @@
 // ZAP: 2022/05/30 Remove deprecation usage.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/05/17 Skip rules that reach the maximum number of alerts.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -883,6 +884,14 @@ public class HostProcess implements Runnable {
         PluginStats pluginStats = mapPluginStats.get(alert.getPluginId());
         if (pluginStats != null) {
             pluginStats.incAlertCount();
+
+            int maxAlertsPerRule = scannerParam.getMaxAlertsPerRule();
+            if (maxAlertsPerRule > 0 && pluginStats.getAlertCount() >= maxAlertsPerRule) {
+                pluginSkipped(
+                        alert.getPluginId(),
+                        Constant.messages.getString(
+                                "ascan.progress.label.skipped.reason.maxAlertsPerRule"));
+            }
         }
         alertCount++;
     }

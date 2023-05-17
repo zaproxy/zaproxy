@@ -195,6 +195,50 @@ class ScannerParamUnitTest {
                 configuration.getBoolean(ScannerParam.SCAN_NULL_JSON_VALUES), is(equalTo(value)));
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 10})
+    void shouldLoadMaxAlertsPerRuleFromConfig(int maxAlertsPerRule) {
+        // Given
+        configuration.setProperty("scanner.maxAlertsPerRule", maxAlertsPerRule);
+        // When
+        param.load(configuration);
+        // Then
+        assertThat(param.getMaxAlertsPerRule(), is(equalTo(maxAlertsPerRule)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-2, -1})
+    void shouldUseZeroIfLoadingInvalidMaxAlertsPerRuleFromConfig(int maxAlertsPerRule) {
+        // Given
+        configuration.setProperty("scanner.maxAlertsPerRule", maxAlertsPerRule);
+        // When
+        param.load(configuration);
+        // Then
+        assertThat(param.getMaxAlertsPerRule(), is(equalTo(0)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 10})
+    void shouldSetMaxAlertsPerRule(int maxAlertsPerRule) {
+        // Given / When
+        param.setMaxAlertsPerRule(maxAlertsPerRule);
+        // Then
+        assertThat(param.getMaxAlertsPerRule(), is(equalTo(maxAlertsPerRule)));
+        assertThat(
+                configuration.getProperty("scanner.maxAlertsPerRule"),
+                is(equalTo(maxAlertsPerRule)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-2, -1})
+    void shouldUseZeroIfSettingInvalidNumberOfMaxAlertsPerRule(int maxAlertsPerRule) {
+        // Given / When
+        param.setMaxAlertsPerRule(maxAlertsPerRule);
+        // Then
+        assertThat(param.getMaxAlertsPerRule(), is(equalTo(0)));
+        assertThat(configuration.getProperty("scanner.maxAlertsPerRule"), is(equalTo(0)));
+    }
+
     @Test
     void shouldMigrateOldOptions() {
         // Given
