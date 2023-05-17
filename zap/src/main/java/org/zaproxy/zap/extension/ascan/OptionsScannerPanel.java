@@ -48,6 +48,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private ZapNumberSpinner spinnerDelayInMs = null;
     private ZapNumberSpinner spinnerMaxRuleDuration = null;
     private ZapNumberSpinner spinnerMaxScanDuration = null;
+    private ZapNumberSpinner maxAlertsPerRule;
     private ZapNumberSpinner spinnerMaxResultsList = null;
     private JCheckBox chkInjectPluginIdInHeader = null;
     private JCheckBox chkHandleAntiCsrfTokens = null;
@@ -174,6 +175,31 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                             new Insets(2, 2, 2, 2)));
             panelScanner.add(
                     this.getSpinnerMaxScanDuration(),
+                    LayoutHelper.getGBC(
+                            1,
+                            row++,
+                            2,
+                            0.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
+
+            maxAlertsPerRule = new ZapNumberSpinner();
+            JLabel label =
+                    new JLabel(Constant.messages.getString("ascan.options.maxAlertsPerRule.label"));
+            label.setLabelFor(maxAlertsPerRule);
+            panelScanner.add(
+                    label,
+                    LayoutHelper.getGBC(
+                            0,
+                            row,
+                            1,
+                            0.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
+            panelScanner.add(
+                    maxAlertsPerRule,
                     LayoutHelper.getGBC(
                             1,
                             row++,
@@ -368,6 +394,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         getSpinnerMaxResultsList().setValue(param.getMaxResultsToList());
         getSpinnerMaxRuleDuration().setValue(param.getMaxRuleDurationInMins());
         getSpinnerMaxScanDuration().setValue(param.getMaxScanDurationInMins());
+        maxAlertsPerRule.setValue(param.getMaxAlertsPerRule());
         getChkInjectPluginIdInHeader().setSelected(param.isInjectPluginIdInHeader());
         getChkHandleAntiCSRFTokens().setSelected(param.getHandleAntiCSRFTokens());
         getChkPromptInAttackMode().setSelected(param.isPromptInAttackMode());
@@ -391,6 +418,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         param.setMaxResultsToList(this.getSpinnerMaxResultsList().getValue());
         param.setMaxRuleDurationInMins(this.getSpinnerMaxRuleDuration().getValue());
         param.setMaxScanDurationInMins(this.getSpinnerMaxScanDuration().getValue());
+        param.setMaxAlertsPerRule(maxAlertsPerRule.getValue());
         param.setInjectPluginIdInHeader(getChkInjectPluginIdInHeader().isSelected());
         param.setHandleAntiCSRFTokens(getChkHandleAntiCSRFTokens().isSelected());
         param.setPromptInAttackMode(getChkPromptInAttackMode().isSelected());

@@ -56,6 +56,7 @@
 // ZAP: 2022/11/04 Prevent invalid number of hosts/threads.
 // ZAP: 2022/12/22 Issue 7663: Default thread to number of processors.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/05/17 Add option for the maximum number of alerts per rule.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -130,6 +131,8 @@ public class ScannerParam extends AbstractParam {
      * @since 2.11.0
      */
     static final String SCAN_NULL_JSON_VALUES = ACTIVE_SCAN_BASE_KEY + ".scanNullJsonValues";
+
+    private static final String MAX_ALERTS_PER_RULE = ACTIVE_SCAN_BASE_KEY + ".maxAlertsPerRule";
 
     // ZAP: Configuration constants
     public static final int TARGET_QUERYSTRING = 1;
@@ -210,6 +213,8 @@ public class ScannerParam extends AbstractParam {
      * @see #setScanNullJsonValues(boolean)
      */
     private boolean scanNullJsonValues;
+
+    private int maxAlertsPerRule;
 
     // ZAP: Excluded Parameters
     private final List<ScannerParamFilter> excludedParams = new ArrayList<>();
@@ -312,6 +317,8 @@ public class ScannerParam extends AbstractParam {
             addScannerParamFilter("cfid", NameValuePair.TYPE_COOKIE, "*");
             addScannerParamFilter("cftoken", NameValuePair.TYPE_COOKIE, "*");
         }
+
+        maxAlertsPerRule = Math.max(0, getInt(MAX_ALERTS_PER_RULE, 0));
     }
 
     private void migrateOldOptions() {
@@ -426,6 +433,28 @@ public class ScannerParam extends AbstractParam {
         getConfig()
                 .setProperty(
                         MAX_SCAN_DURATION_IN_MINS, Integer.toString(this.maxScanDurationInMins));
+    }
+
+    /**
+     * Gets the maximum number of alerts that a rule can raise before being skipped.
+     *
+     * @return the max number of alerts.
+     * @since 2.13.0
+     */
+    public int getMaxAlertsPerRule() {
+        return maxAlertsPerRule;
+    }
+
+    /**
+     * Sets the maximum number of alerts that a rule can raise before being skipped.
+     *
+     * @param maxAlertsPerRule the max number of alerts.
+     * @since 2.13.0
+     */
+    public void setMaxAlertsPerRule(int maxAlertsPerRule) {
+        this.maxAlertsPerRule = Math.max(0, maxAlertsPerRule);
+
+        getConfig().setProperty(MAX_ALERTS_PER_RULE, this.maxAlertsPerRule);
     }
 
     /** @param delayInMs */
