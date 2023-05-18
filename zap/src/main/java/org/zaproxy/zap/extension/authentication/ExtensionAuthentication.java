@@ -37,7 +37,6 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
@@ -221,7 +220,8 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         this.authenticationMethodTypes.addAll(methodTypes);
 
         if (Objects.isNull(this.extensionHook)) {
-            throw new IllegalArgumentException("The ExtensionAuthentication was not properly initialized");
+            throw new IllegalArgumentException(
+                    "The ExtensionAuthentication was not properly initialized");
         } else {
             methodTypes.forEach(methodType -> methodType.hook(this.extensionHook));
         }
@@ -249,7 +249,8 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     }
 
     /**
-     * Register a new listener that will be notified whenever {@link AuthenticationMethodType}(s) are added or removed
+     * Register a new listener that will be notified whenever {@link AuthenticationMethodType}(s)
+     * are added or removed
      *
      * @param listener the listener to register
      */

@@ -20,19 +20,17 @@
 package org.zaproxy.zap.extension.sessions;
 
 import java.util.List;
-
 import org.zaproxy.zap.session.SessionManagementMethodType;
 
-/**
- * Interface used for listening to changes made on {@link SessionManagementMethodType}s.
- */
+/** Interface used for listening to changes made on {@link SessionManagementMethodType}s. */
 public interface SessionManagementMethodChangeListener {
 
     /**
-     * Method to be invoked when one or more {@link SessionManagementMethodType}s were added or removed.
+     * Method to be invoked when one or more {@link SessionManagementMethodType}s were added or
+     * removed.
      *
-     * @param sessionManagementMethodTypes the new, updated list of {@link SessionManagementMethodType}s.
+     * @param sessionManagementMethodTypes the new, updated list of {@link
+     *     SessionManagementMethodType}s.
      */
     void onStateChanged(List<SessionManagementMethodType> sessionManagementMethodTypes);
-
 }

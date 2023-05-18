@@ -59,10 +59,11 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
     private static final Logger LOGGER = LogManager.getLogger(ExtensionSessionManagement.class);
 
     /** The automatically loaded session management method types. */
-    private final List<SessionManagementMethodType> sessionManagementMethodTypes = new ArrayList<>();
-
-    private final List<SessionManagementMethodChangeListener> sessionManagementMethodChangeListeners =
+    private final List<SessionManagementMethodType> sessionManagementMethodTypes =
             new ArrayList<>();
+
+    private final List<SessionManagementMethodChangeListener>
+            sessionManagementMethodChangeListeners = new ArrayList<>();
 
     /** The map of context panels. */
     private final Map<Integer, ContextSessionManagementPanel> contextPanelsMap = new HashMap<>();
@@ -103,9 +104,10 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
         }
 
         // Load the default Session Management methods
-        addSessionManagementMethodType(new CookieBasedSessionManagementMethodType(),
-                                       new HttpAuthSessionManagementMethodType(),
-                                       new ScriptBasedSessionManagementMethodType());
+        addSessionManagementMethodType(
+                new CookieBasedSessionManagementMethodType(),
+                new HttpAuthSessionManagementMethodType(),
+                new ScriptBasedSessionManagementMethodType());
 
         // Register the api
         final SessionManagementAPI api = new SessionManagementAPI(this);
@@ -136,12 +138,14 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
      *
      * @param sessionManagementMethodType the {@link SessionManagementMethodType}(s) to add
      */
-    public void addSessionManagementMethodType(SessionManagementMethodType... sessionManagementMethodType) {
+    public void addSessionManagementMethodType(
+            SessionManagementMethodType... sessionManagementMethodType) {
         final List<SessionManagementMethodType> methodTypes = List.of(sessionManagementMethodType);
         this.sessionManagementMethodTypes.addAll(methodTypes);
 
         if (Objects.isNull(this.extensionHook)) {
-            throw new IllegalArgumentException("The ExtensionAuthentication was not properly initialized");
+            throw new IllegalArgumentException(
+                    "The ExtensionAuthentication was not properly initialized");
         } else {
             methodTypes.forEach(methodType -> methodType.hook(this.extensionHook));
         }
@@ -157,8 +161,10 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
      *
      * @param sessionManagementMethodType the {@link SessionManagementMethodType}(s) to remove
      */
-    public void removeSessionManagementMethodType(SessionManagementMethodType... sessionManagementMethodType) {
-        final List<SessionManagementMethodType> sessionManagementMethodTypes = List.of(sessionManagementMethodType);
+    public void removeSessionManagementMethodType(
+            SessionManagementMethodType... sessionManagementMethodType) {
+        final List<SessionManagementMethodType> sessionManagementMethodTypes =
+                List.of(sessionManagementMethodType);
         this.sessionManagementMethodTypes.removeAll(sessionManagementMethodTypes);
 
         this.sessionManagementMethodChangeListeners.forEach(
@@ -168,11 +174,13 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
     }
 
     /**
-     * Register a new listener that will be notified whenever {@link SessionManagementMethodType}(s) are added or
-     * removed
+     * Register a new listener that will be notified whenever {@link SessionManagementMethodType}(s)
+     * are added or removed
+     *
      * @param listener the listener to remove
      */
-    public void addSessionManagementMethodStateChangeListener(SessionManagementMethodChangeListener listener) {
+    public void addSessionManagementMethodStateChangeListener(
+            SessionManagementMethodChangeListener listener) {
         this.sessionManagementMethodChangeListeners.add(listener);
     }
 

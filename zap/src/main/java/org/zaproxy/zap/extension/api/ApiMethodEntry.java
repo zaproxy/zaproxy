@@ -19,9 +19,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-/**
- * A method type and its {@link ApiDynamicActionImplementor API}.
- */
+/** A method type and its {@link ApiDynamicActionImplementor API}. */
 public class ApiMethodEntry<METHOD> {
 
     private final METHOD methodType;

@@ -34,11 +34,11 @@ import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.api.ApiMethodEntry;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiView;
-import org.zaproxy.zap.extension.api.ApiMethodEntry;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
@@ -72,8 +72,8 @@ public class AuthenticationAPI extends ApiImplementor
     private static final String PARAM_METHOD_NAME = "authMethodName";
     private static final String PARAM_METHOD_CONFIG_PARAMS = "authMethodConfigParams";
 
-    private final Map<String, ApiMethodEntry<AuthenticationMethodType>> loadedAuthenticationMethodActions
-            = new HashMap<>();
+    private final Map<String, ApiMethodEntry<AuthenticationMethodType>>
+            loadedAuthenticationMethodActions = new HashMap<>();
 
     public AuthenticationAPI(ExtensionAuthentication extension) {
         super();
@@ -130,10 +130,13 @@ public class AuthenticationAPI extends ApiImplementor
                     return new ApiResponseElement("logged_out_regex", loggedOutPattern.toString());
                 else return new ApiResponseElement("logged_out_regex", "");
             case VIEW_GET_SUPPORTED_METHODS:
-                final ApiResponse[] methodNames = loadedAuthenticationMethodActions
-                        .values().stream()
-                        .map(entry -> new ApiResponseElement("methodName", entry.getApi().getName()))
-                        .toArray(ApiResponse[]::new);
+                final ApiResponse[] methodNames =
+                        this.loadedAuthenticationMethodActions.values().stream()
+                                .map(
+                                        entry ->
+                                                new ApiResponseElement(
+                                                        "methodName", entry.getApi().getName()))
+                                .toArray(ApiResponse[]::new);
 
                 return new ApiResponseList("supportedMethods", methodNames);
             case VIEW_GET_METHOD_CONFIG_PARAMETERS:
@@ -177,8 +180,10 @@ public class AuthenticationAPI extends ApiImplementor
                 context = getContext(params);
                 actionParams.put(PARAM_CONTEXT_ID, context.getId());
 
-                final AuthenticationMethodType oldMethodType = context.getAuthenticationMethod().getType();
-                final ApiMethodEntry<AuthenticationMethodType> authEntry = getSetMethodActionImplementor(params);
+                final AuthenticationMethodType oldMethodType =
+                        context.getAuthenticationMethod().getType();
+                final ApiMethodEntry<AuthenticationMethodType> authEntry =
+                        getSetMethodActionImplementor(params);
                 authEntry.getApi().handleAction(actionParams);
                 resetUsersCredentials(context.getId(), oldMethodType, authEntry.getMethodType());
                 context.save();
@@ -215,11 +220,12 @@ public class AuthenticationAPI extends ApiImplementor
      * @return the sets the method action implementor
      * @throws ApiException the api exception
      */
-    private ApiMethodEntry<AuthenticationMethodType> getSetMethodActionImplementor(JSONObject params)
-            throws ApiException {
+    private ApiMethodEntry<AuthenticationMethodType> getSetMethodActionImplementor(
+            JSONObject params) throws ApiException {
 
-        final ApiMethodEntry<AuthenticationMethodType> a = loadedAuthenticationMethodActions.get(
-                ApiUtils.getNonEmptyStringParam(params, PARAM_METHOD_NAME));
+        final ApiMethodEntry<AuthenticationMethodType> a =
+                this.loadedAuthenticationMethodActions.get(
+                        ApiUtils.getNonEmptyStringParam(params, PARAM_METHOD_NAME));
         if (a == null)
             throw new ApiException(
                     Type.DOES_NOT_EXIST,
@@ -250,5 +256,4 @@ public class AuthenticationAPI extends ApiImplementor
             }
         }
     }
-
 }
