@@ -38,6 +38,7 @@ import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.extension.api.ApiMethodEntry;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
@@ -71,7 +72,8 @@ public class AuthenticationAPI extends ApiImplementor
     private static final String PARAM_METHOD_NAME = "authMethodName";
     private static final String PARAM_METHOD_CONFIG_PARAMS = "authMethodConfigParams";
 
-    private final Map<String, AuthMethodEntry> loadedAuthenticationMethodActions = new HashMap<>();
+    private final Map<String, ApiMethodEntry<AuthenticationMethodType>> loadedAuthenticationMethodActions
+            = new HashMap<>();
 
     public AuthenticationAPI(ExtensionAuthentication extension) {
         super();
@@ -128,11 +130,12 @@ public class AuthenticationAPI extends ApiImplementor
                     return new ApiResponseElement("logged_out_regex", loggedOutPattern.toString());
                 else return new ApiResponseElement("logged_out_regex", "");
             case VIEW_GET_SUPPORTED_METHODS:
-                ApiResponseList supportedMethods = new ApiResponseList("supportedMethods");
-                for (AuthMethodEntry entry : loadedAuthenticationMethodActions.values())
-                    supportedMethods.addItem(
-                            new ApiResponseElement("methodName", entry.getApi().getName()));
-                return supportedMethods;
+                final ApiResponse[] methodNames = loadedAuthenticationMethodActions
+                        .values().stream()
+                        .map(entry -> new ApiResponseElement("methodName", entry.getApi().getName()))
+                        .toArray(ApiResponse[]::new);
+
+                return new ApiResponseList("supportedMethods", methodNames);
             case VIEW_GET_METHOD_CONFIG_PARAMETERS:
                 ApiDynamicActionImplementor a = getSetMethodActionImplementor(params).getApi();
                 return a.buildParamsDescription();
@@ -174,9 +177,8 @@ public class AuthenticationAPI extends ApiImplementor
                 context = getContext(params);
                 actionParams.put(PARAM_CONTEXT_ID, context.getId());
 
-                AuthenticationMethodType oldMethodType =
-                        context.getAuthenticationMethod().getType();
-                AuthMethodEntry authEntry = getSetMethodActionImplementor(params);
+                final AuthenticationMethodType oldMethodType = context.getAuthenticationMethod().getType();
+                final ApiMethodEntry<AuthenticationMethodType> authEntry = getSetMethodActionImplementor(params);
                 authEntry.getApi().handleAction(actionParams);
                 resetUsersCredentials(context.getId(), oldMethodType, authEntry.getMethodType());
                 context.save();
@@ -213,10 +215,11 @@ public class AuthenticationAPI extends ApiImplementor
      * @return the sets the method action implementor
      * @throws ApiException the api exception
      */
-    private AuthMethodEntry getSetMethodActionImplementor(JSONObject params) throws ApiException {
-        AuthMethodEntry a =
-                loadedAuthenticationMethodActions.get(
-                        ApiUtils.getNonEmptyStringParam(params, PARAM_METHOD_NAME));
+    private ApiMethodEntry<AuthenticationMethodType> getSetMethodActionImplementor(JSONObject params)
+            throws ApiException {
+
+        final ApiMethodEntry<AuthenticationMethodType> a = loadedAuthenticationMethodActions.get(
+                ApiUtils.getNonEmptyStringParam(params, PARAM_METHOD_NAME));
         if (a == null)
             throw new ApiException(
                     Type.DOES_NOT_EXIST,
@@ -243,29 +246,9 @@ public class AuthenticationAPI extends ApiImplementor
                     methodType.getSetMethodForContextApiAction();
             if (implementor != null) {
                 this.loadedAuthenticationMethodActions.put(
-                        implementor.getName(), new AuthMethodEntry(methodType, implementor));
+                        implementor.getName(), new ApiMethodEntry<>(methodType, implementor));
             }
         }
     }
 
-    /** An {@link AuthenticationMethodType} and its {@link ApiDynamicActionImplementor API}. */
-    private static class AuthMethodEntry {
-
-        private final AuthenticationMethodType methodType;
-        private final ApiDynamicActionImplementor api;
-
-        public AuthMethodEntry(
-                AuthenticationMethodType methodType, ApiDynamicActionImplementor api) {
-            this.methodType = methodType;
-            this.api = api;
-        }
-
-        public AuthenticationMethodType getMethodType() {
-            return methodType;
-        }
-
-        public ApiDynamicActionImplementor getApi() {
-            return api;
-        }
-    }
 }

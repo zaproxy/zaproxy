@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.sessions;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -32,6 +33,7 @@ import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.api.ApiMethodEntry;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
@@ -45,7 +47,7 @@ import org.zaproxy.zap.utils.ApiUtils;
  * The API for manipulating {@link SessionManagementMethod SessionManagementMethods} for a {@link
  * Context}.
  */
-public class SessionManagementAPI extends ApiImplementor {
+public class SessionManagementAPI extends ApiImplementor implements SessionManagementMethodChangeListener {
 
     private static final Logger LOGGER = LogManager.getLogger(SessionManagementAPI.class);
 
@@ -63,9 +65,10 @@ public class SessionManagementAPI extends ApiImplementor {
     private static final String PARAM_METHOD_CONFIG_PARAMS = "methodConfigParams";
 
     @SuppressWarnings("unused")
-    private ExtensionSessionManagement extension;
+    private final ExtensionSessionManagement extension;
 
-    private Map<String, ApiDynamicActionImplementor> loadedSessionManagementMethodActions;
+    private final Map<String, ApiMethodEntry<SessionManagementMethodType>> loadedSessionManagementMethodActions
+            = new HashMap<>();
 
     public SessionManagementAPI(ExtensionSessionManagement extension) {
         super();
@@ -83,15 +86,9 @@ public class SessionManagementAPI extends ApiImplementor {
                         new String[] {PARAM_CONTEXT_ID, PARAM_METHOD_NAME},
                         new String[] {PARAM_METHOD_CONFIG_PARAMS}));
 
-        this.loadedSessionManagementMethodActions = new HashMap<>();
-        // Load the session management method actions
+
         if (extension != null) {
-            for (SessionManagementMethodType t : extension.getSessionManagementMethodTypes()) {
-                ApiDynamicActionImplementor i = t.getSetMethodForContextApiAction();
-                if (i != null) {
-                    loadedSessionManagementMethodActions.put(i.getName(), i);
-                }
-            }
+            extension.addSessionManagementMethodStateChangeListener(this);
         }
     }
 
@@ -110,12 +107,14 @@ public class SessionManagementAPI extends ApiImplementor {
                         .getSessionManagementMethod()
                         .getApiResponseRepresentation();
             case VIEW_GET_SUPPORTED_METHODS:
-                ApiResponseList supportedMethods = new ApiResponseList("supportedMethods");
-                for (ApiDynamicActionImplementor a : loadedSessionManagementMethodActions.values())
-                    supportedMethods.addItem(new ApiResponseElement("methodName", a.getName()));
-                return supportedMethods;
+                final ApiResponse[] methodNames = this.loadedSessionManagementMethodActions
+                        .values().stream()
+                        .map(s -> new ApiResponseElement("methodName", s.getApi().getName()))
+                        .toArray(ApiResponse[]::new);
+
+                return new ApiResponseList("supportedMethods", methodNames);
             case VIEW_GET_METHOD_CONFIG_PARAMETERS:
-                ApiDynamicActionImplementor a = getSetMethodActionImplementor(params);
+                final ApiDynamicActionImplementor a = getSetMethodActionImplementor(params).getApi();
                 return a.buildParamsDescription();
             default:
                 throw new ApiException(ApiException.Type.BAD_VIEW);
@@ -136,11 +135,23 @@ public class SessionManagementAPI extends ApiImplementor {
                 Context context = getContext(params);
                 actionParams.put(PARAM_CONTEXT_ID, context.getId());
                 // Run the method
-                getSetMethodActionImplementor(params).handleAction(actionParams);
+                getSetMethodActionImplementor(params).getApi().handleAction(actionParams);
                 context.save();
                 return ApiResponseElement.OK;
             default:
                 throw new ApiException(Type.BAD_ACTION);
+        }
+    }
+
+    @Override
+    public void onStateChanged(List<SessionManagementMethodType> sessionManagementMethodTypes) {
+        for (final SessionManagementMethodType methodType : sessionManagementMethodTypes) {
+            final ApiDynamicActionImplementor implementor = methodType.getSetMethodForContextApiAction();
+            if (implementor != null) {
+                final ApiMethodEntry<SessionManagementMethodType> sessionManagementMethodEntry
+                        = new ApiMethodEntry<>(methodType, implementor);
+                this.loadedSessionManagementMethodActions.put(implementor.getName(), sessionManagementMethodEntry);
+            }
         }
     }
 
@@ -152,16 +163,18 @@ public class SessionManagementAPI extends ApiImplementor {
      * @return the sets the method action implementor
      * @throws ApiException the api exception
      */
-    private ApiDynamicActionImplementor getSetMethodActionImplementor(JSONObject params)
+    private ApiMethodEntry<SessionManagementMethodType> getSetMethodActionImplementor(JSONObject params)
             throws ApiException {
-        ApiDynamicActionImplementor a =
-                loadedSessionManagementMethodActions.get(
-                        ApiUtils.getNonEmptyStringParam(params, PARAM_METHOD_NAME));
-        if (a == null)
+        final ApiMethodEntry<SessionManagementMethodType> sessionManagementMethodEntry =
+                this.loadedSessionManagementMethodActions.get(ApiUtils.getNonEmptyStringParam(params,
+                                                                                              PARAM_METHOD_NAME));
+        final ApiDynamicActionImplementor a = sessionManagementMethodEntry.getApi();
+        if (a == null) {
             throw new ApiException(
                     Type.DOES_NOT_EXIST,
                     "No session management method type matches the provided value.");
-        return a;
+        }
+        return sessionManagementMethodEntry;
     }
 
     /**

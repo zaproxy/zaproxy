@@ -20,9 +20,11 @@
 package org.zaproxy.zap.extension.sessions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.logging.log4j.LogManager;
@@ -48,7 +50,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
         implements ContextPanelFactory, ContextDataFactory {
 
     /** The NAME of the extension. */
-    public static final String NAME = "ExtensionSessionManagement";
+    public static final String NAME = ExtensionSessionManagement.class.getSimpleName();
 
     public static final String CONTEXT_CONFIG_SESSION = Context.CONTEXT_CONFIG + ".session";
     public static final String CONTEXT_CONFIG_SESSION_TYPE = CONTEXT_CONFIG_SESSION + ".type";
@@ -57,12 +59,15 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
     private static final Logger LOGGER = LogManager.getLogger(ExtensionSessionManagement.class);
 
     /** The automatically loaded session management method types. */
-    List<SessionManagementMethodType> sessionManagementMethodTypes;
+    private final List<SessionManagementMethodType> sessionManagementMethodTypes = new ArrayList<>();
+
+    private final List<SessionManagementMethodChangeListener> sessionManagementMethodChangeListeners =
+            new ArrayList<>();
 
     /** The map of context panels. */
-    private Map<Integer, ContextSessionManagementPanel> contextPanelsMap = new HashMap<>();
+    private final Map<Integer, ContextSessionManagementPanel> contextPanelsMap = new HashMap<>();
 
-    private SessionManagementAPI api;
+    private ExtensionHook extensionHook;
 
     public ExtensionSessionManagement() {
         super();
@@ -88,6 +93,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
+        this.extensionHook = extensionHook;
         // Register this as a context data factory
         extensionHook.addContextDataFactory(this);
 
@@ -96,11 +102,13 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
             extensionHook.getHookView().addContextPanelFactory(this);
         }
 
-        // Load the Session Management methods
-        this.loadSessionManagementMethodTypes(extensionHook);
+        // Load the default Session Management methods
+        addSessionManagementMethodType(new CookieBasedSessionManagementMethodType(),
+                                       new HttpAuthSessionManagementMethodType(),
+                                       new ScriptBasedSessionManagementMethodType());
 
         // Register the api
-        this.api = new SessionManagementAPI(this);
+        final SessionManagementAPI api = new SessionManagementAPI(this);
         extensionHook.addApiImplementor(api);
     }
 
@@ -120,25 +128,52 @@ public class ExtensionSessionManagement extends ExtensionAdaptor
     }
 
     public List<SessionManagementMethodType> getSessionManagementMethodTypes() {
-        return sessionManagementMethodTypes;
+        return Collections.unmodifiableList(this.sessionManagementMethodTypes);
     }
 
     /**
-     * Loads session management method types and hooks them up.
+     * Adds and loads the provided {@link SessionManagementMethodType}(s)
      *
-     * @param extensionHook the extension hook
+     * @param sessionManagementMethodType the {@link SessionManagementMethodType}(s) to add
      */
-    private void loadSessionManagementMethodTypes(ExtensionHook extensionHook) {
-        this.sessionManagementMethodTypes = new ArrayList<>();
-        this.sessionManagementMethodTypes.add(new CookieBasedSessionManagementMethodType());
-        this.sessionManagementMethodTypes.add(new HttpAuthSessionManagementMethodType());
-        this.sessionManagementMethodTypes.add(new ScriptBasedSessionManagementMethodType());
+    public void addSessionManagementMethodType(SessionManagementMethodType... sessionManagementMethodType) {
+        final List<SessionManagementMethodType> methodTypes = List.of(sessionManagementMethodType);
+        this.sessionManagementMethodTypes.addAll(methodTypes);
 
-        for (SessionManagementMethodType t : sessionManagementMethodTypes) {
-            t.hook(extensionHook);
+        if (Objects.isNull(this.extensionHook)) {
+            throw new IllegalArgumentException("The ExtensionAuthentication was not properly initialized");
+        } else {
+            methodTypes.forEach(methodType -> methodType.hook(this.extensionHook));
         }
 
-        LOGGER.info("Loaded session management method types: {}", sessionManagementMethodTypes);
+        this.sessionManagementMethodChangeListeners.forEach(
+                l -> l.onStateChanged(this.sessionManagementMethodTypes));
+
+        LOGGER.info("Loaded session management method types: {}", methodTypes);
+    }
+
+    /**
+     * Removes the provided {@link SessionManagementMethodType}(s)
+     *
+     * @param sessionManagementMethodType the {@link SessionManagementMethodType}(s) to remove
+     */
+    public void removeSessionManagementMethodType(SessionManagementMethodType... sessionManagementMethodType) {
+        final List<SessionManagementMethodType> sessionManagementMethodTypes = List.of(sessionManagementMethodType);
+        this.sessionManagementMethodTypes.removeAll(sessionManagementMethodTypes);
+
+        this.sessionManagementMethodChangeListeners.forEach(
+                l -> l.onStateChanged(this.sessionManagementMethodTypes));
+
+        LOGGER.info("Removed session management method types: {}", sessionManagementMethodTypes);
+    }
+
+    /**
+     * Register a new listener that will be notified whenever {@link SessionManagementMethodType}(s) are added or
+     * removed
+     * @param listener the listener to remove
+     */
+    public void addSessionManagementMethodStateChangeListener(SessionManagementMethodChangeListener listener) {
+        this.sessionManagementMethodChangeListeners.add(listener);
     }
 
     @Override

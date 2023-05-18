@@ -114,17 +114,16 @@ public class ExtensionAuthentication extends ExtensionAdaptor
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
-        // Register this as a context data factory
         this.extensionHook = extensionHook;
+        // Register this as a context data factory
         this.extensionHook.addContextDataFactory(this);
 
         if (getView() != null) {
-            final ExtensionHookMenu hookMenu = this.extensionHook.getHookMenu();
-            hookMenu.addPopupMenuItem(getPopupFlagLoggedInIndicatorMenu());
-            hookMenu.addPopupMenuItem(getPopupFlagLoggedOutIndicatorMenu());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedInIndicatorMenu());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupFlagLoggedOutIndicatorMenu());
 
             // Factory for generating Session Context UserAuth panels
-            this.extensionHook.getHookView().addContextPanelFactory(this);
+            extensionHook.getHookView().addContextPanelFactory(this);
         }
 
         // Load the default Authentication and Session Management methods
@@ -222,8 +221,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         this.authenticationMethodTypes.addAll(methodTypes);
 
         if (Objects.isNull(this.extensionHook)) {
-            throw new IllegalArgumentException(
-                    "The ExtensionAuthentication was not properly initialized");
+            throw new IllegalArgumentException("The ExtensionAuthentication was not properly initialized");
         } else {
             methodTypes.forEach(methodType -> methodType.hook(this.extensionHook));
         }
@@ -250,6 +248,11 @@ public class ExtensionAuthentication extends ExtensionAdaptor
         LOGGER.info("Removed authentication method types: {}", methodTypes);
     }
 
+    /**
+     * Register a new listener that will be notified whenever {@link AuthenticationMethodType}(s) are added or removed
+     *
+     * @param listener the listener to register
+     */
     public void addAuthenticationMethodStateChangeListener(
             AuthenticationMethodsChangeListener listener) {
         this.authenticationMethodsChangeListeners.add(listener);
