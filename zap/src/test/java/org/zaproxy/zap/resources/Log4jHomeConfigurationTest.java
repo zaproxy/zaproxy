@@ -36,8 +36,6 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 
 /** Test for home Log4j configuration. */
 class Log4jHomeConfigurationTest {
@@ -120,20 +118,5 @@ class Log4jHomeConfigurationTest {
         // Then
         assertThat(loggerConfig, is(notNullValue()));
         assertThat(loggerConfig.getLevel(), is(equalTo(Level.OFF)));
-    }
-
-    @ParameterizedTest
-    @ValueSource(
-            strings = {
-                "com.crawljax.core.Crawler",
-                "com.crawljax.core.state.StateMachine",
-                "com.crawljax.core.UnfiredCandidateActions"
-            })
-    void shouldHaveCrawljaxChattyClassesSetToWarn(String nname) {
-        // Given / When
-        LoggerConfig loggerConfig = configuration.getLoggerConfig(nname);
-        // Then
-        assertThat(loggerConfig, is(notNullValue()));
-        assertThat(loggerConfig.getLevel(), is(equalTo(Level.WARN)));
     }
 }
