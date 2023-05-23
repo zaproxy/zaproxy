@@ -867,20 +867,3 @@ class SortedTreeModel extends DefaultTreeModel {
         return findIndexFor(child, parent, half + 1, idx2);
     }
 }
-
-class SiteNodeStringComparator implements Comparator<SiteNode> {
-    @Override
-    public int compare(SiteNode sn1, SiteNode sn2) {
-        String s1 = sn1.getName();
-        String s2 = sn2.getName();
-        int initialComparison = s1.compareToIgnoreCase(s2);
-
-        if (initialComparison == 0) {
-            s1 = sn1.getNodeName();
-            s2 = sn2.getNodeName();
-
-            return s1.compareToIgnoreCase(s2);
-        }
-        return initialComparison;
-    }
-}
