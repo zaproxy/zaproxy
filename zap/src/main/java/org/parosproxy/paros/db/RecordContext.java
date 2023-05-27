@@ -75,6 +75,12 @@ public class RecordContext {
 
     public static final int TYPE_ACCESS_CONTROL_RULE = 410;
 
+    public static final int TYPE_ALERT_FILTER = 500;
+
+    public static final int TYPE_CUSTOM_PAGE = 600;
+
+    public static final int TYPE_AJAX_SPIDER = 700;
+
     private long dataId = 0;
     private int contextId = 0;
     private int type = 0;
