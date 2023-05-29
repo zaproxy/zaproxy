@@ -38,7 +38,7 @@ La Autorización de Datos Insuficientes es más común que la Autorización de F
 Administre con mucho cuidado la configuración, administración y manejo de los privilegios. Administre de forma explicita las zonas de confianza que se encuentran en el software.
 
 Fase: Arquitectura y Diseño
-Asegúrese de que ingrese un comportamiento que sea adecuado en el diseño del sistema y que la compartimentación sirva para aceptar y reforzar aún mas la funcionalidad de la separación de los privilegios. Los arquitectos y diseñadores tienen que confiar en el pricipio del privilegio mínimo para poder decidir cuándo es adecuado utilizar y eliminar los privilegios del sistema.</solution>
+Asegurarse de que el diseño del sistema incluya una adecuada división en módulos y que esta división sirva para permitir y fortalecer la funcionalidad de separación de privilegios. Los arquitectos y diseñadores se deben basar en el principio de privilegios mínimos para decidir cuándo utilizar o eliminar privilegios del sistema.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
@@ -47,31 +47,31 @@ Asegúrese de que ingrese un comportamiento que sea adecuado en el diseño del s
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
 	<alert>Desbordamientos de enteros</alert>
-	<desc>Un desborde de los enteros es la condición que sucede cuando el resultado de la operación aritmética, como la multiplicación o la suma, sobrepasan el tamaño máximo del tipo de entero qu fue utilizado para almacenarlo. Cuando sucede un desbordamiento de enteros, el valor que fue interpretado va a parecer haber "envuelto" el valor máximo e iniciado de nuevo en el valor mínimo, parecido a un reloj que represente 13:00 señalando a la 1:00.
+	<desc>Un desbordamiento de enteros es la condición que ocurre cuando el resultado de una operación aritmética, como multiplicación o suma, excede el tamaño máximo del tipo de entero utilizado para almacenarlo. Cuando ocurre un desbordamiento de enteros, el valor interpretado se comportará como si hubiera superado el valor máximo y comenzado nuevamente desde el valor mínimo, similar a un contador que alcanza su límite máximo y luego vuelve a contar desde cero.
 
-Por ejemplo, un entero con un signo de 8 bits en las arquitecturas de computadora más comunes tienen un valor máximo de 127 y un valor mínimo de -128. Si un programador almacena el valor de 127 en la mencionada variable y le agrega un 1, el resultado tendría que ser 128. Sin embargo, este valor sobrepasa el máximo para este tipo de entero, por lo tanto el valor interpretado se "ajustará" y se convertira en -128.</desc>
+Por ejemplo, un entero con un signo de 8 bits en las arquitecturas de computadora más comunes tienen un valor máximo de 127 y un valor mínimo de -128. Si un programador almacena el valor de 127 en esa variable y le suma un 1, el resultado tendría que ser 128. Sin embargo, este valor, al sobrepasar el máximo para este tipo de entero, "dará la vuelta" y pasará a -128.</desc>
 	<solution>Frase: Requisitos
-Asegúrese de que todos los protocolos se encuentren estrictamente definidos, de forma tal que todos los comportamientos fuera del límite establecido puedan identificarse de forma sencilla y necesiten una estricta conformidad con el protocolo.
+Asegúrese de que todos los protocolos se encuentren estrictamente definidos, de forma tal que todos los comportamientos fuera del límite establecido puedan identificarse de forma sencilla y se ajusten estrictamente al protocolo.
 
-Frase: Requisitos
-Utilice un lenguaje que no acepte que ocurra esta debilidad o que proporcione construcciones que hagan que esta debilidad sea mucho más sencilla de evitar.
-Si es posible, seleccione un idioma que realice la verificación de forma automatica de límites.
+Fase: Requisitos
+Utilizar un lenguaje de programación que no permita que esta debilidad ocurra o proporcione construcciones que faciliten evitar esta debilidad.
+Si es posible, elige un lenguaje de programación o un compilador que realice verificación automática de límites (bounds checking).
 
-Frase: Arquitectura y Diseño
-Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
-Utilice bibliotecas o marcos que ayuden en el manejo de números sin consecuencias inesperadas.
+Fase: Arquitectura y Diseño
+Utilizar una biblioteca o framework verificado y confiable que evite esta vulnerabilidad o proporcione elementos que faciliten evitarla.
+Utilizar bibliotecas o frameworks que faciliten el manejo de números sin consecuencias inesperadas.
 Los ejemplos incluyen algunos paquetes seguros de manejo de enteros como SafeInt (C++) o IntegerLib (C o C++).
 
 Frase Implementación
 Realice la aprobación de la entrada en cualquier entrada númerica asegurandose de que se localicen dentro del rango esperado. Haga cumplir la función que la entrada cumple con los requisitos minimos y máximos para el rango esperado.
-Utilice enteros sin signos cada vez que sea posible. Esto permite que sea mas sencillo realizar comprobaciones de cordura para desbordamientos de enteros. Si usted debe utilizar enteros con signos, asegúrese de qu su verificación de rangos incluya todos los valores mínimos y máximos.
+Utilice enteros sin signos siempre que sea posible. Esto facilita la realización de verificaciones de integridad para desbordamientos de enteros. Si debes utilizar enteros con signo, asegúrate de que tu verificación de rango incluya tanto los valores mínimos como los valores máximos.
 
 Fase: Implementación
-Entienda la representación oculta de su lenguaje de programación y cómo interactúa con el cálculo numérico (CWE-681). Preste mucha atención a las discrepancias de tamaños de bytes, precisión, distinciones firmadas/no firmadas, conversión, conversión entre tipos, cálculos de "no un número" y cómo su lenguaje trabaja con números que son demasiado grandes o demasiado pequeños para su representación oculta.
-También tiene que tener cuidado con tener en cuenta las diferencias de 32 bits, 64 bits y otras posibles diferencias que puedan perjudicar la representación numérica.
+Comprende la representación subyacente de tu lenguaje de programación y cómo interactúa con los cálculos numéricos (CWE-681). Presta mucha atención a las discrepancias de tamaño de byte, precisión, distinciones de signo/sin signo, truncamiento, conversión y conversión entre tipos, cálculos de "no es un número" y cómo tu lenguaje de programación maneja números que son demasiado grandes o demasiado pequeños para su representación subyacente.
+Asegúrate de tener en cuenta las posibles diferencias entre representaciones de 32 bits, 64 bits y otras que puedan afectar la forma en que se representan los números.
 
 Fase: Implementación
-Examine las advertencias del compilador con mucho cuidado y elimine los problemas que son potencialmente críticos de seguridad, como el desarreglo firmado/no firmado. Incluso si la debilidad es extrañamente explotable, una sola falla podría llevar al peligro de todo el sistema.</solution>
+Examina detenidamente las advertencias del compilador y elimina problemas potencialmente críticos de seguridad, como las discrepancias de signo/sin signo. Aunque la debilidad sea de difícil explotación, un solo fallo puede poner en riesgo la seguridad de todo el sistema.</solution>
 	<reference>http://projects.webappsec.org/Brute-Force</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
@@ -86,7 +86,7 @@ Falta de cifrado en la capa de transporte
 Cuando la capa de transporte no está cifrada, todas las comunicaciones entre el sitio web y el cliente se envía en texto plano lo cual lo deja abierto a la intercepción, inyección y redirección (más conocido como el hombre en medio / Ataque man-in-the-middle ó MITM attack). Un atacante puede lograr interceptar la comunicación de forma pasiva, dándoles acceso a cualquier dato sensible que se esté transmitiendo, como nombres de usuario y contraseñas. Un atacante también puede inyectar/eliminar de forma activa el contenido de la comunicación, lo que le permite al atacante poder falsificar y eludir información, inyectar cadenas de comandos malignos o hacer que el cliente acceda al contenido remoto que no sea de confianza. Un atacante también puede redirigir la comunicación de tal forma que el sitio web y el cliente ya no se comuniquen entre sí, sino que ellos se comunican sin saberlo con el atacante en el contexto de la otra parte confiable.
 
 La compatibilidad con cifrado es débil
-Históricamente, se ha impedido la exportación de criptografía de alto grado fuera de los Estados Unidos. Porque debido a esto, los sitios web se modificaron para aceptar opciones criptográficas débiles para aquellos clientes que estaban restringidos a solo utilizar cifrados muy débiles. Los cifrados débiles están mu expuestos a los ataques debido a la relativa facilidad para romperlos; menos de dos semanas en una computadora doméstica común y unos segundos utilizando un hardware dedicado.
+Históricamente, se ha impedido la exportación de criptografía de grado alto fuera de los Estados Unidos. Porque debido a esto, los sitios web se modificaron para aceptar opciones criptográficas débiles para aquellos clientes que estaban restringidos a solo utilizar cifrados muy débiles. Los cifrados débiles están mu expuestos a los ataques debido a la relativa facilidad para romperlos; menos de dos semanas en una computadora doméstica común y unos segundos utilizando un hardware dedicado.
 Hoy en dia, todos los navegadores y sitios web modernos utilizan un cifrado mucho más avanzado, pero algunos sitios web todavía están configurados para aceptar cifrados débiles que no se encuentran actualizados. Debido a esto, un atacante puede obligar al cliente a degradar a un cifrado mucho más débil cuando se conecta al sitio web, lo que permite que el atacante rompa el cifrado débil. Por esta razón, el servidor debe modificarse para que solo acepte cifrados que sean potentes y no proporcione servicio a ningún cliente que solicite la utilización de un cifrado más débil. Además, algunos sitios web están mal configurados para seleccionar un cifrado más débil, incluso cuando el cliente respaldará uno mucho más compacto. OWASP ofrece una guía para probar los problemas de SSL/TLS, incluyendo el soporte de cifrado débil y la configuración erronea, y también hay más recursos y herramientas.</desc>
 	<solution>Fase: Requisitos
 Especifique de forma clara qué datos o recursos son lo suficientemente valiosos como para que estos estén protegidos por encriptación. Notificar cualquier transmisión o almacenamiento de estos datos/recursos que utilice algoritmos de encriptación muy revisados.
@@ -197,13 +197,13 @@ En muchos casos, el puntero de la función es modificado para realizar referenci
 
 Los desbordamientos de búfer se agrupan con mayor frecuencia con el software escrito en los lenguajes de programación C y C++ debido a su amplio uso y capacidad para poder realizar la manipulación directamente en la memoria con construcciones de programación comunes. Sin embargo, se debe destacar que los desbordamientos de búfer pueden existir en cualquier entorno de programación donde se permita la manipulación directa de la memoria, ya sea por medio de fallas en el compilador, bibliotecas de tiempo de la ejecución o características del mismo lenguaje.
 </desc>
-	<solution>Frase: Requisitos
-Utilice un lenguaje que no acepte que ocurra esta debilidad o que proporcione construcciones que hagan que esta debilidad sea mucho más sencilla de evitar.
+	<solution>Fase: Requisitos
+Utilizar un lenguaje de programación que no permita que esta debilidad ocurra o proporcione construcciones que faciliten evitar esta debilidad.
 Por ejemplo, muchos de los lenguajes que utilizan su propia gestión de memoria, como Java y Perl, no se encuentran sujeta los desbordamientos de búfer. Otros lenguajes, como Ada y C#, normalmente otorgan protección contro el desbordamiento, pero el programador puede desactivar dicha protección.
 Sea cauteloso ya que la interfaz de un lenguaje para código nativo, puede todavía recibir desbordes, incluso si el lenguaje mismo es teóricamente seguro.
 
-Frase: Arquitectura y Diseño
-Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
+Fase: Arquitectura y Diseño
+Utilizar una biblioteca o framework verificado y confiable que evite esta vulnerabilidad o proporcione elementos que faciliten evitarla.
 Los ejemplos incluyen Sace C String Library (SafeStr) de Messier y Viega, y la biblioteca Strsafe.h de Microsoft. Estas bibliotecas permiten acceder a versiones más seguras de funciones de manejo de cadenas que son propensas al desbordamiento. Esta no es una solución muy completa, ya que muchos de los desbordamientos de búfer no se encuentran relacionados con las cadenas.
 
 Fase: Construcción y Compilación
@@ -241,8 +241,8 @@ Cuando un atacante consigue el navegador de un usuario para poder ejecutar su c�
 Hay tres tipos de ataques diferentes de scripting entre los sitios: no persistentes, persistentes y basados en DOM.
 Los ataques que no son persistentes y los basados en DOM necesitan que el usuario visite un enlace que fue diseñado con código maliciosos o visite alguna página web maliciosa que incluya un formulario web que, cuando se publique en el sitio que es vulnerable, originará el ataque. El uso de un formulario que es malicioso normalmente tendrá lugarcuando el recurso que es vulnerable solo acepte las solicitudes HTTP POST. En tal caso, el formulario puede se enviado de forma automática, sin el conocimiento de la víctima (por ejemplo, por medio de JavaScript). Al hacer clic en el enlace que es malicioso o al enviar el formulario malicioso, la carga que es útil de CSS recibirá eco y será interpretada por el navegador del usuario y se activará. Otra técnica para poder prevenir solicitudes casi arbitrarias (GET y POST) es por medio del uso de un cliente integrado, como adobe Flash.
 Los ataques continuos se originan cuando el código que es malicioso se envía a un sitio web donde se almacena durante un período de tiempo. Algunos ejemplos de los objetivos preferidos de los atacantes incluyen mensajes en carteleras de anuncios, mensajes de correo electrónico y programas de chat. El usuario desprevenido no tendrá que interactuar con ningún sitio/enlace adicional (por ejemplo, un sitio o link malicioso enviado por correo electrónico), solamente bastará con abrir la página web que contiene el código.</desc>
-	<solution>Frase: Arquitectura y Diseño
-Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
+	<solution>Fase: Arquitectura y Diseño
+Utilizar una biblioteca o framework verificado y confiable que evite esta vulnerabilidad o proporcione elementos que faciliten evitarla.
 Los ejemplos de las bibliotecas y marcos que facilitan el origen de resultados que son codificados de forma correcta incluyen la biblioteca Anti-XSS de Microsoft, el módulo de codificación OWASP ESAPI y Apache Wicket.
 
 Fases: Implementación; Arquitectura y Diseño
@@ -281,8 +281,8 @@ Los ataques de CSRG son muy efectivos en varias situaciones, que incluyen:
     *La víctima se encuentra en la misma red local que el sitio de destino.
 
 CSRF se ha utilizado especialmente para poder realizar una acción contra un sitio objetivo utilizando los privilegios de la víctima, pero se han revelado técnicas recientes para difundir información al obtener el acceso a la respuesta. El riesgo de divulgación de información aumenta de forma drástica cuando el sitio de destino se encuentra vulnerable a XSS, porque XSS se puede utilizar como una plataforma para CSRF, lo que le permite al atacante que opere desde adentro de los líites de la misma política de origen.</desc>
-	<solution>Frase: Arquitectura y Diseño
-Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
+	<solution>Fase: Arquitectura y Diseño
+Utilizar una biblioteca o framework verificado y confiable que evite esta vulnerabilidad o proporcione elementos que faciliten evitarla.
 Por ejemplo, utilice el paquete anti-CSRG como el CSRGuard de OWASP.
 
 Fase: Implementación
@@ -480,8 +480,8 @@ Muchos sitios web se encuentran diseñados para poder autenticar y seguir a un u
 	<desc>La inyección SQL es un médodo de ataque que es utilizada para poder explotar las aplicaciones que construyen algun sentencias SQL a partir de entradas que son proporcionadas por el usuario. Cuando el método tiene exito, el atacante puede modificar la lógica de las sentencias de SQL que se encuentran activadas en la base de datos.
 
 Structured Query Language (SQL) es un lenguaje de programación el cual está especializado para poder enviar las consultas a las bases de datos. El lenguaje de programación de SQL es al mismo tiempo un ANSI y un estándar ISO, aunque una gran cantidad de productos de bases de datos que son compatibles con SQL lo hace por medio de extensiones propietarias del lenguaje estándar. Las aplicaciones normalmente utilizan datos que son proporcionados por el usuario para poder crear declaraciones SQL. Si una aplicación no puede contruir de forma correcta la sentencias de SQL, es posible que un atacante pueda alterar la estructura de la sentencia y active comandos no planificados y que pueden ser potencialmente hostiles. Cuando se activan los comandos mencionados, lo hacen bajo el contexto del usuaro determinado por la aplicación que activa el enunciado. Esta capacidad le permite a los atacantes poseer el control de todos los recursos de la base de datos a los que puede ingresar el usuario, incluyendo la posibilidad de ejecutar comandos en el sistema de hospedaje.</desc>
-	<solution>Frase: Arquitectura y Diseño
-Utilice una biblioteca o marco comprobado que no acepte que ocura esta debilidad o que proporcione construcciones que permitan que esta debilidad sea mas sencilla de evitar.
+	<solution>Fase: Arquitectura y Diseño
+Utilizar una biblioteca o framework verificado y confiable que evite esta vulnerabilidad o proporcione elementos que faciliten evitarla.
 Por ejemplo, considere utilizar cubiertas de persistencia como Hibernate o Enterprise Jave Beans, que pueden otorgar una protección muy significativa contra la inyección de SQL si se utilizan de forma correcta.
 
 Si se encuentra disponible, utilice los mecanismos estructurados que apliquen de forma automática la separación entre los datos y códigos. Estos mecanismos pueden otorgar la cotización, codificación y validación relevantes de manera automática, en lugar de confiar en que el desarrollador proporcione esta capacidad en cada uno de los puntos donde se origina la salida.
