@@ -57,6 +57,7 @@
 // ZAP: 2022/06/09 Name the threads.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/05/30 Stop HostProcess to stop the Analyser.
 package org.parosproxy.paros.core.scanner;
 
 import java.security.InvalidParameterException;
@@ -214,6 +215,7 @@ public class Scanner implements Runnable {
             LOGGER.info("scanner stopped");
 
             isStop = true;
+            hostProcesses.stream().forEach(HostProcess::stop);
 
             ActiveScanEventPublisher.publishScanEvent(
                     ScanEventPublisher.SCAN_STOPPED_EVENT, this.getId());
