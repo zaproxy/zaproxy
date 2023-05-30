@@ -3,15 +3,15 @@ env:
   contexts:
   - name: "demo.testfire.net"
     urls:
-    - "http://demo.testfire.net"
+    - "https://demo.testfire.net"
     includePaths:
-    - "http://demo.testfire.net.*"
+    - "https://demo.testfire.net.*"
     excludePaths: []
     authentication:
       method: "form"
       parameters:
-        loginPageUrl: "http://demo.testfire.net/doLogin"
-        loginRequestUrl: "http://demo.testfire.net/doLogin"
+        loginPageUrl: "https://demo.testfire.net/doLogin"
+        loginRequestUrl: "https://demo.testfire.net/doLogin"
         loginRequestBody: "uid={%username%}&passw={%password%}&btnSubmit=Login"
       verification:
         method: "response"
@@ -36,7 +36,7 @@ jobs:
 - parameters:
     user: "jsmith"
   requests:
-  - url: "http://demo.testfire.net"
+  - url: "https://demo.testfire.net"
     name: ""
     method: "GET"
     data: ""
@@ -44,7 +44,7 @@ jobs:
   tests:
   - onFail: "ERROR"
     statistic: "stats.auth.state.loggedin"
-    site: "http://demo.testfire.net"
+    site: "https://demo.testfire.net"
     operator: ">="
     value: 1
     name: "requestor/stats"
