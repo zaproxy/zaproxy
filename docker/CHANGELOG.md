@@ -1,6 +1,13 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-06-08
+- Start publishing images to the GitHub Container Registry. Use tags instead of image names for various flavours of the
+  images; some examples are:
+  - `ghcr.io/zaproxy/zaproxy:20230608-stable` instead of `owasp/zap2docker-stable:s2023-06-08`
+  - `ghcr.io/zaproxy/zaproxy:weekly` instead of `owasp/zap2docker-weekly:latest`
+  - `ghcr.io/zaproxy/zaproxy:nightly` instead of `owasp/zap2docker-live:latest`
+
 ### 2023-05-05
  - Do not install/update add-ons if ZAP '-silent' option specified (Issue 4633).
 

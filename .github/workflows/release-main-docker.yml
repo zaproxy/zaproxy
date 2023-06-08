@@ -15,6 +15,7 @@ jobs:
           sudo apt-get install xmlstarlet
           echo "REL_VERSION=$(curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions.xml | xmlstarlet sel -t -v //core/version)" >> $GITHUB_ENV
           echo "REL_DATE=$(date +%F)" >> $GITHUB_ENV
+          echo "REL_DATE_SHORT=$(date +%Y%m%d)" >> $GITHUB_ENV
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v2
@@ -27,9 +28,16 @@ jobs:
         with:
           username: zapbot
           password: ${{ secrets.ZAPBOT_DOCKER_TOKEN }}
+      -
+        name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: zapbot
+          password: ${{ secrets.ZAPBOT_TOKEN }}
       - 
         name: Build and push stable Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: docker
           file: docker/Dockerfile-stable
@@ -39,11 +47,19 @@ jobs:
             owasp/zap2docker-stable:s${{ env.REL_DATE }}
             owasp/zap2docker-stable:${{ env.REL_VERSION }}
             owasp/zap2docker-stable:latest
+            ghcr.io/zaproxy/zaproxy:${{ env.REL_DATE_SHORT }}-stable
+            ghcr.io/zaproxy/zaproxy:${{ env.REL_VERSION }}
+            ghcr.io/zaproxy/zaproxy:stable
+            ghcr.io/zaproxy/zaproxy:latest
           build-args: |
             WEBSWING_URL=${{ secrets.WEBSWING_URL }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
+            org.opencontainers.image.description=The stable Docker image for the world’s most widely used web app scanner.
+            org.opencontainers.image.licenses=Apache-2.0
       -
         name: Build and push bare Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v4
         with:
           context: docker
           file: docker/Dockerfile-bare
@@ -53,3 +69,10 @@ jobs:
             owasp/zap2docker-bare:b${{ env.REL_DATE }}
             owasp/zap2docker-bare:${{ env.REL_VERSION }}
             owasp/zap2docker-bare:latest
+            ghcr.io/zaproxy/zaproxy:${{ env.REL_DATE_SHORT }}-bare
+            ghcr.io/zaproxy/zaproxy:${{ env.REL_VERSION }}-bare
+            ghcr.io/zaproxy/zaproxy:bare
+          labels: |
+            org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
+            org.opencontainers.image.description=The bare Docker image for the world’s most widely used web app scanner.
+            org.opencontainers.image.licenses=Apache-2.0

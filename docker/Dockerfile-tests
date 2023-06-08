@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # This dockerfile builds a ZAP docker image used for integration tests
-FROM owasp/zap2docker-live
+FROM ghcr.io/zaproxy/zaproxy:nightly
 LABEL maintainer="psiinon@gmail.com"
 
 ARG DEBIAN_FRONTEND=noninteractive
