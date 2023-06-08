@@ -32,12 +32,14 @@ jobs:
           file: docker/Dockerfile-tests
           platforms: linux/amd64,linux/arm64
           push: true
+          provenance: false
           tags: |
             ghcr.io/zaproxy/zaproxy:tests
-          build-args: |
-            WEBSWING_URL=${{ secrets.WEBSWING_URL }}
+          secrets: |
+            webswing_url=${{ secrets.WEBSWING_URL }}
           outputs: "type=image,name=target,\
             annotation-index.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
+            annotation-index.org.opencontainers.image.description=Docker image used for ZAP integration tests.,\
             annotation-index.org.opencontainers.image.licenses=Apache-2.0"
       - 
         name: Run install tests
