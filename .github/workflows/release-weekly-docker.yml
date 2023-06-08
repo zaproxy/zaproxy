@@ -40,13 +40,14 @@ jobs:
           file: docker/Dockerfile-weekly
           platforms: linux/amd64,linux/arm64
           push: true
+          provenance: false
           tags: |
             owasp/zap2docker-weekly:w${{ env.REL_DATE }}
             owasp/zap2docker-weekly:latest
             ghcr.io/zaproxy/zaproxy:${{ env.REL_DATE_SHORT }}-weekly
             ghcr.io/zaproxy/zaproxy:weekly
-          build-args: |
-            WEBSWING_URL=${{ secrets.WEBSWING_URL }}
+          secrets: |
+            webswing_url=${{ secrets.WEBSWING_URL }}
           outputs: "type=image,name=target,\
             annotation-index.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
             annotation-index.org.opencontainers.image.description=The weekly Docker image for the world’s most widely used web app scanner.,\

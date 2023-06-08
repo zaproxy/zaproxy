@@ -38,11 +38,12 @@ jobs:
           file: docker/Dockerfile-live
           platforms: linux/amd64,linux/arm64
           push: true
+          provenance: false
           tags: |
             owasp/zap2docker-live:latest
             ghcr.io/zaproxy/zaproxy:nightly
-          build-args: |
-            WEBSWING_URL=${{ secrets.WEBSWING_URL }}
+          secrets: |
+            webswing_url=${{ secrets.WEBSWING_URL }}
           outputs: "type=image,name=target,\
             annotation-index.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
             annotation-index.org.opencontainers.image.description=The nightly Docker image for the world’s most widely used web app scanner.,\

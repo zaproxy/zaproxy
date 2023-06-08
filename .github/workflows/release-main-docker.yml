@@ -43,6 +43,7 @@ jobs:
           file: docker/Dockerfile-stable
           platforms: linux/amd64,linux/arm64
           push: true
+          provenance: false
           tags: |
             owasp/zap2docker-stable:s${{ env.REL_DATE }}
             owasp/zap2docker-stable:${{ env.REL_VERSION }}
@@ -51,8 +52,8 @@ jobs:
             ghcr.io/zaproxy/zaproxy:${{ env.REL_VERSION }}
             ghcr.io/zaproxy/zaproxy:stable
             ghcr.io/zaproxy/zaproxy:latest
-          build-args: |
-            WEBSWING_URL=${{ secrets.WEBSWING_URL }}
+          secrets: |
+            webswing_url=${{ secrets.WEBSWING_URL }}
           outputs: "type=image,name=target,\
             annotation-index.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
             annotation-index.org.opencontainers.image.description=The stable Docker image for the world’s most widely used web app scanner.,\
@@ -65,6 +66,7 @@ jobs:
           file: docker/Dockerfile-bare
           platforms: linux/amd64
           push: true
+          provenance: false
           tags: |
             owasp/zap2docker-bare:b${{ env.REL_DATE }}
             owasp/zap2docker-bare:${{ env.REL_VERSION }}
