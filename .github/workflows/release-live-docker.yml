@@ -28,8 +28,8 @@ jobs:
         uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: zapbot
-          password: ${{ secrets.ZAPBOT_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -43,7 +43,7 @@ jobs:
             ghcr.io/zaproxy/zaproxy:nightly
           build-args: |
             WEBSWING_URL=${{ secrets.WEBSWING_URL }}
-          labels: |
-            org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
-            org.opencontainers.image.description=The nightly Docker image for the world’s most widely used web app scanner.
-            org.opencontainers.image.licenses=Apache-2.0
+          outputs: "type=image,name=target,\
+            annotation-index.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
+            annotation-index.org.opencontainers.image.description=The nightly Docker image for the world’s most widely used web app scanner.,\
+            annotation-index.org.opencontainers.image.licenses=Apache-2.0"

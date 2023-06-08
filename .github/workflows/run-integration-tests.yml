@@ -21,8 +21,9 @@ jobs:
         name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
-          username: zapbot
-          password: ${{ secrets.ZAPBOT_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
       -
         name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -36,9 +37,9 @@ jobs:
             ghcr.io/zaproxy/zaproxy:tests
           build-args: |
             WEBSWING_URL=${{ secrets.WEBSWING_URL }}
-          labels: |
-            org.opencontainers.image.source=https://github.com/zaproxy/zaproxy
-            org.opencontainers.image.licenses=Apache-2.0
+          outputs: "type=image,name=target,\
+            annotation-index.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
+            annotation-index.org.opencontainers.image.licenses=Apache-2.0"
       - 
         name: Run install tests
         run: docker run --rm -t ghcr.io/zaproxy/zaproxy:tests wrk/install_tests.sh
