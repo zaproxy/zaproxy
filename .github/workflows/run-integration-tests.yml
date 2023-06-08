@@ -32,7 +32,6 @@ jobs:
           file: docker/Dockerfile-tests
           platforms: linux/amd64,linux/arm64
           push: true
-          load: true
           tags: |
             ghcr.io/zaproxy/zaproxy:tests
           build-args: |
