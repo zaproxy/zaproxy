@@ -25,10 +25,9 @@ WORKDIR /zap
 # Setup Webswing
 ENV WEBSWING_VERSION 22.2.4
 RUN --mount=type=secret,id=webswing_url \
-	WEBSWING_URL=$(cat /run/secrets/webswing_url) \
-	if [ -z "$WEBSWING_URL" ] ; \
-	then curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
-	else curl -s -L  "$WEBSWING_URL-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
+	if [ -s /run/secrets/webswing_url ] ; \
+	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
+	else curl -s -L  "https://dev.webswing.org/files/public/webswing-examples-eval-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; fi && \
 	unzip webswing.zip && \
 	rm webswing.zip && \
 	mv webswing-* webswing && \
