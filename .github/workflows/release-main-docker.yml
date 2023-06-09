@@ -75,6 +75,6 @@ jobs:
             ghcr.io/zaproxy/zaproxy:${{ env.REL_VERSION }}-bare
             ghcr.io/zaproxy/zaproxy:bare
           outputs: "type=image,name=target,\
-            annotation-index.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
-            annotation-index.org.opencontainers.image.description=The bare Docker image for the world’s most widely used web app scanner.,\
-            annotation-index.org.opencontainers.image.licenses=Apache-2.0"
+            annotation.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
+            annotation.org.opencontainers.image.description=The bare Docker image for the world’s most widely used web app scanner.,\
+            annotation.org.opencontainers.image.licenses=Apache-2.0"
