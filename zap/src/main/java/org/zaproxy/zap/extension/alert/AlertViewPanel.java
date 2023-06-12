@@ -109,6 +109,8 @@ public class AlertViewPanel extends AbstractPanel {
     private ZapLabel alertCweId = null;
     private ZapLabel alertWascId = null;
     private ZapLabel alertSource;
+    private JLabel alertRefLabel;
+    private ZapLabel alertRef;
 
     private JComboBox<String> alertEditName = null;
     private JComboBox<String> alertEditRisk = null;
@@ -292,6 +294,11 @@ public class AlertViewPanel extends AbstractPanel {
             alertSource = new ZapLabel();
             alertSource.setLineWrap(true);
 
+            alertRefLabel = new JLabel(Constant.messages.getString("alert.label.alertRef"));
+            alertRef = new ZapLabel();
+            alertRef.setLineWrap(true);
+            alertRefLabel.setLabelFor(alertRef);
+
             alertUrl = new ZapLabel();
             alertUrl.setLineWrap(true);
 
@@ -408,6 +415,10 @@ public class AlertViewPanel extends AbstractPanel {
                 alertDisplay.add(
                         getSourceLabel(), LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
                 alertDisplay.add(alertSource, LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
+                gbcRow++;
+                alertDisplay.add(
+                        alertRefLabel, LayoutHelper.getGBC(0, gbcRow, 1, 0, DEFAULT_INSETS));
+                alertDisplay.add(alertRef, LayoutHelper.getGBC(1, gbcRow, 1, 1, DEFAULT_INSETS));
                 gbcRow++;
                 alertDisplay.add(
                         getInputVectorLabel(),
@@ -588,6 +599,15 @@ public class AlertViewPanel extends AbstractPanel {
             alertCweId.setText(normalisedId(alert.getCweId()));
             alertWascId.setText(normalisedId(alert.getWascId()));
             alertSource.setText(getSourceData(alert));
+            boolean showAlertRef = true;
+            if (String.valueOf(alert.getPluginId()).equals(alert.getAlertRef())) {
+                alertRef.setText("");
+                showAlertRef = false;
+            } else {
+                alertRef.setText(alert.getAlertRef());
+            }
+            alertRefLabel.setVisible(showAlertRef);
+            alertRef.setVisible(showAlertRef);
         }
 
         setAlertDescription(alert.getDescription());
@@ -661,6 +681,7 @@ public class AlertViewPanel extends AbstractPanel {
         alertSolution.setText("");
         alertReference.setText("");
         alertSource.setText("");
+        alertRef.setText("");
         alertInputVector.setText("");
         setAlertTags(Collections.emptyMap());
 
