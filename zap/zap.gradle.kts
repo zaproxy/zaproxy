@@ -247,7 +247,7 @@ listOf(
 }
 
 launch4j {
-    jar = tasks.named<Jar>("jar").get().archiveFileName.get()
+    setJarTask(tasks.named<Jar>("jar").get())
 }
 
 class ToString(private val callable: Callable<String>) {
