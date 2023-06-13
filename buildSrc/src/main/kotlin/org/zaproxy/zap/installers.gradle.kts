@@ -24,29 +24,28 @@ install4j {
 }
 
 launch4j {
-    libraryDir = ""
-    copyConfigurable = listOf<String>()
+    libraryDir.set(".")
+    copyConfigurable.set(listOf<String>())
 
-    mainClassName = "org.zaproxy.zap.ZAP"
+    mainClassName.set("org.zaproxy.zap.ZAP")
 
-    dontWrapJar = true
+    dontWrapJar.set(true)
 
-    version = "${project.version}"
-    textVersion = "${project.version}"
+    version.set("${project.version}")
+    textVersion.set("${project.version}")
 
-    outfile = "ZAP.exe"
-    chdir = ""
-    icon = file("src/main/resources/resource/zap.ico").toString()
+    outfile.set("ZAP.exe")
+    chdir.set("")
+    icon.set(file("src/main/resources/resource/zap.ico").toString())
 
-    jdkPreference = "preferJdk"
-    maxHeapSize = 512
-    maxHeapPercent = 25
+    maxHeapSize.set(512)
+    maxHeapPercent.set(25)
 
-    fileDescription = "OWASP Zed Attack Proxy"
-    copyright = "The OWASP Zed Attack Proxy Project"
-    productName = "OWASP Zed Attack Proxy"
-    companyName = "OWASP"
-    internalName = "ZAP"
+    fileDescription.set("OWASP Zed Attack Proxy")
+    copyright.set("The OWASP Zed Attack Proxy Project")
+    productName.set("OWASP Zed Attack Proxy")
+    companyName.set("OWASP")
+    internalName.set("ZAP")
 }
 
 val installerDataDir = file("$buildDir/installerData/")

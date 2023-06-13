@@ -44,7 +44,7 @@ dependencies {
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.14.1")
     implementation("com.netflix.nebula:gradle-ospackage-plugin:11.0.0")
     implementation("de.undercouch:gradle-download-task:5.3.1")
-    implementation("edu.sc.seis.launch4j:launch4j:2.5.4")
+    implementation("edu.sc.seis.launch4j:launch4j:3.0.3")
     implementation("gradle.plugin.install4j.install4j.buildtools:gradle_publish:10.0.4")
     implementation("me.champeau.gradle:japicmp-gradle-plugin:0.4.1")
 }
