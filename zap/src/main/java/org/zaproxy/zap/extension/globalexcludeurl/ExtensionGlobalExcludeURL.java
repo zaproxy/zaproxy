@@ -25,6 +25,9 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 
+/** @deprecated (2.13.0) Superseded by Network add-on options. */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.13.0", forRemoval = true)
 public class ExtensionGlobalExcludeURL extends ExtensionAdaptor {
 
     public static final String NAME = "ExtensionGlobalExcludeURL";

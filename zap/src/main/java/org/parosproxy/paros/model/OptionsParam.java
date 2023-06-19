@@ -47,10 +47,12 @@
 // ZAP: 2022/05/20 Deprecate methods related to core connection options.
 // ZAP: 2022/05/29 Deprecate methods related to core client certificates.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/06/02 Deprecate GlobalExcludeURLParam usage.
 package org.parosproxy.paros.model;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 import org.apache.commons.configuration.ConfigurationException;
@@ -64,7 +66,6 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.ext.ExtensionParam;
-import org.zaproxy.zap.extension.globalexcludeurl.GlobalExcludeURLParam;
 
 public class OptionsParam extends AbstractParam {
 
@@ -90,7 +91,16 @@ public class OptionsParam extends AbstractParam {
     // ZAP: Added many instance variables for new functionality.
     private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
     private OptionsParamApi apiParam = new OptionsParamApi();
-    private GlobalExcludeURLParam globalExcludeURLParam = new GlobalExcludeURLParam();
+
+    @SuppressWarnings({"deprecation", "removal"})
+    private org.zaproxy.zap.extension.globalexcludeurl.GlobalExcludeURLParam globalExcludeURLParam =
+            new org.zaproxy.zap.extension.globalexcludeurl.GlobalExcludeURLParam() {
+
+                @Override
+                public List<String> getTokensNames() {
+                    return List.of();
+                }
+            };
 
     @SuppressWarnings("deprecation")
     private ch.csnc.extension.util.OptionsParamExperimentalSliSupport experimentalFeaturesParam =
@@ -207,7 +217,6 @@ public class OptionsParam extends AbstractParam {
         getViewParam().load(getConfig());
         getCheckForUpdatesParam().load(getConfig());
         getApiParam().load(getConfig());
-        getGlobalExcludeURLParam().load(getConfig());
         getDatabaseParam().load(getConfig());
         getExtensionParam().load(getConfig());
 
@@ -280,8 +289,14 @@ public class OptionsParam extends AbstractParam {
         return getParamSet(AntiCsrfParam.class);
     }
 
-    // ZAP: Added getter.
-    public GlobalExcludeURLParam getGlobalExcludeURLParam() {
+    /**
+     * @deprecated (2.13.0) Superseded by Network add-on options.
+     * @return the non-functional param.
+     */
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.13.0", forRemoval = true)
+    public org.zaproxy.zap.extension.globalexcludeurl.GlobalExcludeURLParam
+            getGlobalExcludeURLParam() {
         return globalExcludeURLParam;
     }
 
