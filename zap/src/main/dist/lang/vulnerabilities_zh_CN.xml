@@ -699,7 +699,7 @@ Inputs should be decoded and canonicalized to the application's current internal
 
 <vuln_items>wasc_29</vuln_items>
 <vuln_item_wasc_29>
-	<alert>LDAP协议注入攻击</alert>
+	<alert>LDAP 注入</alert>
 	<desc>LDAP Injection is an attack technique used to exploit web sites that construct LDAP statements from user-supplied input.
 
 Lightweight Directory Access Protocol (LDAP) is an open-standard protocol for both querying and manipulating X.500 directory services. The LDAP protocol runs over Internet transport protocols, such as TCP. Web applications may use user-supplied input to create custom LDAP statements for dynamic web page requests.
