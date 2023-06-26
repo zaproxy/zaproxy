@@ -46,6 +46,8 @@ launch4j {
     productName.set("OWASP Zed Attack Proxy")
     companyName.set("OWASP")
     internalName.set("ZAP")
+
+    downloadUrl.set("https://adoptium.net/")
 }
 
 val installerDataDir = file("$buildDir/installerData/")
