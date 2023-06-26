@@ -868,7 +868,7 @@ If an attacker submits a Server-side Include statement, he may have the ability 
 
 <vuln_items>wasc_37</vuln_items>
 <vuln_item_wasc_37>
-	<alert>Session Fixation</alert>
+	<alert>会话固定</alert>
 	<desc>Session Fixation is an attack technique that forces a user's session ID to an explicit value. Depending on the functionality of the target web site, a number of techniques can be utilized to "fix" the session ID value. These techniques range from Cross-site Scripting exploits to peppering the web site with previously made HTTP requests. After a user's session ID has been fixed, the attacker will wait for that user to login. Once the user does so, the attacker uses the predefined session ID value to assume the same online identity.
 
 Generally speaking there are two types of session management systems when it comes to ID values. The first type is "permissive" systems that allow web browsers to specify any ID. The second type is "strict" systems that only accept server-side-generated values. With permissive systems, arbitrary session IDs are maintained without contact with the web site. Strict systems require the attacker to maintain the "trap-session", with periodic web site contact, preventing inactivity timeouts.
