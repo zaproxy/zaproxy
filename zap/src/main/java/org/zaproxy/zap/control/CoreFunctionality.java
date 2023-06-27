@@ -93,8 +93,6 @@ public final class CoreFunctionality {
             extensions.add(new org.zaproxy.zap.extension.compare.ExtensionCompare());
             extensions.add(new org.zaproxy.zap.extension.ext.ExtensionExtension());
             extensions.add(new org.zaproxy.zap.extension.forceduser.ExtensionForcedUser());
-            extensions.add(
-                    new org.zaproxy.zap.extension.globalexcludeurl.ExtensionGlobalExcludeURL());
             extensions.add(new org.zaproxy.zap.extension.help.ExtensionHelp());
             extensions.add(
                     new org.zaproxy.zap.extension.httppanel.component.all

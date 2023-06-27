@@ -32,6 +32,9 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
+/** @deprecated (2.13.0) Superseded by Network add-on options. */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.13.0", forRemoval = true)
 public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;

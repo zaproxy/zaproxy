@@ -93,6 +93,7 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/05/21 Allow context import functionality to accept an XML config as input (Issue 7421).
+// ZAP: 2023/06/02 Allow to set the global exclude URLs.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -101,7 +102,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -109,6 +109,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import javax.swing.tree.TreeNode;
 import org.apache.commons.configuration.ConfigurationException;
@@ -168,6 +169,8 @@ public class Session {
     private SiteMap siteTree = null;
 
     private ParameterParser defaultParamParser = new StandardParameterParser();
+
+    private Supplier<List<String>> globalExcludedUrlsSupplier;
 
     /**
      * Constructor for the current session. The current system time will be used as the session ID.
@@ -1111,8 +1114,26 @@ public class Session {
      * @since 2.3.0
      */
     public List<String> getGlobalExcludeURLRegexs() {
-        return Collections.unmodifiableList(
-                model.getOptionsParam().getGlobalExcludeURLParam().getTokensNames());
+        var supplier = globalExcludedUrlsSupplier;
+        if (supplier != null) {
+            var list = supplier.get();
+            if (list != null) {
+                return list;
+            }
+        }
+        return List.of();
+    }
+
+    /**
+     * Sets the supplier of global exclude URLs.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @param supplier the supplier of global exclude URLs.
+     * @since 2.13.0
+     */
+    public void setGlobalExcludedUrlRegexsSupplier(Supplier<List<String>> supplier) {
+        globalExcludedUrlsSupplier = supplier;
     }
 
     public void setSessionUrls(int type, List<String> urls) throws DatabaseException {
