@@ -162,13 +162,13 @@ tasks.register<Tar>("distLinux") {
 }
 
 listOf(
-    MacArch("", "", "", "x64", "66508958b5da6e36021d960b65490ab70cc7d44851c98301a3d6d3552f305674"),
-    MacArch("Arm64", "_aarch64", " (ARM64)", "aarch64", "2a5cbc2888f8e382c7d0a5bf2c6d2c3bad120ceff51b00d3a62805dae4473c02")
+    MacArch("", "", "", "x64", "87e439b2193e1a2cf1a8782168bba83b558f54e2708f88ea8296184ea2735c89"),
+    MacArch("Arm64", "_aarch64", " (ARM64)", "aarch64", "78a07bd60c278f65bafd0df93890d909ff60259ccbd22ad71a1c3b312906508e")
 ).forEach { it ->
 
     val macOsJreDir = file("$buildDir/macOsJre${it.suffix}")
     val macOsJreUnpackDir = File(macOsJreDir, "unpacked")
-    val macOsJreVersion = "11.0.17+8"
+    val macOsJreVersion = "11.0.19+7"
     val macOsJreFile = File(macOsJreDir, "jdk$macOsJreVersion-jre.tar.gz")
 
     val downloadMacOsJre = tasks.register<Download>("downloadMacOsJre${it.suffix}") {
