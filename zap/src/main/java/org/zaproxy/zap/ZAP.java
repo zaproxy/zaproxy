@@ -190,7 +190,7 @@ public class ZAP {
         private final PrintStream delegatee;
 
         public DelegatorPrintStream(PrintStream delegatee) {
-            super(NullOutputStream.NULL_OUTPUT_STREAM);
+            super(NullOutputStream.INSTANCE);
             this.delegatee = delegatee;
         }
 
