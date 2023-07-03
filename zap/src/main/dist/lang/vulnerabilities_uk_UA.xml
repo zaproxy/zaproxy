@@ -3,12 +3,12 @@
 
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
-	<alert>Insufficient Authentication</alert>
-	<desc>Insufficient Authentication occurs when a web site permits an attacker to access sensitive content or functionality without having to properly authenticate. Web-based administration tools are a good example of web sites providing access to sensitive functionality. Depending on the specific online resource, these web applications should not be directly accessible without requiring the user to properly verify their identity.
+	<alert>Недостатня автентифікація</alert>
+	<desc>Недостатня автентифікація виникає, коли вебсайт дозволяє зловмиснику отримати доступ до конфіденційного вмісту або функціональних можливостей без необхідності належної автентифікації. Вебінструменти адміністрування є гарним прикладом вебсайтів, які надають доступ до конфіденційних функцій. Залежно від конкретного онлайн-ресурсу, ці вебпрограми не повинні бути напряму доступні без вимоги користувача належним чином підтвердити свою особу.
 
-To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
-	<solution>Phase: Architecture and Design
-Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
+Щоб обійти налаштування автентифікації, деякі ресурси захищено шляхом "приховування" конкретного розташування та не пов'язування розташування з основним вебсайтом чи іншими у громадських місцях. Однак цей підхід є нічим іншим, як "Безпека через невідомість". Важливо зрозуміти, що навіть якщо ресурс невідомий зловмиснику, він все одно залишається доступним безпосередньо через певну URL-адресу. Конкретну URL-адресу можна виявити через метод прямого добору для пошуку звичайних файлів і каталогів (наприклад, /admin), повідомлень про помилку, журнали джерел переходу або документації, таких як файли довідки. Ці ресурси, незалежно від того, керуються вони вмістом чи функціональністю, мають бути належним чином захищені.</desc>
+	<solution>Фаза: архітектура та дизайн
+Використовуйте систему автентифікації або бібліотеку, таку як функція автентифікації OWASP ESAPI.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
@@ -16,29 +16,30 @@ Use an authentication framework or library such as the OWASP ESAPI Authenticatio
 
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
-	<alert>Insufficient Authorization</alert>
-	<desc>Insufficient Authorization results when an application does not perform adequate authorization checks to ensure that the user is performing a function or accessing data in a manner consistent with the security policy. Authorization procedures should enforce what a user, service or application is permitted to do. When a user is authenticated to a web site, it does not necessarily mean that the user should have full access to all content and functionality.
+	<alert>Недостатня авторизація</alert>
+	<desc>Недостатня авторизація виникає, коли програма не виконує адекватних перевірок авторизації, щоб переконатися, що користувач виконує функцію або отримує доступ до даних у спосіб, який узгоджується з політикою безпеки. Процедури авторизації мають забезпечувати виконання того, що дозволено робити користувачеві, службі чи програмі. Коли користувач автентифікований на вебсайті, це не обов’язково означає, що він повинен мати повний доступ до всього вмісту та функцій.
 
-Insufficient Function Authorization
+Недостатня авторизація функції
 
-Many applications grant different application functionality to different users. A news site will allows users to view news stories, but not publish them. An accounting system will have different permissions for an Accounts Payable clerk and an Accounts Receivable clerk. Insufficient Function Authorization happens when an application does not prevent users from accessing application functionality in violation of security policy.
+Багато програм надають різним користувачам різні функціональні можливості.
+ Сайт новин дозволить користувачам переглядати новини, але не публікувати їх. Бухгалтерська система матиме різні дозволи для службовця з питань кредиторської заборгованості та працівника з питань дебіторської заборгованості. Недостатня авторизація функцій виникає, коли програма не перешкоджає користувачам отримати доступ до функціональних можливостей програми, порушуючи політику безпеки.
 
-A very visible example was the 2005 hack of the Harvard Business School's application process. An authorization failure allowed users to view their own data when they should not have been allowed to access that part of the web site.
+Яскравим прикладом стало зламування процесу подачі заявок у Гарвардську школу бізнесу у 2005 році. Помилка авторизації дозволила користувачам переглядати власні дані, хоча вони не повинні були мати доступ до цієї частини вебсайту.
  
-Insufficient Data Authorization
+Недостатня авторизація даних
 
-Many applications expose underlying data identifiers in a URL. For example, when accessing a medical record on a system one might have a URL such as:
+Багато програм розкривають базові ідентифікатори даних в URL-адресі. Наприклад, під час доступу до медичної карти в системі можна мати таку URL-адресу:
 
 http://example.com/RecordView?id=12345
 
-If the application does not check that the authenticated user ID has read rights, then it could display data to the user that the user should not see.
+Якщо програма не перевіряє, чи автентифікований користувач має права на читання, вона може показувати користувачеві дані, які користувач не повинен бачити.
 
-Insufficient Data Authorization is more common than Insufficient Function Authorization because programmers generally have complete knowledge of application functionality, but do not always have a complete mapping of all data that the application will access. Programmers often have tight control over function authorization mechanisms, but rely on other systems such as databases to perform data authorization.</desc>
-	<solution>Phases: Architecture and Design; Operation
-Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software.
+Недостатня авторизація даних є більш поширеною, ніж недостатня авторизація функцій, оскільки програмісти зазвичай мають повні знання про функціональні можливості програми, але не завжди мають повний показ всіх даних, до яких програма матиме доступ. Програмісти часто мають жорсткий контроль над механізмами авторизації функцій, але покладаються на інші системи, такі як бази даних для виконання авторизації даних.</desc>
+	<solution>Фази: Архітектура та Дизайн; Операція
+Дуже ретельно керуйте налаштуванням, керуванням і обробкою привілеїв. Явно керуйте зонами довіри в програмному забезпеченні.
 
-Phase: Architecture and Design	
-Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide when it is appropriate to use and to drop system privileges.</solution>
+Фаза: Архітектура та Дизайн
+Переконайтеся, що відповідна класифікація вбудована в проєктування системи, і що класифікація служить для забезпечення та подальшого посилення привілеїв розділення функції. Архітектори та дизайнери повинні покладатися на принцип найменших привілеїв, щоб вирішити, коли доцільно використовувати та відмовитися від системних привілеїв.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
@@ -46,15 +47,15 @@ Ensure that appropriate compartmentalization is built into the system design and
 
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
-	<alert>Integer Overflows</alert>
-	<desc>An Integer Overflow is the condition that occurs when the result of an arithmetic operation, such as multiplication or addition, exceeds the maximum size of the integer type used to store it. When an integer overflow occurs, the interpreted value will appear to have “wrapped around” the maximum value and started again at the minimum value, similar to a clock that represents 13:00 by pointing at 1:00.
+	<alert>Переповнення цілих чисел</alert>
+	<desc>Переповнення цілого числа- це умова, що виникає, коли результат арифметичної операції, наприклад множення або додавання, перевищує максимальний розмір типу цілого числа, який використовується для його зберігання. Коли відбувається переповнення цілого числа, здається, що інтерпретоване значення "обернуло" максимальне значення та розпочалося знову з мінімального значення, подібно до годинника, який показує 13:00, вказуючи на 1:00.
 
-For example, an 8-bit signed integer on most common computer architectures has a maximum value of 127 and a minimum value of -128. If a programmer stores the value 127 in such a variable and adds 1 to it, the result should be 128. However, this value exceeds the maximum for this integer type, so the interpreted value will “wrap around” and become -128.</desc>
-	<solution>Phase: Requirements
-Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
+Наприклад, 8-розрядне число зі знаком на більшості поширених комп'ютерних побудов має максимальне значення 127 і мінімальне значення -128. Якщо програміст зберігає значення 127 у такій змінній і додає до нього 1, результат має бути 128. Однак це значення перевищує максимальне для цього типу цілого числа, тому інтерпретоване значення буде  "розгорнуто" і стане -128.</desc>
+	<solution>Фаза: Вимоги
+Переконайтеся, що всі протоколи чітко визначені, щоб усю поведінку поза межами можна було легко ідентифікувати, і вимагають суворої відповідності протоколу.
 
-Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Фаза: Вимоги
+Використовуйте мову, яка не допускає виникнення цих слабких сторін, або надає конструкції, які полегшують уникнення цих слабких сторін.
 If possible, choose a language or compiler that performs automatic bounds checking.
 
 Phase: Architecture and Design
@@ -198,8 +199,8 @@ In many cases, the function pointer is modified to reference a location where th
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
-	<solution>Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Фаза: Вимоги
+Використовуйте мову, яка не допускає виникнення цих слабких сторін, або надає конструкції, які полегшують уникнення цих слабких сторін.
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
@@ -461,7 +462,7 @@ Likewise, default installations may include well-known usernames and passwords, 
 <vuln_item_wasc_17>
 	<alert>Improper Filesystem Permissions</alert>
 	<desc>Improper filesystem permissions are a threat to the confidentiality, integrity and availability of a web application. The problem arises when incorrect filesystem permissions are set on files, folders, and symbolic links. When improper permissions are set, an attacker may be able to access restricted files or directories and modify or delete their contents. For example, if an anonymous user account has write permission to a file, then an attacker may be able to modify the contents of the file influencing the web application in undesirable ways. An attacker may also exploit improper symlinks to escalate their privileges and/or access unauthorized files; for example, a symlink that points to a directory outside of the web root.</desc>
-	<solution>Very carefully manage the setting, management and handling of permissions. Explicitly manage trust zones in the software.</solution>
+	<solution>Very carefully manage the setting, management and handling of permissions. Явно керуйте зонами довіри в програмному забезпеченні.</solution>
 	<reference>http://projects.webappsec.org/Improper-Filesystem-Permissions</reference>
 	<reference>http://cwe.mitre.org/data/definitions/280.html</reference>
 </vuln_item_wasc_17>
@@ -910,7 +911,7 @@ Many open redirect problems occur because the programmer assumed that certain in
 
 <vuln_items>wasc_39</vuln_items>
 <vuln_item_wasc_39>
-	<alert>XPath Injection</alert>
+	<alert>Ін'єкція XPath</alert>
 	<desc>XPath Injection is an attack technique used to exploit applications that construct XPath (XML Path Language) queries from user-supplied input to query or navigate XML documents. It can be used directly by an application to query an XML document, as part of a larger operation such as applying an XSLT transformation to an XML document, or applying an XQuery to an XML document. The syntax of XPath bears some resemblance to an SQL query, and indeed, it is possible to form SQL-like queries on an XML document using XPath.
 
 If an application uses run-time XPath query construction, embedding unsafe user input into the query, it may be possible for the attacker to inject data into the query such that the newly formed query will be parsed in a way differing from the programmer's intention.</desc>
