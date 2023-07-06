@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.CardLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -230,6 +231,20 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                             GridBagConstraints.HORIZONTAL,
                             new Insets(2, 2, 2, 2)));
 
+            JLabel delayDeprecated =
+                    new JLabel(Constant.messages.getString("ascan.options.delayInMs.deprecated"));
+            delayDeprecated.setFont(delayDeprecated.getFont().deriveFont(Font.BOLD));
+            panelScanner.add(
+                    delayDeprecated,
+                    LayoutHelper.getGBC(
+                            0,
+                            row++,
+                            3,
+                            0.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 2, 2, 2)));
+
             // Add checkboxes for Active scan configuration
             // ---------------------------------------------
             panelScanner.add(
@@ -385,6 +400,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     }
 
     @Override
+    @SuppressWarnings("removal")
     public void initParam(Object obj) {
         OptionsParam options = (OptionsParam) obj;
         ScannerParam param = options.getParamSet(ScannerParam.class);
@@ -409,6 +425,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     }
 
     @Override
+    @SuppressWarnings("removal")
     public void saveParam(Object obj) throws Exception {
         OptionsParam options = (OptionsParam) obj;
         ScannerParam param = options.getParamSet(ScannerParam.class);

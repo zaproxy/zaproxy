@@ -76,6 +76,7 @@
 // ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/09/28 Do not set the Content-Length header when the method does not require one.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/07/06 Deprecate delayInMs.
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -303,13 +304,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         updateRequestContentLength(message);
 
-        if (this.getDelayInMs() > 0) {
-            try {
-                Thread.sleep(this.getDelayInMs());
-            } catch (InterruptedException e) {
-                // Ignore
-            }
-        }
+        delayRequest();
 
         // ZAP: Runs the "beforeScan" methods of any ScannerHooks
         parent.performScannerHookBeforeScan(message, this);
@@ -325,6 +320,17 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
         // ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(message, this);
+    }
+
+    @SuppressWarnings("removal")
+    private void delayRequest() {
+        if (getDelayInMs() > 0) {
+            try {
+                Thread.sleep(getDelayInMs());
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+        }
     }
 
     /**
@@ -1222,11 +1228,15 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     @Override
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.13.0", forRemoval = true)
     public int getDelayInMs() {
         return delayInMs;
     }
 
     @Override
+    @SuppressWarnings("removal")
+    @Deprecated(since = "2.13.0", forRemoval = true)
     public void setDelayInMs(int delayInMs) {
         this.delayInMs = delayInMs;
     }

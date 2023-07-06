@@ -169,6 +169,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void shouldRetrieveZeroDelayInMsByDefault() {
         // Given / When
         AbstractPlugin plugin = createAbstractPlugin();
@@ -177,6 +178,7 @@ class AbstractPluginUnitTest extends PluginTestUtils {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void shouldRetrieveDelaySet() {
         // Given
         int aDelayInMs = 1234;

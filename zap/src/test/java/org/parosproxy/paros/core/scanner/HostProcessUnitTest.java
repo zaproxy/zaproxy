@@ -496,6 +496,7 @@ class HostProcessUnitTest {
     }
 
     @Test
+    @SuppressWarnings("removal")
     void shouldSetDealyIntoPlugin() {
         // Given
         int delay = 1234;

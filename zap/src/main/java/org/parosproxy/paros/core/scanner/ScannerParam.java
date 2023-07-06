@@ -57,6 +57,7 @@
 // ZAP: 2022/12/22 Issue 7663: Default thread to number of processors.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/05/17 Add option for the maximum number of alerts per rule.
+// ZAP: 2023/07/06 Deprecate delayInMs.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -457,13 +458,23 @@ public class ScannerParam extends AbstractParam {
         getConfig().setProperty(MAX_ALERTS_PER_RULE, this.maxAlertsPerRule);
     }
 
-    /** @param delayInMs */
+    /**
+     * @param delayInMs the delay in milliseconds.
+     * @deprecated (2.13.0) This option has been superseded with the rate limiting provided by the
+     *     Network add-on. It will be removed in a future release.
+     */
+    @Deprecated(since = "2.13.0", forRemoval = true)
     public void setDelayInMs(int delayInMs) {
         this.delayInMs = delayInMs;
         getConfig().setProperty(DELAY_IN_MS, Integer.toString(this.delayInMs));
     }
 
-    /** @return */
+    /**
+     * @return the delay in milliseconds.
+     * @deprecated (2.13.0) This option has been superseded with the rate limiting provided by the
+     *     Network add-on. It will be removed in a future release.
+     */
+    @Deprecated(since = "2.13.0", forRemoval = true)
     public int getDelayInMs() {
         return delayInMs;
     }
