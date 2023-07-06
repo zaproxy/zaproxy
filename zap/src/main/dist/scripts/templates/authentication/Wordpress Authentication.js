@@ -49,6 +49,7 @@ function authenticate(helper, paramsValues, credentials) {
 	var msg = helper.prepareMessage();
 	msg.setRequestHeader(requestHeader);
 	msg.setRequestBody(requestBody);
+	msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
 
 	// Send the authentication message and return it
 	helper.sendAndReceive(msg);

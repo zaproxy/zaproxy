@@ -20,6 +20,11 @@ function authenticate(helper, paramsValues, credentials) {
 	
 	// TODO: Process message to match the authentication needs
 
+	// For example, add a request payload
+	// msg.setRequestBody("a payload with user credentials")
+	// And set/update the content-length header field accordingly.
+	// msg.getRequestHeader().setContentLength(msg.getRequestBody().length())
+
 	// Configurations on how the messages are sent/handled:
 	// Set to follow redirects when sending messages (default is false).
 	// helper.getHttpSender().setFollowRedirect(true)
