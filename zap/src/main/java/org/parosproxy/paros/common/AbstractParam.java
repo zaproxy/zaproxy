@@ -36,8 +36,11 @@
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2022/09/08 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/07/06 Add method to read enum values.
 package org.parosproxy.paros.common;
 
+import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map.Entry;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.ConversionException;
@@ -228,5 +231,44 @@ public abstract class AbstractParam implements Cloneable {
             logConversionException(key, e);
         }
         return defaultValue;
+    }
+
+    /**
+     * Gets an enum value from the given configuration key.
+     *
+     * <p>The default value is returned if the key doesn't exist or it's not an enum value.
+     *
+     * @param key the configuration key.
+     * @param defaultValue the default value, if the key doesn't exist or it's not an enum value.
+     * @return the value of the configuration, or default value.
+     * @throws NullPointerException if the given default value is {@code null}.
+     * @since 2.13.0
+     */
+    protected <T extends Enum<T>> T getEnum(String key, T defaultValue) {
+        String value = getString(key, defaultValue.toString());
+        @SuppressWarnings("unchecked")
+        Class<T> enumType = (Class<T>) defaultValue.getClass();
+        try {
+            return Enum.valueOf(enumType, value);
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn(
+                    "Failed to create enum for '{}' using '{}'. Valid values: {}",
+                    key,
+                    value,
+                    getValues(enumType));
+        }
+        return defaultValue;
+    }
+
+    private static <T extends Enum<T>> List<T> getValues(Class<T> enumType) {
+        try {
+            Method valuesMethod = enumType.getDeclaredMethod("values");
+            @SuppressWarnings("unchecked")
+            T[] values = (T[]) valuesMethod.invoke(enumType);
+            return List.of(values);
+        } catch (Exception e) {
+            LOGGER.error("Error getting enum values:", e);
+        }
+        return List.of();
     }
 }

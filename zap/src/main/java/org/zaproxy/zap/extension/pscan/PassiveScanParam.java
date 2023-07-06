@@ -111,8 +111,9 @@ public class PassiveScanParam extends AbstractParam {
                     RegexAutoTagScanner app =
                             new RegexAutoTagScanner(
                                     sub.getString(AUTO_TAG_SCANNER_NAME_KEY),
-                                    RegexAutoTagScanner.TYPE.valueOf(
-                                            sub.getString(AUTO_TAG_SCANNER_TYPE_KEY)),
+                                    getEnum(
+                                            AUTO_TAG_SCANNER_TYPE_KEY,
+                                            RegexAutoTagScanner.TYPE.TAG),
                                     sub.getString(AUTO_TAG_SCANNER_CONFIG_KEY),
                                     sub.getString(AUTO_TAG_SCANNER_REQ_URL_REGEX_KEY),
                                     sub.getString(AUTO_TAG_SCANNER_REQ_HEAD_REGEX_KEY),
