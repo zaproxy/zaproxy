@@ -392,7 +392,7 @@ public class HostProcess implements Runnable {
                 plugin = pluginFactory.nextPlugin();
 
                 if (plugin != null) {
-                    plugin.setDelayInMs(this.scannerParam.getDelayInMs());
+                    applyDeprecatedProperties(scannerParam, plugin);
                     plugin.setTechSet(this.techSet);
                     processPlugin(plugin);
 
@@ -633,7 +633,7 @@ public class HostProcess implements Runnable {
                     test.getConfig().setProperty(rc.getKey(), rc.getValue());
                 }
             }
-            test.setDelayInMs(plugin.getDelayInMs());
+            applyDeprecatedProperties(plugin, test);
             test.setDefaultAlertThreshold(plugin.getAlertThreshold());
             test.setDefaultAttackStrength(plugin.getAttackStrength());
             test.setTechSet(getTechSet());
@@ -660,6 +660,16 @@ public class HostProcess implements Runnable {
 
         mapPluginStats.get(plugin.getId()).incProgress();
         return true;
+    }
+
+    @SuppressWarnings("removal")
+    private static void applyDeprecatedProperties(ScannerParam source, Plugin dest) {
+        dest.setDelayInMs(source.getDelayInMs());
+    }
+
+    @SuppressWarnings("removal")
+    private static void applyDeprecatedProperties(Plugin source, Plugin dest) {
+        dest.setDelayInMs(source.getDelayInMs());
     }
 
     private boolean obtainResponse(HistoryReference hRef, HttpMessage message) {

@@ -345,14 +345,6 @@ class PluginTestUtils {
         }
 
         @Override
-        public int getDelayInMs() {
-            return 0;
-        }
-
-        @Override
-        public void setDelayInMs(int delay) {}
-
-        @Override
         public AlertThreshold getAlertThreshold(boolean incDefault) {
             return null;
         }
