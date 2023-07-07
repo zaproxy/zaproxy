@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-07-07
+- Remove checks for CFU initiator in HTTP Sender scripts, no longer needed.
+
 ### 2023-06-08
 - Start publishing images to the GitHub Container Registry. Use tags instead of image names for various flavours of the
   images; some examples are:
