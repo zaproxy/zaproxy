@@ -56,71 +56,71 @@ http://example.com/RecordView?id=12345
 
 Фаза: Вимоги
 Використовуйте мову, яка не допускає виникнення цих слабких сторін, або надає конструкції, які полегшують уникнення цих слабких сторін.
-If possible, choose a language or compiler that performs automatic bounds checking.
+Якщо можливо, виберіть мову або компілятор, який виконує автоматичну перевірку меж.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
-Use libraries or frameworks that make it easier to handle numbers without unexpected consequences.
-Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++).
+Фаза: Архітектура і Дизайн
+Використовуйте перевірену бібліотеку чи структуру, які запобігають виникненню цієї слабкості або надають конструкції, які полегшують уникнення цієї слабкості.
+Використовуйте бібліотеки або структури, які полегшують обробку чисел без неочікуваних наслідків.
+Приклади включають безпечні пакети обробки цілих чисел, такі як Safelnt (C++) або IntegerLib (C або C++).
 
-Phase: Implementation
-Perform input validation on any numeric input by ensuring that it is within the expected range. Enforce that the input meets both the minimum and maximum requirements for the expected range.
-Use unsigned integers where possible. This makes it easier to perform sanity checks for integer overflows. If you must use signed integers, make sure that your range check includes minimum values as well as maximum values.
+Фаза: Впровадження
+Виконайте перевірку будь-якого числового введення, переконавшись, що воно знаходиться в очікуваному діапазоні. Переконайтеся, що вхідні дані відповідають як мінімальним, так і максимальним вимогам для очікуваного діапазону.
+Використовуйте цілі числа без знаку, де це можливо. Це спрощує виконання перевірки працездатності для переповнень цілих чисел. Якщо необхідно використовувати цілі числа зі знаком, переконайтеся, що ваша перевірка діапазону містить як мінімальні, так і максимальні значення.
 
-Phase: Implementation
-Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Pay close attention to byte size discrepancies, precision, signed/unsigned distinctions, truncation, conversion and casting between types, "not-a-number" calculations, and how your language handles numbers that are too large or too small for its underlying representation.
-Also be careful to account for 32-bit, 64-bit, and other potential differences that may affect the numeric representation.
+Фаза: Впровадження
+Зрозумійте базове представлення вашої мови програмування та те, як воно взаємодіє з числовими розрахунками (CWE-681). Pay close attention to byte size discrepancies, precision, signed/unsigned distinctions, truncation, conversion and casting between types, "not-a-number" calculations, and how your language handles numbers that are too large or too small for its underlying representation.
+Також уважно враховуйте 32-бітні, 64-бітні та інші потенційні відмінності, які можуть вплинути на числове представлення.
 
-Phase: Implementation
-Examine compiler warnings closely and eliminate potentially security critical problems, such as signed / unsigned mismatch. Even if the weakness is rarely exploitable, a single failure may lead to the compromise of the entire system.</solution>
+Фаза: Впровадження
+Уважно вивчіть попередження компілятора та усуньте потенційно критичні проблеми безпеки, такі як невідповідність знака/без знаку. Навіть якщо слабкість рідко вдається використати, один збій може призвести до зламу всієї системи.</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
 
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
-	<alert>Insufficient Transport Layer Protection</alert>
-	<desc>Insufficient Transport Layer Protection
-Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
+	<alert>Недостатній захист транспортного рівня</alert>
+	<desc>Недостатній захист транспортного рівня
+Недостатній рівень захисту транспортного рівня дозволяє комунікації бути відкритим для ненадійних третіх сторін, створюючи вектор атаки для компрометації вебпрограми та/або викрадення конфіденційної інформації. Вебсайти зазвичай використовують Secure Sockets Layer / Transport Layer Security (SSL/TLS) для забезпечення шифрування на транспортному рівні. Однак, якщо вебсайт не налаштовано на використання SSL/TLS і не налаштовано на належне використання SSL/TLS, вебсайт може бути вразливим до перехоплення та модифікації трафіку.
  
-Lack of Transport Layer Encryption
-When the transport layer is not encrypted, all communication between the website and client is sent in clear-text which leaves it open to interception, injection and redirection (also known as a man-in-the-middle/MITM attack). An attacker may passively intercept the communication, giving them access to any sensitive data that is being transmitted such as usernames and passwords. An attacker may also actively inject/remove content from the communication, allowing the attacker to forge and omit information, inject malicious scripting, or cause the client to access remote untrusted content. An attacker may also redirect the communication in such a way that the website and client are no longer communicating with each other, but instead are unknowingly communicating with the attacker in the context of the other trusted party.
+Відсутність шифрування транспортного рівня
+Коли транспортний рівень не зашифрований, усі повідомлення між вебсайтом і клієнтом надсилаються у відкритому вигляді, що залишає його відкритим для перехоплення, введення та перенаправлення (також відомого як атака "людина посередині"/MITM). Зловмисник може пасивно перехопити зв’язок, отримавши доступ до будь-яких конфіденційних даних, які передаються, наприклад імен користувачів і паролів. Зловмисник також може активно вводити/вилучати вміст зі зв’язку, дозволяючи зловмиснику підробляти та пропускати інформацію, впроваджувати шкідливі сценарії або змусити клієнта отримати доступ до віддаленого ненадійного вмісту. Зловмисник також може перенаправити зв’язок таким чином, що вебсайт і клієнт більше не спілкуються один з одним, а натомість несвідомо спілкуються зі зловмисником у контексті іншої довіреної сторони.
 
-Weak Cipher Support
-Historically, high grade cryptography was restricted from export to outside the United States. Because of this, websites were configured to support weak cryptographic options for those clients that were restricted to only using weak ciphers. Weak ciphers are vulnerable to attack because of the relative ease of breaking them; less than two weeks on a typical home computer and a few seconds using dedicated hardware.
-Today, all modern browsers and websites use much stronger encryption, but some websites are still configured to support outdated weak ciphers. Because of this, an attacker may be able to force the client to downgrade to a weaker cipher when connecting to the website, allowing the attacker to break the weak encryption. For this reason, the server should be configured to only accept strong ciphers and not provide service to any client that requests using a weaker cipher. In addition, some websites are misconfigured to choose a weaker cipher even when the client will support a much stronger one. OWASP offers a guide to testing for SSL/TLS issues, including weak cipher support and misconfiguration, and there are other resources and tools as well.</desc>
-	<solution>Phase: Requirements
-Clearly specify which data or resources are valuable enough that they should be protected by encryption. Require that any transmission or storage of this data/resource should use well-vetted encryption algorithms.
+Слабка підтримка шифру
+Історично експорт високоякісної криптографії за межі Сполучених Штатів був обмежений. Через це вебсайти були налаштовані на підтримку слабких криптографічних параметрів для тих клієнтів, які були обмежені використанням лише слабких шифрів. Слабкі шифри вразливі до атак через відносну легкість їх зламу; менш ніж два тижні на звичайному домашньому комп’ютері та кілька секунд із використанням спеціального обладнання.
+Сьогодні всі сучасні браузери та вебсайти використовують набагато надійніше шифрування, але деякі вебсайти все ще налаштовані на підтримку застарілих слабких шифрів. Через це зловмисник може змусити клієнта повернутися до слабшого шифру під час підключення до вебсайту, дозволяючи зловмиснику зламати слабке шифрування. З цієї причини сервер має бути налаштований на прийняття лише надійних шифрів і не надавання послуг будь-якому клієнту, який запитує використання слабшого шифру. Крім того, деякі вебсайти неправильно налаштовані на вибір слабшого шифру, навіть якщо клієнт підтримує набагато сильніший. OWASP пропонує посібник з тестування на наявність проблем з SSL/TLS, зокрема слабку підтримку шифрів і неправильну конфігурацію, а також інші ресурси та інструменти.</desc>
+	<solution>Фаза: Вимоги
+Чітко визначте, які дані чи ресурси є достатньо цінними, щоб їх можна було захистити за допомогою шифрування. Вимагайте, щоб будь-яка передача або зберігання цих даних або ресурсів використовувала добре перевірені алгоритми шифрування.
 
-Phase: Architecture and Design
-Using threat modeling or other techniques, assume that your data can be compromised through a separate vulnerability or weakness, and determine where encryption will be most effective. Ensure that data you believe should be private is not being inadvertently exposed using weaknesses such as insecure permissions (CWE-732).
+Фаза: Архітектура та дизайн
+Використовуючи моделювання загроз або інші методи, припустіть, що ваші дані можуть бути скомпрометовані через окрему вразливість або слабкість, і визначте, де шифрування буде найбільш ефективним. Переконайтеся, що дані, які, на вашу думку, мають бути приватними, не були випадково розкриті через такі вразливості, як ненадійні дозволи (CWE-732).
 
 Phase: Architecture and Design
 Ensure that encryption is properly integrated into the system design, including but not necessarily limited to:
       Encryption that is needed to store or transmit private data of the users of the system
       Encryption that is needed to protect the system itself from unauthorized disclosure or tampering 
 Identify the separate needs and contexts for encryption:
-      One-way (i.e., only the user or recipient needs to have the key). This can be achieved using public key cryptography, or other techniques in which the encrypting party (i.e., the software) does not need to have access to a private key.
-      Two-way (i.e., the encryption can be automatically performed on behalf of a user, but the key must be available so that the plaintext can be automatically recoverable by that user). This requires storage of the private key in a format that is recoverable only by the user (or perhaps by the operating system) in a way that cannot be recovered by others.
+      One-way (i.e., only the user or recipient needs to have the key). Цього можна досягти за допомогою криптографії з відкритим ключем або інших методів, в яких стороні, що шифрує (тобто програмному забезпеченню), не потрібно мати доступ до закритого ключа.
+      Двостороннє (тобто шифрування може автоматично виконуватися від імені користувача, але ключ повинен бути доступним, щоб користувач міг автоматично відновити відкритий текст). Це вимагає зберігання приватного ключа у форматі, який може бути відновлений лише користувачем (або, можливо, операційною системою) у спосіб, який не може бути відновлений іншими.
 
-Phase: Architecture and Design
-Do not develop your own cryptographic algorithms. They will likely be exposed to attacks that are well-understood by cryptographers. Reverse engineering techniques are mature. If your algorithm can be compromised if attackers find out how it works, then it is especially weak.
+Фаза: Архітектура та дизайн
+Не розробляйте власні криптографічні алгоритми. Вони, швидше за все, будуть піддаватися атакам, які добре зрозумілі криптографам. Reverse engineering techniques are mature. If your algorithm can be compromised if attackers find out how it works, then it is especially weak.
 
-Phase: Architecture and Design
-Select a well-vetted algorithm that is currently considered to be strong by experts in the field, and select well-tested implementations.
-For example, US government systems require FIPS 140-2 certification.
-As with all cryptographic mechanisms, the source code should be available for analysis.
-Periodically ensure that you aren't using obsolete cryptography. Some older algorithms, once thought to require a billion years of computing time, can now be broken in days or hours. This includes MD4, MD5, SHA1, DES, and other algorithms which were once regarded as strong.
+Фаза: Архітектура та дизайн
+Виберіть добре перевірений алгоритм, який наразі вважається сильним серед експертів у цій галузі, і виберіть добре протестовані реалізації.
+Наприклад, урядові системи США вимагають сертифікації за стандартом FIPS 140-2.
+Як і у випадку з усіма криптографічними механізмами, вихідний код повинен бути доступний для аналізу.
+Періодично перевіряйте, чи не використовуєте ви застарілу криптографію. Some older algorithms, once thought to require a billion years of computing time, can now be broken in days or hours. Сюди входять MD4, MD5, SHA1, DES та інші алгоритми, які колись вважалися надійними.
 
-Phase: Architecture and Design
-Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.
+Фаза: Архітектура та дизайн
+Розділіть вашу систему на "безпечні" області, де можна чітко окреслити межі довіри. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.
 
-Phases: Implementation; Architecture and Design
-When you use industry-approved techniques, you need to use them correctly. Don't cut corners by skipping resource-intensive steps (CWE-325). These steps are often essential for preventing common attacks.
+Фази: Впровадження, архітектура та дизайн
+Коли ви використовуєте схвалені в індустрії методи, ви повинні використовувати їх правильно. Don't cut corners by skipping resource-intensive steps (CWE-325). Ці кроки часто необхідні для запобігання поширеним атакам.
 
-Phase: Implementation
-Use naming conventions and strong types to make it easier to spot when sensitive data is being used. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible.
-This makes it easier to spot places in the code where data is being used that is unencrypted.</solution>
+Фаза: Впровадження
+Використовуйте угоди про імена та сильні типи, щоб легше виявляти, коли використовуються конфіденційні дані. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible.
+Це полегшує виявлення місць у коді, де використовуються незашифровані дані.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Transport-Layer-Protection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/311.html</reference>
 </vuln_item_wasc_4>
@@ -133,7 +133,7 @@ This makes it easier to spot places in the code where data is being used that is
 Almost all web application frameworks support file inclusion. File inclusion is mainly used for packaging common code into separate files that are later referenced by main application modules. When a web application references an include file, the code in this file may be executed implicitly or explicitly by calling specific procedures. If the choice of module to load is based on elements from the HTTP request, the web application might be vulnerable to RFI.
 An attacker can use RFI for:
     * Running malicious code on the server: any code in the included malicious files will be run by the server. If the file include is not executed using some wrapper, code in include files is executed in the context of the server user. This could lead to a complete system compromise.
-    * Running malicious code on clients: the attacker's malicious code can manipulate the content of the response sent to the client. The attacker can embed malicious code in the response that will be run by the client (for example, JavaScript to steal the client session cookies).
+    * Running malicious code on clients: the attacker's malicious code can manipulate the content of the response sent to the client. Зловмисник може вбудувати шкідливий код у відповідь, яка буде запущена клієнтом (наприклад, JavaScript для викрадення сесійних файлів cookie клієнта).
 
 PHP is particularly vulnerable to RFI attacks due to the extensive use of "file includes" in PHP programming and due to default server configurations that increase susceptibility to an RFI attack.</desc>
 	<solution>Phase: Architecture and Design
@@ -142,7 +142,7 @@ For example, ID 1 could map to "inbox.txt" and ID 2 could map to "profile.txt". 
 
 Phases: Architecture and Design; Operation
 Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by your software.
-OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
+OS-level examples include the Unix chroot jail, AppArmor, and SELinux. Загалом, керований код може забезпечити певний захист. Наприклад, java.io.FilePermission в Java SecurityManager дозволяє вказати обмеження на операції з файлами.
 This may not be a feasible solution, and it only limits the impact to the operating system; the rest of your application may still be subject to compromise.
 Be careful to avoid CWE-243 and other weaknesses related to jails.
 For PHP, the interpreter offers restrictions such as open basedir or safe mode which can make it more difficult for an attacker to escape out of the application. Also consider Suhosin, a hardened PHP extension, which includes various options that disable some of the more dangerous PHP features.
@@ -204,8 +204,8 @@ Buffer overflows are most often associated with software written in the C and C+
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Фаза: Архітектура і Дизайн
+Використовуйте перевірену бібліотеку чи структуру, які запобігають виникненню цієї слабкості або надають конструкції, які полегшують уникнення цієї слабкості.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -243,8 +243,8 @@ When an attacker gets a user's browser to execute his/her code, the code will ru
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Фаза: Архітектура і Дизайн
+Використовуйте перевірену бібліотеку чи структуру, які запобігають виникненню цієї слабкості або надають конструкції, які полегшують уникнення цієї слабкості.
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -283,8 +283,8 @@ CSRF attacks are effective in a number of situations, including:
     * The victim is on the same local network as the target site.
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Фаза: Архітектура і Дизайн
+Використовуйте перевірену бібліотеку чи структуру, які запобігають виникненню цієї слабкості або надають конструкції, які полегшують уникнення цієї слабкості.
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -484,8 +484,8 @@ Many web sites are designed to authenticate and track a user when communication 
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Фаза: Архітектура і Дизайн
+Використовуйте перевірену бібліотеку чи структуру, які запобігають виникненню цієї слабкості або надають конструкції, які полегшують уникнення цієї слабкості.
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.
@@ -746,7 +746,7 @@ OS Commanding is the direct result of mixing trusted code and untrusted data. Th
 
 Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by your software.
 
-OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
+OS-level examples include the Unix chroot jail, AppArmor, and SELinux. Загалом, керований код може забезпечити певний захист. Наприклад, java.io.FilePermission в Java SecurityManager дозволяє вказати обмеження на операції з файлами.
 This may not be a feasible solution, and it only limits the impact to the operating system; the rest of your application may still be subject to compromise.
 
 For any data that will be used to generate a command to be executed, keep as much of that data out of external control as possible. For example, in web applications, this may require storing the command locally in the session's state instead of sending it out to the client in a hidden form field.
@@ -821,7 +821,7 @@ When the set of acceptable objects, such as filenames or URLs, is limited or kno
 
 Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by your software.
 
-OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows you to specify restrictions on file operations.
+OS-level examples include the Unix chroot jail, AppArmor, and SELinux. Загалом, керований код може забезпечити певний захист. Наприклад, java.io.FilePermission в Java SecurityManager дозволяє вказати обмеження на операції з файлами.
 
 This may not be a feasible solution, and it only limits the impact to the operating system; the rest of your application may still be subject to compromise.
 </solution>
@@ -871,7 +871,7 @@ If an attacker submits a Server-side Include statement, he may have the ability 
 
 <vuln_items>wasc_37</vuln_items>
 <vuln_item_wasc_37>
-	<alert>Session Fixation</alert>
+	<alert>Фіксація сеансу</alert>
 	<desc>Session Fixation is an attack technique that forces a user's session ID to an explicit value. Depending on the functionality of the target web site, a number of techniques can be utilized to "fix" the session ID value. These techniques range from Cross-site Scripting exploits to peppering the web site with previously made HTTP requests. After a user's session ID has been fixed, the attacker will wait for that user to login. Once the user does so, the attacker uses the predefined session ID value to assume the same online identity.
 
 Generally speaking there are two types of session management systems when it comes to ID values. The first type is "permissive" systems that allow web browsers to specify any ID. The second type is "strict" systems that only accept server-side-generated values. With permissive systems, arbitrary session IDs are maintained without contact with the web site. Strict systems require the attacker to maintain the "trap-session", with periodic web site contact, preventing inactivity timeouts.
