@@ -29,6 +29,8 @@ import java.util.List;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link AbstractParam}. */
@@ -96,6 +98,45 @@ class AbstractParamUnitTest {
         assertThat(clone.getValues(), is(equalTo(VALUES)));
     }
 
+    @Test
+    void shouldUseDefaultWithNoEnum() {
+        // Given
+        AbstractParam param = new TestParam();
+        String key = "enum";
+        TestEnum defaultValue = TestEnum.A;
+        // When
+        TestEnum value = param.getEnum(key, defaultValue);
+        // Then
+        assertThat(value, is(equalTo(defaultValue)));
+    }
+
+    @Test
+    void shouldUseDefaultWithInvalidEnum() {
+        // Given
+        TestParam param = new TestParam();
+        String key = "enum";
+        TestEnum defaultValue = TestEnum.B;
+        param.getConfig().setProperty(key, "Not Valid");
+        // When
+        TestEnum value = param.getEnum(key, defaultValue);
+        // Then
+        assertThat(value, is(equalTo(defaultValue)));
+    }
+
+    @ParameterizedTest
+    @EnumSource(TestEnum.class)
+    void shouldReadWithValidEnum(TestEnum enumValue) {
+        // Given
+        AbstractParam param = new TestParam();
+        String key = "enum";
+        TestEnum defaultValue = TestEnum.C;
+        param.getConfig().setProperty(key, enumValue.toString());
+        // When
+        TestEnum value = param.getEnum(key, defaultValue);
+        // Then
+        assertThat(value, is(equalTo(enumValue)));
+    }
+
     private static TestAbstractParam createTestAbstractParam() {
         return new TestAbstractParam();
     }
@@ -141,5 +182,21 @@ class AbstractParamUnitTest {
             config.setProperty(VALUES_KEY + "(" + i + ")." + VALUES_VALUE_KEY, VALUES.get(i));
         }
         return config;
+    }
+
+    private enum TestEnum {
+        A,
+        B,
+        C,
+    }
+
+    private static class TestParam extends AbstractParam {
+
+        TestParam() {
+            load(new ZapXmlConfiguration());
+        }
+
+        @Override
+        protected void parse() {}
     }
 }
