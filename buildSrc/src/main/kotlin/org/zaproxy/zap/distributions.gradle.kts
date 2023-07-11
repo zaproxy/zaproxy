@@ -115,17 +115,20 @@ tasks.register<Zip>("distCore") {
             "callhome",
             "commonlib",
             "coreLang",
+            "database",
             "diff",
             "gettingStarted",
             "help",
             "invoke",
             "network",
+            "oast",
             "onlineMenu",
             "plugnhack",
             "pscanrules",
             "quickstart",
             "reports",
             "reveal",
+            "spider",
             "tips")
     val topLevelDir = "ZAP_${project.version}"
 
