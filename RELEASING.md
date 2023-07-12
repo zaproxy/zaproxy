@@ -13,6 +13,7 @@ These tasks use checkboxes so that they can be copied into an issue.
 - [ ] Update [Constant](https://github.com/zaproxy/zaproxy/blob/main/zap/src/main/java/org/parosproxy/paros/Constant.java)#VERSION_TAG.
 - [ ] Add and use a [Constant](https://github.com/zaproxy/zaproxy/blob/main/zap/src/main/java/org/parosproxy/paros/Constant.java).upgradeFrom`<version>`() method.
 - [ ] Update [common-user-agents.txt](https://github.com/zaproxy/zap-extensions/blob/main/addOns/network/src/main/resources/org/zaproxy/addon/network/internal/client/common-user-agents.txt) and [DEFAULT_DEFAULT_USER_AGENT](https://github.com/zaproxy/zap-extensions/blob/main/addOns/network/src/main/java/org/zaproxy/addon/network/ConnectionOptions.java).
+- [ ] Publish a SNAPSHOT of core and update the main add-ons to use it.
 - [ ] Create help release page
   - Development / bug fix issue links can be generated using the [zap-admin](https://github.com/zaproxy/zap-admin) `generateReleaseNotes` task.
   - Library changes can be determined by diffing [LEGALNOTICE.md](https://github.com/zaproxy/zaproxy/blob/main/LEGALNOTICE.md) with the version at the previous release.
@@ -23,8 +24,9 @@ These tasks use checkboxes so that they can be copied into an issue.
 
 - [ ] Run the workflow [Prepare Release Main Version](https://github.com/zaproxy/zaproxy/actions/workflows/prepare-release-main-version.yml),     to prepare the release. It creates a pull request updating the version;
 - [ ] Finish the following tasks in the pull request:
+  - [ ] Update latest ZapVersions file in [build.gradle.kts](https://github.com/zaproxy/zap-admin/blob/master/build.gradle.kts)
   - [ ] Release add-ons.
-  - [ ] Update main add-ons declared in [main-add-ons.yml](https://github.com/thc202/zaproxy/blob/main/zap/src/main/main-add-ons.yml):
+  - [ ] Update main add-ons declared in [main-add-ons.yml](https://github.com/zaproxy/zaproxy/blob/main/zap/src/main/main-add-ons.yml):
      - [ ] Add new add-ons.
      - [ ] Remove add-ons no longer needed.
      - [ ] Update add-ons with the task mentioned in `main-add-ons.yml`.
@@ -35,6 +37,7 @@ These tasks use checkboxes so that they can be copied into an issue.
 - [ ] Publish the release.
 - [ ] Regenerate and publish the Weekly and Live releases.
 - [ ] Update the [Linux Repos](https://software.opensuse.org/download.html?project=home%3Acabelo&package=owasp-zap)
+- [ ] Update the stats scripts [github.py](https://github.com/zapbot/zap-mgmt-scripts/blob/master/stats/github.py) and [zap_services.py](https://github.com/zapbot/zap-mgmt-scripts/blob/master/stats/zap_services.py)
 
 Once published the [Handle Release](https://github.com/zaproxy/zaproxy/actions/workflows/handle-release.yml) workflow
 will trigger the update of the marketplace with the new release, it will also create a pull request preparing the next
@@ -57,7 +60,7 @@ The resulting localized resources are added/updated in the repository periodical
   - [ ] ZAP User and Dev groups
   - [ ] @zaproxy twitter account
   - [ ] OWASP Slack
-- [ ] Release client APIs
+- [ ] Update and release client APIs
   - [ ] [Java](https://github.com/zaproxy/zap-api-java/blob/main/RELEASING.md)
   - [ ] [Python](https://github.com/zaproxy/zap-api-python/blob/master/RELEASING.md)
 - [ ] Update major projects using ZAP
