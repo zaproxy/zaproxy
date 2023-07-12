@@ -4,8 +4,5 @@
 ---
 packageExcludes: []
 fieldExcludes: []
-classExcludes:
- - "org.zaproxy.zap.network.HttpSenderImpl"
-methodExcludes:
- - "org.parosproxy.paros.extension.ViewDelegate#getOptionsButton(java.lang.String, java.lang.String)"
- - "org.parosproxy.paros.extension.ViewDelegate#getHelpButton(java.lang.String)"
+classExcludes: []
+methodExcludes: []
