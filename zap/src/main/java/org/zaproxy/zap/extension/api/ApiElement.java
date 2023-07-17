@@ -22,7 +22,9 @@ package org.zaproxy.zap.extension.api;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -68,8 +70,7 @@ public class ApiElement {
         super();
         this.name = name;
 
-        addParameters(mandatoryParamNames, true);
-        addParameters(optionalParamNames, false);
+        setParameters(mandatoryParamNames, optionalParamNames);
     }
 
     public ApiElement(String name, String[] mandatoryParamNames) {
@@ -89,21 +90,34 @@ public class ApiElement {
     }
 
     public void setMandatoryParamNames(List<String> paramNames) {
-        parameters.removeIf(ApiParameter::isRequired);
-
-        if (paramNames != null) {
-            List<ApiParameter> optionalParameters = parameters;
-            parameters = new ArrayList<>(optionalParameters.size() + paramNames.size());
-            addParameters(paramNames, true);
-            parameters.addAll(optionalParameters);
-        }
+        setParameters(paramNames, getOptionalParamNames());
     }
 
-    private void addParameters(List<String> names, boolean required) {
-        if (names == null) {
+    private void setParameters(List<String> mandatory, List<String> optional) {
+        List<ApiParameter> newParameters = new ArrayList<>();
+        var addedParams = new HashSet<String>();
+        if (mandatory != null) {
+            addParameters(addedParams, mandatory, true, newParameters);
+        }
+        if (optional != null) {
+            addParameters(addedParams, optional, false, newParameters);
+        }
+
+        parameters = newParameters;
+    }
+
+    private void addParameters(
+            Set<String> addedNames, List<String> from, boolean required, List<ApiParameter> to) {
+        if (from == null) {
             return;
         }
-        names.forEach(param -> parameters.add(new ApiParameter(param, "", required)));
+        for (var paramName : from) {
+            if (!addedNames.add(paramName)) {
+                throw new IllegalArgumentException(
+                        "The ApiElement " + name + " has duplicated parameter: " + paramName);
+            }
+            to.add(new ApiParameter(paramName, "", required));
+        }
     }
 
     public List<String> getMandatoryParamNames() {
@@ -139,8 +153,7 @@ public class ApiElement {
     }
 
     public void setOptionalParamNames(List<String> optionalParamNames) {
-        parameters.removeIf(e -> !e.isRequired());
-        addParameters(optionalParamNames, false);
+        setParameters(getMandatoryParamNames(), optionalParamNames);
     }
 
     /**
