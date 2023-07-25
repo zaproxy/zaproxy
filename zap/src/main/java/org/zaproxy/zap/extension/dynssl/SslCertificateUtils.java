@@ -39,7 +39,9 @@ import java.time.Duration;
 import java.util.Base64;
 import org.apache.commons.io.FileUtils;
 
-/** @author MaWoKi */
+/**
+ * @author MaWoKi
+ */
 @Deprecated
 public class SslCertificateUtils {
 
@@ -138,8 +140,11 @@ public class SslCertificateUtils {
      * @throws KeyStoreException
      */
     public static KeyStore pem2Keystore(File pemFile)
-            throws IOException, CertificateException, InvalidKeySpecException,
-                    NoSuchAlgorithmException, KeyStoreException {
+            throws IOException,
+                    CertificateException,
+                    InvalidKeySpecException,
+                    NoSuchAlgorithmException,
+                    KeyStoreException {
         String certAndKey = FileUtils.readFileToString(pemFile, StandardCharsets.US_ASCII);
         byte[] certBytes = extractCertificate(certAndKey);
         byte[] keyBytes = extractPrivateKey(certAndKey);
@@ -192,8 +197,11 @@ public class SslCertificateUtils {
     }
 
     public static KeyStore pem2KeyStore(byte[] certBytes, byte[] keyBytes)
-            throws IOException, CertificateException, InvalidKeySpecException,
-                    NoSuchAlgorithmException, KeyStoreException {
+            throws IOException,
+                    CertificateException,
+                    InvalidKeySpecException,
+                    NoSuchAlgorithmException,
+                    KeyStoreException {
         X509Certificate cert = generateCertificateFromDER(certBytes);
         RSAPrivateKey key = generatePrivateKeyFromDER(keyBytes);
 

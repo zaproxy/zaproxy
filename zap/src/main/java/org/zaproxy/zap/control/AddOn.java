@@ -231,12 +231,14 @@ public class AddOn {
     private String name;
     private String description = "";
     private String author = "";
+
     /**
      * The version declared in the manifest file.
      *
      * <p>Never {@code null}.
      */
     private Version version;
+
     /**
      * The (semantic) version declared in the manifest file, to be replaced by {@link #version}.
      *

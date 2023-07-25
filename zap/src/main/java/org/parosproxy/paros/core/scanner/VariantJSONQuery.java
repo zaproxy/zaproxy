@@ -21,7 +21,9 @@ package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-/** @author andy */
+/**
+ * @author andy
+ */
 public class VariantJSONQuery extends VariantAbstractRPCQuery {
 
     public static final String JSON_RPC_CONTENT_TYPE = "application/json";

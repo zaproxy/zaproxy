@@ -35,11 +35,16 @@ public class CommandLineArgument {
     private String errorMessage = "";
     private String helpMessage = "";
 
-    /** @return Returns the errorMessage. */
+    /**
+     * @return Returns the errorMessage.
+     */
     public String getErrorMessage() {
         return errorMessage;
     }
-    /** @return Returns the pattern. */
+
+    /**
+     * @return Returns the pattern.
+     */
     public Pattern getPattern() {
         return pattern;
     }
@@ -98,7 +103,9 @@ public class CommandLineArgument {
         this.enabled = enabled;
     }
 
-    /** @return Returns the helpMessage. */
+    /**
+     * @return Returns the helpMessage.
+     */
     public String getHelpMessage() {
         return helpMessage;
     }

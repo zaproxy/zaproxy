@@ -35,7 +35,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.extension.api.ApiResponse;
 
-/** @author Vahid Rafiei (@vahid_r) */
+/**
+ * @author Vahid Rafiei (@vahid_r)
+ */
 class UsernamePasswordAuthenticationCredentialsUnitTest {
 
     private UsernamePasswordAuthenticationCredentials usernamePasswordAuthenticationCredentials;

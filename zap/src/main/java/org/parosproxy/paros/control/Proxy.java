@@ -47,7 +47,9 @@ import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.control.ControlOverrides;
 
-/** @deprecated (2.12.0) No longer used/needed by core. Use the network add-on instead. */
+/**
+ * @deprecated (2.12.0) No longer used/needed by core. Use the network add-on instead.
+ */
 @Deprecated
 public class Proxy {
 
@@ -183,24 +185,37 @@ public class Proxy {
         proxyServer.removeConnectRequestProxyListener(listener);
     }
 
-    /** @return Returns the reverseProxy. */
+    /**
+     * @return Returns the reverseProxy.
+     */
     public boolean isReverseProxy() {
         return reverseProxy;
     }
-    /** @param reverseProxy The reverseProxy to set. */
+
+    /**
+     * @param reverseProxy The reverseProxy to set.
+     */
     public void setReverseProxy(boolean reverseProxy) {
         this.reverseProxy = reverseProxy;
     }
-    /** @return Returns the reverseProxyHost. */
+
+    /**
+     * @return Returns the reverseProxyHost.
+     */
     public String getReverseProxyHost() {
         return reverseProxyHost;
     }
-    /** @param reverseProxyHost The reverseProxyHost to set. */
+
+    /**
+     * @param reverseProxyHost The reverseProxyHost to set.
+     */
     public void setReverseProxyHost(String reverseProxyHost) {
         this.reverseProxyHost = reverseProxyHost;
     }
 
-    /** @param enableCacheProcessing The enableCacheProcessing to set. */
+    /**
+     * @param enableCacheProcessing The enableCacheProcessing to set.
+     */
     public void setEnableCacheProcessing(boolean enableCacheProcessing) {
         if (proxyServer != null) {
             proxyServer.setEnableCacheProcessing(enableCacheProcessing);

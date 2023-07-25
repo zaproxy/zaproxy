@@ -68,11 +68,16 @@ public class RecordHistory {
         httpMessage.setResponseFromTargetHost(responseFromTargetHost);
     }
 
-    /** @return Returns the id. */
+    /**
+     * @return Returns the id.
+     */
     public int getHistoryId() {
         return historyId;
     }
-    /** @return Returns the historyType. */
+
+    /**
+     * @return Returns the historyType.
+     */
     public int getHistoryType() {
         return historyType;
     }
@@ -80,21 +85,31 @@ public class RecordHistory {
     public HttpMessage getHttpMessage() {
         return httpMessage;
     }
-    /** @param historyId The id to set. */
+
+    /**
+     * @param historyId The id to set.
+     */
     public void setHistoryId(int historyId) {
         this.historyId = historyId;
     }
-    /** @param historyType The historyType to set. */
+
+    /**
+     * @param historyType The historyType to set.
+     */
     public void setHistoryType(int historyType) {
         this.historyType = historyType;
     }
 
-    /** @return Returns the sessionId. */
+    /**
+     * @return Returns the sessionId.
+     */
     public long getSessionId() {
         return sessionId;
     }
 
-    /** @param sessionId The sessionId to set. */
+    /**
+     * @param sessionId The sessionId to set.
+     */
     public void setSessionId(long sessionId) {
         this.sessionId = sessionId;
     }

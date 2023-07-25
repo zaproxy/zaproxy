@@ -25,7 +25,9 @@ import javax.swing.JPanel;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
-/** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+/**
+ * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+ */
 @Deprecated
 @SuppressWarnings("serial")
 class DialogAddProxy extends AbstractFormDialog {

@@ -79,7 +79,9 @@ import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 public class OptionsConnectionPanel extends AbstractParamPanel {
     // ZAP: i18n
@@ -167,6 +169,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
         return chkUseProxyChain;
     }
+
     /**
      * This method initializes jPanel
      *
@@ -265,6 +268,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
         return jPanel;
     }
+
     /**
      * This method initializes panelProxyAuth
      *
@@ -474,6 +478,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
         return txtProxyChainName;
     }
+
     /**
      * This method initializes spinnerProxyChainPort
      *
@@ -724,6 +729,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
         return txtProxyChainRealm;
     }
+
     /**
      * This method initializes txtProxyChainUserName
      *
@@ -735,6 +741,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
         return txtProxyChainUserName;
     }
+
     /**
      * This method initializes txtProxyChainPassword
      *
@@ -746,6 +753,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
         return txtProxyChainPassword;
     }
+
     /**
      * This method initializes chkProxyChainAuth
      *

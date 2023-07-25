@@ -211,7 +211,9 @@ public abstract class PluginPassiveScanner extends Enableable
         }
     }
 
-    /** @deprecated (2.7.0) Replaced by {@link #getAlertThreshold()}. */
+    /**
+     * @deprecated (2.7.0) Replaced by {@link #getAlertThreshold()}.
+     */
     @Override
     @Deprecated
     public AlertThreshold getLevel() {
@@ -454,8 +456,12 @@ public abstract class PluginPassiveScanner extends Enableable
      * @since 2.12.0
      */
     public PluginPassiveScanner copy()
-            throws InstantiationException, IllegalAccessException, IllegalArgumentException,
-                    InvocationTargetException, NoSuchMethodException, SecurityException {
+            throws InstantiationException,
+                    IllegalAccessException,
+                    IllegalArgumentException,
+                    InvocationTargetException,
+                    NoSuchMethodException,
+                    SecurityException {
         PluginPassiveScanner pps = this.getClass().getConstructor().newInstance();
         Configuration conf = this.getConfig();
         if (conf == null) {

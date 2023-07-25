@@ -21,7 +21,9 @@ package ch.csnc.extension.util;
 
 import org.parosproxy.paros.common.AbstractParam;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 public class OptionsParamExperimentalSliSupport extends AbstractParam {
 
@@ -36,7 +38,9 @@ public class OptionsParamExperimentalSliSupport extends AbstractParam {
         expSliSupportEnabled = getBoolean(EXPERIMENTAL_SLOT_LIST_INDEXES, false);
     }
 
-    /** @deprecated (2.11.0) Use {@link #isExperimentalSliSupportEnabled()} */
+    /**
+     * @deprecated (2.11.0) Use {@link #isExperimentalSliSupportEnabled()}
+     */
     @Deprecated
     public boolean isExerimentalSliSupportEnabled() {
         return isExperimentalSliSupportEnabled();

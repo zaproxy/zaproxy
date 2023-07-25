@@ -114,10 +114,14 @@ public class Tech implements Comparable<Tech> {
     private static final TreeSet<Tech> topLevelTech =
             new TreeSet<>(Arrays.asList(Db, Lang, OS, SCM, WS));
 
-    /** @deprecated Not for public use. Replaced by {@link #getAll()}. */
+    /**
+     * @deprecated Not for public use. Replaced by {@link #getAll()}.
+     */
     @Deprecated public static final Tech[] builtInTech = allTech.toArray(new Tech[] {});
 
-    /** @deprecated Not for public use. Replaced by {@link #getTopLevel()}. */
+    /**
+     * @deprecated Not for public use. Replaced by {@link #getTopLevel()}.
+     */
     @Deprecated
     public static final Tech[] builtInTopLevelTech = topLevelTech.toArray(new Tech[] {});
 

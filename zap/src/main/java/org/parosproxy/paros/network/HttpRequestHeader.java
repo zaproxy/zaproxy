@@ -602,6 +602,7 @@ public class HttpRequestHeader extends HttpHeader {
     public String getPrimeHeader() {
         return getMethod() + " " + getURI().toString() + " " + getVersion();
     }
+
     /*
      * private static final char[] DELIM_UNWISE_CHAR = { '<', '>', '#', '"', '
      * ', '{', '}', '|', '\\', '^', '[', ']', '`' };

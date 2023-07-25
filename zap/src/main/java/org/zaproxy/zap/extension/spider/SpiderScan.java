@@ -44,7 +44,9 @@ import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.Stats;
 
-/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+/**
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
 @Deprecated
 public class SpiderScan
         implements ScanListenner, org.zaproxy.zap.spider.SpiderListener, GenericScanner2 {

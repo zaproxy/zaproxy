@@ -93,7 +93,9 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
         return StringEscapeUtils.unescapeXml(value);
     }
 
-    /** @param content */
+    /**
+     * @param content
+     */
     @Override
     public void parseContent(String content) {
         Matcher matcher = attPattern.matcher(content);

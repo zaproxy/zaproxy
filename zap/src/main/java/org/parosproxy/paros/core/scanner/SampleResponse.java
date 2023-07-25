@@ -49,20 +49,32 @@ class SampleResponse {
         this.historyReference = createHistoryReference(message);
         this.errorPageType = errorPageType;
     }
-    /** @return Returns the message. */
+
+    /**
+     * @return Returns the message.
+     */
     public HttpMessage getMessage() throws HttpMalformedHeaderException, DatabaseException {
         return historyReference.getHttpMessage();
     }
-    /** @param message The message to set. */
+
+    /**
+     * @param message The message to set.
+     */
     public void setMessage(HttpMessage message)
             throws HttpMalformedHeaderException, DatabaseException {
         this.historyReference = createHistoryReference(message);
     }
-    /** @return Returns the errorPageType. */
+
+    /**
+     * @return Returns the errorPageType.
+     */
     public int getErrorPageType() {
         return errorPageType;
     }
-    /** @param errorPageType The errorPageType to set. */
+
+    /**
+     * @param errorPageType The errorPageType to set.
+     */
     public void setErrorPageType(int errorPageType) {
         this.errorPageType = errorPageType;
     }

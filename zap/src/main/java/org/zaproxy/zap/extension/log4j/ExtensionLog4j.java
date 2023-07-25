@@ -172,6 +172,7 @@ public class ExtensionLog4j extends ExtensionAdaptor {
     private static class ResetCounterOnSessionChange implements SessionChangedListener {
         /** Keep track of errors logged while the session changes. */
         private int previousCount;
+
         /** Do not reset the counter if ZAP is starting. */
         private boolean starting;
 

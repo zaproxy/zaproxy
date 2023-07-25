@@ -147,7 +147,9 @@ public abstract class PopupMenuItemAlert extends ExtensionPopupMenuItem {
         return true;
     }
 
-    /** @see #isButtonEnabledForNumberOfSelectedAlerts(int) */
+    /**
+     * @see #isButtonEnabledForNumberOfSelectedAlerts(int)
+     */
     @Override
     public boolean isEnableForComponent(Component invoker) {
         if (this.extAlert == null) {

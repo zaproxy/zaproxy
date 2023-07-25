@@ -23,7 +23,9 @@ import javax.swing.table.TableModel;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
-/** @deprecated (2.11.0) Superseded by the OAST add-on. */
+/**
+ * @deprecated (2.11.0) Superseded by the OAST add-on.
+ */
 @Deprecated
 public class CallbackTable extends HistoryReferencesTable {
 

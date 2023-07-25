@@ -29,7 +29,9 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.Model;
 
-/** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+/**
+ * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+ */
 @Deprecated
 public class ProxiesParam extends AbstractParam {
 

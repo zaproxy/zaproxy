@@ -31,7 +31,9 @@ import org.zaproxy.zap.view.HttpPanelManager;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelDefaultViewSelectorFactory;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 public class ExtensionHttpPanelLargeRequestView extends ExtensionAdaptor {
 

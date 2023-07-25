@@ -28,14 +28,18 @@ import java.util.List;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-/** @deprecated (2.12.0) see the exim add-on */
+/**
+ * @deprecated (2.12.0) see the exim add-on
+ */
 @Deprecated
 public class PopupMenuCopyUrls extends PopupMenuItemHistoryReferenceContainer
         implements ClipboardOwner {
 
     private static final long serialVersionUID = 1L;
 
-    /** @param label */
+    /**
+     * @param label
+     */
     public PopupMenuCopyUrls(String label) {
         super(label, true);
     }

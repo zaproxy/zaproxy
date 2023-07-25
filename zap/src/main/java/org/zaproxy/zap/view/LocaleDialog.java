@@ -73,6 +73,7 @@ public class LocaleDialog extends AbstractDialog {
             this.setSize(406, 133);
         }
     }
+
     /**
      * This method initializes jPanel
      *
@@ -125,6 +126,7 @@ public class LocaleDialog extends AbstractDialog {
 
         LocaleDialog.this.dispose();
     }
+
     /**
      * This method initializes btnOK
      *

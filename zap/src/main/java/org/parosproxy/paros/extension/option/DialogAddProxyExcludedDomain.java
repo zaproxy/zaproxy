@@ -33,7 +33,9 @@ import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 @SuppressWarnings("serial")
 class DialogAddProxyExcludedDomain extends AbstractFormDialog {

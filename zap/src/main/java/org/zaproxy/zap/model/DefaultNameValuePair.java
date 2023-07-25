@@ -60,13 +60,17 @@ public final class DefaultNameValuePair implements NameValuePair, Comparable<Def
         this.value = value;
     }
 
-    /** @return the name, might be {@code null} */
+    /**
+     * @return the name, might be {@code null}
+     */
     @Override
     public String getName() {
         return name;
     }
 
-    /** @return the value, might be {@code null} */
+    /**
+     * @return the value, might be {@code null}
+     */
     @Override
     public String getValue() {
         return value;

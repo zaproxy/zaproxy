@@ -33,7 +33,9 @@ public class PopupMenuOpenUrlInBrowser extends PopupMenuItemHttpMessageContainer
     private static final long serialVersionUID = 1L;
     private boolean disabledToolTipSet = false;
 
-    /** @param label */
+    /**
+     * @param label
+     */
     public PopupMenuOpenUrlInBrowser(String label) {
         super(label);
     }

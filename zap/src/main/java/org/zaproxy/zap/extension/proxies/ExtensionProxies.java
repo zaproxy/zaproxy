@@ -38,7 +38,9 @@ import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-/** @deprecated (2.12.0) Use the capabilities provided by the network add-on. */
+/**
+ * @deprecated (2.12.0) Use the capabilities provided by the network add-on.
+ */
 @Deprecated
 public class ExtensionProxies extends ExtensionAdaptor implements OptionsChangedListener {
 

@@ -23,5 +23,5 @@ fun setUpProject(parentDir: File, project: ProjectDescriptor) {
         "Project ${project.name} has no build file: ${project.buildFile}"
     }
 
-    project.children.forEach { project -> setUpProject(project.parent!!.projectDir, project) }
+    project.children.forEach { it -> setUpProject(it.parent!!.projectDir, it) }
 }

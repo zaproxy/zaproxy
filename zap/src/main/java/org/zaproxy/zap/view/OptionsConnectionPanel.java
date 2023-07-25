@@ -32,7 +32,9 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 public class OptionsConnectionPanel extends AbstractParamPanel {
 
@@ -169,6 +171,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
         return panelProxyAuth;
     }
+
     /**
      * This method initializes panelProxyChain
      *
@@ -202,6 +205,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
         return panelProxyChain;
     }
+
     /** This method initializes this */
     private void initialize() {
         this.setLayout(new CardLayout());

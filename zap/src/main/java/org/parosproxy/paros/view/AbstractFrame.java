@@ -89,6 +89,7 @@ public class AbstractFrame extends JFrame {
         this.preferences = Preferences.userNodeForPackage(getClass());
         initialize();
     }
+
     /** This method initializes this */
     private void initialize() {
         // ZAP: Rebrand
@@ -109,6 +110,7 @@ public class AbstractFrame extends JFrame {
         this.addWindowStateListener(new FrameWindowStateListener());
         this.addComponentListener(new FrameResizedListener());
     }
+
     /** Centre this frame. */
     public void centerFrame() {
         final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -124,7 +126,9 @@ public class AbstractFrame extends JFrame {
                 (screenSize.height - frameSize.height) / 2);
     }
 
-    /** @param windowstate integer value, see {@link JFrame#getExtendedState()} */
+    /**
+     * @param windowstate integer value, see {@link JFrame#getExtendedState()}
+     */
     private void saveWindowState(int windowstate) {
         if ((windowstate & Frame.ICONIFIED) == Frame.ICONIFIED) {
             preferences.put(

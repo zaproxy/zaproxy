@@ -288,7 +288,9 @@ public class VariantODataIdQuery implements Variant {
             this.pathAfterParameter = pathAfterParameter;
         }
 
-        /** @return */
+        /**
+         * @return
+         */
         public String getValue() {
             return this.originalValue;
         }

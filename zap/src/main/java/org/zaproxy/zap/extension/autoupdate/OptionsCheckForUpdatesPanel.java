@@ -70,6 +70,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
         this.setName(Constant.messages.getString("cfu.options.title"));
         this.add(getPanelMisc(), getPanelMisc().getName());
     }
+
     /**
      * This method initializes panelMisc
      *

@@ -33,7 +33,9 @@ import org.apache.logging.log4j.Logger;
  */
 public abstract class AbstractDatabase implements Database {
 
-    /** @deprecated (2.10.0) Use {@link #getLogger()} instead. */
+    /**
+     * @deprecated (2.10.0) Use {@link #getLogger()} instead.
+     */
     @Deprecated
     protected final org.apache.log4j.Logger logger = org.apache.log4j.Logger.getLogger(getClass());
 

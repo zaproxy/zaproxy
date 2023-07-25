@@ -39,6 +39,7 @@ public interface SslCertificateService {
 
     /** The passphrase which is used for all Paros Proxy SSL crypto stuff */
     char[] PASSPHRASE = "0w45P.Z4p".toCharArray();
+
     /** The alias name used in key stores. */
     String ZAPROXY_JKS_ALIAS = "owasp_zap_root_ca";
 
@@ -61,8 +62,13 @@ public interface SslCertificateService {
      * @throws MissingRootCertificateException when it wasn't initialized.
      */
     KeyStore createCertForHost(String hostname)
-            throws NoSuchAlgorithmException, InvalidKeyException, CertificateException,
-                    NoSuchProviderException, SignatureException, KeyStoreException, IOException,
+            throws NoSuchAlgorithmException,
+                    InvalidKeyException,
+                    CertificateException,
+                    NoSuchProviderException,
+                    SignatureException,
+                    KeyStoreException,
+                    IOException,
                     UnrecoverableKeyException;
 
     /**
@@ -84,8 +90,13 @@ public interface SslCertificateService {
      * @throws MissingRootCertificateException when it wasn't initialized.
      */
     default KeyStore createCertForHost(CertData certData)
-            throws NoSuchAlgorithmException, InvalidKeyException, CertificateException,
-                    NoSuchProviderException, SignatureException, KeyStoreException, IOException,
+            throws NoSuchAlgorithmException,
+                    InvalidKeyException,
+                    CertificateException,
+                    NoSuchProviderException,
+                    SignatureException,
+                    KeyStoreException,
+                    IOException,
                     UnrecoverableKeyException {
         return createCertForHost(certData.getCommonName());
     }

@@ -66,6 +66,7 @@ public class PersistSessionDialog extends AbstractDialog implements ActionListen
         // Disable the escape key - they have to make a choice!
         getRootPane().getActionMap().put("ESCAPE", null);
     }
+
     /**
      * This method initializes jPanel
      *

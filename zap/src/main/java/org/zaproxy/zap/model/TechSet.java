@@ -25,7 +25,9 @@ import java.util.TreeSet;
 
 public class TechSet {
 
-    /** @deprecated Not for public use. Replaced by {@link #getAllTech()}. */
+    /**
+     * @deprecated Not for public use. Replaced by {@link #getAllTech()}.
+     */
     @Deprecated public static final TechSet AllTech = new TechSet(Tech.getTopLevel());
 
     private TreeSet<Tech> includeTech = new TreeSet<>();

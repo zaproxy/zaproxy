@@ -76,7 +76,9 @@ public class FindDialog extends AbstractDialog {
     /** A label to inform if the string was not found. */
     private JLabel infoLabel;
 
-    /** @param lastInvoker The lastInvoker to set. */
+    /**
+     * @param lastInvoker The lastInvoker to set.
+     */
     public void setLastInvoker(JTextComponent lastInvoker) {
         this.lastInvoker = lastInvoker;
         if (lastInvoker != null) {

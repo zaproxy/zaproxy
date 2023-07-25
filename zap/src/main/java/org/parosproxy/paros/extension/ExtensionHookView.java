@@ -56,6 +56,7 @@ public class ExtensionHookView {
      * @see #getWorkPanel()
      */
     private List<AbstractPanel> workPanelList;
+
     /**
      * The status panels added to this extension hook.
      *
@@ -65,6 +66,7 @@ public class ExtensionHookView {
      * @see #getWorkPanel()
      */
     private List<AbstractPanel> statusPanelList;
+
     /**
      * The work panels added to this extension hook.
      *
@@ -74,6 +76,7 @@ public class ExtensionHookView {
      * @see #getWorkPanel()
      */
     private List<AbstractPanel> selectPanelList;
+
     /**
      * The session panels added to this extension hook.
      *
@@ -83,6 +86,7 @@ public class ExtensionHookView {
      * @see #getSessionPanel()
      */
     private List<AbstractParamPanel> sessionPanelList;
+
     /**
      * The options panels added to this extension hook.
      *

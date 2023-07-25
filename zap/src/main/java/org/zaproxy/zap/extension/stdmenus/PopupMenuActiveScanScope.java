@@ -33,7 +33,9 @@ public class PopupMenuActiveScanScope extends PopupMenuItemSiteNodeContainer {
     private static final long serialVersionUID = 1L;
     private ExtensionActiveScan extension = null;
 
-    /** @param label */
+    /**
+     * @param label
+     */
     public PopupMenuActiveScanScope(String label) {
         super(label);
         this.setIcon(

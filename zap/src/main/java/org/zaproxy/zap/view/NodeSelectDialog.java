@@ -409,6 +409,7 @@ public class NodeSelectDialog extends AbstractDialog {
         }
         return selectButton;
     }
+
     /**
      * This method initializes btnStop
      *

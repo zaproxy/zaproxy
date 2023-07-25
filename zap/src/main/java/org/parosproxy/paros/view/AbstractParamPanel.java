@@ -39,6 +39,7 @@ public abstract class AbstractParamPanel extends JPanel {
         super();
         initialize();
     }
+
     /** This method initializes this */
     private void initialize() {
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {

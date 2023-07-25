@@ -232,6 +232,7 @@ public class JCheckBoxTree extends JTree {
         DefaultTreeSelectionModel dtsm =
                 new DefaultTreeSelectionModel() {
                     private static final long serialVersionUID = -8190634240451667286L;
+
                     // Totally disabling the selection mechanism
                     @Override
                     public void setSelectionPath(TreePath path) {}

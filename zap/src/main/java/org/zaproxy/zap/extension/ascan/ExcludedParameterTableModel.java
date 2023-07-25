@@ -25,7 +25,9 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.ScannerParamFilter;
 import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTableModel;
 
-/** @author yhawke (2014) */
+/**
+ * @author yhawke (2014)
+ */
 @SuppressWarnings("serial")
 public class ExcludedParameterTableModel
         extends AbstractMultipleOptionsBaseTableModel<ScannerParamFilter> {
@@ -81,7 +83,9 @@ public class ExcludedParameterTableModel
         return tokens;
     }
 
-    /** @param tokens The tokens to set. */
+    /**
+     * @param tokens The tokens to set.
+     */
     public void setTokens(List<ScannerParamFilter> tokens) {
         this.tokens.clear();
 

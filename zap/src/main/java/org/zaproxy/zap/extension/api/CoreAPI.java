@@ -237,7 +237,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private boolean savingSession = false;
     private static ExtensionHistory extHistory;
 
-    /** @deprecated (2.12.0) Use {@link #CoreAPI()} instead. */
+    /**
+     * @deprecated (2.12.0) Use {@link #CoreAPI()} instead.
+     */
     @Deprecated
     public CoreAPI(org.parosproxy.paros.network.ConnectionParam connectionParam) {
         this();

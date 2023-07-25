@@ -53,13 +53,17 @@ public class ScanProgressTableModel extends AbstractTableModel {
         focusedAction = null;
     }
 
-    /** @return */
+    /**
+     * @return
+     */
     @Override
     public int getColumnCount() {
         return columnNames.length;
     }
 
-    /** @return */
+    /**
+     * @return
+     */
     @Override
     public int getRowCount() {
         if (values == null) {
@@ -208,22 +212,30 @@ public class ScanProgressTableModel extends AbstractTableModel {
         return null;
     }
 
-    /** @return */
+    /**
+     * @return
+     */
     public List<ScanProgressItem> getValues() {
         return values;
     }
 
-    /** @param actionIcon */
+    /**
+     * @param actionIcon
+     */
     public void setFocusedAction(ScanProgressActionIcon actionIcon) {
         focusedAction = actionIcon;
     }
 
-    /** @return */
+    /**
+     * @return
+     */
     public ScanProgressActionIcon getFocusedAction() {
         return focusedAction;
     }
 
-    /** @param scan */
+    /**
+     * @param scan
+     */
     public void updateValues(ActiveScan scan, HostProcess hp) {
         setHostProcess(hp);
 

@@ -117,7 +117,9 @@ public class MainPopupMenu extends JPopupMenu {
         this.view = view;
     }
 
-    /** @param arg0 */
+    /**
+     * @param arg0
+     */
     public MainPopupMenu(String arg0, View view) {
         super(arg0);
         this.view = view;

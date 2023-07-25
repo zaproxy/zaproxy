@@ -116,6 +116,7 @@ public abstract class BaseZapAddOnXmlData {
     private static final String ZAPADDON_NOT_BEFORE_VERSION_ELEMENT = "not-before-version";
     private static final String ZAPADDON_NOT_FROM_VERSION_ELEMENT = "not-from-version";
     private static final String ZAPADDON_VERSION_ELEMENT = "version";
+
     /**
      * Alias of {@link #ZAPADDON_VERSION_ELEMENT}.
      *

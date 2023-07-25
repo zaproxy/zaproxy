@@ -23,7 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 import org.parosproxy.paros.network.HttpMessage;
 
-/** @deprecated (2.12.0) This class has been moved to the zap-extensions repo. */
+/**
+ * @deprecated (2.12.0) This class has been moved to the zap-extensions repo.
+ */
 @Deprecated
 public class HtmlContext {
 

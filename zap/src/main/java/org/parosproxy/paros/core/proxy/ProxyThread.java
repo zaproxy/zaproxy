@@ -128,7 +128,9 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpRequestConfig;
 
-/** @deprecated No longer used/needed. It will be removed in a future release. */
+/**
+ * @deprecated No longer used/needed. It will be removed in a future release.
+ */
 @Deprecated
 public class ProxyThread implements Runnable {
 

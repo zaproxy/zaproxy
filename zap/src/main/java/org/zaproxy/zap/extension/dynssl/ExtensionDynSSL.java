@@ -217,7 +217,10 @@ public class ExtensionDynSSL extends ExtensionAdaptor implements CommandLineList
      * @since 2.8.0
      */
     public void writeRootFullCaCertificateToFile(Path path)
-            throws IOException, KeyStoreException, NoSuchAlgorithmException, CertificateException,
+            throws IOException,
+                    KeyStoreException,
+                    NoSuchAlgorithmException,
+                    CertificateException,
                     UnrecoverableKeyException {}
 
     private static void writeCert(String path, CertWriter writer) {

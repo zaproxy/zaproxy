@@ -31,7 +31,9 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.ContextExcludePanel;
 
-/** @since 2.3.0 */
+/**
+ * @since 2.3.0
+ */
 @SuppressWarnings("serial")
 public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContainer {
 

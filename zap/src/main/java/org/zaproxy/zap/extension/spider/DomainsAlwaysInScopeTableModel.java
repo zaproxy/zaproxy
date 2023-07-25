@@ -25,7 +25,9 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
 
 @SuppressWarnings("serial")
-/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+/**
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
 @Deprecated
 class DomainsAlwaysInScopeTableModel
         extends AbstractMultipleOptionsTableModel<

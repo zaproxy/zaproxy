@@ -47,7 +47,9 @@ public class KeyboardShortcutTableModel extends AbstractTableModel {
         return tokens;
     }
 
-    /** @param shortcuts The shortcuts to set. */
+    /**
+     * @param shortcuts The shortcuts to set.
+     */
     public void setShortcuts(List<KeyboardShortcut> shortcuts) {
         this.tokens = new ArrayList<>(shortcuts.size());
 

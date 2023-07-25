@@ -28,7 +28,9 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** @since 2.7.0 */
+/**
+ * @since 2.7.0
+ */
 public final class NetworkUtils {
 
     private NetworkUtils() {}

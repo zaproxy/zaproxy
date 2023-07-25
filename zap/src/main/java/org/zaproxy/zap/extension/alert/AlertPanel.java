@@ -640,7 +640,9 @@ public class AlertPanel extends AbstractPanel {
         return paneScroll;
     }
 
-    /** @return Returns the view. */
+    /**
+     * @return Returns the view.
+     */
     private ViewDelegate getView() {
         return view;
     }

@@ -67,7 +67,9 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 
-/** @deprecated (2.12.0) Use the network add-on instead. */
+/**
+ * @deprecated (2.12.0) Use the network add-on instead.
+ */
 @Deprecated
 public class ProxyServer implements Runnable {
 
@@ -94,12 +96,16 @@ public class ProxyServer implements Runnable {
     private String threadName = "ZAP-ProxyServer";
     private boolean shouldPrompt = false;
 
-    /** @return Returns the enableCacheProcessing. */
+    /**
+     * @return Returns the enableCacheProcessing.
+     */
     public boolean isEnableCacheProcessing() {
         return enableCacheProcessing;
     }
 
-    /** @param enableCacheProcessing The enableCacheProcessing to set. */
+    /**
+     * @param enableCacheProcessing The enableCacheProcessing to set.
+     */
     public void setEnableCacheProcessing(boolean enableCacheProcessing) {
         this.enableCacheProcessing = enableCacheProcessing;
 
@@ -108,7 +114,9 @@ public class ProxyServer implements Runnable {
         }
     }
 
-    /** @return Returns the serialize. */
+    /**
+     * @return Returns the serialize.
+     */
     public boolean isSerialize() {
         return serialize;
     }
@@ -450,7 +458,9 @@ public class ProxyServer implements Runnable {
         return ProxyThread.isAnyProxyThreadRunning();
     }
 
-    /** @param serialize The serialize to set. */
+    /**
+     * @param serialize The serialize to set.
+     */
     public void setSerialize(boolean serialize) {
         this.serialize = serialize;
     }

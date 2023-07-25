@@ -47,7 +47,9 @@ public class NotesAddDialog extends AbstractDialog {
 
     private JScrollPane jScrollPane = null;
 
-    /** @throws HeadlessException */
+    /**
+     * @throws HeadlessException
+     */
     public NotesAddDialog() throws HeadlessException {
         super();
         initialize();
@@ -81,6 +83,7 @@ public class NotesAddDialog extends AbstractDialog {
 
         pack();
     }
+
     /**
      * This method initializes jPanel
      *

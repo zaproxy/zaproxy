@@ -169,12 +169,17 @@ public class Control extends AbstractControl implements SessionListener {
         return view != null;
     }
 
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+     */
     @Deprecated
     public Proxy getProxy() {
         return this.getProxy(null);
     }
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+     */
     @Deprecated
     public Proxy getProxy(ControlOverrides overrides) {
         return new Proxy(model, overrides);

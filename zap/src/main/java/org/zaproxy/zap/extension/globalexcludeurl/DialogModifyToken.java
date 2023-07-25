@@ -23,7 +23,9 @@ package org.zaproxy.zap.extension.globalexcludeurl;
 import java.awt.Dialog;
 import org.parosproxy.paros.Constant;
 
-/** @deprecated (2.13.0) Superseded by Network add-on options. */
+/**
+ * @deprecated (2.13.0) Superseded by Network add-on options.
+ */
 @SuppressWarnings("removal")
 @Deprecated(since = "2.13.0", forRemoval = true)
 class DialogModifyToken extends DialogAddToken {

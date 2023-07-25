@@ -45,7 +45,9 @@ public class OptionsPassiveScanTableModel
         super();
     }
 
-    /** @param defns */
+    /**
+     * @param defns
+     */
     public void setScanDefns(List<RegexAutoTagScanner> defns) {
         this.defns = new ArrayList<>(defns.size());
 

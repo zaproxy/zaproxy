@@ -162,7 +162,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
     private State state = null;
 
-    /** @throws HeadlessException */
+    /**
+     * @throws HeadlessException
+     */
     public ManageAddOnsDialog(
             ExtensionAutoUpdate ext, String currentVersion, AddOnCollection installedAddOns)
             throws HeadlessException {

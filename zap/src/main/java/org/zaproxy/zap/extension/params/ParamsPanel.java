@@ -86,6 +86,7 @@ public class ParamsPanel extends AbstractPanel {
         this.setMnemonic(Constant.messages.getChar("params.panel.mnemonic"));
         this.add(getPanelCommand(), getPanelCommand().getName());
     }
+
     /**
      * This method initializes panelCommand
      *

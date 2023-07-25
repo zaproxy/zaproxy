@@ -43,7 +43,9 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
 @SuppressWarnings("serial")
-/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+/**
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
 @Deprecated
 public class SpiderDialog extends StandardFieldsDialog {
 

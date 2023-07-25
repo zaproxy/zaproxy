@@ -72,6 +72,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
         this.setName(Constant.messages.getString("session.general"));
         this.add(getPanelSession(), getPanelSession().getName());
     }
+
     /**
      * This method initializes panelSession
      *
@@ -106,6 +107,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
         }
         return panelSession;
     }
+
     /**
      * This method initializes txtSessionName
      *
@@ -117,6 +119,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
         }
         return txtSessionName;
     }
+
     /**
      * This method initializes txtDescription
      *

@@ -119,7 +119,7 @@ spotless {
 
     java {
         clearSteps()
-        googleJavaFormat("1.7").aosp()
+        googleJavaFormat("1.17.0").aosp()
 
         // Exclude forked/3rd-party/generated files.
         targetExclude(listOf(

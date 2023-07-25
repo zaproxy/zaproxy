@@ -30,7 +30,9 @@ public class PopupMenuShowInHistory extends PopupMenuItemHistoryReferenceContain
     private static final long serialVersionUID = 1L;
     private final ExtensionHistory extension;
 
-    /** @param label */
+    /**
+     * @param label
+     */
     public PopupMenuShowInHistory(String label, ExtensionHistory extension) {
         super(label);
         this.extension = extension;

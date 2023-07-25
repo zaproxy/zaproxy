@@ -77,7 +77,9 @@ public final class HttpStatusCode {
     public static final int GATEWAY_TIMEOUT = 504;
     public static final int HTTP_VERSION_NOT_SUPPORTED = 505;
 
-    /** @deprecated (2.11.0) Use {@link #GATEWAY_TIMEOUT} */
+    /**
+     * @deprecated (2.11.0) Use {@link #GATEWAY_TIMEOUT}
+     */
     @Deprecated public static final int GATEWAY_TIEMOUT = 504;
 
     // ZAP: Added code array
@@ -124,7 +126,9 @@ public final class HttpStatusCode {
         HTTP_VERSION_NOT_SUPPORTED
     };
 
-    /** @deprecated (2.11.0) Use {@link #isInformational} */
+    /**
+     * @deprecated (2.11.0) Use {@link #isInformational}
+     */
     @Deprecated
     public static boolean isInformatinal(int statusCode) {
         return isInformational(statusCode);

@@ -289,13 +289,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return proxyListener;
     }
 
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+     */
     @Deprecated
     public void registerProxy(org.parosproxy.paros.core.proxy.ProxyServer ps) {
         ps.addProxyListener(this.getProxyListenerLog());
     }
 
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+     */
     @Deprecated
     public void unregisterProxy(org.parosproxy.paros.core.proxy.ProxyServer ps) {
         ps.removeProxyListener(this.getProxyListenerLog());
@@ -588,6 +592,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
         return popupMenuPurgeHistory;
     }
+
     /**
      * This method initializes resendDialog
      *
@@ -640,7 +645,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
     }
 
-    /** @deprecated (2.7.0) No longer used/needed. */
+    /**
+     * @deprecated (2.7.0) No longer used/needed.
+     */
     @Deprecated
     public void hideNotesAddDialog() {}
 
@@ -867,7 +874,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return true;
     }
 
-    /** @since 2.8.0 */
+    /**
+     * @since 2.8.0
+     */
     public HistoryReferencesTable getHistoryReferencesTable() {
         return logPanel.getHistoryReferenceTable();
     }

@@ -43,7 +43,9 @@ public class PopupFindMenu extends ExtensionPopupMenuItem {
     private static final long serialVersionUID = 1L;
     private JTextComponent lastInvoker = null;
 
-    /** @return Returns the lastInvoker. */
+    /**
+     * @return Returns the lastInvoker.
+     */
     public JTextComponent getLastInvoker() {
         return lastInvoker;
     }
@@ -93,7 +95,9 @@ public class PopupFindMenu extends ExtensionPopupMenuItem {
     @Deprecated
     public void setParentFrame(JFrame parentFrame) {}
 
-    /** @param lastInvoker The lastInvoker to set. */
+    /**
+     * @param lastInvoker The lastInvoker to set.
+     */
     public void setLastInvoker(JTextComponent lastInvoker) {
         this.lastInvoker = lastInvoker;
     }

@@ -50,7 +50,9 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
-/** @deprecated (2.12.0) see the exim add-on */
+/**
+ * @deprecated (2.12.0) see the exim add-on
+ */
 @Deprecated
 @SuppressWarnings("serial")
 public class PopupMenuExportResponse extends JMenuItem {

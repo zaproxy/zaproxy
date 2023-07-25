@@ -77,7 +77,9 @@ public class AlertAddDialog extends AbstractDialog {
 
     private AlertViewPanel alertViewPanel = null;
 
-    /** @throws HeadlessException */
+    /**
+     * @throws HeadlessException
+     */
     public AlertAddDialog() throws HeadlessException {
         super();
         initialize();
@@ -113,6 +115,7 @@ public class AlertAddDialog extends AbstractDialog {
 
         pack();
     }
+
     /**
      * This method initializes jPanel
      *
@@ -166,6 +169,7 @@ public class AlertAddDialog extends AbstractDialog {
         }
         return jPanel;
     }
+
     /**
      * This method initializes btnStart
      *

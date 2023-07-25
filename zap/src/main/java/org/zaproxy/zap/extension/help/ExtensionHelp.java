@@ -85,7 +85,9 @@ public class ExtensionHelp extends ExtensionAdaptor {
      */
     public static final String HELP_SET_FILE_EXTENSION = "hs";
 
-    /** @deprecated (2.7.0) Use {@link #getHelpIcon()} instead. */
+    /**
+     * @deprecated (2.7.0) Use {@link #getHelpIcon()} instead.
+     */
     @Deprecated
     public static final ImageIcon HELP_ICON = View.isInitialised() ? getHelpIcon() : null;
 
@@ -427,7 +429,9 @@ public class ExtensionHelp extends ExtensionAdaptor {
     }
     */
 
-    /** @see #showHelp(String) */
+    /**
+     * @see #showHelp(String)
+     */
     public static void showHelp() {
         showHelp("zap.intro");
     }

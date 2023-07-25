@@ -75,7 +75,9 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapTextField;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 @SuppressWarnings("serial")
 public class OptionsCertificatePanel extends AbstractParamPanel {
@@ -183,6 +185,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel {
         }
         driverComboBox.repaint();
     }
+
     /**
      * This method initializes panelCertificate
      *

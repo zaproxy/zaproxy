@@ -64,11 +64,13 @@ public class AbstractPanel extends JPanel {
     public void setIcon(Icon icon) {
         this.icon = icon;
     }
+
     /** This is the default constructor */
     public AbstractPanel() {
         super();
         initialize();
     }
+
     /** This method initializes this */
     private void initialize() {
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {

@@ -28,7 +28,9 @@ public class PopupMenuShowInSites extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 1L;
 
-    /** @param label */
+    /**
+     * @param label
+     */
     public PopupMenuShowInSites(String label) {
         super(label);
     }

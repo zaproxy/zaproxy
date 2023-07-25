@@ -221,20 +221,30 @@ public class Session {
         discardContexts();
     }
 
-    /** @return Returns the sessionDesc. */
+    /**
+     * @return Returns the sessionDesc.
+     */
     public String getSessionDesc() {
         return sessionDesc;
     }
 
-    /** @return Returns the sessionId. */
+    /**
+     * @return Returns the sessionId.
+     */
     public long getSessionId() {
         return sessionId;
     }
-    /** @return Returns the name. */
+
+    /**
+     * @return Returns the name.
+     */
     public String getSessionName() {
         return sessionName;
     }
-    /** @return Returns the siteTree. */
+
+    /**
+     * @return Returns the siteTree.
+     */
     public SiteMap getSiteTree() {
         return siteTree;
     }
@@ -697,19 +707,26 @@ public class Session {
         model.snapshotSessionDb(this.fileName, fileName);
     }
 
-    /** @param sessionDesc The sessionDesc to set. */
+    /**
+     * @param sessionDesc The sessionDesc to set.
+     */
     public void setSessionDesc(String sessionDesc) {
         this.sessionDesc = sessionDesc;
         configuration.setProperty(SESSION_DESC, sessionDesc);
     }
 
-    /** @param sessionId The sessionId to set. */
+    /**
+     * @param sessionId The sessionId to set.
+     */
     public void setSessionId(long sessionId) {
         this.sessionId = sessionId;
         // setText(SESSION_ID, Long.toString(sessionId));
         configuration.setProperty(SESSION_ID, Long.toString(sessionId));
     }
-    /** @param name The name to set. */
+
+    /**
+     * @param name The name to set.
+     */
     public void setSessionName(String name) {
         this.sessionName = name;
         // setText(SESSION_NAME, name);
@@ -1509,9 +1526,14 @@ public class Session {
      *     empty or if a context with the same name already exists.
      */
     public Context importContext(File file)
-            throws ConfigurationException, ClassNotFoundException, InstantiationException,
-                    IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-                    NoSuchMethodException, SecurityException {
+            throws ConfigurationException,
+                    ClassNotFoundException,
+                    InstantiationException,
+                    IllegalAccessException,
+                    IllegalArgumentException,
+                    InvocationTargetException,
+                    NoSuchMethodException,
+                    SecurityException {
         return importContext(new ZapXmlConfiguration(file));
     }
 
@@ -1533,9 +1555,14 @@ public class Session {
      * @since 2.13.0
      */
     public Context importContext(ZapXmlConfiguration config)
-            throws ConfigurationException, ClassNotFoundException, InstantiationException,
-                    IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-                    NoSuchMethodException, SecurityException {
+            throws ConfigurationException,
+                    ClassNotFoundException,
+                    InstantiationException,
+                    IllegalAccessException,
+                    IllegalArgumentException,
+                    InvocationTargetException,
+                    NoSuchMethodException,
+                    SecurityException {
         String name = config.getString(Context.CONTEXT_CONFIG_NAME);
         validateContextName(name);
 
@@ -1766,13 +1793,17 @@ public class Session {
         return this.getFormParamParser(uri.toString()).parseParameters(formData);
     }
 
-    /** @deprecated use {@link SessionStructure#getTreePath(Model, URI)} */
+    /**
+     * @deprecated use {@link SessionStructure#getTreePath(Model, URI)}
+     */
     @Deprecated
     public List<String> getTreePath(URI uri) throws URIException {
         return SessionStructure.getTreePath(Model.getSingleton(), uri);
     }
 
-    /** @deprecated use {@link SessionStructure#getTreePath(Model, HttpMessage)} */
+    /**
+     * @deprecated use {@link SessionStructure#getTreePath(Model, HttpMessage)}
+     */
     @Deprecated
     public List<String> getTreePath(HttpMessage msg) throws URIException {
         return SessionStructure.getTreePath(Model.getSingleton(), msg);

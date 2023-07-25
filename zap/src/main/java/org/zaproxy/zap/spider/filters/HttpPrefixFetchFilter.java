@@ -43,18 +43,22 @@ public class HttpPrefixFetchFilter extends FetchFilter {
 
     /** The normalised form of HTTP scheme, that is, all letters lowercase. */
     private static final String HTTP_SCHEME = "http";
+
     /** The normalised form of HTTPS scheme, that is, all letters lowercase. */
     private static final String HTTPS_SCHEME = "https";
 
     /** The port number that indicates that a port is the default of a scheme. */
     private static final int DEFAULT_PORT = -1;
+
     /**
      * The port number that indicates that a port is of an unknown scheme (that is, non HTTP and
      * HTTPS).
      */
     private static final int UNKNOWN_PORT = -2;
+
     /** The default port number of HTTP scheme. */
     private static final int DEFAULT_HTTP_PORT = 80;
+
     /** The default port number of HTTPS scheme. */
     private static final int DEFAULT_HTTPS_PORT = 443;
 

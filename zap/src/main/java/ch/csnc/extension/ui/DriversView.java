@@ -42,7 +42,9 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.zaproxy.zap.utils.ZapTextField;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 public class DriversView extends AbstractFrame {
 

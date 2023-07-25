@@ -52,24 +52,32 @@ public class ScanProgressItem {
         this.progressAction = new ScanProgressActionIcon(this);
     }
 
-    /** @return */
+    /**
+     * @return
+     */
     public String getNameLabel() {
         return pluginStats.getPluginName();
     }
 
-    /** @deprecated (2.11.0) Use {@link #getAttackStrengthLabel} */
+    /**
+     * @deprecated (2.11.0) Use {@link #getAttackStrengthLabel}
+     */
     @Deprecated
     public String getAttackStrenghtLabel() {
         return getAttackStrengthLabel();
     }
 
-    /** @return */
+    /**
+     * @return
+     */
     public String getAttackStrengthLabel() {
         return Constant.messages.getString(
                 "ascan.policy.level." + plugin.getAttackStrength().name().toLowerCase(Locale.ROOT));
     }
 
-    /** @return */
+    /**
+     * @return
+     */
     public String getStatusLabel() {
         switch (status) {
             case STATUS_COMPLETED:
@@ -125,7 +133,9 @@ public class ScanProgressItem {
         return progressAction;
     }
 
-    /** @return */
+    /**
+     * @return
+     */
     public boolean isRunning() {
         return (status == STATUS_RUNNING);
     }
@@ -139,7 +149,9 @@ public class ScanProgressItem {
         return (status == STATUS_PENDING);
     }
 
-    /** @return */
+    /**
+     * @return
+     */
     public boolean isCompleted() {
         return (status == STATUS_COMPLETED);
     }
@@ -174,7 +186,9 @@ public class ScanProgressItem {
         }
     }
 
-    /** @return */
+    /**
+     * @return
+     */
     protected Plugin getPlugin() {
         return plugin;
     }

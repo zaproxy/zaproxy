@@ -28,7 +28,9 @@ import java.net.SocketAddress;
 import java.net.SocketException;
 import java.nio.channels.SocketChannel;
 
-/** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+/**
+ * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+ */
 @Deprecated
 public class CustomStreamsSocket extends Socket {
 

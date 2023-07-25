@@ -46,6 +46,7 @@ public class I18N {
      */
 
     private ResourceBundle stdMessages = null;
+
     /**
      * Fallback resource bundle for when a resource is missing in the file system resource bundle.
      *

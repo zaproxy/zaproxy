@@ -73,7 +73,9 @@ import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 import org.zaproxy.zap.network.DomainMatcher;
 
-/** @deprecated (2.12.0) Use the network add-on instead. */
+/**
+ * @deprecated (2.12.0) Use the network add-on instead.
+ */
 @Deprecated
 public class ConnectionParam extends AbstractParam {
 
@@ -200,11 +202,16 @@ public class ConnectionParam extends AbstractParam {
     /** The TTL (in seconds) of successful DNS queries. */
     private int dnsTtlSuccessfulQueries = DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES;
 
-    /** @return Returns the httpStateEnabled. */
+    /**
+     * @return Returns the httpStateEnabled.
+     */
     public boolean isHttpStateEnabled() {
         return httpStateEnabled;
     }
-    /** @param httpStateEnabled The httpStateEnabled to set. */
+
+    /**
+     * @param httpStateEnabled The httpStateEnabled to set.
+     */
     public void setHttpStateEnabled(boolean httpStateEnabled) {
         setHttpStateEnabledImpl(httpStateEnabled);
         getConfig().setProperty(HTTP_STATE_ENABLED, this.httpStateEnabled);
@@ -532,11 +539,16 @@ public class ConnectionParam extends AbstractParam {
         }
     }
 
-    /** @return Returns the httpState. */
+    /**
+     * @return Returns the httpState.
+     */
     public HttpState getHttpState() {
         return httpState;
     }
-    /** @param httpState The httpState to set. */
+
+    /**
+     * @param httpState The httpState to set.
+     */
     public void setHttpState(HttpState httpState) {
         this.httpState = httpState;
     }

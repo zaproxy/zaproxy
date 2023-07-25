@@ -173,8 +173,10 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
         private HttpSender httpSender;
         private SiteNode markedLoginSiteNode;
         private SiteNode loginSiteNode = null;
+
         /** The URL to which credentials are submitted. */
         private String loginRequestURL;
+
         /**
          * The URI of the login page(form). When automatically (re)authenticating, {@code ZAP} may
          * need to submit fresh cookie or(and) ACSRF token. {@code ZAP} gets those fresh values by
@@ -693,6 +695,7 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
 
         /** The URI to which the login credentials are submitted. */
         private ZapTextField loginUrlField;
+
         /**
          * The URI to {@code GET} the login page(form). When automatically (re)authenticating,
          * {@code ZAP} may need fresh cookie or(and) ACSRF token value. {@code ZAP} gets those fresh
