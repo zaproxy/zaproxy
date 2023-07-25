@@ -33,7 +33,7 @@ fun setupTest(name: String, addToCheck: Boolean = true): TaskProvider<Test> {
         "${nameTest}RuntimeOnly" { extendsFrom(configurations["testRuntimeOnly"]) }
     }
 
-    val nameLowerCase = name.toLowerCase()
+    val nameLowerCase = name.lowercase()
     val testTask = tasks.register<Test>(nameTest) {
         group = LifecycleBasePlugin.VERIFICATION_GROUP
         description = "Runs the $nameLowerCase tests."

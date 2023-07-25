@@ -71,7 +71,9 @@ import org.zaproxy.zap.network.HttpSenderImpl;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.users.User;
 
-/** @deprecated (2.12.0) Implementation details, do not use. */
+/**
+ * @deprecated (2.12.0) Implementation details, do not use.
+ */
 @Deprecated
 public class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
 
@@ -312,7 +314,8 @@ public class HttpSenderParos implements HttpSenderImpl<HttpSenderContextParos> {
                             while ((totalRead +=
                                             channel.transferFrom(
                                                     Channels.newChannel(is), totalRead, 1 << 24))
-                                    < header.getContentLength()) ;
+                                    < header.getContentLength())
+                                ;
                         }
                     });
         }

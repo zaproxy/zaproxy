@@ -636,6 +636,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
     protected abstract Component getWorkPanel();
 
     protected abstract void switchView(GS scanner);
+
     /*
      * Returns the scan button. Can return null if not relevant
      */

@@ -33,18 +33,22 @@ public class StatsParam extends AbstractParam {
 
     /** The configuration key used to configure if in memory stats should be used. */
     private static final String IN_MEMORY_STATS_KEY = STATS_BASE_KEY + ".inmemory";
+
     /** The configuration key used for the statsd host name - if empty statsd wont be used. */
     private static final String STATSD_HOST_KEY = STATS_BASE_KEY + ".statsd.host";
+
     /**
      * The configuration key used for the statsd port - if empty will default to
      * DEFAULT_STATSD_PORT.
      */
     private static final String STATSD_PORT_KEY = STATS_BASE_KEY + ".statsd.port";
+
     /** The configuration key used for the statsd prefix. */
     private static final String STATSD_PREFIX_KEY = STATS_BASE_KEY + ".statsd.prefix";
 
     /** The default statsd port. */
     private static final int DEFAULT_STATSD_PORT = 8125;
+
     /** The default statsd prefix. */
     private static final String DEFAULT_STATSD_PREFIX = "zap";
 

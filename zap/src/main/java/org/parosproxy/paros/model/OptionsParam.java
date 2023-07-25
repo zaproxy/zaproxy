@@ -88,6 +88,7 @@ public class OptionsParam extends AbstractParam {
     @SuppressWarnings("deprecation")
     private org.parosproxy.paros.extension.option.OptionsParamCertificate certificateParam =
             new org.parosproxy.paros.extension.option.OptionsParamCertificate();
+
     // ZAP: Added many instance variables for new functionality.
     private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
     private OptionsParamApi apiParam = new OptionsParamApi();
@@ -155,17 +156,23 @@ public class OptionsParam extends AbstractParam {
         this.connectionParam = connectionParam;
     }
 
-    /** @param viewParam The viewParam to set. */
+    /**
+     * @param viewParam The viewParam to set.
+     */
     public void setViewParam(OptionsParamView viewParam) {
         this.viewParam = viewParam;
     }
 
-    /** @return Returns the viewParam. */
+    /**
+     * @return Returns the viewParam.
+     */
     public OptionsParamView getViewParam() {
         return viewParam;
     }
 
-    /** @return Returns the viewParam. */
+    /**
+     * @return Returns the viewParam.
+     */
     public OptionsParamCheckForUpdates getCheckForUpdatesParam() {
         return checkForUpdatesParam;
     }
@@ -259,12 +266,16 @@ public class OptionsParam extends AbstractParam {
         this.gui = gui;
     }
 
-    /** @return Returns the currentFolder. */
+    /**
+     * @return Returns the currentFolder.
+     */
     public File getUserDirectory() {
         return userDirectory;
     }
 
-    /** @param currentDirectory The currentFolder to set. */
+    /**
+     * @param currentDirectory The currentFolder to set.
+     */
     public void setUserDirectory(File currentDirectory) {
         this.userDirectory = currentDirectory;
         // ZAP: User directory now stored in the config file
@@ -304,7 +315,9 @@ public class OptionsParam extends AbstractParam {
         return apiParam;
     }
 
-    /** @deprecated (2.12.0) */
+    /**
+     * @deprecated (2.12.0)
+     */
     @Deprecated
     public ch.csnc.extension.util.OptionsParamExperimentalSliSupport
             getExperimentalFeaturesParam() {

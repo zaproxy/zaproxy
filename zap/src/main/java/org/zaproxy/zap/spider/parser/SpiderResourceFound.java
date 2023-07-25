@@ -37,16 +37,22 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 public class SpiderResourceFound {
     /** The message where the resource was found. */
     private final HttpMessage message;
+
     /** Spider depth for resource. */
     private final int depth;
+
     /** HTTP method for resource. */
     private final String method;
+
     /** Uniform resource identifier of resource. */
     private final String uri;
+
     /** Body for the resource. */
     private final String body;
+
     /** Defines resource as useful or not useful in the fetching process. */
     private final boolean shouldIgnore;
+
     /** Additional request headers to be passed for the resource. */
     private final List<HttpHeaderField> headers;
 

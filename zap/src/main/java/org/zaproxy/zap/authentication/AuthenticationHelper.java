@@ -65,7 +65,9 @@ public class AuthenticationHelper {
     public static final String AUTH_SUCCESS_STATS = "stats.auth.success";
     public static final String AUTH_FAILURE_STATS = "stats.auth.failure";
 
-    /** @deprecated use {@link #notifyOutputAuthSuccessful(HttpMessage)} instead. */
+    /**
+     * @deprecated use {@link #notifyOutputAuthSuccessful(HttpMessage)} instead.
+     */
     @Deprecated
     public static void notifyOutputAuthSuccessful() {
         notifyOutputAuthSuccessful(null);

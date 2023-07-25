@@ -28,7 +28,9 @@ package ch.csnc.extension.ui;
 import java.util.Vector;
 import javax.swing.table.AbstractTableModel;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 @SuppressWarnings("serial")
 public class DriverTableModel extends AbstractTableModel {

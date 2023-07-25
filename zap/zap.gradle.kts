@@ -92,10 +92,8 @@ dependencies {
 
     testImplementation("net.bytebuddy:byte-buddy:1.14.0")
     testImplementation("org.hamcrest:hamcrest-core:2.2")
-    val jupiterVersion = "5.9.2"
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.mockito:mockito-junit-jupiter:5.1.1")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
 

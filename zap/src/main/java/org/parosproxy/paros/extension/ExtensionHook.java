@@ -341,12 +341,16 @@ public class ExtensionHook {
         return hookView;
     }
 
-    /** @return Returns the model. */
+    /**
+     * @return Returns the model.
+     */
     public Model getModel() {
         return model;
     }
 
-    /** @return Returns the optionsListenerList. */
+    /**
+     * @return Returns the optionsListenerList.
+     */
     public Vector<OptionsChangedListener> getOptionsChangedListenerList() {
         return optionsListenerList;
     }
@@ -355,12 +359,16 @@ public class ExtensionHook {
         return optionsParamSetList;
     }
 
-    /** @return Returns the proxyListenerList. */
+    /**
+     * @return Returns the proxyListenerList.
+     */
     public Vector<ProxyListener> getProxyListenerList() {
         return proxyListenerList;
     }
 
-    /** @return Returns the sessionListenerList. */
+    /**
+     * @return Returns the sessionListenerList.
+     */
     public Vector<SessionChangedListener> getSessionListenerList() {
         return sessionListenerList;
     }
@@ -378,7 +386,9 @@ public class ExtensionHook {
         return persistentConnectionListenerList;
     }
 
-    /** @return Returns the view. */
+    /**
+     * @return Returns the view.
+     */
     public ViewDelegate getView() {
         return view;
     }

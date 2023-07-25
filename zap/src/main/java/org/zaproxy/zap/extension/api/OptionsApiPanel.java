@@ -72,6 +72,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
         this.setName(Constant.messages.getString("api.options.title"));
         this.add(getPanelMisc(), getPanelMisc().getName());
     }
+
     /**
      * This method initializes panelMisc
      *
@@ -121,6 +122,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
         }
         return panelMisc;
     }
+
     /**
      * This method initializes chkProcessImages
      *

@@ -19,7 +19,9 @@
  */
 package org.zaproxy.zap.extension.callback.ui;
 
-/** @deprecated (2.11.0) Superseded by the OAST add-on. */
+/**
+ * @deprecated (2.11.0) Superseded by the OAST add-on.
+ */
 @Deprecated
 public abstract class CustomColumn<T> {
     Class<?> columnClass;

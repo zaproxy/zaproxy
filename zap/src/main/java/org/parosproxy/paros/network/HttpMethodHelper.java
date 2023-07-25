@@ -48,7 +48,9 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** @deprecated (2.12.0) Implementation details, do not use. */
+/**
+ * @deprecated (2.12.0) Implementation details, do not use.
+ */
 @Deprecated
 public class HttpMethodHelper {
 

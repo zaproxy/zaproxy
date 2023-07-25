@@ -33,7 +33,9 @@ import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
 @SuppressWarnings("serial")
-/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+/**
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
 @Deprecated
 class DialogAddDomainAlwaysInScope extends AbstractFormDialog {
 

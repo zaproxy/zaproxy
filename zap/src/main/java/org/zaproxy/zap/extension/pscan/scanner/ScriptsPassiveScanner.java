@@ -115,7 +115,9 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
         }
     }
 
-    /** @since 2.9.0 */
+    /**
+     * @since 2.9.0
+     */
     @Override
     public AlertBuilder newAlert() {
         return super.newAlert();
@@ -195,7 +197,9 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
                 .raise();
     }
 
-    /** @deprecated 2.12.0 Replaced by {@link #addHistoryTag(String)} */
+    /**
+     * @deprecated 2.12.0 Replaced by {@link #addHistoryTag(String)}
+     */
     @Override
     @Deprecated
     public void addTag(String tag) {

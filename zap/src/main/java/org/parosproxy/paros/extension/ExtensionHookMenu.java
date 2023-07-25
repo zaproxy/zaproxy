@@ -404,7 +404,9 @@ public class ExtensionHookMenu {
         addImportMenuItemImpl(menu);
     }
 
-    /** @since 2.8.0 */
+    /**
+     * @since 2.8.0
+     */
     public void addImportMenuItem(ZapMenuItem menuItem) {
         addImportMenuItemImpl(menuItem);
     }

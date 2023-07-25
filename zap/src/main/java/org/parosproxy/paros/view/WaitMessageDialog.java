@@ -37,7 +37,10 @@ public class WaitMessageDialog extends AbstractDialog {
 
     private JPanel jPanel = null;
     private JLabel lblMessage = null;
-    /** @throws HeadlessException */
+
+    /**
+     * @throws HeadlessException
+     */
     public WaitMessageDialog() throws HeadlessException {
         super();
         initialize();
@@ -63,6 +66,7 @@ public class WaitMessageDialog extends AbstractDialog {
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         this.setResizable(false);
     }
+
     /**
      * This method initializes jPanel
      *

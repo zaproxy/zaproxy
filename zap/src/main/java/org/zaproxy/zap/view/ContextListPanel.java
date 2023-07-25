@@ -52,6 +52,7 @@ public class ContextListPanel extends AbstractParamPanel {
         this.setName(Constant.messages.getString("context.list"));
         this.add(getPanelSession(), getPanelSession().getName());
     }
+
     /**
      * This method initializes panelSession
      *

@@ -31,7 +31,9 @@ import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 
-/** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+/**
+ * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+ */
 @Deprecated
 public class ProxiesAPI extends ApiImplementor {
 

@@ -33,7 +33,9 @@ import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.users.User;
 
-/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+/**
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
 @Deprecated
 public class SpiderScanController implements ScanController<SpiderScan> {
 

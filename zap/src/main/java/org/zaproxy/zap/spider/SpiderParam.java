@@ -166,40 +166,55 @@ public class SpiderParam extends AbstractParam {
 
     /** The max depth of the crawling. */
     private int maxDepth = 5;
+
     /** The thread count. */
     private int threadCount = 2;
+
     /** Whether comments should be parsed for URIs. */
     private boolean parseComments = true;
+
     /** Whether robots.txt file should be parsed for URIs. */
     private boolean parseRobotsTxt = true;
+
     /** Whether sitemap.xml file should be parsed for URIs. */
     private boolean parseSitemapXml = true;
+
     /** Whether SVN entries files should be parsed for URIs. */
     private boolean parseSVNentries = false;
+
     /** Whether Git files should be parsed for URIs. */
     private boolean parseGit = false;
+
     /** Whether the forms are processed and submitted at all. */
     private boolean processForm = true;
+
     /**
      * Whether the forms are submitted, if their method is HTTP POST. This option should not be used
      * if the forms are not processed at all (processForm).
      */
     private boolean postForm = true;
+
     /** The waiting time between new requests to server - safe from DDOS. */
     private int requestWait = 200;
+
     /** Which urls are skipped. */
     private String skipURL = "";
+
     /** The pattern for skip url. */
     private Pattern patternSkipURL = null;
+
     /** The user agent string, if different than the default one. */
     private String userAgent = null;
+
     /** The handle parameters visited. */
     private HandleParametersOption handleParametersVisited = HandleParametersOption.USE_ALL;
+
     /**
      * Defines if we take care of OData specific parameters during the visit in order to identify
      * known URL *
      */
     private boolean handleODataParametersVisited = false;
+
     /** The maximum duration in minutes that the spider is allowed to run for, 0 meaning no limit */
     private int maxDuration = 0;
 

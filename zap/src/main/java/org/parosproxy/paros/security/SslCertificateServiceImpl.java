@@ -60,6 +60,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
      * "now"
      */
     private static final int SITE_CERTIFICATE_START_ADJUSTMENT = 30;
+
     /**
      * Constant used to define the end validity date for site certificates. 1year minus start
      * adjustment. Per: https://cabforum.org/2017/02/24/ballot-185-limiting-lifetime-certificates/
@@ -105,16 +106,26 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 
     @Override
     public KeyStore createCertForHost(String hostname)
-            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException,
-                    KeyStoreException, SignatureException, NoSuchProviderException,
-                    InvalidKeyException, IOException {
+            throws CertificateException,
+                    UnrecoverableKeyException,
+                    NoSuchAlgorithmException,
+                    KeyStoreException,
+                    SignatureException,
+                    NoSuchProviderException,
+                    InvalidKeyException,
+                    IOException {
         return createCertForHost(new CertData(hostname));
     }
 
     @Override
     public KeyStore createCertForHost(CertData certData)
-            throws NoSuchAlgorithmException, InvalidKeyException, CertificateException,
-                    NoSuchProviderException, SignatureException, KeyStoreException, IOException,
+            throws NoSuchAlgorithmException,
+                    InvalidKeyException,
+                    CertificateException,
+                    NoSuchProviderException,
+                    SignatureException,
+                    KeyStoreException,
+                    IOException,
                     UnrecoverableKeyException {
         return null;
     }
@@ -134,7 +145,9 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
         return keypair;
     }
 
-    /** @return return the current {@link SslCertificateService} */
+    /**
+     * @return return the current {@link SslCertificateService}
+     */
     public static SslCertificateService getService() {
         return singleton;
     }

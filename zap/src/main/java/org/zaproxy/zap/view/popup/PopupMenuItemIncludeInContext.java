@@ -31,7 +31,9 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.view.ContextIncludePanel;
 
-/** @since 2.3.0 */
+/**
+ * @since 2.3.0
+ */
 @SuppressWarnings("serial")
 public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContainer {
 

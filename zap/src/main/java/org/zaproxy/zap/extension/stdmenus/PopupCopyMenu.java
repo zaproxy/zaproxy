@@ -29,7 +29,9 @@ public class PopupCopyMenu extends ExtensionPopupMenuItem {
     private static final long serialVersionUID = 1L;
     private JTextComponent lastInvoker = null;
 
-    /** @return Returns the lastInvoker. */
+    /**
+     * @return Returns the lastInvoker.
+     */
     public JTextComponent getLastInvoker() {
         return lastInvoker;
     }

@@ -52,6 +52,7 @@ public class OptionsDialog extends AbstractParamDialog {
         super();
         initialize();
     }
+
     /**
      * @param parent
      * @param modal
@@ -62,6 +63,7 @@ public class OptionsDialog extends AbstractParamDialog {
         super(parent, modal, title, Constant.messages.getString("options.dialog.rootName"));
         initialize();
     }
+
     /** This method initializes this */
     private void initialize() {
 

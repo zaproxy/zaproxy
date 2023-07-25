@@ -98,7 +98,9 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
      * [Clear ] [Apply ] | +----------------------------------------------------------------------+
      */
 
-    /** @throws HeadlessException */
+    /**
+     * @throws HeadlessException
+     */
     public HistoryFilterPlusDialog() throws HeadlessException {
         super();
         initialize();
@@ -176,6 +178,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
         }
         return jPanel;
     }
+
     /**
      * This method initializes btnApply
      *
@@ -248,6 +251,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
         }
         return btnCancel;
     }
+
     /**
      * This method initializes jPanel1
      *
@@ -303,6 +307,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
     private Insets stdInset() {
         return new Insets(5, 5, 1, 5);
     }
+
     /**
      * This method initializes jPanel2
      *

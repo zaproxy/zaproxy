@@ -69,7 +69,9 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.view.HrefTypeInfo;
 
-/** @deprecated (2.12.0) Replaced by Requester add-on. */
+/**
+ * @deprecated (2.12.0) Replaced by Requester add-on.
+ */
 @Deprecated
 public class ExtensionManualRequestEditor extends ExtensionAdaptor
         implements SessionChangedListener {

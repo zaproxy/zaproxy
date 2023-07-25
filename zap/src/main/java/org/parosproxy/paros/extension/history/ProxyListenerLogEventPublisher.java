@@ -35,6 +35,7 @@ public final class ProxyListenerLogEventPublisher implements EventPublisher {
 
     /** The event sent when a {@code HistoryReference} is added. */
     public static final String EVENT_ADDED = "href.added";
+
     /** The event's field that contains the ID of the {@code HistoryReference} of the event. */
     public static final String FIELD_HISTORY_REFERENCE_ID = "historyReferenceId";
 

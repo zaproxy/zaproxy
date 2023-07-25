@@ -39,36 +39,42 @@ public class NameValuePair implements Comparable<NameValuePair> {
     public static final int TYPE_COOKIE = ScannerParam.TARGET_COOKIE;
     public static final int TYPE_HEADER = ScannerParam.TARGET_HTTPHEADERS;
     public static final int TYPE_POST_DATA = ScannerParam.TARGET_POSTDATA;
+
     /**
      * A "normal" (non-file) multipart/form-data parameter
      *
      * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_PARAM = 33;
+
     /**
      * A file (content) multipart/form-data file parameter
      *
      * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_FILE_PARAM = 34;
+
     /**
      * The filename portion of a multipart/form-data file parameter
      *
      * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_FILE_NAME = 35;
+
     /**
      * The content-type portion of a multipart/form-data file parameter
      *
      * @since 2.8.0
      */
     public static final int TYPE_MULTIPART_DATA_FILE_CONTENTTYPE = 36;
+
     /**
      * The application/json content-type of a web application
      *
      * @since 2.8.0
      */
     public static final int TYPE_JSON = 37;
+
     /**
      * The inline arguments in a GraphQL query
      *
@@ -104,32 +110,44 @@ public class NameValuePair implements Comparable<NameValuePair> {
         return targetType;
     }
 
-    /** @return Returns the name. */
+    /**
+     * @return Returns the name.
+     */
     public String getName() {
         return name;
     }
 
-    /** @param name The name to set. */
+    /**
+     * @param name The name to set.
+     */
     public void setName(String name) {
         this.name = name;
     }
 
-    /** @return Returns the value. */
+    /**
+     * @return Returns the value.
+     */
     public String getValue() {
         return value;
     }
 
-    /** @param value The value to set. */
+    /**
+     * @param value The value to set.
+     */
     public void setValue(String value) {
         this.value = value;
     }
 
-    /** @return Returns the position. */
+    /**
+     * @return Returns the position.
+     */
     public int getPosition() {
         return position;
     }
 
-    /** @param position The position to set. */
+    /**
+     * @param position The position to set.
+     */
     public void setPosition(int position) {
         this.position = position;
     }

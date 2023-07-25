@@ -296,7 +296,9 @@ public class ScriptWrapper {
         return null;
     }
 
-    /** @deprecated (2.11.0) Use {@link #isRunnableStandalone} */
+    /**
+     * @deprecated (2.11.0) Use {@link #isRunnableStandalone}
+     */
     @Deprecated
     public boolean isRunableStandalone() {
         return isRunnableStandalone();

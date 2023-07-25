@@ -81,6 +81,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
         gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
         this.add(getJScrollPane(), gridBagConstraints11);
     }
+
     /**
      * This method initializes tableTest
      *
@@ -143,6 +144,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
         }
         return jScrollPane;
     }
+
     /**
      * This method initializes categoryTableModel
      *

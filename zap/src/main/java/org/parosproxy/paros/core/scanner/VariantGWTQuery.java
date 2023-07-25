@@ -53,7 +53,9 @@ public class VariantGWTQuery extends VariantAbstractRPCQuery {
         return contentType.startsWith(GWT_RPC_CONTENT_TYPE);
     }
 
-    /** @param content */
+    /**
+     * @param content
+     */
     @Override
     public void parseContent(String content) {
         GWTStringTokenizer st = new GWTStringTokenizer(content, RPC_SEPARATOR_CHAR);

@@ -189,6 +189,7 @@ public class View implements ViewDelegate {
 
     private List<AbstractContextPropertiesPanel> contextPanels = new ArrayList<>();
     private List<ContextPanelFactory> contextPanelFactories = new ArrayList<>();
+
     /**
      * A map containing the {@link AbstractContextPropertiesPanel context panels} created by a
      * {@link ContextPanelFactory context panel factory}, being the latter the key and the former
@@ -220,11 +221,14 @@ public class View implements ViewDelegate {
      */
     private boolean canGetFocus = true;
 
-    /** @return Returns the mainFrame. */
+    /**
+     * @return Returns the mainFrame.
+     */
     @Override
     public MainFrame getMainFrame() {
         return mainFrame;
     }
+
     /// **
     // * @return Returns the requestPanel.
     // */
@@ -437,7 +441,9 @@ public class View implements ViewDelegate {
         return showConfirmDialog(getMainFrame(), msg);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public int showConfirmDialog(ZapHtmlLabel label) {
         return showConfirmDialog(getMainFrame(), label);
     }
@@ -447,7 +453,9 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public int showConfirmDialog(JPanel parent, ZapHtmlLabel label) {
         return JOptionPane.showConfirmDialog(
                 parent, label, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
@@ -458,7 +466,9 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public int showConfirmDialog(Window parent, ZapHtmlLabel label) {
         return JOptionPane.showConfirmDialog(
                 parent, label, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
@@ -469,7 +479,9 @@ public class View implements ViewDelegate {
         return showYesNoCancelDialog(getMainFrame(), msg);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public int showYesNoCancelDialog(ZapHtmlLabel label) {
         return showYesNoCancelDialog(getMainFrame(), label);
     }
@@ -479,7 +491,9 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public int showYesNoCancelDialog(JPanel parent, ZapHtmlLabel label) {
         return JOptionPane.showConfirmDialog(
                 parent, label, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
@@ -490,7 +504,9 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public int showYesNoCancelDialog(Window parent, ZapHtmlLabel label) {
         return JOptionPane.showConfirmDialog(
                 parent, label, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
@@ -501,7 +517,9 @@ public class View implements ViewDelegate {
         showWarningDialog(getMainFrame(), msg);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public void showWarningDialog(ZapHtmlLabel label) {
         showWarningDialog(getMainFrame(), label);
     }
@@ -511,7 +529,9 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public void showWarningDialog(JPanel parent, ZapHtmlLabel label) {
         JOptionPane.showMessageDialog(
                 parent, label, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
@@ -522,7 +542,9 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public void showWarningDialog(Window parent, ZapHtmlLabel label) {
         JOptionPane.showMessageDialog(
                 parent, label, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
@@ -533,7 +555,9 @@ public class View implements ViewDelegate {
         showMessageDialog(getMainFrame(), msg);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public void showMessageDialog(ZapHtmlLabel label) {
         showMessageDialog(getMainFrame(), label);
     }
@@ -543,7 +567,9 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public void showMessageDialog(JPanel parent, ZapHtmlLabel label) {
         JOptionPane.showMessageDialog(
                 parent, label, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
@@ -554,7 +580,9 @@ public class View implements ViewDelegate {
                 parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
     }
 
-    /** @since 2.12.0 */
+    /**
+     * @since 2.12.0
+     */
     public void showMessageDialog(Window parent, ZapHtmlLabel label) {
         JOptionPane.showMessageDialog(
                 parent, label, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
@@ -654,7 +682,9 @@ public class View implements ViewDelegate {
     //
     //	    findDialog.setVisible(true);
     //	}
-    /** @return Returns the siteTreePanel. */
+    /**
+     * @return Returns the siteTreePanel.
+     */
     @Override
     public SiteMapPanel getSiteTreePanel() {
         if (siteMapPanel == null) {

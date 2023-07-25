@@ -162,6 +162,7 @@ public class SiteMapPanel extends AbstractPanel {
 
         return view;
     }
+
     /** This method initializes this */
     private void initialize() {
         this.setHideable(false);

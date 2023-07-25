@@ -66,7 +66,9 @@ import org.apache.commons.io.FileUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 public class SSLContextManager {
 
@@ -77,7 +79,9 @@ public class SSLContextManager {
     public static final String IBM_PKCS11_CANONICAL_CLASS_NAME =
             "com.ibm.crypto.pkcs11impl.provider.IBMPKCS11Impl";
 
-    /** @deprecated (2.11.0) Use {@link #IBM_PKCS11_CANONICAL_CLASS_NAME} */
+    /**
+     * @deprecated (2.11.0) Use {@link #IBM_PKCS11_CANONICAL_CLASS_NAME}
+     */
     @Deprecated
     public static final String IBM_PKCS11_CONONICAL_CLASS_NAME = IBM_PKCS11_CANONICAL_CLASS_NAME;
 
@@ -321,8 +325,11 @@ public class SSLContextManager {
     }
 
     public int initMSCAPI()
-            throws KeyStoreException, NoSuchProviderException, IOException,
-                    NoSuchAlgorithmException, CertificateException {
+            throws KeyStoreException,
+                    NoSuchProviderException,
+                    IOException,
+                    NoSuchAlgorithmException,
+                    CertificateException {
         try {
             if (!isProviderAvailable("msks")) {
                 return -1;
@@ -359,9 +366,16 @@ public class SSLContextManager {
      * return addKeyStore(ks, "CryptoAPI", null); }
      */
     public int initPKCS11(PKCS11Configuration configuration, String kspassword)
-            throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException,
-                    ClassNotFoundException, SecurityException, NoSuchMethodException,
-                    IllegalArgumentException, InstantiationException, IllegalAccessException,
+            throws IOException,
+                    KeyStoreException,
+                    CertificateException,
+                    NoSuchAlgorithmException,
+                    ClassNotFoundException,
+                    SecurityException,
+                    NoSuchMethodException,
+                    IllegalArgumentException,
+                    InstantiationException,
+                    IllegalAccessException,
                     InvocationTargetException {
 
         if (!isProviderAvailable(PKCS11_PROVIDER_TYPE)) {
@@ -379,8 +393,12 @@ public class SSLContextManager {
     }
 
     private static Provider createPKCS11Provider(PKCS11Configuration configuration)
-            throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
-                    IllegalAccessException, InvocationTargetException, IOException {
+            throws ClassNotFoundException,
+                    NoSuchMethodException,
+                    InstantiationException,
+                    IllegalAccessException,
+                    InvocationTargetException,
+                    IOException {
         Provider pkcs11 = null;
         if (isSunPKCS11Provider()) {
             if (isJava9SunPKCS11()) {
@@ -409,8 +427,11 @@ public class SSLContextManager {
     }
 
     private static Provider createInstance(String name, Class<?> paramClass, Object param)
-            throws ClassNotFoundException, NoSuchMethodException, InstantiationException,
-                    IllegalAccessException, InvocationTargetException {
+            throws ClassNotFoundException,
+                    NoSuchMethodException,
+                    InstantiationException,
+                    IllegalAccessException,
+                    InvocationTargetException {
         Class<?> instanceClass = Class.forName(name);
         Constructor<?> c = instanceClass.getConstructor(new Class<?>[] {paramClass});
         return (Provider) c.newInstance(new Object[] {param});

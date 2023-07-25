@@ -23,7 +23,9 @@ import java.awt.Dialog;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.network.DomainMatcher;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 class DialogModifyProxyExcludedDomain extends DialogAddProxyExcludedDomain {
 

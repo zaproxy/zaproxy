@@ -27,7 +27,9 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
 
-/** @deprecated (2.11.0) Superseded by the OAST add-on. */
+/**
+ * @deprecated (2.11.0) Superseded by the OAST add-on.
+ */
 @Deprecated
 public class CallbackRequest extends DefaultHistoryReferencesTableEntry {
 

@@ -23,7 +23,9 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 
-/** @since 2.3.0 */
+/**
+ * @since 2.3.0
+ */
 @SuppressWarnings("serial")
 public abstract class PopupMenuItemContext extends PopupMenuItemSiteNodeContainer {
 

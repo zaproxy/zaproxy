@@ -33,7 +33,9 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.zaproxy.zap.utils.ZapTextArea;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 public class CertificateView extends AbstractFrame {
 

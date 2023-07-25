@@ -29,7 +29,9 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.zaproxy.zap.network.HttpSenderContext;
 import org.zaproxy.zap.users.User;
 
-/** @deprecated (2.12.0) Implementation details, do not use. */
+/**
+ * @deprecated (2.12.0) Implementation details, do not use.
+ */
 @Deprecated
 public class HttpSenderContextParos implements HttpSenderContext {
 

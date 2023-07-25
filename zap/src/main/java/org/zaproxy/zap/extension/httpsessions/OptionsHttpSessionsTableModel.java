@@ -60,7 +60,9 @@ public class OptionsHttpSessionsTableModel
         return tokens;
     }
 
-    /** @param tokens The tokens to set. */
+    /**
+     * @param tokens The tokens to set.
+     */
     public void setTokens(List<HttpSessionToken> tokens) {
         this.tokens = new ArrayList<>(tokens.size());
 

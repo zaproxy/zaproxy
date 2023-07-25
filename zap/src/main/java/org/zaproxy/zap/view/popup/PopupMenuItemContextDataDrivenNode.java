@@ -30,7 +30,9 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.view.ContextStructurePanel;
 
-/** @since 2.4.3 */
+/**
+ * @since 2.4.3
+ */
 @SuppressWarnings("serial")
 public class PopupMenuItemContextDataDrivenNode extends PopupMenuItemSiteNodeContainer {
 

@@ -50,7 +50,9 @@ public class SpiderRobotstxtParser extends SpiderParser {
         super(params);
     }
 
-    /** @throws NullPointerException if {@code message} is null. */
+    /**
+     * @throws NullPointerException if {@code message} is null.
+     */
     @Override
     public boolean parseResource(HttpMessage message, Source source, int depth) {
         if (!getSpiderParam().isParseRobotsTxt()) {

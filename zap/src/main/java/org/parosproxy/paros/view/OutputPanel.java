@@ -148,6 +148,7 @@ public class OutputPanel extends AbstractPanel {
         }
         return jScrollPane;
     }
+
     /**
      * This method initializes txtOutput
      *
@@ -183,7 +184,10 @@ public class OutputPanel extends AbstractPanel {
         }
         return txtOutput;
     }
-    /** @deprecated appendDirty has been deprecated in favour of using {@link #append(String)} */
+
+    /**
+     * @deprecated appendDirty has been deprecated in favour of using {@link #append(String)}
+     */
     @Deprecated
     public void appendDirty(final String msg) {
         doAppend(msg); // Mimic old behavior

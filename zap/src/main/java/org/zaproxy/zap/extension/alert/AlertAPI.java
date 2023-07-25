@@ -104,6 +104,7 @@ public class AlertAPI extends ApiImplementor {
      * @see #processAlerts(String, int, int, int, Processor)
      */
     private static final int NO_RISK_ID = -1;
+
     /**
      * The constant that indicates that no confidence ID is being provided.
      *

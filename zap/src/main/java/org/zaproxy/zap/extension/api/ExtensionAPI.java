@@ -32,6 +32,7 @@ import org.zaproxy.zap.view.ZapMenuItem;
 public class ExtensionAPI extends ExtensionAdaptor {
 
     public static final String NAME = "ExtensionAPI";
+
     /**
      * @deprecated (2.7.0) Use {@link API#getBaseURL(boolean)} instead. This URL might not be
      *     correct in all cases, for example, if the API is set 'Secure' (thus needing to use

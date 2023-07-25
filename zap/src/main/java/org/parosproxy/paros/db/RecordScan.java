@@ -40,27 +40,45 @@ public class RecordScan {
         setScanName(scanName);
         setScanTime(scanTime);
     }
-    /** @return Returns the scanId. */
+
+    /**
+     * @return Returns the scanId.
+     */
     public int getScanId() {
         return scanId;
     }
-    /** @param scanId The scanId to set. */
+
+    /**
+     * @param scanId The scanId to set.
+     */
     public void setScanId(int scanId) {
         this.scanId = scanId;
     }
-    /** @return Returns the scanName. */
+
+    /**
+     * @return Returns the scanName.
+     */
     public String getScanName() {
         return scanName;
     }
-    /** @param scanName The scanName to set. */
+
+    /**
+     * @param scanName The scanName to set.
+     */
     public void setScanName(String scanName) {
         this.scanName = scanName;
     }
-    /** @return Returns the scanTime. */
+
+    /**
+     * @return Returns the scanTime.
+     */
     public java.sql.Date getScanTime() {
         return scanTime;
     }
-    /** @param scanTime The scanTime to set. */
+
+    /**
+     * @param scanTime The scanTime to set.
+     */
     public void setScanTime(java.sql.Date scanTime) {
         this.scanTime = scanTime;
     }

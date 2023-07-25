@@ -119,6 +119,7 @@ public class ProxyParam extends AbstractParam {
      * @see #setRemoveUnsupportedEncodings(boolean)
      */
     private boolean removeUnsupportedEncodings = true;
+
     /** The option that controls whether the proxy should always decode gzipped content or not. */
     private boolean alwaysDecodeGzip = true;
 

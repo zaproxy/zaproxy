@@ -81,6 +81,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor
 
     /** The map of sessions corresponding to each site. */
     private Map<String, HttpSessionsSite> sessions;
+
     /** Object used to synchronize access to sessions */
     private Object sessionLock = new Object();
 

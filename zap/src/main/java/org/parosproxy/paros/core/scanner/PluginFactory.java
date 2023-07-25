@@ -363,7 +363,9 @@ public class PluginFactory {
         return depsPlugins;
     }
 
-    /** @param config */
+    /**
+     * @param config
+     */
     public synchronized void loadAllPlugin(Configuration config) {
         LOGGER.debug("loadAllPlugin");
         this.config = config;

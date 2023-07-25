@@ -122,13 +122,17 @@ public class ParosDatabase extends AbstractDatabase {
         internalDatabaseListeners.add(tableStructure);
     }
 
-    /** @return Returns the databaseServer */
+    /**
+     * @return Returns the databaseServer
+     */
     @Override
     public DatabaseServer getDatabaseServer() {
         return databaseServer;
     }
 
-    /** @param databaseServer The databaseServer to set. */
+    /**
+     * @param databaseServer The databaseServer to set.
+     */
     private void setDatabaseServer(ParosDatabaseServer databaseServer) {
         this.databaseServer = databaseServer;
     }

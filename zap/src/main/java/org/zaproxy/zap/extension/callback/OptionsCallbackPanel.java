@@ -37,7 +37,9 @@ import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 
-/** @deprecated (2.11.0) Superseded by the OAST add-on. */
+/**
+ * @deprecated (2.11.0) Superseded by the OAST add-on.
+ */
 @Deprecated
 @SuppressWarnings("serial")
 public class OptionsCallbackPanel extends AbstractParamPanel {

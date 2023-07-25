@@ -47,7 +47,9 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 
-/** @deprecated (2.12.0) No longer in use, it will be removed in a following version. */
+/**
+ * @deprecated (2.12.0) No longer in use, it will be removed in a following version.
+ */
 @Deprecated
 public class ExtensionState extends ExtensionAdaptor implements SessionChangedListener {
 

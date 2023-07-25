@@ -27,18 +27,23 @@ import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.eventBus.EventPublisher;
 import org.zaproxy.zap.extension.httppanel.Message;
 
-/** @since 2.8.0 */
+/**
+ * @since 2.8.0
+ */
 public class BreakEventPublisher implements EventPublisher {
 
     private static BreakEventPublisher publisher = null;
+
     /** Indicates that a message hit a breakpoint. */
     public static final String BREAK_POINT_HIT = "break.hit";
+
     /**
      * Indicates the message currently being changed (active).
      *
      * <p>Only one message can be active at the same time.
      */
     public static final String BREAK_POINT_ACTIVE = "break.active";
+
     /** Indicates that the active message no longer is, it might have been dropped or forwarded. */
     public static final String BREAK_POINT_INACTIVE = "break.inactive";
 

@@ -46,6 +46,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     private ScriptsCache<ActiveScript> cachedScripts;
 
     private static final Logger LOGGER = LogManager.getLogger(ScriptsActiveScanner.class);
+
     /**
      * A {@code Set} containing the scripts that do not implement {@code ActiveScript2}, to show an
      * error if those scripts do not implement {@code ActiveScript} (thus not implementing any of
@@ -253,7 +254,9 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
         super.sendAndReceive(msg, isFollowRedirect, handleAntiCSRF);
     }
 
-    /** @since 2.9.0 */
+    /**
+     * @since 2.9.0
+     */
     @Override
     public AlertBuilder newAlert() {
         return super.newAlert();

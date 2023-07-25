@@ -31,6 +31,7 @@ public class StatusUI implements Comparable<StatusUI> {
 
     private final AddOn.Status status;
     private final String stringRepresentation;
+
     /**
      * @param status the AddOn.Status for which the StatusUI should be created
      * @param stringRepresentation the internationalized status string that corresponds to the

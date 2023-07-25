@@ -46,12 +46,14 @@ public class OptionsLocalePanel extends AbstractParamPanel {
         super();
         initialize();
     }
+
     /** This method initializes this */
     private void initialize() {
         this.setLayout(new BorderLayout());
         this.setName(Constant.messages.getString("view.options.title"));
         this.add(getPanelMisc());
     }
+
     /**
      * This method initializes panelMisc
      *

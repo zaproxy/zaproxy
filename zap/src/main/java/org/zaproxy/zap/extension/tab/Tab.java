@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.tab;
 
 // Every Tab should implement this interface.
 
-/** @deprecated (2.12.0) Not in effective use. */
+/**
+ * @deprecated (2.12.0) Not in effective use.
+ */
 @Deprecated
 public interface Tab {}

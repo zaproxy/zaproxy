@@ -684,15 +684,24 @@ public class Alert implements Comparable<Alert> {
     public String getName() {
         return name;
     }
-    /** @return Returns the description. */
+
+    /**
+     * @return Returns the description.
+     */
     public String getDescription() {
         return description;
     }
-    /** @return Returns the id. */
+
+    /**
+     * @return Returns the id.
+     */
     public int getPluginId() {
         return pluginId;
     }
-    /** @return Returns the message. */
+
+    /**
+     * @return Returns the message.
+     */
     public HttpMessage getMessage() {
         if (this.message != null) {
             return this.message;
@@ -706,25 +715,38 @@ public class Alert implements Comparable<Alert> {
         }
         return null;
     }
-    /** @return Returns the otherInfo. */
+
+    /**
+     * @return Returns the otherInfo.
+     */
     public String getOtherInfo() {
         return otherInfo;
     }
-    /** @return Returns the param. */
+
+    /**
+     * @return Returns the param.
+     */
     public String getParam() {
         return param;
     }
-    /** @return Returns the reference. */
+
+    /**
+     * @return Returns the reference.
+     */
     public String getReference() {
         return reference;
     }
 
-    /** @return Returns the confidence. */
+    /**
+     * @return Returns the confidence.
+     */
     public int getConfidence() {
         return confidence;
     }
 
-    /** @return Returns the risk. */
+    /**
+     * @return Returns the risk.
+     */
     public int getRisk() {
         return risk;
     }
@@ -773,19 +795,31 @@ public class Alert implements Comparable<Alert> {
         }
         return null;
     }
-    /** @return Returns the solution. */
+
+    /**
+     * @return Returns the solution.
+     */
     public String getSolution() {
         return solution;
     }
-    /** @return Returns the uri. */
+
+    /**
+     * @return Returns the uri.
+     */
     public String getUri() {
         return uri;
     }
-    /** @return Returns the alertId. */
+
+    /**
+     * @return Returns the alertId.
+     */
     public int getAlertId() {
         return alertId;
     }
-    /** @param alertId The alertId to set. */
+
+    /**
+     * @param alertId The alertId to set.
+     */
     public void setAlertId(int alertId) {
         this.alertId = alertId;
     }
@@ -893,12 +927,16 @@ public class Alert implements Comparable<Alert> {
         this.wascId = wascId;
     }
 
-    /** @since 2.11.0 */
+    /**
+     * @since 2.11.0
+     */
     public Map<String, String> getTags() {
         return tags;
     }
 
-    /** @since 2.11.0 */
+    /**
+     * @since 2.11.0
+     */
     public void setTags(Map<String, String> tags) {
         if (tags != null) {
             this.tags = tags;
@@ -1130,7 +1168,9 @@ public class Alert implements Comparable<Alert> {
             return this;
         }
 
-        /** @since 2.11.0 */
+        /**
+         * @since 2.11.0
+         */
         public Builder setTags(Map<String, String> tags) {
             this.tags = tags;
             return this;

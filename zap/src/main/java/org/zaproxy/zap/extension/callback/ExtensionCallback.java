@@ -45,7 +45,9 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
-/** @deprecated (2.11.0) Superseded by the OAST add-on. */
+/**
+ * @deprecated (2.11.0) Superseded by the OAST add-on.
+ */
 @Deprecated
 public class ExtensionCallback extends ExtensionAdaptor
         implements OptionsChangedListener, SessionChangedListener {

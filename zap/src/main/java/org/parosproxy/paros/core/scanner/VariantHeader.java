@@ -103,7 +103,9 @@ public class VariantHeader implements Variant {
         return SHORT_NAME;
     }
 
-    /** @throws IllegalArgumentException if {@code message} is {@code null}. */
+    /**
+     * @throws IllegalArgumentException if {@code message} is {@code null}.
+     */
     @Override
     public void setMessage(HttpMessage message) {
         if (message == null) {

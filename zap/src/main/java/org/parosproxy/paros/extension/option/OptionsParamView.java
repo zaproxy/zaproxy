@@ -118,9 +118,15 @@ public class OptionsParamView extends AbstractParam {
             BASE_VIEW_KEY + ".usesystemslocaleformat";
 
     public static final String SPLASHSCREEN_OPTION = "view.splashScreen";
-    /** @deprecated (2.12.0) No longer in use. */
+
+    /**
+     * @deprecated (2.12.0) No longer in use.
+     */
     @Deprecated public static final String LARGE_REQUEST_SIZE = "view.largeRequest";
-    /** @deprecated (2.12.0) No longer in use. */
+
+    /**
+     * @deprecated (2.12.0) No longer in use.
+     */
     @Deprecated public static final String LARGE_RESPONSE_SIZE = "view.largeResponse";
 
     public static final String FONT_NAME = "view.fontName";
@@ -270,12 +276,16 @@ public class OptionsParamView extends AbstractParam {
         Stream.of(getConfig().getStringArray(RECENT_SESSIONS_KEY)).forEach(recentSessions::add);
     }
 
-    /** @return Returns the skipImage. */
+    /**
+     * @return Returns the skipImage.
+     */
     public int getProcessImages() {
         return processImages;
     }
 
-    /** @param processImages 0 = not to process. Other = process images */
+    /**
+     * @param processImages 0 = not to process. Other = process images
+     */
     public void setProcessImages(int processImages) {
         this.processImages = processImages;
         getConfig().setProperty(PROCESS_IMAGES, Integer.toString(processImages));
@@ -491,32 +501,44 @@ public class OptionsParamView extends AbstractParam {
         getConfig().setProperty(SPLASHSCREEN_OPTION, showSplashScreen);
     }
 
-    /** @deprecated (2.12.0) No longer in use. */
+    /**
+     * @deprecated (2.12.0) No longer in use.
+     */
     @Deprecated
     public int getLargeRequestSize() {
         return 100000;
     }
 
-    /** @deprecated (2.12.0) No longer in use. */
+    /**
+     * @deprecated (2.12.0) No longer in use.
+     */
     @Deprecated
     public void setLargeRequestSize(int largeRequestSize) {}
 
-    /** @deprecated (2.12.0) No longer in use. */
+    /**
+     * @deprecated (2.12.0) No longer in use.
+     */
     @Deprecated
     public int getLargeResponseSize() {
         return 100000;
     }
 
-    /** @deprecated (2.12.0) No longer in use. */
+    /**
+     * @deprecated (2.12.0) No longer in use.
+     */
     @Deprecated
     public void setLargeResponseSize(int largeResponseSize) {}
 
-    /** @since 2.11.0 */
+    /**
+     * @since 2.11.0
+     */
     public boolean isAllowAppIntegrationInContainers() {
         return allowAppIntegrationInContainers;
     }
 
-    /** @since 2.11.0 */
+    /**
+     * @since 2.11.0
+     */
     public void setAllowAppIntegrationInContainers(boolean allowAppIntegrationInContainers) {
         this.allowAppIntegrationInContainers = allowAppIntegrationInContainers;
         getConfig()

@@ -36,7 +36,9 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
-/** @since 2.12.0 */
+/**
+ * @since 2.12.0
+ */
 public class PassiveScanTaskHelper {
 
     private static final Logger LOGGER = LogManager.getLogger(PassiveScanTaskHelper.class);

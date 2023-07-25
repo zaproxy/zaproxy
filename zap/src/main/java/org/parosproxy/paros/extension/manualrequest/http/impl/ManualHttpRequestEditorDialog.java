@@ -75,7 +75,9 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-/** @deprecated (2.12.0) Replaced by Requester add-on. */
+/**
+ * @deprecated (2.12.0) Replaced by Requester add-on.
+ */
 @Deprecated
 @SuppressWarnings("serial")
 public class ManualHttpRequestEditorDialog

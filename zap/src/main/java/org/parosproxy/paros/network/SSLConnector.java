@@ -96,7 +96,9 @@ import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/** @deprecated (2.12.0) Implementation details, do not use. */
+/**
+ * @deprecated (2.12.0) Implementation details, do not use.
+ */
 @Deprecated
 public class SSLConnector
         implements org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory {
@@ -670,7 +672,9 @@ public class SSLConnector
         return s;
     }
 
-    /** @deprecated (2.8.0) No longer used/needed. */
+    /**
+     * @deprecated (2.8.0) No longer used/needed.
+     */
     @Deprecated
     public SSLSocketFactory getTunnelSSLSocketFactory(String hostname) {
         return getTunnelSSLSocketFactory(hostname, null);
@@ -724,9 +728,14 @@ public class SSLConnector
     @SuppressWarnings("deprecation")
     static void initKeyManagerFactoryWithCertForHostname(
             KeyManagerFactory keyManagerFactory, String hostname, InetAddress listeningAddress)
-            throws InvalidKeyException, UnrecoverableKeyException, NoSuchAlgorithmException,
-                    CertificateException, NoSuchProviderException, SignatureException,
-                    KeyStoreException, IOException {
+            throws InvalidKeyException,
+                    UnrecoverableKeyException,
+                    NoSuchAlgorithmException,
+                    CertificateException,
+                    NoSuchProviderException,
+                    SignatureException,
+                    KeyStoreException,
+                    IOException {
 
         boolean hostnameIsIpAddress = isIpAddress(hostname);
 

@@ -65,6 +65,7 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
         this.setName(getPanelName(getContextId()));
         this.add(getPanelSession(), getPanelSession().getName());
     }
+
     /**
      * This method initializes panelSession
      *

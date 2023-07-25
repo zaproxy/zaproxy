@@ -46,7 +46,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
-/** @deprecated (2.12.0) No longer in use. */
+/**
+ * @deprecated (2.12.0) No longer in use.
+ */
 @Deprecated
 public class OptionsParamCertificate extends AbstractParam {
 
@@ -141,7 +143,9 @@ public class OptionsParamCertificate extends AbstractParam {
         getConfig().setProperty(CLIENT_CERT_PASSWORD, clientCertPassword);
     }
 
-    /** @return Returns the client cert location. */
+    /**
+     * @return Returns the client cert location.
+     */
     public String getClientCertLocation() {
         return clientCertLocation;
     }

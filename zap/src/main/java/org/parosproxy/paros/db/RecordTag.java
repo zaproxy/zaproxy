@@ -36,11 +36,17 @@ public class RecordTag {
         setHistoryId(historyId);
         setTag(tag);
     }
-    /** @return Returns the tagId. */
+
+    /**
+     * @return Returns the tagId.
+     */
     public long getTagId() {
         return tagId;
     }
-    /** @param tagId The tagId to set. */
+
+    /**
+     * @param tagId The tagId to set.
+     */
     public void setTagId(long tagId) {
         this.tagId = tagId;
     }

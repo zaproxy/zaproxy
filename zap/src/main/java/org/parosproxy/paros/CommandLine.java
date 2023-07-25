@@ -86,9 +86,15 @@ public class CommandLine {
     public static final String HELP2 = "-h";
     public static final String DIR = "-dir";
     public static final String VERSION = "-version";
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+     */
     @Deprecated public static final String PORT = "-port";
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+     */
     @Deprecated public static final String HOST = "-host";
 
     public static final String CMD = "-cmd";
@@ -534,13 +540,17 @@ public class CommandLine {
         return this.displaySupportInfo;
     }
 
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+     */
     @Deprecated
     public int getPort() {
         return -1;
     }
 
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+     */
     @Deprecated
     public String getHost() {
         return null;

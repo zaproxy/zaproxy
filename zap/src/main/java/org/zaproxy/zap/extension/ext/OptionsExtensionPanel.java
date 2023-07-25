@@ -183,6 +183,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
         }
         return tableExt;
     }
+
     /**
      * This method initializes jScrollPane
      *

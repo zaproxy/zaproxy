@@ -112,6 +112,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     /** Default pattern used in pattern check for most plugins. */
     protected static final int PATTERN_PARAM = Pattern.CASE_INSENSITIVE | Pattern.MULTILINE;
+
     /** CRLF string. */
     protected static final String CRLF = "\r\n";
 
@@ -1221,7 +1222,9 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return false;
     }
 
-    /** @since 2.2.0 */
+    /**
+     * @since 2.2.0
+     */
     @Override
     public int getRisk() {
         return Alert.RISK_MEDIUM;
@@ -1241,7 +1244,9 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         this.delayInMs = delayInMs;
     }
 
-    /** @see #isAnyInScope(Tech...) */
+    /**
+     * @see #isAnyInScope(Tech...)
+     */
     @Override
     public boolean inScope(Tech tech) {
         return this.techSet.includes(tech);

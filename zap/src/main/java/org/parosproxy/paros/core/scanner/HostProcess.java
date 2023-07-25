@@ -752,7 +752,9 @@ public class HostProcess implements Runnable {
         return pluginStats.getProgress();
     }
 
-    /** @return Returns the httpSender. */
+    /**
+     * @return Returns the httpSender.
+     */
     public HttpSender getHttpSender() {
         return httpSender;
     }

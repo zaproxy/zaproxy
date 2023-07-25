@@ -21,7 +21,9 @@ package org.zaproxy.zap.extension.option;
 
 import org.parosproxy.paros.common.AbstractParam;
 
-/** @deprecated (2.7.0) Not used, it will be removed in a future version. */
+/**
+ * @deprecated (2.7.0) Not used, it will be removed in a future version.
+ */
 @Deprecated
 public class OptionsParamMisc extends AbstractParam {
 
@@ -38,12 +40,16 @@ public class OptionsParamMisc extends AbstractParam {
         saveDirectory = getConfig().getString(SAVE_DIR);
     }
 
-    /** @return Returns the skipImage. */
+    /**
+     * @return Returns the skipImage.
+     */
     public String getSaveDirectory() {
         return saveDirectory;
     }
 
-    /** @param saveDirectory processImages 0 = not to process. Other = process images */
+    /**
+     * @param saveDirectory processImages 0 = not to process. Other = process images
+     */
     public void setSaveDirectory(String saveDirectory) {
         this.saveDirectory = saveDirectory;
         getConfig().setProperty(SAVE_DIR, saveDirectory);

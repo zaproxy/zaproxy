@@ -38,7 +38,9 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
-/** @deprecated (2.12.0) see the exim add-on */
+/**
+ * @deprecated (2.12.0) see the exim add-on
+ */
 @Deprecated
 @SuppressWarnings("serial")
 public class PopupMenuExportURLs extends ExtensionPopupMenuItem {

@@ -40,19 +40,31 @@ public class RecordSession {
         this.sessionName = sessionName;
         this.lastAccess = lastAccess;
     }
-    /** @return Returns the sessionName. */
+
+    /**
+     * @return Returns the sessionName.
+     */
     public String getSessionName() {
         return sessionName;
     }
-    /** @param sessionName The sessionName to set. */
+
+    /**
+     * @param sessionName The sessionName to set.
+     */
     public void setSessionName(String sessionName) {
         this.sessionName = sessionName;
     }
-    /** @return Returns the lastAccess. */
+
+    /**
+     * @return Returns the lastAccess.
+     */
     public java.sql.Date getLastAccess() {
         return lastAccess;
     }
-    /** @return Returns the sessionId. */
+
+    /**
+     * @return Returns the sessionId.
+     */
     public long getSessionId() {
         return sessionId;
     }

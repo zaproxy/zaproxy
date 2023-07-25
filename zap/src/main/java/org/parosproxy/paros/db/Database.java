@@ -36,7 +36,9 @@ public interface Database {
 
     TableHistory getTableHistory();
 
-    /** @return Returns the tableSession. */
+    /**
+     * @return Returns the tableSession.
+     */
     TableSession getTableSession();
 
     void addDatabaseListener(DatabaseListener listener);
@@ -84,20 +86,28 @@ public interface Database {
     // ZAP comment as the content was moved from the paros method close(boolean).
     void close(boolean compact, boolean cleanup);
 
-    /** @return Returns the tableAlert. */
+    /**
+     * @return Returns the tableAlert.
+     */
     TableAlert getTableAlert();
 
-    /** @param tableAlert The tableAlert to set. */
+    /**
+     * @param tableAlert The tableAlert to set.
+     */
     void setTableAlert(TableAlert tableAlert);
 
     TableAlertTag getTableAlertTag();
 
     void setTableAlertTag(TableAlertTag tableAlertTag);
 
-    /** @return Returns the tableScan. */
+    /**
+     * @return Returns the tableScan.
+     */
     TableScan getTableScan();
 
-    /** @param tableScan The tableScan to set. */
+    /**
+     * @param tableScan The tableScan to set.
+     */
     void setTableScan(TableScan tableScan);
 
     TableTag getTableTag();

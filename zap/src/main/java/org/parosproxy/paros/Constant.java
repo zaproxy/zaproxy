@@ -171,9 +171,15 @@ public final class Constant {
     // ZAP: rebrand
     public static final String PROGRAM_NAME = "OWASP ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
-    /** @deprecated (2.9.0) Do not use, it will be removed. */
+
+    /**
+     * @deprecated (2.9.0) Do not use, it will be removed.
+     */
     @Deprecated public static final String ZAP_HOMEPAGE = "http://www.owasp.org/index.php/ZAP";
-    /** @deprecated (2.9.0) Do not use, it will be removed. */
+
+    /**
+     * @deprecated (2.9.0) Do not use, it will be removed.
+     */
     @Deprecated
     public static final String ZAP_EXTENSIONS_PAGE = "https://github.com/zaproxy/zap-extensions";
 
@@ -228,6 +234,7 @@ public final class Constant {
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
+
     /**
      * The name of the directory for filter related files (the path should be built using {@link
      * #getZapHome()} as the parent directory).

@@ -33,7 +33,9 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.SiteNode;
 
-/** @deprecated (2.12.0) see the exim add-on */
+/**
+ * @deprecated (2.12.0) see the exim add-on
+ */
 @Deprecated
 public class PopupMenuExportSelectedURLs extends PopupMenuExportURLs {
 

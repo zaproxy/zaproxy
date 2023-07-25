@@ -24,7 +24,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
-/** @author MaWoKi */
+/**
+ * @author MaWoKi
+ */
 @Deprecated
 public class DynSSLParam extends AbstractParam {
 
@@ -51,7 +53,9 @@ public class DynSSLParam extends AbstractParam {
         return null;
     }
 
-    /** @param rootca */
+    /**
+     * @param rootca
+     */
     public void setRootca(String rootca) {
         setRootca(createKeyStore(rootca));
     }
@@ -60,7 +64,9 @@ public class DynSSLParam extends AbstractParam {
         return rootca;
     }
 
-    /** @param rootca */
+    /**
+     * @param rootca
+     */
     public void setRootca(KeyStore rootca) {
         this.rootca = rootca;
         if (rootca != null) {

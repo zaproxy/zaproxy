@@ -490,7 +490,9 @@ public class SiteMap extends SortedTreeModel {
 
     private SiteNode findAndAddChild(
             SiteNode parent, String nodeName, HistoryReference baseRef, HttpMessage baseMsg)
-            throws URIException, HttpMalformedHeaderException, NullPointerException,
+            throws URIException,
+                    HttpMalformedHeaderException,
+                    NullPointerException,
                     DatabaseException {
         LOGGER.debug("findAndAddChild {} / {}", parent.getNodeName(), nodeName);
         if (isReferenceCached(baseRef)) {
@@ -617,14 +619,18 @@ public class SiteMap extends SortedTreeModel {
 
     public HistoryReference createReference(
             SiteNode node, HistoryReference baseRef, HttpMessage base)
-            throws HttpMalformedHeaderException, DatabaseException, URIException,
+            throws HttpMalformedHeaderException,
+                    DatabaseException,
+                    URIException,
                     NullPointerException {
         return createReference(node.getPath(), baseRef, base);
     }
 
     private HistoryReference createReference(
             TreeNode[] path, HistoryReference baseRef, HttpMessage base)
-            throws HttpMalformedHeaderException, DatabaseException, URIException,
+            throws HttpMalformedHeaderException,
+                    DatabaseException,
+                    URIException,
                     NullPointerException {
         StringBuilder sb = new StringBuilder();
         String nodeName;

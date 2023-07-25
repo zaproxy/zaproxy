@@ -77,7 +77,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     public static final int EXTENSION_ORDER = 60;
     public static final String NAME = "ExtensionScript";
 
-    /** @deprecated (2.7.0) Use {@link #getScriptIcon()} instead. */
+    /**
+     * @deprecated (2.7.0) Use {@link #getScriptIcon()} instead.
+     */
     @Deprecated public static final ImageIcon ICON = View.isInitialised() ? getScriptIcon() : null;
 
     /**

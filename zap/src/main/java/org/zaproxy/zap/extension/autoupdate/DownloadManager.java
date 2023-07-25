@@ -39,7 +39,9 @@ public class DownloadManager extends Thread {
     private boolean shutdown = false;
     private boolean cancelDownloads = false;
 
-    /** @deprecated (2.12.0) */
+    /**
+     * @deprecated (2.12.0)
+     */
     @Deprecated
     public DownloadManager(org.parosproxy.paros.network.ConnectionParam connectionParam) {
         this(HttpSender.CHECK_FOR_UPDATES_INITIATOR);

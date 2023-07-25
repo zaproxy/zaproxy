@@ -48,12 +48,15 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
     public PolicyPassiveScanTableModel() {}
 
-    /** @param scanner */
+    /**
+     * @param scanner
+     */
     public void addScanner(PluginPassiveScanner scanner) {
         listScanners.add(
                 new ScannerWrapper(scanner, View.getSingleton().getStatusUI(scanner.getStatus())));
         fireTableDataChanged();
     }
+
     /*
     protected List<PluginPassiveScanner> getScanners() {
     	return null; // this.listScanners;

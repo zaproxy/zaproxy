@@ -22,7 +22,9 @@ package org.zaproxy.zap.extension.spider;
 import java.awt.Dialog;
 import org.parosproxy.paros.Constant;
 
-/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+/**
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
 @Deprecated
 class DialogModifyDomainAlwaysInScope extends DialogAddDomainAlwaysInScope {
 

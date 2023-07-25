@@ -58,7 +58,9 @@ import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 
-/** @deprecated (2.12.0) See the spider add-on in zap-extensions instead. */
+/**
+ * @deprecated (2.12.0) See the spider add-on in zap-extensions instead.
+ */
 @Deprecated
 public class SpiderAPI extends ApiImplementor {
 
@@ -66,6 +68,7 @@ public class SpiderAPI extends ApiImplementor {
 
     /** The Constant PREFIX defining the name/prefix of the api. */
     private static final String PREFIX = "spider";
+
     /** The Constant ACTION_START_SCAN that defines the action of starting a new scan. */
     private static final String ACTION_START_SCAN = "scan";
 
@@ -73,6 +76,7 @@ public class SpiderAPI extends ApiImplementor {
 
     private static final String ACTION_PAUSE_SCAN = "pause";
     private static final String ACTION_RESUME_SCAN = "resume";
+
     /** The Constant ACTION_STOP_SCAN that defines the action of stopping a pending scan. */
     private static final String ACTION_STOP_SCAN = "stop";
 

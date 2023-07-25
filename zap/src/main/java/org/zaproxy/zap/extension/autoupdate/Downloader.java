@@ -50,13 +50,17 @@ public class Downloader extends Thread {
 
     private static final Logger LOGGER = LogManager.getLogger(Downloader.class);
 
-    /** @deprecated (2.12.0) */
+    /**
+     * @deprecated (2.12.0)
+     */
     @Deprecated
     public Downloader(URL url, Proxy proxy, File targetFile, String hash) {
         this(url, proxy, targetFile, 0, hash);
     }
 
-    /** @deprecated (2.12.0) */
+    /**
+     * @deprecated (2.12.0)
+     */
     @Deprecated
     public Downloader(URL url, Proxy proxy, File targetFile, long size, String hash) {
         this(url, targetFile, 0, hash, HttpSender.CHECK_FOR_UPDATES_INITIATOR);

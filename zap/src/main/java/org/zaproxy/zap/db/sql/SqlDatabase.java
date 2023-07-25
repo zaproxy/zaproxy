@@ -49,6 +49,7 @@ public class SqlDatabase extends AbstractDatabase {
     private TableParam tableParam = null;
     private TableContext tableContext = null;
     private TableStructure tableStructure = null;
+
     /**
      * {@code DatabaseListener}s added internally when the {@code SqlDatabase} is constructed.
      *
@@ -83,13 +84,17 @@ public class SqlDatabase extends AbstractDatabase {
         internalDatabaseListeners.add(tableStructure);
     }
 
-    /** @return Returns the databaseServer */
+    /**
+     * @return Returns the databaseServer
+     */
     @Override
     public DatabaseServer getDatabaseServer() {
         return databaseServer;
     }
 
-    /** @param databaseServer The databaseServer to set. */
+    /**
+     * @param databaseServer The databaseServer to set.
+     */
     protected void setDatabaseServer(SqlDatabaseServer databaseServer) {
         this.databaseServer = databaseServer;
     }

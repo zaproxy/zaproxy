@@ -47,7 +47,9 @@ public class RuleConfigTableModel extends AbstractTableModel {
         return rcs;
     }
 
-    /** @param rcs The ruleconfigs to set. */
+    /**
+     * @param rcs The ruleconfigs to set.
+     */
     public void setRuleConfigs(List<RuleConfig> rcs) {
         this.rcs = new ArrayList<>(rcs.size());
 
