@@ -64,7 +64,9 @@ val createPullRequestNextDevIter by tasks.registering(CreatePullRequest::class) 
 
 val prepareMainRelease by tasks.registering(PrepareMainRelease::class) {
     propertiesFile.set(File(projectDir, "gradle.properties"))
+    securityFile.set(File(rootDir, "SECURITY.md"))
 
+    oldVersionProperty.set("zap.japicmp.baseversion")
     versionProperty.set("version")
 }
 
@@ -74,7 +76,10 @@ val createPullRequestMainRelease by tasks.registering(CreatePullRequest::class) 
     branchName.set("release")
 
     commitSummary.set("Update version to ${project.version}")
-    commitDescription.set("Remove `-SNAPSHOT` from the version.")
+    commitDescription.set("""
+    |Remove `-SNAPSHOT` from the version.
+    |Update version in `SECURITY.md` file.
+    """.trimMargin())
 
     pullRequestTitle.set("Release version ${project.version}")
     pullRequestDescription.set("")
