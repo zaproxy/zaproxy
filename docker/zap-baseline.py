@@ -103,6 +103,7 @@ def usage():
     print('    --hook            path to python file that define your custom hooks')
     print('    --auto            use the automation framework if supported for the given parameters (this is now the default)')
     print('    --autooff         do not use the automation framework even if supported for the given parameters')
+    print('    --updateAddons    update addons on run')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/baseline-scan/')
 
@@ -179,6 +180,7 @@ def main(argv):
     use_af = True
     af_supported = True
     af_override = False
+    updates_addons = False
 
     pass_count = 0
     warn_count = 0
@@ -191,7 +193,7 @@ def main(argv):
     debug = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff"])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff", "updateAddons"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -269,6 +271,8 @@ def main(argv):
             af_override = True
         elif opt == '--autooff':
             use_af = False
+        elif opt == '--updateAddons':
+            updates_addons = True
 
     check_zap_client_version()
 
@@ -406,14 +410,16 @@ def main(argv):
                         logging.warning('Unable to copy yaml file to ' + yaml_copy_file + ' ' + str(err))
 
             try:
-                if "-silent" not in zap_options:
-                    # Run ZAP inline to update the add-ons
-                    install_opts = ['-addonupdate', '-addoninstall', 'pscanrulesBeta']
-                    if zap_alpha:
-                        install_opts.extend(['-addoninstall', 'pscanrulesAlpha'])
-
-                    run_zap_inline(port, install_opts)
-
+                # Run ZAP inline to update the add-ons
+                install_opts = ['-addoninstall', 'pscanrulesBeta']
+                if zap_alpha:
+                    install_opts.append('-addoninstall')
+                    install_opts.append('pscanrulesAlpha')
+                if updates_addons:
+                    install_opts.append('-addonupdate')
+            
+                run_zap_inline(port, install_opts)
+                
                 # Run ZAP inline with the yaml file
                 params = ['-autorun', yaml_file]
 
@@ -457,16 +463,17 @@ def main(argv):
 
         else:
             try:
-                params = ['-config', 'spider.maxDuration=' + str(mins)]
-
-                if "-silent" not in zap_options:
+                params = [
+                          '-config', 'spider.maxDuration=' + str(mins),
+                          '-addoninstall', 'pscanrulesBeta']  # In case we're running in the stable container
+                if zap_alpha:
+                    params.append('-addoninstall')
+                    params.append('pscanrulesAlpha')
+                if not updates_addons:
+                    params.append('-silent')
+                else:
                     params.append('-addonupdate')
-                    # In case we're running in the stable container
-                    params.extend(['-addoninstall', 'pscanrulesBeta'])
-
-                    if zap_alpha:
-                        params.extend(['-addoninstall', 'pscanrulesAlpha'])
-
+    
                 add_zap_options(params, zap_options)
 
                 start_zap(port, params)
@@ -481,14 +488,13 @@ def main(argv):
         if context_file:
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
+        params = [
+                '-config', 'spider.maxDuration=' + str(mins),]
 
-        params = ['-config', 'spider.maxDuration=' + str(mins)]
-
-        if "-silent" not in zap_options:
-            params.append('-addonupdate')
-
-            if (zap_alpha):
-                params.extend(['-addoninstall', 'pscanrulesAlpha'])
+        if (zap_alpha):
+            params.extend(['-addoninstall', 'pscanrulesAlpha'])
+        if (updates_addons):
+            params.extend(['-addonupdate'])
 
         add_zap_options(params, zap_options)
 
@@ -496,8 +502,9 @@ def main(argv):
             cid = start_docker_zap('owasp/zap2docker-weekly', port, params, mount_dir)
             zap_ip = ipaddress_for_cid(cid)
             logging.debug('Docker ZAP IP Addr: ' + zap_ip)
-        except OSError:
-            logging.warning('Failed to start ZAP in docker :(')
+        except Exception as error:
+            logging.warning('Failed to start ZAP in docker')
+            logging.warning(error)
             sys.exit(3)
 
     try:

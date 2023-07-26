@@ -100,6 +100,7 @@ def usage():
     print('    -U user           username to use for authenticated scans - must be defined in the given context file')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
+    print('    --updateAddons                update addons on run')
     print('')
     print('For more details see https://www.zaproxy.org/docs/docker/full-scan/')
 
@@ -133,6 +134,7 @@ def main(argv):
     ignore_warn = False
     hook_file = ''
     user = ''
+    updates_addons = False
 
     pass_count = 0
     warn_count = 0
@@ -144,7 +146,7 @@ def main(argv):
     exception_raised = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook="])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "updateAddons"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -208,6 +210,8 @@ def main(argv):
             user = arg
         elif opt == '--hook':
             hook_file = arg
+        elif opt == '--updateAddons':
+            updates_addons = True
 
     check_zap_client_version()
 
@@ -281,17 +285,17 @@ def main(argv):
 
     if running_in_docker():
         try:
-            params = ['-config', 'spider.maxDuration=' + str(mins)]
+            params = [
+                      '-config', 'spider.maxDuration=' + str(mins)]
+
+            if zap_alpha:
+                params.extend(['-addoninstall', 'pscanrulesAlpha'])
+                params.extend(['-addoninstall', 'ascanrulesAlpha'])
             
-            if "-silent" not in zap_options:
-                params.append('-addonupdate')
-                # In case we're running in the stable container
-                params.extend(['-addoninstall', 'pscanrulesBeta'])
-                params.extend(['-addoninstall', 'ascanrulesBeta'])
-                      
-                if zap_alpha:
-                    params.extend(['-addoninstall', 'pscanrulesAlpha'])
-                    params.extend(['-addoninstall', 'ascanrulesAlpha'])
+            if  not updates_addons:
+                params.extend(['-silent'])
+            else:
+                params.extend(['-addonupdate'])
 
             add_zap_options(params, zap_options)
 
@@ -307,17 +311,19 @@ def main(argv):
         if context_file:
             mount_dir = os.path.dirname(os.path.abspath(context_file))
 
-        params = ['-config', 'spider.maxDuration=' + str(mins)]
+        params = [
+                  '-config', 'spider.maxDuration=' + str(mins),
+                  '-addoninstall', 'pscanrulesBeta',  # In case we're running in the stable container
+                  '-addoninstall', 'ascanrulesBeta']
 
-        if "-silent" not in zap_options:
-            params.append('-addonupdate')
-            # In case we're running in the stable container
-            params.extend(['-addoninstall', 'pscanrulesBeta'])
-            params.extend(['-addoninstall', 'ascanrulesBeta'])
-
-            if (zap_alpha):
-                params.extend(['-addoninstall', 'pscanrulesAlpha'])
-                params.extend(['-addoninstall', 'ascanrulesAlpha'])
+        if (zap_alpha):
+            params.extend(['-addoninstall', 'pscanrulesAlpha'])
+            params.extend(['-addoninstall', 'ascanrulesAlpha'])
+        
+        if not updates_addons:
+            params.extend(['-silent'])
+        else:
+            params.extend(['-addonupdate'])
 
         add_zap_options(params, zap_options)
 
@@ -325,8 +331,9 @@ def main(argv):
             cid = start_docker_zap('owasp/zap2docker-weekly', port, params, mount_dir)
             zap_ip = ipaddress_for_cid(cid)
             logging.debug('Docker ZAP IP Addr: ' + zap_ip)
-        except OSError:
-            logging.warning('Failed to start ZAP in docker :(')
+        except Exception as error:
+            logging.warning('Failed to start ZAP in docker')
+            logging.warning(error)
             sys.exit(3)
 
     try:
