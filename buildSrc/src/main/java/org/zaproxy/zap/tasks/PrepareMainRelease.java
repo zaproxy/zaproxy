@@ -21,6 +21,8 @@ package org.zaproxy.zap.tasks;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.provider.Property;
 import org.gradle.api.tasks.Input;
@@ -34,19 +36,35 @@ public abstract class PrepareMainRelease extends DefaultTask {
     public abstract Property<File> getPropertiesFile();
 
     @Input
+    public abstract Property<String> getOldVersionProperty();
+
+    @Input
     public abstract Property<String> getVersionProperty();
+
+    @Input
+    public abstract Property<File> getSecurityFile();
 
     @TaskAction
     public void prepare() throws Exception {
-        updatePropertiesFile();
+        ProjectProperties properties = new ProjectProperties(getPropertiesFile().get().toPath());
+        String newVersion = updatePropertiesFile(properties);
+        updateSecurityFile(properties, newVersion);
     }
 
-    private void updatePropertiesFile() throws IOException {
+    private String updatePropertiesFile(ProjectProperties properties) throws IOException {
         String versionProperty = getVersionProperty().get();
-        ProjectProperties properties = new ProjectProperties(getPropertiesFile().get().toPath());
         String newVersion = removePreReleaseVersion(properties.getProperty(versionProperty));
         properties.setProperty(getVersionProperty().get(), newVersion);
         properties.store();
+        return newVersion;
+    }
+
+    private void updateSecurityFile(ProjectProperties properties, String newVersion)
+            throws IOException {
+        Path securityFile = getSecurityFile().get().toPath();
+        String content = Files.readString(securityFile);
+        String oldVersion = properties.getProperty(getOldVersionProperty().get());
+        Files.writeString(securityFile, content.replace(oldVersion, newVersion));
     }
 
     private static String removePreReleaseVersion(String version) {
