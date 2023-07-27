@@ -33,7 +33,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-import org.parosproxy.paros.network.HttpRequestHeader;
 
 public class NodeJSAPIGenerator extends AbstractAPIGenerator {
 
@@ -203,12 +202,6 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
         }
         if (type.equals(OTHER_ENDPOINT)) {
             out.write(", 'other'");
-        }
-        String httpMethod = element.getDefaultMethod();
-        if (!HttpRequestHeader.GET.equalsIgnoreCase(httpMethod)) {
-            out.write(", '");
-            out.write(httpMethod);
-            out.write('\'');
         }
         out.write(")\n");
         out.write("}\n\n");

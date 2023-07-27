@@ -33,9 +33,6 @@ public abstract class CreateDmg extends DefaultTask {
     @Input
     public abstract Property<File> getWorkingDir();
 
-    @Input
-    public abstract Property<String> getVolname();
-
     @OutputFile
     public abstract RegularFileProperty getDmg();
 
@@ -55,12 +52,14 @@ public abstract class CreateDmg extends DefaultTask {
                                             "create",
                                             "-format",
                                             "UDBZ",
+                                            "-megabytes",
+                                            "800",
                                             "-fs",
                                             "HFS+",
                                             "-srcfolder",
                                             workingDir.toString(),
                                             "-volname",
-                                            getVolname().get(),
+                                            "OWASP ZAP",
                                             dmgFile.toString()));
                         });
     }

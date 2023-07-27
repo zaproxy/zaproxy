@@ -23,9 +23,7 @@ package org.zaproxy.zap.extension.globalexcludeurl;
 import java.util.Objects;
 import org.zaproxy.zap.utils.Enableable;
 
-/**
- * @deprecated (2.13.0) Superseded by Network add-on options.
- */
+/** @deprecated (2.13.0) Superseded by Network add-on options. */
 @Deprecated(since = "2.13.0", forRemoval = true)
 class GlobalExcludeURLParamToken extends Enableable {
 

@@ -132,10 +132,7 @@ public class HttpSender {
     public static final int FUZZER_INITIATOR = 4;
     public static final int AUTHENTICATION_INITIATOR = 5;
     public static final int MANUAL_REQUEST_INITIATOR = 6;
-
-    /**
-     * @deprecated (2.13.0) CFU requests are sent without notifying listeners.
-     */
+    /** @deprecated (2.13.0) CFU requests are sent without notifying listeners. */
     @Deprecated(since = "2.13.0")
     public static final int CHECK_FOR_UPDATES_INITIATOR = 7;
 
@@ -308,9 +305,7 @@ public class HttpSender {
         return PAROS_IMPL.executeMethodImpl((HttpSenderContextParos) ctxTemp, method, state);
     }
 
-    /**
-     * @deprecated (2.12.0) No longer needed.
-     */
+    /** @deprecated (2.12.0) No longer needed. */
     @Deprecated
     public void shutdown() {}
 
@@ -457,7 +452,7 @@ public class HttpSender {
      * <p>Processes that reuse messages previously sent should consider setting this to {@code
      * true}, otherwise new authentication challenges might fail.
      *
-     * @param removeHeaders {@code true} if the authentication headers already present should be
+     * @param removeHeaders {@code true} if the the authentication headers already present should be
      *     removed when challenged, {@code false} otherwise
      */
     public void setRemoveUserDefinedAuthHeaders(boolean removeHeaders) {

@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 WORKDIR /zap
 
 # Setup Webswing
-ENV WEBSWING_VERSION 23.2.2
+ENV WEBSWING_VERSION 22.2.4
 RUN --mount=type=secret,id=webswing_url \
 	if [ -s /run/secrets/webswing_url ] ; \
 	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
@@ -50,7 +50,7 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
     mkdir /zap  && \
     chown zap:zap /zap
 
-RUN pip3 install --no-cache-dir --upgrade awscli pip zaproxy pyyaml requests urllib3 
+RUN pip3 install --no-cache-dir --upgrade awscli pip python-owasp-zap-v2.4 pyyaml requests urllib3 
 
 WORKDIR /zap
 
@@ -85,7 +85,6 @@ COPY --link --chown=1000:1000 policies /home/zap/.ZAP_D/policies/
 COPY --link --chown=1000:1000 policies /root/.ZAP_D/policies/
 COPY --link --chown=1000:1000 scripts /home/zap/.ZAP_D/scripts/
 COPY --link --chown=1000:1000 .xinitrc /home/zap/
-COPY --link --chown=1000:1000 firefox /home/zap/.mozilla/firefox/
 
 RUN echo "zap2docker-weekly" > /zap/container && \
     chmod a+x /home/zap/.xinitrc

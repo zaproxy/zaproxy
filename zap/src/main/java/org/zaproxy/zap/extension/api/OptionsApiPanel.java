@@ -22,17 +22,13 @@ package org.zaproxy.zap.extension.api;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.SortOrder;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -53,7 +49,6 @@ public class OptionsApiPanel extends AbstractParamPanel {
     private JCheckBox chkEnabled = null;
     private JCheckBox chkUiEnabled = null;
     private JCheckBox chkSecureOnly = null;
-    private JCheckBox fileTransferEnabled = null;
     private JCheckBox reportPermErrors = null;
     private JCheckBox disableKey = null;
     private JCheckBox incErrorDetails = null;
@@ -61,9 +56,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
     private JCheckBox enableJSONP = null;
     private JCheckBox noKeyForSafeOps = null;
     private ZapTextField keyField = null;
-    private JTextField transferDirectory = null;
     private JButton generateKeyButton = null;
-    private JButton transferDirectoryButton = null;
 
     private PermittedAddressesPanel permittedAddressesPanel;
     private PermittedAddressesTableModel permittedAddressesTableModel;
@@ -79,7 +72,6 @@ public class OptionsApiPanel extends AbstractParamPanel {
         this.setName(Constant.messages.getString("api.options.title"));
         this.add(getPanelMisc(), getPanelMisc().getName());
     }
-
     /**
      * This method initializes panelMisc
      *
@@ -90,19 +82,9 @@ public class OptionsApiPanel extends AbstractParamPanel {
             panelMisc = new JPanel();
             panelMisc.setLayout(new GridBagLayout());
             int y = 0;
-
-            JLabel directoryLabel =
-                    new JLabel(Constant.messages.getString("api.options.label.xferDirectory"));
-            directoryLabel.setLabelFor(getTransferDirectoryButton());
-
-            panelMisc.add(getChkEnabled(), LayoutHelper.getGBC(0, y++, 2, 0.5));
-            panelMisc.add(getChkUiEnabled(), LayoutHelper.getGBC(0, y++, 2, 0.5));
-            panelMisc.add(getChkSecureOnly(), LayoutHelper.getGBC(0, y++, 2, 0.5));
-            panelMisc.add(getFileTransferEnabled(), LayoutHelper.getGBC(0, y++, 2, 0.5));
-            panelMisc.add(
-                    directoryLabel, LayoutHelper.getGBC(0, y, 1, 0.5, new Insets(2, 2, 2, 2)));
-            panelMisc.add(getTransferDirectory(), LayoutHelper.getGBC(1, y++, 1, 0.5));
-            panelMisc.add(getTransferDirectoryButton(), LayoutHelper.getGBC(1, y++, 1, 0.5));
+            panelMisc.add(getChkEnabled(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+            panelMisc.add(getChkUiEnabled(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+            panelMisc.add(getChkSecureOnly(), LayoutHelper.getGBC(0, y++, 1, 0.5));
 
             panelMisc.add(
                     new JLabel(Constant.messages.getString("api.options.label.apiKey")),
@@ -128,18 +110,17 @@ public class OptionsApiPanel extends AbstractParamPanel {
                             Constant.messages.getString("api.options.label.testingWarning"));
             warning.setForeground(Color.RED);
             panelMisc.add(warning, LayoutHelper.getGBC(0, y++, 2, 0.5D));
-            panelMisc.add(getDisableKey(), LayoutHelper.getGBC(0, y++, 2, 0.5));
-            panelMisc.add(getNoKeyForSafeOps(), LayoutHelper.getGBC(0, y++, 2, 0.5));
-            panelMisc.add(getReportPermErrors(), LayoutHelper.getGBC(0, y++, 2, 0.5));
-            panelMisc.add(getIncErrorDetails(), LayoutHelper.getGBC(0, y++, 2, 0.5));
-            panelMisc.add(getAutofillKey(), LayoutHelper.getGBC(0, y++, 2, 0.5));
-            panelMisc.add(getEnableJSONP(), LayoutHelper.getGBC(0, y++, 2, 0.5));
+            panelMisc.add(getDisableKey(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+            panelMisc.add(getNoKeyForSafeOps(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+            panelMisc.add(getReportPermErrors(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+            panelMisc.add(getIncErrorDetails(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+            panelMisc.add(getAutofillKey(), LayoutHelper.getGBC(0, y++, 1, 0.5));
+            panelMisc.add(getEnableJSONP(), LayoutHelper.getGBC(0, y++, 1, 0.5));
 
             panelMisc.add(new JLabel(), LayoutHelper.getGBC(0, y, 1, 0.5D, 1.0D)); // Spacer
         }
         return panelMisc;
     }
-
     /**
      * This method initializes chkProcessImages
      *
@@ -175,17 +156,6 @@ public class OptionsApiPanel extends AbstractParamPanel {
         return chkSecureOnly;
     }
 
-    private JCheckBox getFileTransferEnabled() {
-        if (fileTransferEnabled == null) {
-            fileTransferEnabled = new JCheckBox();
-            fileTransferEnabled.setText(Constant.messages.getString("api.options.fileTransfer"));
-            fileTransferEnabled.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-            fileTransferEnabled.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
-            fileTransferEnabled.addActionListener(e -> setTransferControlsState());
-        }
-        return fileTransferEnabled;
-    }
-
     private JCheckBox getDisableKey() {
         if (disableKey == null) {
             disableKey = new JCheckBox();
@@ -193,19 +163,21 @@ public class OptionsApiPanel extends AbstractParamPanel {
             disableKey.setVerticalAlignment(javax.swing.SwingConstants.TOP);
             disableKey.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
             disableKey.addActionListener(
-                    e -> {
-                        getKeyField().setEnabled(!disableKey.isSelected());
-                        getGenerateKeyButton().setEnabled(!disableKey.isSelected());
-                        if (!disableKey.isSelected()) {
-                            // Repopulate the previously used value
-                            getKeyField()
-                                    .setText(
-                                            Model.getSingleton()
-                                                    .getOptionsParam()
-                                                    .getApiParam()
-                                                    .getRealKey());
+                    new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            getKeyField().setEnabled(!disableKey.isSelected());
+                            getGenerateKeyButton().setEnabled(!disableKey.isSelected());
+                            if (!disableKey.isSelected()) {
+                                // Repopulate the previously used value
+                                getKeyField()
+                                        .setText(
+                                                Model.getSingleton()
+                                                        .getOptionsParam()
+                                                        .getApiParam()
+                                                        .getRealKey());
+                            }
                         }
-                        setTransferControlsState();
                     });
         }
         return disableKey;
@@ -283,43 +255,22 @@ public class OptionsApiPanel extends AbstractParamPanel {
         return generateKeyButton;
     }
 
-    private JButton getTransferDirectoryButton() {
-        if (transferDirectoryButton == null) {
-            transferDirectoryButton =
-                    new JButton(Constant.messages.getString("api.options.button.xferDirectory"));
-            transferDirectoryButton.addActionListener(
-                    new FileChooserAction(getTransferDirectory()));
-        }
-        return transferDirectoryButton;
-    }
-
-    private JTextField getTransferDirectory() {
-        if (transferDirectory == null) {
-            transferDirectory = new JTextField(20);
-        }
-        return transferDirectory;
-    }
-
     @Override
     public void initParam(Object obj) {
         OptionsParam options = (OptionsParam) obj;
         getChkEnabled().setSelected(options.getApiParam().isEnabled());
         getChkUiEnabled().setSelected(options.getApiParam().isUiEnabled());
         getChkSecureOnly().setSelected(options.getApiParam().isSecureOnly());
-        getFileTransferEnabled().setSelected(options.getApiParam().isFileTransferAllowed());
         getDisableKey().setSelected(options.getApiParam().isDisableKey());
         getIncErrorDetails().setSelected(options.getApiParam().isIncErrorDetails());
         getAutofillKey().setSelected(options.getApiParam().isAutofillKey());
         getEnableJSONP().setSelected(options.getApiParam().isEnableJSONP());
         getReportPermErrors().setSelected(options.getApiParam().isReportPermErrors());
         getNoKeyForSafeOps().setSelected(options.getApiParam().isNoKeyForSafeOps());
-        getTransferDirectory().setText(options.getApiParam().getTransferDir());
         getKeyField().setText(options.getApiParam().getKey());
 
         getKeyField().setEnabled(!disableKey.isSelected());
         getGenerateKeyButton().setEnabled(!disableKey.isSelected());
-        setTransferControlsState();
-
         getPermittedAddressesTableModel()
                 .setAddresses(options.getApiParam().getPermittedAddresses());
         getProxyPermittedAddressesPanel()
@@ -327,24 +278,11 @@ public class OptionsApiPanel extends AbstractParamPanel {
                         !options.getApiParam().isConfirmRemovePermittedAddress());
     }
 
-    private void setTransferControlsState() {
-        getFileTransferEnabled().setEnabled(!disableKey.isSelected());
-        boolean enabled = !disableKey.isSelected() && getFileTransferEnabled().isSelected();
-        getTransferDirectory().setEnabled(enabled);
-        getTransferDirectoryButton().setEnabled(enabled);
-    }
-
     @Override
     public void validateParam(Object obj) throws Exception {
         if (!getDisableKey().isSelected() && getKeyField().getText().length() == 0) {
             getKeyField().requestFocusInWindow();
             throw new Exception(Constant.messages.getString("api.options.nokey.error"));
-        }
-        if (getFileTransferEnabled().isSelected()) {
-            File xferDir = new File(getTransferDirectory().getText());
-            if (!xferDir.isDirectory() || !xferDir.canWrite()) {
-                throw new Exception(Constant.messages.getString("api.options.xferdir.error"));
-            }
         }
     }
 
@@ -354,17 +292,12 @@ public class OptionsApiPanel extends AbstractParamPanel {
         options.getApiParam().setEnabled(getChkEnabled().isSelected());
         options.getApiParam().setUiEnabled(getChkUiEnabled().isSelected());
         options.getApiParam().setSecureOnly(getChkSecureOnly().isSelected());
-        options.getApiParam().setFileTransferAllowed(getFileTransferEnabled().isSelected());
         options.getApiParam().setDisableKey(getDisableKey().isSelected());
         options.getApiParam().setIncErrorDetails(getIncErrorDetails().isSelected());
         options.getApiParam().setAutofillKey(getAutofillKey().isSelected());
         options.getApiParam().setEnableJSONP(getEnableJSONP().isSelected());
         options.getApiParam().setReportPermErrors(getReportPermErrors().isSelected());
         options.getApiParam().setNoKeyForSafeOps(getNoKeyForSafeOps().isSelected());
-
-        if (getFileTransferEnabled().isSelected()) {
-            options.getApiParam().setTransferDir(getTransferDirectory().getText());
-        }
 
         if (!getDisableKey().isSelected()) {
             // Dont loose the old value on disabling
@@ -488,33 +421,6 @@ public class OptionsApiPanel extends AbstractParamPanel {
             }
 
             return false;
-        }
-    }
-
-    private static class FileChooserAction implements ActionListener {
-
-        private final JTextField textField;
-
-        public FileChooserAction(JTextField bindTextField) {
-            this.textField = bindTextField;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-            String path = textField.getText();
-            if (path != null) {
-                File file = new File(path);
-                if (file.canWrite() && file.isDirectory()) {
-                    fileChooser.setSelectedFile(file);
-                }
-            }
-            if (fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                final File selectedFile = fileChooser.getSelectedFile();
-
-                textField.setText(selectedFile.getAbsolutePath());
-            }
         }
     }
 }

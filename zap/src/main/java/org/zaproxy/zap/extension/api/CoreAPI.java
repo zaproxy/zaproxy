@@ -39,8 +39,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import java.util.stream.Stream;
@@ -49,12 +47,8 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
@@ -86,7 +80,6 @@ import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.HarUtils;
-import org.zaproxy.zap.utils.ZapSupportUtils;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
@@ -136,9 +129,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE =
             "enablePKCS12ClientCertificate";
     private static final String ACTION_DISABLE_CLIENT_CERTIFICATE = "disableClientCertificate";
-    private static final String ACTION_CREATE_SBOM_ZIP = "createSbomZip";
-
-    private static final String ACTION_LOGGING = "setLogLevel";
 
     private static final String VIEW_ALERT = "alert";
     private static final String VIEW_ALERTS = "alerts";
@@ -169,8 +159,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH =
             "optionAlertOverridesFilePath";
 
-    private static final String VIEW_LOGGING = "getLogLevel";
-
     private static final String OTHER_PROXY_PAC = "proxy.pac";
     private static final String OTHER_SET_PROXY = "setproxy";
     private static final String OTHER_ROOT_CERT = "rootcert";
@@ -183,8 +171,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String OTHER_MESSAGES_HAR_BY_ID = "messagesHarById";
     private static final String OTHER_SEND_HAR_REQUEST = "sendHarRequest";
     private static final String OTHER_SCRIPT_JS = "script.js";
-    private static final String OTHER_FILE_DOWNLOAD = "fileDownload";
-    private static final String OTHER_FILE_UPLOAD = "fileUpload";
 
     private static final String PARAM_BASE_URL = "baseurl";
     private static final String PARAM_COUNT = "count";
@@ -212,10 +198,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String PARAM_FILE_PATH = "filePath";
     private static final String PARAM_PASSWORD = "password";
     private static final String PARAM_INDEX = "index";
-    private static final String PARAM_FILENAME = "fileName";
-    private static final String PARAM_CONTENTS = "fileContents";
-    private static final String PARAM_NAME = "name";
-    private static final String PARAM_LEVEL = "logLevel";
 
     private static final List<String> PARAMS_STRING = Collections.singletonList("String");
     private static final List<String> PARAMS_BOOLEAN = Collections.singletonList("Boolean");
@@ -255,9 +237,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private boolean savingSession = false;
     private static ExtensionHistory extHistory;
 
-    /**
-     * @deprecated (2.12.0) Use {@link #CoreAPI()} instead.
-     */
+    /** @deprecated (2.12.0) Use {@link #CoreAPI()} instead. */
     @Deprecated
     public CoreAPI(org.parosproxy.paros.network.ConnectionParam connectionParam) {
         this();
@@ -345,15 +325,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 new String[] {PARAM_FILE_PATH, PARAM_PASSWORD},
                                 new String[] {PARAM_INDEX})));
         this.addApiAction(deprecatedNetworkApi(new ApiAction(ACTION_DISABLE_CLIENT_CERTIFICATE)));
-        this.addApiAction(
-                new ApiAction(ACTION_CREATE_SBOM_ZIP, new String[] {PARAM_FILE_PATH}, null));
 
         // Deprecated actions
         this.addApiAction(depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALL_ALERTS)));
         this.addApiAction(
                 depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALERT, new String[] {PARAM_ID})));
-
-        this.addApiAction(new ApiAction(ACTION_LOGGING, new String[] {PARAM_NAME, PARAM_LEVEL}));
 
         this.addApiView(new ApiView(VIEW_HOSTS));
         this.addApiView(new ApiView(VIEW_SITES));
@@ -405,7 +381,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 VIEW_NUMBER_OF_ALERTS,
                                 null,
                                 new String[] {PARAM_BASE_URL, PARAM_RISK}))));
-        this.addApiView(new ApiView(VIEW_LOGGING, new String[] {}, new String[] {PARAM_NAME}));
+
         this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_PROXY_PAC, false)));
         this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_ROOT_CERT, false)));
         this.addApiOthers(
@@ -432,13 +408,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 OTHER_SEND_HAR_REQUEST,
                                 new String[] {PARAM_REQUEST},
                                 new String[] {PARAM_FOLLOW_REDIRECTS})));
-        this.addApiOthers(new ApiOther(OTHER_FILE_DOWNLOAD, new String[] {PARAM_FILENAME}));
-        this.addApiOthers(
-                new ApiOther(
-                        OTHER_FILE_UPLOAD,
-                        HttpRequestHeader.POST,
-                        List.of(PARAM_FILENAME, PARAM_CONTENTS),
-                        List.of()));
 
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
@@ -905,49 +874,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             JSONObject newParams = new JSONObject();
             params.put("use", false);
             return getNetworkImplementor().handleApiAction("setUseClientCertificate", newParams);
-        } else if (ACTION_CREATE_SBOM_ZIP.equals(name)) {
-            File sbomFile = new File(params.getString(PARAM_FILE_PATH));
-            if (sbomFile.exists()) {
-                throw new ApiException(ApiException.Type.ALREADY_EXISTS, PARAM_FILE_PATH);
-            }
-            try {
-                ZapSupportUtils.saveSbomZip(sbomFile);
-            } catch (IOException e) {
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
-            }
-        } else if (ACTION_LOGGING.equals(name)) {
-            String logName = ApiUtils.getNonEmptyStringParam(params, PARAM_NAME);
-            String newLevel = ApiUtils.getNonEmptyStringParam(params, PARAM_LEVEL);
-            Level logLevel = Level.toLevel(newLevel, null);
-            if (logLevel == null) {
-                throw new ApiException(
-                        ApiException.Type.ILLEGAL_PARAMETER,
-                        "Invalid log level: \"" + newLevel + "\"");
-            }
-            Configurator.setLevel(logName, logLevel);
         } else {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }
         return ApiResponseElement.OK;
-    }
-
-    /**
-     * Returns a Path for the child file underneath the specified parent directory. Detects and
-     * throws an exception if a path traversal attack is used.
-     *
-     * @param parent the parent directory
-     * @param child the child path, which can include sub directories
-     * @return a Path for the child file
-     * @throws ApiException is a path traversal attack is used
-     */
-    protected static Path getChildPath(String parent, String child) throws ApiException {
-        Path childPath = Paths.get(parent, child).normalize();
-        Path parentPath = Paths.get(parent).normalize();
-        if (!childPath.startsWith(parentPath)) {
-            LOGGER.error("Detected path traversal attack {}", childPath);
-            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILENAME);
-        }
-        return childPath;
     }
 
     private static Path getSessionPath(String path) throws ApiException {
@@ -1317,17 +1247,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             result =
                     new ApiResponseElement(
                             name, getAlertParam(ApiException.Type.BAD_VIEW).getOverridesFilename());
-        } else if (VIEW_LOGGING.equals(name)) {
-            String logName = getParam(params, PARAM_NAME, "");
-            SortedMap<String, String> loggerDetails = new TreeMap<>();
-            for (Logger logger : LoggerContext.getContext().getLoggers()) {
-                if (logName.isEmpty()
-                        || (!logName.isEmpty()
-                                && StringUtils.startsWithIgnoreCase(logger.getName(), logName))) {
-                    loggerDetails.put(logger.getName(), logger.getLevel().name());
-                }
-            }
-            result = new ApiResponseSet<String>(name, loggerDetails);
         } else {
             throw new ApiException(ApiException.Type.BAD_VIEW);
         }
@@ -1379,26 +1298,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     @Override
-    public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) {
-        try {
-            return handleApiOtherImpl(msg, name, params);
-        } catch (ApiException e) {
-            msg.setResponseBody(
-                    e.toString(API.Format.JSON, incErrorDetails())
-                            .getBytes(StandardCharsets.UTF_8));
-            try {
-                msg.setResponseHeader(
-                        API.getDefaultResponseHeader(
-                                "application/json; charset=UTF-8", msg.getResponseBody().length()));
-            } catch (HttpMalformedHeaderException e2) {
-                LOGGER.error("Failed to create response header: {}", e2.getMessage(), e2);
-            }
-            return msg;
-        }
-    }
-
-    private HttpMessage handleApiOtherImpl(HttpMessage msg, String name, JSONObject params)
+    public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params)
             throws ApiException {
+
         if (OTHER_PROXY_PAC.equals(name)) {
             return getNetworkImplementor().handleApiOther(msg, OTHER_PROXY_PAC, params);
         } else if (OTHER_SET_PROXY.equals(name)) {
@@ -1431,11 +1333,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
                 responseBody = HarUtils.harLogToByteArray(harLog);
             } catch (ApiException e) {
-                throw e;
+                responseBody =
+                        e.toString(API.Format.JSON, incErrorDetails())
+                                .getBytes(StandardCharsets.UTF_8);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
 
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+                ApiException apiException =
+                        new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+                responseBody =
+                        apiException
+                                .toString(API.Format.JSON, incErrorDetails())
+                                .getBytes(StandardCharsets.UTF_8);
             }
 
             try {
@@ -1471,10 +1380,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
                 responseBody = HarUtils.harLogToByteArray(harLog);
             } catch (ApiException e) {
-                throw e;
+                responseBody =
+                        e.toString(API.Format.JSON, incErrorDetails())
+                                .getBytes(StandardCharsets.UTF_8);
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
-                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+
+                ApiException apiException =
+                        new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+                responseBody =
+                        apiException
+                                .toString(API.Format.JSON, incErrorDetails())
+                                .getBytes(StandardCharsets.UTF_8);
             }
 
             try {
@@ -1493,12 +1410,21 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 request = HarUtils.createHttpMessage(params.getString(PARAM_REQUEST));
             } catch (IOException e) {
-                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
+                ApiException apiException =
+                        new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
+                responseBody =
+                        apiException
+                                .toString(API.Format.JSON, incErrorDetails())
+                                .getBytes(StandardCharsets.UTF_8);
             }
 
             if (request != null) {
                 if (!isValidForCurrentMode(request.getRequestHeader().getURI())) {
-                    throw new ApiException(ApiException.Type.MODE_VIOLATION);
+                    ApiException apiException = new ApiException(ApiException.Type.MODE_VIOLATION);
+                    responseBody =
+                            apiException
+                                    .toString(API.Format.JSON, incErrorDetails())
+                                    .getBytes(StandardCharsets.UTF_8);
                 } else {
                     boolean followRedirects = getParam(params, PARAM_FOLLOW_REDIRECTS, false);
                     try {
@@ -1520,10 +1446,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
                         responseBody = HarUtils.harLogToByteArray(harLog);
                     } catch (ApiException e) {
-                        throw e;
+                        responseBody =
+                                e.toString(API.Format.JSON, incErrorDetails())
+                                        .getBytes(StandardCharsets.UTF_8);
                     } catch (Exception e) {
                         LOGGER.error(e.getMessage(), e);
-                        throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+
+                        ApiException apiException =
+                                new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+                        responseBody =
+                                apiException
+                                        .toString(API.Format.JSON, incErrorDetails())
+                                        .getBytes(StandardCharsets.UTF_8);
                     }
                 }
             }
@@ -1551,70 +1485,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             }
 
             return msg;
-        } else if (OTHER_FILE_DOWNLOAD.equals(name)) {
-            OptionsParamApi apiParam = Model.getSingleton().getOptionsParam().getApiParam();
-
-            if (!apiParam.isFileTransferAllowed()) {
-                throw new ApiException(ApiException.Type.BAD_OTHER, "File transfer not enabled");
-            }
-
-            Path filePath =
-                    getChildPath(apiParam.getTransferDir(), getParam(params, PARAM_FILENAME, ""));
-
-            try {
-                if (!filePath.toFile().canRead()) {
-                    LOGGER.error("Cannot access specified file {}", filePath);
-                    throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILENAME);
-                }
-                msg.setResponseBody(Files.readAllBytes(filePath));
-                try {
-                    msg.setResponseHeader(
-                            API.getDefaultResponseHeader(null, msg.getResponseBody().length()));
-                } catch (HttpMalformedHeaderException e) {
-                    LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
-                }
-                LOGGER.debug("Downloaded file {}", filePath);
-                return msg;
-
-            } catch (IOException e) {
-                LOGGER.error("Failed to create file {}", filePath, e);
-                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILENAME, e);
-            }
-        } else if (OTHER_FILE_UPLOAD.equals(name)) {
-            OptionsParamApi apiParam = Model.getSingleton().getOptionsParam().getApiParam();
-
-            if (!apiParam.isFileTransferAllowed()) {
-                throw new ApiException(ApiException.Type.BAD_OTHER, "File transfer not enabled");
-            }
-            if (!HttpRequestHeader.POST.equals(msg.getRequestHeader().getMethod())) {
-                throw new ApiException(ApiException.Type.BAD_OTHER, "File upload must use POST");
-            }
-            Path filePath =
-                    getChildPath(apiParam.getTransferDir(), getParam(params, PARAM_FILENAME, ""));
-
-            try {
-                Files.createDirectories(filePath.getParent());
-                Files.writeString(filePath, getParam(params, PARAM_CONTENTS, ""));
-                LOGGER.debug("Uploaded file to {}", filePath);
-            } catch (IOException e) {
-                LOGGER.error("Failed to upload file {}", filePath, e);
-                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILENAME, e);
-            }
-
-            ApiResponse response = new ApiResponseElement("Uploaded", filePath.toString());
-
-            msg.setResponseBody(response.toJSON().toString().getBytes());
-            try {
-                msg.setResponseHeader(
-                        API.getDefaultResponseHeader(
-                                "application/json; charset=UTF-8", msg.getResponseBody().length()));
-            } catch (HttpMalformedHeaderException e2) {
-                LOGGER.error("Failed to create response header: {}", e2.getMessage(), e2);
-            }
-
-            return msg;
         } else {
-            throw new ApiException(ApiException.Type.BAD_OTHER, name);
+            throw new ApiException(ApiException.Type.BAD_OTHER);
         }
     }
 
@@ -1760,9 +1632,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
             for (Integer id : historyIds) {
                 RecordHistory recHistory = tableHistory.read(id);
-                if (recHistory == null) {
-                    continue;
-                }
 
                 HttpMessage msg = recHistory.getHttpMessage();
 

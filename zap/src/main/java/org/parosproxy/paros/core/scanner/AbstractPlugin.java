@@ -324,6 +324,17 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         parent.performScannerHookAfterScan(message, this);
     }
 
+    @SuppressWarnings("removal")
+    private void delayRequest() {
+        if (getDelayInMs() > 0) {
+            try {
+                Thread.sleep(getDelayInMs());
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+        }
+    }
+
     /**
      * Decodes the response body of the given {@code HttpMessage}. for example, to change a binary
      * payload to clear text to allow to do text/string comparisons of the content.

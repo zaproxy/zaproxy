@@ -1,48 +1,6 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
-### 2024-04-30
-- Push Docker images to https://hub.docker.com/u/zaproxy
-
-### 2024-03-19
-- Alert_on_Unexpected_Content_Types.js > Added Content-Type application/yaml to the list of expected types (Issue 8366).
-
-### 2024-03-05
-- ZAP images no longer pushed to the OWASP Docker Hub.
-
-### 2024-01-23
-- Allow host_override to be a URL (Issue 8312).
-
-### 2023-12-14
-- Updated to use Webswing 23.2.2 (Issue 8244).
-
-### 2023-12-12
-- Parsing the config file ignores empty lines that are containing whitespaces only (Issue 8237).
-
-### 2023-12-07
-- Give better error on failing to parse the config file.
-
-### 2023-12-06
-- Alert_on_Unexpected_Content_Types.js > Added Content-Type text/xml to the list of expected types (Issue 8226).
-
-### 2023-10-30
-- Add the ZAP client profile to stable, weekly, and live images.
-
-### 2023-08-23
-- Python 3.6 and 3.7 are no longer supported.
-
-### 2023-08-09
-- Install the newer Python ZAP API client directly, `python-owasp-zap-v2.4` was renamed to `zaproxy`.
-
-### 2023-08-07
-- The default name for ZAP's Root CA certificate and key was changed from `owasp_zap_root_ca` to `zap_root_ca`, in the Webswing script (`zap-webswing.sh`).
-
-### 2023-08-04
-- The packaged scans, when executed directly, will now use the image from the GitHub Container Registry.
-
-### 2023-08-02
-- Start publishing images under the `softwaresecurityproject` organization on Docker Hub, in addition to the existing images.
-
 ### 2023-07-07
 - Remove checks for CFU initiator in HTTP Sender scripts, no longer needed.
 

@@ -63,8 +63,6 @@
 // and setExcludedFromScope to short-circuit && operator earlier.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
-// ZAP: 2024/01/19 Accept cleanName via constructor and cache non-regex hierarchic node name.
-// ZAP: 2024/02/23 Correct name of hosts without children.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -92,10 +90,8 @@ public class SiteNode extends DefaultMutableTreeNode {
 
     private static final long serialVersionUID = 7987615016786179150L;
 
-    private final String cleanName;
     private String nodeName = null;
     private String hierarchicNodeName = null;
-    private String nonRegexHierarchicNodeName;
     private HistoryReference historyReference = null;
     private Vector<HistoryReference> pastHistoryList = new Vector<>(10);
     // ZAP: Support for linking Alerts to SiteNodes
@@ -126,14 +122,9 @@ public class SiteNode extends DefaultMutableTreeNode {
     private Alert highestAlert;
 
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
-        this(siteMap, type, nodeName, nodeName);
-    }
-
-    public SiteNode(SiteMap siteMap, int type, String nodeName, String cleanName) {
         super();
         this.siteMap = siteMap;
         this.nodeName = nodeName;
-        this.cleanName = cleanName;
         this.dataDriven = nodeName.contains(SessionStructure.DATA_DRIVEN_NODE_PREFIX);
         this.icons = new ArrayList<>();
         this.clearIfManual = new ArrayList<>();
@@ -278,7 +269,7 @@ public class SiteNode extends DefaultMutableTreeNode {
      */
     public String getName() {
         String name = this.getNodeName();
-        if (this.isLeaf() && !isRootChild()) {
+        if (this.isLeaf()) {
             int colonIndex = name.indexOf(":");
             if (colonIndex > 0) {
                 // Strip the GET/POST/etc. off
@@ -288,20 +279,34 @@ public class SiteNode extends DefaultMutableTreeNode {
         return name;
     }
 
-    private boolean isRootChild() {
-        return getParent() != null && getParent().isRoot();
-    }
-
     public String getCleanNodeName() {
         return getCleanNodeName(true);
     }
 
     public String getCleanNodeName(boolean specialNodesAsRegex) {
+        String name = this.getNodeName();
         if (specialNodesAsRegex && this.isDataDriven()) {
             // Non-greedy regex pattern
-            return "(.+?)";
+            name = "(.+?)";
+
+        } else if (this.isLeaf()) {
+            int colonIndex = name.indexOf(":");
+            if (colonIndex > 0) {
+                // Strip the GET/POST/etc. off
+                name = name.substring(colonIndex + 1);
+            }
+            int bracketIndex = name.lastIndexOf("(");
+            if (bracketIndex > 0) {
+                // Strip the param summary off
+                name = name.substring(0, bracketIndex);
+            }
+            int queryIndex = name.indexOf("?");
+            if (queryIndex > 0) {
+                // Strip the parameters off
+                name = name.substring(0, queryIndex);
+            }
         }
-        return cleanName;
+        return name;
     }
 
     public String getHierarchicNodeName() {
@@ -310,9 +315,8 @@ public class SiteNode extends DefaultMutableTreeNode {
 
     public String getHierarchicNodeName(boolean specialNodesAsRegex) {
         if (hierarchicNodeName != null && specialNodesAsRegex) {
+            // The regex version is used most frequently, so cache
             return hierarchicNodeName;
-        } else if (nonRegexHierarchicNodeName != null && !specialNodesAsRegex) {
-            return nonRegexHierarchicNodeName;
         }
 
         if (this.isRoot()) {
@@ -329,7 +333,7 @@ public class SiteNode extends DefaultMutableTreeNode {
                 name = this.getParent().getHierarchicNodeName(specialNodesAsRegex) + "/" + nodeName;
             }
             if (!specialNodesAsRegex) {
-                nonRegexHierarchicNodeName = name;
+                // Dont cache the non regex version
                 return name;
             }
             hierarchicNodeName = name;

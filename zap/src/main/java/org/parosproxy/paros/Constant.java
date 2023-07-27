@@ -120,29 +120,20 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/12/22 Issue 7663: Default threads based on number of processors.
 // ZAP: 2023/01/10 Tidy up logger.
-// ZAP: 2023/08/07 Rename home dir in Windows and update program name.
-// ZAP: 2023/08/21 Deprecate vulnerabilities constants.
-// ZAP: 2023/08/28 Update paths in config file to match the renamed home dir.
-// ZAP: 2023/09/14 Lock home directory.
-// ZAP: 2024/04/25 Add new autoTagScanner regex patterns when upgrading from 2.14 or earlier.
 package org.parosproxy.paros;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.channels.FileChannel;
-import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -178,17 +169,11 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public final class Constant {
     // ZAP: rebrand
-    public static final String PROGRAM_NAME = "ZAP";
+    public static final String PROGRAM_NAME = "OWASP ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
-
-    /**
-     * @deprecated (2.9.0) Do not use, it will be removed.
-     */
+    /** @deprecated (2.9.0) Do not use, it will be removed. */
     @Deprecated public static final String ZAP_HOMEPAGE = "http://www.owasp.org/index.php/ZAP";
-
-    /**
-     * @deprecated (2.9.0) Do not use, it will be removed.
-     */
+    /** @deprecated (2.9.0) Do not use, it will be removed. */
     @Deprecated
     public static final String ZAP_EXTENSIONS_PAGE = "https://github.com/zaproxy/zap-extensions";
 
@@ -206,10 +191,9 @@ public final class Constant {
     private static final String VERSION_ELEMENT = "version";
 
     // Accessible for tests
-    static final long VERSION_TAG = 20015000;
+    static final long VERSION_TAG = 20013000;
 
     // Old version numbers - for upgrade
-    private static final long V_2_14_0_TAG = 20014000;
     private static final long V_2_12_0_TAG = 20012000;
     private static final long V_2_11_1_TAG = 20011001;
     private static final long V_2_9_0_TAG = 2009000;
@@ -244,7 +228,6 @@ public final class Constant {
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
-
     /**
      * The name of the directory for filter related files (the path should be built using {@link
      * #getZapHome()} as the parent directory).
@@ -363,20 +346,16 @@ public final class Constant {
      * Prefix (file name) of vulnerabilities.xml files.
      *
      * @see #VULNERABILITIES_EXTENSION
-     * @deprecated (2.14.0) The vulnerabilities were moved to Common Library add-on.
      * @since 2.4.0
      */
-    @Deprecated(since = "2.14.0", forRemoval = true)
     public static final String VULNERABILITIES_PREFIX = "vulnerabilities";
 
     /**
      * Extension (with dot) of vulnerabilities.xml files.
      *
      * @see #VULNERABILITIES_PREFIX
-     * @deprecated (2.14.0) The vulnerabilities were moved to Common Library add-on.
      * @since 2.4.0
      */
-    @Deprecated(since = "2.14.0", forRemoval = true)
     public static final String VULNERABILITIES_EXTENSION = ".xml";
 
     /**
@@ -413,9 +392,6 @@ public final class Constant {
 
     private static final Logger LOGGER = LogManager.getLogger(Constant.class);
 
-    private FileChannel homeLockFileChannel;
-    private FileLock homeLock;
-
     public static String getEyeCatcher() {
         return staticEyeCatcher;
     }
@@ -435,7 +411,10 @@ public final class Constant {
 
     public static String getDefaultHomeDirectory(boolean incDevOption) {
         if (zapStd == null) {
-            zapStd = getUserHome();
+            zapStd = System.getProperty("user.home");
+            if (zapStd == null) {
+                zapStd = ".";
+            }
 
             if (isLinux()) {
                 // Linux: Hidden Zap directory in the user's home directory
@@ -451,7 +430,7 @@ public final class Constant {
                                 + PROGRAM_NAME_SHORT;
             } else {
                 // Windows: Zap directory in the user's home directory
-                zapStd += FILE_SEPARATOR + PROGRAM_NAME_SHORT;
+                zapStd += FILE_SEPARATOR + PROGRAM_NAME;
             }
         }
 
@@ -462,22 +441,6 @@ public final class Constant {
             }
         }
         return zapStd;
-    }
-
-    /**
-     * Gets the user home.
-     *
-     * <p>It is returned the system property {@code user.home} if defined otherwise the current
-     * directory (i.e. {@code "."}).
-     *
-     * @return the user home, or the current directory.
-     */
-    private static String getUserHome() {
-        String home = System.getProperty("user.home");
-        if (home == null) {
-            return ".";
-        }
-        return home;
     }
 
     public void copyDefaultConfigs(File f, boolean forceReset)
@@ -573,7 +536,6 @@ public final class Constant {
         PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
 
         if (zapHome == null) {
-            renameOldWindowsHome();
             zapHome = getDefaultHomeDirectory(true);
         }
 
@@ -610,10 +572,6 @@ public final class Constant {
                             "The install dir should not be used as home dir: " + installDir);
                     System.exit(1);
                 }
-            }
-
-            if (!acquireHomeLock()) {
-                System.exit(1);
             }
 
             setUpLogging();
@@ -756,9 +714,6 @@ public final class Constant {
                     if (ver <= V_2_12_0_TAG) {
                         upgradeFrom2_12(config);
                     }
-                    if (ver <= V_2_14_0_TAG) {
-                        upgradeFrom2_14_0(config);
-                    }
 
                     // Execute always to pick installer choices.
                     updateCfuFromDefaultConfig(config);
@@ -784,90 +739,6 @@ public final class Constant {
         Locale.setDefault(locale);
 
         messages = new I18N(locale);
-    }
-
-    boolean acquireHomeLock() {
-        try {
-            Path lockFile = Paths.get(zapHome, ".homelock");
-            if (Files.notExists(lockFile)) {
-                Files.createFile(lockFile);
-            }
-            homeLockFileChannel = FileChannel.open(lockFile, StandardOpenOption.WRITE);
-            homeLock = homeLockFileChannel.tryLock();
-            if (homeLock == null) {
-                System.err.println(
-                        "The home directory is already in use. Ensure no other ZAP instances are running with the same home directory: "
-                                + zapHome);
-                return false;
-            }
-            return true;
-        } catch (Exception e) {
-            System.err.println("Failed to acquire home directory lock.");
-            e.printStackTrace();
-            return false;
-        }
-    }
-
-    private void renameOldWindowsHome() {
-        if (!isWindows()) {
-            return;
-        }
-
-        String home = getUserHome() + FILE_SEPARATOR + "OWASP ZAP";
-        if (isDevMode() || isDailyBuild()) {
-            home += "_D";
-        }
-
-        Path oldHome = Paths.get(getAbsolutePath(home));
-        if (Files.notExists(oldHome)) {
-            return;
-        }
-
-        Path newHome = Paths.get(getAbsolutePath(getDefaultHomeDirectory(true)));
-        if (Files.exists(newHome)) {
-            logAndPrintInfo("Not renaming old ZAP home, the new home already exists.");
-            return;
-        }
-
-        try {
-            Files.move(oldHome, newHome, StandardCopyOption.ATOMIC_MOVE);
-            logAndPrintInfo("Old ZAP home renamed to: " + newHome);
-            Path configFile = newHome.resolve(FILE_CONFIG_NAME);
-            if (Files.exists(configFile)) {
-                updatePathsInConfig(oldHome, newHome, new ZapXmlConfiguration(configFile.toFile()));
-            }
-        } catch (IOException e) {
-            logAndPrintError("Failed to rename the old home, will use a new home instead.", e);
-        } catch (ConfigurationException e) {
-            logAndPrintError("Failed to update home paths in configuration file:", e);
-        }
-    }
-
-    private static void updatePathsInConfig(Path oldHome, Path newHome, ZapXmlConfiguration config)
-            throws ConfigurationException {
-        config.getKeys()
-                .forEachRemaining(
-                        key -> {
-                            Path path = getPath(config.getString(key));
-                            if (path == null || !path.startsWith(oldHome)) {
-                                return;
-                            }
-                            Path newPath = newHome.resolve(oldHome.relativize(path));
-                            config.setProperty(key, newPath.toString());
-                        });
-        config.save();
-    }
-
-    private static Path getPath(String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-        try {
-            return Paths.get(value);
-        } catch (Exception ignore) {
-            // Nothing to do.
-        }
-        return null;
     }
 
     private Locale loadLocale(ControlOverrides overrides) {
@@ -1276,55 +1147,6 @@ public final class Constant {
         config.setProperty("hud.enableTelemetry", null);
     }
 
-    static void upgradeFrom2_14_0(XMLConfiguration config) throws ConfigurationException {
-        List<HierarchicalConfiguration> existingTagScanners =
-                config.configurationsAt("pscans.autoTagScanners.scanner");
-        List<Object> existingNames = config.getList("pscans.autoTagScanners.scanner.name");
-
-        String leadingAutoTagScannersKey = "pscans.autoTagScanners.scanner(";
-        String trailingNameKey = ").name";
-        String trailingTypeKey = ").type";
-        String trailingConfigKey = ").config";
-        String trailingResHeadRegex = ").resHeadRegex";
-        String trailingEnableKey = ").enabled";
-
-        int index = existingTagScanners.size(); // Size is next index due to 0th start
-
-        if (!existingNames.contains("json_extended")) {
-            config.addProperty(
-                    leadingAutoTagScannersKey + index + trailingNameKey, "json_extended");
-            config.addProperty(leadingAutoTagScannersKey + index + trailingTypeKey, "TAG");
-            config.addProperty(leadingAutoTagScannersKey + index + trailingConfigKey, "JSON");
-            config.addProperty(
-                    leadingAutoTagScannersKey + index + trailingResHeadRegex,
-                    "content-type:\\s{0,10}.{1,20}\\/.{0,100}json");
-            config.addProperty(leadingAutoTagScannersKey + index + trailingEnableKey, false);
-            ++index;
-        }
-
-        if (!existingNames.contains("response_yaml")) {
-            config.addProperty(
-                    leadingAutoTagScannersKey + index + trailingNameKey, "response_yaml");
-            config.addProperty(leadingAutoTagScannersKey + index + trailingTypeKey, "TAG");
-            config.addProperty(leadingAutoTagScannersKey + index + trailingConfigKey, "YAML");
-            config.addProperty(
-                    leadingAutoTagScannersKey + index + trailingResHeadRegex,
-                    "content-type:\\s{0,10}.{1,20}\\/.{0,100}yaml");
-            config.addProperty(leadingAutoTagScannersKey + index + trailingEnableKey, false);
-            ++index;
-        }
-
-        if (!existingNames.contains("response_xml")) {
-            config.addProperty(leadingAutoTagScannersKey + index + trailingNameKey, "response_xml");
-            config.addProperty(leadingAutoTagScannersKey + index + trailingTypeKey, "TAG");
-            config.addProperty(leadingAutoTagScannersKey + index + trailingConfigKey, "XML");
-            config.addProperty(
-                    leadingAutoTagScannersKey + index + trailingResHeadRegex,
-                    "content-type:\\s{0,10}.{1,20}\\/.{0,100}xml");
-            config.addProperty(leadingAutoTagScannersKey + index + trailingEnableKey, false);
-        }
-    }
-
     private static void updateDefaultInt(
             XMLConfiguration config, String key, int oldDefault, int newDefault) {
         try {
@@ -1589,7 +1411,7 @@ public final class Constant {
         String manifestPath =
                 classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
         try {
-            return new Manifest(new URI(manifestPath).toURL().openStream());
+            return new Manifest(new URL(manifestPath).openStream());
         } catch (Exception e) {
             // Ignore
             return null;

@@ -42,7 +42,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import org.apache.commons.lang3.Validate;
+import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -52,14 +52,18 @@ import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
+import org.zaproxy.zap.extension.pscan.PassiveScanner;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.utils.ZapResourceBundleControl;
 
 /**
  * Helper class responsible to install and uninstall add-ons and all its (dynamically installable)
- * components ({@code Extension}s, {@code Plugin}s, and files).
+ * components ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s and files).
  *
  * @see Extension
  * @see org.parosproxy.paros.core.scanner.Plugin
+ * @see PassiveScanner
  * @since 2.3.0
  */
 public final class AddOnInstaller {
@@ -80,7 +84,7 @@ public final class AddOnInstaller {
 
     /**
      * Installs all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s,
-     * and files) of the given {@code addOn}.
+     * {@code PassiveScanner}s and files) of the given {@code addOn}.
      *
      * <p>It's also responsible to notify the installed extensions when the installation has
      * finished by calling the method {@code Extension#postInstall()}.
@@ -88,10 +92,11 @@ public final class AddOnInstaller {
      * <p>The components are installed in the following order:
      *
      * <ol>
-     *   <li>{@link java.util.ResourceBundle ResourceBundle}
-     *   <li>Files
-     *   <li>Extensions
-     *   <li>Active scanners
+     *   <li>{@link java.util.ResourceBundle ResourceBundle};
+     *   <li>Files;
+     *   <li>Extensions;
+     *   <li>Active scanners;
+     *   <li>Passive scanners.
      * </ol>
      *
      * The files are installed first as they might be required by extensions and scanners.
@@ -99,6 +104,7 @@ public final class AddOnInstaller {
      * @param addOnClassLoader the class loader of the given {@code addOn}
      * @param addOn the add-on that will be installed
      * @see Extension
+     * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
      * @see Extension#postInstall()
      */
@@ -107,6 +113,7 @@ public final class AddOnInstaller {
         installAddOnFiles(addOnClassLoader, addOn, true);
         List<Extension> listExts = installAddOnExtensions(addOn);
         installAddOnActiveScanRules(addOn, addOnClassLoader);
+        installAddOnPassiveScanRules(addOn, addOnClassLoader);
 
         // postInstall actions
         for (Extension ext : listExts) {
@@ -127,15 +134,16 @@ public final class AddOnInstaller {
 
     /**
      * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s,
-     * and files) of the given {@code addOn}.
+     * {@code PassiveScanner}s and files) of the given {@code addOn}.
      *
      * <p>The components are uninstalled in the following order (inverse to installation):
      *
      * <ol>
-     *   <li>Active scanners
-     *   <li>Extensions
-     *   <li>Files
-     *   <li>{@link java.util.ResourceBundle ResourceBundle}
+     *   <li>Passive scanners;
+     *   <li>Active scanners;
+     *   <li>Extensions;
+     *   <li>Files;
+     *   <li>{@link java.util.ResourceBundle ResourceBundle};
      * </ol>
      *
      * @param addOn the add-on that will be uninstalled
@@ -144,6 +152,7 @@ public final class AddOnInstaller {
      * @throws IllegalArgumentException if {@code addOn} or {@code callback} are null.
      * @see #softUninstall(AddOn, AddOnUninstallationProgressCallback)
      * @see Extension
+     * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
      * @deprecated (2.8.0) Use {@link #uninstall(AddOn, AddOnUninstallationProgressCallback, Set)}
      *     instead.
@@ -155,15 +164,16 @@ public final class AddOnInstaller {
 
     /**
      * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s,
-     * and files) of the given {@code addOn}.
+     * {@code PassiveScanner}s and files) of the given {@code addOn}.
      *
      * <p>The components are uninstalled in the following order (inverse to installation):
      *
      * <ol>
-     *   <li>Active scanners
-     *   <li>Extensions
-     *   <li>{@link ResourceBundle}, of the extensions and the add-on
-     *   <li>Files (if not in use by other add-ons)
+     *   <li>Passive scanners;
+     *   <li>Active scanners;
+     *   <li>Extensions;
+     *   <li>{@link ResourceBundle}, of the extensions and the add-on;
+     *   <li>Files (if not in use by other add-ons);
      * </ol>
      *
      * @param addOn the add-on that will be uninstalled.
@@ -174,6 +184,7 @@ public final class AddOnInstaller {
      * @since 2.8.0
      * @see #softUninstall(AddOn, AddOnUninstallationProgressCallback)
      * @see Extension
+     * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
      * @deprecated (2.13.0) Use {@link #uninstall(AddOn, AddOnUninstallationProgressCallback, Set,
      *     PostponedTasksRunner)} instead.
@@ -186,15 +197,16 @@ public final class AddOnInstaller {
 
     /**
      * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s,
-     * and files) of the given {@code addOn}.
+     * {@code PassiveScanner}s and files) of the given {@code addOn}.
      *
      * <p>The components are uninstalled in the following order (inverse to installation):
      *
      * <ol>
-     *   <li>Active scanners
-     *   <li>Extensions
-     *   <li>Files (if not in use by other add-ons)
-     *   <li>{@link java.util.ResourceBundle ResourceBundle}
+     *   <li>Passive scanners;
+     *   <li>Active scanners;
+     *   <li>Extensions;
+     *   <li>Files (if not in use by other add-ons);
+     *   <li>{@link java.util.ResourceBundle ResourceBundle};
      * </ol>
      *
      * @param addOn the add-on that will be uninstalled.
@@ -206,6 +218,7 @@ public final class AddOnInstaller {
      * @since 2.13.0
      * @see #softUninstall(AddOn, AddOnUninstallationProgressCallback)
      * @see Extension
+     * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
      */
     public static boolean uninstall(
@@ -223,13 +236,14 @@ public final class AddOnInstaller {
     }
 
     /**
-     * Uninstalls Java classes ({@code Extension}s, {@code Plugin}s) and the {@code ResourceBundle}s
-     * of the given {@code addOn}. Should be called when the add-on must be temporarily uninstalled
-     * for an update of a dependency.
+     * Uninstalls Java classes ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s) and
+     * the {@code ResourceBundle}s of the given {@code addOn}. Should be called when the add-on must
+     * be temporarily uninstalled for an update of a dependency.
      *
      * <p>The Java classes are uninstalled in the following order (inverse to installation):
      *
      * <ol>
+     *   <li>Passive scanners;
      *   <li>Active scanners;
      *   <li>Extensions.
      * </ol>
@@ -239,6 +253,7 @@ public final class AddOnInstaller {
      * @return {@code true} if the add-on was uninstalled without errors, {@code false} otherwise.
      * @since 2.4.0
      * @see Extension
+     * @see PassiveScanner
      * @see org.parosproxy.paros.core.scanner.Plugin
      */
     public static boolean softUninstall(AddOn addOn, AddOnUninstallationProgressCallback callback) {
@@ -247,6 +262,7 @@ public final class AddOnInstaller {
 
         try {
             boolean uninstalledWithoutErrors = true;
+            uninstalledWithoutErrors &= uninstallAddOnPassiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn, callback);
             uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn, callback);
             uninstallResourceBundle(addOn);
@@ -423,6 +439,54 @@ public final class AddOnInstaller {
             }
             addOn.setLoadedAscanrules(Collections.<AbstractPlugin>emptyList());
             addOn.setLoadedAscanrulesSet(false);
+        }
+
+        return uninstalledWithoutErrors;
+    }
+
+    private static void installAddOnPassiveScanRules(
+            AddOn addOn, AddOnClassLoader addOnClassLoader) {
+        List<PluginPassiveScanner> pscanrules =
+                AddOnLoaderUtils.getPassiveScanRules(addOn, addOnClassLoader);
+        ExtensionPassiveScan extPscan =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionPassiveScan.class);
+
+        if (!pscanrules.isEmpty() && extPscan != null) {
+            for (PluginPassiveScanner pscanrule : pscanrules) {
+                String name = pscanrule.getClass().getCanonicalName();
+                LOGGER.debug("Install pscanrule: {}", name);
+                if (!extPscan.addPassiveScanner(pscanrule)) {
+                    LOGGER.error("Failed to install pscanrule: {}", name);
+                }
+            }
+        }
+    }
+
+    private static boolean uninstallAddOnPassiveScanRules(
+            AddOn addOn, AddOnUninstallationProgressCallback callback) {
+        boolean uninstalledWithoutErrors = true;
+
+        List<PluginPassiveScanner> loadedPscanrules = addOn.getLoadedPscanrules();
+        ExtensionPassiveScan extPscan =
+                Control.getSingleton()
+                        .getExtensionLoader()
+                        .getExtension(ExtensionPassiveScan.class);
+        if (!loadedPscanrules.isEmpty()) {
+            LOGGER.debug("Uninstall pscanrules: {}", addOn.getPscanrules());
+            callback.passiveScanRulesWillBeRemoved(loadedPscanrules.size());
+            for (PluginPassiveScanner pscanrule : loadedPscanrules) {
+                String name = pscanrule.getClass().getCanonicalName();
+                LOGGER.debug("Uninstall pscanrule: {}", name);
+                if (!extPscan.removePassiveScanner(pscanrule)) {
+                    LOGGER.error("Failed to uninstall pscanrule: {}", name);
+                    uninstalledWithoutErrors = false;
+                }
+                callback.passiveScanRuleRemoved(name);
+            }
+            addOn.setLoadedPscanrules(Collections.<PluginPassiveScanner>emptyList());
+            addOn.setLoadedPscanrulesSet(false);
         }
 
         return uninstalledWithoutErrors;

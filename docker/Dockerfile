@@ -24,7 +24,7 @@ RUN wget -qO- "https://github.com/zaproxy/zaproxy/releases/download/v${ZAP_VERSI
 RUN cp /root/.ZAP/plugin/*.zap plugin/ || :
 
 # Setup Webswing
-ENV WEBSWING_VERSION 23.2.2
+ENV WEBSWING_VERSION 22.2.4
 RUN --mount=type=secret,id=webswing_url \
 	if [ -s /run/secrets/webswing_url ] ; \
 	then curl -s -L  "$(cat /run/secrets/webswing_url)-${WEBSWING_VERSION}-distribution.zip" > webswing.zip; \
@@ -99,7 +99,6 @@ COPY --link --chown=1000:1000 policies /root/.ZAP/policies/
 # The scan script loads the scripts from dev home dir.
 COPY --link --chown=1000:1000 scripts /home/zap/.ZAP_D/scripts/
 COPY --link --chown=1000:1000 .xinitrc /home/zap/
-COPY --link --chown=1000:1000 firefox /home/zap/.mozilla/firefox/
 
 RUN echo "zap2docker-stable" > /zap/container && \
     chmod a+x /home/zap/.xinitrc

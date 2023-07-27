@@ -58,7 +58,6 @@
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/05/17 Add option for the maximum number of alerts per rule.
 // ZAP: 2023/07/06 Deprecate delayInMs.
-// ZAP: 2023/11/21 Add option to encode cookie values.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -133,13 +132,6 @@ public class ScannerParam extends AbstractParam {
      * @since 2.11.0
      */
     static final String SCAN_NULL_JSON_VALUES = ACTIVE_SCAN_BASE_KEY + ".scanNullJsonValues";
-
-    /**
-     * Configuration key to write/read the {@link #encodeCookieValues} flag.
-     *
-     * @since 2.15.0
-     */
-    static final String ENCODE_COOKIE_VALUES = ACTIVE_SCAN_BASE_KEY + ".encodeCookieValues";
 
     private static final String MAX_ALERTS_PER_RULE = ACTIVE_SCAN_BASE_KEY + ".maxAlertsPerRule";
 
@@ -223,8 +215,6 @@ public class ScannerParam extends AbstractParam {
      */
     private boolean scanNullJsonValues;
 
-    private boolean encodeCookieValues;
-
     private int maxAlertsPerRule;
 
     // ZAP: Excluded Parameters
@@ -283,8 +273,6 @@ public class ScannerParam extends AbstractParam {
         this.addQueryParam = getBoolean(SCAN_ADD_QUERY_PARAM, false);
 
         this.scanNullJsonValues = getBoolean(SCAN_NULL_JSON_VALUES, false);
-
-        this.encodeCookieValues = getBoolean(ENCODE_COOKIE_VALUES, false);
 
         // Parse the parameters that need to be excluded
         // ------------------------------------------------
@@ -372,9 +360,7 @@ public class ScannerParam extends AbstractParam {
         return excludedParamsMap.get(paramType);
     }
 
-    /**
-     * @param filters
-     */
+    /** @param filters */
     public void setExcludedParamList(List<ScannerParamFilter> filters) {
 
         ((HierarchicalConfiguration) getConfig()).clearTree(EXCLUDED_PARAMS_KEY);
@@ -395,46 +381,34 @@ public class ScannerParam extends AbstractParam {
         }
     }
 
-    /**
-     * @return
-     */
+    /** @return */
     public int getThreadPerHost() {
         return threadPerHost;
     }
 
-    /**
-     * @param threadPerHost
-     */
+    /** @param threadPerHost */
     public void setThreadPerHost(int threadPerHost) {
         this.threadPerHost = Math.max(1, threadPerHost);
         getConfig().setProperty(THREAD_PER_HOST, Integer.toString(this.threadPerHost));
     }
 
-    /**
-     * @return Returns the thread.
-     */
+    /** @return Returns the thread. */
     public int getHostPerScan() {
         return hostPerScan;
     }
 
-    /**
-     * @param hostPerScan The thread to set.
-     */
+    /** @param hostPerScan The thread to set. */
     public void setHostPerScan(int hostPerScan) {
         this.hostPerScan = Math.max(1, hostPerScan);
         getConfig().setProperty(HOST_PER_SCAN, Integer.toString(this.hostPerScan));
     }
 
-    /**
-     * @return
-     */
+    /** @return */
     public int getMaxResultsToList() {
         return maxResultsToList;
     }
 
-    /**
-     * @param maxResultsToList
-     */
+    /** @param maxResultsToList */
     public void setMaxResultsToList(int maxResultsToList) {
         this.maxResultsToList = maxResultsToList;
         getConfig().setProperty(MAX_RESULTS_LIST, Integer.toString(this.maxResultsToList));
@@ -512,24 +486,18 @@ public class ScannerParam extends AbstractParam {
         return injectPluginIdInHeader;
     }
 
-    /**
-     * @param injectPluginIdInHeader
-     */
+    /** @param injectPluginIdInHeader */
     public void setInjectPluginIdInHeader(boolean injectPluginIdInHeader) {
         this.injectPluginIdInHeader = injectPluginIdInHeader;
         getConfig().setProperty(INJECT_PLUGIN_ID_IN_HEADER, injectPluginIdInHeader);
     }
 
-    /**
-     * @return
-     */
+    /** @return */
     public boolean getHandleAntiCSRFTokens() {
         return handleAntiCSRFTokens;
     }
 
-    /**
-     * @param handleAntiCSRFTokens
-     */
+    /** @param handleAntiCSRFTokens */
     public void setHandleAntiCSRFTokens(boolean handleAntiCSRFTokens) {
         this.handleAntiCSRFTokens = handleAntiCSRFTokens;
         getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, handleAntiCSRFTokens);
@@ -553,31 +521,23 @@ public class ScannerParam extends AbstractParam {
         getConfig().setProperty(PROMPT_IN_ATTACK_MODE, promptInAttackMode);
     }
 
-    /**
-     * @return
-     */
+    /** @return */
     public int getTargetParamsInjectable() {
         return targetParamsInjectable;
     }
 
-    /**
-     * @param targetParamsInjectable
-     */
+    /** @param targetParamsInjectable */
     public void setTargetParamsInjectable(int targetParamsInjectable) {
         this.targetParamsInjectable = targetParamsInjectable;
         getConfig().setProperty(TARGET_INJECTABLE, this.targetParamsInjectable);
     }
 
-    /**
-     * @return
-     */
+    /** @return */
     public int getTargetParamsEnabledRPC() {
         return targetParamsEnabledRPC;
     }
 
-    /**
-     * @param targetParamsEnabledRPC
-     */
+    /** @param targetParamsEnabledRPC */
     public void setTargetParamsEnabledRPC(int targetParamsEnabledRPC) {
         this.targetParamsEnabledRPC = targetParamsEnabledRPC;
         getConfig().setProperty(TARGET_ENABLED_RPC, this.targetParamsEnabledRPC);
@@ -723,28 +683,5 @@ public class ScannerParam extends AbstractParam {
     public void setScanNullJsonValues(boolean scan) {
         this.scanNullJsonValues = scan;
         getConfig().setProperty(SCAN_NULL_JSON_VALUES, this.scanNullJsonValues);
-    }
-
-    /**
-     * Tells whether or not the active scanner should encode cookie values.
-     *
-     * @return {@code true} if cookie values should be encoded, {@code false} otherwise.
-     * @since 2.15.0
-     * @see #setEncodeCookieValues(boolean)
-     */
-    public boolean isEncodeCookieValues() {
-        return encodeCookieValues;
-    }
-
-    /**
-     * Sets whether or not the active scanner should encode cookie values.
-     *
-     * @param encodeCookieValues {@code true} if cookie values should be encoded, {@code false}
-     *     otherwise.
-     * @since 2.15.0
-     * @see #isEncodeCookieValues()
-     */
-    public void setEncodeCookieValues(boolean encodeCookieValues) {
-        this.encodeCookieValues = encodeCookieValues;
     }
 }

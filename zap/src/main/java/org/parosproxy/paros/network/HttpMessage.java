@@ -62,11 +62,11 @@
 // ZAP: 2021/05/14 Add missing override annotation.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
-// ZAP: 2023/10/17 Allow to set content encodings handler.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -78,7 +78,7 @@ import java.util.TreeSet;
 import java.util.Vector;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
@@ -106,26 +106,6 @@ public class HttpMessage implements Message {
     public static final String EVENT_DATA_RESPONSE_BODY = "responseBody";
 
     public static final String MESSAGE_TYPE = "HTTP";
-
-    private static final HttpEncodingsHandler DEFAULT_CONTENT_ENCODINGS_HANDLER =
-            (header, body) -> {
-                String encoding = header.getHeader(HttpHeader.CONTENT_ENCODING);
-                if (encoding == null || encoding.isEmpty()) {
-                    body.setContentEncodings(List.of());
-                    return;
-                }
-
-                List<HttpEncoding> encodings = List.of();
-                if (encoding.contains(HttpHeader.DEFLATE)) {
-                    encodings = List.of(HttpEncodingDeflate.getSingleton());
-                } else if (encoding.contains(HttpHeader.GZIP)) {
-                    encodings = List.of(HttpEncodingGzip.getSingleton());
-                }
-
-                body.setContentEncodings(encodings);
-            };
-
-    private static HttpEncodingsHandler contentEncodingsHandler;
 
     private HttpRequestHeader mReqHeader = new HttpRequestHeader();
     private HttpRequestBody mReqBody = new HttpRequestBody();
@@ -443,29 +423,26 @@ public class HttpMessage implements Message {
     /**
      * Sets the content encodings defined in the header into the body.
      *
-     * <p><strong>Note:</strong> By default supports only {@code gzip} and {@code deflate}.
+     * <p><strong>Note:</strong> Supports only {@code gzip} and {@code deflate}.
      *
      * @param header the header.
      * @param body the body.
      */
     public static void setContentEncodings(HttpHeader header, HttpBody body) {
-        var localHandler = contentEncodingsHandler;
-        if (localHandler == null) {
-            localHandler = DEFAULT_CONTENT_ENCODINGS_HANDLER;
+        String encoding = header.getHeader(HttpHeader.CONTENT_ENCODING);
+        if (encoding == null || encoding.isEmpty()) {
+            body.setContentEncodings(Collections.emptyList());
+            return;
         }
-        localHandler.handle(header, body);
-    }
 
-    /**
-     * Sets the handler of content encodings.
-     *
-     * <p><strong>Note:</strong> Not part of the public API.
-     *
-     * @param handler the handler.
-     * @see #setContentEncodings(HttpHeader, HttpBody)
-     */
-    public static void setContentEncodingsHandler(HttpEncodingsHandler handler) {
-        contentEncodingsHandler = handler;
+        List<HttpEncoding> encodings = new ArrayList<>(1);
+        if (encoding.contains(HttpHeader.DEFLATE)) {
+            encodings.add(HttpEncodingDeflate.getSingleton());
+        } else if (encoding.contains(HttpHeader.GZIP)) {
+            encodings.add(HttpEncodingGzip.getSingleton());
+        }
+
+        body.setContentEncodings(encodings);
     }
 
     /**
@@ -899,16 +876,11 @@ public class HttpMessage implements Message {
         return set;
     }
 
-    /**
-     * @return Returns the userObject.
-     */
+    /** @return Returns the userObject. */
     public Object getUserObject() {
         return userObject;
     }
-
-    /**
-     * @param userObject The userObject to set.
-     */
+    /** @param userObject The userObject to set. */
     public void setUserObject(Object userObject) {
         this.userObject = userObject;
     }
@@ -965,7 +937,6 @@ public class HttpMessage implements Message {
             newMsg.setRequestBody(this.getRequestBody().getBytes());
         }
     }
-
     /**
      * @return Get the elapsed time (time difference) between the request is sent and all response
      *     is received. In millis. The value is zero if the response is not received.
@@ -992,7 +963,6 @@ public class HttpMessage implements Message {
     public long getTimeSentMillis() {
         return timeSent;
     }
-
     /**
      * Set the time when the request is sent.
      *
@@ -1002,16 +972,12 @@ public class HttpMessage implements Message {
         this.timeSent = timeSent;
     }
 
-    /**
-     * @return Returns the note.
-     */
+    /** @return Returns the note. */
     public String getNote() {
         return note;
     }
 
-    /**
-     * @param note The note to set.
-     */
+    /** @param note The note to set. */
     public void setNote(String note) {
         this.note = note;
     }
@@ -1279,11 +1245,5 @@ public class HttpMessage implements Message {
     @Override
     public String getType() {
         return MESSAGE_TYPE;
-    }
-
-    /** <strong>Note:</strong> Not part of the public API. */
-    public interface HttpEncodingsHandler {
-
-        void handle(HttpHeader header, HttpBody body);
     }
 }

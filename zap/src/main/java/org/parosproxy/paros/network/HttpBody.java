@@ -30,7 +30,6 @@
 // ZAP: 2020/12/09 Add content encoding.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
-// ZAP: 2023/10/25 JavaDoc fixes and use of List.
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
@@ -38,10 +37,12 @@ import java.nio.charset.Charset;
 import java.nio.charset.IllegalCharsetNameException;
 import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.network.HttpEncoding;
@@ -78,7 +79,7 @@ public abstract class HttpBody {
     private boolean determineCharset = true;
     private boolean contentEncodingErrors;
 
-    private List<HttpEncoding> encodings = List.of();
+    private List<HttpEncoding> encodings = Collections.emptyList();
 
     /** Constructs a {@code HttpBody} with no contents (that is, zero length). */
     public HttpBody() {
@@ -450,7 +451,7 @@ public abstract class HttpBody {
      * to avoid more memory allocations.
      *
      * @return the content of the body.
-     * @since 2.10.0
+     * @since TOOD add version
      * @see #getContentEncodings()
      * @see #hasContentEncodingErrors()
      * @see #toString()
@@ -468,7 +469,7 @@ public abstract class HttpBody {
      *
      * @return {@code true} if there are errors while using the content encodings, {@code false}
      *     otherwise.
-     * @since 2.10.0
+     * @since TOOD add version
      * @see #getContent()
      */
     public boolean hasContentEncodingErrors() {
@@ -478,8 +479,7 @@ public abstract class HttpBody {
     /**
      * Sets the content of the body as bytes, applying any content encodings of the body, if any.
      *
-     * @param content the content of the body.
-     * @since 2.10.0
+     * @since TOOD add version
      * @see #getContentEncodings()
      */
     public void setContent(byte[] content) {
@@ -596,7 +596,10 @@ public abstract class HttpBody {
         Objects.requireNonNull(encodings);
         encodings.forEach(Objects::requireNonNull);
 
-        this.encodings = List.copyOf(encodings);
+        this.encodings =
+                encodings.isEmpty()
+                        ? Collections.emptyList()
+                        : Collections.unmodifiableList(new ArrayList<>(encodings));
         resetCachedValues();
     }
 

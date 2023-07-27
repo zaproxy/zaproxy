@@ -100,8 +100,6 @@
 // ZAP: 2022/11/23 Refresh tabs menu when tabs are removed.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/04/28 Deprecate Proxy and ProxyServer related methods.
-// ZAP: 2023/08/25 Set view to ExtensionAdaptor.
-// ZAP: 2023/11/14 Hook AbstractParamPanel with parents.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -120,7 +118,7 @@ import java.util.stream.Collectors;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
@@ -690,38 +688,12 @@ public class ExtensionLoader {
     }
 
     /**
-     * Notifies of an add-on's installation status update.
-     *
-     * @param statusUpdate the status update, must not be {@code null}.
-     * @since 2.15.0
-     */
-    public void addOnStatusUpdate(AddOnInstallationStatusListener.StatusUpdate statusUpdate) {
-        for (ExtensionHook hook : extensionHooks.values()) {
-            for (AddOnInstallationStatusListener listener :
-                    hook.getAddOnInstallationStatusListeners()) {
-                try {
-                    listener.update(statusUpdate);
-                } catch (Exception e) {
-                    LOGGER.error(
-                            "An error occurred while notifying: {}",
-                            listener.getClass().getCanonicalName(),
-                            e);
-                }
-            }
-        }
-    }
-
-    /**
      * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on
      * was installed.
      *
      * @param addOn the add-on that was installed, must not be {@code null}
      * @since 2.5.0
-     * @deprecated (2.15.0) Replaced by {@link
-     *     #addOnStatusUpdate(org.zaproxy.zap.extension.AddOnInstallationStatusListener.StatusUpdate)}.
      */
-    @SuppressWarnings("removal")
-    @Deprecated(since = "2.15.0", forRemoval = true)
     public void addOnInstalled(AddOn addOn) {
         for (ExtensionHook hook : extensionHooks.values()) {
             for (AddOnInstallationStatusListener listener :
@@ -746,11 +718,7 @@ public class ExtensionLoader {
      * @param successfully if the soft uninstallation was successful, that is, no errors occurred
      *     while uninstalling it
      * @since 2.5.0
-     * @deprecated (2.15.0) Replaced by {@link
-     *     #addOnStatusUpdate(org.zaproxy.zap.extension.AddOnInstallationStatusListener.StatusUpdate)}.
      */
-    @SuppressWarnings("removal")
-    @Deprecated(since = "2.15.0", forRemoval = true)
     public void addOnSoftUninstalled(AddOn addOn, boolean successfully) {
         for (ExtensionHook hook : extensionHooks.values()) {
             for (AddOnInstallationStatusListener listener :
@@ -775,11 +743,7 @@ public class ExtensionLoader {
      * @param successfully if the uninstallation was successful, that is, no errors occurred while
      *     uninstalling it
      * @since 2.5.0
-     * @deprecated (2.15.0) Replaced by {@link
-     *     #addOnStatusUpdate(org.zaproxy.zap.extension.AddOnInstallationStatusListener.StatusUpdate)}.
      */
-    @SuppressWarnings("removal")
-    @Deprecated(since = "2.15.0", forRemoval = true)
     public void addOnUninstalled(AddOn addOn, boolean successfully) {
         for (ExtensionHook hook : extensionHooks.values()) {
             for (AddOnInstallationStatusListener listener :
@@ -850,8 +814,6 @@ public class ExtensionLoader {
      */
     public void startLifeCycle(Extension ext)
             throws DatabaseException, DatabaseUnsupportedException {
-        setExtensionAdaptorView(ext);
-
         ext.init();
         ext.databaseOpen(model.getDb());
         ext.initModel(model);
@@ -915,12 +877,6 @@ public class ExtensionLoader {
         }
     }
 
-    private void setExtensionAdaptorView(Extension extension) {
-        if (hasView() && extension instanceof ExtensionAdaptor) {
-            ((ExtensionAdaptor) extension).setView(view);
-        }
-    }
-
     public void stopAllExtension() {
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
@@ -933,11 +889,11 @@ public class ExtensionLoader {
     }
 
     // ZAP: Added the type argument.
-    private void addParamPanel(
-            List<ExtensionHookView.AbstractParamPanelEntry> panelList, AbstractParamDialog dialog) {
-        for (ExtensionHookView.AbstractParamPanelEntry entry : panelList) {
+    private void addParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
+        String[] ROOT = {};
+        for (AbstractParamPanel panel : panelList) {
             try {
-                dialog.addParamPanel(entry.getParents(), entry.getPanel(), true);
+                dialog.addParamPanel(ROOT, panel, true);
 
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
@@ -945,11 +901,10 @@ public class ExtensionLoader {
         }
     }
 
-    private void removeParamPanel(
-            List<ExtensionHookView.AbstractParamPanelEntry> panelList, AbstractParamDialog dialog) {
-        for (ExtensionHookView.AbstractParamPanelEntry entry : panelList) {
+    private void removeParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
+        for (AbstractParamPanel panel : panelList) {
             try {
-                dialog.removeParamPanel(entry.getPanel());
+                dialog.removeParamPanel(panel);
 
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
@@ -1474,8 +1429,6 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             Extension extension = getExtension(i);
             try {
-                setExtensionAdaptorView(extension);
-
                 extension.init();
                 extension.databaseOpen(Model.getSingleton().getDb());
                 if (hasView()) {

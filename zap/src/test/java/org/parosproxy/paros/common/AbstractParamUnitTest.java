@@ -130,7 +130,7 @@ class AbstractParamUnitTest {
         AbstractParam param = new TestParam();
         String key = "enum";
         TestEnum defaultValue = TestEnum.C;
-        param.getConfig().setProperty(key, enumValue.name());
+        param.getConfig().setProperty(key, enumValue.toString());
         // When
         TestEnum value = param.getEnum(key, defaultValue);
         // Then
@@ -187,12 +187,7 @@ class AbstractParamUnitTest {
     private enum TestEnum {
         A,
         B,
-        C;
-
-        @Override
-        public String toString() {
-            return "toString: " + name();
-        }
+        C,
     }
 
     private static class TestParam extends AbstractParam {

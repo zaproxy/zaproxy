@@ -94,7 +94,6 @@
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/05/21 Allow context import functionality to accept an XML config as input (Issue 7421).
 // ZAP: 2023/06/02 Allow to set the global exclude URLs.
-// ZAP: 2024/01/19 Use the non-regex hierarchic name of a node to check if it is in scope.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -222,30 +221,20 @@ public class Session {
         discardContexts();
     }
 
-    /**
-     * @return Returns the sessionDesc.
-     */
+    /** @return Returns the sessionDesc. */
     public String getSessionDesc() {
         return sessionDesc;
     }
 
-    /**
-     * @return Returns the sessionId.
-     */
+    /** @return Returns the sessionId. */
     public long getSessionId() {
         return sessionId;
     }
-
-    /**
-     * @return Returns the name.
-     */
+    /** @return Returns the name. */
     public String getSessionName() {
         return sessionName;
     }
-
-    /**
-     * @return Returns the siteTree.
-     */
+    /** @return Returns the siteTree. */
     public SiteMap getSiteTree() {
         return siteTree;
     }
@@ -345,19 +334,19 @@ public class Session {
 
         // Load the session urls
         this.setExcludeFromProxyRegexs(
-                sessionUrlListToStringList(
+                sessionUrlListToStingList(
                         model.getDb()
                                 .getTableSessionUrl()
                                 .getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY)));
 
         this.setExcludeFromScanRegexs(
-                sessionUrlListToStringList(
+                sessionUrlListToStingList(
                         model.getDb()
                                 .getTableSessionUrl()
                                 .getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN)));
 
         this.setExcludeFromSpiderRegexs(
-                sessionUrlListToStringList(
+                sessionUrlListToStingList(
                         model.getDb()
                                 .getTableSessionUrl()
                                 .getUrlsForType(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER)));
@@ -583,7 +572,7 @@ public class Session {
         return true;
     }
 
-    private List<String> sessionUrlListToStringList(List<RecordSessionUrl> rsuList) {
+    private List<String> sessionUrlListToStingList(List<RecordSessionUrl> rsuList) {
         List<String> urlList = new ArrayList<>(rsuList.size());
         for (RecordSessionUrl url : rsuList) {
             urlList.add(url.getUrl());
@@ -708,26 +697,19 @@ public class Session {
         model.snapshotSessionDb(this.fileName, fileName);
     }
 
-    /**
-     * @param sessionDesc The sessionDesc to set.
-     */
+    /** @param sessionDesc The sessionDesc to set. */
     public void setSessionDesc(String sessionDesc) {
         this.sessionDesc = sessionDesc;
         configuration.setProperty(SESSION_DESC, sessionDesc);
     }
 
-    /**
-     * @param sessionId The sessionId to set.
-     */
+    /** @param sessionId The sessionId to set. */
     public void setSessionId(long sessionId) {
         this.sessionId = sessionId;
         // setText(SESSION_ID, Long.toString(sessionId));
         configuration.setProperty(SESSION_ID, Long.toString(sessionId));
     }
-
-    /**
-     * @param name The name to set.
-     */
+    /** @param name The name to set. */
     public void setSessionName(String name) {
         this.sessionName = name;
         // setText(SESSION_NAME, name);
@@ -840,7 +822,7 @@ public class Session {
         if (sn == null) {
             return false;
         }
-        return isIncludedInScope(sn.getHierarchicNodeName(false));
+        return isIncludedInScope(sn.getHierarchicNodeName());
     }
 
     private boolean isIncludedInScope(String url) {
@@ -863,7 +845,7 @@ public class Session {
         if (sn == null) {
             return false;
         }
-        return isExcludedFromScope(sn.getHierarchicNodeName(false));
+        return isExcludedFromScope(sn.getHierarchicNodeName());
     }
 
     private boolean isExcludedFromScope(String url) {
@@ -901,7 +883,7 @@ public class Session {
         if (sn == null) {
             return false;
         }
-        return isInScope(sn.getHierarchicNodeName(false));
+        return isInScope(sn.getHierarchicNodeName());
     }
 
     public boolean isInScope(String url) {
@@ -1443,7 +1425,7 @@ public class Session {
         if (sn == null) {
             return new ArrayList<>();
         }
-        return getContextsForUrl(sn.getHierarchicNodeName(false));
+        return getContextsForUrl(sn.getHierarchicNodeName());
     }
 
     public List<Context> getContextsForUrl(String url) {
@@ -1527,14 +1509,9 @@ public class Session {
      *     empty or if a context with the same name already exists.
      */
     public Context importContext(File file)
-            throws ConfigurationException,
-                    ClassNotFoundException,
-                    InstantiationException,
-                    IllegalAccessException,
-                    IllegalArgumentException,
-                    InvocationTargetException,
-                    NoSuchMethodException,
-                    SecurityException {
+            throws ConfigurationException, ClassNotFoundException, InstantiationException,
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+                    NoSuchMethodException, SecurityException {
         return importContext(new ZapXmlConfiguration(file));
     }
 
@@ -1556,14 +1533,9 @@ public class Session {
      * @since 2.13.0
      */
     public Context importContext(ZapXmlConfiguration config)
-            throws ConfigurationException,
-                    ClassNotFoundException,
-                    InstantiationException,
-                    IllegalAccessException,
-                    IllegalArgumentException,
-                    InvocationTargetException,
-                    NoSuchMethodException,
-                    SecurityException {
+            throws ConfigurationException, ClassNotFoundException, InstantiationException,
+                    IllegalAccessException, IllegalArgumentException, InvocationTargetException,
+                    NoSuchMethodException, SecurityException {
         String name = config.getString(Context.CONTEXT_CONFIG_NAME);
         validateContextName(name);
 
@@ -1794,17 +1766,13 @@ public class Session {
         return this.getFormParamParser(uri.toString()).parseParameters(formData);
     }
 
-    /**
-     * @deprecated use {@link SessionStructure#getTreePath(Model, URI)}
-     */
+    /** @deprecated use {@link SessionStructure#getTreePath(Model, URI)} */
     @Deprecated
     public List<String> getTreePath(URI uri) throws URIException {
         return SessionStructure.getTreePath(Model.getSingleton(), uri);
     }
 
-    /**
-     * @deprecated use {@link SessionStructure#getTreePath(Model, HttpMessage)}
-     */
+    /** @deprecated use {@link SessionStructure#getTreePath(Model, HttpMessage)} */
     @Deprecated
     public List<String> getTreePath(HttpMessage msg) throws URIException {
         return SessionStructure.getTreePath(Model.getSingleton(), msg);

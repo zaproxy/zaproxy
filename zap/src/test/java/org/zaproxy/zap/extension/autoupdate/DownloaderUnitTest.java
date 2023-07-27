@@ -27,7 +27,6 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.charset.StandardCharsets;
@@ -52,14 +51,14 @@ class DownloaderUnitTest extends WithConfigsTest {
     private HttpRequestConfig requestConfig;
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() throws IOException {
 
         setFileHandler(
                 (msg, config, file) -> {
                     requestConfig = config;
                     Files.write(file, FILE_CONTENTS.getBytes(StandardCharsets.US_ASCII));
                 });
-        downloadUrl = new URI("http://127.0.0.1" + FILE_PATH).toURL();
+        downloadUrl = new URL("http://127.0.0.1" + FILE_PATH);
     }
 
     void createDowloader(String hash) throws IOException {

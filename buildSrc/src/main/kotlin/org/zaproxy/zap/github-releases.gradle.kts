@@ -1,8 +1,8 @@
 package org.zaproxy.zap
 
 import com.install4j.gradle.Install4jTask
+import com.netflix.gradle.plugins.deb.Deb
 import java.util.regex.Pattern
-import org.cyclonedx.gradle.CycloneDxTask
 import org.zaproxy.zap.GitHubUser
 import org.zaproxy.zap.GitHubRepo
 import org.zaproxy.zap.tasks.CreateDmg
@@ -64,10 +64,7 @@ val createPullRequestNextDevIter by tasks.registering(CreatePullRequest::class) 
 
 val prepareMainRelease by tasks.registering(PrepareMainRelease::class) {
     propertiesFile.set(File(projectDir, "gradle.properties"))
-    securityFile.set(File(rootDir, "SECURITY.md"))
-    snapcraftFile.set(File(rootDir, "snap/snapcraft.yaml"))
 
-    oldVersionProperty.set("zap.japicmp.baseversion")
     versionProperty.set("version")
 }
 
@@ -77,11 +74,7 @@ val createPullRequestMainRelease by tasks.registering(CreatePullRequest::class) 
     branchName.set("release")
 
     commitSummary.set("Update version to ${project.version}")
-    commitDescription.set("""
-    |Remove `-SNAPSHOT` from the version.
-    |Update version in `SECURITY.md` file.
-    |Update version for snap.
-    """.trimMargin())
+    commitDescription.set("Remove `-SNAPSHOT` from the version.")
 
     pullRequestTitle.set("Release version ${project.version}")
     pullRequestDescription.set("")
@@ -102,6 +95,7 @@ tasks.register<CreateMainRelease>("createMainRelease") {
     draft.set(true)
 
     if (!"${project.version}".endsWith("-SNAPSHOT")) {
+        val distDebian by tasks.existing(Deb::class)
         val installers by tasks.existing(Install4jTask::class)
 
         val installersFileTree: Provider<FileTree> = installers.map { fileTree(it.destination!!) }
@@ -114,6 +108,10 @@ tasks.register<CreateMainRelease>("createMainRelease") {
             register("crossplatform") {
                 file.set(tasks.named<Zip>("distCrossplatform").flatMap { it.archiveFile })
                 contentType.set("application/zip")
+            }
+            register("debian") {
+                file.set(distDebian.flatMap { it.archiveFile })
+                contentType.set("application/vnd.debian.binary-package")
             }
             register("linux") {
                 file.set(tasks.named<Tar>("distLinux").flatMap { it.archiveFile })
@@ -130,11 +128,6 @@ tasks.register<CreateMainRelease>("createMainRelease") {
             register("windows32-installer") {
                 file.set(mapToFile(installersFileTree, "ZAP_${version.toString().replace('.', '_')}_windows-x32.exe"))
                 contentType.set("application/x-ms-dos-executable")
-            }
-            register("bom") {
-                val cyclonedxBom by tasks.existing(CycloneDxTask::class)
-                file.set(cyclonedxBom.map { project.layout.projectDirectory.file(File(it.destination.get(), "${it.outputName.get()}.json").absolutePath) })
-                contentType.set("application/json")
             }
         }
     }

@@ -66,8 +66,6 @@
 // ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 // ZAP: 2022/05/26 Add addTag and removeTag methods
 // ZAP: 2023/01/10 Tidy up logger.
-// ZAP: 2023/09/12 Add NUMBER_RISKS convenience constant.
-// ZAP: 2023/11/14 When setting CWE also add a CWE alert tag with an appropriate URL.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -172,12 +170,6 @@ public class Alert implements Comparable<Alert> {
     public static final int RISK_LOW = 1;
     public static final int RISK_MEDIUM = 2;
     public static final int RISK_HIGH = 3;
-    /*
-     * The number of risk categories or scores used within ZAP.
-     *
-     * @since 2.14.0
-     */
-    public static final int NUMBER_RISKS = 4;
 
     // ZAP: Added FALSE_POSITIVE
     public static final int CONFIDENCE_FALSE_POSITIVE = 0;
@@ -193,9 +185,6 @@ public class Alert implements Comparable<Alert> {
     public static final String[] MSG_CONFIDENCE = {
         "False Positive", "Low", "Medium", "High", "Confirmed"
     };
-
-    private static final String CWE_KEY = "CWE-";
-    private static final String CWE_URL_BASE = "https://cwe.mitre.org/data/definitions/";
 
     private int alertId = -1; // ZAP: Changed default alertId
     private int pluginId = -1;
@@ -695,24 +684,15 @@ public class Alert implements Comparable<Alert> {
     public String getName() {
         return name;
     }
-
-    /**
-     * @return Returns the description.
-     */
+    /** @return Returns the description. */
     public String getDescription() {
         return description;
     }
-
-    /**
-     * @return Returns the id.
-     */
+    /** @return Returns the id. */
     public int getPluginId() {
         return pluginId;
     }
-
-    /**
-     * @return Returns the message.
-     */
+    /** @return Returns the message. */
     public HttpMessage getMessage() {
         if (this.message != null) {
             return this.message;
@@ -726,38 +706,25 @@ public class Alert implements Comparable<Alert> {
         }
         return null;
     }
-
-    /**
-     * @return Returns the otherInfo.
-     */
+    /** @return Returns the otherInfo. */
     public String getOtherInfo() {
         return otherInfo;
     }
-
-    /**
-     * @return Returns the param.
-     */
+    /** @return Returns the param. */
     public String getParam() {
         return param;
     }
-
-    /**
-     * @return Returns the reference.
-     */
+    /** @return Returns the reference. */
     public String getReference() {
         return reference;
     }
 
-    /**
-     * @return Returns the confidence.
-     */
+    /** @return Returns the confidence. */
     public int getConfidence() {
         return confidence;
     }
 
-    /**
-     * @return Returns the risk.
-     */
+    /** @return Returns the risk. */
     public int getRisk() {
         return risk;
     }
@@ -806,31 +773,19 @@ public class Alert implements Comparable<Alert> {
         }
         return null;
     }
-
-    /**
-     * @return Returns the solution.
-     */
+    /** @return Returns the solution. */
     public String getSolution() {
         return solution;
     }
-
-    /**
-     * @return Returns the uri.
-     */
+    /** @return Returns the uri. */
     public String getUri() {
         return uri;
     }
-
-    /**
-     * @return Returns the alertId.
-     */
+    /** @return Returns the alertId. */
     public int getAlertId() {
         return alertId;
     }
-
-    /**
-     * @param alertId The alertId to set.
-     */
+    /** @param alertId The alertId to set. */
     public void setAlertId(int alertId) {
         this.alertId = alertId;
     }
@@ -938,16 +893,12 @@ public class Alert implements Comparable<Alert> {
         this.wascId = wascId;
     }
 
-    /**
-     * @since 2.11.0
-     */
+    /** @since 2.11.0 */
     public Map<String, String> getTags() {
         return tags;
     }
 
-    /**
-     * @since 2.11.0
-     */
+    /** @since 2.11.0 */
     public void setTags(Map<String, String> tags) {
         if (tags != null) {
             this.tags = tags;
@@ -1179,9 +1130,7 @@ public class Alert implements Comparable<Alert> {
             return this;
         }
 
-        /**
-         * @since 2.11.0
-         */
+        /** @since 2.11.0 */
         public Builder setTags(Map<String, String> tags) {
             this.tags = tags;
             return this;
@@ -1246,9 +1195,6 @@ public class Alert implements Comparable<Alert> {
          * <p>The alert URI defaults to the one from the {@code HistoryReference} or {@code
          * HttpMessage} if set.
          *
-         * <p><strong>Note:</strong> If the Alert has a CWE set then an associated Tag will be added
-         * during {@link #build()}
-         *
          * @return the alert with specified data.
          */
         public final Alert build() {
@@ -1284,27 +1230,9 @@ public class Alert implements Comparable<Alert> {
             if (alertRef != null) {
                 alert.setAlertRef(alertRef);
             }
-            alert.setTags(withCweTag(tags, cweId));
+            alert.setTags(tags);
 
             return alert;
-        }
-
-        private static String createCweUrl(int cweId) {
-            if (cweId <= 0) {
-                return "";
-            }
-            return CWE_URL_BASE + cweId + ".html";
-        }
-
-        private static Map<String, String> withCweTag(Map<String, String> existingTags, int cweId) {
-            String cweUrl = createCweUrl(cweId);
-            if (cweUrl.isEmpty()) {
-                return existingTags == null ? null : new HashMap<>(existingTags);
-            }
-            Map<String, String> newTags =
-                    existingTags == null ? new HashMap<>() : new HashMap<>(existingTags);
-            newTags.put(CWE_KEY + cweId, cweUrl);
-            return newTags;
         }
     }
 

@@ -85,9 +85,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
      */
     public static final String HELP_SET_FILE_EXTENSION = "hs";
 
-    /**
-     * @deprecated (2.7.0) Use {@link #getHelpIcon()} instead.
-     */
+    /** @deprecated (2.7.0) Use {@link #getHelpIcon()} instead. */
     @Deprecated
     public static final ImageIcon HELP_ICON = View.isInitialised() ? getHelpIcon() : null;
 
@@ -146,6 +144,8 @@ public class ExtensionHelp extends ExtensionAdaptor {
 
     @Override
     public void initView(ViewDelegate view) {
+        super.initView(view);
+
         SwingHelpUtilities.setContentViewerUI(BasicOnlineContentViewerUI.class.getCanonicalName());
         UIManager.getDefaults()
                 .put(
@@ -427,9 +427,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
     }
     */
 
-    /**
-     * @see #showHelp(String)
-     */
+    /** @see #showHelp(String) */
     public static void showHelp() {
         showHelp("zap.intro");
     }
@@ -499,23 +497,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
     private class AddOnInstallationStatusListenerImpl implements AddOnInstallationStatusListener {
 
         @Override
-        public void update(StatusUpdate statusUpdate) {
-            switch (statusUpdate.getStatus()) {
-                case INSTALLED:
-                    installed(statusUpdate.getAddOn());
-                    break;
-
-                case SOFT_UNINSTALLED:
-                case UNINSTALLED:
-                    uninstalled(statusUpdate.getAddOn());
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-        private void installed(AddOn addOn) {
+        public void addOnInstalled(AddOn addOn) {
             if (hb == null) {
                 if (findHelpSetUrl() != null) {
                     setHelpEnabled(true);
@@ -525,7 +507,13 @@ public class ExtensionHelp extends ExtensionAdaptor {
             }
         }
 
-        private void uninstalled(AddOn addOn) {
+        @Override
+        public void addOnSoftUninstalled(AddOn addOn, boolean successfully) {
+            addOnUninstalled(addOn, successfully);
+        }
+
+        @Override
+        public void addOnUninstalled(AddOn addOn, boolean successfully) {
             HelpBroker hbLocal = hb;
             if (hbLocal == null) {
                 return;

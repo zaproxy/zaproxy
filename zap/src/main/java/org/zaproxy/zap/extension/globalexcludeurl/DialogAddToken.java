@@ -33,9 +33,7 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
-/**
- * @deprecated (2.13.0) Superseded by Network add-on options.
- */
+/** @deprecated (2.13.0) Superseded by Network add-on options. */
 @SuppressWarnings({"removal", "serial"})
 @Deprecated(since = "2.13.0", forRemoval = true)
 class DialogAddToken extends AbstractFormDialog {
