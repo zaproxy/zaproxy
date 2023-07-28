@@ -20,6 +20,7 @@
 package org.zaproxy.zap.tasks.internal;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.nio.file.Path;
 
 public class MainAddOn {
@@ -28,6 +29,9 @@ public class MainAddOn {
     private String url;
     private String hash;
     @JsonIgnore private Path outputFile;
+
+    @JsonInclude(value = JsonInclude.Include.NON_DEFAULT)
+    private boolean core;
 
     public String getId() {
         return id;
@@ -47,6 +51,10 @@ public class MainAddOn {
 
     public void setHash(String hash) {
         this.hash = hash;
+    }
+
+    public boolean isCore() {
+        return core;
     }
 
     public Path getOutputFile() {

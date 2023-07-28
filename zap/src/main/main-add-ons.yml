@@ -2,6 +2,8 @@
 # automatically downloaded when the distributions are built.
 # Not all add-ons are included in all distributions, for example,
 # OS specific add-ons are included only in the respective OS distribution.
+# The add-ons included in the core distribution have their `core` property set to `true`, all
+# other add-ons are excluded.
 #
 # To update to latest versions run the Gradle task with the appropriate ZapVersions file, e.g.:
 #    :zap:updateMainAddOns --zap-versions="../zap-admin/ZapVersions-2.12.xml"
@@ -21,21 +23,27 @@ addOns:
 - id: "ascanrules"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/ascanrules-v56/ascanrules-release-56.zap"
   hash: "SHA-256:9a2c15ae6abe19adcc97edf41e022595b0c2a20522182e8b50ed0f98d56168c4"
+  core: true
 - id: "bruteforce"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/bruteforce-v14/bruteforce-beta-14.zap"
   hash: "SHA-256:f5104c6878e27681ccfe4f711be63a676993bffd55bbf4141a43ddda1816b3c9"
+  core: true
 - id: "callhome"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/callhome-v0.7.0/callhome-release-0.7.0.zap"
   hash: "SHA-256:afb68bc751c0821c59a7315e2c50bc611854da62fc865488c6edfa527c513507"
+  core: true
 - id: "commonlib"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/commonlib-v1.15.0/commonlib-release-1.15.0.zap"
   hash: "SHA-256:6ea8fcbc70a17f5b90c37e19c0cf0a52f50d5db1bbc88088bee7445da15d30f1"
+  core: true
 - id: "database"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/database-v0.2.0/database-alpha-0.2.0.zap"
   hash: "SHA-256:8605dc174b1a8ff4122c00d35cbcb5938ff3dfa33c33f6e4a254e0d0769610e8"
+  core: true
 - id: "diff"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/diff-v13/diff-beta-13.zap"
   hash: "SHA-256:6c864b431e29ed04919fbf5152a034b8a8a447565f310d2b60d27a219b4e4d46"
+  core: true
 - id: "directorylistv1"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/directorylistv1-v6/directorylistv1-release-6.zap"
   hash: "SHA-256:27dd2e5e1d626a9cbb0d47626d07f01e1ffd6528973ff7ee41dc857314844ae6"
@@ -57,6 +65,7 @@ addOns:
 - id: "gettingStarted"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/gettingStarted-v15/gettingStarted-release-15.zap"
   hash: "SHA-256:baf54589cfce5d5b86ab44f3eeddf16a2a0fae6d6c3184a194950abf540307bf"
+  core: true
 - id: "graaljs"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/graaljs-v0.4.0/graaljs-alpha-0.4.0.zap"
   hash: "SHA-256:2d6df072488cc85cafdf0e6dbe503e981ca3086ee25e63eb14af3c3a8e050084"
@@ -66,36 +75,44 @@ addOns:
 - id: "help"
   url: "https://github.com/zaproxy/zap-core-help/releases/download/help-v16/help-release-16.zap"
   hash: "SHA-256:46d549b0f68d707bdb11f0129fe37858c2384487465e4e1748e0558d1dae0b71"
+  core: true
 - id: "hud"
   url: "https://github.com/zaproxy/zap-hud/releases/download/v0.17.0/hud-beta-0.17.0.zap"
   hash: "SHA-256:70cfb654ebb9beffcd2a1749c935eda2ff33e6e721b7e1a94b0a480b01183020"
 - id: "invoke"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/invoke-v13/invoke-beta-13.zap"
   hash: "SHA-256:76fabf09a9bbd6175e283849e04be7b88b122a0a0023c67c7dc01c6a464a3d21"
+  core: true
 - id: "network"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/network-v0.10.0/network-beta-0.10.0.zap"
   hash: "SHA-256:2a5cae9e75a9bce9efdfcb41ca2888543b47136f3c34e09d7ae79fa42f1b0ac6"
+  core: true
 - id: "oast"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/oast-v0.16.0/oast-beta-0.16.0.zap"
   hash: "SHA-256:3a5b01896924ef933944cc6049e283d8c1b4c57ca7b3d84270fcaee5b669e4b2"
+  core: true
 - id: "onlineMenu"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/onlineMenu-v11/onlineMenu-release-11.zap"
   hash: "SHA-256:bdad8dc5dce74ac3c02feb759560ee26b673d78d9d25580245ca7b8b3b0226c0"
+  core: true
 - id: "openapi"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/openapi-v35/openapi-beta-35.zap"
   hash: "SHA-256:18e7e8fea906d4477cdc43ddcdf4458a60355ff57d1e92e32662d73192aa160e"
 - id: "pscanrules"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/pscanrules-v50/pscanrules-release-50.zap"
   hash: "SHA-256:2361017f4bd47c93b49905d90856eb63a458ea119bea005542e24f0219d7bb7d"
+  core: true
 - id: "quickstart"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/quickstart-v38/quickstart-release-38.zap"
   hash: "SHA-256:1b27e8ce932c3272dec62c304ef4f674a895ed0ce5d9d3a1933f36f68d1fb983"
+  core: true
 - id: "replacer"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/replacer-v13/replacer-release-13.zap"
   hash: "SHA-256:3f275a2c3bdbe2cdd4d50d869824f16048112ef024419b3a36ea6f2eec53aeff"
 - id: "reports"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/reports-v0.23.0/reports-release-0.23.0.zap"
   hash: "SHA-256:a5205418d323b14e82a7df0d65674882f7e8e2f04c3f34126184d08ffe22fa9b"
+  core: true
 - id: "requester"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/requester-v7.3.0/requester-beta-7.3.0.zap"
   hash: "SHA-256:810619a6034c96ef7a7ba549f293075f75cb4c6b639b63bda22862092099d077"
@@ -108,6 +125,7 @@ addOns:
 - id: "reveal"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/reveal-v6/reveal-release-6.zap"
   hash: "SHA-256:4972812a6d8d77cb764db810d7025e39517c06bf49937a412e8a005a2a3faac9"
+  core: true
 - id: "scripts"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/scripts-v39/scripts-release-39.zap"
   hash: "SHA-256:1ab7bb4a2018cf7997325ef3a409328defd290a70058007f2ba97d2c4ba94c61"
@@ -120,12 +138,14 @@ addOns:
 - id: "spider"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/spider-v0.5.0/spider-release-0.5.0.zap"
   hash: "SHA-256:812e18d14fbf4abaabf2379839525c04cd9fd136538bb2a0d3b2d23370650082"
+  core: true
 - id: "spiderAjax"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/spiderAjax-v23.15.0/spiderAjax-release-23.15.0.zap"
   hash: "SHA-256:8c699bde85425cc0d5e47e7d535bcf7013cad9b20a6ad9e2e27cc2c7a43c9b28"
 - id: "tips"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/tips-v11/tips-beta-11.zap"
   hash: "SHA-256:963b911ab0dfb6c7d13ac91dc3e1aec81105cbb59d24a36e171da094411ee8d3"
+  core: true
 - id: "webdriverlinux"
   url: "https://github.com/zaproxy/zap-extensions/releases/download/webdriverlinux-v57/webdriverlinux-release-57.zap"
   hash: "SHA-256:04287369d85a96e6009326abdf45f59cf0a9a220a790183754a5b901a7355a86"

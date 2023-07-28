@@ -4,6 +4,7 @@ import de.undercouch.gradle.tasks.download.Download
 import de.undercouch.gradle.tasks.download.Verify
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.zaproxy.zap.tasks.internal.Utils
 import org.zaproxy.zap.tasks.CreateDmg
 import org.zaproxy.zap.tasks.DownloadMainAddOns
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
@@ -21,12 +22,13 @@ val bundledResourcesPath = "src/main/resources/org/zaproxy/zap/resources"
 
 val jar by tasks.existing(Jar::class)
 
+val mainAddOnsFile = file("src/main/main-add-ons.yml")
 
 val downloadMainAddOns by tasks.registering(DownloadMainAddOns::class) {
     group = "build"
     description = "Downloads the add-ons included in main (non-SNAPSHOT) releases."
 
-    addOnsData.set(file("src/main/main-add-ons.yml"))
+    addOnsData.set(mainAddOnsFile)
     outputDir.set(file("$buildDir/mainAddOns"))
 }
 
@@ -34,8 +36,8 @@ val updateMainAddOns by tasks.registering(UpdateMainAddOns::class) {
     group = "build"
     description = "Updates the main add-ons from a ZapVersions.xml file."
 
-    addOnsData.set(file("src/main/main-add-ons.yml"))
-    addOnsDataUpdated.set(file("src/main/main-add-ons.yml"))
+    addOnsData.set(mainAddOnsFile)
+    addOnsDataUpdated.set(mainAddOnsFile)
 }
 
 val bundledAddOns: Any = provider {
@@ -101,6 +103,32 @@ tasks.register<Zip>("distCrossplatform") {
     }
 }
 
+val copyCoreAddOns by tasks.registering {
+    inputs.files(mainAddOnsFile)
+    if (version.toString().endsWith("SNAPSHOT")) {
+        inputs.files(bundledAddOns)
+    } else {
+        dependsOn(bundledAddOns)
+    }
+
+    val outputDir = file("$buildDir/coreAddOns")
+    outputs.dir(outputDir)
+
+    doLast {
+        val coreAddOns = Utils.parseData(mainAddOnsFile.toPath()).addOns.filter { it -> it.isCore() }.map { it -> it.id }
+
+        sync {
+            from(bundledAddOns) {
+                exclude { details: FileTreeElement ->
+                         !details.path.endsWith(".zap") ||
+                         details.file.name.split("-")[0] !in coreAddOns
+                }
+            }
+            into(outputDir)
+        }
+    }
+}
+
 tasks.register<Zip>("distCore") {
     group = "Distribution"
     description = "Bundles the core distribution."
@@ -109,39 +137,14 @@ tasks.register<Zip>("distCore") {
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
 
-    val liteAddOns = listOf(
-            "ascanrules",
-            "bruteforce",
-            "callhome",
-            "commonlib",
-            "coreLang",
-            "database",
-            "diff",
-            "gettingStarted",
-            "help",
-            "invoke",
-            "network",
-            "oast",
-            "onlineMenu",
-            "plugnhack",
-            "pscanrules",
-            "quickstart",
-            "reports",
-            "reveal",
-            "spider",
-            "tips")
     val topLevelDir = "ZAP_${project.version}"
 
     from(distFiles) {
         into(topLevelDir)
     }
-    from(bundledAddOns) {
+    from(copyCoreAddOns) {
         into("$topLevelDir/plugin")
         exclude("Readme.txt")
-        exclude { details: FileTreeElement ->
-                details.path.endsWith(".zap") &&
-                details.file.name.split("-")[0] !in liteAddOns
-        }
     }
 }
 
