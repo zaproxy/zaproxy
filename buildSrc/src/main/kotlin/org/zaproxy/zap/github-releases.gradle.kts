@@ -65,6 +65,7 @@ val createPullRequestNextDevIter by tasks.registering(CreatePullRequest::class) 
 val prepareMainRelease by tasks.registering(PrepareMainRelease::class) {
     propertiesFile.set(File(projectDir, "gradle.properties"))
     securityFile.set(File(rootDir, "SECURITY.md"))
+    snapcraftFile.set(File(rootDir, "snap/snapcraft.yaml"))
 
     oldVersionProperty.set("zap.japicmp.baseversion")
     versionProperty.set("version")
@@ -79,6 +80,7 @@ val createPullRequestMainRelease by tasks.registering(CreatePullRequest::class) 
     commitDescription.set("""
     |Remove `-SNAPSHOT` from the version.
     |Update version in `SECURITY.md` file.
+    |Update version for snap.
     """.trimMargin())
 
     pullRequestTitle.set("Release version ${project.version}")
