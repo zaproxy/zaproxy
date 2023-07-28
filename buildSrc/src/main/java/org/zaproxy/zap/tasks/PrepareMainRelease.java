@@ -44,11 +44,16 @@ public abstract class PrepareMainRelease extends DefaultTask {
     @Input
     public abstract Property<File> getSecurityFile();
 
+    @Input
+    public abstract Property<File> getSnapcraftFile();
+
     @TaskAction
     public void prepare() throws Exception {
         ProjectProperties properties = new ProjectProperties(getPropertiesFile().get().toPath());
         String newVersion = updatePropertiesFile(properties);
-        updateSecurityFile(properties, newVersion);
+        String oldVersion = properties.getProperty(getOldVersionProperty().get());
+        replaceVersion(getSecurityFile().get().toPath(), oldVersion, newVersion);
+        replaceVersion(getSnapcraftFile().get().toPath(), oldVersion, newVersion);
     }
 
     private String updatePropertiesFile(ProjectProperties properties) throws IOException {
@@ -59,12 +64,10 @@ public abstract class PrepareMainRelease extends DefaultTask {
         return newVersion;
     }
 
-    private void updateSecurityFile(ProjectProperties properties, String newVersion)
+    private void replaceVersion(Path path, String oldVersion, String newVersion)
             throws IOException {
-        Path securityFile = getSecurityFile().get().toPath();
-        String content = Files.readString(securityFile);
-        String oldVersion = properties.getProperty(getOldVersionProperty().get());
-        Files.writeString(securityFile, content.replace(oldVersion, newVersion));
+        String content = Files.readString(path);
+        Files.writeString(path, content.replace(oldVersion, newVersion));
     }
 
     private static String removePreReleaseVersion(String version) {
