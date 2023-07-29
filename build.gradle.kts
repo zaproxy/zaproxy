@@ -54,5 +54,7 @@ sonarqube {
         property("sonar.projectKey", "zaproxy_zaproxy")
         property("sonar.organization", "zaproxy")
         property("sonar.host.url", "https://sonarcloud.io")
+        // Workaround https://sonarsource.atlassian.net/browse/SONARGRADL-126
+        property("sonar.exclusions", "**/*.gradle.kts")
     }
 }
