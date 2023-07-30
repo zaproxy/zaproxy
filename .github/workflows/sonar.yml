@@ -22,4 +22,4 @@ jobs:
     - name: Sonarcloud Scan
       env:
         SONAR_TOKEN: ${{ secrets.ZAPBOT_SONARCLOUD_TOKEN }}
-      run: ./gradlew -Dorg.gradle.jvmargs=-Xmx4g sonarqube --stacktrace
+      run: ./gradlew -Dorg.gradle.jvmargs=-Xmx4g sonar --stacktrace
