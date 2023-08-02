@@ -44,25 +44,25 @@ publishing {
             artifact(tasks["javadocJar"])
 
             pom {
-                name.set("OWASP Zed Attack Proxy")
+                name.set("Zed Attack Proxy")
                 packaging = "jar"
                 description.set("The Zed Attack Proxy (ZAP) is an easy to use integrated penetration testing tool for finding vulnerabilities in web applications. It is designed to be used by people with a wide range of security experience and as such is ideal for developers and functional testers who are new to penetration testing. ZAP provides automated scanners as well as a set of tools that allow you to find security vulnerabilities manually.")
                 url.set("https://www.zaproxy.org/")
                 inceptionYear.set("2010")
 
                 organization {
-                    name.set("OWASP")
+                    name.set("ZAP")
                     url.set("https://www.zaproxy.org/")
                 }
 
                 mailingLists {
                     mailingList {
-                        name.set("OWASP ZAP User Group")
+                        name.set("ZAP User Group")
                         post.set("zaproxy-users@googlegroups.com")
                         archive.set("https://groups.google.com/group/zaproxy-users")
                     }
                     mailingList {
-                        name.set("OWASP ZAP Developer Group")
+                        name.set("ZAP Developer Group")
                         post.set("zaproxy-develop@googlegroups.com")
                         archive.set("https://groups.google.com/group/zaproxy-develop")
                     }
