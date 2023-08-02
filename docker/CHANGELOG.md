@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-08-02
+- Start publishing images under the `softwaresecurityproject` organization on Docker Hub, in addition to the existing images.
+
 ### 2023-07-07
 - Remove checks for CFU initiator in HTTP Sender scripts, no longer needed.
 
