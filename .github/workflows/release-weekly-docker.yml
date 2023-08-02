@@ -46,6 +46,8 @@ jobs:
             owasp/zap2docker-weekly:latest
             ghcr.io/zaproxy/zaproxy:${{ env.REL_DATE_SHORT }}-weekly
             ghcr.io/zaproxy/zaproxy:weekly
+            softwaresecurityproject/zap-weekly:${{ env.REL_DATE_SHORT }}
+            softwaresecurityproject/zap-weekly:latest
           secrets: |
             webswing_url=${{ secrets.WEBSWING_URL }}
           outputs: "type=image,name=target,\

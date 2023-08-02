@@ -52,6 +52,9 @@ jobs:
             ghcr.io/zaproxy/zaproxy:${{ env.REL_VERSION }}
             ghcr.io/zaproxy/zaproxy:stable
             ghcr.io/zaproxy/zaproxy:latest
+            softwaresecurityproject/zap-stable:${{ env.REL_DATE_SHORT }}
+            softwaresecurityproject/zap-stable:${{ env.REL_VERSION }}
+            softwaresecurityproject/zap-stable:latest
           secrets: |
             webswing_url=${{ secrets.WEBSWING_URL }}
           outputs: "type=image,name=target,\
@@ -74,6 +77,9 @@ jobs:
             ghcr.io/zaproxy/zaproxy:${{ env.REL_DATE_SHORT }}-bare
             ghcr.io/zaproxy/zaproxy:${{ env.REL_VERSION }}-bare
             ghcr.io/zaproxy/zaproxy:bare
+            softwaresecurityproject/zap-bare:${{ env.REL_DATE_SHORT }}
+            softwaresecurityproject/zap-bare:${{ env.REL_VERSION }}
+            softwaresecurityproject/zap-bare:latest
           outputs: "type=image,name=target,\
             annotation.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
             annotation.org.opencontainers.image.description=The bare Docker image for the world’s most widely used web app scanner.,\

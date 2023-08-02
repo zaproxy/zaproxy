@@ -42,6 +42,7 @@ jobs:
           tags: |
             owasp/zap2docker-live:latest
             ghcr.io/zaproxy/zaproxy:nightly
+            softwaresecurityproject/zap-nightly:latest
           secrets: |
             webswing_url=${{ secrets.WEBSWING_URL }}
           outputs: "type=image,name=target,\
