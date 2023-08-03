@@ -23,11 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.parosproxy.paros.Constant;
 
-/**
- * Class to facilitate implementation of timestamps on various outputs
- *
- * @author kingthorin+owaspzap@gmail.com
- */
+/** Class to facilitate implementation of timestamps on various outputs */
 public final class TimeStampUtils {
 
     private static final String DEFAULT_TIME_STAMP_FORMAT =
