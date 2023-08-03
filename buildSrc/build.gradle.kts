@@ -19,16 +19,6 @@ spotless {
     }
 }
 
-java {
-    val javaVersion = JavaVersion.VERSION_11
-    sourceCompatibility = javaVersion
-    targetCompatibility = javaVersion
-}
-
-kotlin {
-    jvmToolchain(11)
-}
-
 dependencies {
     implementation("com.github.javaparser:javaparser-core:3.15.21")
     implementation("com.github.zafarkhaja:java-semver:0.9.0")
