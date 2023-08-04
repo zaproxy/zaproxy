@@ -28,9 +28,9 @@ If you have a suggestion for new functionality then you can raise an issue on th
 Its worth checking to see if its already been requested, and including as much information as you can so that we can fully understand your requirements.
 
 ## Translate ZAP to Other Languages
-You can help translate the ZAP UI via the [Crowdin owasp-zap](https://crowdin.com/project/zaproxy) project.
+You can help translate the ZAP UI via the [Crowdin zaproxy](https://crowdin.com/project/zaproxy) project.
 
-You can help translate the ZAP User Guide via the [Crowdin owasp-zap-help](https://crowdin.com/project/zap-help) project.
+You can help translate the ZAP User Guide via the [Crowdin zap-help](https://crowdin.com/project/zap-help) project.
 
 ## Become a ZAP Evangelist
 For information about the ZAP Evangelists and how to join up see the [ZAP Evangelists page](https://www.zaproxy.org/evangelists/)

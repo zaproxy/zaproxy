@@ -36,8 +36,7 @@ Both of these files are in the installation directory.
 Docker
 ------
 
-The weekly release is also available on Docker:
-https://hub.docker.com/r/owasp/zap2docker-weekly/
+The weekly release is also available as Docker image.
 For more details of how you can use it see 
 https://www.zaproxy.org/docs/docker/ 
 

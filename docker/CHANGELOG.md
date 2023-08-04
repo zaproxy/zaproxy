@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-08-04
+- The packaged scans, when executed directly, will now use the image from the GitHub Container Registry.
+
 ### 2023-08-02
 - Start publishing images under the `softwaresecurityproject` organization on Docker Hub, in addition to the existing images.
 
