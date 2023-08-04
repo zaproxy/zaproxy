@@ -174,6 +174,8 @@ listOf(
     MacArch("Arm64", "_aarch64", " (ARM64)", "aarch64", "78a07bd60c278f65bafd0df93890d909ff60259ccbd22ad71a1c3b312906508e")
 ).forEach { it ->
 
+    val volumeName = "ZAP"
+    val appName = "$volumeName.app"
     val macOsJreDir = file("$buildDir/macOsJre${it.suffix}")
     val macOsJreUnpackDir = File(macOsJreDir, "unpacked")
     val macOsJreVersion = "11.0.19+7"
@@ -220,7 +222,7 @@ listOf(
     val prepareDistMac = tasks.register<Copy>("prepareDistMac${it.suffix}") {
         destinationDir = macOsDistDataDir
         from(unpackMacOSJre) {
-            into("OWASP ZAP.app/Contents/PlugIns/")
+            into("$appName/Contents/PlugIns/")
         }
         from("src/main/macOS/") {
             filesMatching("**/Info.plist") {
@@ -235,9 +237,9 @@ listOf(
             }
         }
         from("src/main/resources/resource/ZAP.icns") {
-            into("OWASP ZAP.app/Contents/Resources/")
+            into("$appName/Contents/Resources/")
         }
-        val zapDir = "OWASP ZAP.app/Contents/Java/"
+        val zapDir = "$appName/Contents/Java/"
         from(distFiles) {
             into(zapDir)
             exclude(listOf("zap.bat", "zap.ico"))
@@ -258,8 +260,9 @@ listOf(
 
         dependsOn(prepareDistMac)
 
+        volname.set(volumeName)
         workingDir.set(macOsDistDataDir)
-        dmg.set(file("$buildDir/distributions/ZAP_$version${it.fileNameSuffix}.dmg"))
+        dmg.set(file("$buildDir/distributions/${volumeName}_$version${it.fileNameSuffix}.dmg"))
 
         doFirst {
             val symlink = Paths.get("$macOsDistDataDir/Applications")
