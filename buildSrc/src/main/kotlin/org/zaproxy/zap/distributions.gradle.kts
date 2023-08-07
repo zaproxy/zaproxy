@@ -14,7 +14,6 @@ import org.zaproxy.zap.tasks.UpdateMainAddOns
 
 plugins {
     de.undercouch.download
-    com.netflix.nebula.ospackage
 }
 
 val dailyVersion = provider { "D-${extra["creationDate"]}" }
@@ -84,8 +83,6 @@ val distFiles by tasks.registering(Sync::class) {
         into("license")
     }
 }
-
-apply(from = "gradle/debian-package.gradle")
 
 tasks.register<Zip>("distCrossplatform") {
     group = "Distribution"

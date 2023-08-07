@@ -53,11 +53,6 @@ A tar.gz package, the macOS/Windows specific add-ons are excluded from this dist
 
 To build it run the task `:zap:distLinux`.
 
-#### Debian
-A deb package, bundling ZAP and its dependencies. Does not bundle any add-ons, they are expected to be installed separately, for example, from marketplace.
-
-To build it run the task `:zap:distDebian`.
-
 ### macOS
 A dmg bundling ZAP, its dependencies, and a JRE. The Linux/Windows specific add-ons are excluded from this distribution.
 
