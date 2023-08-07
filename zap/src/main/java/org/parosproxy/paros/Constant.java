@@ -120,6 +120,7 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/12/22 Issue 7663: Default threads based on number of processors.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/08/07 Rename home dir in Windows.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -418,10 +419,7 @@ public final class Constant {
 
     public static String getDefaultHomeDirectory(boolean incDevOption) {
         if (zapStd == null) {
-            zapStd = System.getProperty("user.home");
-            if (zapStd == null) {
-                zapStd = ".";
-            }
+            zapStd = getUserHome();
 
             if (isLinux()) {
                 // Linux: Hidden Zap directory in the user's home directory
@@ -437,7 +435,7 @@ public final class Constant {
                                 + PROGRAM_NAME_SHORT;
             } else {
                 // Windows: Zap directory in the user's home directory
-                zapStd += FILE_SEPARATOR + PROGRAM_NAME;
+                zapStd += FILE_SEPARATOR + PROGRAM_NAME_SHORT;
             }
         }
 
@@ -448,6 +446,22 @@ public final class Constant {
             }
         }
         return zapStd;
+    }
+
+    /**
+     * Gets the user home.
+     *
+     * <p>It is returned the system property {@code user.home} if defined otherwise the current
+     * directory (i.e. {@code "."}).
+     *
+     * @return the user home, or the current directory.
+     */
+    private static String getUserHome() {
+        String home = System.getProperty("user.home");
+        if (home == null) {
+            return ".";
+        }
+        return home;
     }
 
     public void copyDefaultConfigs(File f, boolean forceReset)
@@ -543,6 +557,7 @@ public final class Constant {
         PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
 
         if (zapHome == null) {
+            renameOldWindowsHome();
             zapHome = getDefaultHomeDirectory(true);
         }
 
@@ -746,6 +761,35 @@ public final class Constant {
         Locale.setDefault(locale);
 
         messages = new I18N(locale);
+    }
+
+    private void renameOldWindowsHome() {
+        if (!isWindows()) {
+            return;
+        }
+
+        String home = getUserHome() + FILE_SEPARATOR + "OWASP ZAP";
+        if (isDevMode() || isDailyBuild()) {
+            home += "_D";
+        }
+
+        Path oldHome = Paths.get(getAbsolutePath(home));
+        if (Files.notExists(oldHome)) {
+            return;
+        }
+
+        Path newHome = Paths.get(getAbsolutePath(getDefaultHomeDirectory(true)));
+        if (Files.exists(newHome)) {
+            logAndPrintInfo("Not renaming old ZAP home, the new home already exists.");
+            return;
+        }
+
+        try {
+            Files.move(oldHome, newHome, StandardCopyOption.ATOMIC_MOVE);
+            logAndPrintInfo("Old ZAP home renamed to: " + newHome);
+        } catch (IOException e) {
+            logAndPrintError("Failed to rename the old home, will use a new home instead.", e);
+        }
     }
 
     private Locale loadLocale(ControlOverrides overrides) {
