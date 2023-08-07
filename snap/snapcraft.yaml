@@ -1,8 +1,8 @@
 name: zaproxy
 version: '2.13.0'
-summary: OWASP ZAP, a tool for finding vulnerabilities in web applications
+summary: ZAP, a tool for finding vulnerabilities in web applications
 description: |
-  The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free security tools
+  The Zed Attack Proxy (ZAP) is one of the world’s most popular free security tools
   and is actively maintained by dedicated international team of volunteers.
   It can help you automatically find security vulnerabilities in your web applications
   while you are developing and testing your applications.
