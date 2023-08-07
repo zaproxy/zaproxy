@@ -161,7 +161,7 @@ tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
 }
 
 tasks.named<Javadoc>("javadoc") {
-    title = "OWASP Zed Attack Proxy"
+    title = "Zed Attack Proxy"
     source = sourceSets["main"].allJava.matching {
         include("org/parosproxy/**")
         include("org/zaproxy/**")

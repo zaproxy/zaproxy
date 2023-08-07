@@ -120,7 +120,7 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/12/22 Issue 7663: Default threads based on number of processors.
 // ZAP: 2023/01/10 Tidy up logger.
-// ZAP: 2023/08/07 Rename home dir in Windows.
+// ZAP: 2023/08/07 Rename home dir in Windows and update program name.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -170,7 +170,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public final class Constant {
     // ZAP: rebrand
-    public static final String PROGRAM_NAME = "OWASP ZAP";
+    public static final String PROGRAM_NAME = "ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
 
     /**
