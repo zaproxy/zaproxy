@@ -85,11 +85,10 @@ will trigger the update of the marketplace with the new release.
 
 ## Docker Images
 
-The image `owasp/zap2docker-live` is automatically built from the default branch.
+The Nightly image is automatically built from the default branch.
 
-The images `owasp/zap2docker-weekly`, `owasp/zap2docker-stable`, and `owasp/zap2docker-bare` are automatically built
-after the corresponding release to the marketplace.  
-The images `owasp/zap2docker-stable` and `owasp/zap2docker-bare` are built at the same time.
+The images Weekly, Stable, and Bare are automatically built after the corresponding release to the marketplace.  
+The images Stable and Bare are built at the same time.
 
 They can still be manually built by running the corresponding workflow:
  - [Release Weekly Docker](https://github.com/zaproxy/zaproxy/actions/workflows/release-weekly-docker.yml)

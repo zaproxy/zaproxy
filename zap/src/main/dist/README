@@ -37,8 +37,7 @@ You can use the 'zap.sh' script, as per linux.
 
 Docker
 
-ZAP is available on https://hub.docker.com/r/owasp/zap2docker-stable/
-For more details of how you can use it see 
+ZAP is available as Docker images. For more details of how you can use them see 
 https://www.zaproxy.org/docs/docker/ 
 
 Headless Environment
