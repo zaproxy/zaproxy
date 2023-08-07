@@ -28,7 +28,7 @@ jobs:
         ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
         ZAP_RELEASE: 1
         ZAP_JAVA_VERSION: 11
-      run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createMainRelease
+      run: ./gradlew -Dorg.gradle.jvmargs=-Xmx4g :zap:createMainRelease
 
   upload-macos:
     needs: release
@@ -48,4 +48,4 @@ jobs:
         ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
         ZAP_RELEASE: 1
         ZAP_JAVA_VERSION: 11
-      run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:uploadMacDist
+      run: ./gradlew -Dorg.gradle.jvmargs=-Xmx4g :zap:uploadMacDist

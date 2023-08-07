@@ -1,5 +1,7 @@
 package org.zaproxy.zap
 
+import java.nio.file.Files
+import java.nio.file.Paths
 import de.undercouch.gradle.tasks.download.Download
 import de.undercouch.gradle.tasks.download.Verify
 import org.apache.tools.ant.filters.ReplaceTokens
@@ -248,11 +250,6 @@ listOf(
         doFirst {
             delete(macOsDistDataDir)
         }
-        doLast {
-            ant.withGroovyBuilder {
-                "symlink"(mapOf("link" to "$macOsDistDataDir/Applications", "resource" to "/Applications"))
-            }
-        }
     }
 
     tasks.register<CreateDmg>("distMac${it.suffix}") {
@@ -263,6 +260,13 @@ listOf(
 
         workingDir.set(macOsDistDataDir)
         dmg.set(file("$buildDir/distributions/ZAP_$version${it.fileNameSuffix}.dmg"))
+
+        doFirst {
+            val symlink = Paths.get("$macOsDistDataDir/Applications")
+            if (Files.notExists(symlink)) {
+                Files.createSymbolicLink(symlink, Paths.get("/Applications"))
+            }
+        }
     }
 }
 
