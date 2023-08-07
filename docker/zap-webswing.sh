@@ -62,8 +62,8 @@ case "$1" in
         
         # Set up the ZAP runtime options
         ZAP_OPTS="-host 0.0.0.0 -port 8090"
-        ZAP_PUBLIC="/zap/wrk/owasp_zap_root_ca.cer"
-        ZAP_PRIVATE="/zap/wrk/owasp_zap_root_ca.key"
+        ZAP_PUBLIC="/zap/wrk/zap_root_ca.cer"
+        ZAP_PRIVATE="/zap/wrk/zap_root_ca.key"
 
         if [ ! -z "${ZAP_WEBSWING_OPTS}" ]; then
           # Replace them with those set in the env var
