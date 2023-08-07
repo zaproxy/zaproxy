@@ -1,6 +1,6 @@
-Welcome to the OWASP Zed Attack Proxy
+Welcome to the Zed Attack Proxy
 =====================================
-The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free 
+The Zed Attack Proxy (ZAP) is one of the world’s most popular free 
 security tools and is actively maintained by hundreds of international 
 volunteers. 
 It can help you automatically find security vulnerabilities in your web 
@@ -13,7 +13,7 @@ For more details on ZAP please goto the home page:
 	
 We welcome feedback, either via the Issues, User Group or Developer Group.
 ZAP is also a community based project, and contributions are welcomed.
-See the ZAP wiki for more information.
+See the ZAP website for more information.
 
 How to start ZAP
 ----------------
