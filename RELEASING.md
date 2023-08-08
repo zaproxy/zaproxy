@@ -43,7 +43,7 @@ development iteration.
 
 ### Localized Resources
 
-The resources that require localization (e.g. `Messages.properties`, `vulnerabilities.xml`) are uploaded to the OWASP ZAP projects in
+The resources that require localization (e.g. `Messages.properties`, `vulnerabilities.xml`) are uploaded to the ZAP projects in
 [Crowdin](https://crowdin.com/) when the main release is released, if required (for pre-translation) the resources can be uploaded manually
 at any time by running the workflow [Crowdin Upload Files](https://github.com/zaproxy/zaproxy/actions/workflows/crowdin-upload-files.yml).
 
