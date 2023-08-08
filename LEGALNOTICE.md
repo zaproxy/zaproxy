@@ -1,7 +1,7 @@
 COPYRIGHT
 ---------
 
-OWASP Zed Attack Proxy (ZAP)
+Zed Attack Proxy (ZAP)
 
 The software package is:
 
@@ -13,7 +13,7 @@ respective authors.
 SOFTWARE LICENSE
 ----------------
 
-The open source software license of OWASP Zed Attack Proxy is Apache 2.0.
+The open source software license of Zed Attack Proxy is Apache 2.0.
 A copy of the Apache 2.0 license has been included in this software package
 in ApacheLicense-2.0.txt.
 

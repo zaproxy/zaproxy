@@ -1,4 +1,4 @@
-# Contributing to OWASP ZAP
+# Contributing to ZAP
 ZAP is a community project, and we are always delighted to welcome new contributors!
 
 There are lots of ways you can contribute:
