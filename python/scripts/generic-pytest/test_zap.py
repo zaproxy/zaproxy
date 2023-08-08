@@ -100,10 +100,10 @@ def test_zap(zapconfig):
 		if (len(zapInstall) == 0):
 			if (platform.system() == "Windows"):
 				# Win 7 default path
-				zapInstall = "C:\Program Files (x86)\OWASP\Zed Attack Proxy";
+				zapInstall = "C:\Program Files (x86)\ZAP\Zed Attack Proxy";
 				if ( not os.path.exists(zapInstall)):
 					# Win XP default path
-					zapInstall = "C:\Program Files\OWASP\Zed Attack Proxy";
+					zapInstall = "C:\Program Files\ZAP\Zed Attack Proxy";
 			else:
 				# No default path for Mac OS or Linux
 				print("Installation directory must be set in " + zapconfig)
