@@ -21,7 +21,7 @@ There are 3 options on Windows:
 
 * Via the desktop icon (assuming you selected this option during installation)
 * Via the 'Start' menu:
-    All Programs / OWASP / Zed Attack Proxy / ZAP <version> 
+    All Programs / ZAP / Zed Attack Proxy / ZAP <version> 
 * Via the 'zap.bat' command line script in the installation directory 
 
 Linux

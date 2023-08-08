@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<install4j version="10.0.3" transformSequenceNumber="10">
-  <application name="OWASP Zed Attack Proxy" applicationId="OWASP ZAP" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" shortName="ZAP" publisher="OWASP ZAP" publisherWeb="https://www.zaproxy.org/" version="${compiler:version}" allPathsRelative="true" backupOnSave="true" macVolumeId="1369b1f423bb47f8" javaMinVersion="11">
+<install4j version="10.0.6" transformSequenceNumber="10">
+  <application name="Zed Attack Proxy" applicationId="ZAP" mediaFilePattern="${compiler:sys.shortName}_${compiler:sys.version}_${compiler:sys.platform}" shortName="ZAP" publisher="ZAP" publisherWeb="https://www.zaproxy.org/" version="${compiler:version}" allPathsRelative="true" backupOnSave="true" macVolumeId="1369b1f423bb47f8" javaMinVersion="11">
     <languages skipLanguageSelection="true">
       <principalLanguage id="en" customLocalizationFile="./resources/Messages.properties" />
       <additionalLanguages>
@@ -20,7 +20,7 @@
     </languages>
     <variables>
       <variable name="longName" value="Zed Attack Proxy" />
-      <variable name="groupName" value="OWASP" />
+      <variable name="groupName" value="ZAP" />
       <variable name="unixDirName" value="zaproxy" />
       <variable name="symlinkDir" value="/usr/local/bin" />
     </variables>
@@ -50,7 +50,7 @@
     </entries>
   </files>
   <launchers>
-    <launcher name="Linux" id="26" external="true" menuName="OWASP ZAP" externalFile="zap.sh" />
+    <launcher name="Linux" id="26" external="true" menuName="ZAP" externalFile="zap.sh" />
     <launcher name="Windows (.exe)" id="79" external="true" menuName="${compiler:sys.shortName} ${compiler:sys.version}" externalFile="ZAP.exe" />
   </launchers>
   <installerGui>
@@ -130,6 +130,21 @@ if (Util.isWindows()) {
 } else if (Util.isLinux()) {
     context.setVariable("sys.symlinkDir", context.getCompilerVariable("symlinkDir"));
 } 
+
+return true;</property>
+                    </object>
+                  </property>
+                </serializedBean>
+              </action>
+              <action id="821" beanClass="com.install4j.runtime.beans.actions.control.RunScriptAction" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="script">
+                    <object class="com.install4j.api.beans.ScriptProperty">
+                      <property name="value" type="string">ApplicationRegistry.ApplicationInfo[] applicationInfos = ApplicationRegistry.getApplicationInfoById("OWASP ZAP");
+
+if (applicationInfos.length &gt; 0) {
+   context.setVariable("uninstallOldDir", applicationInfos[0].getInstallationDirectory().getPath());
+}
 
 return true;</property>
                     </object>
@@ -576,6 +591,16 @@ return;</preActivation>
           </screen>
           <screen id="8" beanClass="com.install4j.runtime.beans.screens.InstallationScreen" rollbackBarrier="true">
             <actions>
+              <action id="820" beanClass="com.install4j.runtime.beans.actions.UninstallPreviousAction" actionElevationType="none" rollbackBarrierExitCode="0">
+                <serializedBean>
+                  <property name="installationDirectory">
+                    <object class="java.io.File">
+                      <string>${installer:uninstallOldDir}</string>
+                    </object>
+                  </property>
+                  <property name="onlyIfSameApplicationId" type="boolean" value="false" />
+                </serializedBean>
+              </action>
               <action id="169" beanClass="com.install4j.runtime.beans.actions.UninstallPreviousAction" actionElevationType="none" />
               <action id="9" beanClass="com.install4j.runtime.beans.actions.InstallFilesAction" actionElevationType="elevated" failureStrategy="quit" errorMessage="${i18n:FileCorrupted}" />
               <action id="10" beanClass="com.install4j.runtime.beans.actions.desktop.CreateProgramGroupAction" actionElevationType="elevated">
@@ -606,7 +631,7 @@ return;</preActivation>
                     </object>
                   </property>
                   <property name="macSingleBundleTarget" type="boolean" value="false" />
-                  <property name="name" type="string">${compiler:groupName} ${compiler:sys.shortName} ${compiler:sys.version}</property>
+                  <property name="name" type="string">${compiler:sys.shortName} ${compiler:sys.version}</property>
                   <property name="unixIconFile">
                     <object class="com.install4j.api.beans.ExternalFile">
                       <string>../resources/resource/zap1024x1024.png</string>
@@ -653,7 +678,7 @@ return;</preActivation>
                   <property name="escaped" type="boolean" value="false" />
                   <property name="file">
                     <object class="java.io.File">
-                      <string>${compiler:groupName} ${compiler:sys.shortName}.desktop</string>
+                      <string>${compiler:sys.shortName}.desktop</string>
                     </object>
                   </property>
                   <property name="logText" type="boolean" value="false" />

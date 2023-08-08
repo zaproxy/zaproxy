@@ -16,7 +16,7 @@ var install4jHomeDirValidated = false
 val install4jHomeDir: String? by project
 val install4jLicense: String? by project
 
-val install4jVersion = "10.0.4"
+val install4jVersion = "10.0.6"
 
 install4j {
     installDir = file("$install4jHomeDir")
@@ -41,10 +41,10 @@ launch4j {
     maxHeapSize.set(512)
     maxHeapPercent.set(25)
 
-    fileDescription.set("OWASP Zed Attack Proxy")
-    copyright.set("The OWASP Zed Attack Proxy Project")
-    productName.set("OWASP Zed Attack Proxy")
-    companyName.set("OWASP")
+    fileDescription.set("Zed Attack Proxy")
+    copyright.set("The Zed Attack Proxy Project")
+    productName.set("Zed Attack Proxy")
+    companyName.set("ZAP")
     internalName.set("ZAP")
 
     downloadUrl.set("https://adoptium.net/")
@@ -143,7 +143,7 @@ if (install4jHomeDir == null && Os.isFamily(Os.FAMILY_UNIX)) {
         dependsOn(downloadInstall4jBin)
         src(install4jBinFile)
         algorithm("SHA-256")
-        checksum("df5a7a945d3f64ee191d162a0c1db56bf5e89dae5e190573e284fd70b921542b")
+        checksum("db8144cfcb442f98dfb12fa4ce05330964104a6c65159a7d8358f9f5c5da8e55")
     }
 
     val unpackInstall4jBin by tasks.registering(Copy::class) {
