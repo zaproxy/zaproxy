@@ -129,7 +129,26 @@ public interface ScriptUI {
      */
     void removeScriptTreeTransferHandler(Class<?> klass);
 
+    /**
+     * Displays the provided script with focus.
+     *
+     * @param script The script to be displayed.
+     */
     void displayScript(ScriptWrapper script);
+
+    /**
+     * Displays the provided script with/without focusing on it. By default, this method delegates
+     * to {@link #displayScript(ScriptWrapper)}.
+     *
+     * @param script The script to be displayed.
+     * @param allowFocus {@code true} to allow focusing on the script display, {@code false}
+     *     otherwise.
+     * @since 2.14.0
+     * @see #displayScript(ScriptWrapper)
+     */
+    default void displayScript(ScriptWrapper script, boolean allowFocus) {
+        displayScript(script);
+    }
 
     boolean isScriptDisplayed(ScriptWrapper script);
 

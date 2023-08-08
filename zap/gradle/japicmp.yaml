@@ -5,4 +5,6 @@
 packageExcludes: []
 fieldExcludes: []
 classExcludes: []
-methodExcludes: []
+methodExcludes:
+  - org.zaproxy.zap.extension.script.ScriptUI#displayScript(org.zaproxy.zap.extension.script.ScriptWrapper, boolean)
+
