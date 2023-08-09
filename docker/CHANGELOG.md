@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-08-09
+- Install the newer Python ZAP API client directly, `python-owasp-zap-v2.4` was renamed to `zaproxy`.
+
 ### 2023-08-04
 - The packaged scans, when executed directly, will now use the image from the GitHub Container Registry.
 

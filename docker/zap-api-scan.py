@@ -21,7 +21,7 @@
 # or GraphQL using ZAP.
 #
 # It can either be run 'standalone', in which case depends on
-# https://pypi.python.org/pypi/python-owasp-zap-v2.4 and Docker, or it can be run
+# https://pypi.python.org/pypi/zaproxy and Docker, or it can be run
 # inside one of the ZAP docker containers. It automatically detects if it is
 # running in docker so the parameters are the same.
 #
