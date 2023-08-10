@@ -1,7 +1,6 @@
 package org.zaproxy.zap
 
 import com.install4j.gradle.Install4jTask
-import com.netflix.gradle.plugins.deb.Deb
 import java.util.regex.Pattern
 import org.zaproxy.zap.GitHubUser
 import org.zaproxy.zap.GitHubRepo
@@ -102,7 +101,6 @@ tasks.register<CreateMainRelease>("createMainRelease") {
     draft.set(true)
 
     if (!"${project.version}".endsWith("-SNAPSHOT")) {
-        val distDebian by tasks.existing(Deb::class)
         val installers by tasks.existing(Install4jTask::class)
 
         val installersFileTree: Provider<FileTree> = installers.map { fileTree(it.destination!!) }
@@ -115,10 +113,6 @@ tasks.register<CreateMainRelease>("createMainRelease") {
             register("crossplatform") {
                 file.set(tasks.named<Zip>("distCrossplatform").flatMap { it.archiveFile })
                 contentType.set("application/zip")
-            }
-            register("debian") {
-                file.set(distDebian.flatMap { it.archiveFile })
-                contentType.set("application/vnd.debian.binary-package")
             }
             register("linux") {
                 file.set(tasks.named<Tar>("distLinux").flatMap { it.archiveFile })
