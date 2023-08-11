@@ -42,6 +42,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.quality.Strictness;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMessage;
@@ -613,6 +614,61 @@ class APIUnitTest {
         String htmlResponse = API.responseToHtml(response);
         // Then
         assertThat(htmlResponse, is(equalTo("<head>\n</head>\n<body>\nHTML</body>\n")));
+    }
+
+    @Test
+    void shouldGetParams() throws ApiException {
+        // Given / When
+        JSONObject params = API.getParams("aaa=bbb&ccc=ddd&ddd=eee");
+        // Then
+        assertThat(params.get("aaa"), is(equalTo("bbb")));
+        assertThat(params.get("ccc"), is(equalTo("ddd")));
+        assertThat(params.get("ddd"), is(equalTo("eee")));
+    }
+
+    @Test
+    void shouldGetParamsWithReplacements() throws ApiException {
+        // Given
+        OptionsParamApi options = Model.getSingleton().getOptionsParam().getApiParam();
+        options.load(new ZapXmlConfiguration());
+        options.setTransferDir("/tmp/dir");
+        // When
+        // Use token with and without trailing slash
+        JSONObject params =
+                API.getParams(
+                        "aaa=bbb&filename="
+                                + API.TRANSFER_DIR_TOKEN
+                                + "/myfile&path="
+                                + API.TRANSFER_DIR_TOKEN
+                                + "myfile2&MyDir2="
+                                + API.TRANSFER_DIR_TOKEN
+                                + "myfile3");
+        // Then
+        assertThat(params.get("aaa"), is(equalTo("bbb")));
+        assertThat(params.get("filename"), is(equalTo("/tmp/dir/myfile")));
+        assertThat(params.get("path"), is(equalTo("/tmp/dir/myfile2")));
+        assertThat(params.get("MyDir2"), is(equalTo("/tmp/dir/myfile3")));
+    }
+
+    @Test
+    void shouldGetParamsWithInvalidReplacements() throws ApiException {
+        // Given
+        OptionsParamApi options = Model.getSingleton().getOptionsParam().getApiParam();
+        options.load(new ZapXmlConfiguration());
+        options.setTransferDir("/tmp/dir");
+        Model.getSingleton().getOptionsParam().getApiParam().setTransferDir("/tmp/dir");
+        // When
+        JSONObject params =
+                API.getParams(
+                        "aaa=bbb&ccc="
+                                + API.TRANSFER_DIR_TOKEN
+                                + "/myfile&path=xxx"
+                                + API.TRANSFER_DIR_TOKEN
+                                + "myfile2");
+        // Then
+        assertThat(params.get("aaa"), is(equalTo("bbb")));
+        assertThat(params.get("ccc"), is(equalTo(API.TRANSFER_DIR_TOKEN + "/myfile")));
+        assertThat(params.get("path"), is(equalTo("xxx" + API.TRANSFER_DIR_TOKEN + "myfile2")));
     }
 
     private static class ApiResponseTest extends ApiResponse {

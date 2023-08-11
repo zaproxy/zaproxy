@@ -27,6 +27,7 @@ import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,20 +35,11 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /** Unit test for {@link OptionsParamApi}. */
 class OptionsParamApiUnitTest {
-
-    private static final String API_ENABLED_KEY = "api.enabled";
-    private static final String API_SECURE_KEY = "api.secure";
-    private static final String API_KEY_KEY = "api.key";
-    private static final String API_DISABLEKEY_KEY = "api.disablekey";
-    private static final String API_INCERRORDETAILS_KEY = "api.incerrordetails";
-    private static final String API_AUTOFILLKEY_KEY = "api.autofillkey";
-    private static final String API_ENABLEJSONP_KEY = "api.enablejsonp";
-    private static final String API_NO_KEY_FOR_SAFE_OPS = "api.nokeyforsafeops";
-    private static final String API_REPORT_PERM_ERRORS = "api.reportpermerrors";
 
     @Test
     void shouldNotHaveConfigByDefault() {
@@ -81,7 +73,7 @@ class OptionsParamApiUnitTest {
         param.setEnabled(false);
         // Then
         assertThat(param.isEnabled(), is(equalTo(false)));
-        assertThat(param.getConfig().getBoolean(API_ENABLED_KEY), is(equalTo(false)));
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.ENABLED), is(equalTo(false)));
     }
 
     @Test
@@ -108,7 +100,7 @@ class OptionsParamApiUnitTest {
         param.setSecureOnly(true);
         // Then
         assertThat(param.isSecureOnly(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(API_SECURE_KEY), is(equalTo(true)));
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.SECURE_ONLY), is(equalTo(true)));
     }
 
     @Test
@@ -135,7 +127,7 @@ class OptionsParamApiUnitTest {
         param.setDisableKey(true);
         // Then
         assertThat(param.isEnabled(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(API_DISABLEKEY_KEY), is(equalTo(true)));
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.DISABLE_KEY), is(equalTo(true)));
     }
 
     @Test
@@ -162,7 +154,8 @@ class OptionsParamApiUnitTest {
         param.setIncErrorDetails(true);
         // Then
         assertThat(param.isIncErrorDetails(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(API_INCERRORDETAILS_KEY), is(equalTo(true)));
+        assertThat(
+                param.getConfig().getBoolean(OptionsParamApi.INC_ERROR_DETAILS), is(equalTo(true)));
     }
 
     @Test
@@ -189,7 +182,7 @@ class OptionsParamApiUnitTest {
         param.setAutofillKey(true);
         // Then
         assertThat(param.isAutofillKey(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(API_AUTOFILLKEY_KEY), is(equalTo(true)));
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.AUTOFILL_KEY), is(equalTo(true)));
     }
 
     @Test
@@ -216,7 +209,7 @@ class OptionsParamApiUnitTest {
         param.setEnableJSONP(true);
         // Then
         assertThat(param.isEnableJSONP(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(API_ENABLEJSONP_KEY), is(equalTo(true)));
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.ENABLE_JSONP), is(equalTo(true)));
     }
 
     @Test
@@ -243,7 +236,9 @@ class OptionsParamApiUnitTest {
         param.setReportPermErrors(true);
         // Then
         assertThat(param.isReportPermErrors(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(API_REPORT_PERM_ERRORS), is(equalTo(true)));
+        assertThat(
+                param.getConfig().getBoolean(OptionsParamApi.REPORT_PERM_ERRORS),
+                is(equalTo(true)));
     }
 
     @Test
@@ -278,7 +273,9 @@ class OptionsParamApiUnitTest {
         param.setNoKeyForSafeOps(true);
         // Then
         assertThat(param.isNoKeyForSafeOps(), is(equalTo(true)));
-        assertThat(param.getConfig().getBoolean(API_NO_KEY_FOR_SAFE_OPS), is(equalTo(true)));
+        assertThat(
+                param.getConfig().getBoolean(OptionsParamApi.NO_KEY_FOR_SAFE_OPS),
+                is(equalTo(true)));
     }
 
     @Test
@@ -314,7 +311,7 @@ class OptionsParamApiUnitTest {
         param.setKey(apiKey);
         // Then
         assertThat(param.getKey(), is(equalTo(apiKey)));
-        assertThat(param.getConfig().getString(API_KEY_KEY), is(equalTo(apiKey)));
+        assertThat(param.getConfig().getString(OptionsParamApi.API_KEY), is(equalTo(apiKey)));
     }
 
     @Test
@@ -328,7 +325,7 @@ class OptionsParamApiUnitTest {
         String key = param.getKey();
         // Then
         assertThat(key, is(not(equalTo(""))));
-        assertThat(conf.getString(API_KEY_KEY), is(equalTo(key)));
+        assertThat(conf.getString(OptionsParamApi.API_KEY), is(equalTo(key)));
         assertThat(conf.isSaved(), is(equalTo(true)));
     }
 
@@ -360,6 +357,8 @@ class OptionsParamApiUnitTest {
         assertThat(param.isAutofillKey(), is(equalTo(true)));
         assertThat(param.isEnableJSONP(), is(equalTo(true)));
         assertThat(param.getRealKey(), is(equalTo("ApiKey")));
+        assertThat(param.isFileTransferAllowed(), is(equalTo(false)));
+        assertThat(param.getTransferDir(), is(equalTo("/tmp")));
     }
 
     @Test
@@ -377,6 +376,7 @@ class OptionsParamApiUnitTest {
         assertThat(param.isAutofillKey(), is(equalTo(false)));
         assertThat(param.isEnableJSONP(), is(equalTo(false)));
         assertThat(param.getRealKey(), is(equalTo("")));
+        assertThat(param.isFileTransferAllowed(), is(equalTo(false)));
     }
 
     @Test
@@ -396,6 +396,8 @@ class OptionsParamApiUnitTest {
         assertThat(param.isAutofillKey(), is(equalTo(true)));
         assertThat(param.isEnableJSONP(), is(equalTo(true)));
         assertThat(param.getRealKey(), is(equalTo("ApiKey")));
+        assertThat(param.isFileTransferAllowed(), is(equalTo(false)));
+        assertThat(param.getTransferDir(), is(equalTo("/tmp")));
     }
 
     @Test
@@ -413,6 +415,10 @@ class OptionsParamApiUnitTest {
         assertThat(param.isAutofillKey(), is(equalTo(false)));
         assertThat(param.isEnableJSONP(), is(equalTo(false)));
         assertThat(param.getRealKey(), is(equalTo("")));
+        assertThat(param.isFileTransferAllowed(), is(equalTo(false)));
+        assertThat(
+                param.getTransferDir(),
+                is(equalTo(new File(Constant.getZapHome(), "transfer").getAbsolutePath())));
     }
 
     @Test
@@ -497,6 +503,45 @@ class OptionsParamApiUnitTest {
         assertThat(val2, is(equalTo(null)));
     }
 
+    @Test
+    void shouldNotSetFileTransferIfNoApiKey() {
+        // Given
+        OptionsParamApi param = createOptionsParamApiWithConfig();
+        // When
+        param.setDisableKey(true);
+        param.setFileTransferAllowed(true);
+        // Then
+        assertThat(param.isDisableKey(), is(equalTo(true)));
+        assertThat(param.isFileTransferAllowed(), is(equalTo(false)));
+        assertThat(
+                param.getConfig().containsKey(OptionsParamApi.FILE_TRANSFER), is(equalTo(false)));
+    }
+
+    @Test
+    void shouldSetFileTransferIfApiKey() {
+        // Given
+        OptionsParamApi param = createOptionsParamApiWithConfig();
+        // When
+        param.setDisableKey(false);
+        param.setFileTransferAllowed(true);
+        // Then
+        assertThat(param.isDisableKey(), is(equalTo(false)));
+        assertThat(param.isFileTransferAllowed(), is(equalTo(true)));
+        assertThat(param.getConfig().getBoolean(OptionsParamApi.FILE_TRANSFER), is(equalTo(true)));
+    }
+
+    @Test
+    void shouldSetTransferDirectory() {
+        // Given
+        OptionsParamApi param = createOptionsParamApiWithConfig();
+        // When
+        String dir = "/test/dir";
+        param.setTransferDir(dir);
+        // Then
+        assertThat(param.getTransferDir(), is(equalTo(dir)));
+        assertThat(param.getConfig().getString(OptionsParamApi.TRANSFER_DIR), is(equalTo(dir)));
+    }
+
     private static OptionsParamApi createOptionsParamApiWithConfig() {
         OptionsParamApi param = new OptionsParamApi();
         param.load(new ZapXmlConfiguration());
@@ -505,28 +550,31 @@ class OptionsParamApiUnitTest {
 
     private static FileConfiguration createTestConfig() {
         ZapXmlConfiguration config = new ZapXmlConfiguration();
-        config.setProperty(API_ENABLED_KEY, "false");
-        config.setProperty(API_SECURE_KEY, "true");
-        config.setProperty(API_KEY_KEY, "ApiKey");
-        config.setProperty(API_DISABLEKEY_KEY, "true");
-        config.setProperty(API_INCERRORDETAILS_KEY, "true");
-        config.setProperty(API_AUTOFILLKEY_KEY, "true");
-        config.setProperty(API_ENABLEJSONP_KEY, "true");
-        config.setProperty(API_NO_KEY_FOR_SAFE_OPS, "true");
-        config.setProperty(API_REPORT_PERM_ERRORS, "true");
+        config.setProperty(OptionsParamApi.ENABLED, "false");
+        config.setProperty(OptionsParamApi.SECURE_ONLY, "true");
+        config.setProperty(OptionsParamApi.API_KEY, "ApiKey");
+        config.setProperty(OptionsParamApi.DISABLE_KEY, "true");
+        config.setProperty(OptionsParamApi.INC_ERROR_DETAILS, "true");
+        config.setProperty(OptionsParamApi.AUTOFILL_KEY, "true");
+        config.setProperty(OptionsParamApi.ENABLE_JSONP, "true");
+        config.setProperty(OptionsParamApi.NO_KEY_FOR_SAFE_OPS, "true");
+        config.setProperty(OptionsParamApi.REPORT_PERM_ERRORS, "true");
+        config.setProperty(OptionsParamApi.FILE_TRANSFER, "false");
+        config.setProperty(OptionsParamApi.TRANSFER_DIR, "/tmp");
         return config;
     }
 
     private static FileConfiguration createTestConfigWithInvalidValues() {
         ZapXmlConfiguration config = new ZapXmlConfiguration();
-        config.setProperty(API_ENABLED_KEY, "Not Boolean");
-        config.setProperty(API_SECURE_KEY, "Not Boolean");
-        config.setProperty(API_DISABLEKEY_KEY, "Not Boolean");
-        config.setProperty(API_INCERRORDETAILS_KEY, "Not Boolean");
-        config.setProperty(API_AUTOFILLKEY_KEY, "Not Boolean");
-        config.setProperty(API_ENABLEJSONP_KEY, "Not Boolean");
-        config.setProperty(API_NO_KEY_FOR_SAFE_OPS, "Not Boolean");
-        config.setProperty(API_REPORT_PERM_ERRORS, "Not Boolean");
+        config.setProperty(OptionsParamApi.ENABLED, "Not Boolean");
+        config.setProperty(OptionsParamApi.SECURE_ONLY, "Not Boolean");
+        config.setProperty(OptionsParamApi.DISABLE_KEY, "Not Boolean");
+        config.setProperty(OptionsParamApi.INC_ERROR_DETAILS, "Not Boolean");
+        config.setProperty(OptionsParamApi.AUTOFILL_KEY, "Not Boolean");
+        config.setProperty(OptionsParamApi.ENABLE_JSONP, "Not Boolean");
+        config.setProperty(OptionsParamApi.NO_KEY_FOR_SAFE_OPS, "Not Boolean");
+        config.setProperty(OptionsParamApi.REPORT_PERM_ERRORS, "Not Boolean");
+        config.setProperty(OptionsParamApi.FILE_TRANSFER, "Not Boolean");
         return config;
     }
 

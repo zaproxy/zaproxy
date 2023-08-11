@@ -47,6 +47,7 @@
 // ZAP: 2022/09/12 Allow only major HTTP version.
 // ZAP: 2022/11/17 Add HTTP/2 constant.
 // ZAP: 2022/11/22 Lower case the HTTP field names for compatibility with HTTP/2.
+// ZAP: 2023/08/15 Add FORM_MULTIPART_CONTENT_TYPE.
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
@@ -98,6 +99,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String _KEEP_ALIVE = "Keep-Alive";
     public static final String _CHUNKED = "Chunked";
     public static final String FORM_URLENCODED_CONTENT_TYPE = "application/x-www-form-urlencoded";
+    public static final String FORM_MULTIPART_CONTENT_TYPE = "multipart/form-data";
     public static final String JSON_CONTENT_TYPE = "application/json";
     public static final String SCHEME_HTTP = "http://";
     public static final String SCHEME_HTTPS = "https://";

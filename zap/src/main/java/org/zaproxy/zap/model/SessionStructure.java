@@ -48,8 +48,8 @@ public class SessionStructure {
     public static final String DATA_DRIVEN_NODE_PREFIX = "\u00AB";
     public static final String DATA_DRIVEN_NODE_POSTFIX = "\u00BB";
     public static final String DATA_DRIVEN_NODE_REGEX = "(.+?)";
-    private static final String MULTIPART_FORM_DATA = "multipart/form-data";
-    private static final String MULTIPART_FORM_DATA_DISPLAY = "(" + MULTIPART_FORM_DATA + ")";
+    private static final String MULTIPART_FORM_DATA_DISPLAY =
+            "(" + HttpHeader.FORM_MULTIPART_CONTENT_TYPE + ")";
 
     private static final Logger LOGGER = LogManager.getLogger(SessionStructure.class);
 
@@ -389,7 +389,8 @@ public class SessionStructure {
                             true));
 
             String contentType = message.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-            if (contentType != null && contentType.startsWith(MULTIPART_FORM_DATA)) {
+            if (contentType != null
+                    && contentType.startsWith(HttpHeader.FORM_MULTIPART_CONTENT_TYPE)) {
                 sb.append(MULTIPART_FORM_DATA_DISPLAY);
             } else {
                 sb.append(
@@ -750,7 +751,7 @@ public class SessionStructure {
             return leafParams;
         }
 
-        if (contentType.startsWith(MULTIPART_FORM_DATA)) {
+        if (contentType.startsWith(HttpHeader.FORM_MULTIPART_CONTENT_TYPE)) {
             leafParams += MULTIPART_FORM_DATA_DISPLAY;
         } else if (contentType.startsWith("application/x-www-form-urlencoded")) {
             leafParams += getQueryParamString(session.getFormParameters(uri, requestBody), false);
