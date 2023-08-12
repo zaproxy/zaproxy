@@ -50,8 +50,8 @@ class ScanNotStartedException(Exception):
 class UserInputException(Exception):
     pass
 
-OLD_ZAP_CLIENT_WARNING = '''A newer version of python_owasp_zap_v2.4
- is available. Please run \'pip install -U python_owasp_zap_v2.4\' to update to
+OLD_ZAP_CLIENT_WARNING = '''A newer version of zaproxy is available.
+ Please run \'pip install -U zaproxy\' to update to
  the latest version.'''.replace('\n', '')
 
 zap_conf_lvls = ["PASS", "IGNORE", "INFO", "WARN", "FAIL"]
