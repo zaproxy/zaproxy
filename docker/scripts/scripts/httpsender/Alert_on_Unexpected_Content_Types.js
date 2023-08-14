@@ -2,10 +2,6 @@
 // By default it will raise 'Low' level alerts for content types that are not expected to be returned by APIs.
 // But it can be easily changed.
 
-var control, model
-if (!control) control = Java.type("org.parosproxy.paros.control.Control").getSingleton()
-if (!model) model = Java.type("org.parosproxy.paros.model.Model").getSingleton()
-
 var Pattern = Java.type("java.util.regex.Pattern")
 
 var pluginid = 100001	// https://github.com/zaproxy/zaproxy/blob/main/docs/scanners.md

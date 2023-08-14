@@ -2,10 +2,6 @@
 // By default it will raise 'Info' level alerts for Client Errors (4xx) (apart from 404s) and 'Low' Level alerts for Server Errors (5xx)
 // But it can be easily changed.
 
-var control, model
-if (!control) control = Java.type("org.parosproxy.paros.control.Control").getSingleton()
-if (!model) model = Java.type("org.parosproxy.paros.model.Model").getSingleton()
-
 var Pattern = Java.type("java.util.regex.Pattern")
 
 pluginid = 100000	// https://github.com/zaproxy/zaproxy/blob/main/docs/scanners.md
