@@ -19,6 +19,9 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,6 +33,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.network.DomainMatcher;
 
@@ -41,13 +45,15 @@ public class OptionsParamApi extends AbstractParam {
     public static final String UI_ENABLED = "api.uienabled";
     public static final String SECURE_ONLY = "api.secure";
     public static final String API_KEY = "api.key";
-    private static final String DISABLE_KEY = "api.disablekey";
-    private static final String INC_ERROR_DETAILS = "api.incerrordetails";
-    private static final String AUTOFILL_KEY = "api.autofillkey";
-    private static final String ENABLE_JSONP = "api.enablejsonp";
-    private static final String NO_KEY_FOR_SAFE_OPS = "api.nokeyforsafeops";
-    private static final String REPORT_PERM_ERRORS = "api.reportpermerrors";
+    public static final String DISABLE_KEY = "api.disablekey";
+    public static final String INC_ERROR_DETAILS = "api.incerrordetails";
+    public static final String AUTOFILL_KEY = "api.autofillkey";
+    public static final String ENABLE_JSONP = "api.enablejsonp";
+    public static final String NO_KEY_FOR_SAFE_OPS = "api.nokeyforsafeops";
+    public static final String REPORT_PERM_ERRORS = "api.reportpermerrors";
     private static final String NONCE_TTL_IN_SECS = "api.noncettlsecs";
+    public static final String FILE_TRANSFER = "api.filexfer";
+    public static final String TRANSFER_DIR = "api.xferdir";
 
     private static final String PROXY_PERMITTED_ADDRS_KEY = "api.addrs";
     private static final String ADDRESS_KEY = PROXY_PERMITTED_ADDRS_KEY + ".addr";
@@ -72,11 +78,13 @@ public class OptionsParamApi extends AbstractParam {
     private boolean enableJSONP;
     private boolean noKeyForSafeOps;
     private boolean reportPermErrors;
+    private boolean fileTransferAllowed;
     private boolean confirmRemovePermittedAddress = true;
     private List<DomainMatcher> permittedAddresses = new ArrayList<>(0);
     private List<DomainMatcher> permittedAddressesEnabled = new ArrayList<>(0);
     private int nonceTimeToLiveInSecs = DEFAULT_NONCE_TTL_IN_SECS;
     private Map<String, String> persistentCallBacks = new HashMap<>();
+    private String transferDir;
 
     private String key = "";
 
@@ -94,11 +102,27 @@ public class OptionsParamApi extends AbstractParam {
         enableJSONP = getBoolean(ENABLE_JSONP, false);
         noKeyForSafeOps = getBoolean(NO_KEY_FOR_SAFE_OPS, false);
         reportPermErrors = getBoolean(REPORT_PERM_ERRORS, false);
+        fileTransferAllowed = getBoolean(FILE_TRANSFER, false);
         nonceTimeToLiveInSecs = getInt(NONCE_TTL_IN_SECS, DEFAULT_NONCE_TTL_IN_SECS);
         key = getString(API_KEY, "");
         loadPermittedAddresses();
         this.confirmRemovePermittedAddress = getBoolean(CONFIRM_REMOVE_ADDRESS, true);
         loadPersistentCallBacks();
+        transferDir =
+                getString(
+                        TRANSFER_DIR,
+                        new File(Constant.getZapHome(), "transfer").getAbsolutePath());
+        File transferFile = new File(transferDir);
+        if (!transferFile.exists()) {
+            try {
+                Files.createDirectories(transferFile.toPath());
+            } catch (IOException e) {
+                LOGGER.error(
+                        "Failed to create API transfer directory {}",
+                        transferFile.getAbsolutePath(),
+                        e);
+            }
+        }
     }
 
     @Override
@@ -460,5 +484,25 @@ public class OptionsParamApi extends AbstractParam {
      */
     public Map<String, String> getPersistentCallBacks() {
         return this.persistentCallBacks;
+    }
+
+    public boolean isFileTransferAllowed() {
+        return !disableKey && fileTransferAllowed;
+    }
+
+    public void setFileTransferAllowed(boolean fileTransferAllowed) {
+        if (!disableKey) {
+            this.fileTransferAllowed = fileTransferAllowed;
+            getConfig().setProperty(FILE_TRANSFER, fileTransferAllowed);
+        }
+    }
+
+    public void setTransferDir(String transferDir) {
+        this.transferDir = transferDir;
+        getConfig().setProperty(TRANSFER_DIR, transferDir);
+    }
+
+    public String getTransferDir() {
+        return transferDir;
     }
 }

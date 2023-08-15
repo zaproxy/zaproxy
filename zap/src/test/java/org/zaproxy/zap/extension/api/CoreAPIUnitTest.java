@@ -24,12 +24,14 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.sameInstance;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
+import java.nio.file.Path;
 import net.sf.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -67,7 +69,7 @@ class CoreAPIUnitTest {
     void shouldAddApiElements() {
         assertThat(coreApi.getApiActions(), hasSize(41));
         assertThat(coreApi.getApiViews(), hasSize(40));
-        assertThat(coreApi.getApiOthers(), hasSize(11));
+        assertThat(coreApi.getApiOthers(), hasSize(13));
     }
 
     @Test
@@ -95,5 +97,51 @@ class CoreAPIUnitTest {
         // Then
         verify(networkApi).handleApiOther(message, "rootCaCert", params);
         assertThat(response, is(sameInstance(message)));
+    }
+
+    @Test
+    void shouldGetOneLevelChildPath() throws Exception {
+        // Given
+        String parent = "/tmp/test";
+        String child = "file.txt";
+        // When
+        Path childPath = CoreAPI.getChildPath(parent, child);
+        // Then
+        assertThat(childPath.toString(), is(equalTo(parent + "/" + child)));
+    }
+
+    @Test
+    void shouldGetMultiLevelChildPath() throws Exception {
+        // Given
+        String parent = "/tmp/test";
+        String child = "/a/b/ccc/file.txt";
+        // When
+        Path childPath = CoreAPI.getChildPath(parent, child);
+        // Then
+        assertThat(childPath.toString(), is(equalTo(parent + child)));
+    }
+
+    @Test
+    void shouldDetectPathTraversalInChildPath() throws Exception {
+        // Given
+        String parent = "/tmp/test";
+        String child = "../file.txt";
+        // When
+        ApiException e =
+                assertThrows(ApiException.class, () -> CoreAPI.getChildPath(parent, child));
+        // then
+        assertThat(e.getMessage(), is(equalTo("ILLEGAL_PARAMETER (fileName)")));
+    }
+
+    @Test
+    void shouldDetectPathTraversalInDeepChildPath() throws Exception {
+        // Given
+        String parent = "/tmp/test";
+        String child = "aa/bb/../../../file.txt";
+        // When
+        ApiException e =
+                assertThrows(ApiException.class, () -> CoreAPI.getChildPath(parent, child));
+        // then
+        assertThat(e.getMessage(), is(equalTo("ILLEGAL_PARAMETER (fileName)")));
     }
 }

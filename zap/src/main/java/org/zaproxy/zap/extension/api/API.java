@@ -45,6 +45,8 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.time.DateUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.core.scanner.NameValuePair;
+import org.parosproxy.paros.core.scanner.VariantMultipartFormParameters;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
@@ -95,6 +97,8 @@ public class API {
      * @see #getBaseURL(boolean)
      */
     public static final String API_URL_S = "https://" + API_DOMAIN + "/";
+
+    public static final String TRANSFER_DIR_TOKEN = "${XFER}";
 
     public static final String API_KEY_PARAM = "apikey";
     public static final String API_NONCE_PARAM = "apinonce";
@@ -477,6 +481,19 @@ public class API {
                                 && contentTypeHeader.equals(
                                         HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
                             params = getParams(msg.getRequestBody().toString());
+                        } else if (contentTypeHeader != null
+                                && contentTypeHeader.startsWith(
+                                        HttpHeader.FORM_MULTIPART_CONTENT_TYPE)) {
+                            VariantMultipartFormParameters tmpVarent =
+                                    new VariantMultipartFormParameters();
+                            tmpVarent.setMessage(msg);
+                            params = new JSONObject();
+
+                            for (NameValuePair param : tmpVarent.getParamList()) {
+                                params.put(
+                                        param.getName(),
+                                        JsonUtil.getJsonFriendlyString(param.getValue()));
+                            }
                         } else {
                             throw new ApiException(ApiException.Type.CONTENT_TYPE_NOT_SUPPORTED);
                         }
@@ -843,6 +860,32 @@ public class API {
         return getParams(requestHeader.getURI().getEscapedQuery());
     }
 
+    /**
+     * Detects and replaces the TRANSFER_DIR_TOKEN at the start of relevant params
+     *
+     * @param key the parameter key
+     * @param value the parameter value
+     * @return the value with the TRANSFER_DIR_TOKEN replaced if relevant
+     */
+    private static String replaceXferTokens(String key, String value) {
+        String keyLc = key.toLowerCase(Locale.ROOT);
+        if ((keyLc.contains("file") || keyLc.contains("path") || keyLc.contains("dir"))
+                && value.startsWith(TRANSFER_DIR_TOKEN)) {
+            String relPath = value.substring(TRANSFER_DIR_TOKEN.length());
+            if (!relPath.startsWith("/") && !relPath.startsWith("\\")) {
+                // Cope with the user not specifying a slash
+                relPath = "/" + relPath;
+            }
+            return Model.getSingleton().getOptionsParam().getApiParam().getTransferDir().toString()
+                    + relPath;
+        }
+        return value;
+    }
+
+    private static String decodeParam(String param) throws UnsupportedEncodingException {
+        return URLDecoder.decode(param, "UTF-8");
+    }
+
     public static JSONObject getParams(String params) throws ApiException {
         JSONObject jp = new JSONObject();
         if (params == null || params.length() == 0) {
@@ -858,8 +901,8 @@ public class API {
             if (pos > 0) {
                 // param found
                 try {
-                    key = URLDecoder.decode(keyValue[i].substring(0, pos), "UTF-8");
-                    value = URLDecoder.decode(keyValue[i].substring(pos + 1), "UTF-8");
+                    key = decodeParam(keyValue[i].substring(0, pos));
+                    value = replaceXferTokens(key, decodeParam(keyValue[i].substring(pos + 1)));
                     jp.put(key, JsonUtil.getJsonFriendlyString(value));
                 } catch (UnsupportedEncodingException | IllegalArgumentException e) {
                     // Carry on anyway
@@ -1123,7 +1166,9 @@ public class API {
         sb.append("X-Content-Type-Options: nosniff\r\n");
         sb.append("X-Clacks-Overhead: GNU Terry Pratchett\r\n");
         sb.append("Content-Length: ").append(contentLength).append("\r\n");
-        sb.append("Content-Type: ").append(contentType).append("\r\n");
+        if (contentType != null) {
+            sb.append("Content-Type: ").append(contentType).append("\r\n");
+        }
 
         return sb.toString();
     }
