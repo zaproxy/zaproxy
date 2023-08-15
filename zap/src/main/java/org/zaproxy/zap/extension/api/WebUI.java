@@ -244,14 +244,13 @@ public class WebUI {
                     sb.append(Constant.messages.getString(descTag));
                 }
 
-                String encoding = "";
+                sb.append("\n<form id=\"zapform\" name=\"zapform\" action=\"override\"");
                 if (element.getName().equals("fileUpload")) {
-                    encoding = " enctype=\"" + HttpHeader.FORM_MULTIPART_CONTENT_TYPE + "\"";
+                    sb.append(" enctype=\"");
+                    sb.append(HttpHeader.FORM_MULTIPART_CONTENT_TYPE);
+                    sb.append('"');
                 }
-                sb.append(
-                        "\n<form id=\"zapform\" name=\"zapform\" action=\"override\""
-                                + encoding
-                                + ">");
+                sb.append('>');
                 sb.append("<table>\n");
                 if (!RequestType.other.equals(reqType)) {
                     sb.append("<tr><td>");
@@ -326,8 +325,12 @@ public class WebUI {
                         getSelected = "";
                         postSelected = " selected";
                     }
-                    sb.append("<option value=\"GET\"" + getSelected + ">GET</option>\n");
-                    sb.append("<option value=\"POST\"" + postSelected + ">POST</option>\n");
+                    sb.append("<option value=\"GET\"");
+                    sb.append(getSelected);
+                    sb.append(">GET</option>\n");
+                    sb.append("<option value=\"POST\"");
+                    sb.append(postSelected);
+                    sb.append(">POST</option>\n");
                     sb.append("</select>\n");
                     sb.append("</td>");
                     sb.append("<td></td>");
