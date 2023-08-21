@@ -19,64 +19,25 @@
  */
 package org.zaproxy.zap.model;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.Constant;
 
+/**
+ * @deprecated (2.14.0) The vulnerabilities were moved to Common Library add-on.
+ */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.14.0", forRemoval = true)
 public final class Vulnerabilities {
 
     private static final Logger LOGGER = LogManager.getLogger(Vulnerabilities.class);
 
-    private static List<Vulnerability> vulnerabilities;
-    private static Map<String, Vulnerability> vulnerabilitiesMap;
+    private static Provider provider;
 
     private Vulnerabilities() {}
 
-    private static synchronized void init() {
-        if (vulnerabilities == null) {
-            VulnerabilitiesLoader loader =
-                    new VulnerabilitiesLoader(
-                            Paths.get(Constant.getZapInstall(), Constant.LANG_DIR),
-                            Constant.VULNERABILITIES_PREFIX,
-                            Constant.VULNERABILITIES_EXTENSION);
-            List<Vulnerability> vulns = loader.load(Constant.getLocale());
-
-            if (vulns.isEmpty()) {
-                String path =
-                        "/org/zaproxy/zap/resources/"
-                                + Constant.VULNERABILITIES_PREFIX
-                                + Constant.VULNERABILITIES_EXTENSION;
-                LOGGER.debug("Using bundled vulnerabilities file.");
-                try (InputStream in = VulnerabilitiesLoader.class.getResourceAsStream(path)) {
-                    if (in == null) {
-                        LOGGER.error("The vulnerabilities file was not bundled: {}", path);
-                    } else {
-                        vulns = VulnerabilitiesLoader.loadVulnerabilities(in);
-                        if (vulns == null) {
-                            vulns = Collections.emptyList();
-                            LOGGER.error("Failed to load vulnerabilities from bundled file.");
-                        }
-                    }
-                } catch (IOException e) {
-                    LOGGER.error("Failed to read the bundled vulnerabilities file:", e);
-                }
-            }
-
-            Map<String, Vulnerability> map = new HashMap<>();
-            for (Vulnerability vulnerability : vulns) {
-                map.put(vulnerability.getId(), vulnerability);
-            }
-
-            vulnerabilitiesMap = Collections.unmodifiableMap(map);
-            vulnerabilities = vulns;
-        }
+    public static void setProvider(Provider provider) {
+        Vulnerabilities.provider = provider;
     }
 
     /**
@@ -93,8 +54,16 @@ public final class Vulnerabilities {
      *     {@code null}.
      */
     public static List<Vulnerability> getAllVulnerabilities() {
-        initializeIfEmpty();
-        return vulnerabilities;
+        var local = provider;
+        if (local == null) {
+            logNoProvider();
+            return List.of();
+        }
+        return local.getAll();
+    }
+
+    private static void logNoProvider() {
+        LOGGER.error("No provider found.", new Exception());
     }
 
     /**
@@ -114,14 +83,12 @@ public final class Vulnerabilities {
      * @return the {@code Vulnerability} for the given WASC ID, or {@code null} if not available
      */
     public static Vulnerability getVulnerability(String id) {
-        initializeIfEmpty();
-        return vulnerabilitiesMap.get(id);
-    }
-
-    private static void initializeIfEmpty() {
-        if (vulnerabilities == null) {
-            init();
+        var local = provider;
+        if (local == null) {
+            logNoProvider();
+            return null;
         }
+        return local.get(id);
     }
 
     public static String getDescription(Vulnerability vuln) {
@@ -150,5 +117,12 @@ public final class Vulnerabilities {
             return sb.toString();
         }
         return "Failed to load vulnerability reference from file";
+    }
+
+    public interface Provider {
+
+        List<Vulnerability> getAll();
+
+        Vulnerability get(String id);
     }
 }

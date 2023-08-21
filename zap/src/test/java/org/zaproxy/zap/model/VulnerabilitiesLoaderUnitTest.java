@@ -33,6 +33,7 @@ import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.testutils.TestUtils;
 
 /** Unit test for {@link VulnerabilitiesLoader}. */
+@SuppressWarnings("removal")
 class VulnerabilitiesLoaderUnitTest extends TestUtils {
 
     private static final Path DIRECTORY =

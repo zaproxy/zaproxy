@@ -109,8 +109,8 @@ public final class LangImporter {
     }
 
     /**
-     * Creates a {@code Pattern} to match filenames of, source and translated, resource files
-     * Messages.properties and vulnerabilities.xml.
+     * Creates a {@code Pattern} to match filenames of, source and translated, Messages.properties
+     * files.
      *
      * @return the {@code Pattern} to match the resource files
      * @since 2.4.0
@@ -120,13 +120,6 @@ public final class LangImporter {
         String messagesFilesRegex =
                 LocaleUtils.createResourceFilesRegex(
                         Constant.MESSAGES_PREFIX, Constant.MESSAGES_EXTENSION);
-        String vulnerabilitiesFilesRegex =
-                LocaleUtils.createResourceFilesRegex(
-                        Constant.VULNERABILITIES_PREFIX, Constant.VULNERABILITIES_EXTENSION);
-        StringBuilder strBuilder =
-                new StringBuilder(
-                        messagesFilesRegex.length() + vulnerabilitiesFilesRegex.length() + 1);
-        strBuilder.append(messagesFilesRegex).append('|').append(vulnerabilitiesFilesRegex);
-        return Pattern.compile(strBuilder.toString());
+        return Pattern.compile(messagesFilesRegex);
     }
 }

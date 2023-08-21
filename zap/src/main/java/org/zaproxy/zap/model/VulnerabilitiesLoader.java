@@ -46,7 +46,10 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * Helper class that loads {@code Vulnerability} from a XML file for a given {@code Locale}.
  *
  * @see Vulnerability
+ * @deprecated (2.14.0) The vulnerabilities were moved to Common Library add-on.
  */
+@SuppressWarnings("removal")
+@Deprecated(since = "2.14.0", forRemoval = true)
 public class VulnerabilitiesLoader {
 
     private static final Logger LOGGER = LogManager.getLogger(VulnerabilitiesLoader.class);
