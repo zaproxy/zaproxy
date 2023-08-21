@@ -1423,13 +1423,27 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         LOGGER.debug("invokeScript {}", script.getName());
         preInvokeScript(script);
 
+        try {
+            return withAddOnClassLoader(() -> invokeScriptImpl(script));
+        } catch (IOException e) {
+            throw new ScriptException(e);
+        }
+    }
+
+    private static <T> T withAddOnClassLoader(ScriptCallable<T> callable)
+            throws ScriptException, IOException {
         ClassLoader previousContextClassLoader = Thread.currentThread().getContextClassLoader();
         Thread.currentThread().setContextClassLoader(ExtensionFactory.getAddOnLoader());
         try {
-            return invokeScriptImpl(script);
+            return callable.call();
         } finally {
             Thread.currentThread().setContextClassLoader(previousContextClassLoader);
         }
+    }
+
+    private interface ScriptCallable<T> {
+
+        T call() throws ScriptException, IOException;
     }
 
     /**
@@ -1981,17 +1995,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     public <T> T getInterface(ScriptWrapper script, Class<T> class1)
             throws ScriptException, IOException {
 
-        ClassLoader previousContextClassLoader = Thread.currentThread().getContextClassLoader();
-        Thread.currentThread().setContextClassLoader(ExtensionFactory.getAddOnLoader());
-        try {
-            T iface = script.getInterface(class1);
+        T iface = withAddOnClassLoader(() -> script.getInterface(class1));
 
-            if (iface != null) {
-                // the script wrapper has overridden the usual scripting mechanism
-                return iface;
-            }
-        } finally {
-            Thread.currentThread().setContextClassLoader(previousContextClassLoader);
+        if (iface != null) {
+            // the script wrapper has overridden the usual scripting mechanism
+            return iface;
         }
 
         if (script.isRunnableStandalone()) {
@@ -2000,7 +2008,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
         Invocable invocable = invokeScript(script);
         if (invocable != null) {
-            return invocable.getInterface(class1);
+            return withAddOnClassLoader(() -> invocable.getInterface(class1));
         }
         return null;
     }
