@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-08-23
+- Python 3.6 and 3.7 are no longer supported.
+
 ### 2023-08-09
 - Install the newer Python ZAP API client directly, `python-owasp-zap-v2.4` was renamed to `zaproxy`.
 
