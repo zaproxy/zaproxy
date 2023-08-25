@@ -20,10 +20,8 @@
 package org.zaproxy.zap.extension.uiutils;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
-import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -45,15 +43,5 @@ class ExtensionUiUtilsUnitTest {
         ViewDelegate view = extension.getView();
         // When
         assertThat(view, is(nullValue()));
-    }
-
-    @Test
-    void shouldHaveViewAfterInitView() {
-        // Given
-        ViewDelegate view = mock(ViewDelegate.class);
-        // When
-        extension.initView(view);
-        // When
-        assertThat(extension.getView(), is(equalTo(view)));
     }
 }

@@ -48,6 +48,7 @@
 // ZAP: 2019/09/12 Remove getURL().
 // ZAP: 2019/09/30 Add hasView().
 // ZAP: 2020/03/09 Handle extensions without package.
+// ZAP: 2023/08/25 Add setter for the view and remove from initView.
 package org.parosproxy.paros.extension;
 
 import java.util.Collections;
@@ -141,10 +142,16 @@ public abstract class ExtensionAdaptor implements Extension {
         this.model = model;
     }
 
-    @Override
-    public void initView(ViewDelegate view) {
+    void setView(ViewDelegate view) {
         this.view = view;
     }
+
+    /**
+     * Since 2.14.0 the default implementation does nothing (the view is set directly to the
+     * extension).
+     */
+    @Override
+    public void initView(ViewDelegate view) {}
 
     @Override
     public void initXML(Session session, OptionsParam options) {}
