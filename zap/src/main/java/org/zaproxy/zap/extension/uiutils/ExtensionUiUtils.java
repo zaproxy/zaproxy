@@ -59,8 +59,6 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 
     @Override
     public void initView(ViewDelegate view) {
-        super.initView(view);
-
         Arrays.asList(
                         new LookAndFeelInfo("Flat Light", "com.formdev.flatlaf.FlatLightLaf"),
                         new LookAndFeelInfo("Flat Dark", "com.formdev.flatlaf.FlatDarkLaf"),
@@ -73,7 +71,7 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
 
-        if (getView() != null) {
+        if (hasView()) {
             extensionHook.addSessionListener(this);
         }
     }

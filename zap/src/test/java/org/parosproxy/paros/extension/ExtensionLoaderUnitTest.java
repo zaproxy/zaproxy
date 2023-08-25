@@ -52,6 +52,30 @@ class ExtensionLoaderUnitTest {
     }
 
     @Test
+    void shouldNotSetViewToExtensionAdaptorWhenStartLifeCycleWithoutView() throws Exception {
+        // Given
+        ExtensionAdaptor extension = mock(ExtensionAdaptor.class);
+        extensionLoader.addExtension(extension);
+        // When
+        extensionLoader.startLifeCycle();
+        // Then
+        verify(extension, times(0)).setView(any());
+    }
+
+    @Test
+    void shouldSetViewToExtensionAdaptorWhenStartLifeCycleWithView() throws Exception {
+        // Given
+        View view = mock(View.class);
+        extensionLoader = new ExtensionLoader(model, view);
+        ExtensionAdaptor extension = mock(ExtensionAdaptor.class);
+        extensionLoader.addExtension(extension);
+        // When
+        extensionLoader.startLifeCycle();
+        // Then
+        verify(extension).setView(view);
+    }
+
+    @Test
     void shouldNotInitViewWhenStartingExtensionWithoutView() throws Exception {
         // Given
         Extension extension = mock(Extension.class);
@@ -59,6 +83,18 @@ class ExtensionLoaderUnitTest {
         extensionLoader.startLifeCycle(extension);
         // Then
         verify(extension, times(0)).initView(any());
+    }
+
+    @Test
+    void shouldSetViewToExtensionAdaptorWhenStartingExtensionWithView() throws Exception {
+        // Given
+        View view = mock(View.class);
+        extensionLoader = new ExtensionLoader(model, view);
+        ExtensionAdaptor extension = mock(ExtensionAdaptor.class);
+        // When
+        extensionLoader.startLifeCycle(extension);
+        // Then
+        verify(extension).setView(view);
     }
 
     @Test

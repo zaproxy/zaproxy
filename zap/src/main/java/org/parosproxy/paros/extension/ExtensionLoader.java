@@ -100,6 +100,7 @@
 // ZAP: 2022/11/23 Refresh tabs menu when tabs are removed.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/04/28 Deprecate Proxy and ProxyServer related methods.
+// ZAP: 2023/08/25 Set view to ExtensionAdaptor.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -814,6 +815,8 @@ public class ExtensionLoader {
      */
     public void startLifeCycle(Extension ext)
             throws DatabaseException, DatabaseUnsupportedException {
+        setExtensionAdaptorView(ext);
+
         ext.init();
         ext.databaseOpen(model.getDb());
         ext.initModel(model);
@@ -874,6 +877,12 @@ public class ExtensionLoader {
 
         if (hasView()) {
             hookSiteMapListeners(view.getSiteTreePanel(), extHook.getSiteMapListenerList());
+        }
+    }
+
+    private void setExtensionAdaptorView(Extension extension) {
+        if (hasView() && extension instanceof ExtensionAdaptor) {
+            ((ExtensionAdaptor) extension).setView(view);
         }
     }
 
@@ -1429,6 +1438,8 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             Extension extension = getExtension(i);
             try {
+                setExtensionAdaptorView(extension);
+
                 extension.init();
                 extension.databaseOpen(Model.getSingleton().getDb());
                 if (hasView()) {

@@ -146,8 +146,6 @@ public class ExtensionHelp extends ExtensionAdaptor {
 
     @Override
     public void initView(ViewDelegate view) {
-        super.initView(view);
-
         SwingHelpUtilities.setContentViewerUI(BasicOnlineContentViewerUI.class.getCanonicalName());
         UIManager.getDefaults()
                 .put(
