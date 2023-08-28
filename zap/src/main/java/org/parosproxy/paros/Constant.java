@@ -121,6 +121,7 @@
 // ZAP: 2022/12/22 Issue 7663: Default threads based on number of processors.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/08/07 Rename home dir in Windows and update program name.
+// ZAP: 2023/08/28 Update paths in config file to match the renamed home dir.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -787,9 +788,42 @@ public final class Constant {
         try {
             Files.move(oldHome, newHome, StandardCopyOption.ATOMIC_MOVE);
             logAndPrintInfo("Old ZAP home renamed to: " + newHome);
+            Path configFile = newHome.resolve(FILE_CONFIG_NAME);
+            if (Files.exists(configFile)) {
+                updatePathsInConfig(oldHome, newHome, new ZapXmlConfiguration(configFile.toFile()));
+            }
         } catch (IOException e) {
             logAndPrintError("Failed to rename the old home, will use a new home instead.", e);
+        } catch (ConfigurationException e) {
+            logAndPrintError("Failed to update home paths in configuration file:", e);
         }
+    }
+
+    private static void updatePathsInConfig(Path oldHome, Path newHome, ZapXmlConfiguration config)
+            throws ConfigurationException {
+        config.getKeys()
+                .forEachRemaining(
+                        key -> {
+                            Path path = getPath(config.getString(key));
+                            if (path == null || !path.startsWith(oldHome)) {
+                                return;
+                            }
+                            Path newPath = newHome.resolve(oldHome.relativize(path));
+                            config.setProperty(key, newPath.toString());
+                        });
+        config.save();
+    }
+
+    private static Path getPath(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Paths.get(value);
+        } catch (Exception ignore) {
+            // Nothing to do.
+        }
+        return null;
     }
 
     private Locale loadLocale(ControlOverrides overrides) {
