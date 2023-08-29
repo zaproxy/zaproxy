@@ -35,6 +35,10 @@ import org.zaproxy.zap.eventBus.SimpleEventBus;
 
 public class ZAP {
 
+    static {
+        System.setProperty("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
+    }
+
     /**
      * ZAP can be run in 4 different ways: cmdline: an inline process that exits when it completes
      * the tasks specified by the parameters daemon: a single process with no Swing UI, typically
