@@ -366,11 +366,15 @@ public class AddOnLoader extends URLClassLoader {
         addOnLoaders.put(ao.getId(), addOnClassLoader);
     }
 
+    Class<?> loadClassNoAddOns(String name, boolean resolve) throws ClassNotFoundException {
+        return super.loadClass(name, resolve);
+    }
+
     @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
+    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         synchronized (getClassLoadingLock(name)) {
             try {
-                return loadClass(name, false);
+                return super.loadClass(name, resolve);
             } catch (ClassNotFoundException e) {
                 // Continue for now
             }

@@ -394,11 +394,9 @@ public class AddOnClassLoader extends URLClassLoader {
      * to the class {@code AddOnClassLoader} (called in the method {@code
      * AddOnClassLoader#findClass(String)}).
      *
-     * <p>The class {@code AddOnClassLoader} needs access to the mentioned method because the class
-     * {@code AddOnLoader} makes use of the class {@code AddOnClassLoader} (in the method {@code
-     * AddOnLoader#loadClass(String)}), so it's called directly the method {@code
-     * ClassLoader#loadClass(String, boolean)} to prevent an infinite loop while loading the
-     * classes.
+     * <p>The class {@code AddOnClassLoader} needs access to the mentioned method to be able to
+     * access classes from the add-on itself (e.g. optional extensions) and core, while preventing
+     * an infinite loop while loading the classes.
      *
      * @see AddOnLoader#loadClass(String)
      * @see AddOnClassLoader#findClass(String)
@@ -406,12 +404,19 @@ public class AddOnClassLoader extends URLClassLoader {
      */
     private class ParentClassLoader extends ClassLoader {
 
+        private final boolean noAddOnsLoading;
+
         public ParentClassLoader(ClassLoader classLoader) {
             super(classLoader);
+
+            noAddOnsLoading = classLoader instanceof AddOnLoader;
         }
 
         @Override
         protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+            if (noAddOnsLoading) {
+                return ((AddOnLoader) getParent()).loadClassNoAddOns(name, resolve);
+            }
             return super.loadClass(name, resolve);
         }
 
