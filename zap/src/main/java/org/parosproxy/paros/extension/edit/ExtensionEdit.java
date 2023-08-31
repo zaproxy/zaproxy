@@ -33,8 +33,11 @@
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
 // ZAP: 2020/06/05 JavaDoc corrections.
+// ZAP: 2023/08/31 Use focus owner if it is the right class.
 package org.parosproxy.paros.extension.edit;
 
+import java.awt.Component;
+import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.awt.event.KeyEvent;
 import javax.swing.KeyStroke;
@@ -102,7 +105,14 @@ public class ExtensionEdit extends ExtensionAdaptor {
                     new java.awt.event.ActionListener() {
                         @Override
                         public void actionPerformed(java.awt.event.ActionEvent e) {
-                            showFindDialog(getView().getMainFrame(), null);
+                            JTextComponent invoker = null;
+                            Component owner =
+                                    KeyboardFocusManager.getCurrentKeyboardFocusManager()
+                                            .getFocusOwner();
+                            if (owner instanceof JTextComponent) {
+                                invoker = (JTextComponent) owner;
+                            }
+                            showFindDialog(getView().getMainFrame(), invoker);
                         }
                     });
         }
