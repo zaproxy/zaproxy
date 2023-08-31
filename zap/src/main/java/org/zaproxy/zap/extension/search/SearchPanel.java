@@ -348,6 +348,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
             regEx.setAlignmentX(0.0F);
             regEx.setPreferredSize(DisplayUtils.getScaledDimension(250, 25));
             regEx.setText("");
+            regEx.setPrompt(Constant.messages.getString("search.toolbar.prompt.regex"));
             regEx.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.regex"));
             regEx.setMinimumSize(DisplayUtils.getScaledDimension(250, 25));
 
