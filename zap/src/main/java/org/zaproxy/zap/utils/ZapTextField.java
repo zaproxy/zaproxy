@@ -134,10 +134,10 @@ public class ZapTextField extends JTextField {
     /**
      * Sets the prompt of this {@code ZapTextField}.
      *
-     * @param labelText the new prompt text
+     * @param promptText the new prompt text
      * @since 2.14.0
      */
-    public void setPrompt(String labelText) {
+    public void setPrompt(String promptText) {
         PromptSupport.setPrompt(labelText, this);
     }
 }
