@@ -21,6 +21,7 @@ package org.zaproxy.zap.utils;
 
 import javax.swing.JTextField;
 import javax.swing.text.Document;
+import org.jdesktop.swingx.prompt.PromptSupport;
 import org.zaproxy.zap.utils.ZapTextComponentUndoManager.UndoManagerPolicy;
 
 /**
@@ -128,5 +129,15 @@ public class ZapTextField extends JTextField {
      */
     public void setUndoManagerPolicy(UndoManagerPolicy policy) throws NullPointerException {
         undoManager.setUndoManagerPolicy(policy);
+    }
+
+    /**
+     * Sets the prompt of this {@code ZapTextField}.
+     *
+     * @param labelText the new prompt text
+     * @since 2.14.0
+     */
+    public void setPrompt(String labelText) {
+        PromptSupport.setPrompt(labelText, this);
     }
 }
