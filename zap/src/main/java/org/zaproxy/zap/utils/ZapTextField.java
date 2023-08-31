@@ -138,6 +138,6 @@ public class ZapTextField extends JTextField {
      * @since 2.14.0
      */
     public void setPrompt(String promptText) {
-        PromptSupport.setPrompt(labelText, this);
+        PromptSupport.setPrompt(promptText, this);
     }
 }
