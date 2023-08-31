@@ -38,10 +38,10 @@
 // ZAP: 2020/08/04 Changed to use new SessionStructure method
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/08/22 Do not modify the requests being proxied (Issue 7353).
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
-import org.apache.commons.httpclient.URIException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -56,7 +56,6 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.model.SessionStructure;
-import org.zaproxy.zap.model.StructuralNode;
 
 public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListener {
 
@@ -90,34 +89,6 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
 
     @Override
     public boolean onHttpRequestSend(HttpMessage msg) {
-        //	    if (msg.getRequestHeader().isImage()) {
-        //	        return;
-        //	    }
-
-        try {
-            StructuralNode node = SessionStructure.find(model, msg);
-            if (node != null) {
-                HttpMessage existingMsg = node.getHistoryReference().getHttpMessage();
-                // check if a msg of the same type exist
-                if (existingMsg != null && !existingMsg.getResponseHeader().isEmpty()) {
-                    if (HttpStatusCode.isSuccess(existingMsg.getResponseHeader().getStatusCode())) {
-                        // exist, no modification necessary
-                        return true;
-                    }
-                }
-            }
-        } catch (URIException | DatabaseException | HttpMalformedHeaderException e) {
-            LOGGER.warn("Failed to check if message already exists:", e);
-        }
-
-        // if not, make sure a new copy will be obtained
-        if (msg.getRequestHeader().getHeader(HttpHeader.IF_MODIFIED_SINCE) != null) {
-            msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
-        }
-
-        if (msg.getRequestHeader().getHeader(HttpHeader.IF_NONE_MATCH) != null) {
-            msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
-        }
         return true;
     }
 
