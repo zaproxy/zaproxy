@@ -185,7 +185,7 @@ val langPack by tasks.registering(Zip::class) {
     into("lang") {
         from(File(distDir, "lang"))
         from("src/main/resources/org/zaproxy/zap/resources") {
-            include("Messages.properties", "vulnerabilities.xml")
+            include("Messages.properties")
         }
     }
 }

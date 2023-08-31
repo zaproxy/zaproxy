@@ -121,6 +121,7 @@
 // ZAP: 2022/12/22 Issue 7663: Default threads based on number of processors.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/08/07 Rename home dir in Windows and update program name.
+// ZAP: 2023/08/21 Deprecate vulnerabilities constants.
 // ZAP: 2023/08/28 Update paths in config file to match the renamed home dir.
 package org.parosproxy.paros;
 
@@ -355,16 +356,20 @@ public final class Constant {
      * Prefix (file name) of vulnerabilities.xml files.
      *
      * @see #VULNERABILITIES_EXTENSION
+     * @deprecated (2.14.0) The vulnerabilities were moved to Common Library add-on.
      * @since 2.4.0
      */
+    @Deprecated(since = "2.14.0", forRemoval = true)
     public static final String VULNERABILITIES_PREFIX = "vulnerabilities";
 
     /**
      * Extension (with dot) of vulnerabilities.xml files.
      *
      * @see #VULNERABILITIES_PREFIX
+     * @deprecated (2.14.0) The vulnerabilities were moved to Common Library add-on.
      * @since 2.4.0
      */
+    @Deprecated(since = "2.14.0", forRemoval = true)
     public static final String VULNERABILITIES_EXTENSION = ".xml";
 
     /**

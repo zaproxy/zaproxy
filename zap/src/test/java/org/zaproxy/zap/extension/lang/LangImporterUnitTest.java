@@ -30,7 +30,7 @@ import org.junit.jupiter.api.Test;
 class LangImporterUnitTest {
 
     @Test
-    void shouldIncludeMessagesAndVulnerabilitiesFiles() {
+    void shouldIncludeMessagesFiles() {
         // Given
         String[] resourceFiles = {
             "Messages.properties",
@@ -39,12 +39,6 @@ class LangImporterUnitTest {
             "Messages_ar_SA.properties",
             "Messages_fil_PH.properties",
             "Messages_zh_CN.properties",
-            "vulnerabilities.xml",
-            "vulnerabilities_en.xml",
-            "vulnerabilities_en_GB.xml",
-            "vulnerabilities_ar_SA.xml",
-            "vulnerabilities_fil_PH.xml",
-            "vulnerabilities_zh_CN.xml"
         };
         // When
         Pattern pattern = LangImporter.createIncludedFilesPattern();
@@ -55,14 +49,9 @@ class LangImporterUnitTest {
     }
 
     @Test
-    void shouldNotMatchOtherFilesThanMessagesAndVulnerabilitiesFiles() {
+    void shouldNotMatchOtherFilesThanMessagesFiles() {
         // Given
-        String[] resourceFiles = {
-            "Vulnerabilities.xml",
-            "Vulnerabilities_en_GB.xml",
-            "OtherFile_ar_SA.properties",
-            "messages.properties"
-        };
+        String[] resourceFiles = {"OtherFile_ar_SA.properties", "messages.properties"};
         // When
         Pattern pattern = LangImporter.createIncludedFilesPattern();
         // Then

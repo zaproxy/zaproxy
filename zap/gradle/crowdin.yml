@@ -11,10 +11,3 @@ projects:
           filename: "%file_name%_%locale_with_underscore%%file_extension%"
         includes:
           - pattern: "Messages.properties"
-          - pattern: "vulnerabilities.xml"
-            translatableElements:
-              - "//alert"
-              - "//desc"
-              - "//reference"
-              - "//solution"
-
