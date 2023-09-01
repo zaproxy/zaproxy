@@ -22,7 +22,9 @@ OS=$(uname -s)
 # If we're on OS X, try to use the bundled Java; if it's not there, then the system Java
 # Life would be much easier if OS X had readlink -f
 if [ "$OS" = "Darwin" ]; then
-  if [ -e ../PlugIns/jre*/Contents/Home/bin/java ]; then
+  OSX_VERSION=$(sw_vers -productVersion)
+  OSX_MAJOR_VERSION=${OSX_VERSION%%[.|-]*}
+  if [ -e ../PlugIns/jre*/Contents/Home/bin/java && $OSX_MAJOR_VERSION -lt 13]; then
     pushd ../PlugIns/jre*/Contents/Home/bin > /dev/null
     JAVA_PATH=`pwd -P`
     PATH="$JAVA_PATH:$PATH"
