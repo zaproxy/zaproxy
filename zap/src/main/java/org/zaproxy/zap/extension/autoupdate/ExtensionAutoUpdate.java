@@ -714,7 +714,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor
                     new ScanStatus(
                             new ImageIcon(
                                     ExtensionAutoUpdate.class.getResource(
-                                            "/resource/icon/fugue/download.png")),
+                                            "/resource/icon/download.png")),
                             Constant.messages.getString("cfu.downloads.icon.title"));
         }
         return scanStatus;
