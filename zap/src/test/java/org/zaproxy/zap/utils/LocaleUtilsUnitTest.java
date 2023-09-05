@@ -33,12 +33,18 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
+import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.view.ViewLocale;
 
 /** Unit test for {@link LocaleUtils}. */
 class LocaleUtilsUnitTest {
@@ -208,6 +214,24 @@ class LocaleUtilsUnitTest {
 
         // Then
         assertThat(firstAvailableLocale, is(equalTo("en_GB")));
+    }
+
+    @Test
+    void shouldHaveDuplicatedLanguagesWithCountry(@TempDir Path tempDir) throws Exception {
+        // Given
+        Path installDir = tempDir.resolve("zap");
+        Constant.setZapInstall(installDir.toString());
+        Path langDir = Files.createDirectories(installDir.resolve(Constant.LANG_DIR));
+        Files.createFile(langDir.resolve("Messages_pt_BR.properties"));
+        Files.createFile(langDir.resolve("Messages_pt_PT.properties"));
+
+        // When
+        List<ViewLocale> locales = LocaleUtils.getAvailableViewLocales();
+
+        // Then
+        List<String> displayNames =
+                locales.stream().map(ViewLocale::toString).collect(Collectors.toUnmodifiableList());
+        assertThat(displayNames, contains("English", "português (Brasil)", "português (Portugal)"));
     }
 
     @Test
