@@ -28,11 +28,13 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -453,8 +455,16 @@ public final class LocaleUtils {
 
         List<ViewLocale> localesUI = new ArrayList<>();
         if (!locales.isEmpty()) {
+            Map<String, Long> languageCount =
+                    locales.stream()
+                            .map(LocaleUtils::getLanguage)
+                            .collect(
+                                    Collectors.groupingBy(
+                                            Function.identity(), Collectors.counting()));
             for (String locale : locales) {
-                localesUI.add(new ViewLocale(locale, getLocalDisplayName(locale)));
+                boolean duplicatedLanguage = languageCount.get(getLanguage(locale)) != 1;
+                localesUI.add(
+                        new ViewLocale(locale, getLocalDisplayName(locale, duplicatedLanguage)));
             }
 
             Collections.sort(
@@ -474,6 +484,10 @@ public final class LocaleUtils {
         return localesUI;
     }
 
+    private static String getLanguage(String locale) {
+        return locale.split("_", 2)[0];
+    }
+
     /**
      * Gets the name of the language of and for the given locale.
      *
@@ -481,6 +495,10 @@ public final class LocaleUtils {
      * @return the name of the language
      */
     public static String getLocalDisplayName(String locale) {
+        return getLocalDisplayName(locale, false);
+    }
+
+    private static String getLocalDisplayName(String locale, boolean useDisplayName) {
         String desc = "" + locale;
         if (locale != null) {
             String[] langArray = locale.split("_");
@@ -496,6 +514,9 @@ public final class LocaleUtils {
                 builder.setVariant(langArray[2]);
             }
             Locale loc = builder.build();
+            if (useDisplayName) {
+                return loc.getDisplayName(loc);
+            }
             desc = loc.getDisplayLanguage(loc);
         }
         return desc;
