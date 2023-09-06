@@ -7,4 +7,5 @@ fieldExcludes: []
 classExcludes: []
 methodExcludes:
   - org.zaproxy.zap.extension.script.ScriptUI#displayScript(org.zaproxy.zap.extension.script.ScriptWrapper, boolean)
+  - org.zaproxy.zap.extension.script.ScriptUI#selectNode(org.zaproxy.zap.extension.script.ScriptNode, boolean, boolean)
 

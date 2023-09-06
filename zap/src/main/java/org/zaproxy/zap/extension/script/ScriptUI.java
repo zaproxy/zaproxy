@@ -152,7 +152,27 @@ public interface ScriptUI {
 
     boolean isScriptDisplayed(ScriptWrapper script);
 
+    /**
+     * Selects a node with focus with/without expanding.
+     *
+     * @param node The node to be selected.
+     * @expand {@code true} to expand the node, {@code false} otherwise.
+     */
     void selectNode(ScriptNode node, boolean expand);
+
+    /**
+     * Selects a node with/without focusing on it. By default, this method delegates to {@link
+     * #selectNode(ScriptNode, boolean)}.
+     *
+     * @param node The node to be displayed.
+     * @param expand {@code true} to expand the node, {@code false} otherwise.
+     * @param allowFocus {@code true} to allow focusing on the display, {@code false} otherwise.
+     * @since 2.14.0
+     * @see #selectNode(ScriptNode, boolean)
+     */
+    default void selectNode(ScriptNode node, boolean expand, boolean allowFocus) {
+        selectNode(node, expand);
+    }
 
     void disableScriptDialog(Class<?> klass);
 
