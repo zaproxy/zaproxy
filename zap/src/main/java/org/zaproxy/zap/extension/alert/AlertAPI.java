@@ -53,6 +53,7 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
@@ -61,6 +62,7 @@ public class AlertAPI extends ApiImplementor {
     public static final String PREFIX = "alert";
 
     private static final String ACTION_DELETE_ALL_ALERTS = "deleteAllAlerts";
+    private static final String ACTION_DELETE_ALERTS = "deleteAlerts";
     private static final String ACTION_DELETE_ALERT = "deleteAlert";
     private static final String ACTION_UPDATE_ALERT = "updateAlert";
     private static final String ACTION_ADD_ALERT = "addAlert";
@@ -76,6 +78,7 @@ public class AlertAPI extends ApiImplementor {
 
     private static final String PARAM_BASE_URL = "baseurl";
     private static final String PARAM_COUNT = "count";
+    private static final String PARAM_CONTEXT_NAME = "contextName";
     private static final String PARAM_URL = "url";
     private static final String PARAM_ID = "id";
     private static final String PARAM_RECURSE = "recurse";
@@ -122,7 +125,9 @@ public class AlertAPI extends ApiImplementor {
                 new ApiView(
                         VIEW_ALERTS,
                         null,
-                        new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK}));
+                        new String[] {
+                            PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK, PARAM_CONTEXT_NAME
+                        }));
         this.addApiView(new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] {PARAM_BASE_URL}));
         this.addApiView(
                 new ApiView(
@@ -134,6 +139,11 @@ public class AlertAPI extends ApiImplementor {
                         VIEW_ALERT_COUNTS_BY_RISK, null, new String[] {PARAM_URL, PARAM_RECURSE}));
 
         this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
+        this.addApiAction(
+                new ApiAction(
+                        ACTION_DELETE_ALERTS,
+                        null,
+                        new String[] {PARAM_CONTEXT_NAME, PARAM_BASE_URL, PARAM_RISK}));
         this.addApiAction(new ApiAction(ACTION_DELETE_ALERT, new String[] {PARAM_ID}));
 
         this.addApiAction(
@@ -213,16 +223,16 @@ public class AlertAPI extends ApiImplementor {
             result = new ApiResponseElement(alertToSet(alert));
         } else if (VIEW_ALERTS.equals(name)) {
             final ApiResponseList resultList = new ApiResponseList(name);
+            String contextName = this.getParam(params, PARAM_CONTEXT_NAME, "");
+            Context context = contextName.isEmpty() ? null : ApiUtils.getContextByName(contextName);
 
             processAlerts(
                     this.getParam(params, PARAM_BASE_URL, (String) null),
                     this.getParam(params, PARAM_START, -1),
                     this.getParam(params, PARAM_COUNT, -1),
                     getRiskId(params),
-                    new Processor<Alert>() {
-
-                        @Override
-                        public void process(Alert alert) {
+                    (Alert alert) -> {
+                        if (context == null || context.isInContext(alert.getUri())) {
                             resultList.addItem(alertToSet(alert));
                         }
                     });
@@ -339,6 +349,26 @@ public class AlertAPI extends ApiImplementor {
             extension.deleteAlert(getAlertFromDb(alertId));
         } else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
             extension.deleteAllAlerts();
+        } else if (ACTION_DELETE_ALERTS.equals(name)) {
+            String contextName = this.getParam(params, PARAM_CONTEXT_NAME, "");
+            Context context = contextName.isEmpty() ? null : ApiUtils.getContextByName(contextName);
+            final int[] count = {0};
+
+            Processor<Alert> counter =
+                    (Alert alert) -> {
+                        if (context == null || context.isInContext(alert.getUri())) {
+                            extension.deleteAlert(alert);
+                            count[0]++;
+                        }
+                    };
+
+            processAlerts(
+                    this.getParam(params, PARAM_BASE_URL, (String) null),
+                    -1,
+                    -1,
+                    getRiskId(params),
+                    counter);
+            return new ApiResponseElement(ACTION_DELETE_ALERTS, String.valueOf(count[0]));
         } else if (ACTION_UPDATE_ALERT.equals(name)) {
             int alertId = ApiUtils.getIntParam(params, PARAM_ALERT_ID);
             String alertName = params.getString(PARAM_ALERT_NAME);
