@@ -66,6 +66,7 @@
 // ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 // ZAP: 2022/05/26 Add addTag and removeTag methods
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/09/12 Add NUMBER_RISKS convenience constant.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -170,6 +171,12 @@ public class Alert implements Comparable<Alert> {
     public static final int RISK_LOW = 1;
     public static final int RISK_MEDIUM = 2;
     public static final int RISK_HIGH = 3;
+    /*
+     * The number of risk categories or scores used within ZAP.
+     *
+     * @since 2.14.0
+     */
+    public static final int NUMBER_RISKS = 4;
 
     // ZAP: Added FALSE_POSITIVE
     public static final int CONFIDENCE_FALSE_POSITIVE = 0;
