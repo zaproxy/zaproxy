@@ -46,6 +46,9 @@ public class DatabaseParam extends AbstractParam {
     /** The configuration key for the compact option. */
     private static final String PARAM_COMPACT_DATABASE = PARAM_BASE_KEY + ".compact";
 
+    /** The configuration key for the compact option. */
+    private static final String PARAM_DEFRAG_PERCENTAGE = PARAM_BASE_KEY + ".defrag";
+
     /** The configuration key for the request body size. */
     private static final String PARAM_REQUEST_BODY_SIZE = PARAM_BASE_KEY + ".request.bodysize";
 
@@ -66,6 +69,7 @@ public class DatabaseParam extends AbstractParam {
     private static final int DEFAULT_NEW_SESSION_OPTION = NEW_SESSION_NOT_SPECIFIED;
     private static final boolean DEFAULT_NEW_SESSION_PROMPT = true;
     private static final boolean DEFAULT_RECOVERY_LOG_ENABLED = true;
+    private static final int DEFAULT_DEFRAG_PERCENTAGE = 90;
 
     /**
      * The compact option, whether the database should be compacted on exit. Default is {@code
@@ -74,6 +78,9 @@ public class DatabaseParam extends AbstractParam {
      * @see org.parosproxy.paros.db.Database#close(boolean)
      */
     private boolean compactDatabase;
+
+    /** The database defrag percentage point. Default is {@value #DEFAULT_DEFRAG_PERCENTAGE}. */
+    private int defragPercentage;
 
     /** The request body size in the history table. Default is {@value #DEFAULT_BODY_SIZE}. */
     private int requestbodysize;
@@ -107,6 +114,7 @@ public class DatabaseParam extends AbstractParam {
         newSessionOption = DEFAULT_NEW_SESSION_OPTION;
         newSessionPrompt = DEFAULT_NEW_SESSION_PROMPT;
         recoveryLogEnabled = DEFAULT_RECOVERY_LOG_ENABLED;
+        defragPercentage = DEFAULT_DEFRAG_PERCENTAGE;
     }
 
     /**
@@ -129,6 +137,7 @@ public class DatabaseParam extends AbstractParam {
         newSessionOption = getInt(PARAM_NEW_SESSION_OPTION, DEFAULT_NEW_SESSION_OPTION);
         newSessionPrompt = getBoolean(PARAM_NEW_SESSION_PROMPT, DEFAULT_NEW_SESSION_PROMPT);
         recoveryLogEnabled = getBoolean(PARAM_RECOVERY_LOG_ENABLED, DEFAULT_RECOVERY_LOG_ENABLED);
+        defragPercentage = getInt(PARAM_DEFRAG_PERCENTAGE, DEFAULT_DEFRAG_PERCENTAGE);
     }
 
     /**
@@ -152,6 +161,25 @@ public class DatabaseParam extends AbstractParam {
     public void setCompactDatabase(boolean compactDatabase) {
         this.compactDatabase = compactDatabase;
         getConfig().setProperty(PARAM_COMPACT_DATABASE, compactDatabase);
+    }
+
+    /**
+     * Gets the defrag percentage point
+     *
+     * @return the percentage (int) at which point the database should defrag
+     */
+    public int getDefragPercentage() {
+        return defragPercentage;
+    }
+
+    /**
+     * Sets the defrag percentage point
+     *
+     * @param defragPercentage (int) at which point the database should defrag
+     */
+    public void setDefragPercentage(int defragPercentage) {
+        this.defragPercentage = defragPercentage;
+        getConfig().setProperty(PARAM_DEFRAG_PERCENTAGE, defragPercentage);
     }
 
     /**
