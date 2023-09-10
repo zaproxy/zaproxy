@@ -34,9 +34,14 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 
     private static final String FIELD_LOCATION = "brk.brkpoint.location.label";
     private static final String FIELD_MATCH = "brk.brkpoint.match.label";
-    private static final String FIELD_STRING = "brk.brkpoint.string.label";
+    private static final String FIELD_PROTOCOL = "brk.brkpoint.protocol.label";
+    private static final String FIELD_HOST = "brk.brkpoint.host.label";
+    private static final String FIELD_PATH = "brk.brkpoint.path.label";
+    private static final String FIELD_QUERY = "brk.brkpoint.query.label";
     private static final String FIELD_INVERSE = "brk.brkpoint.inverse.label";
     private static final String FIELD_IGNORECASE = "brk.brkpoint.ignorecase.label";
+    private static final String FIELD_ON_REQUEST = "brk.brkpoint.request.label";
+    private static final String FIELD_ON_RESPONSE = "brk.brkpoint.response.label";
 
     private static final long serialVersionUID = 1L;
 
@@ -65,9 +70,14 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 
         this.addComboField(FIELD_LOCATION, getLocations(), this.locToStr(breakpoint.getLocation()));
         this.addComboField(FIELD_MATCH, getMatches(), this.matchToStr(breakpoint.getMatch()));
-        this.addTextField(FIELD_STRING, breakpoint.getString());
+        this.addTextField(FIELD_PROTOCOL, breakpoint.getProtocol());
+        this.addTextField(FIELD_HOST, breakpoint.getHost());
+        this.addTextField(FIELD_PATH, breakpoint.getPath());
+        this.addTextField(FIELD_QUERY, breakpoint.getQuery());
         this.addCheckBoxField(FIELD_INVERSE, breakpoint.isInverse());
         this.addCheckBoxField(FIELD_IGNORECASE, breakpoint.isIgnoreCase());
+        this.addCheckBoxField(FIELD_ON_REQUEST, breakpoint.isOnRequest());
+        this.addCheckBoxField(FIELD_ON_RESPONSE, breakpoint.isOnResponse());
 
         this.addPadding();
     }
@@ -118,11 +128,13 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
     public void save() {
         HttpBreakpointMessage brk =
                 new HttpBreakpointMessage(
-                        this.getStringValue(FIELD_STRING),
+                        getUrlStrFromFields(),
                         this.strToLoc(this.getStringValue(FIELD_LOCATION)),
                         this.strToMatch(this.getStringValue(FIELD_MATCH)),
                         this.getBoolValue(FIELD_INVERSE),
-                        this.getBoolValue(FIELD_IGNORECASE));
+                        this.getBoolValue(FIELD_IGNORECASE),
+                        this.getBoolValue(FIELD_ON_REQUEST),
+                        this.getBoolValue(FIELD_ON_RESPONSE));
 
         if (add) {
             breakPointsManager.addBreakpoint(brk);
@@ -134,19 +146,37 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
         }
     }
 
+    private String getUrlStrFromFields() {
+        StringBuilder sbFromFields =
+                new StringBuilder(this.getStringValue(FIELD_PROTOCOL))
+                        .append("://")
+                        .append(this.getStringValue(FIELD_HOST))
+                        .append(this.getStringValue(FIELD_PATH));
+        String query = this.getStringValue(FIELD_QUERY);
+        if (!query.isBlank()) {
+            sbFromFields.append("?").append(query);
+        }
+        return sbFromFields.toString();
+    }
+
     @Override
     public String validateFields() {
-        if (this.isEmptyField(FIELD_STRING)) {
-            return Constant.messages.getString("brk.brkpoint.error.nostr");
+        if (this.isEmptyField(FIELD_PROTOCOL)) {
+            return Constant.messages.getString("brk.brkpoint.error.noprotocol");
         }
+        if (this.isEmptyField(FIELD_HOST)) {
+            return Constant.messages.getString("brk.brkpoint.error.nohost");
+        }
+
+        String urlString = getUrlStrFromFields();
         if (Match.regex.equals(this.strToMatch(this.getStringValue(FIELD_MATCH)))) {
             try {
-                Pattern.compile(this.getStringValue(FIELD_STRING));
+                Pattern.compile(urlString);
             } catch (Exception e) {
                 return Constant.messages.getString("brk.brkpoint.error.regex");
             }
         }
-        if (this.getStringValue(FIELD_STRING).contains("#")
+        if (urlString.contains("#")
                 && Location.url.equals(this.strToLoc(this.getStringValue(FIELD_LOCATION)))
                 && Match.contains.equals(this.strToMatch(this.getStringValue(FIELD_MATCH)))) {
             return Constant.messages.getString("brk.brkpoint.warn.urlfragment");

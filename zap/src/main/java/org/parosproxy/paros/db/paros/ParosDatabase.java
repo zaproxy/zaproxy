@@ -44,6 +44,7 @@
 // ZAP: 2021/08/24 Remove the "(non-Javadoc)" comments.
 // ZAP: 2021/09/27 Added support for Alert Tags.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/06/26 Added breakpoints support
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
@@ -66,7 +67,9 @@ import org.parosproxy.paros.db.TableStructure;
 import org.parosproxy.paros.db.TableTag;
 import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.zaproxy.zap.db.TableAlertTag;
+import org.zaproxy.zap.db.TableBreak;
 import org.zaproxy.zap.db.paros.ParosTableAlertTag;
+import org.zaproxy.zap.db.paros.ParosTableBreak;
 
 public class ParosDatabase extends AbstractDatabase {
 
@@ -84,6 +87,7 @@ public class ParosDatabase extends AbstractDatabase {
     private TableParam tableParam = null;
     private TableContext tableContext = null;
     private TableStructure tableStructure = null;
+    private TableBreak tableBreak = null;
 
     /**
      * {@code DatabaseListener}s added internally when the {@code SqlDatabase} is constructed.
@@ -109,6 +113,7 @@ public class ParosDatabase extends AbstractDatabase {
         tableParam = new ParosTableParam();
         tableContext = new ParosTableContext();
         tableStructure = new ParosTableStructure();
+        tableBreak = new ParosTableBreak();
 
         internalDatabaseListeners.add(tableHistory);
         internalDatabaseListeners.add(tableSession);
@@ -120,6 +125,7 @@ public class ParosDatabase extends AbstractDatabase {
         internalDatabaseListeners.add(tableParam);
         internalDatabaseListeners.add(tableContext);
         internalDatabaseListeners.add(tableStructure);
+        internalDatabaseListeners.add(tableBreak);
     }
 
     /**
@@ -280,6 +286,11 @@ public class ParosDatabase extends AbstractDatabase {
     @Override
     public TableStructure getTableStructure() {
         return tableStructure;
+    }
+
+    @Override
+    public TableBreak getTableBreak() {
+        return tableBreak;
     }
 
     @Override

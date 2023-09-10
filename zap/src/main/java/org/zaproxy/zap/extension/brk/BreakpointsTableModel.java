@@ -200,4 +200,15 @@ public class BreakpointsTableModel extends AbstractTableModel {
             mapBreakpointRow.put(iterator.next(), i);
         }
     }
+
+    public void clear() {
+        breakpoints.clear();
+        breakpointsEnabled.clear();
+        mapBreakpointRow.clear();
+
+        if (lastAffectedRow >= 0) {
+            this.fireTableRowsDeleted(0, lastAffectedRow);
+        }
+        lastAffectedRow = -1;
+    }
 }

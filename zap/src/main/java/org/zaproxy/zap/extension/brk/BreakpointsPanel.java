@@ -332,6 +332,10 @@ public class BreakpointsPanel extends AbstractPanel {
         return result;
     }
 
+    public void clearTableModel() {
+        model.clear();
+    }
+
     private final class ColumnResizedListener implements PropertyChangeListener {
 
         private final String prefix;

@@ -35,6 +35,7 @@ import org.parosproxy.paros.db.TableSessionUrl;
 import org.parosproxy.paros.db.TableStructure;
 import org.parosproxy.paros.db.TableTag;
 import org.zaproxy.zap.db.TableAlertTag;
+import org.zaproxy.zap.db.TableBreak;
 
 public class SqlDatabase extends AbstractDatabase {
 
@@ -232,6 +233,13 @@ public class SqlDatabase extends AbstractDatabase {
     @Override
     public TableStructure getTableStructure() {
         return tableStructure;
+    }
+
+    @Override
+    public TableBreak getTableBreak() {
+        // NOT IMPLEMENTED YET
+        // usages have null-check
+        return null;
     }
 
     @Override

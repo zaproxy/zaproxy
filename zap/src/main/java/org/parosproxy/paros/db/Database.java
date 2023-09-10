@@ -20,6 +20,7 @@
 package org.parosproxy.paros.db;
 
 import org.zaproxy.zap.db.TableAlertTag;
+import org.zaproxy.zap.db.TableBreak;
 
 /**
  * This interface was extracted from the previous Paros class of the same name. The Paros class that
@@ -126,6 +127,8 @@ public interface Database {
     TableContext getTableContext();
 
     TableStructure getTableStructure();
+
+    TableBreak getTableBreak();
 
     /**
      * The type of the database - e.g. {@value #DB_TYPE_HSQLDB}

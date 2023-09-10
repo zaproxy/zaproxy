@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Vector;
 import java.util.function.Consumer;
 import javax.swing.JList;
 import javax.swing.JTree;
@@ -38,6 +39,7 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
@@ -47,6 +49,8 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.db.RecordBreak;
+import org.zaproxy.zap.db.TableBreak;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointManagementDaemonImpl;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location;
@@ -67,6 +71,8 @@ public class ExtensionBreak extends ExtensionAdaptor
     public static final String BREAK_POINT_HIT_STATS = "stats.break.hit";
     public static final String BREAK_POINT_STEP_STATS = "stats.break.step";
     public static final String BREAK_POINT_DROP_STATS = "stats.break.drop";
+    private static final String DB_NOT_IMPLEMENTED =
+            "Breakpoints persisting is not implemented for this DB";
 
     private BreakPanel breakPanel = null;
     private ProxyListenerBreak proxyListener = null;
@@ -211,19 +217,126 @@ public class ExtensionBreak extends ExtensionAdaptor
         return breakpointsPanel;
     }
 
+    private void readAllBreakpointsFromDB() {
+        TableBreak tableBreak = getModel().getDb().getTableBreak();
+        if (tableBreak == null) {
+            LOGGER.warn(DB_NOT_IMPLEMENTED);
+            return;
+        }
+        try {
+            Vector<Integer> breakIdsList = tableBreak.getBreakList();
+            for (Integer brkId : breakIdsList) {
+                RecordBreak recordBreak = tableBreak.read(brkId);
+                HttpBreakpointMessage httpBreakpoint =
+                        new HttpBreakpointMessage(
+                                recordBreak.getUrlString(),
+                                Location.valueOf(recordBreak.getLocation()),
+                                Match.valueOf(recordBreak.getMatch()),
+                                recordBreak.isInverse(),
+                                recordBreak.isIgnoreCase(),
+                                recordBreak.isOnRequest(),
+                                recordBreak.isOnResponse());
+                httpBreakpoint.setBrkId(brkId);
+                this.getBreakpointsPanel().addBreakpoint(httpBreakpoint);
+            }
+        } catch (DatabaseException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
+    }
+
     public void addBreakpoint(BreakpointMessageInterface breakpoint) {
         this.getBreakpointsPanel().addBreakpoint(breakpoint);
         // Switch to the panel for some visual feedback
         this.getBreakpointsPanel().setTabFocus();
+        if (breakpoint instanceof HttpBreakpointMessage) {
+            writeBreakToDB(breakpoint);
+        }
+    }
+
+    private void writeBreakToDB(BreakpointMessageInterface breakpoint) {
+        HttpBreakpointMessage httpBreakpoint = (HttpBreakpointMessage) breakpoint;
+
+        TableBreak tableBreak = getModel().getDb().getTableBreak();
+        if (tableBreak == null) {
+            LOGGER.warn(DB_NOT_IMPLEMENTED);
+            return;
+        }
+        RecordBreak recordBreak = null;
+        try {
+            recordBreak =
+                    tableBreak.write(
+                            httpBreakpoint.getString(),
+                            httpBreakpoint.getLocation().toString(),
+                            httpBreakpoint.getMatch().toString(),
+                            httpBreakpoint.isInverse(),
+                            httpBreakpoint.isIgnoreCase(),
+                            httpBreakpoint.isOnRequest(),
+                            httpBreakpoint.isOnResponse());
+
+            int brkId = recordBreak.getBrkId();
+            httpBreakpoint.setBrkId(brkId);
+        } catch (DatabaseException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 
     public void editBreakpoint(
             BreakpointMessageInterface oldBreakpoint, BreakpointMessageInterface newBreakpoint) {
         this.getBreakpointsPanel().editBreakpoint(oldBreakpoint, newBreakpoint);
+
+        if (oldBreakpoint instanceof HttpBreakpointMessage
+                && newBreakpoint instanceof HttpBreakpointMessage) {
+            updateBreakInDB(
+                    (HttpBreakpointMessage) oldBreakpoint, (HttpBreakpointMessage) newBreakpoint);
+        }
+    }
+
+    private void updateBreakInDB(
+            HttpBreakpointMessage oldBreakpoint, HttpBreakpointMessage newBreakpoint) {
+        HttpBreakpointMessage httpOldBreakpoint = oldBreakpoint;
+        HttpBreakpointMessage httpNewBreakpoint = newBreakpoint;
+        TableBreak tableBreak = getModel().getDb().getTableBreak();
+        if (tableBreak == null) {
+            LOGGER.warn(DB_NOT_IMPLEMENTED);
+            return;
+        }
+        try {
+            tableBreak.update(
+                    httpOldBreakpoint.getBrkId(),
+                    httpNewBreakpoint.getString(),
+                    httpNewBreakpoint.getLocation().toString(),
+                    httpNewBreakpoint.getMatch().toString(),
+                    httpNewBreakpoint.isInverse(),
+                    httpNewBreakpoint.isIgnoreCase(),
+                    httpNewBreakpoint.isOnRequest(),
+                    httpNewBreakpoint.isOnResponse());
+
+            newBreakpoint.setBrkId(oldBreakpoint.getBrkId());
+        } catch (DatabaseException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 
     public void removeBreakpoint(BreakpointMessageInterface breakpoint) {
         this.getBreakpointsPanel().removeBreakpoint(breakpoint);
+
+        if (breakpoint instanceof HttpBreakpointMessage) {
+            deleteBreakInDB((HttpBreakpointMessage) breakpoint);
+        }
+    }
+
+    private void deleteBreakInDB(HttpBreakpointMessage breakpoint) {
+        HttpBreakpointMessage httpBreakpoint = breakpoint;
+        TableBreak tableBreak = getModel().getDb().getTableBreak();
+        if (tableBreak == null) {
+            LOGGER.warn(DB_NOT_IMPLEMENTED);
+            return;
+        }
+        try {
+            tableBreak.deleteBreak(httpBreakpoint.getBrkId());
+        } catch (DatabaseException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 
     public List<BreakpointMessageInterface> getBreakpointsList() {
@@ -269,6 +382,25 @@ public class ExtensionBreak extends ExtensionAdaptor
                         ignoreCase));
     }
 
+    public void addHttpBreakpoint(
+            String string,
+            String location,
+            String match,
+            boolean inverse,
+            boolean ignoreCase,
+            boolean onRequest,
+            boolean onResponse) {
+        this.addBreakpoint(
+                new HttpBreakpointMessage(
+                        string,
+                        getLocationEnum(location),
+                        getMatchEnum(match),
+                        inverse,
+                        ignoreCase,
+                        onRequest,
+                        onResponse));
+    }
+
     private static Location getLocationEnum(String location) {
         try {
             return Location.valueOf(location);
@@ -296,6 +428,25 @@ public class ExtensionBreak extends ExtensionAdaptor
                         getMatchEnum(match),
                         inverse,
                         ignoreCase));
+    }
+
+    public void removeHttpBreakpoint(
+            String string,
+            String location,
+            String match,
+            boolean inverse,
+            boolean ignoreCase,
+            boolean onRequest,
+            boolean onResponse) {
+        this.removeBreakpoint(
+                new HttpBreakpointMessage(
+                        string,
+                        getLocationEnum(location),
+                        getMatchEnum(match),
+                        inverse,
+                        ignoreCase,
+                        onRequest,
+                        onResponse));
     }
 
     public void addUiBreakpoint(Message aMessage) {
@@ -571,6 +722,9 @@ public class ExtensionBreak extends ExtensionAdaptor
             return;
         }
         breakpointManagementInterface.init();
+
+        getBreakpointsPanel().clearTableModel();
+        readAllBreakpointsFromDB();
     }
 
     private void sessionAboutToChange() {
