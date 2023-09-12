@@ -206,10 +206,9 @@ public class Model {
             LOGGER.info("Using experimental database :/");
             db = DbSQL.getSingleton().initDatabase();
         } else {
-            ParosDatabase parosDb = new ParosDatabase();
-            parosDb.setDatabaseParam(getOptionsParam().getDatabaseParam());
-            db = parosDb;
+            db = new ParosDatabase();
         }
+        db.setDatabaseOptions(getOptionsParam().getDatabaseParam());
 
         createAndOpenUntitledDb();
 
