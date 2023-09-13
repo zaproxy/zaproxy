@@ -21,6 +21,7 @@ package org.zaproxy.zap.db.sql;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.parosproxy.paros.db.AbstractDatabase;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseListener;
@@ -34,6 +35,7 @@ import org.parosproxy.paros.db.TableSession;
 import org.parosproxy.paros.db.TableSessionUrl;
 import org.parosproxy.paros.db.TableStructure;
 import org.parosproxy.paros.db.TableTag;
+import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.zaproxy.zap.db.TableAlertTag;
 
 public class SqlDatabase extends AbstractDatabase {
@@ -82,6 +84,12 @@ public class SqlDatabase extends AbstractDatabase {
         internalDatabaseListeners.add(tableParam);
         internalDatabaseListeners.add(tableContext);
         internalDatabaseListeners.add(tableStructure);
+    }
+
+    @Override
+    public void setDatabaseOptions(DatabaseParam options) {
+        Objects.requireNonNull(options);
+        tableHistory.setDatabaseOptions(options);
     }
 
     /**

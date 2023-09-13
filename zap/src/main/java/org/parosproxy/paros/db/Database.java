@@ -19,6 +19,7 @@
  */
 package org.parosproxy.paros.db;
 
+import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.zaproxy.zap.db.TableAlertTag;
 
 /**
@@ -31,6 +32,15 @@ public interface Database {
 
     /** The default HyperSQL Db: http://hsqldb.org/ */
     public static final String DB_TYPE_HSQLDB = "hsqldb";
+
+    /**
+     * Sets the database options.
+     *
+     * @param options the database options, must not be {@code null}.
+     * @throws NullPointerException if the {@code options} is {@code null}.
+     * @since 2.14.0
+     */
+    default void setDatabaseOptions(DatabaseParam options) {}
 
     DatabaseServer getDatabaseServer();
 

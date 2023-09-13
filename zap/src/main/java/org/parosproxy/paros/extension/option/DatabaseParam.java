@@ -40,6 +40,13 @@ public class DatabaseParam extends AbstractParam {
     public static final int NEW_SESSION_USER_SPECIFIED = 2;
     public static final int NEW_SESSION_TEMPORARY = 3;
 
+    /**
+     * The default size of request/response bodies.
+     *
+     * @since 2.14.0
+     */
+    public static final int DEFAULT_BODY_SIZE = 16777216;
+
     /** The base configuration key for all database configurations. */
     private static final String PARAM_BASE_KEY = "database";
 
@@ -62,7 +69,6 @@ public class DatabaseParam extends AbstractParam {
     private static final String PARAM_RECOVERY_LOG_ENABLED = PARAM_BASE_KEY + ".recoverylog";
 
     private static final boolean DEFAULT_COMPACT_DATABASE = false;
-    private static final int DEFAULT_BODY_SIZE = 16777216;
     private static final int DEFAULT_NEW_SESSION_OPTION = NEW_SESSION_NOT_SPECIFIED;
     private static final boolean DEFAULT_NEW_SESSION_PROMPT = true;
     private static final boolean DEFAULT_RECOVERY_LOG_ENABLED = true;

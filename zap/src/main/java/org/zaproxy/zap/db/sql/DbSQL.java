@@ -67,6 +67,18 @@ public class DbSQL implements DatabaseListener {
         return singleton;
     }
 
+    static void reset() {
+        dbProperties = null;
+        sqlProperties = null;
+        dbType = null;
+        singleton = null;
+        dbServer = null;
+    }
+
+    static void setSqlProperties(Properties properties) {
+        sqlProperties = properties;
+    }
+
     protected String getDbUser() {
         if (dbProperties == null) {
             throw new IllegalStateException("Database not initialised");

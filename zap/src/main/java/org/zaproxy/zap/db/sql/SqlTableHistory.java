@@ -26,12 +26,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
+import java.util.function.ToIntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DbUtils;
@@ -68,27 +69,25 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     // ZAP: Added logger
     private static final Logger LOGGER = LogManager.getLogger(SqlTableHistory.class);
 
+    private DatabaseParam options;
+
     private boolean bodiesAsBytes;
+
+    private int configuredrequestbodysize = -1;
+    private int configuredresponsebodysize = -1;
 
     public SqlTableHistory() {}
 
-    // ZAP: Allow the request and response body sizes to be user-specifiable as far as possible
-    int configuredrequestbodysize = -1;
-    int configuredresponsebodysize = -1;
+    @Override
+    public void setDatabaseOptions(DatabaseParam options) {
+        this.options = Objects.requireNonNull(options);
+    }
 
     @Override
     protected void reconnect(Connection conn) throws DatabaseException {
         try {
-            // ZAP: Allow the request and response body sizes to be user-specifiable as far as
-            // possible
-            // re-load the configuration data from file, to get the configured length of the request
-            // and response bodies
-            // this will later be compared to the actual lengths of these fields in the database (in
-            // updateTable(Connection c))
-            DatabaseParam dbparams = new DatabaseParam();
-            dbparams.load(Constant.getInstance().FILE_CONFIG);
-            this.configuredrequestbodysize = dbparams.getRequestBodySize();
-            this.configuredresponsebodysize = dbparams.getResponseBodySize();
+            configuredrequestbodysize = getBodySizeOption(DatabaseParam::getRequestBodySize);
+            configuredresponsebodysize = getBodySizeOption(DatabaseParam::getResponseBodySize);
 
             bodiesAsBytes = true;
 
@@ -119,6 +118,10 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    private int getBodySizeOption(ToIntFunction<DatabaseParam> function) {
+        return options != null ? function.applyAsInt(options) : DatabaseParam.DEFAULT_BODY_SIZE;
     }
 
     // ZAP: Added the method.

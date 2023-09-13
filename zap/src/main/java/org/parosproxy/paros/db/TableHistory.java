@@ -26,11 +26,21 @@ package org.parosproxy.paros.db;
  * @author psiinon
  */
 import java.util.List;
+import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 public interface TableHistory extends DatabaseListener {
+
+    /**
+     * Sets the database options.
+     *
+     * @param options the database options, must not be {@code null}.
+     * @throws NullPointerException if the {@code options} is {@code null}.
+     * @since 2.14.0
+     */
+    default void setDatabaseOptions(DatabaseParam options) {}
 
     RecordHistory read(int historyId) throws HttpMalformedHeaderException, DatabaseException;
 

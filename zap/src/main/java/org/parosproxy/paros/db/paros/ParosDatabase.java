@@ -44,12 +44,14 @@
 // ZAP: 2021/08/24 Remove the "(non-Javadoc)" comments.
 // ZAP: 2021/09/27 Added support for Alert Tags.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
+// ZAP: 2023/09/12 Implement setDatabaseOptions(DatabaseParam).
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.parosproxy.paros.db.AbstractDatabase;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
@@ -293,12 +295,20 @@ public class ParosDatabase extends AbstractDatabase {
      * @param databaseOptions the object that holds the database options, must not be {@code null}
      * @throws IllegalArgumentException if the given parameter is {@code null}.
      * @since 2.5.0
+     * @deprecated (2.14.0) Use {@link #setDatabaseOptions(DatabaseParam)} instead.
      */
+    @Deprecated(since = "2.14.0", forRemoval = true)
     public void setDatabaseParam(DatabaseParam databaseOptions) {
         if (databaseOptions == null) {
             throw new IllegalArgumentException("Parameter databaseOptions must not be null.");
         }
-        this.databaseOptions = databaseOptions;
+        setDatabaseOptions(databaseOptions);
+    }
+
+    @Override
+    public void setDatabaseOptions(DatabaseParam options) {
+        this.databaseOptions = Objects.requireNonNull(options);
+        tableHistory.setDatabaseOptions(databaseOptions);
     }
 
     @Override

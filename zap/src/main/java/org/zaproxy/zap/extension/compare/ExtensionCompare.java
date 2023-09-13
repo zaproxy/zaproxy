@@ -231,7 +231,7 @@ public class ExtensionCompare extends ExtensionAdaptor
 
                 // TODO support other implementations in the future
                 ParosDatabase db = new ParosDatabase();
-                db.setDatabaseParam(new DatabaseParam());
+                db.setDatabaseOptions(new DatabaseParam());
                 db.open(file.getAbsolutePath());
 
                 Map<String, String> curMap = new HashMap<>();
