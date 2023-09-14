@@ -123,6 +123,7 @@
 // ZAP: 2023/08/07 Rename home dir in Windows and update program name.
 // ZAP: 2023/08/21 Deprecate vulnerabilities constants.
 // ZAP: 2023/08/28 Update paths in config file to match the renamed home dir.
+// ZAP: 2023/09/14 Lock home directory.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -131,12 +132,15 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -406,6 +410,9 @@ public final class Constant {
 
     private static final Logger LOGGER = LogManager.getLogger(Constant.class);
 
+    private FileChannel homeLockFileChannel;
+    private FileLock homeLock;
+
     public static String getEyeCatcher() {
         return staticEyeCatcher;
     }
@@ -602,6 +609,10 @@ public final class Constant {
                 }
             }
 
+            if (!acquireHomeLock()) {
+                System.exit(1);
+            }
+
             setUpLogging();
 
             f = new File(FILE_CONFIG);
@@ -767,6 +778,28 @@ public final class Constant {
         Locale.setDefault(locale);
 
         messages = new I18N(locale);
+    }
+
+    boolean acquireHomeLock() {
+        try {
+            Path lockFile = Paths.get(zapHome, ".homelock");
+            if (Files.notExists(lockFile)) {
+                Files.createFile(lockFile);
+            }
+            homeLockFileChannel = FileChannel.open(lockFile, StandardOpenOption.WRITE);
+            homeLock = homeLockFileChannel.tryLock();
+            if (homeLock == null) {
+                System.err.println(
+                        "The home directory is already in use. Ensure no other ZAP instances are running with the same home directory: "
+                                + zapHome);
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println("Failed to acquire home directory lock.");
+            e.printStackTrace();
+            return false;
+        }
     }
 
     private void renameOldWindowsHome() {
