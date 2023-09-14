@@ -84,8 +84,9 @@ class ConstantUnitTest {
         // Then
         assertHomeFile("config.xml", configContents);
         assertHomeFile("log4j2.properties", log4jContents);
+        assertHomeFile(".homelock", "");
         assertHomeDirs();
-        assertThat(Files.walk(zapHomeDir).count(), is(equalTo(7L)));
+        assertThat(Files.walk(zapHomeDir).count(), is(equalTo(8L)));
     }
 
     @Test
@@ -99,8 +100,21 @@ class ConstantUnitTest {
         assertHomeFile("config.xml", defaultConfigContents());
         assertHomeFile("log4j2.properties", defaultContents("log4j2-home.properties"));
         assertHomeFile("zap.log", is(not(emptyString())));
+        assertHomeFile(".homelock", "");
         assertHomeDirs();
-        assertThat(Files.walk(zapHomeDir).count(), is(equalTo(8L)));
+        assertThat(Files.walk(zapHomeDir).count(), is(equalTo(9L)));
+    }
+
+    @Test
+    void shouldNotAcquireHomeLockAgain() {
+        // Given
+        Constant.setZapInstall(zapInstallDir.toString());
+        Constant.setZapHome(zapHomeDir.toString());
+        Constant constant = new Constant();
+        // When
+        boolean acquired = constant.acquireHomeLock();
+        // Then
+        assertThat(acquired, is(equalTo(false)));
     }
 
     @Test
