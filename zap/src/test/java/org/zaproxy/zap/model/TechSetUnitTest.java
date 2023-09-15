@@ -22,8 +22,16 @@ package org.zaproxy.zap.model;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 /** Unit test for {@link TechSet}. */
 class TechSetUnitTest {
@@ -32,5 +40,40 @@ class TechSetUnitTest {
     void getAllTechShouldHaveTech() {
         assertThat(TechSet.getAllTech().getIncludeTech(), contains(Tech.getTopLevel().toArray()));
         assertThat(TechSet.getAllTech().getExcludeTech(), empty());
+    }
+
+    @ParameterizedTest
+    @MethodSource("shouldReturnTestableTechs")
+    void shouldExcludeTechsFromTechSetBasedOnSubset(Tech tech) {
+        // Given
+        TechSet full = new TechSet();
+        Set<Tech> techsToExclude = TechSet.getAll(tech);
+        // When
+        full.excludeAll(tech);
+        // Then
+        Set<Tech> excludedSet = full.getExcludeTech();
+        int langSize = techsToExclude.size();
+        assertThat(excludedSet.size(), is(equalTo(langSize)));
+        assertTrue(excludedSet.containsAll(techsToExclude));
+    }
+
+    @ParameterizedTest
+    @MethodSource("shouldReturnTestableTechs")
+    void shouldIncludeTechsInTechSetBasedOnSubset(Tech tech) {
+        // Given
+        TechSet full = new TechSet();
+        Set<Tech> techsToInclude = TechSet.getAll(tech);
+        // When
+        full.includeAll(tech);
+        // Then
+        Set<Tech> includeSet = full.getIncludeTech();
+        int langSize = techsToInclude.size();
+        assertThat(includeSet.size(), is(equalTo(langSize)));
+        assertTrue(includeSet.containsAll(techsToInclude));
+    }
+
+    private static Stream<Arguments> shouldReturnTestableTechs() {
+        return Stream.of(
+                Arguments.of(Tech.Lang), Arguments.of(Tech.JAVA), Arguments.of(Tech.SPRING));
     }
 }

@@ -21,6 +21,7 @@ package org.zaproxy.zap.model;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
+import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -36,8 +37,11 @@ class TechUnitTest {
 
     private static final String SUB_LEVEL = "SubLevel";
 
-    private static final Tech newTopLevelTech = new Tech(TOP_LEVEL);
+    private static final String A_TOP_LEVEL = "aTopLevel";
+    private static final String A_SECOND_LEVEL = "aSecondLevel";
+    private static final String A_THIRD_LEVEL = "aThirdLevel";
 
+    private static final Tech newTopLevelTech = new Tech(TOP_LEVEL);
     private static final Tech newTech = new Tech(Tech.Db, SUB_LEVEL);
 
     @Test
@@ -117,5 +121,43 @@ class TechUnitTest {
         // cleanup
         Tech.remove(newTopLevelTech);
         Tech.remove(newTech);
+    }
+
+    @Test
+    void isShouldMatchVariousLevels() {
+        // Given
+        setupThreeLevels();
+        Tech topLevel = Tech.get(A_TOP_LEVEL);
+        Tech secondLevel = Tech.get(String.join(".", A_TOP_LEVEL, A_SECOND_LEVEL));
+        Tech thirdLevel = Tech.get(String.join(".", A_TOP_LEVEL, A_SECOND_LEVEL, A_THIRD_LEVEL));
+        // When
+        boolean topIsTop = topLevel.is(topLevel);
+        boolean secondIsTop = secondLevel.is(topLevel);
+        boolean secondIsSecond = secondLevel.is(secondLevel);
+        boolean thirdIsTop = thirdLevel.is(topLevel);
+        boolean thirdIsSecond = thirdLevel.is(secondLevel);
+        boolean thirdIsThird = thirdLevel.is(thirdLevel);
+
+        boolean topIsNotOtherTop = topLevel.is(Tech.Db);
+        boolean thirdIsNotOtherTop = thirdLevel.is(Tech.Db);
+        // Then
+        assertThat(topIsTop, is(equalTo(true)));
+        assertThat(secondIsTop, is(equalTo(true)));
+        assertThat(secondIsSecond, is(equalTo(true)));
+        assertThat(thirdIsTop, is(equalTo(true)));
+        assertThat(thirdIsSecond, is(equalTo(true)));
+        assertThat(thirdIsThird, is(equalTo(true)));
+
+        assertThat(topIsNotOtherTop, is(equalTo(false)));
+        assertThat(thirdIsNotOtherTop, is(equalTo(false)));
+    }
+
+    private void setupThreeLevels() {
+        Tech newTopLevel = new Tech(A_TOP_LEVEL);
+        Tech newTech = new Tech(newTopLevel, A_SECOND_LEVEL);
+        Tech otherTech = new Tech(newTech, A_THIRD_LEVEL);
+        Tech.add(newTopLevel);
+        Tech.add(newTech);
+        Tech.add(otherTech);
     }
 }

@@ -66,9 +66,33 @@ public class TechSet {
         includeTech.add(tech);
     }
 
+    /**
+     * Includes the {@link Tech} and its children (if any) to the {@code TechSet}.
+     *
+     * @param tech the {@code Tech} from which the parent/child set should be established
+     * @since 2.15.0
+     */
+    public void includeAll(Tech tech) {
+        Set<Tech> techs = getAll(tech);
+        includeTech.addAll(techs);
+        excludeTech.removeAll(techs);
+    }
+
     public void exclude(Tech tech) {
         includeTech.remove(tech);
         excludeTech.add(tech);
+    }
+
+    /**
+     * Excludes the {@link Tech} and its children (if any) from the {@code TechSet}.
+     *
+     * @param tech the {@code Tech} from which the parent/child set should be established
+     * @since 2.15.0
+     */
+    public void excludeAll(Tech tech) {
+        Set<Tech> techs = getAll(tech);
+        excludeTech.addAll(techs);
+        includeTech.removeAll(techs);
     }
 
     public boolean includes(Tech tech) {
@@ -154,5 +178,26 @@ public class TechSet {
         TechSet other = (TechSet) obj;
         return Objects.equals(excludeTech, other.excludeTech)
                 && Objects.equals(includeTech, other.includeTech);
+    }
+
+    /**
+     * Gets the {@link Tech} and its children (if any), returning a {@code Set} of individual {@code
+     * Tech}.
+     *
+     * @param aTech the {@code Tech} from which the parent/child set should be established
+     * @return the {@code Set} of {@code Tech} represented by this {@code Tech} and its children (if
+     *     any)
+     */
+    static Set<Tech> getAll(Tech aTech) {
+        Set<Tech> techs = new TreeSet<>();
+        for (Tech tech : Tech.getAll()) {
+            while (tech != null) {
+                if (tech.is(aTech)) {
+                    techs.add(tech);
+                }
+                tech = tech.getParent();
+            }
+        }
+        return techs;
     }
 }
