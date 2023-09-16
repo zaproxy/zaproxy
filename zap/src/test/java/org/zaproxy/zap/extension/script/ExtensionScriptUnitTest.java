@@ -24,6 +24,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.nullValue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -55,6 +58,22 @@ class ExtensionScriptUnitTest {
         ScriptsCache<Script> scriptsCache = extensionScript.createScriptsCache(configuration);
         // Then
         assertThat(scriptsCache, is(not(nullValue())));
+    }
+
+    @Test
+    void shouldPersistScriptPropertiesWhenItIsEnabled() {
+        // Given
+        var extensionScript = spy(new ExtensionScript());
+        var scriptParam = mock(ScriptParam.class);
+        when(extensionScript.getScriptParam()).thenReturn(scriptParam);
+        var script = spy(new ScriptWrapper());
+        script.setType(new ScriptType("scriptType", "scriptType", null, true));
+        script.setEngine(mock(ScriptEngineWrapper.class));
+        // When
+        extensionScript.setEnabled(script, true);
+        // Then
+        verify(script).setEnabled(true);
+        verify(scriptParam).saveScriptProperties(script);
     }
 
     private interface Script {}

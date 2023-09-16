@@ -1856,6 +1856,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         }
 
         script.setEnabled(enabled);
+        getScriptParam().saveScriptProperties(script);
         this.getTreeModel().nodeStructureChanged(script);
 
         notifyScriptChanged(script);
