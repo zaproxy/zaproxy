@@ -25,6 +25,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 /** Unit test for {@link ScriptWrapper}. */
 class ScriptWrapperUnitTest {
@@ -63,5 +64,32 @@ class ScriptWrapperUnitTest {
         scriptWrapper.setContents(contents);
         // Then
         assertThat(scriptWrapper.getModCount(), is(equalTo(oldModCount)));
+    }
+
+    @Test
+    void shouldNotChangeScriptWhenEnabled() {
+        // Given
+        var scriptWrapper = new ScriptWrapper();
+        scriptWrapper.setEngine(Mockito.mock(ScriptEngineWrapper.class));
+        scriptWrapper.setChanged(false);
+        scriptWrapper.setEnabled(false);
+        // When
+        scriptWrapper.setEnabled(true);
+        // Then
+        assertThat(scriptWrapper.isEnabled(), is(true));
+        assertThat(scriptWrapper.isChanged(), is(false));
+    }
+
+    @Test
+    void shouldNotEnableScriptWithNullEngine() {
+        // Given
+        var scriptWrapper = new ScriptWrapper();
+        scriptWrapper.setEngine(null);
+        scriptWrapper.setChanged(false);
+        scriptWrapper.setEnabled(false);
+        // When
+        scriptWrapper.setEnabled(true);
+        // Then
+        assertThat(scriptWrapper.isEnabled(), is(false));
     }
 }

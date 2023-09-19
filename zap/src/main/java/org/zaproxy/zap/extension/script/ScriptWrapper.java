@@ -242,11 +242,7 @@ public class ScriptWrapper {
         if (enabled && engine == null) {
             return;
         }
-
-        if (this.enabled != enabled) {
-            this.enabled = enabled;
-            this.changed = true;
-        }
+        this.enabled = enabled;
     }
 
     public String getLastErrorDetails() {

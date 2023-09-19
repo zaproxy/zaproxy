@@ -150,6 +150,19 @@ public class ScriptParam extends AbstractParam {
         return scripts;
     }
 
+    /**
+     * Saves the properties of the provided script to the configuration file. Currently, only the
+     * `enabled` property of the script is saved.
+     */
+    void saveScriptProperties(ScriptWrapper script) {
+        List<HierarchicalConfiguration> fields =
+                ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_SCRIPTS_KEY);
+        fields.stream()
+                .filter(config -> script.getName().equals(config.getString(SCRIPT_NAME_KEY)))
+                .findAny()
+                .ifPresent(config -> config.setProperty(SCRIPT_ENABLED_KEY, script.isEnabled()));
+    }
+
     public void addScriptDir(File dir) {
         this.scriptDirs.add(dir);
         saveScriptDirs();
