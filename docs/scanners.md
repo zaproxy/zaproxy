@@ -102,6 +102,7 @@ Scan rules:
 10111   Authentication Request Detection (info)
 10112   Session Handling Detection (info)
 10113   Verification Detection (info)
+10114   Same Origin Method Execution (SOME)
 
 10200   Beast (via HTTPS Info Extension) [Deprecated]
 10201   Crime (via HTTPS Info Extension) [Deprecated]
