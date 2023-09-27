@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.api;
 
 import java.util.List;
+import org.zaproxy.zap.extension.api.API.RequestType;
 
 public class ApiAction extends ApiElement {
 
@@ -42,5 +43,10 @@ public class ApiAction extends ApiElement {
 
     public ApiAction(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
         super(name, mandatoryParamNames, optionalParamNames);
+    }
+
+    @Override
+    public RequestType getType() {
+        return RequestType.action;
     }
 }

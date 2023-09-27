@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.api;
 
 import java.util.List;
+import org.zaproxy.zap.extension.api.API.RequestType;
 
 public class ApiOther extends ApiElement {
 
@@ -85,5 +86,10 @@ public class ApiOther extends ApiElement {
 
     public void setRequiresApiKey(boolean requiresApiKey) {
         this.requiresApiKey = requiresApiKey;
+    }
+
+    @Override
+    public RequestType getType() {
+        return RequestType.other;
     }
 }

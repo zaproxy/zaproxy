@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.api;
 
 import java.util.List;
+import org.zaproxy.zap.extension.api.API.RequestType;
 
 public class ApiView extends ApiElement {
 
@@ -41,5 +42,10 @@ public class ApiView extends ApiElement {
 
     public ApiView(String name, String[] mandatoryParamNames) {
         super(name, mandatoryParamNames);
+    }
+
+    @Override
+    public RequestType getType() {
+        return RequestType.view;
     }
 }

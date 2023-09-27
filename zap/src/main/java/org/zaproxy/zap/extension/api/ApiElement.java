@@ -217,4 +217,14 @@ public class ApiElement {
     public void setDeprecatedDescription(String description) {
         this.deprecatedDescription = description;
     }
+
+    /**
+     * Gets the request type.
+     *
+     * @return the type, might be {@code null}.
+     * @since 2.14.0
+     */
+    public API.RequestType getType() {
+        return null;
+    }
 }
