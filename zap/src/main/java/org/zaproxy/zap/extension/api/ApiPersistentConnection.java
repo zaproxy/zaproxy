@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.api;
 
 import java.util.List;
+import org.zaproxy.zap.extension.api.API.RequestType;
 
 public class ApiPersistentConnection extends ApiElement {
 
@@ -43,5 +44,10 @@ public class ApiPersistentConnection extends ApiElement {
     public ApiPersistentConnection(
             String name, String[] mandatoryParamNames, String[] optionalParamNames) {
         super(name, mandatoryParamNames, optionalParamNames);
+    }
+
+    @Override
+    public RequestType getType() {
+        return RequestType.pconn;
     }
 }

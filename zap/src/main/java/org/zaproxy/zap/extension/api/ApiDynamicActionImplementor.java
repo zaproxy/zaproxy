@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.api;
 import java.util.HashMap;
 import java.util.Map;
 import net.sf.json.JSONObject;
+import org.zaproxy.zap.extension.api.API.RequestType;
 
 /** The ApiDynamicActionImplementor is used for actions that are loaded dynamically. */
 public abstract class ApiDynamicActionImplementor extends ApiElement {
@@ -73,5 +74,10 @@ public abstract class ApiDynamicActionImplementor extends ApiElement {
         m.put("name", paramName);
         m.put("mandatory", mandatory ? "true" : "false");
         return new ApiResponseSet<>("param", m);
+    }
+
+    @Override
+    public RequestType getType() {
+        return RequestType.action;
     }
 }
