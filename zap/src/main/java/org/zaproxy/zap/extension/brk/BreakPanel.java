@@ -23,7 +23,9 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -41,6 +43,7 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -76,8 +79,9 @@ public class BreakPanel extends AbstractPanel implements BreakpointManagementInt
     private final JButton toolBarBtnDrop;
     private final JButton toolBarBtnBreakPoint;
 
-    private ZapToggleButton fixRequestContentLength = null;
-    private ZapToggleButton fixResponseContentLength = null;
+    private ZapToggleButton fixRequestContentLength;
+    private ZapToggleButton fixResponseContentLength;
+    private ZapToggleButton fixRequestHostHeader;
 
     private Message msg;
     private boolean isAlwaysOnTop = false;
@@ -176,6 +180,7 @@ public class BreakPanel extends AbstractPanel implements BreakpointManagementInt
         requestOptionsToolBar.setRollover(true);
 
         requestOptionsToolBar.add(this.getRequestButtonFixContentLength());
+        requestOptionsToolBar.add(this.getRequestButtonFixHostHeader());
         requestPanel.addOptions(requestOptionsToolBar, HttpPanel.OptionsLocation.AFTER_COMPONENTS);
 
         JToolBar responseOptionsToolBar = new JToolBar();
@@ -352,6 +357,8 @@ public class BreakPanel extends AbstractPanel implements BreakpointManagementInt
                                 requestPanel.setEditable(true);
                                 getRequestButtonFixContentLength()
                                         .setVisible(msg instanceof HttpMessage);
+                                getRequestButtonFixHostHeader()
+                                        .setVisible(msg instanceof HttpMessage);
                                 cl.show(panelContent, REQUEST_PANEL);
                             } else {
                                 responsePanel.setMessage(aMessage, true);
@@ -388,10 +395,8 @@ public class BreakPanel extends AbstractPanel implements BreakpointManagementInt
 
                             if (isRequest) {
                                 Message msg = getMessage();
-                                if (msg instanceof HttpMessage
-                                        && getRequestButtonFixContentLength().isSelected()) {
-                                    HttpPanelViewModelUtils.updateRequestContentLength(
-                                            (HttpMessage) msg);
+                                if (msg instanceof HttpMessage) {
+                                    updateHttpRequestMessage((HttpMessage) msg);
                                 }
                                 cl.show(panelContent, REQUEST_PANEL);
                             } else {
@@ -407,6 +412,27 @@ public class BreakPanel extends AbstractPanel implements BreakpointManagementInt
                     });
         } catch (Exception ie) {
             LOGGER.warn(ie.getMessage(), ie);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void updateHttpRequestMessage(HttpMessage msg) {
+        if (getRequestButtonFixContentLength().isSelected()) {
+            HttpPanelViewModelUtils.updateRequestContentLength(msg);
+        }
+        if (!getRequestButtonFixHostHeader().isSelected()) {
+            Map<String, Object> properties;
+            if (msg.getUserObject() instanceof Map<?, ?>) {
+                properties = (Map<String, Object>) msg.getUserObject();
+            } else {
+                properties = new HashMap<>();
+            }
+
+            String host = msg.getRequestHeader().getHeader(HttpRequestHeader.HOST);
+            if (host != null) {
+                properties.put("host", host);
+                msg.setUserObject(properties);
+            }
         }
     }
 
@@ -457,6 +483,7 @@ public class BreakPanel extends AbstractPanel implements BreakpointManagementInt
         requestPanel.clearView(false);
         requestPanel.setEditable(false);
         getRequestButtonFixContentLength().setVisible(false);
+        getRequestButtonFixHostHeader().setVisible(false);
         breakpointLeft();
     }
 
@@ -625,6 +652,22 @@ public class BreakPanel extends AbstractPanel implements BreakpointManagementInt
             fixResponseContentLength.setVisible(false);
         }
         return fixResponseContentLength;
+    }
+
+    private ZapToggleButton getRequestButtonFixHostHeader() {
+        if (fixRequestHostHeader == null) {
+            fixRequestHostHeader =
+                    new ZapToggleButton(
+                            DisplayUtils.getScaledIcon(
+                                    new ImageIcon(
+                                            BreakPanel.class.getResource(
+                                                    "/resource/icon/fugue/server.png"))),
+                            true);
+            fixRequestHostHeader.setToolTipText(
+                    Constant.messages.getString("brk.checkBox.fixHostHeader"));
+            fixRequestHostHeader.setVisible(false);
+        }
+        return fixRequestHostHeader;
     }
 
     /**
