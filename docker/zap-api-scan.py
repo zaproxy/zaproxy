@@ -423,7 +423,7 @@ def main(argv):
                     logging.info('Using host override, new target: {0}'.format(target))
             else:
                 logging.debug('Import OpenAPI File ' + target_file)
-                res = zap.openapi.import_file(target_file)
+                res = zap.openapi.import_file(target_file, context_id)
                 urls = zap.core.urls()
                 if len(urls) > 0:
                     # Choose the first one - will be striping off the path below
