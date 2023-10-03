@@ -43,7 +43,6 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -426,13 +425,10 @@ public class BreakPanel extends AbstractPanel implements BreakpointManagementInt
                 properties = (Map<String, Object>) msg.getUserObject();
             } else {
                 properties = new HashMap<>();
-            }
-
-            String host = msg.getRequestHeader().getHeader(HttpRequestHeader.HOST);
-            if (host != null) {
-                properties.put("host", host);
                 msg.setUserObject(properties);
             }
+
+            properties.put("host.normalization", Boolean.FALSE);
         }
     }
 
