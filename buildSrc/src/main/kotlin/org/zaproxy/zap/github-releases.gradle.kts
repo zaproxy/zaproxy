@@ -2,6 +2,7 @@ package org.zaproxy.zap
 
 import com.install4j.gradle.Install4jTask
 import java.util.regex.Pattern
+import org.cyclonedx.gradle.CycloneDxTask
 import org.zaproxy.zap.GitHubUser
 import org.zaproxy.zap.GitHubRepo
 import org.zaproxy.zap.tasks.CreateDmg
@@ -129,6 +130,11 @@ tasks.register<CreateMainRelease>("createMainRelease") {
             register("windows32-installer") {
                 file.set(mapToFile(installersFileTree, "ZAP_${version.toString().replace('.', '_')}_windows-x32.exe"))
                 contentType.set("application/x-ms-dos-executable")
+            }
+            register("bom") {
+                val cyclonedxBom by tasks.existing(CycloneDxTask::class)
+                file.set(cyclonedxBom.map { project.layout.projectDirectory.file(File(it.destination.get(), "${it.outputName.get()}.json").absolutePath) })
+                contentType.set("application/json")
             }
         }
     }
