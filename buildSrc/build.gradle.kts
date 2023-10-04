@@ -37,4 +37,5 @@ dependencies {
     implementation("edu.sc.seis.launch4j:launch4j:3.0.3")
     implementation("gradle.plugin.install4j.install4j.buildtools:gradle_publish:10.0.6")
     implementation("me.champeau.gradle:japicmp-gradle-plugin:0.4.1")
+    implementation("org.cyclonedx:cyclonedx-gradle-plugin:1.7.4")
 }
