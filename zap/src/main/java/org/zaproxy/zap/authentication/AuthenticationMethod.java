@@ -262,7 +262,8 @@ public abstract class AuthenticationMethod {
 
         if (msg == null
                 || user == null
-                || AuthCheckingStrategy.AUTO_DETECT.equals(this.authCheckingStrategy)) {
+                || AuthCheckingStrategy.AUTO_DETECT.equals(this.authCheckingStrategy)
+                || user.getAuthenticatedSession() == null) {
             return false;
         }
         AuthenticationState authState = user.getAuthenticationState();

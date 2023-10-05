@@ -20,6 +20,8 @@
 package org.zaproxy.zap.session;
 
 import java.net.HttpCookie;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import net.sf.json.JSONObject;
@@ -102,20 +104,36 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
             return c;
         }
 
+        private HttpCookie convertCookie(Cookie cookie) {
+            HttpCookie c =
+                    new HttpCookie(
+                            cookie.getName(),
+                            cookie.getValue());
+            c.setComment(cookie.getComment());
+            return c;
+        }
+
         @Override
         public WebSession extractWebSession(HttpMessage msg) {
-            if (msg.getRequestingUser() != null)
+            if (msg.getRequestingUser() != null){
                 return msg.getRequestingUser().getAuthenticatedSession();
+            }
             else {
                 // Make sure any cookies in the message are put in the session
                 CookieBasedSession session = new CookieBasedSession();
-                for (HttpCookie c : msg.getRequestHeader().getHttpCookies())
-                    session.getHttpState().addCookie(convertCookie(c));
+                for (HttpCookie c : msg.getRequestHeader().getHttpCookies()){
+                    Cookie cook = convertCookie(c);
+                    if (!Arrays.asList(session.getHttpState().getCookies()).contains(cook))
+                        session.getHttpState().addCookie(cook);
+                }
                 // Use the messages hostname as default domain when generating SET cookies
                 for (HttpCookie c :
                         msg.getResponseHeader()
-                                .getHttpCookies(msg.getRequestHeader().getHostName()))
-                    session.getHttpState().addCookie(convertCookie(c));
+                                .getHttpCookies(msg.getRequestHeader().getHostName())){
+                                    Cookie cook = convertCookie(c);
+                                    if (!Arrays.asList(session.getHttpState().getCookies()).contains(cook))
+                                        session.getHttpState().addCookie(cook);
+                                }
                 return session;
             }
         }
@@ -123,24 +141,25 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
         @Override
         public void processMessageToMatchSession(HttpMessage message, WebSession session)
                 throws UnsupportedWebSessionException {
-            if (session == null || session.getHttpState() == null) return;
-
             session.getHttpState().purgeExpiredCookies();
+            // Peter: The session cookies arent being added back, so this is fine for now
 
-            // Remove any cookies that will be added by the HttpState from the message
-            List<HttpCookie> cookies = message.getRequestHeader().getHttpCookies();
-            Iterator<HttpCookie> it = cookies.iterator();
-
-            while (it.hasNext()) {
-                HttpCookie c = it.next();
-                for (Cookie sc : session.getHttpState().getCookies())
-                    if (sc.getName().equals(c.getName())) {
-                        it.remove();
-                        break;
-                    }
+            List<HttpCookie> newCookies = new ArrayList<>();
+            for (Cookie sc : session.getHttpState().getCookies()) {
+                HttpCookie httpCookie = convertCookie(sc);
+                if (!newCookies.contains(httpCookie)){
+                    newCookies.add(httpCookie); //Perhaps duplicate cookies caused the 400 header too large
+                }
             }
-            message.setCookies(cookies);
+            // List<Cookie> authSessionCookies = Arrays.asList(message.getRequestingUser().getAuthenticatedSession().getHttpState().getCookies());
+            // System.out.println("http session cookies:");
+            // newCookies.forEach(c -> System.out.print(c.getName() + ", ")); System.out.println();
+            // System.out.println("user auth session cookies:");
+            // authSessionCookies.forEach(c -> System.out.print(c.getName() + ", ")); System.out.println();
+            // System.out.println();
+            message.setCookies(newCookies);
         }
+
 
         private static ExtensionHttpSessions getHttpSessionsExtension() {
             if (extHttpSessions == null) {
