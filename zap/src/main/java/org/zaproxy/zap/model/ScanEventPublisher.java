@@ -38,6 +38,7 @@ public abstract class ScanEventPublisher implements EventPublisher {
 
     public static final String SCAN_ID = "scanId";
     public static final String SCAN_PROGRESS = "scanProgress";
+    public static final String TARGET_URL = "url";
     public static final String USER_ID = "userId";
     public static final String USER_NAME = "userName";
 
@@ -65,18 +66,36 @@ public abstract class ScanEventPublisher implements EventPublisher {
     }
 
     public void publishScanEvent(EventPublisher publisher, String event, int scanId) {
-        this.publishScanEvent(publisher, event, scanId, null, null);
+        this.publishScanEvent(publisher, event, scanId, (Target) null, null);
     }
 
     public void publishScanEvent(
             EventPublisher publisher, String event, int scanId, Target target, User user) {
-        Map<String, String> map = new HashMap<>();
-        map.put(SCAN_ID, Integer.toString(scanId));
-        if (user != null) {
-            map.put(USER_ID, Integer.toString(user.getId()));
-            map.put(USER_NAME, user.getName());
+        this.publishScanEvent(publisher, event, scanId, target, user, new HashMap<>());
+    }
+
+    public void publishScanEvent(
+            EventPublisher publisher, String event, int scanId, String url, User user) {
+        HashMap<String, String> map = new HashMap<>();
+        if (url != null) {
+            map.put(TARGET_URL, url);
         }
-        ZAP.getEventBus().publishSyncEvent(publisher, new Event(publisher, event, target, map));
+        this.publishScanEvent(publisher, event, scanId, null, user, map);
+    }
+
+    public void publishScanEvent(
+            EventPublisher publisher,
+            String event,
+            int scanId,
+            Target target,
+            User user,
+            Map<String, String> params) {
+        params.put(SCAN_ID, Integer.toString(scanId));
+        if (user != null) {
+            params.put(USER_ID, Integer.toString(user.getId()));
+            params.put(USER_NAME, user.getName());
+        }
+        ZAP.getEventBus().publishSyncEvent(publisher, new Event(publisher, event, target, params));
     }
 
     public void publishScanProgressEvent(EventPublisher publisher, int scanId, int scanProgress) {
