@@ -156,7 +156,7 @@ public interface ScriptUI {
      * Selects a node with focus with/without expanding.
      *
      * @param node The node to be selected.
-     * @expand {@code true} to expand the node, {@code false} otherwise.
+     * @param expand {@code true} to expand the node, {@code false} otherwise.
      */
     void selectNode(ScriptNode node, boolean expand);
 
