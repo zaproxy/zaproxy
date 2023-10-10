@@ -113,7 +113,7 @@ tasks.register<JavaExec>("run") {
     workingDir = distDir
 }
 
-listOf("jar", "jarDaily").forEach {
+listOf("jar", "jarDaily", "jarWithBom").forEach {
     tasks.named<Jar>(it) {
         isPreserveFileTimestamps = false
         isReproducibleFileOrder = true
