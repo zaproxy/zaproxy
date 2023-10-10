@@ -6,6 +6,7 @@ import de.undercouch.gradle.tasks.download.Download
 import de.undercouch.gradle.tasks.download.Verify
 import org.apache.tools.ant.filters.ReplaceTokens
 import org.apache.tools.ant.taskdefs.condition.Os
+import org.cyclonedx.gradle.CycloneDxTask
 import org.zaproxy.zap.tasks.internal.Utils
 import org.zaproxy.zap.tasks.CreateDmg
 import org.zaproxy.zap.tasks.DownloadMainAddOns
@@ -21,7 +22,25 @@ val dailyVersion = provider { "D-${extra["creationDate"]}" }
 val distDir = file("src/main/dist/")
 val bundledResourcesPath = "src/main/resources/org/zaproxy/zap/resources"
 
+val cyclonedxRuntimeBom by tasks.registering(CycloneDxTask::class) {
+    setIncludeConfigs(listOf(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME))
+    setDestination(file("$buildDir/reports/bom-runtime"))
+    setOutputFormat("json")
+}
+
 val jar by tasks.existing(Jar::class)
+val jarWithBom by tasks.registering(Jar::class) {
+    destinationDirectory.set(file("$buildDir/libs/withBom/"))
+
+    from(jar.map { it.source }) {
+        exclude("MANIFEST.MF")
+    }
+    from(cyclonedxRuntimeBom)
+}
+
+tasks.named<CycloneDxTask>("cyclonedxBom") {
+    setDestination(file("$buildDir/reports/bom-all"))
+}
 
 val mainAddOnsFile = file("src/main/main-add-ons.yml")
 
@@ -51,10 +70,10 @@ val bundledAddOns: Any = provider {
 
 val distFiles by tasks.registering(Sync::class) {
     destinationDir = file("$buildDir/distFiles")
-    from(jar)
+    from(jarWithBom)
     from(distDir) {
         filesMatching(listOf("zap.bat", "zap.sh")) {
-            filter<ReplaceTokens>("tokens" to mapOf("zapJar" to jar.get().archiveFileName.get()))
+            filter<ReplaceTokens>("tokens" to mapOf("zapJar" to jarWithBom.get().archiveFileName.get()))
         }
         exclude("README.weekly")
         exclude("plugin/*.zap")
@@ -228,7 +247,7 @@ listOf(
                         "JREDIR" to macOsJreUnpackDir.listFiles()[0].name,
                         "SHORT_VERSION_STRING" to "$version",
                         "VERSION_STRING" to "2",
-                        "ZAPJAR" to jar.get().archiveFileName.get()
+                        "ZAPJAR" to jarWithBom.get().archiveFileName.get()
                     )
                 )
             }
@@ -273,7 +292,7 @@ listOf(
 val jarDaily by tasks.registering(Jar::class) {
     archiveVersion.set(dailyVersion)
 
-    from(jar.map { it.source }) {
+    from(jarWithBom.map { it.source }) {
         exclude("MANIFEST.MF")
     }
 }
@@ -310,7 +329,7 @@ val distDaily by tasks.registering(Zip::class) {
     }
     from(distFiles) {
         into(rootDir)
-        exclude(jar.get().archiveFileName.get())
+        exclude(jarWithBom.get().archiveFileName.get())
         exclude("README")
         exclude(startScripts)
     }
@@ -365,7 +384,7 @@ val prepareDistWeekly by tasks.registering(Sync::class) {
         rename { "README" }
     }
     from(distFiles) {
-        exclude(jar.get().archiveFileName.get())
+        exclude(jarWithBom.get().archiveFileName.get())
         exclude("README")
         exclude(startScripts)
     }
