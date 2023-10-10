@@ -67,7 +67,7 @@ class CoreAPIUnitTest {
 
     @Test
     void shouldAddApiElements() {
-        assertThat(coreApi.getApiActions(), hasSize(41));
+        assertThat(coreApi.getApiActions(), hasSize(42));
         assertThat(coreApi.getApiViews(), hasSize(40));
         assertThat(coreApi.getApiOthers(), hasSize(13));
     }

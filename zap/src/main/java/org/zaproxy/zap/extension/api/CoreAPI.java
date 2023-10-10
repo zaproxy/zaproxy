@@ -80,6 +80,7 @@ import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.HarUtils;
+import org.zaproxy.zap.utils.ZapSupportUtils;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
@@ -129,6 +130,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE =
             "enablePKCS12ClientCertificate";
     private static final String ACTION_DISABLE_CLIENT_CERTIFICATE = "disableClientCertificate";
+    private static final String ACTION_CREATE_SBOM_ZIP = "createSbomZip";
 
     private static final String VIEW_ALERT = "alert";
     private static final String VIEW_ALERTS = "alerts";
@@ -331,6 +333,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 new String[] {PARAM_FILE_PATH, PARAM_PASSWORD},
                                 new String[] {PARAM_INDEX})));
         this.addApiAction(deprecatedNetworkApi(new ApiAction(ACTION_DISABLE_CLIENT_CERTIFICATE)));
+        this.addApiAction(
+                new ApiAction(ACTION_CREATE_SBOM_ZIP, new String[] {PARAM_FILE_PATH}, null));
 
         // Deprecated actions
         this.addApiAction(depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALL_ALERTS)));
@@ -883,6 +887,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             JSONObject newParams = new JSONObject();
             params.put("use", false);
             return getNetworkImplementor().handleApiAction("setUseClientCertificate", newParams);
+        } else if (ACTION_CREATE_SBOM_ZIP.equals(name)) {
+            File sbomFile = new File(params.getString(PARAM_FILE_PATH));
+            if (sbomFile.exists()) {
+                throw new ApiException(ApiException.Type.ALREADY_EXISTS, PARAM_FILE_PATH);
+            }
+            try {
+                ZapSupportUtils.saveSbomZip(sbomFile);
+            } catch (IOException e) {
+                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+            }
+
         } else {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }
