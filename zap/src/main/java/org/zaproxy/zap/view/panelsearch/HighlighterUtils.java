@@ -20,8 +20,10 @@
 package org.zaproxy.zap.view.panelsearch;
 
 import java.awt.Color;
+import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.border.TitledBorder;
 import org.zaproxy.zap.utils.DisplayUtils;
 
 public final class HighlighterUtils {
@@ -30,6 +32,7 @@ public final class HighlighterUtils {
     private static final String BACKGROUND = "Background";
     private static final String BORDER = "Border";
     private static final String TITLE = "title";
+    private static final String FONT = "font";
 
     public static final Color DEFAULT_HIGHLIGHT_COLOR = new Color(255, 204, 0);
 
@@ -90,13 +93,21 @@ public final class HighlighterUtils {
 
     private static HighlightedComponent highlightTitleWithHtml(
             ComponentWithTitle componentWithTitle, String format) {
-        HighlightedComponent highlightedComponent =
-                new HighlightedComponent(componentWithTitle.getComponent());
+        Object component = componentWithTitle.getComponent();
+        HighlightedComponent highlightedComponent = new HighlightedComponent(component);
         String title = componentWithTitle.getTitle();
         if (!title.startsWith("<html>")) {
-            highlightedComponent.put(TITLE, title);
-            String titleWithinHtml = String.format(format, title);
-            componentWithTitle.setTitle(titleWithinHtml);
+            // TitledBorder no longer supports HTML per ZapLookAndFeel changes.
+            if (component instanceof TitledBorder) {
+                TitledBorder titledBorder = (TitledBorder) component;
+                Font font = titledBorder.getTitleFont();
+                highlightedComponent.put(FONT, font);
+                titledBorder.setTitleFont(font.deriveFont(Font.BOLD));
+            } else {
+                highlightedComponent.put(TITLE, title);
+                String titleWithinHtml = String.format(format, title);
+                componentWithTitle.setTitle(titleWithinHtml);
+            }
             return highlightedComponent;
         }
         return null;
@@ -104,8 +115,14 @@ public final class HighlighterUtils {
 
     private static void undoHighlightTitleWithHtml(
             ComponentWithTitle componentWithTitle, HighlightedComponent highlightedComponent) {
-        String title = highlightedComponent.get(TITLE);
-        componentWithTitle.setTitle(title);
+        Object component = componentWithTitle.getComponent();
+        if (component instanceof TitledBorder) {
+            TitledBorder titledBorder = (TitledBorder) component;
+            titledBorder.setTitleFont(highlightedComponent.get(FONT));
+        } else {
+            String title = highlightedComponent.get(TITLE);
+            componentWithTitle.setTitle(title);
+        }
     }
 
     public static HighlightedComponent highlightBorder(JComponent component, Color color) {
