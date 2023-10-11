@@ -54,6 +54,7 @@
 // ZAP: 2022/08/18 Support parameters supplied to newly installed or updated add-ons.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/03/23 Read ZAP_SILENT env var.
+// ZAP: 2023/10/10 Add -sbomzip option.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -104,6 +105,7 @@ public class CommandLine {
     public static final String LOWMEM = "-lowmem";
     public static final String EXPERIMENTALDB = "-experimentaldb";
     public static final String SUPPORT_INFO = "-suppinfo";
+    public static final String SBOM_ZIP = "-sbomzip";
     public static final String SILENT = "-silent";
     static final String SILENT_ENV_VAR = "ZAP_SILENT";
 
@@ -137,6 +139,7 @@ public class CommandLine {
     private boolean lowMem = false;
     private boolean experimentalDb = false;
     private boolean silent = false;
+    private File saveSbomZip;
     private String[] args;
     private String[] argsBackup;
     private final Map<String, String> configs = new LinkedHashMap<>();
@@ -440,6 +443,13 @@ public class CommandLine {
             Constant.setZapInstall(keywords.get(INSTALL_DIR));
             result = true;
 
+        } else if (checkPair(args, SBOM_ZIP, i)) {
+            String zipName = keywords.get(SBOM_ZIP);
+            this.saveSbomZip = new File(zipName);
+            setDaemon(false);
+            setGUI(false);
+            result = true;
+
         } else if (checkPair(args, CONFIG, i)) {
             String pair = keywords.get(CONFIG);
             if (pair != null && pair.indexOf("=") > 0) {
@@ -538,6 +548,10 @@ public class CommandLine {
 
     public boolean isDisplaySupportInfo() {
         return this.displaySupportInfo;
+    }
+
+    public File getSaveSbomZip() {
+        return this.saveSbomZip;
     }
 
     /**

@@ -19,7 +19,9 @@
  */
 package org.zaproxy.zap;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.FileAlreadyExistsException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
@@ -77,6 +79,7 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
 
         try {
             control.getExtensionLoader().hookCommandLineListener(getArgs());
+            File sbomFile = getArgs().getSaveSbomZip();
             if (getArgs().isEnabled(CommandLine.HELP) || getArgs().isEnabled(CommandLine.HELP2)) {
                 System.out.println(getArgs().getHelp());
 
@@ -85,6 +88,24 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
 
             } else if (getArgs().isDisplaySupportInfo()) {
                 System.out.println(ZapSupportUtils.getAll(false));
+
+            } else if (sbomFile != null) {
+                if (sbomFile.exists()) {
+                    throw new FileAlreadyExistsException(
+                            sbomFile.getAbsolutePath(), null, "File already exists");
+                }
+
+                int count = ZapSupportUtils.saveSbomZip(sbomFile);
+                if (count == 0) {
+                    System.out.println(
+                            Constant.messages.getString("support.savesbom.warn.nosboms"));
+                } else {
+                    System.out.println(
+                            Constant.messages.getString(
+                                    "support.savesbom.info.generated",
+                                    count,
+                                    sbomFile.getAbsolutePath()));
+                }
 
             } else {
                 if (handleCmdLineSessionArgsSynchronously(control)) {
