@@ -210,6 +210,7 @@ public class GuiBootstrap extends ZapBootstrap {
                                 warnAddOnsAndExtensionsNoLongerRunnable();
 
                                 HeadlessBootstrap.checkForUpdates();
+                                recordStartStats();
                             }
                         });
         bootstrap.setName("ZAP-BootstrapGUI");
