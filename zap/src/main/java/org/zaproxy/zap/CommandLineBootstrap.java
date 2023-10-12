@@ -109,6 +109,7 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
 
             } else {
                 if (handleCmdLineSessionArgsSynchronously(control)) {
+                    recordStartStats();
                     control.runCommandLine();
 
                     try {

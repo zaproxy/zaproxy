@@ -27,6 +27,7 @@ import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.control.ControlOverrides;
+import org.zaproxy.zap.utils.Stats;
 
 /**
  * ZAP's bootstrap process.
@@ -127,5 +128,17 @@ abstract class ZapBootstrap {
         strBuilder.append(dateFormat.format(new Date()));
         strBuilder.append(" with home ").append(Constant.getZapHome());
         return strBuilder.toString();
+    }
+
+    /**
+     * Record startup stats
+     *
+     * @since 2.14.0
+     */
+    protected void recordStartStats() {
+        getControlOverrides()
+                .getOrderedConfigs()
+                .keySet()
+                .forEach(k -> Stats.incCounter("stats.config." + k));
     }
 }
