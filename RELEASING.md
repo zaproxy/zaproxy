@@ -67,9 +67,10 @@ The resulting localized resources are added/updated in the repository periodical
   - [ ] [Snap](https://github.com/zaproxy/zaproxy/tree/main/snap)
     - [ ] Run the workflow [Release Snap](https://github.com/zaproxy/zaproxy/actions/workflows/release-snap.yml).
 - [ ] Update 3rd Party Package Managers 
-  - [ ] Homebrew - [owasp-zap.rb](https://github.com/Homebrew/homebrew-cask/blob/master/Casks/owasp-zap.rb)
+  - [ ] Homebrew - [zap.rb](https://github.com/Homebrew/homebrew-cask/blob/master/Casks/z/zap.rb)
   - [ ] Scoop - [zaproxy.json](https://github.com/ScoopInstaller/Extras/blob/master/bucket/zaproxy.json)
-  - [ ] Chocolatey - [zap](https://community.chocolatey.org/packages/zap)
+  - [ ] Chocolatey - [zap](https://github.com/jtcmedia/chocolatey-packages/tree/master/zap)
+  - [ ] winget-pkgs - [ZAP](https://github.com/microsoft/winget-pkgs/tree/master/manifests/z/ZAP/ZAP/)
 - [ ] Update [bugcrowd](https://bugcrowd.com/owaspzap) scope
 
 ## Weekly Release
