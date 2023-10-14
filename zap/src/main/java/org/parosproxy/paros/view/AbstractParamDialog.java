@@ -156,7 +156,7 @@ public class AbstractParamDialog extends AbstractDialog {
 
             footerPane.add(footer, LayoutHelper.getGBC(x++, 0, 1, 1.0, new Insets(2, 2, 2, 2)));
             footerPane.add(
-                    getBtnCancel(),
+                    getBtnOK(),
                     LayoutHelper.getGBC(
                             x++,
                             0,
@@ -167,7 +167,7 @@ public class AbstractParamDialog extends AbstractDialog {
                             GridBagConstraints.EAST,
                             new Insets(2, 2, 2, 2)));
             footerPane.add(
-                    getBtnOK(),
+                    getBtnCancel(),
                     LayoutHelper.getGBC(
                             x++,
                             0,

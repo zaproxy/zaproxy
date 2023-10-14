@@ -261,8 +261,8 @@ public class NodeSelectDialog extends AbstractDialog {
             jPanel.add(
                     new ContextsSitesPanel(getTreeContext(), getTreeSite()), gridBagConstraints15);
             jPanel.add(jLabel2, gridBagConstraints13);
-            jPanel.add(getCancelButton(), gridBagConstraints2);
-            jPanel.add(getSelectButton(), gridBagConstraints3);
+            jPanel.add(getSelectButton(), gridBagConstraints2);
+            jPanel.add(getCancelButton(), gridBagConstraints3);
         }
         return jPanel;
     }

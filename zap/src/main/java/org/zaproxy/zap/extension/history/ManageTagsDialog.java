@@ -170,8 +170,8 @@ public class ManageTagsDialog extends AbstractDialog {
                     gridBagConstraints20);
             jPanel.add(getJScrollPane(), gridBagConstraints30);
             jPanel.add(getBtnDelete(), gridBagConstraints31);
-            jPanel.add(getBtnCancel(), gridBagConstraints40);
-            jPanel.add(getBtnSave(), gridBagConstraints41);
+            jPanel.add(getBtnSave(), gridBagConstraints40);
+            jPanel.add(getBtnCancel(), gridBagConstraints41);
         }
         return jPanel;
     }

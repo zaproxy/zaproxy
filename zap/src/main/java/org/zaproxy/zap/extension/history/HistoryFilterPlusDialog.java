@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.history;
 
+import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -30,6 +31,8 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -155,6 +158,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
             gridBagConstraints6.insets = new java.awt.Insets(5, 2, 5, 2);
             gridBagConstraints6.ipadx = 3;
             gridBagConstraints6.ipady = 3;
+            gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints11.gridx = 0;
             gridBagConstraints11.gridy = 0;
             gridBagConstraints11.insets = new java.awt.Insets(5, 10, 5, 10);
@@ -259,10 +263,10 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
      */
     private JPanel getJPanel1() {
         if (jPanel1 == null) {
-            jPanel1 = new JPanel();
-            jPanel1.add(getBtnCancel(), null);
-            jPanel1.add(getBtnReset(), null);
-            jPanel1.add(getBtnApply(), null);
+            jPanel1 = new JPanel(new FlowLayout(FlowLayout.TRAILING));
+            jPanel1.add(getBtnApply());
+            jPanel1.add(getBtnReset());
+            jPanel1.add(getBtnCancel());
         }
         return jPanel1;
     }

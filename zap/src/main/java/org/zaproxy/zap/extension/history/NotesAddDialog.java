@@ -132,8 +132,8 @@ public class NotesAddDialog extends AbstractDialog {
 
             jPanel.add(getJScrollPane(), gridBagConstraints15);
             jPanel.add(jLabel2, gridBagConstraints13);
-            jPanel.add(getBtnCancel(), gridBagConstraints2);
-            jPanel.add(getBtnOk(), gridBagConstraints3);
+            jPanel.add(getBtnOk(), gridBagConstraints2);
+            jPanel.add(getBtnCancel(), gridBagConstraints3);
         }
         return jPanel;
     }
