@@ -39,6 +39,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.apache.commons.httpclient.URI;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -47,6 +48,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpMessage.HttpEncodingsHandler;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.network.HttpEncoding;
 import org.zaproxy.zap.network.HttpEncodingDeflate;
@@ -57,6 +59,11 @@ import org.zaproxy.zap.users.User;
 
 /** Unit test for {@link HttpMessage}. */
 class HttpMessageUnitTest {
+
+    @AfterEach
+    void cleanUp() {
+        HttpMessage.setContentEncodingsHandler(null);
+    }
 
     @Test
     void shouldBeEventStreamIfRequestWithoutResponseAcceptsEventStream() throws Exception {
@@ -466,6 +473,34 @@ class HttpMessageUnitTest {
         HttpMessage.setContentEncodings(header, body);
         // Then
         verify(body).setContentEncodings(Collections.emptyList());
+    }
+
+    @Test
+    void shouldUseContentEncodingsHandlerSet() {
+        // Given
+        HttpEncodingsHandler handler = mock(HttpEncodingsHandler.class);
+        HttpHeader header = mock(HttpHeader.class);
+        HttpBody body = mock(HttpBody.class);
+        // When
+        HttpMessage.setContentEncodingsHandler(handler);
+        HttpMessage.setContentEncodings(header, body);
+        // Then
+        verify(handler).handle(header, body);
+    }
+
+    @Test
+    void shouldNotUseContentEncodingsHandlerOnceUnset() {
+        // Given
+        HttpEncodingsHandler handler = mock(HttpEncodingsHandler.class);
+        HttpHeader header = mock(HttpHeader.class);
+        HttpBody body = mock(HttpBody.class);
+        // When
+        HttpMessage.setContentEncodingsHandler(handler);
+        HttpMessage.setContentEncodings(header, body);
+        HttpMessage.setContentEncodingsHandler(null);
+        HttpMessage.setContentEncodings(header, body);
+        // Then
+        verify(handler).handle(header, body);
     }
 
     @Test

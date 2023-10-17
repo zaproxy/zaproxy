@@ -62,11 +62,11 @@
 // ZAP: 2021/05/14 Add missing override annotation.
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/10/17 Allow to set content encodings handler.
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -106,6 +106,26 @@ public class HttpMessage implements Message {
     public static final String EVENT_DATA_RESPONSE_BODY = "responseBody";
 
     public static final String MESSAGE_TYPE = "HTTP";
+
+    private static final HttpEncodingsHandler DEFAULT_CONTENT_ENCODINGS_HANDLER =
+            (header, body) -> {
+                String encoding = header.getHeader(HttpHeader.CONTENT_ENCODING);
+                if (encoding == null || encoding.isEmpty()) {
+                    body.setContentEncodings(List.of());
+                    return;
+                }
+
+                List<HttpEncoding> encodings = List.of();
+                if (encoding.contains(HttpHeader.DEFLATE)) {
+                    encodings = List.of(HttpEncodingDeflate.getSingleton());
+                } else if (encoding.contains(HttpHeader.GZIP)) {
+                    encodings = List.of(HttpEncodingGzip.getSingleton());
+                }
+
+                body.setContentEncodings(encodings);
+            };
+
+    private static HttpEncodingsHandler contentEncodingsHandler;
 
     private HttpRequestHeader mReqHeader = new HttpRequestHeader();
     private HttpRequestBody mReqBody = new HttpRequestBody();
@@ -423,26 +443,29 @@ public class HttpMessage implements Message {
     /**
      * Sets the content encodings defined in the header into the body.
      *
-     * <p><strong>Note:</strong> Supports only {@code gzip} and {@code deflate}.
+     * <p><strong>Note:</strong> By default supports only {@code gzip} and {@code deflate}.
      *
      * @param header the header.
      * @param body the body.
      */
     public static void setContentEncodings(HttpHeader header, HttpBody body) {
-        String encoding = header.getHeader(HttpHeader.CONTENT_ENCODING);
-        if (encoding == null || encoding.isEmpty()) {
-            body.setContentEncodings(Collections.emptyList());
-            return;
+        var localHandler = contentEncodingsHandler;
+        if (localHandler == null) {
+            localHandler = DEFAULT_CONTENT_ENCODINGS_HANDLER;
         }
+        localHandler.handle(header, body);
+    }
 
-        List<HttpEncoding> encodings = new ArrayList<>(1);
-        if (encoding.contains(HttpHeader.DEFLATE)) {
-            encodings.add(HttpEncodingDeflate.getSingleton());
-        } else if (encoding.contains(HttpHeader.GZIP)) {
-            encodings.add(HttpEncodingGzip.getSingleton());
-        }
-
-        body.setContentEncodings(encodings);
+    /**
+     * Sets the handler of content encodings.
+     *
+     * <p><strong>Note:</strong> Not part of the public API.
+     *
+     * @param handler the handler.
+     * @see #setContentEncodings(HttpHeader, HttpBody)
+     */
+    public static void setContentEncodingsHandler(HttpEncodingsHandler handler) {
+        contentEncodingsHandler = handler;
     }
 
     /**
@@ -1256,5 +1279,11 @@ public class HttpMessage implements Message {
     @Override
     public String getType() {
         return MESSAGE_TYPE;
+    }
+
+    /** <strong>Note:</strong> Not part of the public API. */
+    public interface HttpEncodingsHandler {
+
+        void handle(HttpHeader header, HttpBody body);
     }
 }
