@@ -304,7 +304,7 @@ public class Control extends AbstractControl implements SessionListener {
                                     if (openOnExit != null && Desktop.isDesktopSupported()) {
                                         try {
                                             LOGGER.info(
-                                                    "Openning file {}",
+                                                    "Opening file {}",
                                                     openOnExit.getAbsolutePath());
                                             Desktop.getDesktop().open(openOnExit);
                                         } catch (IOException e) {
