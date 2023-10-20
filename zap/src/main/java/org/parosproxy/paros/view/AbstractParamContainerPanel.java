@@ -43,6 +43,7 @@
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/08/23 Add tooltip and prompt to searchTextField (Issue 8019)
+// ZAP: 2023/10/20 Handle Exception while initializing the panels.
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -659,7 +660,14 @@ public class AbstractParamContainerPanel extends JSplitPane {
      */
     public void initParam(Object obj) {
         paramObject = obj;
-        panels.forEach(e -> e.initParam(obj));
+        panels.forEach(
+                e -> {
+                    try {
+                        e.initParam(obj);
+                    } catch (Exception ex) {
+                        LOGGER.error("Failed to init the panel: ", ex);
+                    }
+                });
     }
 
     /**
