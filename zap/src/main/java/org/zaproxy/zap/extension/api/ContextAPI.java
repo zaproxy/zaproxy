@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import net.sf.json.JSONArray;
@@ -314,9 +315,7 @@ public class ContextAPI extends ApiImplementor {
                 context = getContext(params);
                 techSet = context.getTechSet();
                 techNames = getParam(params, PARAM_TECH_NAMES, "").split(",");
-                for (String techName : techNames) {
-                    techSet.include(getTech(techName));
-                }
+                handleTechs(techNames, techSet::includeAll);
                 context.save();
                 break;
             case ACTION_INCLUDE_ALL_TECHS:
@@ -329,9 +328,7 @@ public class ContextAPI extends ApiImplementor {
                 context = getContext(params);
                 techSet = context.getTechSet();
                 techNames = getParam(params, PARAM_TECH_NAMES, "").split(",");
-                for (String techName : techNames) {
-                    techSet.exclude(getTech(techName));
-                }
+                handleTechs(techNames, techSet::excludeAll);
                 context.save();
                 break;
             case ACTION_EXCLUDE_ALL_TECHS:
@@ -347,6 +344,13 @@ public class ContextAPI extends ApiImplementor {
         }
 
         return ApiResponseElement.OK;
+    }
+
+    private void handleTechs(String[] techNames, Consumer<Tech> handler) throws ApiException {
+        for (String techName : techNames) {
+            Tech tech = getTech(techName);
+            handler.accept(tech);
+        }
     }
 
     private void addExcludeToContext(Context context, String regex) {
