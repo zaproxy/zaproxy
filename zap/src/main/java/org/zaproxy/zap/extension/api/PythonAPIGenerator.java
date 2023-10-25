@@ -149,17 +149,6 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
                             .map(name -> "'" + name + "': " + name.toLowerCase(Locale.ROOT))
                             .collect(Collectors.joining(", "));
             reqParams.append(mandatoryParameters);
-            if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
-                // Always add the API key - we've no way of knowing if it will be required or not
-                if (!mandatoryParameters.isEmpty()) {
-                    reqParams.append(", ");
-                }
-                reqParams
-                        .append("'")
-                        .append(API.API_KEY_PARAM)
-                        .append("': ")
-                        .append(API.API_KEY_PARAM);
-            }
             reqParams.append("}");
 
             List<ApiParameter> optionalParameters =
