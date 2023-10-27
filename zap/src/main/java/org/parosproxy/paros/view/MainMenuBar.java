@@ -70,6 +70,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.view.AboutDialog;
 import org.zaproxy.zap.view.ZapMenuItem;
+import org.zaproxy.zap.view.ZapSortedMenu;
 import org.zaproxy.zap.view.ZapSupportDialog;
 
 @SuppressWarnings("serial")
@@ -222,7 +223,7 @@ public class MainMenuBar extends JMenuBar {
      */
     public JMenu getMenuImport() {
         if (menuImport == null) {
-            menuImport = new javax.swing.JMenu();
+            menuImport = new ZapSortedMenu();
             menuImport.setText(Constant.messages.getString("menu.import"));
             menuImport.setMnemonic(Constant.messages.getChar("menu.import.mnemonic"));
         }
