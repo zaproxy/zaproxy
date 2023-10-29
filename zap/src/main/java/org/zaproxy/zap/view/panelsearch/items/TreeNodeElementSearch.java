@@ -148,7 +148,9 @@ public class TreeNodeElementSearch extends AbstractComponentSearch<TreeNodeEleme
             if (cell instanceof JComponent) {
                 Border border = null;
                 if (color != null) {
-                    border = BorderFactory.createLineBorder(color);
+                    border =
+                            BorderFactory.createLineBorder(
+                                    color, HighlighterUtils.DEFAULT_HIGHLIGHT_BORDER_THICKNESS);
                 }
                 ((JComponent) cell).setBorder(border);
             }
