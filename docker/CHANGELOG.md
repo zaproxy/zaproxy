@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-10-30
+- Add the ZAP client profile to stable, weekly, and live images.
+
 ### 2023-08-23
 - Python 3.6 and 3.7 are no longer supported.
 

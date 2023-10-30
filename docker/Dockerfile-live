@@ -94,6 +94,7 @@ COPY --link --chown=1000:1000 policies /home/zap/.ZAP_D/policies/
 COPY --link --chown=1000:1000 policies /root/.ZAP_D/policies/
 COPY --link --chown=1000:1000 scripts /home/zap/.ZAP_D/scripts/
 COPY --link --chown=1000:1000 .xinitrc /home/zap/
+COPY --link --chown=1000:1000 firefox /home/zap/.mozilla/firefox/
 
 RUN echo "zap2docker-live" > /zap/container && \
     chmod a+x /home/zap/.xinitrc && \
