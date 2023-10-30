@@ -98,6 +98,7 @@ COPY --link --chown=1000:1000 policies /root/.ZAP/policies/
 # The scan script loads the scripts from dev home dir.
 COPY --link --chown=1000:1000 scripts /home/zap/.ZAP_D/scripts/
 COPY --link --chown=1000:1000 .xinitrc /home/zap/
+COPY --link --chown=1000:1000 firefox /home/zap/.mozilla/firefox/
 
 RUN echo "zap2docker-stable" > /zap/container && \
     chmod a+x /home/zap/.xinitrc
