@@ -32,6 +32,7 @@ import java.util.regex.PatternSyntaxException;
 import net.sf.json.JSONObject;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
@@ -39,6 +40,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.api.ApiElement;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiOther;
@@ -122,16 +124,29 @@ public class SearchAPI extends ApiImplementor {
                         searchOptionalParams));
 
         this.addApiOthers(
-                new ApiOther(OTHER_HAR_BY_URL_REGEX, searchMandatoryParams, searchOptionalParams));
+                deprecatedEximApi(
+                        new ApiOther(
+                                OTHER_HAR_BY_URL_REGEX,
+                                searchMandatoryParams,
+                                searchOptionalParams)));
         this.addApiOthers(
-                new ApiOther(
-                        OTHER_HAR_BY_REQUEST_REGEX, searchMandatoryParams, searchOptionalParams));
+                deprecatedEximApi(
+                        new ApiOther(
+                                OTHER_HAR_BY_REQUEST_REGEX,
+                                searchMandatoryParams,
+                                searchOptionalParams)));
         this.addApiOthers(
-                new ApiOther(
-                        OTHER_HAR_BY_RESPONSE_REGEX, searchMandatoryParams, searchOptionalParams));
+                deprecatedEximApi(
+                        new ApiOther(
+                                OTHER_HAR_BY_RESPONSE_REGEX,
+                                searchMandatoryParams,
+                                searchOptionalParams)));
         this.addApiOthers(
-                new ApiOther(
-                        OTHER_HAR_BY_HEADER_REGEX, searchMandatoryParams, searchOptionalParams));
+                deprecatedEximApi(
+                        new ApiOther(
+                                OTHER_HAR_BY_HEADER_REGEX,
+                                searchMandatoryParams,
+                                searchOptionalParams)));
     }
 
     @Override
@@ -308,6 +323,12 @@ public class SearchAPI extends ApiImplementor {
 
     private boolean incErrorDetails() {
         return Model.getSingleton().getOptionsParam().getApiParam().isIncErrorDetails();
+    }
+
+    private <T extends ApiElement> T deprecatedEximApi(T element) {
+        element.setDeprecated(true);
+        element.setDeprecatedDescription(Constant.messages.getString("search.api.deprecated.exim"));
+        return element;
     }
 
     private void search(
