@@ -145,12 +145,10 @@ public interface ViewDelegate {
      * @since 2.8.0
      * @see KeyStroke#getKeyStroke(int, int, boolean)
      */
-    @SuppressWarnings("deprecation")
     default KeyStroke getMenuShortcutKeyStroke(int keyCode, int modifiers, boolean onKeyRelease) {
-        // XXX Use getMenuShortcutKeyMaskEx() (and remove warn suppression) when targeting Java 10+
         return KeyStroke.getKeyStroke(
                 keyCode,
-                Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | modifiers,
+                Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx() | modifiers,
                 onKeyRelease);
     }
 
