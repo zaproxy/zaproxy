@@ -32,6 +32,7 @@ import org.apache.logging.log4j.core.config.LoggerConfig;
 import org.parosproxy.paros.CommandLine;
 import org.zaproxy.zap.eventBus.EventBus;
 import org.zaproxy.zap.eventBus.SimpleEventBus;
+import org.zaproxy.zap.utils.Stats;
 
 public class ZAP {
 
@@ -158,6 +159,8 @@ public class ZAP {
         @Override
         public void uncaughtException(Thread t, Throwable e) {
             if (!(e instanceof ThreadDeath)) {
+                updateStats();
+
                 if (loggerConfigured || isLoggerConfigured()) {
                     LOGGER.error("Exception in thread \"{}\"", t.getName(), e);
 
@@ -165,6 +168,14 @@ public class ZAP {
                     System.err.println("Exception in thread \"" + t.getName() + "\"");
                     e.printStackTrace();
                 }
+            }
+        }
+
+        private static void updateStats() {
+            try {
+                Stats.incCounter("stats.error.core.uncaught");
+            } catch (Throwable ignore) {
+                // Already handling an earlier error...
             }
         }
 
