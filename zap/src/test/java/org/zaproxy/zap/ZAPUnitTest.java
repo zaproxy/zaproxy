@@ -24,6 +24,9 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -41,6 +44,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.zaproxy.zap.ZAP.UncaughtExceptionLogger;
 import org.zaproxy.zap.testutils.Log4jTestAppender;
+import org.zaproxy.zap.utils.Stats;
+import org.zaproxy.zap.utils.StatsListener;
 
 /** Unit test for {@link ZAP}. */
 class ZAPUnitTest {
@@ -55,6 +60,7 @@ class ZAPUnitTest {
 
         private PrintStream errStream;
         private Log4jTestAppender testAppender;
+        private StatsListener statsListener;
 
         private UncaughtExceptionLogger uncaughtExceptionLogger;
 
@@ -66,6 +72,9 @@ class ZAPUnitTest {
                     .values()
                     .forEach(context.getRootLogger()::removeAppender);
 
+            statsListener = mock(StatsListener.class);
+            Stats.addListener(statsListener);
+
             oldErrStream = System.err;
             errStream = mock(PrintStream.class);
             System.setErr(errStream);
@@ -75,6 +84,7 @@ class ZAPUnitTest {
 
         @AfterEach
         void cleanup() throws Exception {
+            Stats.removeListener(statsListener);
             System.setErr(oldErrStream);
             Configurator.reconfigure(getClass().getResource("/log4j2-test.properties").toURI());
         }
@@ -183,6 +193,30 @@ class ZAPUnitTest {
             verifyNoInteractions(errStream);
             verify(exception, times(0)).printStackTrace();
             assertThat(testAppender.getLogEvents(), hasSize(0));
+        }
+
+        @Test
+        void shouldIncreaseStatOnEachException() {
+            // Given
+            Thread thread = mockThread();
+            Throwable exception = mock(Exception.class);
+            // When
+            uncaughtExceptionLogger.uncaughtException(thread, exception);
+            uncaughtExceptionLogger.uncaughtException(thread, exception);
+            // Then
+            verify(statsListener, times(2)).counterInc("stats.error.core.uncaught");
+        }
+
+        @Test
+        void shouldNotFailIfStatFailed() {
+            // Given
+            Thread thread = mockThread();
+            Throwable exception = mock(Exception.class);
+            doThrow(new Error()).when(statsListener).counterInc(anyString());
+            // When
+            assertDoesNotThrow(() -> uncaughtExceptionLogger.uncaughtException(thread, exception));
+            // Then
+            verify(statsListener).counterInc("stats.error.core.uncaught");
         }
 
         private void withRootLoggerAppender() {
