@@ -221,6 +221,7 @@ Scan rules:
 90037   Command Injection (Timing Based)
 90038   SQL Injection SQLite (Timing Based)
 90039   NoSQL Injection MongoDB (Timing Based)
+90040   DNS add-on SPF rule
 
 100000  Client/Server HTTP Error Response Codes [Script]
 100001  Unexpected Content Types [Script]
