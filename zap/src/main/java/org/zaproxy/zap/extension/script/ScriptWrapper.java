@@ -61,6 +61,7 @@ public class ScriptWrapper {
     private Writer writer = null;
     private Charset charset = ExtensionScript.DEFAULT_CHARSET;
     private int modCount;
+    private final Object lock = new Object();
 
     public ScriptWrapper() {}
 
@@ -187,14 +188,18 @@ public class ScriptWrapper {
     }
 
     public String getContents() {
-        return contents;
+        synchronized (lock) {
+            return contents;
+        }
     }
 
     public void setContents(String contents) {
-        if (!contents.equals(this.contents)) {
-            this.contents = contents;
-            this.changed = true;
-            this.modCount++;
+        synchronized (lock) {
+            if (!contents.equals(this.contents)) {
+                this.contents = contents;
+                this.changed = true;
+                this.modCount++;
+            }
         }
     }
 
@@ -207,7 +212,9 @@ public class ScriptWrapper {
      * @since 2.10.0
      */
     public int getModCount() {
-        return modCount;
+        synchronized (lock) {
+            return modCount;
+        }
     }
 
     public String getLastOutput() {
@@ -219,11 +226,15 @@ public class ScriptWrapper {
     }
 
     public boolean isChanged() {
-        return changed;
+        synchronized (lock) {
+            return changed;
+        }
     }
 
     public void setChanged(boolean changed) {
-        this.changed = changed;
+        synchronized (lock) {
+            this.changed = changed;
+        }
     }
 
     public boolean isEnabled() {
@@ -278,13 +289,17 @@ public class ScriptWrapper {
     }
 
     public File getFile() {
-        return file;
+        synchronized (lock) {
+            return file;
+        }
     }
 
     public void setFile(File file) {
-        this.file = file;
-        if (file != null) {
-            this.lastModified = file.lastModified();
+        synchronized (lock) {
+            this.file = file;
+            if (file != null) {
+                this.lastModified = file.lastModified();
+            }
         }
     }
 
@@ -369,18 +384,20 @@ public class ScriptWrapper {
      * @since 2.8.0
      */
     void loadScript(Charset charset) throws IOException {
-        this.charset = charset;
-        StringBuilder sb = new StringBuilder();
-        try (BufferedReader br = Files.newBufferedReader(file.toPath(), charset)) {
-            int len;
-            char[] buf = new char[1024];
-            while ((len = br.read(buf)) != -1) {
-                sb.append(buf, 0, len);
+        synchronized (lock) {
+            this.charset = charset;
+            StringBuilder sb = new StringBuilder();
+            try (BufferedReader br = Files.newBufferedReader(file.toPath(), charset)) {
+                int len;
+                char[] buf = new char[1024];
+                while ((len = br.read(buf)) != -1) {
+                    sb.append(buf, 0, len);
+                }
             }
+            setContents(sb.toString());
+            setChanged(false);
+            this.lastModified = file.lastModified();
         }
-        setContents(sb.toString());
-        setChanged(false);
-        this.lastModified = file.lastModified();
     }
 
     /**
@@ -390,12 +407,14 @@ public class ScriptWrapper {
      * @since 2.8.0
      */
     void saveScript() throws IOException {
-        // We'll always try to read it in with the default next time its loaded
-        this.charset = ExtensionScript.DEFAULT_CHARSET;
-        try (BufferedWriter bw = Files.newBufferedWriter(file.toPath(), charset)) {
-            bw.append(getContents());
+        synchronized (lock) {
+            // We'll always try to read it in with the default next time its loaded
+            this.charset = ExtensionScript.DEFAULT_CHARSET;
+            try (BufferedWriter bw = Files.newBufferedWriter(file.toPath(), charset)) {
+                bw.append(getContents());
+            }
+            this.lastModified = file.lastModified();
         }
-        this.lastModified = file.lastModified();
     }
 
     /**
@@ -405,6 +424,8 @@ public class ScriptWrapper {
      * @since 2.8.0
      */
     public boolean hasChangedOnDisk() {
-        return this.file != null && file.lastModified() > this.lastModified;
+        synchronized (lock) {
+            return this.file != null && file.lastModified() > this.lastModified;
+        }
     }
 }
