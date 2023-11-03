@@ -27,9 +27,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.parosproxy.paros.network.HttpRequestHeader;
 
 public class ApiElement {
 
+    private final String defaultMethod;
     private String name = null;
     private String descriptionTag = "";
     private List<ApiParameter> parameters = new ArrayList<>();
@@ -57,8 +59,7 @@ public class ApiElement {
     }
 
     public ApiElement(String name) {
-        super();
-        this.name = name;
+        this(name, List.of());
     }
 
     public ApiElement(String name, List<String> mandatoryParamNames) {
@@ -67,8 +68,21 @@ public class ApiElement {
 
     public ApiElement(
             String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
+        this(name, HttpRequestHeader.GET, mandatoryParamNames, optionalParamNames);
+    }
+
+    public ApiElement(
+            String name,
+            String defaultMethod,
+            List<String> mandatoryParamNames,
+            List<String> optionalParamNames) {
         super();
         this.name = name;
+        if (defaultMethod == null || defaultMethod.isBlank()) {
+            throw new IllegalArgumentException(
+                    "The ApiElement " + name + " has null or blank default method.");
+        }
+        this.defaultMethod = defaultMethod;
 
         setParameters(mandatoryParamNames, optionalParamNames);
     }
@@ -83,6 +97,16 @@ public class ApiElement {
 
     private static List<String> asList(String[] elements) {
         return elements != null ? Arrays.asList(elements) : null;
+    }
+
+    /**
+     * Gets the default (HTTP) method supported by this API element.
+     *
+     * @return the default method, never {@code null}.
+     * @since 2.15.0
+     */
+    public String getDefaultMethod() {
+        return defaultMethod;
     }
 
     public void setMandatoryParamNames(String[] paramNames) {

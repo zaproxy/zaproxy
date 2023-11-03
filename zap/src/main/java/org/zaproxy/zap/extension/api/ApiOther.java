@@ -60,6 +60,14 @@ public class ApiOther extends ApiElement {
 
     public ApiOther(
             String name,
+            String defaultMethod,
+            List<String> mandatoryParamNames,
+            List<String> optionalParamNames) {
+        super(name, defaultMethod, mandatoryParamNames, optionalParamNames);
+    }
+
+    public ApiOther(
+            String name,
             List<String> mandatoryParamNames,
             List<String> optionalParamNames,
             boolean requiresApiKey) {

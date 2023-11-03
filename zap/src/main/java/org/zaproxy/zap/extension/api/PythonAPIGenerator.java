@@ -34,6 +34,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+import org.parosproxy.paros.network.HttpRequestHeader;
 
 public class PythonAPIGenerator extends AbstractAPIGenerator {
 
@@ -191,6 +192,13 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
         // , {'url': url}))
         if (hasParams) {
             out.write(", ");
+            String httpMethod = element.getDefaultMethod();
+            if (!HttpRequestHeader.GET.equalsIgnoreCase(httpMethod)) {
+                out.write("method=\"");
+                out.write(httpMethod);
+                out.write('"');
+                out.write(", body=");
+            }
             out.write(reqParams.toString());
             out.write(")");
             if (!type.equals(OTHER_ENDPOINT)) {

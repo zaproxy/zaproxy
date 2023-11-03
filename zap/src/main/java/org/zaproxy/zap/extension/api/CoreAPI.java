@@ -420,7 +420,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                                 new String[] {PARAM_FOLLOW_REDIRECTS})));
         this.addApiOthers(new ApiOther(OTHER_FILE_DOWNLOAD, new String[] {PARAM_FILENAME}));
         this.addApiOthers(
-                new ApiOther(OTHER_FILE_UPLOAD, new String[] {PARAM_FILENAME, PARAM_CONTENTS}));
+                new ApiOther(
+                        OTHER_FILE_UPLOAD,
+                        HttpRequestHeader.POST,
+                        List.of(PARAM_FILENAME, PARAM_CONTENTS),
+                        List.of()));
 
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
