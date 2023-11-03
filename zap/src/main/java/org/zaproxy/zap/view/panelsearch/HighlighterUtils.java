@@ -36,6 +36,8 @@ public final class HighlighterUtils {
 
     public static final Color DEFAULT_HIGHLIGHT_COLOR = new Color(255, 204, 0);
 
+    public static final int DEFAULT_HIGHLIGHT_BORDER_THICKNESS = 2;
+
     public static HighlightedComponent highlightBackground(JComponent component, Color color) {
         return highlightBackground(new JComponentWithBackground(component), color);
     }
@@ -67,7 +69,9 @@ public final class HighlighterUtils {
             ComponentWithTitle componentWithTitle) {
         return highlightTitleWithHtml(
                 componentWithTitle,
-                "<html><div style=' border: 1px solid; border-color: "
+                "<html><div style=' border: "
+                        + DEFAULT_HIGHLIGHT_BORDER_THICKNESS
+                        + "px solid; border-color: "
                         + getHighlightColorHexString()
                         + ";'>%s</div></html>");
     }
@@ -128,7 +132,8 @@ public final class HighlighterUtils {
     public static HighlightedComponent highlightBorder(JComponent component, Color color) {
         HighlightedComponent highlightedComponent = new HighlightedComponent(component);
         highlightedComponent.put(BORDER, component.getBorder());
-        component.setBorder(BorderFactory.createLineBorder(color));
+        component.setBorder(
+                BorderFactory.createLineBorder(color, DEFAULT_HIGHLIGHT_BORDER_THICKNESS));
         return highlightedComponent;
     }
 
