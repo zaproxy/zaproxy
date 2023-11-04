@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.EnumMap;
 import javax.swing.JLabel;
 import javax.swing.UIManager;
+import javax.swing.text.StyleContext;
 
 public class FontUtils {
 
@@ -114,7 +115,7 @@ public class FontUtils {
         }
 
         defaultFontSets.put(fontType, (name != null && !name.isEmpty()));
-        setDefaultFont(fontType, new Font(name, Font.PLAIN, size));
+        setDefaultFont(fontType, getFont(name, Font.PLAIN, size));
     }
 
     private static Font getDefaultFont() {
@@ -186,7 +187,7 @@ public class FontUtils {
      * @return the named font with the specified style, correctly scaled
      */
     public static Font getFont(String name, int style) {
-        return new Font(name, style, getDefaultFont().getSize());
+        return getFont(name, style, getDefaultFont().getSize());
     }
 
     /**
@@ -259,6 +260,13 @@ public class FontUtils {
                 break;
         }
         return font.deriveFont(s);
+    }
+
+    /**
+     * @since 2.15.0
+     */
+    public static Font getFont(String name, int style, int size) {
+        return StyleContext.getDefaultStyleContext().getFont(name, style, size);
     }
 
     public static float getScale() {
