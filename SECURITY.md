@@ -1,3 +1,4 @@
+
 # Security Policy
 
 ## Supported Versions
@@ -15,7 +16,7 @@ Remote Code Execution for this program will be rewarded at __$1000__
 
 ## Reporting a Bug
 
-Please report any bugs via our issue [Bug Issue Tracker] (https://github.com/zaproxy/zaproxy/issues/new/choose)
+Please report any bugs via our issue [Bug Issue Tracker](https://github.com/zaproxy/zaproxy/issues/new/choose)
 
 ## Security Advisories
 
@@ -53,8 +54,6 @@ By using Zaproxy, you agree to comply with the terms and conditions below. Terms
 
 6. No Malicious Intent: Zaproxy is not intended for malicious purposes, including hacking, cyberattacks, reconnaissance or other malicious activities. Do not use it for any activities that could cause implicit or explicit harm or damage.
 
-Disclaimer of Warranty: Zaproxy is provided "as is" without any warranties or guarantees regarding its accuracy, reliability, or performance. Use it at your own risk. The authors and contributors of Zaproxy are not liable for any damage or loss that may occur from its use.
-
 
 ## Disclaimer
 
@@ -69,4 +68,7 @@ Disclaimer of Warranty: Zaproxy is provided "as is" without any warranties or gu
 
 5. Use of this tool may cause disruption or unintended consequences to web applications and systems. The user is responsible for any damages or issues that may arise during or after the use of this tool.
 
-By using this web application security scanner, you acknowledge and agree to the above terms and conditions.
+
+**By using this web application security scanner, you acknowledge and agree to the above terms and conditions.**
+
+
