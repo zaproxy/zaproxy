@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -110,6 +111,118 @@ class VariantMultipartFormParametersUnitTest {
         assertThat(
                 variant.getParamList().get(3).getType(),
                 is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+    }
+
+    @Test
+    void shouldExtractParametersFromAllPartsHandlingLocaleProperly() {
+        Locale defaultLocale = Locale.getDefault();
+        try {
+            // Given
+            VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+            Locale.setDefault(new Locale.Builder().setLanguageTag("tr").build());
+            HttpMessage msg = createMessage();
+            msg.getRequestHeader()
+                    .setHeader(
+                            HttpHeader.CONTENT_TYPE,
+                            "MULTIPART/FORM-DATA; --------------------------d74496d66958873e");
+            // When
+            variant.setMessage(msg);
+            // Then
+            assertThat(variant.getParamList().size(), is(equalTo(4)));
+            assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
+            assertThat(variant.getParamList().get(0).getName(), is(equalTo("person")));
+            assertThat(
+                    variant.getParamList().get(0).getValue(), is(equalTo(DEFAULT_PARAM_CONTENT)));
+            assertThat(
+                    variant.getParamList().get(0).getType(),
+                    is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
+            assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
+            assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile")));
+            assertThat(variant.getParamList().get(1).getValue(), is(equalTo(DEFAULT_FILE_NAME)));
+            assertThat(
+                    variant.getParamList().get(1).getType(),
+                    is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
+            assertThat(variant.getParamList().get(2).getPosition(), is(equalTo(3)));
+            assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile")));
+            assertThat(variant.getParamList().get(2).getValue(), is(equalTo(DEFAULT_CONTENT_TYPE)));
+            assertThat(
+                    variant.getParamList().get(2).getType(),
+                    is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
+            assertThat(variant.getParamList().get(3).getPosition(), is(equalTo(4)));
+            assertThat(variant.getParamList().get(3).getName(), is(equalTo("somefile")));
+            assertThat(
+                    variant.getParamList().get(3).getValue(),
+                    is(equalTo(DEFAULT_FILE_PARAM_CONTENT)));
+            assertThat(
+                    variant.getParamList().get(3).getType(),
+                    is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+        } finally {
+            Locale.setDefault(defaultLocale);
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"multipart/form-data", "multipart/form-data;", "multipart/form-data; "})
+    void shouldExtractParametersFromAllPartsEvenIfContentTypeDoesNotDefineBoundary(
+            String contentType) {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        // When
+        HttpMessage msg = createMessage();
+        msg.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, contentType);
+        variant.setMessage(msg);
+        // Then
+        assertThat(variant.getParamList().size(), is(equalTo(4)));
+        assertThat(variant.getParamList().get(0).getPosition(), is(equalTo(1)));
+        assertThat(variant.getParamList().get(0).getName(), is(equalTo("person")));
+        assertThat(variant.getParamList().get(0).getValue(), is(equalTo(DEFAULT_PARAM_CONTENT)));
+        assertThat(
+                variant.getParamList().get(0).getType(),
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_PARAM)));
+        assertThat(variant.getParamList().get(1).getPosition(), is(equalTo(2)));
+        assertThat(variant.getParamList().get(1).getName(), is(equalTo("somefile")));
+        assertThat(variant.getParamList().get(1).getValue(), is(equalTo(DEFAULT_FILE_NAME)));
+        assertThat(
+                variant.getParamList().get(1).getType(),
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_NAME)));
+        assertThat(variant.getParamList().get(2).getPosition(), is(equalTo(3)));
+        assertThat(variant.getParamList().get(2).getName(), is(equalTo("somefile")));
+        assertThat(variant.getParamList().get(2).getValue(), is(equalTo(DEFAULT_CONTENT_TYPE)));
+        assertThat(
+                variant.getParamList().get(2).getType(),
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_CONTENTTYPE)));
+        assertThat(variant.getParamList().get(3).getPosition(), is(equalTo(4)));
+        assertThat(variant.getParamList().get(3).getName(), is(equalTo("somefile")));
+        assertThat(
+                variant.getParamList().get(3).getValue(), is(equalTo(DEFAULT_FILE_PARAM_CONTENT)));
+        assertThat(
+                variant.getParamList().get(3).getType(),
+                is(equalTo(NameValuePair.TYPE_MULTIPART_DATA_FILE_PARAM)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(
+            strings = {
+                "foo",
+                "--foo",
+                "--foo" + HttpHeader.CRLF,
+                "--",
+                "--" + HttpHeader.CRLF,
+                "------",
+                "------" + HttpHeader.CRLF,
+                "----------",
+                "----------" + HttpHeader.CRLF
+            })
+    void shouldNotExtractParametersIfBoundaryNotIdentified(String body) {
+        // Given
+        VariantMultipartFormParameters variant = new VariantMultipartFormParameters();
+        // When
+        HttpMessage msg = createMessage();
+        msg.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, "multipart/form-data");
+        msg.setRequestBody(body);
+        variant.setMessage(msg);
+        // Then
+        assertThat(variant.getParamList().size(), is(equalTo(0)));
     }
 
     @Test
