@@ -68,6 +68,11 @@ elif [ "$OS" = "Linux" ]; then
   MEM=$(expr $(sed -n 's/MemTotal:[ ]\{1,\}\([0-9]\{1,\}\) kB/\1/p' /proc/meminfo) / 1024)
 elif [ "$OS" = "Darwin" ]; then
   MEM=$(system_profiler SPMemoryDataType | sed -n -e 's/.*Size: \([0-9]\{1,\}\) GB/\1/p' | awk '{s+=$0} END {print s*1024}')
+  if [ "$MEM" = "0" ]; then
+    # Not sure why macOS uses both "Size" and "Memory" on different systems we have tested..
+    MEM=$(system_profiler SPMemoryDataType | sed -n -e 's/.*Memory: \([0-9]\{1,\}\) GB/\1/p' | awk '{s+=$0} END {print s*1024}')
+  fi
+  
 elif [ "$OS" = "SunOS" ]; then
   MEM=$(/usr/sbin/prtconf | awk '/Memory/{print $3}')
 elif [ "$OS" = "FreeBSD" ]; then
