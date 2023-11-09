@@ -268,6 +268,9 @@ Scan rules:
 110007  Username Disclosure [Script]
 110008  Suspicious XML Comments Disclosure [Script]
 
+120000  Information Disclosure - Information in Browser Storage
+120001  Information Disclosure - Sensitive Information in Browser Storage
+
 322420463 Retire.js (3rd Party)
 
 ```
