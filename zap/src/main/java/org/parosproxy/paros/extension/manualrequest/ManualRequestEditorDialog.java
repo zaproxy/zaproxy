@@ -57,7 +57,7 @@ import java.awt.event.WindowEvent;
 import javax.net.ssl.SSLException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
-import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;

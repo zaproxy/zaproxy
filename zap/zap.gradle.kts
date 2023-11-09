@@ -1,5 +1,6 @@
 import japicmp.model.JApiChangeStatus
 import me.champeau.gradle.japicmp.JapicmpTask
+import org.zaproxy.gradle.spotless.ValidateImports
 import org.zaproxy.zap.japicmp.AcceptMethodAbstractNowDefaultRule
 import org.zaproxy.zap.tasks.GradleBuildWithGitRepos
 import org.zaproxy.zap.tasks.internal.JapicmpExcludedData
@@ -55,6 +56,21 @@ crowdin {
 tasks.named<JacocoReport>("jacocoTestReport") {
     reports {
         xml.required.set(true)
+    }
+}
+
+spotless {
+    java {
+        bumpThisNumberIfACustomStepChanges(1)
+        custom(
+            "validateImports",
+            ValidateImports(
+                mapOf(
+                    "import org.apache.commons.lang." to
+                        "Import/use classes from Commons Lang 3, instead of Lang 2.",
+                ),
+            ),
+        )
     }
 }
 

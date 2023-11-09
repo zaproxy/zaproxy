@@ -27,7 +27,7 @@ import java.util.Map.Entry;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
@@ -127,7 +127,7 @@ public final class ApiResponseConversionUtils {
 
         @Override
         public void toHTML(StringBuilder sb) {
-            sb.append("<h2>" + StringEscapeUtils.escapeHtml(this.getName()) + "</h2>\n");
+            sb.append("<h2>" + StringEscapeUtils.escapeHtml4(this.getName()) + "</h2>\n");
             sb.append("<table border=\"1\">\n");
 
             for (Entry<String, String> entry : getValues().entrySet()) {
@@ -143,7 +143,7 @@ public final class ApiResponseConversionUtils {
             sb.append(cell1);
             sb.append("</td><td>\n");
             if (cell2 != null) {
-                sb.append(StringEscapeUtils.escapeHtml(cell2));
+                sb.append(StringEscapeUtils.escapeHtml4(cell2));
             }
             sb.append("</td></tr>\n");
         }

@@ -32,7 +32,7 @@ import java.util.Arrays;
 import java.util.Map;
 import javax.script.ScriptContext;
 import javax.script.SimpleScriptContext;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

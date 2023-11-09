@@ -19,7 +19,7 @@
  */
 package org.zaproxy.zap.extension.anticsrf;
 
-import static org.apache.commons.lang.StringEscapeUtils.escapeHtml;
+import static org.apache.commons.text.StringEscapeUtils.escapeHtml4;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -388,7 +388,7 @@ class ExtensionAntiCSRFUnitTest {
             StringBuilder strBuilder = new StringBuilder(250);
 
             strBuilder.append("<html>\n<body>\n");
-            String uriEscaped = escapeHtml(uri);
+            String uriEscaped = escapeHtml4(uri);
             strBuilder.append("<h3>").append(uriEscaped).append("</h3>");
             strBuilder
                     .append("<form id=\"f1\" method=\"POST\" action=\"")
@@ -396,8 +396,8 @@ class ExtensionAntiCSRFUnitTest {
                     .append("\">\n");
             strBuilder.append("<table>\n");
             for (HtmlParameter param : params) {
-                String name = escapeHtml(decode(param.getName()));
-                String value = escapeHtml(decode(param.getValue()));
+                String name = escapeHtml4(decode(param.getName()));
+                String value = escapeHtml4(decode(param.getValue()));
                 strBuilder.append("<tr><td>\n").append(name).append("<td>");
                 strBuilder.append("<input name=\"").append(name).append("\" ");
                 strBuilder.append("value=\"").append(value).append("\" ");

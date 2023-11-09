@@ -35,7 +35,7 @@ import java.util.zip.ZipOutputStream;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.text.WordUtils;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOn;

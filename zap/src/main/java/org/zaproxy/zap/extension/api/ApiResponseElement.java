@@ -22,7 +22,7 @@ package org.zaproxy.zap.extension.api;
 import net.sf.json.JSON;
 import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -99,9 +99,9 @@ public class ApiResponseElement extends ApiResponse {
         if (apiResponse == null) {
             sb.append("<table border=\"1\">\n");
             sb.append("<tr><td>\n");
-            sb.append(StringEscapeUtils.escapeHtml(this.getName()));
+            sb.append(StringEscapeUtils.escapeHtml4(this.getName()));
             sb.append("</td><td>\n");
-            sb.append(StringEscapeUtils.escapeHtml(this.getValue()));
+            sb.append(StringEscapeUtils.escapeHtml4(this.getValue()));
             sb.append("</td></tr>\n");
             sb.append("</table>\n");
         } else {
