@@ -267,6 +267,7 @@ Scan rules:
 110006  Private IP Disclosure [Script]
 110007  Username Disclosure [Script]
 110008  Suspicious XML Comments Disclosure [Script]
+110009  Full Path Disclosure Scan
 
 120000  Information Disclosure - Information in Browser Storage
 120001  Information Disclosure - Sensitive Information in Browser Storage
