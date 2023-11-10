@@ -28,7 +28,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -153,7 +153,7 @@ public class ApiException extends Exception {
         switch (format) {
             case HTML:
             case UI:
-                return StringEscapeUtils.escapeHtml(this.toString(incDetails));
+                return StringEscapeUtils.escapeHtml4(this.toString(incDetails));
 
             case XML:
                 try {

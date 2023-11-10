@@ -23,7 +23,7 @@ import javax.swing.AbstractListModel;
 import javax.swing.ComboBoxModel;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.zaproxy.zap.extension.users.UsersTableModel;
 import org.zaproxy.zap.users.User;
 

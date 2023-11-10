@@ -22,7 +22,7 @@ package org.zaproxy.zap.spider.parser;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import net.htmlparser.jericho.Source;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**

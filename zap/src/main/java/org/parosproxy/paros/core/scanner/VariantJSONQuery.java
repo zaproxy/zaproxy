@@ -19,7 +19,7 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * @author andy

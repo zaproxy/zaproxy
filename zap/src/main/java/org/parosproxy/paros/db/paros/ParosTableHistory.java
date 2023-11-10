@@ -66,7 +66,7 @@ import java.util.Vector;
 import java.util.function.ToIntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hsqldb.types.Types;

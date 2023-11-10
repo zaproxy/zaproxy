@@ -35,8 +35,8 @@ import java.util.TreeSet;
 import net.htmlparser.jericho.Element;
 import net.htmlparser.jericho.HTMLElementName;
 import net.htmlparser.jericho.Source;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -514,7 +514,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         sb.append("<html>\n");
         sb.append("<body>\n");
         sb.append("<h3>");
-        String uriEscaped = StringEscapeUtils.escapeHtml(requestUri);
+        String uriEscaped = StringEscapeUtils.escapeHtml4(requestUri);
         sb.append(uriEscaped);
         sb.append("</h3>");
         sb.append("<form id=\"f1\" method=\"POST\" action=\"").append(uriEscaped).append("\">\n");
@@ -524,8 +524,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         Iterator<HtmlParameter> iter = params.iterator();
         while (iter.hasNext()) {
             HtmlParameter htmlParam = iter.next();
-            String name = StringEscapeUtils.escapeHtml(urlDecode(htmlParam.getName()));
-            String value = StringEscapeUtils.escapeHtml(urlDecode(htmlParam.getValue()));
+            String name = StringEscapeUtils.escapeHtml4(urlDecode(htmlParam.getName()));
+            String value = StringEscapeUtils.escapeHtml4(urlDecode(htmlParam.getValue()));
             sb.append("<tr><td>\n");
             sb.append(name);
             sb.append("<td>");

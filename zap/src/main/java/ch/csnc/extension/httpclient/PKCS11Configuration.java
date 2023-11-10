@@ -22,7 +22,7 @@ package ch.csnc.extension.httpclient;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A representation of PKCS#11 provider configuration. Used to create configurations for instances

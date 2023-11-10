@@ -20,7 +20,7 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.util.regex.Pattern;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * Variant to allow scanning of Direct Web Remoting (DWR) parameters

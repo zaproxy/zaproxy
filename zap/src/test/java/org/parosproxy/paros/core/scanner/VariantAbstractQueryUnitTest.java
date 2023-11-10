@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.junit.jupiter.api.Test;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;

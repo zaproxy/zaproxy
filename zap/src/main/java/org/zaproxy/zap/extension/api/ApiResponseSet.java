@@ -23,7 +23,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
@@ -75,16 +75,16 @@ public class ApiResponseSet<T> extends ApiResponse {
 
     @Override
     public void toHTML(StringBuilder sb) {
-        sb.append("<h2>" + StringEscapeUtils.escapeHtml(this.getName()) + "</h2>\n");
+        sb.append("<h2>" + StringEscapeUtils.escapeHtml4(this.getName()) + "</h2>\n");
         sb.append("<table border=\"1\">\n");
 
         for (Entry<String, T> val : values.entrySet()) {
             sb.append("<tr><td>\n");
-            sb.append(StringEscapeUtils.escapeHtml(val.getKey()));
+            sb.append(StringEscapeUtils.escapeHtml4(val.getKey()));
             sb.append("</td><td>\n");
             Object value = val.getValue();
             if (value != null) {
-                sb.append(StringEscapeUtils.escapeHtml(value.toString()));
+                sb.append(StringEscapeUtils.escapeHtml4(value.toString()));
             }
             sb.append("</td></tr>\n");
         }

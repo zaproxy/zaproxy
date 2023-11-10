@@ -35,8 +35,8 @@ import net.sf.json.JSONObject;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -1266,7 +1266,7 @@ public class ActiveScanAPI extends ApiImplementor {
                 sb.append("<tr><td>\n");
                 sb.append(val.getKey());
                 sb.append("</td><td>\n");
-                sb.append(StringEscapeUtils.escapeHtml(val.getValue()));
+                sb.append(StringEscapeUtils.escapeHtml4(val.getValue()));
                 sb.append("</td></tr>\n");
             }
             sb.append("<tr><td>\n");
@@ -1275,11 +1275,11 @@ public class ActiveScanAPI extends ApiImplementor {
             sb.append("<table border=\"1\">\n");
             for (Entry<String, ?> val : typeData.entrySet()) {
                 sb.append("<tr><td>\n");
-                sb.append(StringEscapeUtils.escapeHtml(val.getKey()));
+                sb.append(StringEscapeUtils.escapeHtml4(val.getKey()));
                 sb.append("</td><td>\n");
                 Object value = val.getValue();
                 if (value != null) {
-                    sb.append(StringEscapeUtils.escapeHtml(value.toString()));
+                    sb.append(StringEscapeUtils.escapeHtml4(value.toString()));
                 }
                 sb.append("</td></tr>\n");
             }
@@ -1380,7 +1380,7 @@ public class ActiveScanAPI extends ApiImplementor {
                 sb.append("<tr><td>\n");
                 sb.append(val.getKey());
                 sb.append("</td><td>\n");
-                sb.append(StringEscapeUtils.escapeHtml(val.getValue()));
+                sb.append(StringEscapeUtils.escapeHtml4(val.getValue()));
                 sb.append("</td></tr>\n");
             }
             sb.append("<tr><td>\n");

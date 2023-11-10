@@ -36,7 +36,6 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
-import org.apache.commons.lang.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.zaproxy.zap.utils.LocaleUtils;
@@ -70,13 +69,21 @@ public class VulnerabilitiesLoader {
      *     and {@code fileExtension} are {@code null} or empty
      */
     public VulnerabilitiesLoader(Path directory, String fileName, String fileExtension) {
-        Validate.notNull(directory, "Parameter directory must not be null.");
-        Validate.notEmpty(fileName, "Parameter fileName must not be null nor empty.");
-        Validate.notEmpty(fileExtension, "Parameter fileExtension must not be null nor empty.");
+        if (directory == null) {
+            throw new IllegalArgumentException("Parameter directory must not be null.");
+        }
+        validateNotEmpty(fileName, "Parameter fileName must not be null nor empty.");
+        validateNotEmpty(fileExtension, "Parameter fileExtension must not be null nor empty.");
 
         this.directory = directory;
         this.fileName = fileName;
         this.fileExtension = fileExtension;
+    }
+
+    private static void validateNotEmpty(String value, String message) {
+        if (value == null || value.isEmpty()) {
+            throw new IllegalArgumentException(message);
+        }
     }
 
     /**

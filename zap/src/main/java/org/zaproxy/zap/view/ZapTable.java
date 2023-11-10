@@ -36,7 +36,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.HierarchicalConfiguration;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdesktop.swingx.table.ColumnControlButton;

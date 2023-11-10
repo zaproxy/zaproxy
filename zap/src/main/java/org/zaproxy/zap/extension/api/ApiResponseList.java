@@ -24,7 +24,7 @@ import java.util.List;
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zaproxy.zap.utils.JsonUtil;
@@ -100,7 +100,7 @@ public class ApiResponseList extends ApiResponse {
 
     @Override
     public void toHTML(StringBuilder sb) {
-        sb.append("<h2>" + StringEscapeUtils.escapeHtml(this.getName()) + "</h2>\n");
+        sb.append("<h2>" + StringEscapeUtils.escapeHtml4(this.getName()) + "</h2>\n");
         sb.append("<table border=\"1\">\n");
         for (ApiResponse resp : this.list) {
             sb.append("<tr><td>\n");

@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Set;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.AbstractTableModel;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -310,10 +310,10 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
         StringBuilder strBuilder = new StringBuilder(150);
         strBuilder
                 .append("<html><strong>")
-                .append(StringEscapeUtils.escapeHtml(title))
+                .append(StringEscapeUtils.escapeHtml4(title))
                 .append("</strong><ul>");
         for (String issue : issues) {
-            strBuilder.append("<li>").append(StringEscapeUtils.escapeHtml(issue)).append("</li>");
+            strBuilder.append("<li>").append(StringEscapeUtils.escapeHtml4(issue)).append("</li>");
         }
         strBuilder.append("</ul></html>");
         return strBuilder.toString();
