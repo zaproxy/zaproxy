@@ -101,6 +101,7 @@
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/04/28 Deprecate Proxy and ProxyServer related methods.
 // ZAP: 2023/08/25 Set view to ExtensionAdaptor.
+// ZAP: 2023/11/14 Hook AbstractParamPanel with parents.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -898,11 +899,11 @@ public class ExtensionLoader {
     }
 
     // ZAP: Added the type argument.
-    private void addParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
-        String[] ROOT = {};
-        for (AbstractParamPanel panel : panelList) {
+    private void addParamPanel(
+            List<ExtensionHookView.AbstractParamPanelEntry> panelList, AbstractParamDialog dialog) {
+        for (ExtensionHookView.AbstractParamPanelEntry entry : panelList) {
             try {
-                dialog.addParamPanel(ROOT, panel, true);
+                dialog.addParamPanel(entry.getParents(), entry.getPanel(), true);
 
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
@@ -910,10 +911,11 @@ public class ExtensionLoader {
         }
     }
 
-    private void removeParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
-        for (AbstractParamPanel panel : panelList) {
+    private void removeParamPanel(
+            List<ExtensionHookView.AbstractParamPanelEntry> panelList, AbstractParamDialog dialog) {
+        for (ExtensionHookView.AbstractParamPanelEntry entry : panelList) {
             try {
-                dialog.removeParamPanel(panel);
+                dialog.removeParamPanel(entry.getPanel());
 
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
