@@ -67,6 +67,7 @@
 // ZAP: 2022/05/26 Add addTag and removeTag methods
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/09/12 Add NUMBER_RISKS convenience constant.
+// ZAP: 2023/11/14 When setting CWE also add a CWE alert tag with an appropriate URL.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -192,6 +193,9 @@ public class Alert implements Comparable<Alert> {
     public static final String[] MSG_CONFIDENCE = {
         "False Positive", "Low", "Medium", "High", "Confirmed"
     };
+
+    private static final String CWE_KEY = "CWE-";
+    private static final String CWE_URL_BASE = "https://cwe.mitre.org/data/definitions/";
 
     private int alertId = -1; // ZAP: Changed default alertId
     private int pluginId = -1;
@@ -1242,6 +1246,9 @@ public class Alert implements Comparable<Alert> {
          * <p>The alert URI defaults to the one from the {@code HistoryReference} or {@code
          * HttpMessage} if set.
          *
+         * <p><strong>Note:</strong> If the Alert has a CWE set then an associated Tag will be added
+         * during {@link #build()}
+         *
          * @return the alert with specified data.
          */
         public final Alert build() {
@@ -1277,9 +1284,27 @@ public class Alert implements Comparable<Alert> {
             if (alertRef != null) {
                 alert.setAlertRef(alertRef);
             }
-            alert.setTags(tags);
+            alert.setTags(withCweTag(tags, cweId));
 
             return alert;
+        }
+
+        private static String createCweUrl(int cweId) {
+            if (cweId <= 0) {
+                return "";
+            }
+            return CWE_URL_BASE + cweId + ".html";
+        }
+
+        private static Map<String, String> withCweTag(Map<String, String> existingTags, int cweId) {
+            String cweUrl = createCweUrl(cweId);
+            if (cweUrl.isEmpty()) {
+                return existingTags == null ? null : new HashMap<>(existingTags);
+            }
+            Map<String, String> newTags =
+                    existingTags == null ? new HashMap<>() : new HashMap<>(existingTags);
+            newTags.put(CWE_KEY + cweId, cweUrl);
+            return newTags;
         }
     }
 
