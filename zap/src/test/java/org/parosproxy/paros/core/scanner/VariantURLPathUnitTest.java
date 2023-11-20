@@ -61,14 +61,14 @@ class VariantURLPathUnitTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"", "/"})
-    void shouldNotExtractAnyParameterIfThereIsNoPathOrItIsEmpty(String path) {
+    void shouldExtractEmptyParameterIfThereIsNoPathOrItIsEmpty(String path) {
         // Given
         VariantURLPath variantUrlPath = new VariantURLPath();
         HttpMessage message = createMessageWithPath(path);
         // When
         variantUrlPath.setMessage(message);
         // Then
-        assertThat(variantUrlPath.getParamList(), is(empty()));
+        assertThat(variantUrlPath.getParamList(), contains(parameter("", 1)));
     }
 
     @Test
@@ -81,7 +81,8 @@ class VariantURLPathUnitTest {
         // Then
         assertThat(
                 variantUrlPath.getParamList(),
-                contains(parameter("X", 1), parameter("Y", 2), parameter("Z", 3)));
+                contains(
+                        parameter("X", 1), parameter("Y", 2), parameter("Z", 3), parameter("", 4)));
     }
 
     @Test
@@ -99,7 +100,8 @@ class VariantURLPathUnitTest {
                         parameter("+/ ", 2),
                         parameter("Z", 3),
                         parameter("%", 4),
-                        parameter("%A", 5)));
+                        parameter("%A", 5),
+                        parameter("", 6)));
     }
 
     @Test
@@ -144,6 +146,34 @@ class VariantURLPathUnitTest {
         assertThat(message, containsPath("/Value%20A/Y/Z"));
     }
 
+    @Test
+    void shouldInjectAndEscapeLastSegmentModification() {
+        // Given
+        VariantURLPath variantUrlPath = new VariantURLPath();
+        HttpMessage message = createMessageWithPath("/X/Y/Z/");
+        variantUrlPath.setMessage(message);
+        // When
+        String injectedValue =
+                variantUrlPath.setParameter(message, parameter("", 4), "", "Value A");
+        // Then
+        assertThat(injectedValue, is(equalTo("Value A")));
+        assertThat(message, containsPath("/X/Y/Z/Value%20A"));
+    }
+
+    @Test
+    void shouldInjectEscapedLastSegmentModification() {
+        // Given
+        VariantURLPath variantUrlPath = new VariantURLPath();
+        HttpMessage message = createMessageWithPath("/X/Y/Z/");
+        variantUrlPath.setMessage(message);
+        // When
+        String injectedValue =
+                variantUrlPath.setEscapedParameter(message, parameter("", 4), "", "Value%20A");
+        // Then
+        assertThat(injectedValue, is(equalTo("Value%20A")));
+        assertThat(message, containsPath("/X/Y/Z/Value%20A"));
+    }
+
     @ParameterizedTest
     @NullAndEmptySource
     void shouldKeepEmptySegmentIfInjectedValueIsNullOrEmpty(String injection) {
@@ -171,6 +201,24 @@ class VariantURLPathUnitTest {
         // Then
         assertThat(injectedValue, is(equalTo("X")));
         assertThat(message, containsPath("/X/Y/Z"));
+    }
+
+    @Test
+    void shouldThrowExceptionOnIllegalPosition() {
+        // Given
+        VariantURLPath variantUrlPath = new VariantURLPath();
+        HttpMessage message = createMessageWithPath("/X/Y/Z/");
+        variantUrlPath.setMessage(message);
+        // When
+        Exception e =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () ->
+                                variantUrlPath.setParameter(
+                                        message, parameter("", 5), "", "Illegal"));
+        // Then
+        assertThat(e.getClass(), is(equalTo(IllegalArgumentException.class)));
+        assertThat(e.getMessage(), is(equalTo("Invalid position 5")));
     }
 
     private static HttpMessage createMessageWithPath(String path) {
