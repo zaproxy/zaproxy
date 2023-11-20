@@ -33,7 +33,8 @@ import org.parosproxy.paros.network.HttpMessage;
 
 /**
  * Variant class used for URL path elements. For a URL like: {@literal
- * http://www.example.com/aaa/bbb/ccc?ddd=eee&fff=ggg} it will handle: aaa, bbb and ccc
+ * http://www.example.com/aaa/bbb/ccc?ddd=eee&fff=ggg} it will handle: aaa, bbb, ccc, and "" (after
+ * ccc/)
  *
  * @author psiinon
  */
@@ -100,11 +101,12 @@ public class VariantURLPath implements Variant {
          *      aaa     1
          *      bbb     2
          *      ccc     3
+         *              4
          */
         String encodedPath = msg.getRequestHeader().getURI().getEscapedPath();
+        int i = 1;
         if (encodedPath != null) {
             segments = encodedPath.split("/");
-            int i = 0;
             for (String segment : segments) {
                 if (segment.length() > 0) {
                     String decodedSegment = decode(segment);
@@ -114,11 +116,12 @@ public class VariantURLPath implements Variant {
                                     decodedSegment,
                                     decodedSegment,
                                     i));
+                    i++;
                 }
-
-                i++;
             }
         }
+        // Attack new path at the end
+        stringParam.add(new NameValuePair(NameValuePair.TYPE_URL_PATH, "", "", i));
     }
 
     // Adapted from URLCodec#decodeUrl
@@ -191,22 +194,25 @@ public class VariantURLPath implements Variant {
             URI uri = msg.getRequestHeader().getURI();
 
             int position = originalPair.getPosition();
+            if (position > segments.length) {
+                throw new IllegalArgumentException("Invalid position " + position);
+            }
+            String path;
             if (position < segments.length) {
-
                 String encodedValue = escaped ? value : encode(value);
-
                 String originalValue = segments[position];
                 segments[position] = encodedValue;
-                String path = StringUtils.join(segments, "/");
+                path = StringUtils.join(segments, "/");
                 segments[position] = originalValue;
+            } else {
+                path = StringUtils.join(segments, "/") + "/" + value;
+            }
+            try {
+                uri.setEscapedPath(path);
 
-                try {
-                    uri.setEscapedPath(path);
-
-                } catch (URIException e) {
-                    // Looks like it wasn't escaped after all
-                    uri.setPath(path);
-                }
+            } catch (URIException e) {
+                // Looks like it wasn't escaped after all
+                uri.setPath(path);
             }
 
         } catch (URIException e) {
