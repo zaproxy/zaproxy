@@ -32,6 +32,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import org.parosproxy.paros.network.HttpRequestHeader;
 
 public class JavaAPIGenerator extends AbstractAPIGenerator {
 
@@ -179,7 +180,13 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
         if (type.equals(OTHER_ENDPOINT)) {
             out.write("Other");
         }
-        out.write("(\"" + component + "\", \"" + type + "\", \"" + element.getName() + "\"");
+        out.write("(\"");
+        String httpMethod = element.getDefaultMethod();
+        if (!HttpRequestHeader.GET.equalsIgnoreCase(httpMethod)) {
+            out.write(httpMethod);
+            out.write("\", \"");
+        }
+        out.write(component + "\", \"" + type + "\", \"" + element.getName() + "\"");
 
         if (hasParams) {
             out.write(", map);\n");
