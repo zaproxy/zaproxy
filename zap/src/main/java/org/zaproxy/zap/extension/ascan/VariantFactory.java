@@ -135,7 +135,7 @@ public class VariantFactory {
         }
 
         if ((targets & ScannerParam.TARGET_COOKIE) != 0) {
-            listVariant.add(new VariantCookie());
+            listVariant.add(new VariantCookie(scanOptions.isEncodeCookieValues()));
         }
 
         // Now is time to initialize all the custom Variants

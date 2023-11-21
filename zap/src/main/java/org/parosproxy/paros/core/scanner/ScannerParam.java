@@ -58,6 +58,7 @@
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/05/17 Add option for the maximum number of alerts per rule.
 // ZAP: 2023/07/06 Deprecate delayInMs.
+// ZAP: 2023/11/21 Add option to encode cookie values.
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -132,6 +133,13 @@ public class ScannerParam extends AbstractParam {
      * @since 2.11.0
      */
     static final String SCAN_NULL_JSON_VALUES = ACTIVE_SCAN_BASE_KEY + ".scanNullJsonValues";
+
+    /**
+     * Configuration key to write/read the {@link #encodeCookieValues} flag.
+     *
+     * @since 2.15.0
+     */
+    static final String ENCODE_COOKIE_VALUES = ACTIVE_SCAN_BASE_KEY + ".encodeCookieValues";
 
     private static final String MAX_ALERTS_PER_RULE = ACTIVE_SCAN_BASE_KEY + ".maxAlertsPerRule";
 
@@ -215,6 +223,8 @@ public class ScannerParam extends AbstractParam {
      */
     private boolean scanNullJsonValues;
 
+    private boolean encodeCookieValues;
+
     private int maxAlertsPerRule;
 
     // ZAP: Excluded Parameters
@@ -273,6 +283,8 @@ public class ScannerParam extends AbstractParam {
         this.addQueryParam = getBoolean(SCAN_ADD_QUERY_PARAM, false);
 
         this.scanNullJsonValues = getBoolean(SCAN_NULL_JSON_VALUES, false);
+
+        this.encodeCookieValues = getBoolean(ENCODE_COOKIE_VALUES, false);
 
         // Parse the parameters that need to be excluded
         // ------------------------------------------------
@@ -711,5 +723,28 @@ public class ScannerParam extends AbstractParam {
     public void setScanNullJsonValues(boolean scan) {
         this.scanNullJsonValues = scan;
         getConfig().setProperty(SCAN_NULL_JSON_VALUES, this.scanNullJsonValues);
+    }
+
+    /**
+     * Tells whether or not the active scanner should encode cookie values.
+     *
+     * @return {@code true} if cookie values should be encoded, {@code false} otherwise.
+     * @since 2.15.0
+     * @see #setEncodeCookieValues(boolean)
+     */
+    public boolean isEncodeCookieValues() {
+        return encodeCookieValues;
+    }
+
+    /**
+     * Sets whether or not the active scanner should encode cookie values.
+     *
+     * @param encodeCookieValues {@code true} if cookie values should be encoded, {@code false}
+     *     otherwise.
+     * @since 2.15.0
+     * @see #isEncodeCookieValues()
+     */
+    public void setEncodeCookieValues(boolean encodeCookieValues) {
+        this.encodeCookieValues = encodeCookieValues;
     }
 }
