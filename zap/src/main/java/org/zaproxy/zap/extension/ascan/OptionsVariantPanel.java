@@ -71,6 +71,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox chkInjectableHeaders = null;
     private JCheckBox chkInjectableHeadersAllRequests;
     private JCheckBox chkInjectableCookie = null;
+    private JCheckBox chkEncodeCookieValues;
 
     // Checkbox for RPC to be enabled definitions
     private JCheckBox chkRPCMultipart = null;
@@ -205,6 +206,16 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                             0,
                             GridBagConstraints.HORIZONTAL,
                             new Insets(2, 8, 2, 2)));
+            panelInjectable.add(
+                    this.getChkEncodeCookieValues(),
+                    LayoutHelper.getGBC(
+                            0,
+                            ++row,
+                            1,
+                            1.0D,
+                            0,
+                            GridBagConstraints.HORIZONTAL,
+                            new Insets(2, 32, 2, 2)));
 
             panelVariant.add(
                     new JLabel(Constant.messages.getString("variant.options.injectable.label")),
@@ -415,6 +426,11 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                         getChkInjectableHeaders().isEnabled()
                                 && getChkInjectableHeaders().isSelected());
         this.getChkInjectableCookie().setSelected((targets & ScannerParam.TARGET_COOKIE) != 0);
+        this.getChkEncodeCookieValues()
+                .setEnabled(
+                        getChkInjectableCookie().isEnabled()
+                                && getChkInjectableCookie().isSelected());
+        this.getChkEncodeCookieValues().setSelected(param.isEncodeCookieValues());
 
         int rpcEnabled = param.getTargetParamsEnabledRPC();
         this.getChkRPCMultipart().setSelected((rpcEnabled & ScannerParam.RPC_MULTIPART) != 0);
@@ -467,6 +483,8 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         if (this.getChkInjectableCookie().isSelected()) {
             targets |= ScannerParam.TARGET_COOKIE;
         }
+
+        param.setEncodeCookieValues(getChkEncodeCookieValues().isSelected());
 
         param.setTargetParamsInjectable(targets);
 
@@ -524,6 +542,8 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkInjectableHeadersAllRequests()
                 .setEnabled(enabled && getChkInjectableHeaders().isSelected());
         this.getChkInjectableCookie().setEnabled(enabled);
+        this.getChkEncodeCookieValues()
+                .setEnabled(enabled && getChkInjectableCookie().isSelected());
 
         this.getChkRPCMultipart().setEnabled(enabled);
         this.getChkRPCXML().setEnabled(enabled);
@@ -652,6 +672,10 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             chkInjectableCookie = new JCheckBox();
             chkInjectableCookie.setText(
                     Constant.messages.getString("variant.options.injectable.cookie.label"));
+            chkInjectableCookie.addItemListener(
+                    e ->
+                            getChkEncodeCookieValues()
+                                    .setEnabled(e.getStateChange() == ItemEvent.SELECTED));
         }
         return chkInjectableCookie;
     }
@@ -692,6 +716,15 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     Constant.messages.getString("variant.options.rpc.json.nulls.label"));
         }
         return chkScanNullJsonValues;
+    }
+
+    private JCheckBox getChkEncodeCookieValues() {
+        if (chkEncodeCookieValues == null) {
+            chkEncodeCookieValues = new JCheckBox();
+            chkEncodeCookieValues.setText(
+                    Constant.messages.getString("variant.options.injectable.cookie.encode.label"));
+        }
+        return chkEncodeCookieValues;
     }
 
     private JCheckBox getChkRPCGWT() {

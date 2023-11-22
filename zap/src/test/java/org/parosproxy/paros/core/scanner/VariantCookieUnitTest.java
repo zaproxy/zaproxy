@@ -169,9 +169,29 @@ class VariantCookieUnitTest {
     }
 
     @Test
-    void shouldDecodeValueFromExtractedParameters() {
+    void shouldNotDecodeValueFromExtractedParameters() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
+        HttpMessage messageWithCookies =
+                createMessageWithCookies("a=b; c=d; e=%26%27%28%29%2A", "=%27", "%26");
+        // When
+        variantCookie.setMessage(messageWithCookies);
+        // Then
+        assertThat(variantCookie.getParamList().size(), is(equalTo(5)));
+        assertThat(
+                variantCookie.getParamList(),
+                contains(
+                        cookie("a", "b", 0),
+                        cookie("c", "d", 1),
+                        cookie("e", "%26%27%28%29%2A", 2),
+                        cookie("", "%27", 3),
+                        cookie(null, "%26", 4)));
+    }
+
+    @Test
+    void shouldDecodeValueFromExtractedParameters() {
+        // Given
+        VariantCookie variantCookie = new VariantCookie(true);
         HttpMessage messageWithCookies =
                 createMessageWithCookies("a=b; c=d; e=%26%27%28%29%2A", "=%27", "%26");
         // When
@@ -249,9 +269,23 @@ class VariantCookieUnitTest {
     }
 
     @Test
-    void shouldInjectUnescapedCookieValueModification() {
+    void shouldInjectUnencodedUnescapedCookieValueModification() {
         // Given
         VariantCookie variantCookie = new VariantCookie();
+        HttpMessage message = createMessageWithCookies("a=b; c=d; e=f");
+        variantCookie.setMessage(message);
+        // When
+        String injectedCookie =
+                variantCookie.setParameter(message, cookie("a", "b", 0), "y", "&'()");
+        // Then
+        assertThat(injectedCookie, is(equalTo("y=&'()")));
+        assertThat(message, containsCookieHeader("y=&'(); c=d; e=f"));
+    }
+
+    @Test
+    void shouldInjectEncodedUnescapedCookieValueModification() {
+        // Given
+        VariantCookie variantCookie = new VariantCookie(true);
         HttpMessage message = createMessageWithCookies("a=b; c=d; e=f");
         variantCookie.setMessage(message);
         // When
