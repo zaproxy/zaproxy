@@ -22,6 +22,9 @@ package org.zaproxy.zap;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
@@ -42,6 +45,8 @@ import org.zaproxy.zap.utils.Stats;
  * @see org.parosproxy.paros.view.View
  */
 abstract class ZapBootstrap {
+
+    private static final Logger LOGGER = LogManager.getLogger(ZapBootstrap.class);
 
     private final CommandLine args;
     private final ControlOverrides controlOverrides;
@@ -120,13 +125,20 @@ abstract class ZapBootstrap {
      * @return the starting message
      */
     protected static String getStartingMessage() {
+        if ("root".equals(System.getProperty("user.name"))) {
+            LOGGER.warn("ZAP is being run using the root user - this is NOT recommended!");
+        }
         DateFormat dateFormat =
                 SimpleDateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM);
         StringBuilder strBuilder = new StringBuilder(200);
         strBuilder.append(Constant.PROGRAM_NAME).append(' ').append(Constant.PROGRAM_VERSION);
         strBuilder.append(" started ");
         strBuilder.append(dateFormat.format(new Date()));
-        strBuilder.append(" with home ").append(Constant.getZapHome());
+        strBuilder.append(" with home: ").append(Constant.getZapHome());
+        strBuilder.append(" cores: ").append(Runtime.getRuntime().availableProcessors());
+        strBuilder
+                .append(" maxMemory: ")
+                .append(FileUtils.byteCountToDisplaySize(Runtime.getRuntime().maxMemory()));
         return strBuilder.toString();
     }
 
