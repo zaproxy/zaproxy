@@ -27,6 +27,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.HashMap;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.core.scanner.Alert.Builder;
 
 class AlertUnitTest {
@@ -156,5 +158,78 @@ class AlertUnitTest {
         int tagCount = alert.getTags().size();
         // Then
         assertThat(tagCount, is(equalTo(0)));
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {-1, 0})
+    void shouldNotAddCweTagIfNotValidValue(int cweId) {
+        // Given
+        Builder builder = new Alert.Builder();
+        builder.setCweId(cweId);
+        Alert alert = builder.build();
+        // When
+        int tagCount = alert.getTags().size();
+        // Then
+        assertThat(tagCount, is(equalTo(0)));
+    }
+
+    @Test
+    void shouldAddCweTagWhenPlausibleValue() {
+        // Given
+        int cwe = 618;
+        String cweUrl = "https://cwe.mitre.org/data/definitions/618.html";
+        String cweKey = "CWE-" + cwe;
+        Builder builder = new Alert.Builder();
+        // When
+        builder.setCweId(cwe);
+        Alert alert = builder.build();
+        int tagCount = alert.getTags().size();
+        // Then
+        Map<String, String> tags = alert.getTags();
+        assertThat(tagCount, is(equalTo(1)));
+        assertThat(tags.containsKey(cweKey), is(equalTo(true)));
+        assertThat(tags.get(cweKey), is(equalTo(cweUrl)));
+    }
+
+    @Test
+    void shouldAddOneCweTagEvenIfCweIdSetTwice() {
+        // Given
+        int cwe = 618;
+        int cwe2 = 619;
+        String cweUrl = "https://cwe.mitre.org/data/definitions/619.html";
+        String cweKey = "CWE-" + cwe2;
+        Builder builder = new Alert.Builder();
+        // When
+        builder.setCweId(cwe);
+        builder.setCweId(cwe2); // This one will carry thru
+        Alert alert = builder.build();
+        int tagCount = alert.getTags().size();
+        // Then
+        Map<String, String> tags = alert.getTags();
+        assertThat(tagCount, is(equalTo(1)));
+        assertThat(tags.containsKey(cweKey), is(equalTo(true)));
+        assertThat(tags.get(cweKey), is(equalTo(cweUrl)));
+    }
+
+    @Test
+    void shouldAddLastCweTagEvenIfCweIdSetTwiceAndBuildTwice() {
+        // Given
+        int cwe = 618;
+        int cwe2 = 619;
+        String cwe2Url = "https://cwe.mitre.org/data/definitions/619.html";
+        String cwe2Key = "CWE-" + cwe2;
+        Builder builder = new Alert.Builder();
+        // When
+        builder.setCweId(cwe);
+        Alert alert = builder.build();
+        builder.setCweId(cwe2); // This one will carry thru
+        alert = builder.build();
+        int tagCount = alert.getTags().size();
+        // Then
+        Map<String, String> tags = alert.getTags();
+        assertThat(tagCount, is(equalTo(1)));
+        System.out.println(tags);
+        assertThat(tags.containsKey(cwe2Key), is(equalTo(true)));
+        assertThat(tags.get(cwe2Key), is(equalTo(cwe2Url)));
     }
 }
