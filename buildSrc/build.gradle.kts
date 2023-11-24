@@ -27,7 +27,7 @@ dependencies {
     implementation("commons-collections:commons-collections:3.2.2")
     implementation("commons-io:commons-io:2.13.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.15.1")
-    val jgitVersion = "5.3.1.201904271842-r"
+    val jgitVersion = "6.7.0.202309050840-r"
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgitVersion")
     implementation("org.eclipse.jgit:org.eclipse.jgit.archive:$jgitVersion")
     implementation("org.kohsuke:github-api:1.95")

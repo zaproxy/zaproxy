@@ -28,9 +28,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import org.apache.tools.ant.taskdefs.condition.Os;
+import org.eclipse.jgit.api.CloneCommand;
 import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.lib.Repository;
@@ -142,31 +142,17 @@ public class GradleBuildWithGitRepos extends DefaultTask {
 
                 getProject().mkdir(reposDir);
 
-                // XXX Rely just on JGit once it supports depth arg:
-                // https://bugs.eclipse.org/bugs/show_bug.cgi?id=475615
-                getProject()
-                        .exec(
-                                spec -> {
-                                    spec.setWorkingDir(reposDir);
-                                    spec.setExecutable("git");
-                                    spec.setEnvironment(Collections.emptyMap());
-                                    List<String> execArgs = new ArrayList<>();
-                                    execArgs.add("clone");
-                                    if (quiet.get()) {
-                                        execArgs.add("-q");
-                                    }
-                                    String branch = repoData.getBranch();
-                                    if (branch != null && !branch.isEmpty()) {
-                                        execArgs.add("--branch");
-                                        execArgs.add(branch);
-                                    }
-                                    execArgs.add("--depth");
-                                    execArgs.add("1");
-                                    execArgs.add(cloneUrl);
-                                    execArgs.add(repoName);
-                                    spec.args(execArgs);
-                                })
-                        .assertNormalExitValue();
+                CloneCommand clone =
+                        Git.cloneRepository()
+                                .setURI(cloneUrl)
+                                .setDepth(1)
+                                .setDirectory(repoDir.toFile());
+                String branch = repoData.getBranch();
+                if (branch != null && !branch.isEmpty()) {
+                    clone.setBranch(branch);
+                }
+                clone.call();
+
                 getLogger().lifecycle("Cloned {} into {}", cloneUrl, repoDir);
             } else if (updateRepositories.get()) {
                 FileRepositoryBuilder builder = new FileRepositoryBuilder();
