@@ -6,7 +6,7 @@ import org.zaproxy.zap.tasks.JFlexToRstaTokenMaker
 val jflexClasspath by configurations.creating
 
 dependencies {
-    jflexClasspath("de.jflex:jflex:1.8.2")
+    jflexClasspath("de.jflex:jflex:1.9.1")
 }
 
 val generateRstaTokenMakers by tasks.registering {
