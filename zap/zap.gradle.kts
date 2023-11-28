@@ -82,10 +82,10 @@ dependencies {
     api("commons-collections:commons-collections:3.2.2")
     api("commons-configuration:commons-configuration:1.10")
     api("commons-httpclient:commons-httpclient:3.1")
-    api("commons-io:commons-io:2.13.0")
+    api("commons-io:commons-io:2.15.0")
     api("commons-lang:commons-lang:2.6")
-    api("org.apache.commons:commons-lang3:3.13.0")
-    api("org.apache.commons:commons-text:1.10.0")
+    api("org.apache.commons:commons-lang3:3.14.0")
+    api("org.apache.commons:commons-text:1.11.0")
     api("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
     val log4jVersion = "2.20.0"
@@ -108,11 +108,11 @@ dependencies {
         setTransitive(false)
     }
 
-    testImplementation("net.bytebuddy:byte-buddy:1.14.0")
+    testImplementation("net.bytebuddy:byte-buddy:1.14.10")
     testImplementation("org.hamcrest:hamcrest-core:2.2")
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.1.1")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.7.0")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
 
     testRuntimeOnly(files(distDir))

@@ -37,11 +37,11 @@ and subject to their respective licenses.
 | commons-configuration-1.10.jar      | Apache 2.0                |
 | commons-csv-1.10.0.jar              | Apache 2.0                |
 | commons-httpclient-3.1.jar          | Apache 2.0                |
-| commons-io-2.13.0.jar               | Apache 2.0                |
+| commons-io-2.15.0.jar               | Apache 2.0                |
 | commons-lang-2.6.jar                | Apache 2.0                |
-| commons-lang3-3.13.0.jar            | Apache 2.0                |
+| commons-lang3-3.14.0.jar            | Apache 2.0                |
 | commons-logging-1.2.jar             | Apache 2.0                |
-| commons-text-1.10.0.jar             | Apache 2.0                |
+| commons-text-1.11.0.jar             | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
 | flatlaf-3.2.5.jar                   | Apache 2.0                |
 | harlib-1.1.3.jar                    | Apache 2.0                |
