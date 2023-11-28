@@ -271,6 +271,7 @@ Scan rules:
 
 120000  Information Disclosure - Information in Browser Storage
 120001  Information Disclosure - Sensitive Information in Browser Storage
+120002  Information Disclosure - JWT in Browser Storage
 
 322420463 Retire.js (3rd Party)
 
