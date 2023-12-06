@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-12-06
+- Alert_on_Unexpected_Content_Types.js > Added Content-Type text/xml to the list of expected types. 
+
 ### 2023-10-30
 - Add the ZAP client profile to stable, weekly, and live images.
 
