@@ -152,7 +152,12 @@ def load_config(config, config_dict, config_msg, out_of_scope_dict):
     out_of_scope_dict - a dictionary which maps plugin_ids to out of scope regexes
     """
     for line in config:
-        if not line.startswith('#') and len(line) > 1:
+        if line.startswith('#') or len(line) == 0:
+          # Ignore
+          pass
+        elif line.count('\t') < 2:
+          raise ValueError("Unexpected number of tokens on line - there should be at least 3, tab separated: {0}".format(line))
+        else:
             (key, val, optional) = line.rstrip().split('\t', 2)
             if val == 'OUTOFSCOPE':
                 for plugin_id in key.split(','):

@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-12-07
+- Give better error on failing to parse the config file.
+
 ### 2023-12-06
 - Alert_on_Unexpected_Content_Types.js > Added Content-Type text/xml to the list of expected types. 
 
