@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-12-08
+- Alert_on_Unexpected_Content_Types.js > Added Content-Type application/x-x509-ca-cert to the list of expected types. 
+
 ### 2023-12-07
 - Give better error on failing to parse the config file.
 
