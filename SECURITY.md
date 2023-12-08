@@ -36,7 +36,7 @@ Logical vulnerabilities, such as broken access control, will not be found by any
 
 Manual penetration testing should always be performed in addition to active scanning to find all types of vulnerabilities.
 
-Please see the Terms of Use and Disclaimer for restrictions
+Please see the Terms of Use and Disclaimer for restrictions.
 
 ## Terms of Use
 
