@@ -24,13 +24,13 @@ val bundledResourcesPath = "src/main/resources/org/zaproxy/zap/resources"
 
 val cyclonedxRuntimeBom by tasks.registering(CycloneDxTask::class) {
     setIncludeConfigs(listOf(JavaPlugin.RUNTIME_CLASSPATH_CONFIGURATION_NAME))
-    setDestination(file("$buildDir/reports/bom-runtime"))
+    setDestination(layout.buildDirectory.dir("reports/bom-runtime").get().asFile)
     setOutputFormat("json")
 }
 
 val jar by tasks.existing(Jar::class)
 val jarWithBom by tasks.registering(Jar::class) {
-    destinationDirectory.set(file("$buildDir/libs/withBom/"))
+    destinationDirectory.set(layout.buildDirectory.dir("libs/withBom/"))
 
     from(jar.map { it.source }) {
         exclude("MANIFEST.MF")
@@ -39,7 +39,7 @@ val jarWithBom by tasks.registering(Jar::class) {
 }
 
 tasks.named<CycloneDxTask>("cyclonedxBom") {
-    setDestination(file("$buildDir/reports/bom-all"))
+    setDestination(layout.buildDirectory.dir("reports/bom-all").get().asFile)
 }
 
 val mainAddOnsFile = file("src/main/main-add-ons.yml")
@@ -49,7 +49,7 @@ val downloadMainAddOns by tasks.registering(DownloadMainAddOns::class) {
     description = "Downloads the add-ons included in main (non-SNAPSHOT) releases."
 
     addOnsData.set(mainAddOnsFile)
-    outputDir.set(file("$buildDir/mainAddOns"))
+    outputDir.set(layout.buildDirectory.dir("mainAddOns"))
 }
 
 val updateMainAddOns by tasks.registering(UpdateMainAddOns::class) {
@@ -69,7 +69,7 @@ val bundledAddOns: Any = provider {
 }
 
 val distFiles by tasks.registering(Sync::class) {
-    destinationDir = file("$buildDir/distFiles")
+    destinationDir = layout.buildDirectory.dir("distFiles").get().asFile
     from(jarWithBom)
     from(distDir) {
         filesMatching(listOf("zap.bat", "zap.sh")) {
@@ -129,7 +129,7 @@ val copyCoreAddOns by tasks.registering {
         dependsOn(bundledAddOns)
     }
 
-    val outputDir = file("$buildDir/coreAddOns")
+    val outputDir = layout.buildDirectory.dir("coreAddOns")
     outputs.dir(outputDir)
 
     doLast {
@@ -192,7 +192,7 @@ listOf(
 
     val volumeName = "ZAP"
     val appName = "$volumeName.app"
-    val macOsJreDir = file("$buildDir/macOsJre${it.suffix}")
+    val macOsJreDir = layout.buildDirectory.dir("macOsJre${it.suffix}").get().asFile
     val macOsJreUnpackDir = File(macOsJreDir, "unpacked")
     val macOsJreVersion = "11.0.20.1+1"
     val macOsJreFile = File(macOsJreDir, "jdk$macOsJreVersion-jre.tar.gz")
@@ -234,7 +234,7 @@ listOf(
         }
     }
 
-    val macOsDistDataDir = file("$buildDir/macOsDistData${it.suffix}")
+    val macOsDistDataDir = layout.buildDirectory.dir("macOsDistData${it.suffix}").get().asFile
     val prepareDistMac = tasks.register<Copy>("prepareDistMac${it.suffix}") {
         destinationDir = macOsDistDataDir
         from(unpackMacOSJre) {
@@ -278,7 +278,7 @@ listOf(
 
         volname.set(volumeName)
         workingDir.set(macOsDistDataDir)
-        dmg.set(file("$buildDir/distributions/${volumeName}_$version${it.fileNameSuffix}.dmg"))
+        dmg.set(layout.buildDirectory.file("distributions/${volumeName}_$version${it.fileNameSuffix}.dmg"))
 
         doFirst {
             val symlink = Paths.get("$macOsDistDataDir/Applications")
@@ -339,7 +339,7 @@ tasks.named("assemble") {
     dependsOn(distDaily)
 }
 
-val weeklyAddOnsDir = file("$buildDir/weeklyAddOns")
+val weeklyAddOnsDir = layout.buildDirectory.dir("weeklyAddOns")
 val buildWeeklyAddOns by tasks.registering(GradleBuildWithGitRepos::class) {
     group = "Distribution"
     description = "Builds the weekly add-ons from source for weekly distribution."
@@ -354,7 +354,7 @@ val buildWeeklyAddOns by tasks.registering(GradleBuildWithGitRepos::class) {
             register("test")
         }
         register("copyZapAddOn") {
-            args.set(listOf("--into=$weeklyAddOnsDir"))
+            args.set(listOf("--into=${weeklyAddOnsDir.get().asFile}"))
         }
     }
 
@@ -389,7 +389,7 @@ val prepareDistWeekly by tasks.registering(Sync::class) {
         exclude("README")
         exclude(startScripts)
     }
-    into(file("$buildDir/distFilesWeekly"))
+    into(layout.buildDirectory.dir("distFilesWeekly"))
 }
 
 tasks.register<Zip>("distWeekly") {

@@ -50,7 +50,7 @@ launch4j {
     downloadUrl.set("https://adoptium.net/")
 }
 
-val installerDataDir = file("$buildDir/installerData/")
+val installerDataDir = layout.buildDirectory.dir("installerData").get().asFile
 val bundledAddOns: Any = provider {
     if (version.toString().endsWith("SNAPSHOT")) {
         file("src/main/dist/plugin")
@@ -115,7 +115,7 @@ val installers by tasks.registering(Install4jTask::class) {
 
     projectFile = file("src/main/installer/zap.install4j")
     variables = mapOf("version" to version)
-    destination = "$buildDir/install4j"
+    destination = layout.buildDirectory.dir("install4j").get().asFile
 
     doFirst {
         require(install4jHomeDirValidated || install4jHomeDir != null) {
@@ -126,7 +126,7 @@ val installers by tasks.registering(Install4jTask::class) {
 
 if (install4jHomeDir == null && Os.isFamily(Os.FAMILY_UNIX)) {
     val install4jVersionUnderscores = install4jVersion.replace('.', '_')
-    val install4jBinDir = file("$buildDir/install4jBin")
+    val install4jBinDir = layout.buildDirectory.dir("install4jBin").get().asFile
     val install4jBinUnpackDir = File(install4jBinDir, "unpacked")
     val install4jBinFile = File(install4jBinDir, "install4j.tar.gz")
     val install4jDir = File(install4jBinUnpackDir, "install4j$install4jVersion")

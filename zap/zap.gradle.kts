@@ -10,9 +10,10 @@ import java.util.stream.Collectors
 plugins {
     `java-library`
     jacoco
+    id("com.diffplug.spotless")
     id("me.champeau.gradle.japicmp")
     id("org.cyclonedx.bom")
-    id("org.zaproxy.common") version "0.1.0"
+    id("org.zaproxy.common")
     id("org.zaproxy.crowdin") version "0.3.1"
     org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
@@ -167,7 +168,7 @@ val japicmp by tasks.registering(JapicmpTask::class) {
     methodExcludes.set(excludedData.methodExcludes)
 
     richReport {
-        destinationDir.set(file("$buildDir/reports/japicmp/"))
+        destinationDir.set(layout.buildDirectory.dir("reports/japicmp"))
         reportName.set("japi.html")
         addDefaultRules.set(true)
         addRule(JApiChangeStatus.MODIFIED, AcceptMethodAbstractNowDefaultRule::class.java)
@@ -195,7 +196,7 @@ val langPack by tasks.registering(Zip::class) {
     group = LifecycleBasePlugin.BUILD_GROUP
     description = "Assembles the language pack for the Core Language Files add-on."
 
-    archiveFileName.set("$buildDir/langpack/ZAP_${project.version}_language_pack.$versionLangFile.zaplang")
+    archiveFileName.set(layout.buildDirectory.file("langpack/ZAP_${project.version}_language_pack.$versionLangFile.zaplang").get().asFile.absolutePath)
     isPreserveFileTimestamps = false
     isReproducibleFileOrder = true
 

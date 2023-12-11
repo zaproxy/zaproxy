@@ -1,7 +1,3 @@
-
-pluginManagement {
-    repositories {
-        mavenCentral()
-        gradlePluginPortal()
-    }
+plugins {
+    id("org.zaproxy.common.settings")
 }
