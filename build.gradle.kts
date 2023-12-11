@@ -9,22 +9,12 @@ plugins {
 
 apply(from = "$rootDir/gradle/ci.gradle.kts")
 
-allprojects {
+subprojects {
     apply(plugin = "com.diffplug.spotless")
+    apply(plugin = "org.zaproxy.common")
     apply(plugin = "net.ltgt.errorprone")
 
-    repositories {
-        mavenCentral()
-    }
-
     spotless {
-        project.plugins.withType(JavaPlugin::class) {
-            java {
-                licenseHeaderFile("$rootDir/gradle/spotless/license.java")
-                googleJavaFormat("1.17.0").aosp()
-            }
-        }
-
         kotlinGradle {
             ktlint()
         }
@@ -37,8 +27,7 @@ allprojects {
     }
 
     tasks.withType<JavaCompile>().configureEach {
-        options.encoding = "utf-8"
-        options.compilerArgs = listOf("-Xlint:all", "-Werror", "-parameters")
+        options.compilerArgs = options.compilerArgs + "-parameters"
         options.errorprone {
             disableAllChecks.set(true)
             error(

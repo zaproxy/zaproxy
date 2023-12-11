@@ -1,6 +1,7 @@
 plugins {
     `kotlin-dsl`
-    id("com.diffplug.spotless") version "6.20.0"
+    id("com.diffplug.spotless")
+    id("org.zaproxy.common")
 }
 
 repositories {
@@ -9,11 +10,6 @@ repositories {
 }
 
 spotless {
-    java {
-        licenseHeaderFile(file("../gradle/spotless/license.java"))
-        googleJavaFormat("1.17.0").aosp()
-    }
-
     kotlinGradle {
         ktlint()
     }
@@ -31,6 +27,11 @@ dependencies {
     implementation("org.eclipse.jgit:org.eclipse.jgit:$jgitVersion")
     implementation("org.eclipse.jgit:org.eclipse.jgit.archive:$jgitVersion")
     implementation("org.kohsuke:github-api:1.95")
+    // Include annotations used by the above library to avoid compiler warnings.
+    compileOnly("com.google.code.findbugs:findbugs-annotations:3.0.1")
+    compileOnly("com.infradna.tool:bridge-method-annotation:1.18") {
+        exclude(group = "org.jenkins-ci")
+    }
     // Gradle Plugins
     implementation("com.diffplug.spotless:spotless-plugin-gradle:6.20.0")
     implementation("de.undercouch:gradle-download-task:5.4.0")
