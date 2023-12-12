@@ -18,14 +18,6 @@
       <enabled>true</enabled>
       <level>MEDIUM</level>
     </p40009>
-    <p40012>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p40012>
-    <p40014>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p40014>
     <p40018>
       <enabled>true</enabled>
       <level>MEDIUM</level>
@@ -62,46 +54,6 @@
       <enabled>true</enabled>
       <level>MEDIUM</level>
     </p40008>
-    <p40016>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p40016>
-    <p40017>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p40017>
-    <p50000>
-      <enabled>true</enabled>
-      <level>MEDIUM</level>
-    </p50000>
-    <p42>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p42>
-    <p10045>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p10045>
-    <p10048>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p10048>
-    <p20012>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p20012>
-    <p20015>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p20015>
-    <p20016>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p20016>
-    <p20017>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p20017>
     <p20018>
       <enabled>false</enabled>
       <level>OFF</level>
@@ -110,22 +62,30 @@
       <enabled>false</enabled>
       <level>OFF</level>
     </p40013>
-    <p40019>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p40019>
     <p40020>
-      <enabled>false</enabled>
-      <level>OFF</level>
+      <enabled>true</enabled>
+      <level>MEDIUM</level>
     </p40020>
+    <p40027>
+      <enabled>true</enabled>
+      <level>MEDIUM</level>
+    </p40027>
+    <p40019>
+      <enabled>true</enabled>
+      <level>MEDIUM</level>
+    </p40019>
     <p40021>
-      <enabled>false</enabled>
-      <level>OFF</level>
+      <enabled>true</enabled>
+      <level>MEDIUM</level>
     </p40021>
     <p40022>
       <enabled>false</enabled>
-      <level>OFF</level>
+      <level>MEDIUM</level>
     </p40022>
+    <p40024>
+      <enabled>true</enabled>
+      <level>MEDIUM</level>
+    </p40024>
     <p90018>
       <enabled>false</enabled>
       <level>OFF</level>
@@ -146,50 +106,18 @@
       <enabled>false</enabled>
       <level>OFF</level>
     </p90025>
-    <p10095>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p10095>
     <p30003>
-      <enabled>false</enabled>
+      <enabled>true</enabled>
       <level>OFF</level>
     </p30003>
-    <p90028>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p90028>
     <p20014>
-      <enabled>false</enabled>
+      <enabled>true</enabled>
       <level>OFF</level>
     </p20014>
-    <p40023>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p40023>
-    <p41>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p41>
-    <p43>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p43>
-    <p10107>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p10107>
     <p40015>
-      <enabled>false</enabled>
+      <enabled>true</enabled>
       <level>OFF</level>
     </p40015>
-    <p40024>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p40024>
-    <p40026>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p40026>
     <p60100>
       <enabled>false</enabled>
       <level>OFF</level>
@@ -206,29 +134,13 @@
       <enabled>true</enabled>
       <level>MEDIUM</level>
     </p90029>
-    <p10051>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p10051>
     <p10104>
       <enabled>false</enabled>
       <level>OFF</level>
     </p10104>
-    <p10106>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p10106>
     <p40025>
-      <enabled>false</enabled>
+      <enabled>true</enabled>
       <level>OFF</level>
     </p40025>
-    <p10047>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p10047>
-    <p90027>
-      <enabled>false</enabled>
-      <level>OFF</level>
-    </p90027>
   </plugins>
 </configuration>
