@@ -152,7 +152,7 @@ def load_config(config, config_dict, config_msg, out_of_scope_dict):
     out_of_scope_dict - a dictionary which maps plugin_ids to out of scope regexes
     """
     for line in config:
-        if line.startswith('#') or len(line) == 0:
+        if line.startswith('#') or len(line.strip()) == 0:
           # Ignore
           pass
         elif line.count('\t') < 2:

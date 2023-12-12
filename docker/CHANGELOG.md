@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-12-12
+- Parsing the config file ignores empty lines that are containing whitespaces only
+
 ### 2023-12-07
 - Give better error on failing to parse the config file.
 
