@@ -26,6 +26,11 @@ if [ ! -f $HOME/webswing-server.war ]; then
     exit 1
 fi
 
+if [ ! -f $HOME/server/webswing-jetty-launcher.jar ]; then
+    echo "Webswing jetty launcher not found in $HOME/server folder"
+    exit 1
+fi
+
 if [ ! -f $JAVA_HOME/bin/java ]; then
     echo "Java installation not found in $JAVA_HOME folder"
     exit 1
@@ -80,7 +85,7 @@ case "$1" in
         # Use ; for sed separators so we can use the directory slashes
         sed -i "s;ZAP_OPTS;${ZAP_OPTS};" webswing.config
         
-        $JAVA_HOME/bin/java $JAVA_OPTS -jar webswing-server.war $OPTS 2>> $LOG >> $LOG
+        $JAVA_HOME/bin/java $JAVA_OPTS -jar $HOME/server/webswing-jetty-launcher.jar -w webswing-server.war $OPTS 2>> $LOG >> $LOG
         ;;
     *)
         xvfb-run $SCRIPTPATH$0 run
