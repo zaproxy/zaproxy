@@ -1,14 +1,17 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-12-14
+- Updated to use Webswing 23.2.2 (Issue 8244).
+
 ### 2023-12-12
-- Parsing the config file ignores empty lines that are containing whitespaces only
+- Parsing the config file ignores empty lines that are containing whitespaces only (Issue 8237).
 
 ### 2023-12-07
 - Give better error on failing to parse the config file.
 
 ### 2023-12-06
-- Alert_on_Unexpected_Content_Types.js > Added Content-Type text/xml to the list of expected types. 
+- Alert_on_Unexpected_Content_Types.js > Added Content-Type text/xml to the list of expected types (Issue 8226).
 
 ### 2023-10-30
 - Add the ZAP client profile to stable, weekly, and live images.
