@@ -7,7 +7,8 @@ body:
       value: |
         Thanks for taking the time to report a ZAP bug! Fill out the form below to provide us with info to help fix the bug. 
         Only use this if you're 100% sure you've found a bug and can reproduce it. If you're looking for general help with ZAP, try the [User Group](https://groups.google.com/g/zaproxy-users).
-        Please do not ask questions as issues - these will be closed.
+        > [!CAUTION] 
+        > Please do not ask questions as issues - these will be closed.
   - type: textarea
     id: description
     attributes:
@@ -39,10 +40,12 @@ body:
     attributes:
       label: Software versions
       description: |
-        Please add version information from ZAPs menu Help > Support Info, or from the CLI using the -suppinfo switch
-        
-        **Note:** If you're reporting a docker issue please ensure you include the image id.
-        Also please be aware that if you've wrapped or customized the image it is very difficult for us to support you.
+        > [!IMPORTANT]
+        > Please add version information from ZAPs menu Help > Support Info, or from the CLI using the -suppinfo switch.
+
+        > [!NOTE]
+        > If you're reporting a docker issue please ensure you include the image id.
+        > Also please be aware that if you've wrapped or customized the image it is very difficult for us to support you.
     validations:
       required: true
   - type: textarea
@@ -52,7 +55,8 @@ body:
       description: |
         If applicable, add screenshots to help explain your problem.
 
-        Tip: You can attach files by clicking this area to highlight it and then dragging files in.
+        > [!TIP]
+        > You can attach files by clicking this area to highlight it and then dragging files in.
     validations:
       required: false
   - type: textarea
@@ -62,7 +66,8 @@ body:
       description: |
         See https://www.zaproxy.org/faq/what-is-the-default-directory-that-zap-uses/ for the location of the zap.log file for your OS.
         
-        Tip: You can attach files by clicking this area to highlight it and then dragging files in.
+        > [!TIP]
+        > You can attach files by clicking this area to highlight it and then dragging files in.
     validations:
       required: false
   - type: textarea
