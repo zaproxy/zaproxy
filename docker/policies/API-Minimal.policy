@@ -142,5 +142,9 @@
       <enabled>true</enabled>
       <level>OFF</level>
     </p40025>
+    <p40046>
+      <enabled>true</enabled>
+      <level>OFF</level>
+    </p40046>
   </plugins>
 </configuration>
