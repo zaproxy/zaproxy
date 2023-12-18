@@ -42,6 +42,8 @@ package org.parosproxy.paros.common;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.FileConfiguration;
@@ -246,7 +248,7 @@ public abstract class AbstractParam implements Cloneable {
      * @since 2.13.0
      */
     protected <T extends Enum<T>> T getEnum(String key, T defaultValue) {
-        String value = getString(key, defaultValue.toString());
+        String value = getString(key, defaultValue.name());
         @SuppressWarnings("unchecked")
         Class<T> enumType = (Class<T>) defaultValue.getClass();
         try {
@@ -261,12 +263,12 @@ public abstract class AbstractParam implements Cloneable {
         return defaultValue;
     }
 
-    private static <T extends Enum<T>> List<T> getValues(Class<T> enumType) {
+    private static <T extends Enum<T>> List<String> getValues(Class<T> enumType) {
         try {
             Method valuesMethod = enumType.getDeclaredMethod("values");
             @SuppressWarnings("unchecked")
             T[] values = (T[]) valuesMethod.invoke(enumType);
-            return List.of(values);
+            return Stream.of(values).map(Enum::name).collect(Collectors.toList());
         } catch (Exception e) {
             LOGGER.error("Error getting enum values:", e);
         }
