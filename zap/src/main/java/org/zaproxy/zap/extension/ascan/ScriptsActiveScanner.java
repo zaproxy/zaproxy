@@ -40,6 +40,8 @@ import org.zaproxy.zap.extension.script.ScriptsCache.CachedScript;
 import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 import org.zaproxy.zap.extension.script.ScriptsCache.InterfaceProvider;
 
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
 public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     private ExtensionScript extension = null;

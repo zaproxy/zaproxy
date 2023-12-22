@@ -5,4 +5,5 @@
 packageExcludes: []
 fieldExcludes: []
 classExcludes: []
-methodExcludes: []
+methodExcludes:
+  - "org.zaproxy.zap.control.CoreFunctionality#getBuiltInActiveScanRules()"

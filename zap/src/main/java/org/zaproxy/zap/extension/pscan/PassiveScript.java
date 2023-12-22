@@ -24,6 +24,8 @@ import net.htmlparser.jericho.Source;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.scanner.ScriptsPassiveScanner;
 
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
 public interface PassiveScript {
 
     void scan(ScriptsPassiveScanner scriptsPassiveScanner, HttpMessage msg, Source source)

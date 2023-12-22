@@ -34,6 +34,8 @@ import org.zaproxy.zap.extension.script.ScriptWrapper;
 import org.zaproxy.zap.extension.script.ScriptsCache;
 import org.zaproxy.zap.extension.script.ScriptsCache.Configuration;
 
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
 public class ScriptsPassiveScanner extends PluginPassiveScanner {
 
     private static final Logger LOGGER = LogManager.getLogger(ScriptsPassiveScanner.class);
