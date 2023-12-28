@@ -1748,8 +1748,28 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
      * @see #addCustomComponent(Component)
      * @see #addCustomComponent(int, Component)
      * @see #addCustomComponent(String, Component)
+     * @see #addCustomComponent(int, String, Component, double)
      */
     public void addCustomComponent(int tabIndex, String componentLabel, Component component) {
+        addCustomComponent(tabIndex, componentLabel, component, 0.0D);
+    }
+
+    /**
+     * Add a custom {@code Component} to a tabbed {@code StandardFieldsDialog} with the given label.
+     *
+     * @param tabIndex tabIndex the index of the tab to which the {@code Component} need to be
+     *     added.
+     * @param componentLabel the {@code I18N} key for the component label, should not be null.
+     * @param component the {@code Component} to be added.
+     * @param weighty the vertical weight for the component, see {@link GridBagConstraints#weighty}.
+     * @since 2.15.0
+     * @see #addCustomComponent(Component)
+     * @see #addCustomComponent(int, Component)
+     * @see #addCustomComponent(String, Component)
+     * @see #addCustomComponent(int, String, Component)
+     */
+    public void addCustomComponent(
+            int tabIndex, String componentLabel, Component component, double weighty) {
         validateTabbed(tabIndex);
         this.addField(
                 this.tabPanels.get(tabIndex),
@@ -1757,7 +1777,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
                 componentLabel,
                 component,
                 component,
-                0.0D);
+                weighty);
         this.incTabOffset(tabIndex);
     }
 
@@ -1768,12 +1788,29 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
      * @param component the {@code Component} to be added
      * @since 2.8.0
      * @see #addCustomComponent(Component)
+     * @see #addCustomComponent(String, Component, double)
      * @see #addCustomComponent(int, Component)
      * @see #addCustomComponent(int, String, Component)
      */
     public void addCustomComponent(String componentLabel, Component component) {
+        addCustomComponent(componentLabel, component, 0.0D);
+    }
+
+    /**
+     * Add a custom {@code Component} to {@code StandardFieldsDialog} with the given label.
+     *
+     * @param componentLabel the {@code I18N} key for the component label, should not be null
+     * @param component the {@code Component} to be added
+     * @param weighty the vertical weight for the component, see {@link GridBagConstraints#weighty}.
+     * @since 2.15.0
+     * @see #addCustomComponent(Component)
+     * @see #addCustomComponent(String, Component)
+     * @see #addCustomComponent(int, Component)
+     * @see #addCustomComponent(int, String, Component)
+     */
+    public void addCustomComponent(String componentLabel, Component component, double weighty) {
         validateNotTabbed();
-        this.addField(componentLabel, component, component, 0.0D);
+        this.addField(componentLabel, component, component, weighty);
     }
 
     /**
