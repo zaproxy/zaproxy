@@ -262,11 +262,12 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
             added = addPassiveScannerImpl(scanner);
 
-            if (hasView()) {
-                getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
+            if (added) {
+                if (hasView()) {
+                    getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
+                }
+                LOGGER.info("Loaded passive scan rule: {}", scanner.getName());
             }
-
-            LOGGER.info("loaded passive scan rule: {}", scanner.getName());
             if (scanner.getPluginId() == -1) {
                 LOGGER.error(
                         "The passive scan rule \"{}\" [{}] does not have a defined ID.",
@@ -294,7 +295,12 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             listTest.addAll(ExtensionFactory.getAddOnLoader().getPassiveScanRules());
 
             for (PluginPassiveScanner scanner : listTest) {
-                addPluginPassiveScannerImpl(scanner);
+                if (scanner instanceof RegexAutoTagScanner) {
+                    continue;
+                }
+                if (!addPluginPassiveScannerImpl(scanner)) {
+                    LOGGER.error("Failed to install pscanrule: {}", scanner.getName());
+                }
             }
         }
         return scannerList;

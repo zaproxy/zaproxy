@@ -37,7 +37,10 @@ public class PassiveScannerList {
 
     protected boolean add(PassiveScanner scanner) {
         if (scannerNames.contains(scanner.getName())) {
-            // Prevent duplicates, log error?
+            LOGGER.warn(
+                    "A scan rule with the name \"{}\" already exists. The rule \"{}\" will not be loaded.",
+                    scanner.getName(),
+                    scanner.getClass().getName());
             return false;
         }
         passiveScanners.add(scanner);
