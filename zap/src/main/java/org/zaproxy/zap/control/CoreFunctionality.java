@@ -22,7 +22,6 @@ package org.zaproxy.zap.control;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.history.ProxyListenerLogEventPublisher;
 import org.parosproxy.paros.model.HistoryReferenceEventPublisher;
@@ -50,7 +49,6 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 public final class CoreFunctionality {
 
     private static List<Extension> builtInExtensions;
-    private static List<AbstractPlugin> builtInActiveScanRules;
     private static List<PluginPassiveScanner> builtInPassiveScanRules;
 
     static {
@@ -136,33 +134,6 @@ public final class CoreFunctionality {
     }
 
     /**
-     * Returns an unmodifiable list containing all built-in (core) active scanners.
-     *
-     * @return an unmodifiable list containing all built-in active scanners
-     * @see AbstractPlugin
-     */
-    public static List<AbstractPlugin> getBuiltInActiveScanRules() {
-        if (builtInActiveScanRules == null) {
-            createActiveScanRules();
-        }
-        return builtInActiveScanRules;
-    }
-
-    private static synchronized void createActiveScanRules() {
-        if (builtInActiveScanRules == null) {
-            ArrayList<AbstractPlugin> rules = new ArrayList<>();
-            rules.add(new org.zaproxy.zap.extension.ascan.ScriptsActiveScanner());
-            rules.trimToSize();
-
-            for (AbstractPlugin rule : rules) {
-                rule.setStatus(AddOn.Status.release);
-            }
-
-            builtInActiveScanRules = Collections.unmodifiableList(rules);
-        }
-    }
-
-    /**
      * Returns an unmodifiable list containing all built-in (core) passive scanners.
      *
      * @return an unmodifiable list containing all built-in passive scanners
@@ -179,7 +150,6 @@ public final class CoreFunctionality {
         if (builtInPassiveScanRules == null) {
             ArrayList<PluginPassiveScanner> rules = new ArrayList<>();
             rules.add(new org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner());
-            rules.add(new org.zaproxy.zap.extension.pscan.scanner.ScriptsPassiveScanner());
             rules.add(new org.zaproxy.zap.extension.pscan.scanner.StatsPassiveScanner());
             rules.trimToSize();
 

@@ -22,6 +22,8 @@ package org.zaproxy.zap.extension.ascan;
 import javax.script.ScriptException;
 import org.parosproxy.paros.network.HttpMessage;
 
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
 public interface ActiveScript {
 
     void scan(ScriptsActiveScanner sas, HttpMessage msg, String param, String value)

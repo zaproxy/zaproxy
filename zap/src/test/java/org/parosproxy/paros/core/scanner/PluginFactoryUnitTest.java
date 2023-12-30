@@ -98,13 +98,13 @@ class PluginFactoryUnitTest extends PluginTestUtils {
     }
 
     @Test
-    void shouldHaveOnePluginByDefault() {
+    void shouldHaveNoPluginsByDefault() {
         // Given
         PluginFactory pluginFactory = new PluginFactory();
         // When
         pluginFactory.loadAllPlugin(emptyConfig());
         // Then
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(1)));
+        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(0)));
     }
 
     @Test
@@ -117,8 +117,7 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         pluginFactory.loadAllPlugin(emptyConfig());
         // Then
         assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(1)));
-        assertThat(pluginFactory.getAllPlugin().get(0), is(not(equalTo((Plugin) plugin))));
+        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(0)));
     }
 
     @Test
@@ -131,8 +130,7 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         pluginFactory.loadAllPlugin(emptyConfig());
         // Then
         assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(1)));
-        assertThat(pluginFactory.getAllPlugin().get(0), is(not(equalTo((Plugin) plugin))));
+        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(0)));
     }
 
     @Test
@@ -145,9 +143,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         pluginFactory.loadAllPlugin(emptyConfig());
         // Then
         assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(2)));
-        assertThat(pluginFactory.getAllPlugin().get(0), is(not(equalTo((Plugin) plugin))));
-        assertThat(pluginFactory.getAllPlugin().get(1), is(equalTo((Plugin) plugin)));
+        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(1)));
+        assertThat(pluginFactory.getAllPlugin().get(0), is(equalTo((Plugin) plugin)));
     }
 
     @Test
@@ -161,9 +158,8 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         pluginFactory.loadAllPlugin(emptyConfig());
         // Then
         assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(2)));
-        assertThat(pluginFactory.getAllPlugin().get(0), is(not(equalTo((Plugin) plugin))));
-        assertThat(pluginFactory.getAllPlugin().get(1), is(equalTo((Plugin) plugin)));
+        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(1)));
+        assertThat(pluginFactory.getAllPlugin().get(0), is(equalTo((Plugin) plugin)));
     }
 
     @Test
@@ -178,15 +174,13 @@ class PluginFactoryUnitTest extends PluginTestUtils {
         otherPluginFactory.loadAllPlugin(emptyConfig());
         // Then
         assertThat(PluginFactory.isPluginLoaded(plugin), is(equalTo(true)));
-        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(2)));
-        assertThat(otherPluginFactory.getAllPlugin(), hasSize(equalTo(2)));
-        assertThat(pluginFactory.getAllPlugin().get(0), is(not(equalTo((Plugin) plugin))));
-        assertThat(otherPluginFactory.getAllPlugin().get(0), is(not(equalTo((Plugin) plugin))));
-        assertThat(pluginFactory.getAllPlugin().get(1), is(equalTo((Plugin) plugin)));
-        assertThat(otherPluginFactory.getAllPlugin().get(1), is(equalTo((Plugin) plugin)));
+        assertThat(pluginFactory.getAllPlugin(), hasSize(equalTo(1)));
+        assertThat(otherPluginFactory.getAllPlugin(), hasSize(equalTo(1)));
+        assertThat(pluginFactory.getAllPlugin().get(0), is(equalTo((Plugin) plugin)));
+        assertThat(otherPluginFactory.getAllPlugin().get(0), is(equalTo((Plugin) plugin)));
         assertThat(
-                pluginFactory.getAllPlugin().get(1),
-                is(not(sameInstance(otherPluginFactory.getAllPlugin().get(1)))));
+                pluginFactory.getAllPlugin().get(0),
+                is(not(sameInstance(otherPluginFactory.getAllPlugin().get(0)))));
     }
 
     @Test
