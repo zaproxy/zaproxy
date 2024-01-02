@@ -34,9 +34,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import javax.swing.LookAndFeel;
 import javax.swing.UIManager;
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.text.WordUtils;
+import org.apache.commons.lang.WordUtils;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOn;
@@ -99,30 +98,6 @@ public final class ZapSupportUtils {
         return Constant.messages.getString("support.arch.label")
                 + " "
                 + System.getProperty("os.arch");
-    }
-
-    /**
-     * Gets the number of CPU cores.
-     *
-     * @return the number of cores.
-     * @since 2.15.0
-     */
-    public static String getCpuCores() {
-        return Constant.messages.getString("support.cpucores.label")
-                + " "
-                + Runtime.getRuntime().availableProcessors();
-    }
-
-    /**
-     * Gets the maximum memory of the JVM.
-     *
-     * @return the max memory.
-     * @since 2.15.0
-     */
-    public static String getMaxMemory() {
-        return Constant.messages.getString("support.maxmem.label")
-                + " "
-                + FileUtils.byteCountToDisplaySize(Runtime.getRuntime().maxMemory());
     }
 
     public static String getJavaVersionVendor() {
@@ -209,8 +184,6 @@ public final class ZapSupportUtils {
         supportDetailsBuilder.append(installedAddons);
         supportDetailsBuilder.append(getOperatingSystem()).append(NEWLINE);
         supportDetailsBuilder.append(getArch()).append(NEWLINE);
-        supportDetailsBuilder.append(getCpuCores()).append(NEWLINE);
-        supportDetailsBuilder.append(getMaxMemory()).append(NEWLINE);
         supportDetailsBuilder.append(getJavaVersionVendor()).append(NEWLINE);
         supportDetailsBuilder.append(getLocaleSystem()).append(NEWLINE);
         supportDetailsBuilder.append(getLocaleDisplay()).append(NEWLINE);

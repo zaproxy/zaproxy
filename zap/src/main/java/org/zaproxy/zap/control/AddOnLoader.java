@@ -105,6 +105,7 @@ public class AddOnLoader extends URLClassLoader {
     private Lock installationLock = new ReentrantLock();
     private AddOnCollection aoc = null;
     private List<File> jars = new ArrayList<>();
+
     /**
      * Addons can be included in the ZAP release, in which case the user might not have permissions
      * to delete the files. To support the removal of such addons we just maintain a 'block list' in
@@ -365,11 +366,15 @@ public class AddOnLoader extends URLClassLoader {
         addOnLoaders.put(ao.getId(), addOnClassLoader);
     }
 
+    Class<?> loadClassNoAddOns(String name, boolean resolve) throws ClassNotFoundException {
+        return super.loadClass(name, resolve);
+    }
+
     @Override
-    public Class<?> loadClass(String name) throws ClassNotFoundException {
+    public Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
         synchronized (getClassLoadingLock(name)) {
             try {
-                return loadClass(name, false);
+                return super.loadClass(name, resolve);
             } catch (ClassNotFoundException e) {
                 // Continue for now
             }

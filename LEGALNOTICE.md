@@ -1,7 +1,7 @@
 COPYRIGHT
 ---------
 
-OWASP Zed Attack Proxy (ZAP)
+Zed Attack Proxy (ZAP)
 
 The software package is:
 
@@ -13,7 +13,7 @@ respective authors.
 SOFTWARE LICENSE
 ----------------
 
-The open source software license of OWASP Zed Attack Proxy is Apache 2.0.
+The open source software license of Zed Attack Proxy is Apache 2.0.
 A copy of the Apache 2.0 license has been included in this software package
 in ApacheLicense-2.0.txt.
 
@@ -39,11 +39,11 @@ and subject to their respective licenses.
 | commons-httpclient-3.1.jar          | Apache 2.0                |
 | commons-io-2.13.0.jar               | Apache 2.0                |
 | commons-lang-2.6.jar                | Apache 2.0                |
-| commons-lang3-3.12.0.jar            | Apache 2.0                |
+| commons-lang3-3.13.0.jar            | Apache 2.0                |
 | commons-logging-1.2.jar             | Apache 2.0                |
 | commons-text-1.10.0.jar             | Apache 2.0                |
 | ezmorph-1.0.6.jar                   | Apache 2.0                |
-| flatlaf-3.1.1.jar                   | Apache 2.0                |
+| flatlaf-3.2.1.jar                   | Apache 2.0                |
 | harlib-1.1.3.jar                    | Apache 2.0                |
 | hsqldb-2.7.2.jar                    | BSD                       |
 | jackson-core-asl-1.9.13.jar         | Apache 2.0                |
@@ -56,6 +56,7 @@ and subject to their respective licenses.
 | log4j-1.2-api-2.20.0.jar            | Apache 2.0                |
 | log4j-api-2.20.0.jar                | Apache 2.0                |
 | log4j-core-2.20.0.jar               | Apache 2.0                |
-| rsyntaxtextarea-3.3.3.jar           | BSD-3 clause              |
+| log4j-jul-2.20.0.jar                | Apache 2.0                |
+| rsyntaxtextarea-3.3.4.jar           | BSD-3 clause              |
 | swingx-all-1.6.5-1.jar              | LGPL 2.1                  |
 | xom-1.3.9.jar                       | LGPL                      |

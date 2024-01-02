@@ -53,6 +53,7 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
@@ -60,7 +61,10 @@ public class AlertAPI extends ApiImplementor {
 
     public static final String PREFIX = "alert";
 
+    private static final Logger LOGGER = LogManager.getLogger(AlertAPI.class);
+
     private static final String ACTION_DELETE_ALL_ALERTS = "deleteAllAlerts";
+    private static final String ACTION_DELETE_ALERTS = "deleteAlerts";
     private static final String ACTION_DELETE_ALERT = "deleteAlert";
     private static final String ACTION_UPDATE_ALERT = "updateAlert";
     private static final String ACTION_ADD_ALERT = "addAlert";
@@ -76,6 +80,7 @@ public class AlertAPI extends ApiImplementor {
 
     private static final String PARAM_BASE_URL = "baseurl";
     private static final String PARAM_COUNT = "count";
+    private static final String PARAM_CONTEXT_NAME = "contextName";
     private static final String PARAM_URL = "url";
     private static final String PARAM_ID = "id";
     private static final String PARAM_RECURSE = "recurse";
@@ -104,6 +109,7 @@ public class AlertAPI extends ApiImplementor {
      * @see #processAlerts(String, int, int, int, Processor)
      */
     private static final int NO_RISK_ID = -1;
+
     /**
      * The constant that indicates that no confidence ID is being provided.
      *
@@ -111,76 +117,82 @@ public class AlertAPI extends ApiImplementor {
      */
     private static final int NO_CONFIDENCE_ID = -1;
 
-    private ExtensionAlert extension = null;
-    private static final Logger LOGGER = LogManager.getLogger(AlertAPI.class);
+    private ExtensionAlert extension;
 
     public AlertAPI(ExtensionAlert ext) {
         this.extension = ext;
-        this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
+        this.addApiView(new ApiView(VIEW_ALERT, new String[] { PARAM_ID }));
         this.addApiView(
                 new ApiView(
                         VIEW_ALERTS,
                         null,
-                        new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK}));
-        this.addApiView(new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] {PARAM_BASE_URL}));
+                        new String[] {
+                                PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK, PARAM_CONTEXT_NAME
+                        }));
+        this.addApiView(new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] { PARAM_BASE_URL }));
         this.addApiView(
                 new ApiView(
-                        VIEW_NUMBER_OF_ALERTS, null, new String[] {PARAM_BASE_URL, PARAM_RISK}));
+                        VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL, PARAM_RISK }));
         this.addApiView(
-                new ApiView(VIEW_ALERTS_BY_RISK, null, new String[] {PARAM_URL, PARAM_RECURSE}));
+                new ApiView(VIEW_ALERTS_BY_RISK, null, new String[] { PARAM_URL, PARAM_RECURSE }));
         this.addApiView(
                 new ApiView(
-                        VIEW_ALERT_COUNTS_BY_RISK, null, new String[] {PARAM_URL, PARAM_RECURSE}));
+                        VIEW_ALERT_COUNTS_BY_RISK, null, new String[] { PARAM_URL, PARAM_RECURSE }));
 
         this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
-        this.addApiAction(new ApiAction(ACTION_DELETE_ALERT, new String[] {PARAM_ID}));
+        this.addApiAction(
+                new ApiAction(
+                        ACTION_DELETE_ALERTS,
+                        null,
+                        new String[] { PARAM_CONTEXT_NAME, PARAM_BASE_URL, PARAM_RISK }));
+        this.addApiAction(new ApiAction(ACTION_DELETE_ALERT, new String[] { PARAM_ID }));
 
         this.addApiAction(
                 new ApiAction(
                         ACTION_UPDATE_ALERTS_CONFIDENCE,
-                        new String[] {PARAM_ALERT_IDS, PARAM_CONFIDENCE}));
+                        new String[] { PARAM_ALERT_IDS, PARAM_CONFIDENCE }));
         this.addApiAction(
                 new ApiAction(
-                        ACTION_UPDATE_ALERTS_RISK, new String[] {PARAM_ALERT_IDS, PARAM_RISK}));
+                        ACTION_UPDATE_ALERTS_RISK, new String[] { PARAM_ALERT_IDS, PARAM_RISK }));
         this.addApiAction(
                 new ApiAction(
                         ACTION_UPDATE_ALERT,
                         new String[] {
-                            PARAM_ALERT_ID,
-                            PARAM_ALERT_NAME,
-                            PARAM_RISK,
-                            PARAM_CONFIDENCE,
-                            PARAM_ALERT_DESCRIPTION
+                                PARAM_ALERT_ID,
+                                PARAM_ALERT_NAME,
+                                PARAM_RISK,
+                                PARAM_CONFIDENCE,
+                                PARAM_ALERT_DESCRIPTION
                         },
                         new String[] {
-                            PARAM_ALERT_PARAM,
-                            PARAM_ALERT_ATTACK,
-                            PARAM_ALERT_OTHERINFO,
-                            PARAM_ALERT_SOLUTION,
-                            PARAM_ALERT_REFS,
-                            PARAM_ALERT_EVIDENCE,
-                            PARAM_CWEID,
-                            PARAM_WASCID
+                                PARAM_ALERT_PARAM,
+                                PARAM_ALERT_ATTACK,
+                                PARAM_ALERT_OTHERINFO,
+                                PARAM_ALERT_SOLUTION,
+                                PARAM_ALERT_REFS,
+                                PARAM_ALERT_EVIDENCE,
+                                PARAM_CWEID,
+                                PARAM_WASCID
                         }));
         this.addApiAction(
                 new ApiAction(
                         ACTION_ADD_ALERT,
                         new String[] {
-                            PARAM_MESSAGE_ID,
-                            PARAM_ALERT_NAME,
-                            PARAM_RISK,
-                            PARAM_CONFIDENCE,
-                            PARAM_ALERT_DESCRIPTION
+                                PARAM_MESSAGE_ID,
+                                PARAM_ALERT_NAME,
+                                PARAM_RISK,
+                                PARAM_CONFIDENCE,
+                                PARAM_ALERT_DESCRIPTION
                         },
                         new String[] {
-                            PARAM_ALERT_PARAM,
-                            PARAM_ALERT_ATTACK,
-                            PARAM_ALERT_OTHERINFO,
-                            PARAM_ALERT_SOLUTION,
-                            PARAM_ALERT_REFS,
-                            PARAM_ALERT_EVIDENCE,
-                            PARAM_CWEID,
-                            PARAM_WASCID
+                                PARAM_ALERT_PARAM,
+                                PARAM_ALERT_ATTACK,
+                                PARAM_ALERT_OTHERINFO,
+                                PARAM_ALERT_SOLUTION,
+                                PARAM_ALERT_REFS,
+                                PARAM_ALERT_EVIDENCE,
+                                PARAM_CWEID,
+                                PARAM_WASCID
                         }));
     }
 
@@ -212,16 +224,16 @@ public class AlertAPI extends ApiImplementor {
             result = new ApiResponseElement(alertToSet(alert));
         } else if (VIEW_ALERTS.equals(name)) {
             final ApiResponseList resultList = new ApiResponseList(name);
+            String contextName = this.getParam(params, PARAM_CONTEXT_NAME, "");
+            Context context = contextName.isEmpty() ? null : ApiUtils.getContextByName(contextName);
 
             processAlerts(
                     this.getParam(params, PARAM_BASE_URL, (String) null),
                     this.getParam(params, PARAM_START, -1),
                     this.getParam(params, PARAM_COUNT, -1),
                     getRiskId(params),
-                    new Processor<Alert>() {
-
-                        @Override
-                        public void process(Alert alert) {
+                    (Alert alert) -> {
+                        if (context == null || context.isInContext(alert.getUri())) {
                             resultList.addItem(alertToSet(alert));
                         }
                     });
@@ -237,15 +249,8 @@ public class AlertAPI extends ApiImplementor {
 
             result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
         } else if (VIEW_ALERTS_SUMMARY.equals(name)) {
-            final int[] riskSummary = {0, 0, 0, 0};
-            Processor<Alert> counter =
-                    new Processor<>() {
-
-                        @Override
-                        public void process(Alert alert) {
-                            riskSummary[alert.getRisk()]++;
-                        }
-                    };
+            final int[] riskSummary = { 0, 0, 0, 0 };
+            Processor<Alert> counter = (Alert alert) -> riskSummary[alert.getRisk()]++;
             processAlerts(
                     this.getParam(params, PARAM_BASE_URL, (String) null),
                     -1,
@@ -257,16 +262,15 @@ public class AlertAPI extends ApiImplementor {
             for (int i = 0; i < riskSummary.length; i++) {
                 alertData.put(Alert.MSG_RISK[i], riskSummary[i]);
             }
-            result =
-                    new ApiResponseSet<>("risk", alertData) {
+            result = new ApiResponseSet<>("risk", alertData) {
 
-                        @Override
-                        public JSON toJSON() {
-                            JSONObject response = new JSONObject();
-                            response.put(name, super.toJSON());
-                            return response;
-                        }
-                    };
+                @Override
+                public JSON toJSON() {
+                    JSONObject response = new JSONObject();
+                    response.put(name, super.toJSON());
+                    return response;
+                }
+            };
         } else if (VIEW_ALERTS_BY_RISK.equals(name)) {
             String url = this.getParam(params, PARAM_URL, "");
             boolean recurse = this.getParam(params, PARAM_RECURSE, false);
@@ -274,7 +278,7 @@ public class AlertAPI extends ApiImplementor {
             result = resultList;
 
             // 0 (RISK_INFO) -> 3 (RISK_HIGH)
-            ApiResponseList[] list = new ApiResponseList[4];
+            ApiResponseList[] list = new ApiResponseList[Alert.NUMBER_RISKS];
             for (int i = 0; i < list.length; i++) {
                 list[i] = new ApiResponseList(Alert.MSG_RISK[i]);
             }
@@ -287,7 +291,7 @@ public class AlertAPI extends ApiImplementor {
                 Alert alert = child.getUserObject();
 
                 ApiResponseList alertList = filterAlertInstances(child, url, recurse);
-                if (alertList.getItems().size() > 0) {
+                if (!alertList.getItems().isEmpty()) {
                     list[alert.getRisk()].addItem(alertList);
                 }
             }
@@ -297,7 +301,7 @@ public class AlertAPI extends ApiImplementor {
             boolean recurse = this.getParam(params, PARAM_RECURSE, false);
 
             // 0 (RISK_INFO) -> 3 (RISK_HIGH)
-            int[] riskCounts = new int[] {0, 0, 0, 0};
+            int[] riskCounts = new int[] { 0, 0, 0, 0 };
             int falsePositiveCount = 0;
 
             AlertTreeModel model = extension.getTreeModel();
@@ -308,7 +312,7 @@ public class AlertAPI extends ApiImplementor {
                 Alert alert = child.getUserObject();
 
                 ApiResponseList alertList = filterAlertInstances(child, url, recurse);
-                if (alertList.getItems().size() > 0) {
+                if (!alertList.getItems().isEmpty()) {
                     if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
                         falsePositiveCount += 1;
                     } else {
@@ -338,6 +342,25 @@ public class AlertAPI extends ApiImplementor {
             extension.deleteAlert(getAlertFromDb(alertId));
         } else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
             extension.deleteAllAlerts();
+        } else if (ACTION_DELETE_ALERTS.equals(name)) {
+            String contextName = this.getParam(params, PARAM_CONTEXT_NAME, "");
+            Context context = contextName.isEmpty() ? null : ApiUtils.getContextByName(contextName);
+            final int[] count = { 0 };
+
+            Processor<Alert> counter = (Alert alert) -> {
+                if (context == null || context.isInContext(alert.getUri())) {
+                    extension.deleteAlert(alert);
+                    count[0]++;
+                }
+            };
+
+            processAlerts(
+                    this.getParam(params, PARAM_BASE_URL, (String) null),
+                    -1,
+                    -1,
+                    getRiskId(params),
+                    counter);
+            return new ApiResponseElement(ACTION_DELETE_ALERTS, String.valueOf(count[0]));
         } else if (ACTION_UPDATE_ALERT.equals(name)) {
             int alertId = ApiUtils.getIntParam(params, PARAM_ALERT_ID);
             String alertName = params.getString(PARAM_ALERT_NAME);
@@ -417,7 +440,8 @@ public class AlertAPI extends ApiImplementor {
         return ApiResponseElement.OK;
     }
 
-    private ApiResponseList filterAlertInstances(AlertNode alertNode, String url, boolean recurse) {
+    private static ApiResponseList filterAlertInstances(
+            AlertNode alertNode, String url, boolean recurse) {
         ApiResponseList alertList = new ApiResponseList(alertNode.getUserObject().getName());
         Enumeration<?> enumAlertInsts = alertNode.children();
         while (enumAlertInsts.hasMoreElements()) {
@@ -442,7 +466,7 @@ public class AlertAPI extends ApiImplementor {
         return alertList;
     }
 
-    private void processAlerts(
+    private static void processAlerts(
             String baseUrl, int start, int count, int riskId, Processor<Alert> processor)
             throws ApiException {
         List<Alert> alerts = new ArrayList<>();
@@ -489,7 +513,7 @@ public class AlertAPI extends ApiImplementor {
         }
     }
 
-    private ApiResponseSet<Object> alertToSet(Alert alert) {
+    private static ApiResponseSet<Object> alertToSet(Alert alert) {
         Map<String, Object> map = new HashMap<>();
         map.put("id", String.valueOf(alert.getAlertId()));
         map.put("pluginId", String.valueOf(alert.getPluginId()));
@@ -523,7 +547,7 @@ public class AlertAPI extends ApiImplementor {
         return new CustomApiResponseSet<>("alert", map);
     }
 
-    private ApiResponseSet<String> alertSummaryToSet(Alert alert) {
+    private static ApiResponseSet<String> alertSummaryToSet(Alert alert) {
         Map<String, String> map = new HashMap<>();
         map.put("id", String.valueOf(alert.getAlertId()));
         map.put("name", alert.getName());
@@ -548,13 +572,15 @@ public class AlertAPI extends ApiImplementor {
     }
 
     /**
-     * Gets the risk ID from the given {@code parameters}, using {@link #PARAM_RISK} as parameter
+     * Gets the risk ID from the given {@code parameters}, using {@link #PARAM_RISK}
+     * as parameter
      * name.
      *
      * @param parameters the parameters of the API request.
      * @return the ID of the risk, or {@link #NO_RISK_ID} if none provided.
-     * @throws ApiException if the provided risk ID is not valid (not an integer nor a valid risk
-     *     ID).
+     * @throws ApiException if the provided risk ID is not valid (not an integer nor
+     *                      a valid risk
+     *                      ID).
      */
     private int getRiskId(JSONObject parameters) throws ApiException {
         String riskIdParam = getParam(parameters, PARAM_RISK, "").trim();
@@ -576,13 +602,16 @@ public class AlertAPI extends ApiImplementor {
     }
 
     /**
-     * Gets the confidence ID from the given {@code parameters}, using {@link #PARAM_CONFIDENCE} as
+     * Gets the confidence ID from the given {@code parameters}, using
+     * {@link #PARAM_CONFIDENCE} as
      * parameter name.
      *
      * @param parameters the parameters of the API request.
-     * @return the ID of the confidence, or {@link #NO_CONFIDENCE_ID} if none provided.
-     * @throws ApiException if the provided confidence ID is not valid (not an integer nor a valid
-     *     confidence ID).
+     * @return the ID of the confidence, or {@link #NO_CONFIDENCE_ID} if none
+     *         provided.
+     * @throws ApiException if the provided confidence ID is not valid (not an
+     *                      integer nor a valid
+     *                      confidence ID).
      */
     private int getConfidenceId(JSONObject parameters) throws ApiException {
         String confidenceIdParam = getParam(parameters, PARAM_CONFIDENCE, "").trim();
@@ -604,7 +633,7 @@ public class AlertAPI extends ApiImplementor {
         return confidenceId;
     }
 
-    private List<Integer> getAlertIds(String alertIds) throws ApiException {
+    private static List<Integer> getAlertIds(String alertIds) throws ApiException {
         List<Integer> idsList = new ArrayList<>();
         StringTokenizer tokenizer = new StringTokenizer(alertIds, ",");
         while (tokenizer.hasMoreTokens()) {
@@ -621,7 +650,7 @@ public class AlertAPI extends ApiImplementor {
         return idsList;
     }
 
-    private Alert getAlertFromDb(int alertId) throws ApiException {
+    private static Alert getAlertFromDb(int alertId) throws ApiException {
         RecordAlert recAlert;
         try {
             recAlert = Model.getSingleton().getDb().getTableAlert().read(alertId);
@@ -712,7 +741,7 @@ public class AlertAPI extends ApiImplementor {
 
             if (count > 0) {
                 hasEnd = true;
-                finalRecord = !pageStarted ? start + count - 1 : count;
+                finalRecord = !pageStarted ? start + (count - 1) : count;
             } else {
                 hasEnd = false;
                 finalRecord = 0;

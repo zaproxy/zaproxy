@@ -19,25 +19,26 @@
  */
 package org.zaproxy.zap.extension.history;
 
-import java.awt.Component;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
-import javax.swing.Box;
-import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.ZapTextArea;
 
 @SuppressWarnings("serial")
 public class NotesAddDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;
+    private JPanel jPanel = null;
     private ZapTextArea txtDisplay = null;
     private JButton btnOk = null;
     private JButton btnCancel = null;
@@ -67,39 +68,10 @@ public class NotesAddDialog extends AbstractDialog {
     /** This method initializes this */
     private void initialize() {
         this.setTitle(Constant.messages.getString("history.addnote.title"));
-
-        JPanel panel = new JPanel();
-        GroupLayout layout = new GroupLayout(panel);
-        panel.setLayout(layout);
-        layout.setAutoCreateGaps(true);
-        layout.setAutoCreateContainerGaps(true);
-
-        Component buttonsGlue = Box.createHorizontalGlue();
-
-        layout.setHorizontalGroup(
-                layout.createParallelGroup()
-                        .addComponent(getJScrollPane())
-                        .addGroup(
-                                layout.createSequentialGroup()
-                                        .addComponent(
-                                                buttonsGlue,
-                                                GroupLayout.DEFAULT_SIZE,
-                                                GroupLayout.PREFERRED_SIZE,
-                                                GroupLayout.DEFAULT_SIZE)
-                                        .addComponent(getBtnCancel())
-                                        .addComponent(getBtnOk())));
-
-        layout.setVerticalGroup(
-                layout.createSequentialGroup()
-                        .addComponent(getJScrollPane())
-                        .addGroup(
-                                layout.createParallelGroup()
-                                        .addComponent(buttonsGlue)
-                                        .addComponent(getBtnCancel())
-                                        .addComponent(getBtnOk())));
-
-        setContentPane(panel);
-
+        this.setContentPane(getJPanel());
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+            this.setSize(407, 407);
+        }
         this.addWindowListener(
                 new java.awt.event.WindowAdapter() {
 
@@ -112,9 +84,63 @@ public class NotesAddDialog extends AbstractDialog {
         pack();
     }
 
+    /**
+     * This method initializes jPanel
+     *
+     * @return javax.swing.JPanel
+     */
+    private JPanel getJPanel() {
+        if (jPanel == null) {
+            GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
+            java.awt.GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
+
+            javax.swing.JLabel jLabel2 = new JLabel();
+
+            java.awt.GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
+
+            java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+
+            jPanel = new JPanel();
+            jPanel.setLayout(new GridBagLayout());
+            jPanel.setPreferredSize(new java.awt.Dimension(400, 400));
+            jPanel.setMinimumSize(new java.awt.Dimension(400, 400));
+            gridBagConstraints2.gridx = 1;
+            gridBagConstraints2.gridy = 5;
+            gridBagConstraints2.insets = new java.awt.Insets(2, 2, 2, 2);
+            gridBagConstraints2.anchor = java.awt.GridBagConstraints.EAST;
+            gridBagConstraints3.gridx = 2;
+            gridBagConstraints3.gridy = 5;
+            gridBagConstraints3.insets = new java.awt.Insets(2, 2, 2, 10);
+            gridBagConstraints3.anchor = java.awt.GridBagConstraints.EAST;
+
+            gridBagConstraints13.gridx = 0;
+            gridBagConstraints13.gridy = 5;
+            gridBagConstraints13.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints13.weightx = 1.0D;
+            gridBagConstraints13.insets = new java.awt.Insets(2, 10, 2, 5);
+
+            gridBagConstraints15.weightx = 1.0D;
+            gridBagConstraints15.weighty = 1.0D;
+            gridBagConstraints15.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints15.insets = new java.awt.Insets(2, 2, 2, 2);
+            gridBagConstraints15.gridwidth = 3;
+            gridBagConstraints15.gridx = 0;
+            gridBagConstraints15.gridy = 2;
+            gridBagConstraints15.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints15.ipadx = 0;
+            gridBagConstraints15.ipady = 10;
+
+            jPanel.add(getJScrollPane(), gridBagConstraints15);
+            jPanel.add(jLabel2, gridBagConstraints13);
+            jPanel.add(getBtnCancel(), gridBagConstraints2);
+            jPanel.add(getBtnOk(), gridBagConstraints3);
+        }
+        return jPanel;
+    }
+
     private ZapTextArea getTxtDisplay() {
         if (txtDisplay == null) {
-            txtDisplay = new ZapTextArea("", 15, 25);
+            txtDisplay = new ZapTextArea("");
         }
         return txtDisplay;
     }
@@ -128,6 +154,9 @@ public class NotesAddDialog extends AbstractDialog {
         if (btnOk == null) {
             btnOk = new JButton();
             btnOk.setText(Constant.messages.getString("all.button.save"));
+            btnOk.setMinimumSize(new java.awt.Dimension(75, 30));
+            btnOk.setPreferredSize(new java.awt.Dimension(75, 30));
+            btnOk.setMaximumSize(new java.awt.Dimension(100, 40));
             btnOk.addActionListener(
                     new java.awt.event.ActionListener() {
 
@@ -156,6 +185,10 @@ public class NotesAddDialog extends AbstractDialog {
         if (btnCancel == null) {
             btnCancel = new JButton();
             btnCancel.setText(Constant.messages.getString("all.button.cancel"));
+            btnCancel.setMaximumSize(new java.awt.Dimension(100, 40));
+            btnCancel.setMinimumSize(new java.awt.Dimension(70, 30));
+            btnCancel.setPreferredSize(new java.awt.Dimension(70, 30));
+            btnCancel.setEnabled(true);
             btnCancel.addActionListener(e -> clearAndDispose());
         }
         return btnCancel;
@@ -177,9 +210,9 @@ public class NotesAddDialog extends AbstractDialog {
         if (jScrollPane == null) {
             jScrollPane = new JScrollPane();
             jScrollPane.setHorizontalScrollBarPolicy(
-                    ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+                    javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             jScrollPane.setVerticalScrollBarPolicy(
-                    ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+                    javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             jScrollPane.setViewportView(getTxtDisplay());
         }
         return jScrollPane;

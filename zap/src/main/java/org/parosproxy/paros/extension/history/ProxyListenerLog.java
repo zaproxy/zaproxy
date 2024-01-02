@@ -38,10 +38,10 @@
 // ZAP: 2020/08/04 Changed to use new SessionStructure method
 // ZAP: 2020/11/26 Use Log4j 2 classes for logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/08/22 Do not modify the requests being proxied (Issue 7353).
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
-import org.apache.commons.httpclient.URIException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -56,17 +56,19 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.model.SessionStructure;
-import org.zaproxy.zap.model.StructuralNode;
 
 public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListener {
 
     // ZAP: Added logger
     private static final Logger LOGGER = LogManager.getLogger(ProxyListenerLog.class);
 
-    // ZAP: Must be the last one of all listeners to be notified, as is the one that saves the
+    // ZAP: Must be the last one of all listeners to be notified, as is the one that
+    // saves the
     // HttpMessage
-    // to the DB and must let other listeners change and test the HttpMessage before saving it.
-    // Note: other listeners can be notified after this one but they shouldn't change the
+    // to the DB and must let other listeners change and test the HttpMessage before
+    // saving it.
+    // Note: other listeners can be notified after this one but they shouldn't
+    // change the
     // HttpMessage
     // as that changes will not be saved to the DB.
     public static final int PROXY_LISTENER_ORDER = 5000;
@@ -90,34 +92,6 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
 
     @Override
     public boolean onHttpRequestSend(HttpMessage msg) {
-        //	    if (msg.getRequestHeader().isImage()) {
-        //	        return;
-        //	    }
-
-        try {
-            StructuralNode node = SessionStructure.find(model, msg);
-            if (node != null) {
-                HttpMessage existingMsg = node.getHistoryReference().getHttpMessage();
-                // check if a msg of the same type exist
-                if (existingMsg != null && !existingMsg.getResponseHeader().isEmpty()) {
-                    if (HttpStatusCode.isSuccess(existingMsg.getResponseHeader().getStatusCode())) {
-                        // exist, no modification necessary
-                        return true;
-                    }
-                }
-            }
-        } catch (URIException | DatabaseException | HttpMalformedHeaderException e) {
-            LOGGER.warn("Failed to check if message already exists:", e);
-        }
-
-        // if not, make sure a new copy will be obtained
-        if (msg.getRequestHeader().getHeader(HttpHeader.IF_MODIFIED_SINCE) != null) {
-            msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
-        }
-
-        if (msg.getRequestHeader().getHeader(HttpHeader.IF_NONE_MATCH) != null) {
-            msg.getRequestHeader().setHeader(HttpHeader.IF_NONE_MATCH, null);
-        }
         return true;
     }
 
@@ -134,14 +108,13 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
         }
         final int finalType = type;
         final HistoryReference href = createHistoryReference(msg, type);
-        Thread t =
-                new Thread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                createAndAddMessage(href, finalType);
-                            }
-                        });
+        Thread t = new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        createAndAddMessage(href, finalType);
+                    }
+                });
         t.start();
 
         return true;
@@ -219,20 +192,18 @@ public class ProxyListenerLog implements ProxyListener, ConnectRequestProxyListe
             return;
         }
 
-        Thread t =
-                new Thread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                HistoryReference historyRef =
-                                        createHistoryReference(
-                                                connectMessage,
-                                                HistoryReference.TYPE_PROXY_CONNECT);
-                                if (historyRef != null) {
-                                    extension.addHistory(historyRef);
-                                }
-                            }
-                        });
+        Thread t = new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        HistoryReference historyRef = createHistoryReference(
+                                connectMessage,
+                                HistoryReference.TYPE_PROXY_CONNECT);
+                        if (historyRef != null) {
+                            extension.addHistory(historyRef);
+                        }
+                    }
+                });
         t.start();
     }
 }

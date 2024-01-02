@@ -2,8 +2,8 @@ import net.ltgt.gradle.errorprone.errorprone
 
 plugins {
     id("com.diffplug.spotless")
-    id("org.sonarqube") version "3.5.0.2730"
-    id("com.github.ben-manes.versions") version "0.45.0"
+    id("org.sonarqube") version "4.3.0.3225"
+    id("com.github.ben-manes.versions") version "0.47.0"
     id("net.ltgt.errorprone") version "3.0.1"
 }
 
@@ -21,7 +21,7 @@ allprojects {
         project.plugins.withType(JavaPlugin::class) {
             java {
                 licenseHeaderFile("$rootDir/gradle/spotless/license.java")
-                googleJavaFormat("1.7").aosp()
+                googleJavaFormat("1.17.0").aosp()
             }
         }
 
@@ -32,13 +32,13 @@ allprojects {
 
     project.plugins.withType(JavaPlugin::class) {
         dependencies {
-            "errorprone"("com.google.errorprone:error_prone_core:2.18.0")
+            "errorprone"("com.google.errorprone:error_prone_core:2.20.0")
         }
     }
 
     tasks.withType<JavaCompile>().configureEach {
         options.encoding = "utf-8"
-        options.compilerArgs = listOf("-Xlint:all", "-Xlint:-options", "-Werror", "-parameters")
+        options.compilerArgs = listOf("-Xlint:all", "-Werror", "-parameters")
         options.errorprone {
             disableAllChecks.set(true)
             error(
@@ -54,5 +54,7 @@ sonarqube {
         property("sonar.projectKey", "zaproxy_zaproxy")
         property("sonar.organization", "zaproxy")
         property("sonar.host.url", "https://sonarcloud.io")
+        // Workaround https://sonarsource.atlassian.net/browse/SONARGRADL-126
+        property("sonar.exclusions", "**/*.gradle.kts")
     }
 }

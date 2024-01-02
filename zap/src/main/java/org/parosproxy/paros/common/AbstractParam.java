@@ -55,6 +55,7 @@ public abstract class AbstractParam implements Cloneable {
     private static final Logger LOGGER = LogManager.getLogger(AbstractParam.class);
 
     private FileConfiguration config = null;
+
     /**
      * Loads the configurations from the given configuration file.
      *

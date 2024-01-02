@@ -30,9 +30,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullAndEmptySource;
-import org.junit.jupiter.params.provider.ValueSource;
 
 /** Unit test for {@link ApiElement}. */
 class ApiElementUnitTest {
@@ -111,24 +108,6 @@ class ApiElementUnitTest {
             assertThat(
                     ex.getMessage(),
                     allOf(containsString(ELEMENT_NAME), containsString(duplicatedParam)));
-        }
-
-        @ParameterizedTest
-        @NullAndEmptySource
-        @ValueSource(strings = {" ", "  "})
-        void shouldNotAllowNullOrBlankDefaultMethod(String defaultMethod) {
-            Exception ex =
-                    assertThrows(
-                            IllegalArgumentException.class,
-                            () ->
-                                    new ApiElement(
-                                            ELEMENT_NAME,
-                                            defaultMethod,
-                                            DEFAULT_MANDATORY_PARAMS,
-                                            DEFAULT_OPTIONAL_PARAMS));
-            assertThat(
-                    ex.getMessage(),
-                    allOf(containsString(ELEMENT_NAME), containsString("default method")));
         }
     }
 

@@ -120,6 +120,10 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/12/22 Issue 7663: Default threads based on number of processors.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/08/07 Rename home dir in Windows and update program name.
+// ZAP: 2023/08/21 Deprecate vulnerabilities constants.
+// ZAP: 2023/08/28 Update paths in config file to match the renamed home dir.
+// ZAP: 2023/09/14 Lock home directory.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -128,12 +132,15 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.channels.FileChannel;
+import java.nio.channels.FileLock;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.nio.file.StandardOpenOption;
 import java.security.InvalidParameterException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -169,21 +176,28 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public final class Constant {
     // ZAP: rebrand
-    public static final String PROGRAM_NAME = "OWASP ZAP";
+    public static final String PROGRAM_NAME = "ZAP";
     public static final String PROGRAM_NAME_SHORT = "ZAP";
-    /** @deprecated (2.9.0) Do not use, it will be removed. */
-    @Deprecated public static final String ZAP_HOMEPAGE = "http://www.owasp.org/index.php/ZAP";
-    /** @deprecated (2.9.0) Do not use, it will be removed. */
+
+    /**
+     * @deprecated (2.9.0) Do not use, it will be removed.
+     */
+    @Deprecated
+    public static final String ZAP_HOMEPAGE = "http://www.owasp.org/index.php/ZAP";
+
+    /**
+     * @deprecated (2.9.0) Do not use, it will be removed.
+     */
     @Deprecated
     public static final String ZAP_EXTENSIONS_PAGE = "https://github.com/zaproxy/zap-extensions";
 
     public static final String ZAP_TEAM = "ZAP Dev Team";
     public static final String PAROS_TEAM = "Chinotec Technologies";
 
-    //  ************************************************************
-    //  the config.xml MUST be set to be the same as the version_tag
-    //  otherwise the config.xml will be overwritten everytime.
-    //  ************************************************************
+    // ************************************************************
+    // the config.xml MUST be set to be the same as the version_tag
+    // otherwise the config.xml will be overwritten everytime.
+    // ************************************************************
     private static final String DEV_VERSION = "Dev Build";
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
@@ -191,7 +205,7 @@ public final class Constant {
     private static final String VERSION_ELEMENT = "version";
 
     // Accessible for tests
-    static final long VERSION_TAG = 20013000;
+    static final long VERSION_TAG = 20014000;
 
     // Old version numbers - for upgrade
     private static final long V_2_12_0_TAG = 20012000;
@@ -215,9 +229,9 @@ public final class Constant {
     private static final long V_1_0_0_TAG = 1000000;
     private static final long V_PAROS_TAG = 30020013;
 
-    //  ************************************************************
-    //  note the above
-    //  ************************************************************
+    // ************************************************************
+    // note the above
+    // ************************************************************
 
     // These are no longer final - version is now loaded from the manifest file
     public static String PROGRAM_VERSION = DEV_VERSION;
@@ -228,15 +242,19 @@ public final class Constant {
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
+
     /**
-     * The name of the directory for filter related files (the path should be built using {@link
+     * The name of the directory for filter related files (the path should be built
+     * using {@link
      * #getZapHome()} as the parent directory).
      *
-     * @deprecated (2.8.0) Should not be used, the filter functionality is deprecated (replaced by
-     *     scripts and Replacer add-on).
+     * @deprecated (2.8.0) Should not be used, the filter functionality is
+     *             deprecated (replaced by
+     *             scripts and Replacer add-on).
      * @since 1.0.0
      */
-    @Deprecated public static final String FOLDER_FILTER = "filter";
+    @Deprecated
+    public static final String FOLDER_FILTER = "filter";
 
     /**
      * The name of the directory where the (file) sessions are saved by default.
@@ -245,8 +263,7 @@ public final class Constant {
      */
     public static final String FOLDER_SESSION_DEFAULT = "session";
 
-    public static final String DBNAME_TEMPLATE =
-            "db" + System.getProperty("file.separator") + "zapdb";
+    public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
 
     /**
      * Prefix (file name) of Messages.properties files.
@@ -263,13 +280,12 @@ public final class Constant {
      */
     public static final String MESSAGES_EXTENSION = ".properties";
 
-    public static final String DBNAME_UNTITLED_DEFAULT =
-            FOLDER_SESSION_DEFAULT + System.getProperty("file.separator") + "untitled";
+    public static final String DBNAME_UNTITLED_DEFAULT = FOLDER_SESSION_DEFAULT + System.getProperty("file.separator")
+            + "untitled";
 
     public String FILE_CONFIG = FILE_CONFIG_NAME;
     public String FOLDER_SESSION = FOLDER_SESSION_DEFAULT;
-    public String DBNAME_UNTITLED =
-            FOLDER_SESSION + System.getProperty("file.separator") + "untitled";
+    public String DBNAME_UNTITLED = FOLDER_SESSION + System.getProperty("file.separator") + "untitled";
 
     public static final String FILE_PROGRAM_SPLASH = "resource/zap128x128.png";
 
@@ -301,10 +317,12 @@ public final class Constant {
     public static final String WEBSWING_NAME = "webswing";
 
     //
-    // Home dir for ZAP, i.e. where the config file is. Can be set on cmdline, otherwise will be set
+    // Home dir for ZAP, i.e. where the config file is. Can be set on cmdline,
+    // otherwise will be set
     // to default loc
     private static String zapHome = null;
-    // Default home dir for 'full' releases - used for copying full conf file when dev/daily release
+    // Default home dir for 'full' releases - used for copying full conf file when
+    // dev/daily release
     // run for the first time
     // and also for the JVM options config file
     private static String zapStd = null;
@@ -321,9 +339,12 @@ public final class Constant {
     public static I18N messages = null;
 
     /**
-     * The system's locale (as determined by the JVM at startup, {@code Locale#getDefault()}).
+     * The system's locale (as determined by the JVM at startup,
+     * {@code Locale#getDefault()}).
      *
-     * <p>The locale is kept here because the default locale is later overridden with the user's
+     * <p>
+     * The locale is kept here because the default locale is later overridden with
+     * the user's
      * chosen locale/language.
      *
      * @see Locale#getDefault()
@@ -331,8 +352,7 @@ public final class Constant {
     private static final Locale SYSTEMS_LOCALE = Locale.getDefault();
 
     /** The path to bundled (in zap.jar) config.xml file. */
-    private static final String PATH_BUNDLED_CONFIG_XML =
-            "/org/zaproxy/zap/resources/" + FILE_CONFIG_NAME;
+    private static final String PATH_BUNDLED_CONFIG_XML = "/org/zaproxy/zap/resources/" + FILE_CONFIG_NAME;
 
     /**
      * Name of directory that contains the (source and translated) resource files.
@@ -346,16 +366,20 @@ public final class Constant {
      * Prefix (file name) of vulnerabilities.xml files.
      *
      * @see #VULNERABILITIES_EXTENSION
+     * @deprecated (2.14.0) The vulnerabilities were moved to Common Library add-on.
      * @since 2.4.0
      */
+    @Deprecated(since = "2.14.0", forRemoval = true)
     public static final String VULNERABILITIES_PREFIX = "vulnerabilities";
 
     /**
      * Extension (with dot) of vulnerabilities.xml files.
      *
      * @see #VULNERABILITIES_PREFIX
+     * @deprecated (2.14.0) The vulnerabilities were moved to Common Library add-on.
      * @since 2.4.0
      */
+    @Deprecated(since = "2.14.0", forRemoval = true)
     public static final String VULNERABILITIES_EXTENSION = ".xml";
 
     /**
@@ -375,22 +399,18 @@ public final class Constant {
 
     public static String FOLDER_LOCAL_PLUGIN = FOLDER_PLUGIN;
 
-    public static final URL OK_FLAG_IMAGE_URL =
-            Constant.class.getResource("/resource/icon/10/072.png"); // Green
-    public static final URL INFO_FLAG_IMAGE_URL =
-            Constant.class.getResource("/resource/icon/10/073.png"); // Blue
-    public static final URL LOW_FLAG_IMAGE_URL =
-            Constant.class.getResource("/resource/icon/10/074.png"); // Yellow
-    public static final URL MED_FLAG_IMAGE_URL =
-            Constant.class.getResource("/resource/icon/10/076.png"); // Orange
-    public static final URL HIGH_FLAG_IMAGE_URL =
-            Constant.class.getResource("/resource/icon/10/071.png"); // Red
-    public static final URL BLANK_IMAGE_URL =
-            Constant.class.getResource("/resource/icon/10/blank.png");
-    public static final URL SPIDER_IMAGE_URL =
-            Constant.class.getResource("/resource/icon/10/spider.png");
+    public static final URL OK_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/072.png"); // Green
+    public static final URL INFO_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/073.png"); // Blue
+    public static final URL LOW_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/074.png"); // Yellow
+    public static final URL MED_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/076.png"); // Orange
+    public static final URL HIGH_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/071.png"); // Red
+    public static final URL BLANK_IMAGE_URL = Constant.class.getResource("/resource/icon/10/blank.png");
+    public static final URL SPIDER_IMAGE_URL = Constant.class.getResource("/resource/icon/10/spider.png");
 
     private static final Logger LOGGER = LogManager.getLogger(Constant.class);
+
+    private FileChannel homeLockFileChannel;
+    private FileLock homeLock;
 
     public static String getEyeCatcher() {
         return staticEyeCatcher;
@@ -411,26 +431,22 @@ public final class Constant {
 
     public static String getDefaultHomeDirectory(boolean incDevOption) {
         if (zapStd == null) {
-            zapStd = System.getProperty("user.home");
-            if (zapStd == null) {
-                zapStd = ".";
-            }
+            zapStd = getUserHome();
 
             if (isLinux()) {
                 // Linux: Hidden Zap directory in the user's home directory
                 zapStd += FILE_SEPARATOR + "." + PROGRAM_NAME_SHORT;
             } else if (isMacOsX()) {
                 // Mac Os X: Support for writing the configuration into the users Library
-                zapStd +=
-                        FILE_SEPARATOR
-                                + "Library"
-                                + FILE_SEPARATOR
-                                + "Application Support"
-                                + FILE_SEPARATOR
-                                + PROGRAM_NAME_SHORT;
+                zapStd += FILE_SEPARATOR
+                        + "Library"
+                        + FILE_SEPARATOR
+                        + "Application Support"
+                        + FILE_SEPARATOR
+                        + PROGRAM_NAME_SHORT;
             } else {
                 // Windows: Zap directory in the user's home directory
-                zapStd += FILE_SEPARATOR + PROGRAM_NAME;
+                zapStd += FILE_SEPARATOR + PROGRAM_NAME_SHORT;
             }
         }
 
@@ -441,6 +457,24 @@ public final class Constant {
             }
         }
         return zapStd;
+    }
+
+    /**
+     * Gets the user home.
+     *
+     * <p>
+     * It is returned the system property {@code user.home} if defined otherwise the
+     * current
+     * directory (i.e. {@code "."}).
+     *
+     * @return the user home, or the current directory.
+     */
+    private static String getUserHome() {
+        String home = System.getProperty("user.home");
+        if (home == null) {
+            return ".";
+        }
+        return home;
     }
 
     public void copyDefaultConfigs(File f, boolean forceReset)
@@ -485,10 +519,12 @@ public final class Constant {
     }
 
     /**
-     * Sets the latest version ({@link #VERSION_TAG}) to the given configuration and then saves it.
+     * Sets the latest version ({@link #VERSION_TAG}) to the given configuration and
+     * then saves it.
      *
      * @param config the configuration to change
-     * @throws ConfigurationException if an error occurred while saving the configuration.
+     * @throws ConfigurationException if an error occurred while saving the
+     *                                configuration.
      */
     private static void setLatestVersion(XMLConfiguration config) throws ConfigurationException {
         config.setProperty(VERSION_ELEMENT, VERSION_TAG);
@@ -536,6 +572,7 @@ public final class Constant {
         PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
 
         if (zapHome == null) {
+            renameOldWindowsHome();
             zapHome = getDefaultHomeDirectory(true);
         }
 
@@ -572,6 +609,10 @@ public final class Constant {
                             "The install dir should not be used as home dir: " + installDir);
                     System.exit(1);
                 }
+            }
+
+            if (!acquireHomeLock()) {
+                System.exit(1);
             }
 
             setUpLogging();
@@ -624,7 +665,8 @@ public final class Constant {
         try {
             try {
 
-                // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding
+                // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character
+                // encoding
                 // when reading/writing configurations.
                 XMLConfiguration config = new ZapXmlConfiguration(FILE_CONFIG);
                 config.setAutoSave(false);
@@ -642,13 +684,12 @@ public final class Constant {
                     try {
                         copier.copy(f, new File(FILE_CONFIG + ".bak"));
                     } catch (IOException e) {
-                        String msg =
-                                "Failed to backup config file "
-                                        + FILE_CONFIG
-                                        + " to "
-                                        + FILE_CONFIG
-                                        + ".bak "
-                                        + e.getMessage();
+                        String msg = "Failed to backup config file "
+                                + FILE_CONFIG
+                                + " to "
+                                + FILE_CONFIG
+                                + ".bak "
+                                + e.getMessage();
                         System.err.println(msg);
                         LOGGER.error(msg, e);
                     }
@@ -739,6 +780,90 @@ public final class Constant {
         Locale.setDefault(locale);
 
         messages = new I18N(locale);
+    }
+
+    boolean acquireHomeLock() {
+        try {
+            Path lockFile = Paths.get(zapHome, ".homelock");
+            if (Files.notExists(lockFile)) {
+                Files.createFile(lockFile);
+            }
+            homeLockFileChannel = FileChannel.open(lockFile, StandardOpenOption.WRITE);
+            homeLock = homeLockFileChannel.tryLock();
+            if (homeLock == null) {
+                System.err.println(
+                        "The home directory is already in use. Ensure no other ZAP instances are running with the same home directory: "
+                                + zapHome);
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println("Failed to acquire home directory lock.");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void renameOldWindowsHome() {
+        if (!isWindows()) {
+            return;
+        }
+
+        String home = getUserHome() + FILE_SEPARATOR + "OWASP ZAP";
+        if (isDevMode() || isDailyBuild()) {
+            home += "_D";
+        }
+
+        Path oldHome = Paths.get(getAbsolutePath(home));
+        if (Files.notExists(oldHome)) {
+            return;
+        }
+
+        Path newHome = Paths.get(getAbsolutePath(getDefaultHomeDirectory(true)));
+        if (Files.exists(newHome)) {
+            logAndPrintInfo("Not renaming old ZAP home, the new home already exists.");
+            return;
+        }
+
+        try {
+            Files.move(oldHome, newHome, StandardCopyOption.ATOMIC_MOVE);
+            logAndPrintInfo("Old ZAP home renamed to: " + newHome);
+            Path configFile = newHome.resolve(FILE_CONFIG_NAME);
+            if (Files.exists(configFile)) {
+                updatePathsInConfig(oldHome, newHome, new ZapXmlConfiguration(configFile.toFile()));
+            }
+        } catch (IOException e) {
+            logAndPrintError("Failed to rename the old home, will use a new home instead.", e);
+        } catch (ConfigurationException e) {
+            logAndPrintError("Failed to update home paths in configuration file:", e);
+        }
+    }
+
+    private static void updatePathsInConfig(Path oldHome, Path newHome, ZapXmlConfiguration config)
+            throws ConfigurationException {
+        config.getKeys()
+                .forEachRemaining(
+                        key -> {
+                            Path path = getPath(config.getString(key));
+                            if (path == null || !path.startsWith(oldHome)) {
+                                return;
+                            }
+                            Path newPath = newHome.resolve(oldHome.relativize(path));
+                            config.setProperty(key, newPath.toString());
+                        });
+        config.save();
+    }
+
+    private static Path getPath(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        try {
+            return Paths.get(value);
+        } catch (Exception ignore) {
+            // Nothing to do.
+        }
+        return null;
     }
 
     private Locale loadLocale(ControlOverrides overrides) {
@@ -838,7 +963,8 @@ public final class Constant {
 
     private void upgradeFrom1_1_0(XMLConfiguration config) throws ConfigurationException {
         // Upgrade the regexs
-        // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when
+        // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character
+        // encoding when
         // reading/writing configurations.
         XMLConfiguration newConfig = new ZapXmlConfiguration(getUrlDefaultConfigFile());
         newConfig.setAutoSave(false);
@@ -848,7 +974,8 @@ public final class Constant {
 
     private void upgradeFrom1_2_0(XMLConfiguration config) throws ConfigurationException {
         // Upgrade the regexs
-        // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when
+        // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character
+        // encoding when
         // reading/writing configurations.
         XMLConfiguration newConfig = new ZapXmlConfiguration(getUrlDefaultConfigFile());
         newConfig.setAutoSave(false);
@@ -858,7 +985,8 @@ public final class Constant {
     }
 
     private void upgradeFrom1_4_1(XMLConfiguration config) {
-        // As the POST_FORM option for the spider has been updated from int to boolean, keep
+        // As the POST_FORM option for the spider has been updated from int to boolean,
+        // keep
         // compatibility for old versions
         Object postForm = config.getProperty("spider.postform");
         if (postForm != null) {
@@ -890,7 +1018,7 @@ public final class Constant {
 
         // Update the invoke applications elements/hierarchy.
         List<Object[]> oldData = new ArrayList<>();
-        for (int i = 0; ; i++) {
+        for (int i = 0;; i++) {
             String baseKey = "invoke.A" + i + ".";
             String host = config.getString(baseKey + "name");
             if (host == null || "".equals(host)) {
@@ -922,7 +1050,7 @@ public final class Constant {
 
         // Update the authentication elements/hierarchy.
         oldData = new ArrayList<>();
-        for (int i = 0; ; i++) {
+        for (int i = 0;; i++) {
             String baseKey = "connection.auth.A" + i + ".";
             String host = config.getString(baseKey + "hostName");
             if (host == null || "".equals(host)) {
@@ -1002,7 +1130,8 @@ public final class Constant {
             config.setProperty("bruteforce.defaultFile", absolutePath);
         }
 
-        // Remove the manual request editor configurations that were incorrectly created.
+        // Remove the manual request editor configurations that were incorrectly
+        // created.
         config.clearTree("nullrequest");
         config.clearTree("nullresponse");
     }
@@ -1021,7 +1150,8 @@ public final class Constant {
             LOGGER.debug(
                     "The option {} is not an int.", OptionsParamCheckForUpdates.CHECK_ON_START, e);
         }
-        // Clear the block list - addons were incorrectly added to this if an update failed
+        // Clear the block list - addons were incorrectly added to this if an update
+        // failed
         config.setProperty(AddOnLoader.ADDONS_BLOCK_LIST, "");
     }
 
@@ -1047,7 +1177,7 @@ public final class Constant {
     private void upgradeFrom2_4_3(XMLConfiguration config) {
         List<Object[]> oldData = new ArrayList<>();
         // Convert extensions' options to not use extensions' names as XML element names
-        for (Iterator<String> it = config.getKeys("ext"); it.hasNext(); ) {
+        for (Iterator<String> it = config.getKeys("ext"); it.hasNext();) {
             String key = it.next();
 
             Object[] data = new Object[2];
@@ -1074,7 +1204,7 @@ public final class Constant {
 
         // Convert passive scanners options to new structure
         Set<String> classnames = new HashSet<>();
-        for (Iterator<String> it = config.getKeys(); it.hasNext(); ) {
+        for (Iterator<String> it = config.getKeys(); it.hasNext();) {
             String key = it.next();
             if (!key.startsWith("pscans.org")) {
                 continue;
@@ -1212,8 +1342,7 @@ public final class Constant {
 
     public static void setLocale(String loc) {
         String[] langArray = loc.split("_");
-        Locale locale =
-                new Locale.Builder().setLanguage(langArray[0]).setRegion(langArray[1]).build();
+        Locale locale = new Locale.Builder().setLanguage(langArray[0]).setRegion(langArray[1]).build();
 
         Locale.setDefault(locale);
         if (messages == null) {
@@ -1228,11 +1357,15 @@ public final class Constant {
     }
 
     /**
-     * Returns the system's {@code Locale} (as determined by the JVM at startup, {@link
-     * Locale#getDefault()}). Should be used to show locale dependent information in the system's
+     * Returns the system's {@code Locale} (as determined by the JVM at startup,
+     * {@link
+     * Locale#getDefault()}). Should be used to show locale dependent information in
+     * the system's
      * locale.
      *
-     * <p><strong>Note:</strong> The default locale is overridden with the ZAP's user defined
+     * <p>
+     * <strong>Note:</strong> The default locale is overridden with the ZAP's user
+     * defined
      * locale/language.
      *
      * @return the system's {@code Locale}
@@ -1272,8 +1405,7 @@ public final class Constant {
 
     // Determine Windows Operating System
     // ZAP: Changed to final.
-    private static final Pattern patternWindows =
-            Pattern.compile("window", Pattern.CASE_INSENSITIVE);
+    private static final Pattern patternWindows = Pattern.compile("window", Pattern.CASE_INSENSITIVE);
 
     public static boolean isWindows() {
         String os_name = System.getProperty("os.name");
@@ -1309,10 +1441,12 @@ public final class Constant {
     /**
      * Returns the absolute path for the given {@code directory}.
      *
-     * <p>The path is terminated with a separator.
+     * <p>
+     * The path is terminated with a separator.
      *
      * @param directory the directory whose path will be made absolute
-     * @return the absolute path for the given {@code directory}, terminated with a separator
+     * @return the absolute path for the given {@code directory}, terminated with a
+     *         separator
      * @since 2.4.0
      */
     private static String getAbsolutePath(String directory) {
@@ -1329,9 +1463,12 @@ public final class Constant {
     }
 
     /**
-     * Returns the path to default configuration file, located in installation directory.
+     * Returns the path to default configuration file, located in installation
+     * directory.
      *
-     * <p><strong>Note:</strong> The default configuration file is not guaranteed to exist, for
+     * <p>
+     * <strong>Note:</strong> The default configuration file is not guaranteed to
+     * exist, for
      * example, when running just with ZAP JAR.
      *
      * @return the {@code Path} to default configuration file.
@@ -1376,13 +1513,12 @@ public final class Constant {
             if (!Files.isDirectory(localDir.resolve("db"))
                     || !Files.isDirectory(localDir.resolve("lang"))) {
                 try {
-                    Path sourceLocation =
-                            Paths.get(
-                                    ZAP.class
-                                            .getProtectionDomain()
-                                            .getCodeSource()
-                                            .getLocation()
-                                            .toURI());
+                    Path sourceLocation = Paths.get(
+                            ZAP.class
+                                    .getProtectionDomain()
+                                    .getCodeSource()
+                                    .getLocation()
+                                    .toURI());
                     if (!Files.isDirectory(sourceLocation)) {
                         sourceLocation = sourceLocation.getParent();
                     }
@@ -1408,8 +1544,7 @@ public final class Constant {
             // Class not from JAR
             return null;
         }
-        String manifestPath =
-                classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
+        String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
         try {
             return new Manifest(new URL(manifestPath).openStream());
         } catch (Exception e) {
@@ -1465,9 +1600,11 @@ public final class Constant {
     /**
      * Tells whether or not the "dev mode" should be enabled.
      *
-     * <p>Should be used to enable development related utilities/functionalities.
+     * <p>
+     * Should be used to enable development related utilities/functionalities.
      *
-     * @return {@code true} if the "dev mode" should be enabled, {@code false} otherwise.
+     * @return {@code true} if the "dev mode" should be enabled, {@code false}
+     *         otherwise.
      * @since 2.8.0
      */
     public static boolean isDevMode() {
@@ -1477,18 +1614,24 @@ public final class Constant {
     /**
      * Sets whether or not the "dev mode" should be enabled.
      *
-     * <p><strong>Note:</strong> This method should be called only by bootstrap classes.
+     * <p>
+     * <strong>Note:</strong> This method should be called only by bootstrap
+     * classes.
      *
-     * @param devMode {@code true} if the "dev mode" should be enabled, {@code false} otherwise.
+     * @param devMode {@code true} if the "dev mode" should be enabled,
+     *                {@code false} otherwise.
      */
     public static void setDevMode(boolean devMode) {
         Constant.devMode = devMode;
     }
 
     /**
-     * Sets whether or not ZAP should be 'silent' i.e. not make any unsolicited requests.
+     * Sets whether or not ZAP should be 'silent' i.e. not make any unsolicited
+     * requests.
      *
-     * <p><strong>Note:</strong> This method should be called only by bootstrap classes.
+     * <p>
+     * <strong>Note:</strong> This method should be called only by bootstrap
+     * classes.
      *
      * @param silent {@code true} if ZAP should be silent, {@code false} otherwise.
      * @since 2.8.0
@@ -1508,7 +1651,8 @@ public final class Constant {
     }
 
     public static boolean isDevBuild(String version) {
-        // Dev releases with be called "Dev Build" date stamped builds will be of the format
+        // Dev releases with be called "Dev Build" date stamped builds will be of the
+        // format
         // D-{yyyy}-{mm}-{dd}
         return DEV_VERSION.equals(version);
     }
@@ -1523,9 +1667,11 @@ public final class Constant {
     }
 
     /**
-     * If true then ZAP should not make any unsolicited requests, e.g. check-for-updates
+     * If true then ZAP should not make any unsolicited requests, e.g.
+     * check-for-updates
      *
-     * @return true if ZAP should not make any unsolicited requests, e.g. check-for-updates
+     * @return true if ZAP should not make any unsolicited requests, e.g.
+     *         check-for-updates
      * @since 2.8.0
      */
     public static boolean isSilent() {
@@ -1547,14 +1693,16 @@ public final class Constant {
     /**
      * Tells whether or not ZAP is running in Kali (and it's not a daily build).
      *
-     * @return {@code true} if running in Kali (and it's not daily build), {@code false} otherwise
+     * @return {@code true} if running in Kali (and it's not daily build),
+     *         {@code false} otherwise
      */
     public static boolean isKali() {
         if (onKali == null) {
             onKali = Boolean.FALSE;
             File osReleaseFile = new File("/etc/os-release");
             if (isLinux() && !isDailyBuild() && osReleaseFile.exists()) {
-                // Ignore the fact we're on Kali if this is a daily build - they will only have been
+                // Ignore the fact we're on Kali if this is a daily build - they will only have
+                // been
                 // installed manually
                 try (InputStream in = Files.newInputStream(osReleaseFile.toPath())) {
                     Properties osProps = new Properties();
@@ -1582,7 +1730,8 @@ public final class Constant {
             onBackBox = Boolean.FALSE;
             File issueFile = new File("/etc/issue");
             if (isLinux() && !isDailyBuild() && issueFile.exists()) {
-                // Ignore the fact we're on BackBox if this is a daily build - they will only have
+                // Ignore the fact we're on BackBox if this is a daily build - they will only
+                // have
                 // been installed manually
                 try {
                     String content = new String(Files.readAllBytes(issueFile.toPath()));
@@ -1614,11 +1763,10 @@ public final class Constant {
                 String home = System.getenv(HOME_ENVVAR);
                 boolean inWebSwing = home != null && home.contains(WEBSWING_NAME);
                 try {
-                    containerName =
-                            new String(
-                                            Files.readAllBytes(containerFile.toPath()),
-                                            StandardCharsets.UTF_8)
-                                    .trim();
+                    containerName = new String(
+                            Files.readAllBytes(containerFile.toPath()),
+                            StandardCharsets.UTF_8)
+                            .trim();
                     if (inWebSwing) {
                         // Append the webswing name so we don't loose the docker image name
                         containerName += "." + WEBSWING_NAME;
@@ -1640,7 +1788,8 @@ public final class Constant {
     }
 
     /**
-     * Returns the name of the container ZAP is running in (if any) e.g. zap2docker-stable, flatpak
+     * Returns the name of the container ZAP is running in (if any) e.g.
+     * zap2docker-stable, flatpak
      * or null if not running in a recognised container
      *
      * @since 2.11.0
@@ -1651,7 +1800,8 @@ public final class Constant {
     }
 
     /**
-     * Returns the recommended default number of threads. Note that add-ons should use the
+     * Returns the recommended default number of threads. Note that add-ons should
+     * use the
      * equivalent method in the commonlib add-on.
      *
      * @return the recommended default number of threads.

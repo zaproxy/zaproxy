@@ -26,12 +26,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
+import java.util.function.ToIntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DbUtils;
@@ -59,8 +60,7 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     private static final String RESBODY = DbSQL.getSQL("history.field.resbody");
     private static final String TAG = DbSQL.getSQL("history.field.tag");
     private static final String NOTE = DbSQL.getSQL("history.field.note");
-    private static final String RESPONSE_FROM_TARGET_HOST =
-            DbSQL.getSQL("history.field.responsefromtargethost");
+    private static final String RESPONSE_FROM_TARGET_HOST = DbSQL.getSQL("history.field.responsefromtargethost");
 
     private int lastInsertedIndex;
     private static boolean isExistStatusCode = false;
@@ -68,27 +68,26 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     // ZAP: Added logger
     private static final Logger LOGGER = LogManager.getLogger(SqlTableHistory.class);
 
+    private DatabaseParam options;
+
     private boolean bodiesAsBytes;
 
-    public SqlTableHistory() {}
+    private int configuredrequestbodysize = -1;
+    private int configuredresponsebodysize = -1;
 
-    // ZAP: Allow the request and response body sizes to be user-specifiable as far as possible
-    int configuredrequestbodysize = -1;
-    int configuredresponsebodysize = -1;
+    public SqlTableHistory() {
+    }
+
+    @Override
+    public void setDatabaseOptions(DatabaseParam options) {
+        this.options = Objects.requireNonNull(options);
+    }
 
     @Override
     protected void reconnect(Connection conn) throws DatabaseException {
         try {
-            // ZAP: Allow the request and response body sizes to be user-specifiable as far as
-            // possible
-            // re-load the configuration data from file, to get the configured length of the request
-            // and response bodies
-            // this will later be compared to the actual lengths of these fields in the database (in
-            // updateTable(Connection c))
-            DatabaseParam dbparams = new DatabaseParam();
-            dbparams.load(Constant.getInstance().FILE_CONFIG);
-            this.configuredrequestbodysize = dbparams.getRequestBodySize();
-            this.configuredresponsebodysize = dbparams.getResponseBodySize();
+            configuredrequestbodysize = getBodySizeOption(DatabaseParam::getRequestBodySize);
+            configuredresponsebodysize = getBodySizeOption(DatabaseParam::getResponseBodySize);
 
             bodiesAsBytes = true;
 
@@ -121,6 +120,10 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
         }
     }
 
+    private int getBodySizeOption(ToIntFunction<DatabaseParam> function) {
+        return options != null ? function.applyAsInt(options) : DatabaseParam.DEFAULT_BODY_SIZE;
+    }
+
     // ZAP: Added the method.
     private void updateTable(Connection connection) throws DatabaseException {
         try {
@@ -133,9 +136,11 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                 DbUtils.execute(connection, DbSQL.getSQL("history.ps.addnote"));
             }
 
-            /* TODO how to handle HSQLDB dependency?? Need to parameterize somehow.. vvvvvvvvvvvv */
-            if (DbUtils.getColumnType(connection, TABLE_NAME, REQBODY)
-                    != 61 /*Types.SQL_VARBINARY*/) {
+            /*
+             * TODO how to handle HSQLDB dependency?? Need to parameterize somehow..
+             * vvvvvvvvvvvv
+             */
+            if (DbUtils.getColumnType(connection, TABLE_NAME, REQBODY) != 61 /* Types.SQL_VARBINARY */) {
                 bodiesAsBytes = false;
             } else {
                 // Databases created with ZAP<1.4.0.1 used VARCHAR for the REQBODY/RESBODY
@@ -155,8 +160,8 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
             try {
                 if (requestbodysizeindb != this.configuredrequestbodysize
                         && this.configuredrequestbodysize > 0) {
-                    try (PreparedStatement stmt =
-                            connection.prepareStatement(DbSQL.getSQL("history.ps.changereqsize"))) {
+                    try (PreparedStatement stmt = connection
+                            .prepareStatement(DbSQL.getSQL("history.ps.changereqsize"))) {
                         stmt.setInt(1, this.configuredrequestbodysize);
                         stmt.execute();
                     }
@@ -164,9 +169,8 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
 
                 if (responsebodysizeindb != this.configuredresponsebodysize
                         && this.configuredresponsebodysize > 0) {
-                    try (PreparedStatement stmt =
-                            connection.prepareStatement(
-                                    DbSQL.getSQL("history.ps.changerespsize"))) {
+                    try (PreparedStatement stmt = connection.prepareStatement(
+                            DbSQL.getSQL("history.ps.changerespsize"))) {
                         stmt.setInt(1, this.configuredresponsebodysize);
                         stmt.execute();
                     }
@@ -235,8 +239,10 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
             statusCode = msg.getResponseHeader().getStatusCode();
         }
 
-        // return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(),
-        // method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, msg.getTag());
+        // return write(sessionId, histType, msg.getTimeSentMillis(),
+        // msg.getTimeElapsedMillis(),
+        // method, uri, statusCode, reqHeader, reqBody, resHeader, resBody,
+        // msg.getTag());
         return write(
                 sessionId,
                 histType,
@@ -271,7 +277,8 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
             boolean responseFromTargetHost)
             throws HttpMalformedHeaderException, DatabaseException {
 
-        // ZAP: Allow the request and response body sizes to be user-specifiable as far as possible
+        // ZAP: Allow the request and response body sizes to be user-specifiable as far
+        // as possible
         if (reqBody.length > this.configuredrequestbodysize) {
             throw new DatabaseException(
                     "The actual Request Body length "
@@ -357,20 +364,19 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                         resBody = rs.getString(RESBODY).getBytes();
                     }
 
-                    history =
-                            new RecordHistory(
-                                    rs.getInt(HISTORYID),
-                                    rs.getInt(HISTTYPE),
-                                    rs.getLong(SESSIONID),
-                                    rs.getLong(TIMESENTMILLIS),
-                                    rs.getInt(TIMEELAPSEDMILLIS),
-                                    rs.getString(REQHEADER),
-                                    reqBody,
-                                    rs.getString(RESHEADER),
-                                    resBody,
-                                    rs.getString(TAG),
-                                    rs.getString(NOTE), // ZAP: Added note
-                                    rs.getBoolean(RESPONSE_FROM_TARGET_HOST));
+                    history = new RecordHistory(
+                            rs.getInt(HISTORYID),
+                            rs.getInt(HISTTYPE),
+                            rs.getLong(SESSIONID),
+                            rs.getLong(TIMESENTMILLIS),
+                            rs.getInt(TIMEELAPSEDMILLIS),
+                            rs.getString(REQHEADER),
+                            reqBody,
+                            rs.getString(RESHEADER),
+                            resBody,
+                            rs.getString(TAG),
+                            rs.getString(NOTE), // ZAP: Added note
+                            rs.getBoolean(RESPONSE_FROM_TARGET_HOST));
                 }
             } finally {
                 rs.close();
@@ -496,21 +502,19 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
             long sessionId, int histType, String filter, boolean isRequest)
             throws DatabaseException {
         try { // TODO
-            PreparedStatement psReadSearch =
-                    getConnection()
-                            .prepareStatement(
-                                    "SELECT * FROM HISTORY WHERE "
-                                            + SESSIONID
-                                            + " = ? AND "
-                                            + HISTTYPE
-                                            + " = ? ORDER BY "
-                                            + HISTORYID);
+            PreparedStatement psReadSearch = getConnection()
+                    .prepareStatement(
+                            "SELECT * FROM HISTORY WHERE "
+                                    + SESSIONID
+                                    + " = ? AND "
+                                    + HISTTYPE
+                                    + " = ? ORDER BY "
+                                    + HISTORYID);
             ResultSet rs = null;
             Vector<Integer> v = new Vector<>();
             try {
 
-                Pattern pattern =
-                        Pattern.compile(filter, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+                Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
                 Matcher matcher = null;
 
                 psReadSearch.setLong(1, sessionId);
@@ -695,45 +699,49 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     public RecordHistory getHistoryCache(HistoryReference ref, HttpMessage reqMsg)
             throws DatabaseException, HttpMalformedHeaderException {
         try {
-            //  get the cache from provided reference.
-            //  naturally, the obtained cache should be AFTER AND NEARBY to the given reference.
-            //  - historyId up to historyId+200
-            //  - match sessionId
-            //  - history type can be MANUEL or hidden (hidden is used by images not explicitly
+            // get the cache from provided reference.
+            // naturally, the obtained cache should be AFTER AND NEARBY to the given
+            // reference.
+            // - historyId up to historyId+200
+            // - match sessionId
+            // - history type can be MANUEL or hidden (hidden is used by images not
+            // explicitly
             // stored in history)
-            //  - match URI
+            // - match URI
             PreparedStatement psReadCache = null;
 
             // TODO
             if (isExistStatusCode) {
-                //          psReadCache = getConnection().prepareStatement("SELECT TOP 1 * FROM
-                // HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND " + HISTORYID + " >= ?
+                // psReadCache = getConnection().prepareStatement("SELECT TOP 1 * FROM
+                // HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND " + HISTORYID + " >=
+                // ?
                 // AND " + HISTORYID + " <= ? AND SESSIONID = ? AND (HISTTYPE = " +
-                // HistoryReference.TYPE_MANUAL + " OR HISTTYPE = " + HistoryReference.TYPE_HIDDEN +
+                // HistoryReference.TYPE_MANUAL + " OR HISTTYPE = " +
+                // HistoryReference.TYPE_HIDDEN +
                 // ") AND STATUSCODE != 304");
-                psReadCache =
-                        getConnection()
-                                .prepareStatement(
-                                        "SELECT TOP 1 * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND "
-                                                + HISTORYID
-                                                + " >= ? AND "
-                                                + HISTORYID
-                                                + " <= ? AND SESSIONID = ? AND STATUSCODE != 304");
+                psReadCache = getConnection()
+                        .prepareStatement(
+                                "SELECT TOP 1 * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND "
+                                        + HISTORYID
+                                        + " >= ? AND "
+                                        + HISTORYID
+                                        + " <= ? AND SESSIONID = ? AND STATUSCODE != 304");
 
             } else {
-                //          psReadCache = getConnection().prepareStatement("SELECT * FROM HISTORY
-                // WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND " + HISTORYID + " >= ? AND " +
+                // psReadCache = getConnection().prepareStatement("SELECT * FROM HISTORY
+                // WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND " + HISTORYID + " >= ? AND "
+                // +
                 // HISTORYID + " <= ? AND SESSIONID = ? AND (HISTTYPE = " +
-                // HistoryReference.TYPE_MANUAL + " OR HISTTYPE = " + HistoryReference.TYPE_HIDDEN +
+                // HistoryReference.TYPE_MANUAL + " OR HISTTYPE = " +
+                // HistoryReference.TYPE_HIDDEN +
                 // ")");
-                psReadCache =
-                        getConnection()
-                                .prepareStatement(
-                                        "SELECT * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND "
-                                                + HISTORYID
-                                                + " >= ? AND "
-                                                + HISTORYID
-                                                + " <= ? AND SESSIONID = ?)");
+                psReadCache = getConnection()
+                        .prepareStatement(
+                                "SELECT * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND "
+                                        + HISTORYID
+                                        + " >= ? AND "
+                                        + HISTORYID
+                                        + " <= ? AND SESSIONID = ?)");
             }
             psReadCache.setString(1, reqMsg.getRequestHeader().getURI().toString());
             psReadCache.setString(2, reqMsg.getRequestHeader().getMethod());
@@ -758,8 +766,8 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                     // and the result should NOT be NOT_MODIFIED for rendering by browser
                     if (rec != null
                             && rec.getHttpMessage().equals(reqMsg)
-                            && rec.getHttpMessage().getResponseHeader().getStatusCode()
-                                    != HttpStatusCode.NOT_MODIFIED) {
+                            && rec.getHttpMessage().getResponseHeader()
+                                    .getStatusCode() != HttpStatusCode.NOT_MODIFIED) {
                         return rec;
                     }
 
@@ -780,15 +788,13 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
 
             // TODO
             if (isExistStatusCode) {
-                psReadCache =
-                        getConnection()
-                                .prepareStatement(
-                                        "SELECT TOP 1 * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND STATUSCODE != 304");
+                psReadCache = getConnection()
+                        .prepareStatement(
+                                "SELECT TOP 1 * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND STATUSCODE != 304");
             } else {
-                psReadCache =
-                        getConnection()
-                                .prepareStatement(
-                                        "SELECT * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ?");
+                psReadCache = getConnection()
+                        .prepareStatement(
+                                "SELECT * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ?");
             }
             psReadCache.setString(1, reqMsg.getRequestHeader().getURI().toString());
             psReadCache.setString(2, reqMsg.getRequestHeader().getMethod());
@@ -809,8 +815,8 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
                     rec = build(rs);
                     if (rec != null
                             && rec.getHttpMessage().equals(reqMsg)
-                            && rec.getHttpMessage().getResponseHeader().getStatusCode()
-                                    != HttpStatusCode.NOT_MODIFIED) {
+                            && rec.getHttpMessage().getResponseHeader()
+                                    .getStatusCode() != HttpStatusCode.NOT_MODIFIED) {
                         return rec;
                     }
 

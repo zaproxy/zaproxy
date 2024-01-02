@@ -1,6 +1,21 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2023-08-23
+- Python 3.6 and 3.7 are no longer supported.
+
+### 2023-08-09
+- Install the newer Python ZAP API client directly, `python-owasp-zap-v2.4` was renamed to `zaproxy`.
+
+### 2023-08-07
+- The default name for ZAP's Root CA certificate and key was changed from `owasp_zap_root_ca` to `zap_root_ca`, in the Webswing script (`zap-webswing.sh`).
+
+### 2023-08-04
+- The packaged scans, when executed directly, will now use the image from the GitHub Container Registry.
+
+### 2023-08-02
+- Start publishing images under the `softwaresecurityproject` organization on Docker Hub, in addition to the existing images.
+
 ### 2023-07-07
 - Remove checks for CFU initiator in HTTP Sender scripts, no longer needed.
 

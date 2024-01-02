@@ -876,11 +876,16 @@ public class HttpMessage implements Message {
         return set;
     }
 
-    /** @return Returns the userObject. */
+    /**
+     * @return Returns the userObject.
+     */
     public Object getUserObject() {
         return userObject;
     }
-    /** @param userObject The userObject to set. */
+
+    /**
+     * @param userObject The userObject to set.
+     */
     public void setUserObject(Object userObject) {
         this.userObject = userObject;
     }
@@ -937,6 +942,7 @@ public class HttpMessage implements Message {
             newMsg.setRequestBody(this.getRequestBody().getBytes());
         }
     }
+
     /**
      * @return Get the elapsed time (time difference) between the request is sent and all response
      *     is received. In millis. The value is zero if the response is not received.
@@ -963,6 +969,7 @@ public class HttpMessage implements Message {
     public long getTimeSentMillis() {
         return timeSent;
     }
+
     /**
      * Set the time when the request is sent.
      *
@@ -972,12 +979,16 @@ public class HttpMessage implements Message {
         this.timeSent = timeSent;
     }
 
-    /** @return Returns the note. */
+    /**
+     * @return Returns the note.
+     */
     public String getNote() {
         return note;
     }
 
-    /** @param note The note to set. */
+    /**
+     * @param note The note to set.
+     */
     public void setNote(String note) {
         this.note = note;
     }

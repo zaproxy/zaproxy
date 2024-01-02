@@ -43,7 +43,9 @@ import org.zaproxy.zap.GitHubUser;
 /** A task that uploads assets to a GitHub release. */
 public abstract class UploadAssetsGitHubRelease extends DefaultTask {
 
-    private static final String TABLE_HEADER_END = "|---|---|\r\n";
+    private static final int PAGE_SIZE = 10;
+
+    private static final String TABLE_HEADER_END = "|---|---|\n";
 
     private final Property<String> repo;
     private final Property<String> tag;
@@ -118,7 +120,11 @@ public abstract class UploadAssetsGitHubRelease extends DefaultTask {
 
         GHRelease release = ghRepo.getReleaseByTagName(tagName);
         if (release == null) {
-            throw new InvalidUserDataException("Release for tag " + tagName + " does not exist.");
+            getLogger()
+                    .lifecycle(
+                            "Release not found for tag: {}. Searching releases by name instead.",
+                            tagName);
+            release = getRelease(ghRepo, tagName);
         }
 
         String releaseBody = release.getBody();
@@ -130,6 +136,27 @@ public abstract class UploadAssetsGitHubRelease extends DefaultTask {
         for (Asset asset : assets) {
             release.uploadAsset(asset.getFile().getAsFile().get(), asset.getContentType().get());
         }
+    }
+
+    private static GHRelease getRelease(GHRepository ghRepo, String tagName) throws IOException {
+        int i = 0;
+        for (var release : ghRepo.listReleases().withPageSize(PAGE_SIZE)) {
+            if (tagName.equals(release.getName())) {
+                return release;
+            }
+
+            i++;
+            if (i > PAGE_SIZE) {
+                break;
+            }
+        }
+
+        throw new InvalidUserDataException(
+                "Release with name "
+                        + tagName
+                        + " not found after searching the latest "
+                        + PAGE_SIZE
+                        + " releases.");
     }
 
     private String updateChecksumsTable(String previousBody) throws IOException {

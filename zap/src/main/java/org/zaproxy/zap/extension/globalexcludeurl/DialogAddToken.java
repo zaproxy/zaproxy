@@ -33,34 +33,32 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
-/** @deprecated (2.13.0) Superseded by Network add-on options. */
-@SuppressWarnings({"removal", "serial"})
+/**
+ * @deprecated (2.13.0) Superseded by Network add-on options.
+ */
+@SuppressWarnings({ "removal", "serial" })
 @Deprecated(since = "2.13.0", forRemoval = true)
 class DialogAddToken extends AbstractFormDialog {
 
     private static final long serialVersionUID = 4460797449668634319L;
 
-    private static final String DIALOG_TITLE =
-            Constant.messages.getString("options.globalexcludeurl.dialog.token.add.title");
+    private static final String DIALOG_TITLE = Constant.messages
+            .getString("options.globalexcludeurl.dialog.token.add.title");
 
-    private static final String CONFIRM_BUTTON_LABEL =
-            Constant.messages.getString("options.globalexcludeurl.dialog.token.add.button.confirm");
+    private static final String CONFIRM_BUTTON_LABEL = Constant.messages
+            .getString("options.globalexcludeurl.dialog.token.add.button.confirm");
 
-    private static final String NAME_FIELD_LABEL =
-            Constant.messages.getString("options.globalexcludeurl.dialog.token.field.label.name");
-    private static final String ENABLED_FIELD_LABEL =
-            Constant.messages.getString(
-                    "options.globalexcludeurl.dialog.token.field.label.enabled");
-    private static final String DESC_FIELD_LABEL =
-            Constant.messages.getString(
-                    "options.globalexcludeurl.dialog.token.field.label.description");
+    private static final String NAME_FIELD_LABEL = Constant.messages
+            .getString("options.globalexcludeurl.dialog.token.field.label.name");
+    private static final String ENABLED_FIELD_LABEL = Constant.messages.getString(
+            "options.globalexcludeurl.dialog.token.field.label.enabled");
+    private static final String DESC_FIELD_LABEL = Constant.messages.getString(
+            "options.globalexcludeurl.dialog.token.field.label.description");
 
-    private static final String TITLE_NAME_REPEATED_DIALOG =
-            Constant.messages.getString(
-                    "options.globalexcludeurl.dialog.token.warning.name.repeated.title");
-    private static final String TEXT_NAME_REPEATED_DIALOG =
-            Constant.messages.getString(
-                    "options.globalexcludeurl.dialog.token.warning.name.repeated.text");
+    private static final String TITLE_NAME_REPEATED_DIALOG = Constant.messages.getString(
+            "options.globalexcludeurl.dialog.token.warning.name.repeated.title");
+    private static final String TEXT_NAME_REPEATED_DIALOG = Constant.messages.getString(
+            "options.globalexcludeurl.dialog.token.warning.name.repeated.text");
 
     private ZapTextField regexTextField;
     private JCheckBox enabledCheckBox;
@@ -71,13 +69,15 @@ class DialogAddToken extends AbstractFormDialog {
 
     public DialogAddToken(Dialog owner) {
         super(owner, DIALOG_TITLE);
-        // TODO how????    this.setSize((int)(getWidth() * 1.5), getHeight());   // make window 50%
+        // TODO how???? this.setSize((int)(getWidth() * 1.5), getHeight()); // make
+        // window 50%
         // wider than the default
     }
 
     protected DialogAddToken(Dialog owner, String title) {
         super(owner, title);
-        // TODO how????    this.setSize((int)(getWidth() * 1.5), getHeight());   // make window 50%
+        // TODO how???? this.setSize((int)(getWidth() * 1.5), getHeight()); // make
+        // window 50%
         // wider than the default
     }
 
@@ -158,11 +158,10 @@ class DialogAddToken extends AbstractFormDialog {
 
     @Override
     protected void performAction() {
-        token =
-                new GlobalExcludeURLParamToken(
-                        getRegexTextField().getText(),
-                        getDescTextField().getText(),
-                        getEnabledCheckBox().isSelected());
+        token = new GlobalExcludeURLParamToken(
+                getRegexTextField().getText(),
+                getDescTextField().getText(),
+                getEnabledCheckBox().isSelected());
     }
 
     @Override

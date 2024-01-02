@@ -10,9 +10,6 @@ plugins {
     `java-library`
     jacoco
     id("me.champeau.gradle.japicmp")
-    id("org.zaproxy.common") version "0.1.0"
-    id("org.zaproxy.crowdin") version "0.3.1"
-    org.zaproxy.zap.distributions
     org.zaproxy.zap.installers
     org.zaproxy.zap.`github-releases`
     org.zaproxy.zap.jflex
@@ -58,7 +55,7 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 }
 
 dependencies {
-    api("com.fifesoft:rsyntaxtextarea:3.3.3")
+    api("com.fifesoft:rsyntaxtextarea:3.3.4")
     api("com.github.zafarkhaja:java-semver:0.9.0")
     api("commons-beanutils:commons-beanutils:1.9.4")
     api("commons-codec:commons-codec:1.16.0")
@@ -67,7 +64,7 @@ dependencies {
     api("commons-httpclient:commons-httpclient:3.1")
     api("commons-io:commons-io:2.13.0")
     api("commons-lang:commons-lang:2.6")
-    api("org.apache.commons:commons-lang3:3.12.0")
+    api("org.apache.commons:commons-lang3:3.13.0")
     api("org.apache.commons:commons-text:1.10.0")
     api("edu.umass.cs.benchlab:harlib:1.1.3")
     api("javax.help:javahelp:2.0.05")
@@ -75,6 +72,7 @@ dependencies {
     api("org.apache.logging.log4j:log4j-api:$log4jVersion")
     api("org.apache.logging.log4j:log4j-1.2-api:$log4jVersion")
     implementation("org.apache.logging.log4j:log4j-core:$log4jVersion")
+    implementation("org.apache.logging.log4j:log4j-jul:$log4jVersion")
     api("net.htmlparser.jericho:jericho-html:3.4")
     api("net.sf.json-lib:json-lib:2.4:jdk15")
     api("org.apache.commons:commons-csv:1.10.0")
@@ -83,7 +81,7 @@ dependencies {
     api("org.jgrapht:jgrapht-core:0.9.0")
     api("org.swinglabs.swingx:swingx-all:1.6.5-1")
 
-    implementation("com.formdev:flatlaf:3.1.1")
+    implementation("com.formdev:flatlaf:3.2.1")
 
     runtimeOnly("commons-logging:commons-logging:1.2")
     runtimeOnly("xom:xom:1.3.9") {
@@ -92,10 +90,8 @@ dependencies {
 
     testImplementation("net.bytebuddy:byte-buddy:1.14.0")
     testImplementation("org.hamcrest:hamcrest-core:2.2")
-    val jupiterVersion = "5.9.2"
-    testImplementation("org.junit.jupiter:junit-jupiter-api:$jupiterVersion")
-    testImplementation("org.junit.jupiter:junit-jupiter-params:$jupiterVersion")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:$jupiterVersion")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.mockito:mockito-junit-jupiter:5.1.1")
     testImplementation("org.apache.logging.log4j:log4j-slf4j-impl:$log4jVersion")
 
@@ -113,7 +109,7 @@ tasks.register<JavaExec>("run") {
     workingDir = distDir
 }
 
-listOf("jar", "jarDaily").forEach {
+listOf("jar", "jarDaily", "jarWithBom").forEach {
     tasks.named<Jar>(it) {
         isPreserveFileTimestamps = false
         isReproducibleFileOrder = true
@@ -163,7 +159,7 @@ tasks.named(LifecycleBasePlugin.CHECK_TASK_NAME) {
 }
 
 tasks.named<Javadoc>("javadoc") {
-    title = "OWASP Zed Attack Proxy"
+    title = "Zed Attack Proxy"
     source = sourceSets["main"].allJava.matching {
         include("org/parosproxy/**")
         include("org/zaproxy/**")
@@ -186,7 +182,7 @@ val langPack by tasks.registering(Zip::class) {
     into("lang") {
         from(File(distDir, "lang"))
         from("src/main/resources/org/zaproxy/zap/resources") {
-            include("Messages.properties", "vulnerabilities.xml")
+            include("Messages.properties")
         }
     }
 }

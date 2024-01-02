@@ -4,8 +4,10 @@
 ---
 packageExcludes: []
 fieldExcludes: []
-classExcludes:
- - "org.zaproxy.zap.network.HttpSenderImpl"
+classExcludes: []
 methodExcludes:
- - "org.parosproxy.paros.extension.ViewDelegate#getOptionsButton(java.lang.String, java.lang.String)"
- - "org.parosproxy.paros.extension.ViewDelegate#getHelpButton(java.lang.String)"
+  - org.parosproxy.paros.db.Database#setDatabaseOptions(org.parosproxy.paros.extension.option.DatabaseParam)
+  - org.parosproxy.paros.db.TableHistory#setDatabaseOptions(org.parosproxy.paros.extension.option.DatabaseParam)
+  - org.zaproxy.zap.extension.script.ScriptUI#displayScript(org.zaproxy.zap.extension.script.ScriptWrapper, boolean)
+  - org.zaproxy.zap.extension.script.ScriptUI#selectNode(org.zaproxy.zap.extension.script.ScriptNode, boolean, boolean)
+

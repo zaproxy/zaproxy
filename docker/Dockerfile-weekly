@@ -45,12 +45,12 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	xvfb \
 	x11vnc && \
 	rm -rf /var/lib/apt/lists/* && \
-    useradd -u 1000 -d /home/zap -m -s /bin/bash zap && \
-    echo zap:zap | chpasswd && \
-    mkdir /zap  && \
-    chown zap:zap /zap
+	useradd -u 1000 -d /home/zap -m -s /bin/bash zap && \
+	echo zap:zap | chpasswd && \
+	mkdir /zap  && \
+	chown zap:zap /zap
 
-RUN pip3 install --no-cache-dir --upgrade awscli pip python-owasp-zap-v2.4 pyyaml requests urllib3 
+RUN pip3 install --no-cache-dir --upgrade awscli pip zaproxy pyyaml requests urllib3 
 
 WORKDIR /zap
 
@@ -87,6 +87,6 @@ COPY --link --chown=1000:1000 scripts /home/zap/.ZAP_D/scripts/
 COPY --link --chown=1000:1000 .xinitrc /home/zap/
 
 RUN echo "zap2docker-weekly" > /zap/container && \
-    chmod a+x /home/zap/.xinitrc
+	chmod a+x /home/zap/.xinitrc
 
 HEALTHCHECK CMD curl --silent --output /dev/null --fail http://localhost:$ZAP_PORT/ || exit 1

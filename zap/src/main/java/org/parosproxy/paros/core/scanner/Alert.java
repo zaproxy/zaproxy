@@ -66,6 +66,7 @@
 // ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 // ZAP: 2022/05/26 Add addTag and removeTag methods
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/09/12 Add NUMBER_RISKS convenience constant.
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
@@ -95,7 +96,8 @@ public class Alert implements Comparable<Alert> {
      */
     public enum Source {
         /**
-         * An alert raised by unknown tool/functionality, mostly for old alerts which source is not
+         * An alert raised by unknown tool/functionality, mostly for old alerts which
+         * source is not
          * (well) known.
          */
         UNKNOWN(0, "alert.source.unknown"),
@@ -106,7 +108,8 @@ public class Alert implements Comparable<Alert> {
         /** An alert raised by a passive scanner. */
         PASSIVE(3, "alert.source.passive"),
         /**
-         * An alert raised by other tools/functionalities in ZAP (for example, fuzzer, HTTPS Info
+         * An alert raised by other tools/functionalities in ZAP (for example, fuzzer,
+         * HTTPS Info
          * add-on, custom scripts...).
          */
         TOOL(4, "alert.source.tool");
@@ -122,7 +125,8 @@ public class Alert implements Comparable<Alert> {
         /**
          * Gets the identifier of this {@code Source}.
          *
-         * <p>Should be used for persistence.
+         * <p>
+         * Should be used for persistence.
          *
          * @return the identifier.
          * @see #getSource(int)
@@ -144,8 +148,9 @@ public class Alert implements Comparable<Alert> {
          * Gets the {@code Source} with the given identifier.
          *
          * @param id the identifier of the {@code Source}
-         * @return the {@code Source} with the given identifier, or {@link #UNKNOWN} if not a
-         *     recognised identifier.
+         * @return the {@code Source} with the given identifier, or {@link #UNKNOWN} if
+         *         not a
+         *         recognised identifier.
          * @see #getId()
          */
         public static Source getSource(int id) {
@@ -170,6 +175,12 @@ public class Alert implements Comparable<Alert> {
     public static final int RISK_LOW = 1;
     public static final int RISK_MEDIUM = 2;
     public static final int RISK_HIGH = 3;
+    /*
+     * The number of risk categories or scores used within ZAP.
+     *
+     * @since 2.14.0
+     */
+    public static final int NUMBER_RISKS = 4;
 
     // ZAP: Added FALSE_POSITIVE
     public static final int CONFIDENCE_FALSE_POSITIVE = 0;
@@ -180,10 +191,10 @@ public class Alert implements Comparable<Alert> {
     public static final int CONFIDENCE_HIGH = 3;
     public static final int CONFIDENCE_USER_CONFIRMED = 4;
 
-    public static final String[] MSG_RISK = {"Informational", "Low", "Medium", "High"};
+    public static final String[] MSG_RISK = { "Informational", "Low", "Medium", "High" };
 
     public static final String[] MSG_CONFIDENCE = {
-        "False Positive", "Low", "Medium", "High", "Confirmed"
+            "False Positive", "Low", "Medium", "High", "Confirmed"
     };
 
     private int alertId = -1; // ZAP: Changed default alertId
@@ -220,7 +231,8 @@ public class Alert implements Comparable<Alert> {
     public Alert(int pluginId) {
         this.pluginId = pluginId;
         if (pluginId > -1) {
-            // By default the alertRef is the plugin ID but rules should set this if they raise > 1
+            // By default the alertRef is the plugin ID but rules should set this if they
+            // raise > 1
             // type of alert
             this.alertRef = Integer.toString(pluginId);
         }
@@ -326,16 +338,16 @@ public class Alert implements Comparable<Alert> {
      * Sets the details of the alert.
      *
      * @param description the description of the alert
-     * @param uri the URI that has the issue
-     * @param param the parameter that has the issue
-     * @param attack the attack that triggers the issue
-     * @param otherInfo other information about the issue
-     * @param solution the solution for the issue
-     * @param reference references about the issue
-     * @param evidence the evidence (in the HTTP response) that the issue exists
-     * @param cweId the CWE ID of the issue
-     * @param wascId the WASC ID of the issue
-     * @param msg the HTTP message that triggers/triggered the issue
+     * @param uri         the URI that has the issue
+     * @param param       the parameter that has the issue
+     * @param attack      the attack that triggers the issue
+     * @param otherInfo   other information about the issue
+     * @param solution    the solution for the issue
+     * @param reference   references about the issue
+     * @param evidence    the evidence (in the HTTP response) that the issue exists
+     * @param cweId       the CWE ID of the issue
+     * @param wascId      the WASC ID of the issue
+     * @param msg         the HTTP message that triggers/triggered the issue
      * @since 2.2.0
      * @see Builder
      */
@@ -500,7 +512,8 @@ public class Alert implements Comparable<Alert> {
     }
 
     /**
-     * Override equals. Alerts are equal if the plugin id, alert, other info, uri and param is the
+     * Override equals. Alerts are equal if the plugin id, alert, other info, uri
+     * and param is the
      * same.
      */
     @Override
@@ -684,15 +697,24 @@ public class Alert implements Comparable<Alert> {
     public String getName() {
         return name;
     }
-    /** @return Returns the description. */
+
+    /**
+     * @return Returns the description.
+     */
     public String getDescription() {
         return description;
     }
-    /** @return Returns the id. */
+
+    /**
+     * @return Returns the id.
+     */
     public int getPluginId() {
         return pluginId;
     }
-    /** @return Returns the message. */
+
+    /**
+     * @return Returns the message.
+     */
     public HttpMessage getMessage() {
         if (this.message != null) {
             return this.message;
@@ -706,25 +728,38 @@ public class Alert implements Comparable<Alert> {
         }
         return null;
     }
-    /** @return Returns the otherInfo. */
+
+    /**
+     * @return Returns the otherInfo.
+     */
     public String getOtherInfo() {
         return otherInfo;
     }
-    /** @return Returns the param. */
+
+    /**
+     * @return Returns the param.
+     */
     public String getParam() {
         return param;
     }
-    /** @return Returns the reference. */
+
+    /**
+     * @return Returns the reference.
+     */
     public String getReference() {
         return reference;
     }
 
-    /** @return Returns the confidence. */
+    /**
+     * @return Returns the confidence.
+     */
     public int getConfidence() {
         return confidence;
     }
 
-    /** @return Returns the risk. */
+    /**
+     * @return Returns the risk.
+     */
     public int getRisk() {
         return risk;
     }
@@ -773,19 +808,31 @@ public class Alert implements Comparable<Alert> {
         }
         return null;
     }
-    /** @return Returns the solution. */
+
+    /**
+     * @return Returns the solution.
+     */
     public String getSolution() {
         return solution;
     }
-    /** @return Returns the uri. */
+
+    /**
+     * @return Returns the uri.
+     */
     public String getUri() {
         return uri;
     }
-    /** @return Returns the alertId. */
+
+    /**
+     * @return Returns the alertId.
+     */
     public int getAlertId() {
         return alertId;
     }
-    /** @param alertId The alertId to set. */
+
+    /**
+     * @param alertId The alertId to set.
+     */
     public void setAlertId(int alertId) {
         this.alertId = alertId;
     }
@@ -893,12 +940,16 @@ public class Alert implements Comparable<Alert> {
         this.wascId = wascId;
     }
 
-    /** @since 2.11.0 */
+    /**
+     * @since 2.11.0
+     */
     public Map<String, String> getTags() {
         return tags;
     }
 
-    /** @since 2.11.0 */
+    /**
+     * @since 2.11.0
+     */
     public void setTags(Map<String, String> tags) {
         if (tags != null) {
             this.tags = tags;
@@ -918,8 +969,11 @@ public class Alert implements Comparable<Alert> {
     /**
      * Sets the source of the alert.
      *
-     * <p><strong>Note:</strong> The source should be considered immutable and should be set before
-     * the alert is persisted (normally by the tool/functionality raising the alert).
+     * <p>
+     * <strong>Note:</strong> The source should be considered immutable and should
+     * be set before
+     * the alert is persisted (normally by the tool/functionality raising the
+     * alert).
      *
      * @param source the source of the alert.
      * @throws IllegalArgumentException if the given {@code source} is {@code null}.
@@ -935,7 +989,9 @@ public class Alert implements Comparable<Alert> {
     /**
      * Gets the alert reference.
      *
-     * <p>This is a unique identifier for the type of alert raised. A scan rule may raise more that
+     * <p>
+     * This is a unique identifier for the type of alert raised. A scan rule may
+     * raise more that
      * one type of alert and they should all have different alert references.
      *
      * @return the alert reference
@@ -948,9 +1004,13 @@ public class Alert implements Comparable<Alert> {
     /**
      * Sets the alert reference.
      *
-     * <p>For manually raised alerts this should be an empty string. For alerts raised by scan rules
-     * it should start with the rule plugin id and optionally include a 'qualifier' (such as "-1",
-     * "-2" etc). Logically different alerts should have different alert references even if they are
+     * <p>
+     * For manually raised alerts this should be an empty string. For alerts raised
+     * by scan rules
+     * it should start with the rule plugin id and optionally include a 'qualifier'
+     * (such as "-1",
+     * "-2" etc). Logically different alerts should have different alert references
+     * even if they are
      * raised by the same scan rule.
      *
      * @param alertRef the alert reference
@@ -1016,7 +1076,8 @@ public class Alert implements Comparable<Alert> {
         private String alertRef;
         private Map<String, String> tags;
 
-        protected Builder() {}
+        protected Builder() {
+        }
 
         public Builder setAlertId(int alertId) {
             this.alertId = alertId;
@@ -1130,14 +1191,17 @@ public class Alert implements Comparable<Alert> {
             return this;
         }
 
-        /** @since 2.11.0 */
+        /**
+         * @since 2.11.0
+         */
         public Builder setTags(Map<String, String> tags) {
             this.tags = tags;
             return this;
         }
 
         /**
-         * Adds an Alert tag with the given key (tag/name) to the existing collection for this
+         * Adds an Alert tag with the given key (tag/name) to the existing collection
+         * for this
          * Alert/Builder.
          *
          * @since 2.12.0
@@ -1148,7 +1212,8 @@ public class Alert implements Comparable<Alert> {
         }
 
         /**
-         * Adds an Alert tag with the given key (tag/name) and value to the existing collection for
+         * Adds an Alert tag with the given key (tag/name) and value to the existing
+         * collection for
          * this Alert/Builder.
          *
          * @since 2.12.0
@@ -1162,7 +1227,8 @@ public class Alert implements Comparable<Alert> {
         }
 
         /**
-         * Removes an Alert tag with the given key (tag/name) from the existing collection for this
+         * Removes an Alert tag with the given key (tag/name) from the existing
+         * collection for this
          * Alert/Builder.
          *
          * @since 2.12.0
@@ -1176,7 +1242,8 @@ public class Alert implements Comparable<Alert> {
         }
 
         /**
-         * Removes an Alert tag with the given key (tag/name) and value from the existing collection
+         * Removes an Alert tag with the given key (tag/name) and value from the
+         * existing collection
          * for this Alert/Builder.
          *
          * @since 2.12.0
@@ -1192,7 +1259,8 @@ public class Alert implements Comparable<Alert> {
         /**
          * Builds the alert from the specified data.
          *
-         * <p>The alert URI defaults to the one from the {@code HistoryReference} or {@code
+         * <p>
+         * The alert URI defaults to the one from the {@code HistoryReference} or {@code
          * HttpMessage} if set.
          *
          * @return the alert with specified data.
@@ -1237,10 +1305,12 @@ public class Alert implements Comparable<Alert> {
     }
 
     /**
-     * Checks if a value {@code int} is between {@value #RISK_INFO} (RISK_INFO) and {@value
+     * Checks if a value {@code int} is between {@value #RISK_INFO} (RISK_INFO) and
+     * {@value
      * #RISK_HIGH} (RISK_HIGH)
      *
-     * @return true if the checked risk ({@code int}) is in the range, false otherwise
+     * @return true if the checked risk ({@code int}) is in the range, false
+     *         otherwise
      * @since 2.9.0
      * @see #RISK_INFO
      * @see #RISK_HIGH
@@ -1254,7 +1324,8 @@ public class Alert implements Comparable<Alert> {
      * (CONFIDENCE_FALSE_POSITIVE) and {@value #CONFIDENCE_USER_CONFIRMED}
      * (CONFIDENCE_USER_CONFIRMED)
      *
-     * @return true if the checked confidence ({@code int}) is in the range, false otherwise
+     * @return true if the checked confidence ({@code int}) is in the range, false
+     *         otherwise
      * @since 2.9.0
      * @see #CONFIDENCE_FALSE_POSITIVE
      * @see #CONFIDENCE_USER_CONFIRMED

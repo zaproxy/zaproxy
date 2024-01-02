@@ -47,8 +47,10 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     private static final Logger LOGGER = LogManager.getLogger(ScriptsActiveScanner.class);
     /**
-     * A {@code Set} containing the scripts that do not implement {@code ActiveScript2}, to show an
-     * error if those scripts do not implement {@code ActiveScript} (thus not implementing any of
+     * A {@code Set} containing the scripts that do not implement
+     * {@code ActiveScript2}, to show an
+     * error if those scripts do not implement {@code ActiveScript} (thus not
+     * implementing any of
      * the required interfaces).
      *
      * @see #scan()
@@ -100,11 +102,14 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     }
 
     /**
-     * Tells whether or not the scanner should be skipped. The scanner should be skipped when the
-     * {@code ExtensionScript} is not enabled, when there are no scripts, or if there are none is
+     * Tells whether or not the scanner should be skipped. The scanner should be
+     * skipped when the
+     * {@code ExtensionScript} is not enabled, when there are no scripts, or if
+     * there are none is
      * enabled.
      *
-     * @return {@code true} if the scanner should be skipped, {@code false} otherwise
+     * @return {@code true} if the scanner should be skipped, {@code false}
+     *         otherwise
      */
     private boolean shouldSkipScan() {
         if (this.getExtension() == null) {
@@ -128,10 +133,13 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     /**
      * Returns the scripts of active script type.
      *
-     * <p><strong>Note:</strong> this method should be called only when {@code getExtension()}
+     * <p>
+     * <strong>Note:</strong> this method should be called only when
+     * {@code getExtension()}
      * returns non-{@code null}.
      *
-     * @return a {@code List} containing the scripts with active script type, never {@code null}
+     * @return a {@code List} containing the scripts with active script type, never
+     *         {@code null}
      * @see #getExtension()
      * @see ExtensionActiveScan#SCRIPT_TYPE_ACTIVE
      */
@@ -141,8 +149,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     private ExtensionScript getExtension() {
         if (extension == null) {
-            extension =
-                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
+            extension = Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.class);
         }
         return extension;
     }
@@ -151,7 +158,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     public void scan() {
         List<ScriptWrapper> scripts = this.getActiveScripts();
 
-        for (Iterator<ScriptWrapper> it = scripts.iterator(); it.hasNext() && !isStop(); ) {
+        for (Iterator<ScriptWrapper> it = scripts.iterator(); it.hasNext() && !isStop();) {
             ScriptWrapper script = it.next();
             try {
                 if (script.isEnabled()) {
@@ -175,29 +182,27 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
         }
 
         if (!isStop()) {
-            InterfaceProvider<ActiveScript> interfaceProvider =
-                    (scriptWrapper, targetInterface) -> {
-                        ActiveScript s = extension.getInterface(scriptWrapper, targetInterface);
-                        if (s != null) {
-                            return s;
-                        }
-                        if (scriptsNoInterface.contains(scriptWrapper)) {
-                            extension.handleFailedScriptInterface(
-                                    scriptWrapper,
-                                    Constant.messages.getString(
-                                            "ascan.scripts.interface.active.error",
-                                            scriptWrapper.getName()));
-                        }
-                        return null;
-                    };
-            cachedScripts =
-                    getExtension()
-                            .createScriptsCache(
-                                    Configuration.<ActiveScript>builder()
-                                            .setScriptType(ExtensionActiveScan.SCRIPT_TYPE_ACTIVE)
-                                            .setTargetInterface(ActiveScript.class)
-                                            .setInterfaceProvider(interfaceProvider)
-                                            .build());
+            InterfaceProvider<ActiveScript> interfaceProvider = (scriptWrapper, targetInterface) -> {
+                ActiveScript s = extension.getInterface(scriptWrapper, targetInterface);
+                if (s != null) {
+                    return s;
+                }
+                if (scriptsNoInterface.contains(scriptWrapper)) {
+                    extension.handleFailedScriptInterface(
+                            scriptWrapper,
+                            Constant.messages.getString(
+                                    "ascan.scripts.interface.active.error",
+                                    scriptWrapper.getName()));
+                }
+                return null;
+            };
+            cachedScripts = getExtension()
+                    .createScriptsCache(
+                            Configuration.<ActiveScript>builder()
+                                    .setScriptType(ExtensionActiveScan.SCRIPT_TYPE_ACTIVE)
+                                    .setTargetInterface(ActiveScript.class)
+                                    .setInterfaceProvider(interfaceProvider)
+                                    .build());
             super.scan();
         }
         scriptsNoInterface.clear();
@@ -253,15 +258,18 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
         super.sendAndReceive(msg, isFollowRedirect, handleAntiCSRF);
     }
 
-    /** @since 2.9.0 */
+    /**
+     * @since 2.9.0
+     */
     @Override
     public AlertBuilder newAlert() {
         return super.newAlert();
     }
 
     /**
-     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
-     *     alerts.
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and
+     *             {@link AlertBuilder#raise() raise}
+     *             alerts.
      */
     @Deprecated
     public void raiseAlert(
@@ -295,8 +303,9 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     }
 
     /**
-     * @deprecated (2.9.0) Use {@link #newAlert()} to build and {@link AlertBuilder#raise() raise}
-     *     alerts.
+     * @deprecated (2.9.0) Use {@link #newAlert()} to build and
+     *             {@link AlertBuilder#raise() raise}
+     *             alerts.
      */
     @Deprecated
     public void raiseAlert(

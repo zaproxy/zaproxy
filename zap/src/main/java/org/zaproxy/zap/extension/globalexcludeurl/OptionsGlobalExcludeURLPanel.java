@@ -32,7 +32,9 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapHtmlLabel;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
-/** @deprecated (2.13.0) Superseded by Network add-on options. */
+/**
+ * @deprecated (2.13.0) Superseded by Network add-on options.
+ */
 @SuppressWarnings("removal")
 @Deprecated(since = "2.13.0", forRemoval = true)
 public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
@@ -112,21 +114,18 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
         private static final long serialVersionUID = -115340627058929308L;
 
-        private static final String REMOVE_DIALOG_TITLE =
-                Constant.messages.getString("options.globalexcludeurl.dialog.token.remove.title");
-        private static final String REMOVE_DIALOG_TEXT =
-                Constant.messages.getString("options.globalexcludeurl.dialog.token.remove.text");
+        private static final String REMOVE_DIALOG_TITLE = Constant.messages
+                .getString("options.globalexcludeurl.dialog.token.remove.title");
+        private static final String REMOVE_DIALOG_TEXT = Constant.messages
+                .getString("options.globalexcludeurl.dialog.token.remove.text");
 
-        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL =
-                Constant.messages.getString(
-                        "options.globalexcludeurl.dialog.token.remove.button.confirm");
-        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL =
-                Constant.messages.getString(
-                        "options.globalexcludeurl.dialog.token.remove.button.cancel");
+        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString(
+                "options.globalexcludeurl.dialog.token.remove.button.confirm");
+        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString(
+                "options.globalexcludeurl.dialog.token.remove.button.cancel");
 
-        private static final String REMOVE_DIALOG_CHECKBOX_LABEL =
-                Constant.messages.getString(
-                        "options.globalexcludeurl.dialog.token.remove.checkbox.label");
+        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString(
+                "options.globalexcludeurl.dialog.token.remove.checkbox.label");
 
         private DialogAddToken addDialog = null;
         private DialogModifyToken modifyDialog = null;
@@ -148,12 +147,14 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
             getTable().setAutoCreateRowSorter(true);
             getTable().setSortOrder(1, SortOrder.ASCENDING); // sort by description by default
 
-            /* XXX For some reason, sorting isn't accurate in the table.  The
-            getColumnClass correctly returns String for the Description, but
-            sort order might be: "Ext - MS Word, ExtParam - Bla bla, Ext - PDF."
-            It is like string.compare for the column sort ignores the space and
-            dash.  Really unsure as to why.  As a work-around, start some
-            descriptions with "Extension" instead of the shorter "Ext"   */
+            /*
+             * XXX For some reason, sorting isn't accurate in the table. The
+             * getColumnClass correctly returns String for the Description, but
+             * sort order might be: "Ext - MS Word, ExtParam - Bla bla, Ext - PDF."
+             * It is like string.compare for the column sort ignores the space and
+             * dash. Really unsure as to why. As a work-around, start some
+             * descriptions with "Extension" instead of the shorter "Ext"
+             */
         }
 
         @Override
@@ -193,22 +194,20 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
         @Override
         public boolean showRemoveDialogue(GlobalExcludeURLParamToken e) {
-            JCheckBox removeWithoutConfirmationCheckBox =
-                    new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
-            Object[] messages = {REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox};
-            int option =
-                    JOptionPane.showOptionDialog(
-                            View.getSingleton().getMainFrame(),
-                            messages,
-                            REMOVE_DIALOG_TITLE,
-                            JOptionPane.OK_CANCEL_OPTION,
-                            JOptionPane.QUESTION_MESSAGE,
-                            null,
-                            new String[] {
-                                REMOVE_DIALOG_CONFIRM_BUTTON_LABEL,
-                                REMOVE_DIALOG_CANCEL_BUTTON_LABEL
-                            },
-                            null);
+            JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+            Object[] messages = { REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox };
+            int option = JOptionPane.showOptionDialog(
+                    View.getSingleton().getMainFrame(),
+                    messages,
+                    REMOVE_DIALOG_TITLE,
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    new String[] {
+                            REMOVE_DIALOG_CONFIRM_BUTTON_LABEL,
+                            REMOVE_DIALOG_CANCEL_BUTTON_LABEL
+                    },
+                    null);
 
             if (option == JOptionPane.OK_OPTION) {
                 setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());

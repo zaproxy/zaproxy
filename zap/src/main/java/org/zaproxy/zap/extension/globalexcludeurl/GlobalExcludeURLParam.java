@@ -29,7 +29,9 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
-/** @deprecated (2.13.0) Superseded by Network add-on options. */
+/**
+ * @deprecated (2.13.0) Superseded by Network add-on options.
+ */
 @SuppressWarnings("removal")
 @Deprecated(since = "2.13.0", forRemoval = true)
 public class GlobalExcludeURLParam extends AbstractParam {
@@ -44,145 +46,150 @@ public class GlobalExcludeURLParam extends AbstractParam {
     private static final String TOKEN_DESCRIPTION_KEY = "description";
     private static final String TOKEN_ENABLED_KEY = "enabled";
 
-    private static final String CONFIRM_REMOVE_TOKEN_KEY =
-            GLOBAL_EXCLUDE_URL_BASE_KEY + ".confirmRemoveToken";
+    private static final String CONFIRM_REMOVE_TOKEN_KEY = GLOBAL_EXCLUDE_URL_BASE_KEY + ".confirmRemoveToken";
 
     private static ArrayList<GlobalExcludeURLParamToken> defaultList = new ArrayList<>();
 
     /**
-     * Fills in the list of default regexs to ignore. In a future version, this could be read from a
-     * system-wide default HierarchicalConfiguration xml config file instead or even a
+     * Fills in the list of default regexs to ignore. In a future version, this
+     * could be read from a
+     * system-wide default HierarchicalConfiguration xml config file instead or even
+     * a
      * HierarchicalConfiguration string directly embedded in this file.
      */
     private void setDefaultList() {
         // Remember, these are regexs, so escape properly \\ vs \
         // Also, http://regexpal.com/ for quick testing.
-        // The file formats are common types, not inclusive of all types. Remember, more == slower;
-        // complex == slower. Don't overload with every obscure image/audio/video format in
+        // The file formats are common types, not inclusive of all types. Remember, more
+        // == slower;
+        // complex == slower. Don't overload with every obscure image/audio/video format
+        // in
         // existence.
 
-        /* At some point in the future, this could be read from some a config file and
-         * parsed.  Thus, we just make it as arrays of strings and assume there
-         * is some level of parsing at some point.  Since it is rarely accessed (like
-         * once per boot, it need not be optimized).  */
+        /*
+         * At some point in the future, this could be read from some a config file and
+         * parsed. Thus, we just make it as arrays of strings and assume there
+         * is some level of parsing at some point. Since it is rarely accessed (like
+         * once per boot, it need not be optimized).
+         */
         final String defaultListArray[][] = {
-            {
-                "^.*\\.(?:gif|jpe?g|png|ico|icns|bmp)$",
-                "Extension - Image (ends with .extension)",
-                "false"
-            },
-            {
-                "^.*\\.(?:mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])$",
-                "Extension - Audio/Video (ends with .extension)",
-                "false"
-            },
-            {
-                "^.*\\.(?:pdf|docx?|xlsx?|pptx?)$",
-                "Extension - PDF & Office (ends with .extension)",
-                "false"
-            },
-            {
-                "^.*\\.(?:css|js)$",
-                "Extension - Stylesheet, JavaScript (ends with .extension)",
-                "false"
-            },
-            {
-                "^.*\\.(?:sw[fa]|flv)$",
-                "Extension - Flash & related (ends with .extension)",
-                "false"
-            },
-            {
-                "^[^\\?]*\\.(?:gif|jpe?g|png|ico|icns|bmp)\\?.*$",
-                "ExtParam - Image (extension plus ?params=values)",
-                "false"
-            },
-            {
-                "^[^\\?]*\\.(?:mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])\\?.*$",
-                "ExtParam - Audio/Video (extension plus ?params=values)",
-                "false"
-            },
-            {
-                "^[^\\?]*\\.(?:pdf|docx?|xlsx?|pptx?)\\?.*$",
-                "ExtParam - PDF & Office (extension plus ?params=values)",
-                "false"
-            },
-            {
-                "^[^\\?]*\\.(?:css|js)\\?.*$",
-                "ExtParam - Stylesheet, JavaScript (extension plus ?params=values)",
-                "false"
-            },
-            {
-                "^[^\\?]*\\.(?:sw[fa]|flv)\\?.*$",
-                "ExtParam - Flash & related (extension plus ?params=values)",
-                "false"
-            },
-            {
-                "^[^\\?]*/(?:WebResource|ScriptResource)\\.axd\\?d=.*$",
-                "ExtParam - .NET adx resources (SR/WR.adx?d=)",
-                "false"
-            },
-            {
-                "^https?://api\\.bing\\.com/qsml\\.aspx?query=.*$",
-                "Site - Bing API queries",
-                "false"
-            },
-            {
-                "^https?://(?:safebrowsing-cache|sb-ssl|sb|safebrowsing).*\\.(?:google|googleapis)\\.com/.*$",
-                "Site - Google malware detector updates",
-                "true"
-            },
-            {"^https?://(?:[^/])*\\.?lastpass\\.com", "Site - Lastpass manager", "false"},
-            {
-                "^https?://(?:.*addons|aus[0-9])\\.mozilla\\.(?:org|net|com)/.*$",
-                "Site - Firefox browser updates",
-                "true"
-            },
-            {
-                "^https?://(?:[^/])*\\.?(?:getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)",
-                "Site - Firefox extensions phoning home",
-                "false"
-            },
-            {
-                // some of this from
-                // http://serverfault.com/questions/332003/what-urls-must-be-in-ies-trusted-sites-list-to-allow-windows-update
-                "^https?://(?:.*update\\.microsoft|.*\\.windowsupdate)\\.com/.*$",
-                "Site - Microsoft Windows updates",
-                "true"
-            },
-            {
-                "^https?://clients2\\.google\\.com/service/update2/crx.*$",
-                "Site - Google Chrome extension updates",
-                "true"
-            },
-            {
-                "^https?://detectportal\\.firefox\\.com.*$",
-                "Site - Firefox captive portal detection",
-                "true"
-            },
-            {"^https?://www\\.google-analytics\\.com.*$", "Site - Google Analytics", "false"},
-            {
-                "^https?://ciscobinary\\.openh264\\.org.*$",
-                "Site - Firefox h264 codec download", // https://support.mozilla.org/t5/Firefox/Where-is-a-check-that-http-ciscobinary-openh264-org-openh264-is/m-p/1316497#M1005892
-                "false"
-            },
-            {"^https?://fonts.*$", "Site - Fonts CDNs such as fonts.gstatic.com, etc.", "false"},
-            {
-                "^https?://.*\\.cdn\\.mozilla\\.(?:com|org|net)/.*$",
-                "Site - Mozilla CDN (requests such as getpocket)",
-                "true"
-            },
-            {
-                "^https?://.*\\.telemetry\\.mozilla\\.(?:com|org|net)/.*$",
-                "Site - Firefox browser telemetry",
-                "true"
-            },
-            {
-                "^https?://.*\\.adblockplus\\.org.*$",
-                "Site - Adblockplus updates and notifications",
-                "false"
-            },
-            {"^https?://.*\\.services\\.mozilla\\.com.*$", "Site - Firefox services", "true"},
-            {"^https?://.*\\.gvt1\\.com.*$", "Site - Google updates", "true"}
+                {
+                        "^.*\\.(?:gif|jpe?g|png|ico|icns|bmp)$",
+                        "Extension - Image (ends with .extension)",
+                        "false"
+                },
+                {
+                        "^.*\\.(?:mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])$",
+                        "Extension - Audio/Video (ends with .extension)",
+                        "false"
+                },
+                {
+                        "^.*\\.(?:pdf|docx?|xlsx?|pptx?)$",
+                        "Extension - PDF & Office (ends with .extension)",
+                        "false"
+                },
+                {
+                        "^.*\\.(?:css|js)$",
+                        "Extension - Stylesheet, JavaScript (ends with .extension)",
+                        "false"
+                },
+                {
+                        "^.*\\.(?:sw[fa]|flv)$",
+                        "Extension - Flash & related (ends with .extension)",
+                        "false"
+                },
+                {
+                        "^[^\\?]*\\.(?:gif|jpe?g|png|ico|icns|bmp)\\?.*$",
+                        "ExtParam - Image (extension plus ?params=values)",
+                        "false"
+                },
+                {
+                        "^[^\\?]*\\.(?:mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])\\?.*$",
+                        "ExtParam - Audio/Video (extension plus ?params=values)",
+                        "false"
+                },
+                {
+                        "^[^\\?]*\\.(?:pdf|docx?|xlsx?|pptx?)\\?.*$",
+                        "ExtParam - PDF & Office (extension plus ?params=values)",
+                        "false"
+                },
+                {
+                        "^[^\\?]*\\.(?:css|js)\\?.*$",
+                        "ExtParam - Stylesheet, JavaScript (extension plus ?params=values)",
+                        "false"
+                },
+                {
+                        "^[^\\?]*\\.(?:sw[fa]|flv)\\?.*$",
+                        "ExtParam - Flash & related (extension plus ?params=values)",
+                        "false"
+                },
+                {
+                        "^[^\\?]*/(?:WebResource|ScriptResource)\\.axd\\?d=.*$",
+                        "ExtParam - .NET adx resources (SR/WR.adx?d=)",
+                        "false"
+                },
+                {
+                        "^https?://api\\.bing\\.com/qsml\\.aspx?query=.*$",
+                        "Site - Bing API queries",
+                        "false"
+                },
+                {
+                        "^https?://(?:safebrowsing-cache|sb-ssl|sb|safebrowsing).*\\.(?:google|googleapis)\\.com/.*$",
+                        "Site - Google malware detector updates",
+                        "true"
+                },
+                { "^https?://(?:[^/])*\\.?lastpass\\.com", "Site - Lastpass manager", "false" },
+                {
+                        "^https?://(?:.*addons|aus[0-9])\\.mozilla\\.(?:org|net|com)/.*$",
+                        "Site - Firefox browser updates",
+                        "true"
+                },
+                {
+                        "^https?://(?:[^/])*\\.?(?:getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)",
+                        "Site - Firefox extensions phoning home",
+                        "false"
+                },
+                {
+                        // some of this from
+                        // http://serverfault.com/questions/332003/what-urls-must-be-in-ies-trusted-sites-list-to-allow-windows-update
+                        "^https?://(?:.*update\\.microsoft|.*\\.windowsupdate)\\.com/.*$",
+                        "Site - Microsoft Windows updates",
+                        "true"
+                },
+                {
+                        "^https?://clients2\\.google\\.com/service/update2/crx.*$",
+                        "Site - Google Chrome extension updates",
+                        "true"
+                },
+                {
+                        "^https?://detectportal\\.firefox\\.com.*$",
+                        "Site - Firefox captive portal detection",
+                        "true"
+                },
+                { "^https?://www\\.google-analytics\\.com.*$", "Site - Google Analytics", "false" },
+                {
+                        "^https?://ciscobinary\\.openh264\\.org.*$",
+                        "Site - Firefox h264 codec download", // https://support.mozilla.org/t5/Firefox/Where-is-a-check-that-http-ciscobinary-openh264-org-openh264-is/m-p/1316497#M1005892
+                        "false"
+                },
+                { "^https?://fonts.*$", "Site - Fonts CDNs such as fonts.gstatic.com, etc.", "false" },
+                {
+                        "^https?://.*\\.cdn\\.mozilla\\.(?:com|org|net)/.*$",
+                        "Site - Mozilla CDN (requests such as getpocket)",
+                        "true"
+                },
+                {
+                        "^https?://.*\\.telemetry\\.mozilla\\.(?:com|org|net)/.*$",
+                        "Site - Firefox browser telemetry",
+                        "true"
+                },
+                {
+                        "^https?://.*\\.adblockplus\\.org.*$",
+                        "Site - Adblockplus updates and notifications",
+                        "false"
+                },
+                { "^https?://.*\\.services\\.mozilla\\.com.*$", "Site - Firefox services", "true" },
+                { "^https?://.*\\.gvt1\\.com.*$", "Site - Google updates", "true" }
         };
 
         for (String row[] : defaultListArray) {
@@ -204,8 +211,8 @@ public class GlobalExcludeURLParam extends AbstractParam {
     @Override
     protected void parse() {
         try {
-            List<HierarchicalConfiguration> fields =
-                    ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_TOKENS_KEY);
+            List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig())
+                    .configurationsAt(ALL_TOKENS_KEY);
             this.tokens = new ArrayList<>(fields.size());
             enabledTokensNames = new ArrayList<>(fields.size());
             List<String> tempTokensNames = new ArrayList<>(fields.size());

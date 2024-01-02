@@ -54,6 +54,7 @@
 // ZAP: 2022/08/18 Support parameters supplied to newly installed or updated add-ons.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/03/23 Read ZAP_SILENT env var.
+// ZAP: 2023/10/10 Add -sbomzip option.
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -86,10 +87,20 @@ public class CommandLine {
     public static final String HELP2 = "-h";
     public static final String DIR = "-dir";
     public static final String VERSION = "-version";
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
-    @Deprecated public static final String PORT = "-port";
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
-    @Deprecated public static final String HOST = "-host";
+
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future
+     *             release.
+     */
+    @Deprecated
+    public static final String PORT = "-port";
+
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future
+     *             release.
+     */
+    @Deprecated
+    public static final String HOST = "-host";
 
     public static final String CMD = "-cmd";
     public static final String INSTALL_DIR = "-installdir";
@@ -98,6 +109,7 @@ public class CommandLine {
     public static final String LOWMEM = "-lowmem";
     public static final String EXPERIMENTALDB = "-experimentaldb";
     public static final String SUPPORT_INFO = "-suppinfo";
+    public static final String SBOM_ZIP = "-sbomzip";
     public static final String SILENT = "-silent";
     static final String SILENT_ENV_VAR = "ZAP_SILENT";
 
@@ -112,11 +124,16 @@ public class CommandLine {
     /**
      * Command line option to enable "dev mode".
      *
-     * <p>With this option development related utilities/functionalities are enabled. For example,
-     * it's shown an error counter in the footer tool bar and license is implicitly accepted (thus
+     * <p>
+     * With this option development related utilities/functionalities are enabled.
+     * For example,
+     * it's shown an error counter in the footer tool bar and license is implicitly
+     * accepted (thus
      * not requiring to show/accept the license each time a new home is used).
      *
-     * <p><strong>Note:</strong> this mode is always enabled when running ZAP directly from source
+     * <p>
+     * <strong>Note:</strong> this mode is always enabled when running ZAP directly
+     * from source
      * (i.e. not packaged in a JAR) or using a dev build.
      *
      * @see #isDevMode()
@@ -131,6 +148,7 @@ public class CommandLine {
     private boolean lowMem = false;
     private boolean experimentalDb = false;
     private boolean silent = false;
+    private File saveSbomZip;
     private String[] args;
     private String[] argsBackup;
     private final Map<String, String> configs = new LinkedHashMap<>();
@@ -138,7 +156,8 @@ public class CommandLine {
     private List<CommandLineArgument[]> commandList = null;
 
     /**
-     * Flag that indicates whether or not the default logging through standard output should be
+     * Flag that indicates whether or not the default logging through standard
+     * output should be
      * disabled.
      */
     private boolean noStdOutLog;
@@ -236,8 +255,9 @@ public class CommandLine {
     /**
      * Parse the command line arguments
      *
-     * @param commandList the list of commands
-     * @param extMap a map of the extensions which support command line args
+     * @param commandList       the list of commands
+     * @param extMap            a map of the extensions which support command line
+     *                          args
      * @param reportUnsupported if true will report unsupported args
      * @throws Exception
      * @since 2.12.0
@@ -434,6 +454,13 @@ public class CommandLine {
             Constant.setZapInstall(keywords.get(INSTALL_DIR));
             result = true;
 
+        } else if (checkPair(args, SBOM_ZIP, i)) {
+            String zipName = keywords.get(SBOM_ZIP);
+            this.saveSbomZip = new File(zipName);
+            setDaemon(false);
+            setGUI(false);
+            result = true;
+
         } else if (checkPair(args, CONFIG, i)) {
             String pair = keywords.get(CONFIG);
             if (pair != null && pair.indexOf("=") > 0) {
@@ -452,23 +479,22 @@ public class CommandLine {
                 throw new Exception("File not readable: " + confFile.getAbsolutePath());
             }
 
-            Properties prop =
-                    new Properties() {
-                        // Override methods to ensure keys returned in order
-                        List<Object> orderedKeys = new ArrayList<>();
-                        private static final long serialVersionUID = 1L;
+            Properties prop = new Properties() {
+                // Override methods to ensure keys returned in order
+                List<Object> orderedKeys = new ArrayList<>();
+                private static final long serialVersionUID = 1L;
 
-                        @Override
-                        public synchronized Object put(Object key, Object value) {
-                            orderedKeys.add(key);
-                            return super.put(key, value);
-                        }
+                @Override
+                public synchronized Object put(Object key, Object value) {
+                    orderedKeys.add(key);
+                    return super.put(key, value);
+                }
 
-                        @Override
-                        public synchronized Enumeration<Object> keys() {
-                            return Collections.enumeration(orderedKeys);
-                        }
-                    };
+                @Override
+                public synchronized Enumeration<Object> keys() {
+                    return Collections.enumeration(orderedKeys);
+                }
+            };
             try (FileInputStream inStream = new FileInputStream(confFile)) {
                 prop.load(inStream);
             }
@@ -534,20 +560,31 @@ public class CommandLine {
         return this.displaySupportInfo;
     }
 
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    public File getSaveSbomZip() {
+        return this.saveSbomZip;
+    }
+
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future
+     *             release.
+     */
     @Deprecated
     public int getPort() {
         return -1;
     }
 
-    /** @deprecated (2.12.0) No longer used/needed. It will be removed in a future release. */
+    /**
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future
+     *             release.
+     */
     @Deprecated
     public String getHost() {
         return null;
     }
 
     /**
-     * Gets the {@code config} command line arguments, in the order they were specified.
+     * Gets the {@code config} command line arguments, in the order they were
+     * specified.
      *
      * @return the {@code config} command line arguments.
      * @since 2.6.0
@@ -565,10 +602,12 @@ public class CommandLine {
     }
 
     /**
-     * Tells whether or not the default logging through standard output should be disabled.
+     * Tells whether or not the default logging through standard output should be
+     * disabled.
      *
-     * @return {@code true} if the default logging through standard output should be disabled,
-     *     {@code false} otherwise.
+     * @return {@code true} if the default logging through standard output should be
+     *         disabled,
+     *         {@code false} otherwise.
      * @since 2.6.0
      */
     public boolean isNoStdOutLog() {
@@ -576,7 +615,8 @@ public class CommandLine {
     }
 
     /**
-     * Returns true if ZAP should not make any unsolicited requests, e.g. check-for-updates, etc.
+     * Returns true if ZAP should not make any unsolicited requests, e.g.
+     * check-for-updates, etc.
      *
      * @since 2.8.0
      */
@@ -587,7 +627,8 @@ public class CommandLine {
     /**
      * Tells whether or not the "dev mode" should be enabled.
      *
-     * @return {@code true} if the "dev mode" should be enabled, {@code false} otherwise.
+     * @return {@code true} if the "dev mode" should be enabled, {@code false}
+     *         otherwise.
      * @since 2.8.0
      * @see #DEV_MODE
      */
@@ -623,7 +664,8 @@ public class CommandLine {
     }
 
     /**
-     * Reset the arguments so that they can be parsed again (e.g. after an add-on is installed)
+     * Reset the arguments so that they can be parsed again (e.g. after an add-on is
+     * installed)
      *
      * @since 2.12.0
      */
@@ -633,7 +675,8 @@ public class CommandLine {
 
     /**
      * A method for reporting informational messages in {@link
-     * CommandLineListener#execute(CommandLineArgument[])} implementations. It ensures that messages
+     * CommandLineListener#execute(CommandLineArgument[])} implementations. It
+     * ensures that messages
      * are written to the log file and/or written to stdout as appropriate.
      *
      * @param str the informational message
@@ -651,7 +694,8 @@ public class CommandLine {
 
     /**
      * A method for reporting error messages in {@link
-     * CommandLineListener#execute(CommandLineArgument[])} implementations. It ensures that messages
+     * CommandLineListener#execute(CommandLineArgument[])} implementations. It
+     * ensures that messages
      * are written to the log file and/or written to stderr as appropriate.
      *
      * @param str the error message
@@ -669,11 +713,12 @@ public class CommandLine {
 
     /**
      * A method for reporting error messages in {@link
-     * CommandLineListener#execute(CommandLineArgument[])} implementations. It ensures that messages
+     * CommandLineListener#execute(CommandLineArgument[])} implementations. It
+     * ensures that messages
      * are written to the log file and/or written to stderr as appropriate.
      *
      * @param str the error message
-     * @param e the cause of the error
+     * @param e   the cause of the error
      */
     public static void error(String str, Throwable e) {
         switch (ZAP.getProcessType()) {

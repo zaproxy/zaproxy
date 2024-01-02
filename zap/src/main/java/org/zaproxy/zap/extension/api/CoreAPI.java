@@ -80,6 +80,7 @@ import org.zaproxy.zap.network.HttpRedirectionValidator;
 import org.zaproxy.zap.network.HttpRequestConfig;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.HarUtils;
+import org.zaproxy.zap.utils.ZapSupportUtils;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
@@ -110,25 +111,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String ACTION_COLLECT_GARBAGE = "runGarbageCollection";
     private static final String ACTION_SET_MODE = "setMode";
     private static final String ACTION_DELETE_SITE_NODE = "deleteSiteNode";
-    private static final String ACTION_ADD_PROXY_CHAIN_EXCLUDED_DOMAIN =
-            "addProxyChainExcludedDomain";
-    private static final String ACTION_MODIFY_PROXY_CHAIN_EXCLUDED_DOMAIN =
-            "modifyProxyChainExcludedDomain";
-    private static final String ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN =
-            "removeProxyChainExcludedDomain";
-    private static final String ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS =
-            "enableAllProxyChainExcludedDomains";
-    private static final String ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS =
-            "disableAllProxyChainExcludedDomains";
+    private static final String ACTION_ADD_PROXY_CHAIN_EXCLUDED_DOMAIN = "addProxyChainExcludedDomain";
+    private static final String ACTION_MODIFY_PROXY_CHAIN_EXCLUDED_DOMAIN = "modifyProxyChainExcludedDomain";
+    private static final String ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN = "removeProxyChainExcludedDomain";
+    private static final String ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS = "enableAllProxyChainExcludedDomains";
+    private static final String ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS = "disableAllProxyChainExcludedDomains";
 
-    private static final String ACTION_OPTION_MAXIMUM_ALERT_INSTANCES =
-            "setOptionMaximumAlertInstances";
+    private static final String ACTION_OPTION_MAXIMUM_ALERT_INSTANCES = "setOptionMaximumAlertInstances";
     private static final String ACTION_OPTION_MERGE_RELATED_ALERTS = "setOptionMergeRelatedAlerts";
-    private static final String ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH =
-            "setOptionAlertOverridesFilePath";
-    private static final String ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE =
-            "enablePKCS12ClientCertificate";
+    private static final String ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH = "setOptionAlertOverridesFilePath";
+    private static final String ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE = "enablePKCS12ClientCertificate";
     private static final String ACTION_DISABLE_CLIENT_CERTIFICATE = "disableClientCertificate";
+    private static final String ACTION_CREATE_SBOM_ZIP = "createSbomZip";
 
     private static final String VIEW_ALERT = "alert";
     private static final String VIEW_ALERTS = "alerts";
@@ -150,14 +144,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS = "proxyChainExcludedDomains";
     private static final String VIEW_OPTION_PROXY_CHAIN_SKIP_NAME = "optionProxyChainSkipName";
     private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS = "optionProxyExcludedDomains";
-    private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED =
-            "optionProxyExcludedDomainsEnabled";
+    private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED = "optionProxyExcludedDomainsEnabled";
     private static final String VIEW_ZAP_HOME_PATH = "zapHomePath";
 
     private static final String VIEW_OPTION_MAXIMUM_ALERT_INSTANCES = "optionMaximumAlertInstances";
     private static final String VIEW_OPTION_MERGE_RELATED_ALERTS = "optionMergeRelatedAlerts";
-    private static final String VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH =
-            "optionAlertOverridesFilePath";
+    private static final String VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH = "optionAlertOverridesFilePath";
 
     private static final String OTHER_PROXY_PAC = "proxy.pac";
     private static final String OTHER_SET_PROXY = "setproxy";
@@ -171,6 +163,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String OTHER_MESSAGES_HAR_BY_ID = "messagesHarById";
     private static final String OTHER_SEND_HAR_REQUEST = "sendHarRequest";
     private static final String OTHER_SCRIPT_JS = "script.js";
+    private static final String OTHER_FILE_DOWNLOAD = "fileDownload";
+    private static final String OTHER_FILE_UPLOAD = "fileUpload";
 
     private static final String PARAM_BASE_URL = "baseurl";
     private static final String PARAM_COUNT = "count";
@@ -198,6 +192,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private static final String PARAM_FILE_PATH = "filePath";
     private static final String PARAM_PASSWORD = "password";
     private static final String PARAM_INDEX = "index";
+    private static final String PARAM_FILENAME = "fileName";
+    private static final String PARAM_CONTENTS = "fileContents";
 
     private static final List<String> PARAMS_STRING = Collections.singletonList("String");
     private static final List<String> PARAMS_BOOLEAN = Collections.singletonList("Boolean");
@@ -205,31 +201,30 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
     /* Update the version whenever the script is changed (once per release) */
     protected static final int API_SCRIPT_VERSION = 2;
-    private static final String API_SCRIPT =
-            "function submitScript() {\n"
-                    + "  var button=document.getElementById('button');\n"
-                    + "  var component=button.getAttribute('zap-component')\n"
-                    + "  var type=button.getAttribute('zap-type')\n"
-                    + "  var name=button.getAttribute('zap-name')\n"
-                    + "  var format\n"
-                    + "  if (type == 'other') {\n"
-                    + "    format = 'OTHER'\n"
-                    + "  } else {\n"
-                    + "    format = document.getElementById('zapapiformat').value\n"
-                    + "  }\n"
-                    + "  \n"
-                    + "  var url = '/' + format + '/' + component + '/' + type + '/' + name + '/'\n"
-                    + "  var form=document.getElementById('zapform');\n"
-                    + "  form.action = url;\n"
-                    + "  form.method = document.getElementById('formMethod').value;\n"
-                    + "  form.submit();\n"
-                    + "}\n"
-                    + "document.addEventListener('DOMContentLoaded', function () {\n"
-                    + "  var button=document.getElementById('button');\n"
-                    + "  if (button) {\n"
-                    + "    document.getElementById('button').addEventListener('click',  function(e) {submitScript();}, false);\n"
-                    + "  }\n"
-                    + "});\n";
+    private static final String API_SCRIPT = "function submitScript() {\n"
+            + "  var button=document.getElementById('button');\n"
+            + "  var component=button.getAttribute('zap-component')\n"
+            + "  var type=button.getAttribute('zap-type')\n"
+            + "  var name=button.getAttribute('zap-name')\n"
+            + "  var format\n"
+            + "  if (type == 'other') {\n"
+            + "    format = 'OTHER'\n"
+            + "  } else {\n"
+            + "    format = document.getElementById('zapapiformat').value\n"
+            + "  }\n"
+            + "  \n"
+            + "  var url = '/' + format + '/' + component + '/' + type + '/' + name + '/'\n"
+            + "  var form=document.getElementById('zapform');\n"
+            + "  form.action = url;\n"
+            + "  form.method = document.getElementById('formMethod').value;\n"
+            + "  form.submit();\n"
+            + "}\n"
+            + "document.addEventListener('DOMContentLoaded', function () {\n"
+            + "  var button=document.getElementById('button');\n"
+            + "  if (button) {\n"
+            + "    document.getElementById('button').addEventListener('click',  function(e) {submitScript();}, false);\n"
+            + "  }\n"
+            + "});\n";
     /* Allow caching for up to one day */
     private static final String API_SCRIPT_CACHE_CONTROL = "max-age=86400";
 
@@ -237,7 +232,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     private boolean savingSession = false;
     private static ExtensionHistory extHistory;
 
-    /** @deprecated (2.12.0) Use {@link #CoreAPI()} instead. */
+    /**
+     * @deprecated (2.12.0) Use {@link #CoreAPI()} instead.
+     */
     @Deprecated
     public CoreAPI(org.parosproxy.paros.network.ConnectionParam connectionParam) {
         this();
@@ -248,58 +245,58 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiAction(
                 new ApiAction(
                         ACTION_ACCESS_URL,
-                        new String[] {PARAM_URL},
-                        new String[] {PARAM_FOLLOW_REDIRECTS}));
+                        new String[] { PARAM_URL },
+                        new String[] { PARAM_FOLLOW_REDIRECTS }));
         this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
         this.addApiAction(
                 new ApiAction(
                         ACTION_NEW_SESSION,
                         null,
-                        new String[] {PARAM_SESSION, PARAM_OVERWRITE_SESSION}));
-        this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, new String[] {PARAM_SESSION}));
+                        new String[] { PARAM_SESSION, PARAM_OVERWRITE_SESSION }));
+        this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, new String[] { PARAM_SESSION }));
         this.addApiAction(
                 new ApiAction(
                         ACTION_SAVE_SESSION,
-                        new String[] {PARAM_SESSION},
-                        new String[] {PARAM_OVERWRITE_SESSION}));
+                        new String[] { PARAM_SESSION },
+                        new String[] { PARAM_OVERWRITE_SESSION }));
         this.addApiAction(
                 new ApiAction(
                         ACTION_SNAPSHOT_SESSION,
                         null,
-                        new String[] {PARAM_SESSION, PARAM_OVERWRITE_SESSION}));
+                        new String[] { PARAM_SESSION, PARAM_OVERWRITE_SESSION }));
         this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_PROXY));
-        this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] {PARAM_REGEX}));
-        this.addApiAction(new ApiAction(ACTION_SET_HOME_DIRECTORY, new String[] {PARAM_DIR}));
-        this.addApiAction(new ApiAction(ACTION_SET_MODE, new String[] {PARAM_MODE}));
+        this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] { PARAM_REGEX }));
+        this.addApiAction(new ApiAction(ACTION_SET_HOME_DIRECTORY, new String[] { PARAM_DIR }));
+        this.addApiAction(new ApiAction(ACTION_SET_MODE, new String[] { PARAM_MODE }));
         this.addApiAction(deprecatedNetworkApi(new ApiAction(ACTION_GENERATE_ROOT_CA)));
         this.addApiAction(
                 new ApiAction(
                         ACTION_SEND_REQUEST,
-                        new String[] {PARAM_REQUEST},
-                        new String[] {PARAM_FOLLOW_REDIRECTS}));
+                        new String[] { PARAM_REQUEST },
+                        new String[] { PARAM_FOLLOW_REDIRECTS }));
         this.addApiAction(new ApiAction(ACTION_COLLECT_GARBAGE));
         this.addApiAction(
                 new ApiAction(
                         ACTION_DELETE_SITE_NODE,
-                        new String[] {PARAM_URL},
-                        new String[] {PARAM_METHOD, PARAM_POST_DATA}));
+                        new String[] { PARAM_URL },
+                        new String[] { PARAM_METHOD, PARAM_POST_DATA }));
         this.addApiAction(
                 deprecatedNetworkApi(
                         new ApiAction(
                                 ACTION_ADD_PROXY_CHAIN_EXCLUDED_DOMAIN,
-                                new String[] {PARAM_VALUE},
-                                new String[] {PARAM_IS_REGEX, PARAM_IS_ENABLED})));
+                                new String[] { PARAM_VALUE },
+                                new String[] { PARAM_IS_REGEX, PARAM_IS_ENABLED })));
         this.addApiAction(
                 deprecatedNetworkApi(
                         new ApiAction(
                                 ACTION_MODIFY_PROXY_CHAIN_EXCLUDED_DOMAIN,
-                                new String[] {PARAM_IDX},
-                                new String[] {PARAM_VALUE, PARAM_IS_REGEX, PARAM_IS_ENABLED})));
+                                new String[] { PARAM_IDX },
+                                new String[] { PARAM_VALUE, PARAM_IS_REGEX, PARAM_IS_ENABLED })));
         this.addApiAction(
                 deprecatedNetworkApi(
                         new ApiAction(
                                 ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN,
-                                new String[] {PARAM_IDX})));
+                                new String[] { PARAM_IDX })));
         this.addApiAction(
                 deprecatedNetworkApi(
                         new ApiAction(ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS)));
@@ -310,39 +307,41 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         this.addApiAction(
                 new ApiAction(
                         ACTION_OPTION_MAXIMUM_ALERT_INSTANCES,
-                        new String[] {PARAM_NUMBER_OF_INSTANCES}));
+                        new String[] { PARAM_NUMBER_OF_INSTANCES }));
         this.addApiAction(
-                new ApiAction(ACTION_OPTION_MERGE_RELATED_ALERTS, new String[] {PARAM_ENABLED}));
+                new ApiAction(ACTION_OPTION_MERGE_RELATED_ALERTS, new String[] { PARAM_ENABLED }));
         this.addApiAction(
                 new ApiAction(
                         ACTION_OPTION_ALERT_OVERRIDES_FILE_PATH,
                         null,
-                        new String[] {PARAM_FILE_PATH}));
+                        new String[] { PARAM_FILE_PATH }));
         this.addApiAction(
                 deprecatedNetworkApi(
                         new ApiAction(
                                 ACTION_ENABLE_PKCS12_CLIENT_CERTIFICATE,
-                                new String[] {PARAM_FILE_PATH, PARAM_PASSWORD},
-                                new String[] {PARAM_INDEX})));
+                                new String[] { PARAM_FILE_PATH, PARAM_PASSWORD },
+                                new String[] { PARAM_INDEX })));
         this.addApiAction(deprecatedNetworkApi(new ApiAction(ACTION_DISABLE_CLIENT_CERTIFICATE)));
+        this.addApiAction(
+                new ApiAction(ACTION_CREATE_SBOM_ZIP, new String[] { PARAM_FILE_PATH }, null));
 
         // Deprecated actions
         this.addApiAction(depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALL_ALERTS)));
         this.addApiAction(
-                depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALERT, new String[] {PARAM_ID})));
+                depreciatedAlertApi(new ApiAction(ACTION_DELETE_ALERT, new String[] { PARAM_ID })));
 
         this.addApiView(new ApiView(VIEW_HOSTS));
         this.addApiView(new ApiView(VIEW_SITES));
-        this.addApiView(new ApiView(VIEW_URLS, null, new String[] {PARAM_BASE_URL}));
-        this.addApiView(new ApiView(VIEW_CHILD_NODES, null, new String[] {PARAM_URL}));
-        this.addApiView(new ApiView(VIEW_MESSAGE, new String[] {PARAM_ID}));
+        this.addApiView(new ApiView(VIEW_URLS, null, new String[] { PARAM_BASE_URL }));
+        this.addApiView(new ApiView(VIEW_CHILD_NODES, null, new String[] { PARAM_URL }));
+        this.addApiView(new ApiView(VIEW_MESSAGE, new String[] { PARAM_ID }));
         this.addApiView(
                 new ApiView(
                         VIEW_MESSAGES,
                         null,
-                        new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
-        this.addApiView(new ApiView(VIEW_MESSAGES_BY_ID, new String[] {PARAM_IDS}));
-        this.addApiView(new ApiView(VIEW_NUMBER_OF_MESSAGES, null, new String[] {PARAM_BASE_URL}));
+                        new String[] { PARAM_BASE_URL, PARAM_START, PARAM_COUNT }));
+        this.addApiView(new ApiView(VIEW_MESSAGES_BY_ID, new String[] { PARAM_IDS }));
+        this.addApiView(new ApiView(VIEW_NUMBER_OF_MESSAGES, null, new String[] { PARAM_BASE_URL }));
         this.addApiView(new ApiView(VIEW_MODE));
         this.addApiView(new ApiView(VIEW_VERSION));
         this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
@@ -356,77 +355,80 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
         // Deprecated views
         Stream.of(
-                        VIEW_HOME_DIRECTORY,
-                        VIEW_OPTION_PROXY_CHAIN_SKIP_NAME,
-                        VIEW_OPTION_PROXY_EXCLUDED_DOMAINS,
-                        VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED)
+                VIEW_HOME_DIRECTORY,
+                VIEW_OPTION_PROXY_CHAIN_SKIP_NAME,
+                VIEW_OPTION_PROXY_EXCLUDED_DOMAINS,
+                VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED)
                 .map(ApiView::new)
                 .peek(t -> t.setDeprecated(true))
                 .forEach(this::addApiView);
-        this.addApiView(depreciatedAlertApi(new ApiView(VIEW_ALERT, new String[] {PARAM_ID})));
+        this.addApiView(depreciatedAlertApi(new ApiView(VIEW_ALERT, new String[] { PARAM_ID })));
         this.addApiView(
                 depreciatedAlertApi(
                         new ApiView(
                                 VIEW_ALERTS,
                                 null,
                                 new String[] {
-                                    PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK
+                                        PARAM_BASE_URL, PARAM_START, PARAM_COUNT, PARAM_RISK
                                 })));
         this.addApiView(
                 depreciatedAlertApi(
-                        new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] {PARAM_BASE_URL})));
+                        new ApiView(VIEW_ALERTS_SUMMARY, null, new String[] { PARAM_BASE_URL })));
         this.addApiView(
                 (depreciatedAlertApi(
                         new ApiView(
                                 VIEW_NUMBER_OF_ALERTS,
                                 null,
-                                new String[] {PARAM_BASE_URL, PARAM_RISK}))));
+                                new String[] { PARAM_BASE_URL, PARAM_RISK }))));
 
         this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_PROXY_PAC, false)));
         this.addApiOthers(deprecatedNetworkApi(new ApiOther(OTHER_ROOT_CERT, false)));
         this.addApiOthers(
                 deprecatedNetworkApi(
-                        new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS})));
+                        new ApiOther(OTHER_SET_PROXY, new String[] { PARAM_PROXY_DETAILS })));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_XML_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_HTML_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_JSON_REPORT)));
         this.addApiOthers(depreciatedReportApi(new ApiOther(OTHER_MD_REPORT)));
         this.addApiOthers(
-                depreciatedEximApi(new ApiOther(OTHER_MESSAGE_HAR, new String[] {PARAM_ID})));
+                depreciatedEximApi(new ApiOther(OTHER_MESSAGE_HAR, new String[] { PARAM_ID })));
         this.addApiOthers(
                 depreciatedEximApi(
                         new ApiOther(
                                 OTHER_MESSAGES_HAR,
                                 null,
-                                new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT})));
+                                new String[] { PARAM_BASE_URL, PARAM_START, PARAM_COUNT })));
         this.addApiOthers(
                 depreciatedEximApi(
-                        new ApiOther(OTHER_MESSAGES_HAR_BY_ID, new String[] {PARAM_IDS})));
+                        new ApiOther(OTHER_MESSAGES_HAR_BY_ID, new String[] { PARAM_IDS })));
         this.addApiOthers(
                 depreciatedEximApi(
                         new ApiOther(
                                 OTHER_SEND_HAR_REQUEST,
-                                new String[] {PARAM_REQUEST},
-                                new String[] {PARAM_FOLLOW_REDIRECTS})));
+                                new String[] { PARAM_REQUEST },
+                                new String[] { PARAM_FOLLOW_REDIRECTS })));
+        this.addApiOthers(new ApiOther(OTHER_FILE_DOWNLOAD, new String[] { PARAM_FILENAME }));
+        this.addApiOthers(
+                new ApiOther(OTHER_FILE_UPLOAD, new String[] { PARAM_FILENAME, PARAM_CONTENTS }));
 
         this.addApiShortcut(OTHER_SCRIPT_JS);
 
         Stream.of(
-                        "optionDefaultUserAgent",
-                        "optionDnsTtlSuccessfulQueries",
-                        "optionHttpState",
-                        "optionHttpStateEnabled",
-                        "optionProxyChainName",
-                        "optionProxyChainPassword",
-                        "optionProxyChainPort",
-                        "optionProxyChainPrompt",
-                        "optionProxyChainRealm",
-                        "optionProxyChainUserName",
-                        "optionSingleCookieRequestHeader",
-                        "optionTimeoutInSecs",
-                        "optionUseProxyChain",
-                        "optionUseProxyChainAuth",
-                        "optionUseSocksProxy")
+                "optionDefaultUserAgent",
+                "optionDnsTtlSuccessfulQueries",
+                "optionHttpState",
+                "optionHttpStateEnabled",
+                "optionProxyChainName",
+                "optionProxyChainPassword",
+                "optionProxyChainPort",
+                "optionProxyChainPrompt",
+                "optionProxyChainRealm",
+                "optionProxyChainUserName",
+                "optionSingleCookieRequestHeader",
+                "optionTimeoutInSecs",
+                "optionUseProxyChain",
+                "optionUseProxyChainAuth",
+                "optionUseSocksProxy")
                 .forEach(name -> addApiView(deprecatedNetworkApi(new ApiView(name))));
 
         getApiView("optionSingleCookieRequestHeader")
@@ -507,40 +509,38 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             }
             HttpMessage request;
             try {
-                request =
-                        new HttpMessage(
-                                new HttpRequestHeader(
-                                        HttpRequestHeader.GET, uri, HttpHeader.HTTP11));
+                request = new HttpMessage(
+                        new HttpRequestHeader(
+                                HttpRequestHeader.GET, uri, HttpHeader.HTTP11));
             } catch (HttpMalformedHeaderException e) {
                 throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
             }
             return sendHttpMessage(request, getParam(params, PARAM_FOLLOW_REDIRECTS, false), name);
         } else if (ACTION_SHUTDOWN.equals(name)) {
-            Thread thread =
-                    new Thread("ZAP-Shutdown") {
-                        @Override
-                        public void run() {
-                            try {
-                                // Give the API a chance to return
-                                sleep(1000);
-                            } catch (InterruptedException e) {
-                                // Ignore
-                            }
-                            try {
-                                Control.getSingleton()
-                                        .shutdown(
-                                                Model.getSingleton()
-                                                        .getOptionsParam()
-                                                        .getDatabaseParam()
-                                                        .isCompactDatabase());
-                                LOGGER.info("{} terminated.", Constant.PROGRAM_TITLE);
-                            } catch (Throwable e) {
-                                LOGGER.error("An error occurred while shutting down:", e);
-                            } finally {
-                                System.exit(Control.getSingleton().getExitStatus());
-                            }
-                        }
-                    };
+            Thread thread = new Thread("ZAP-Shutdown") {
+                @Override
+                public void run() {
+                    try {
+                        // Give the API a chance to return
+                        sleep(1000);
+                    } catch (InterruptedException e) {
+                        // Ignore
+                    }
+                    try {
+                        Control.getSingleton()
+                                .shutdown(
+                                        Model.getSingleton()
+                                                .getOptionsParam()
+                                                .getDatabaseParam()
+                                                .isCompactDatabase());
+                        LOGGER.info("{} terminated.", Constant.PROGRAM_TITLE);
+                    } catch (Throwable e) {
+                        LOGGER.error("An error occurred while shutting down:", e);
+                    } finally {
+                        System.exit(Control.getSingleton().getExitStatus());
+                    }
+                }
+            };
             thread.start();
 
         } else if (ACTION_SAVE_SESSION.equalsIgnoreCase(
@@ -554,8 +554,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 boolean sameSession = false;
                 if (overwrite && !session.isNewState()) {
                     try {
-                        sameSession =
-                                Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
+                        sameSession = Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
                     } catch (IOException e) {
                         LOGGER.error("Failed to check if same session path:", e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -615,8 +614,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                     final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
                     boolean sameSession = false;
                     try {
-                        sameSession =
-                                Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
+                        sameSession = Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
                     } catch (IOException e) {
                         LOGGER.error("Failed to check if same session path:", e);
                         throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
@@ -874,10 +872,41 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             JSONObject newParams = new JSONObject();
             params.put("use", false);
             return getNetworkImplementor().handleApiAction("setUseClientCertificate", newParams);
+        } else if (ACTION_CREATE_SBOM_ZIP.equals(name)) {
+            File sbomFile = new File(params.getString(PARAM_FILE_PATH));
+            if (sbomFile.exists()) {
+                throw new ApiException(ApiException.Type.ALREADY_EXISTS, PARAM_FILE_PATH);
+            }
+            try {
+                ZapSupportUtils.saveSbomZip(sbomFile);
+            } catch (IOException e) {
+                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+            }
+
         } else {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }
         return ApiResponseElement.OK;
+    }
+
+    /**
+     * Returns a Path for the child file underneath the specified parent directory.
+     * Detects and
+     * throws an exception if a path traversal attack is used.
+     *
+     * @param parent the parent directory
+     * @param child  the child path, which can include sub directories
+     * @return a Path for the child file
+     * @throws ApiException is a path traversal attack is used
+     */
+    protected static Path getChildPath(String parent, String child) throws ApiException {
+        Path childPath = Paths.get(parent, child).normalize();
+        Path parentPath = Paths.get(parent).normalize();
+        if (!childPath.startsWith(parentPath)) {
+            LOGGER.error("Detected path traversal attack {}", childPath);
+            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILENAME);
+        }
+        return childPath;
     }
 
     private static Path getSessionPath(String path) throws ApiException {
@@ -917,8 +946,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     private AlertParam getAlertParam(ApiException.Type type) throws ApiException {
-        AlertParam alertOptions =
-                Model.getSingleton().getOptionsParam().getParamSet(AlertParam.class);
+        AlertParam alertOptions = Model.getSingleton().getOptionsParam().getParamSet(AlertParam.class);
         if (alertOptions == null) {
             throw new ApiException(type);
         }
@@ -929,7 +957,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
      * Validates that the given request is valid for the current {@link Mode}.
      *
      * @param request the request that will be validated
-     * @throws ApiException if the request is not valid for the current {@code Mode}.
+     * @throws ApiException if the request is not valid for the current
+     *                      {@code Mode}.
      * @see #isValidForCurrentMode(URI)
      */
     private static void validateForCurrentMode(HttpMessage request) throws ApiException {
@@ -939,13 +968,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     /**
-     * Tells whether or not the given {@code uri} is valid for the current {@link Mode}.
+     * Tells whether or not the given {@code uri} is valid for the current
+     * {@link Mode}.
      *
-     * <p>The {@code uri} is not valid if the mode is {@code safe} or if in {@code protect} mode is
+     * <p>
+     * The {@code uri} is not valid if the mode is {@code safe} or if in
+     * {@code protect} mode is
      * not in scope.
      *
      * @param uri the {@code URI} that will be validated
-     * @return {@code true} if the given {@code uri} is valid, {@code false} otherwise.
+     * @return {@code true} if the given {@code uri} is valid, {@code false}
+     *         otherwise.
      */
     private static boolean isValidForCurrentMode(URI uri) {
         switch (Control.getSingleton().getMode()) {
@@ -993,10 +1026,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
     private static ExtensionHistory getExtHistory() {
         if (extHistory == null) {
-            extHistory =
-                    Control.getSingleton()
-                            .getExtensionLoader()
-                            .getExtension(ExtensionHistory.class);
+            extHistory = Control.getSingleton()
+                    .getExtensionLoader()
+                    .getExtension(ExtensionHistory.class);
         }
         return extHistory;
     }
@@ -1040,11 +1072,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         final HistoryReference historyRef;
 
         try {
-            historyRef =
-                    new HistoryReference(
-                            Model.getSingleton().getSession(),
-                            HistoryReference.TYPE_ZAP_USER,
-                            message);
+            historyRef = new HistoryReference(
+                    Model.getSingleton().getSession(),
+                    HistoryReference.TYPE_ZAP_USER,
+                    message);
         } catch (Exception e) {
             LOGGER.warn(e.getMessage(), e);
             return;
@@ -1091,7 +1122,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             ApiResponseList sitesList = new ApiResponseList(name);
             StructuralNode root = SessionStructure.getRootNode(model);
             if (root != null) {
-                for (Iterator<StructuralNode> it = root.getChildIterator(); it.hasNext(); ) {
+                for (Iterator<StructuralNode> it = root.getChildIterator(); it.hasNext();) {
                     sitesList.addItem(new ApiResponseElement("site", it.next().getName()));
                 }
             }
@@ -1112,9 +1143,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 node = SessionStructure.getRootNode(model);
             } else {
                 try {
-                    node =
-                            SessionStructure.find(
-                                    Model.getSingleton(), new URI(url, false), null, null);
+                    node = SessionStructure.find(
+                            Model.getSingleton(), new URI(url, false), null, null);
                 } catch (URIException e) {
                     throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
                 } catch (DatabaseException e) {
@@ -1152,14 +1182,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                     .handleApiView(name, params);
         } else if (VIEW_MESSAGE.equals(name)) {
             TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
-            RecordHistory recordHistory =
-                    getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
-            result =
-                    new ApiResponseElement(
-                            ApiResponseConversionUtils.httpMessageToSet(
-                                    recordHistory.getHistoryId(),
-                                    recordHistory.getHistoryType(),
-                                    recordHistory.getHttpMessage()));
+            RecordHistory recordHistory = getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
+            result = new ApiResponseElement(
+                    ApiResponseConversionUtils.httpMessageToSet(
+                            recordHistory.getHistoryId(),
+                            recordHistory.getHistoryType(),
+                            recordHistory.getHttpMessage()));
         } else if (VIEW_MESSAGES.equals(name)) {
             final ApiResponseList resultList = new ApiResponseList(name);
             processHttpMessages(
@@ -1210,13 +1238,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 ((ApiResponseList) result).addItem(new ApiResponseElement("regex", regex));
             }
         } else if (VIEW_HOME_DIRECTORY.equals(name)) {
-            result =
-                    new ApiResponseElement(
-                            name,
-                            Model.getSingleton()
-                                    .getOptionsParam()
-                                    .getUserDirectory()
-                                    .getAbsolutePath());
+            result = new ApiResponseElement(
+                    name,
+                    Model.getSingleton()
+                            .getOptionsParam()
+                            .getUserDirectory()
+                            .getAbsolutePath());
 
         } else if (VIEW_SESSION_LOCATION.equals(name)) {
             result = new ApiResponseElement(name, session.getFileName());
@@ -1224,29 +1251,25 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 || VIEW_OPTION_PROXY_EXCLUDED_DOMAINS.equals(name)
                 || VIEW_OPTION_PROXY_CHAIN_SKIP_NAME.equals(name)
                 || VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED.equals(name)) {
-            result =
-                    proxyChainExcludedDomainsToApiResponseList(
-                            name, VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED.equals(name));
+            result = proxyChainExcludedDomainsToApiResponseList(
+                    name, VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED.equals(name));
         } else if (VIEW_ZAP_HOME_PATH.equals(name)) {
             result = new ApiResponseElement(name, Constant.getZapHome());
         } else if (VIEW_OPTION_MAXIMUM_ALERT_INSTANCES.equals(name)) {
-            result =
-                    new ApiResponseElement(
-                            name,
-                            String.valueOf(
-                                    getAlertParam(ApiException.Type.BAD_VIEW)
-                                            .getMaximumInstances()));
+            result = new ApiResponseElement(
+                    name,
+                    String.valueOf(
+                            getAlertParam(ApiException.Type.BAD_VIEW)
+                                    .getMaximumInstances()));
         } else if (VIEW_OPTION_MERGE_RELATED_ALERTS.equals(name)) {
-            result =
-                    new ApiResponseElement(
-                            name,
-                            String.valueOf(
-                                    getAlertParam(ApiException.Type.BAD_VIEW)
-                                            .isMergeRelatedIssues()));
+            result = new ApiResponseElement(
+                    name,
+                    String.valueOf(
+                            getAlertParam(ApiException.Type.BAD_VIEW)
+                                    .isMergeRelatedIssues()));
         } else if (VIEW_OPTION_ALERT_OVERRIDES_FILE_PATH.equals(name)) {
-            result =
-                    new ApiResponseElement(
-                            name, getAlertParam(ApiException.Type.BAD_VIEW).getOverridesFilename());
+            result = new ApiResponseElement(
+                    name, getAlertParam(ApiException.Type.BAD_VIEW).getOverridesFilename());
         } else {
             throw new ApiException(ApiException.Type.BAD_VIEW);
         }
@@ -1298,9 +1321,26 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     @Override
-    public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params)
-            throws ApiException {
+    public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) {
+        try {
+            return handleApiOtherImpl(msg, name, params);
+        } catch (ApiException e) {
+            msg.setResponseBody(
+                    e.toString(API.Format.JSON, incErrorDetails())
+                            .getBytes(StandardCharsets.UTF_8));
+            try {
+                msg.setResponseHeader(
+                        API.getDefaultResponseHeader(
+                                "application/json; charset=UTF-8", msg.getResponseBody().length()));
+            } catch (HttpMalformedHeaderException e2) {
+                LOGGER.error("Failed to create response header: {}", e2.getMessage(), e2);
+            }
+            return msg;
+        }
+    }
 
+    private HttpMessage handleApiOtherImpl(HttpMessage msg, String name, JSONObject params)
+            throws ApiException {
         if (OTHER_PROXY_PAC.equals(name)) {
             return getNetworkImplementor().handleApiOther(msg, OTHER_PROXY_PAC, params);
         } else if (OTHER_SET_PROXY.equals(name)) {
@@ -1324,8 +1364,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 final HarEntries entries = new HarEntries();
                 TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
-                RecordHistory recordHistory =
-                        getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
+                RecordHistory recordHistory = getRecordHistory(tableHistory, getParam(params, PARAM_ID, -1));
                 addHarEntry(entries, recordHistory);
 
                 HarLog harLog = HarUtils.createZapHarLog();
@@ -1333,18 +1372,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
                 responseBody = HarUtils.harLogToByteArray(harLog);
             } catch (ApiException e) {
-                responseBody =
-                        e.toString(API.Format.JSON, incErrorDetails())
-                                .getBytes(StandardCharsets.UTF_8);
+                throw e;
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
 
-                ApiException apiException =
-                        new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-                responseBody =
-                        apiException
-                                .toString(API.Format.JSON, incErrorDetails())
-                                .getBytes(StandardCharsets.UTF_8);
+                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             }
 
             try {
@@ -1380,18 +1412,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
                 responseBody = HarUtils.harLogToByteArray(harLog);
             } catch (ApiException e) {
-                responseBody =
-                        e.toString(API.Format.JSON, incErrorDetails())
-                                .getBytes(StandardCharsets.UTF_8);
+                throw e;
             } catch (Exception e) {
                 LOGGER.error(e.getMessage(), e);
-
-                ApiException apiException =
-                        new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-                responseBody =
-                        apiException
-                                .toString(API.Format.JSON, incErrorDetails())
-                                .getBytes(StandardCharsets.UTF_8);
+                throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
             }
 
             try {
@@ -1410,21 +1434,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             try {
                 request = HarUtils.createHttpMessage(params.getString(PARAM_REQUEST));
             } catch (IOException e) {
-                ApiException apiException =
-                        new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
-                responseBody =
-                        apiException
-                                .toString(API.Format.JSON, incErrorDetails())
-                                .getBytes(StandardCharsets.UTF_8);
+                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
             }
 
             if (request != null) {
                 if (!isValidForCurrentMode(request.getRequestHeader().getURI())) {
-                    ApiException apiException = new ApiException(ApiException.Type.MODE_VIOLATION);
-                    responseBody =
-                            apiException
-                                    .toString(API.Format.JSON, incErrorDetails())
-                                    .getBytes(StandardCharsets.UTF_8);
+                    throw new ApiException(ApiException.Type.MODE_VIOLATION);
                 } else {
                     boolean followRedirects = getParam(params, PARAM_FOLLOW_REDIRECTS, false);
                     try {
@@ -1446,18 +1461,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
                         responseBody = HarUtils.harLogToByteArray(harLog);
                     } catch (ApiException e) {
-                        responseBody =
-                                e.toString(API.Format.JSON, incErrorDetails())
-                                        .getBytes(StandardCharsets.UTF_8);
+                        throw e;
                     } catch (Exception e) {
                         LOGGER.error(e.getMessage(), e);
-
-                        ApiException apiException =
-                                new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-                        responseBody =
-                                apiException
-                                        .toString(API.Format.JSON, incErrorDetails())
-                                        .getBytes(StandardCharsets.UTF_8);
+                        throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
                     }
                 }
             }
@@ -1485,8 +1492,68 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             }
 
             return msg;
+        } else if (OTHER_FILE_DOWNLOAD.equals(name)) {
+            OptionsParamApi apiParam = Model.getSingleton().getOptionsParam().getApiParam();
+
+            if (!apiParam.isFileTransferAllowed()) {
+                throw new ApiException(ApiException.Type.BAD_OTHER, "File transfer not enabled");
+            }
+
+            Path filePath = getChildPath(apiParam.getTransferDir(), getParam(params, PARAM_FILENAME, ""));
+
+            try {
+                if (!filePath.toFile().canRead()) {
+                    LOGGER.error("Cannot access specified file {}", filePath);
+                    throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILENAME);
+                }
+                msg.setResponseBody(Files.readAllBytes(filePath));
+                try {
+                    msg.setResponseHeader(
+                            API.getDefaultResponseHeader(null, msg.getResponseBody().length()));
+                } catch (HttpMalformedHeaderException e) {
+                    LOGGER.error("Failed to create response header: {}", e.getMessage(), e);
+                }
+                LOGGER.debug("Downloaded file {}", filePath);
+                return msg;
+
+            } catch (IOException e) {
+                LOGGER.error("Failed to create file {}", filePath, e);
+                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILENAME, e);
+            }
+        } else if (OTHER_FILE_UPLOAD.equals(name)) {
+            OptionsParamApi apiParam = Model.getSingleton().getOptionsParam().getApiParam();
+
+            if (!apiParam.isFileTransferAllowed()) {
+                throw new ApiException(ApiException.Type.BAD_OTHER, "File transfer not enabled");
+            }
+            if (!HttpRequestHeader.POST.equals(msg.getRequestHeader().getMethod())) {
+                throw new ApiException(ApiException.Type.BAD_OTHER, "File upload must use POST");
+            }
+            Path filePath = getChildPath(apiParam.getTransferDir(), getParam(params, PARAM_FILENAME, ""));
+
+            try {
+                Files.createDirectories(filePath.getParent());
+                Files.writeString(filePath, getParam(params, PARAM_CONTENTS, ""));
+                LOGGER.debug("Uploaded file to {}", filePath);
+            } catch (IOException e) {
+                LOGGER.error("Failed to upload file {}", filePath, e);
+                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_FILENAME, e);
+            }
+
+            ApiResponse response = new ApiResponseElement("Uploaded", filePath.toString());
+
+            msg.setResponseBody(response.toJSON().toString().getBytes());
+            try {
+                msg.setResponseHeader(
+                        API.getDefaultResponseHeader(
+                                "application/json; charset=UTF-8", msg.getResponseBody().length()));
+            } catch (HttpMalformedHeaderException e2) {
+                LOGGER.error("Failed to create response header: {}", e2.getMessage(), e2);
+            }
+
+            return msg;
         } else {
-            throw new ApiException(ApiException.Type.BAD_OTHER);
+            throw new ApiException(ApiException.Type.BAD_OTHER, name);
         }
     }
 
@@ -1509,8 +1576,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     /**
      * Adds the given history record to the given {@code entries}.
      *
-     * @param entries where to add the new {@code HarEntry}.
-     * @param recordHistory the history record to add, after converting to {@code HarEntry}.
+     * @param entries       where to add the new {@code HarEntry}.
+     * @param recordHistory the history record to add, after converting to
+     *                      {@code HarEntry}.
      * @see HarUtils#createHarEntry(int, int, HttpMessage)
      */
     private static void addHarEntry(HarEntries entries, RecordHistory recordHistory) {
@@ -1626,8 +1694,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             throws ApiException {
         try {
             TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
-            List<Integer> historyIds =
-                    tableHistory.getHistoryIds(Model.getSingleton().getSession().getSessionId());
+            List<Integer> historyIds = tableHistory.getHistoryIds(Model.getSingleton().getSession().getSessionId());
 
             PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
             for (Integer id : historyIds) {
@@ -1753,7 +1820,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
     }
 
     /**
-     * A {@link HttpRedirectionValidator} that enforces the {@link Mode} when validating the {@code
+     * A {@link HttpRedirectionValidator} that enforces the {@link Mode} when
+     * validating the {@code
      * URI} of redirections.
      *
      * @see #isRequestValid()
@@ -1781,7 +1849,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
         }
 
         /**
-         * Tells whether or not the request is valid, that is, all redirections were valid for the
+         * Tells whether or not the request is valid, that is, all redirections were
+         * valid for the
          * current {@link Mode}.
          *
          * @return {@code true} is the request is valid, {@code false} otherwise.

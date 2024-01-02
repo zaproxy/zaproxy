@@ -132,7 +132,10 @@ public class HttpSender {
     public static final int FUZZER_INITIATOR = 4;
     public static final int AUTHENTICATION_INITIATOR = 5;
     public static final int MANUAL_REQUEST_INITIATOR = 6;
-    /** @deprecated (2.13.0) CFU requests are sent without notifying listeners. */
+
+    /**
+     * @deprecated (2.13.0) CFU requests are sent without notifying listeners.
+     */
     @Deprecated(since = "2.13.0")
     public static final int CHECK_FOR_UPDATES_INITIATOR = 7;
 
@@ -148,8 +151,8 @@ public class HttpSender {
     public static final int PARAM_DIGGER_INITIATOR = 17;
 
     private static final HttpRequestConfig NO_REDIRECTS = HttpRequestConfig.builder().build();
-    private static final HttpRequestConfig FOLLOW_REDIRECTS =
-            HttpRequestConfig.builder().setFollowRedirects(true).build();
+    private static final HttpRequestConfig FOLLOW_REDIRECTS = HttpRequestConfig.builder().setFollowRedirects(true)
+            .build();
 
     @SuppressWarnings("deprecation")
     private static final HttpSenderParos PAROS_IMPL = new HttpSenderParos();
@@ -180,18 +183,24 @@ public class HttpSender {
     /**
      * Constructs an {@code HttpSender}.
      *
-     * <p>The {@code initiator} is used to indicate the component that is sending the messages when
+     * <p>
+     * The {@code initiator} is used to indicate the component that is sending the
+     * messages when
      * the {@code HttpSenderListener}s are notified of messages sent and received.
      *
-     * @param connectionParam the parameters used to setup the connections to target hosts
-     * @param useGlobalState {@code true} if the messages sent/received should use the global HTTP
-     *     state, {@code false} if should use a non shared HTTP state
-     * @param initiator the ID of the initiator of the HTTP messages sent
+     * @param connectionParam the parameters used to setup the connections to target
+     *                        hosts
+     * @param useGlobalState  {@code true} if the messages sent/received should use
+     *                        the global HTTP
+     *                        state, {@code false} if should use a non shared HTTP
+     *                        state
+     * @param initiator       the ID of the initiator of the HTTP messages sent
      * @see ConnectionParam#getHttpState()
      * @see HttpSenderListener
      * @see HttpMessage#getRequestingUser()
-     * @deprecated (2.12.0) Use {@link #HttpSender(int)} instead, refer also to {@link
-     *     #setUseGlobalState(boolean)}.
+     * @deprecated (2.12.0) Use {@link #HttpSender(int)} instead, refer also to
+     *             {@link
+     *             #setUseGlobalState(boolean)}.
      */
     @Deprecated
     public HttpSender(ConnectionParam connectionParam, boolean useGlobalState, int initiator) {
@@ -201,9 +210,13 @@ public class HttpSender {
     /**
      * Constructs an {@code HttpSender}.
      *
-     * <p>Refer to {@link #setUseGlobalState(boolean)} to know how the HTTP state is managed.
+     * <p>
+     * Refer to {@link #setUseGlobalState(boolean)} to know how the HTTP state is
+     * managed.
      *
-     * <p>The {@code initiator} is used to indicate the component that is sending the messages when
+     * <p>
+     * The {@code initiator} is used to indicate the component that is sending the
+     * messages when
      * the {@code HttpSenderListener}s are notified of messages sent and received.
      *
      * @param initiator the ID of the initiator of the HTTP messages sent
@@ -244,18 +257,25 @@ public class HttpSender {
     }
 
     /**
-     * Sets whether or not the global state should be used. Defaults to {@code true}.
+     * Sets whether or not the global state should be used. Defaults to
+     * {@code true}.
      *
-     * <p>If {@code enableGlobalState} is {@code true} the {@code HttpSender} will use the HTTP
-     * state given by the connections options iff the HTTP state is enabled there otherwise it
-     * doesn't have any state (i.e. cookies are disabled). If {@code enableGlobalState} is {@code
+     * <p>
+     * If {@code enableGlobalState} is {@code true} the {@code HttpSender} will use
+     * the HTTP
+     * state given by the connections options iff the HTTP state is enabled there
+     * otherwise it
+     * doesn't have any state (i.e. cookies are disabled). If
+     * {@code enableGlobalState} is {@code
      * false} it uses a non shared HTTP state.
      *
-     * <p><strong>Note:</strong> The actual state used is overridden when {@link
+     * <p>
+     * <strong>Note:</strong> The actual state used is overridden when {@link
      * #getUser(HttpMessage)} returns non-{@code null}.
      *
-     * @param enableGlobalState {@code true} if the global state should be used, {@code false}
-     *     otherwise.
+     * @param enableGlobalState {@code true} if the global state should be used,
+     *                          {@code false}
+     *                          otherwise.
      * @since 2.8.0
      * @see #isGlobalStateEnabled()
      * @see #setUseCookies(boolean)
@@ -267,7 +287,8 @@ public class HttpSender {
     /**
      * Tells whether or not the global HTTP state is enabled.
      *
-     * @return {@code true} if the global HTTP state is enabled, {@code false} otherwise.
+     * @return {@code true} if the global HTTP state is enabled, {@code false}
+     *         otherwise.
      * @since 2.12.0
      * @see #setUseGlobalState(boolean)
      */
@@ -278,7 +299,8 @@ public class HttpSender {
     /**
      * Sets whether or not the requests sent should keep track of cookies.
      *
-     * @param shouldUseCookies {@code true} if cookies should be used, {@code false} otherwise.
+     * @param shouldUseCookies {@code true} if cookies should be used, {@code false}
+     *                         otherwise.
      * @since 2.9.0
      * @see #setUseGlobalState(boolean)
      */
@@ -290,11 +312,12 @@ public class HttpSender {
      * Executes the given method.
      *
      * @param method the method.
-     * @param state the state, might be {@code null}.
+     * @param state  the state, might be {@code null}.
      * @return the status code.
      * @throws IOException if an error occurred while executing the method.
-     * @deprecated (2.12.0) Use one of the {@code sendAndReceive} methods. It will be removed in a
-     *     following version.
+     * @deprecated (2.12.0) Use one of the {@code sendAndReceive} methods. It will
+     *             be removed in a
+     *             following version.
      */
     @Deprecated
     public int executeMethod(HttpMethod method, HttpState state) throws IOException {
@@ -305,18 +328,23 @@ public class HttpSender {
         return PAROS_IMPL.executeMethodImpl((HttpSenderContextParos) ctxTemp, method, state);
     }
 
-    /** @deprecated (2.12.0) No longer needed. */
+    /**
+     * @deprecated (2.12.0) No longer needed.
+     */
     @Deprecated
-    public void shutdown() {}
+    public void shutdown() {
+    }
 
     /**
      * Downloads the response (body) to the given file.
      *
-     * <p>The body in the given {@code message} will be empty.
+     * <p>
+     * The body in the given {@code message} will be empty.
      *
      * @param message the message containing the request to send.
-     * @param file the file where to save the response body.
-     * @throws IOException if an error occurred while sending the request or while downloading.
+     * @param file    the file where to save the response body.
+     * @throws IOException if an error occurred while sending the request or while
+     *                     downloading.
      * @since 2.12.0
      * @see #setFollowRedirect(boolean)
      */
@@ -325,14 +353,17 @@ public class HttpSender {
     }
 
     /**
-     * Downloads the response (body) to the given file, using the given request configurations.
+     * Downloads the response (body) to the given file, using the given request
+     * configurations.
      *
-     * <p>The body in the given {@code message} will be empty.
+     * <p>
+     * The body in the given {@code message} will be empty.
      *
-     * @param message the message containing the request to send.
+     * @param message       the message containing the request to send.
      * @param requestConfig the request configurations.
-     * @param file the file where to save the response body.
-     * @throws IOException if an error occurred while sending the request or while downloading.
+     * @param file          the file where to save the response body.
+     * @throws IOException if an error occurred while sending the request or while
+     *                     downloading.
      * @since 2.13.0
      */
     public void sendAndReceive(HttpMessage message, HttpRequestConfig requestConfig, Path file)
@@ -357,12 +388,14 @@ public class HttpSender {
     }
 
     /**
-     * Gets the user set in this {@code HttpSender} if any, otherwise the one in the given {@code
+     * Gets the user set in this {@code HttpSender} if any, otherwise the one in the
+     * given {@code
      * HttpMessage}.
      *
      * @param msg usually the message being sent, that might have a user.
-     * @return the user set in the {@code HttpSender} or in the given {@code HttpMessage}. Might be
-     *     {@code null} if no user set.
+     * @return the user set in the {@code HttpSender} or in the given
+     *         {@code HttpMessage}. Might be
+     *         {@code null} if no user set.
      * @throws NullPointerException if the given message is {@code null}.
      * @since 2.4.1
      * @see #setUser(User)
@@ -388,17 +421,21 @@ public class HttpSender {
 
     /**
      * @param userAgent The userAgent to set.
-     * @deprecated (2.12.0) No longer supported, use a {@link HttpSenderListener} to actually set
-     *     the user agent.
+     * @deprecated (2.12.0) No longer supported, use a {@link HttpSenderListener} to
+     *             actually set
+     *             the user agent.
      */
     @Deprecated
-    public static void setUserAgent(String userAgent) {}
+    public static void setUserAgent(String userAgent) {
+    }
 
     /**
-     * Adds the given listener to be notified of each message sent/received by each {@code
+     * Adds the given listener to be notified of each message sent/received by each
+     * {@code
      * HttpSender}.
      *
-     * <p>The listener might be notified concurrently.
+     * <p>
+     * The listener might be notified concurrently.
      *
      * @param listener the listener to add.
      * @since 2.0.0
@@ -430,8 +467,9 @@ public class HttpSender {
 
     /**
      * @return the HTTP client implementation.
-     * @deprecated (2.8.0) Do not use, this exposes implementation details which might change
-     *     without warning. It will be removed in a following version.
+     * @deprecated (2.8.0) Do not use, this exposes implementation details which
+     *             might change
+     *             without warning. It will be removed in a following version.
      */
     @Deprecated
     public HttpClient getClient() {
@@ -439,30 +477,42 @@ public class HttpSender {
     }
 
     /**
-     * Sets whether or not the authentication headers ("Authorization" and "Proxy-Authorization")
-     * already present in the request should be removed if received an authentication challenge
+     * Sets whether or not the authentication headers ("Authorization" and
+     * "Proxy-Authorization")
+     * already present in the request should be removed if received an
+     * authentication challenge
      * (status codes 401 and 407).
      *
-     * <p>If {@code true} new authentication headers will be generated and the old ones removed
-     * otherwise the authentication headers already present in the request will be used to
+     * <p>
+     * If {@code true} new authentication headers will be generated and the old ones
+     * removed
+     * otherwise the authentication headers already present in the request will be
+     * used to
      * authenticate.
      *
-     * <p>Default is {@code false}, i.e. use the headers already present in the request header.
+     * <p>
+     * Default is {@code false}, i.e. use the headers already present in the request
+     * header.
      *
-     * <p>Processes that reuse messages previously sent should consider setting this to {@code
+     * <p>
+     * Processes that reuse messages previously sent should consider setting this to
+     * {@code
      * true}, otherwise new authentication challenges might fail.
      *
-     * @param removeHeaders {@code true} if the the authentication headers already present should be
-     *     removed when challenged, {@code false} otherwise
+     * @param removeHeaders {@code true} if the the authentication headers already
+     *                      present should be
+     *                      removed when challenged, {@code false} otherwise
      */
     public void setRemoveUserDefinedAuthHeaders(boolean removeHeaders) {
         getContext().setRemoveUserDefinedAuthHeaders(removeHeaders);
     }
 
     /**
-     * Sets the maximum number of retries of an unsuccessful request caused by I/O errors.
+     * Sets the maximum number of retries of an unsuccessful request caused by I/O
+     * errors.
      *
-     * <p>The default number of retries is 3.
+     * <p>
+     * The default number of retries is 3.
      *
      * @param retries the number of retries
      * @throws IllegalArgumentException if {@code retries} is negative.
@@ -473,9 +523,11 @@ public class HttpSender {
     }
 
     /**
-     * Sets the maximum number of redirects that will be followed before failing with an exception.
+     * Sets the maximum number of redirects that will be followed before failing
+     * with an exception.
      *
-     * <p>The default maximum number of redirects is 100.
+     * <p>
+     * The default maximum number of redirects is 100.
      *
      * @param maxRedirects the maximum number of redirects
      * @throws IllegalArgumentException if {@code maxRedirects} is negative.
@@ -488,27 +540,36 @@ public class HttpSender {
     /**
      * Sets whether or not circular redirects are allowed.
      *
-     * <p>Circular redirects happen when a request redirects to itself, or when a same request was
+     * <p>
+     * Circular redirects happen when a request redirects to itself, or when a same
+     * request was
      * already accessed in a chain of redirects.
      *
-     * <p>Since 2.5.0, the default is to allow circular redirects.
+     * <p>
+     * Since 2.5.0, the default is to allow circular redirects.
      *
-     * @param allow {@code true} if circular redirects should be allowed, {@code false} otherwise
+     * @param allow {@code true} if circular redirects should be allowed,
+     *              {@code false} otherwise
      * @since 2.4.0
-     * @deprecated (2.12.0) No longer supported, the circular redirects are allowed always. If
-     *     needed they can be prevented with a custom {@link HttpRedirectionValidator}.
+     * @deprecated (2.12.0) No longer supported, the circular redirects are allowed
+     *             always. If
+     *             needed they can be prevented with a custom
+     *             {@link HttpRedirectionValidator}.
      */
     @Deprecated
-    public void setAllowCircularRedirects(boolean allow) {}
+    public void setAllowCircularRedirects(boolean allow) {
+    }
 
     /**
-     * Sends the request of given HTTP {@code message} with the given configurations.
+     * Sends the request of given HTTP {@code message} with the given
+     * configurations.
      *
-     * @param message the message that will be sent
+     * @param message       the message that will be sent
      * @param requestConfig the request configurations.
      * @throws IllegalArgumentException if any of the parameters is {@code null}
-     * @throws IOException if an error occurred while sending the message or following the
-     *     redirections
+     * @throws IOException              if an error occurred while sending the
+     *                                  message or following the
+     *                                  redirections
      * @since 2.6.0
      * @see #sendAndReceive(HttpMessage, boolean)
      */

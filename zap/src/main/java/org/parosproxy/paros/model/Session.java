@@ -173,7 +173,8 @@ public class Session {
     private Supplier<List<String>> globalExcludedUrlsSupplier;
 
     /**
-     * Constructor for the current session. The current system time will be used as the session ID.
+     * Constructor for the current session. The current system time will be used as
+     * the session ID.
      *
      * @param model
      */
@@ -203,7 +204,8 @@ public class Session {
         if (View.isInitialised()) {
             View.getSingleton().discardContexts();
         }
-        for (OnContextsChangedListener l : contextsChangedListeners) l.contextsChanged();
+        for (OnContextsChangedListener l : contextsChangedListeners)
+            l.contextsChanged();
         nextContextId = 1;
     }
 
@@ -221,29 +223,41 @@ public class Session {
         discardContexts();
     }
 
-    /** @return Returns the sessionDesc. */
+    /**
+     * @return Returns the sessionDesc.
+     */
     public String getSessionDesc() {
         return sessionDesc;
     }
 
-    /** @return Returns the sessionId. */
+    /**
+     * @return Returns the sessionId.
+     */
     public long getSessionId() {
         return sessionId;
     }
-    /** @return Returns the name. */
+
+    /**
+     * @return Returns the name.
+     */
     public String getSessionName() {
         return sessionName;
     }
-    /** @return Returns the siteTree. */
+
+    /**
+     * @return Returns the siteTree.
+     */
     public SiteMap getSiteTree() {
         return siteTree;
     }
 
     /**
-     * Tells whether this session is in a new state or not. A session is in a new state if it was
+     * Tells whether this session is in a new state or not. A session is in a new
+     * state if it was
      * never saved or it was not loaded from an existing session.
      *
-     * @return {@code true} if this session is in a new state, {@code false} otherwise.
+     * @return {@code true} if this session is in a new state, {@code false}
+     *         otherwise.
      */
     // ZAP: Changed the JavaDoc.
     public boolean isNewState() {
@@ -251,43 +265,41 @@ public class Session {
     }
 
     protected void open(final File file, final SessionListener callback) {
-        Thread t =
-                new Thread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                Exception thrownException = null;
-                                try {
-                                    open(file.getAbsolutePath());
-                                } catch (Exception e) {
-                                    thrownException = e;
-                                }
-                                if (callback != null) {
-                                    callback.sessionOpened(file, thrownException);
-                                }
-                            }
-                        });
+        Thread t = new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Exception thrownException = null;
+                        try {
+                            open(file.getAbsolutePath());
+                        } catch (Exception e) {
+                            thrownException = e;
+                        }
+                        if (callback != null) {
+                            callback.sessionOpened(file, thrownException);
+                        }
+                    }
+                });
         t.setPriority(Thread.NORM_PRIORITY - 2);
         t.start();
     }
 
     protected void open(final String sessionFile, final SessionListener callback) {
-        Thread t =
-                new Thread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                Exception thrownException = null;
-                                try {
-                                    open(sessionFile);
-                                } catch (Exception e) {
-                                    thrownException = e;
-                                }
-                                if (callback != null) {
-                                    callback.sessionOpened(null, thrownException);
-                                }
-                            }
-                        });
+        Thread t = new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Exception thrownException = null;
+                        try {
+                            open(sessionFile);
+                        } catch (Exception e) {
+                            thrownException = e;
+                        }
+                        if (callback != null) {
+                            callback.sessionOpened(null, thrownException);
+                        }
+                    }
+                });
         t.setPriority(Thread.NORM_PRIORITY - 2);
         t.start();
     }
@@ -310,7 +322,8 @@ public class Session {
         // historyList.removeAllElements();
 
         if (View.isInitialised()) {
-            // Detach the siteTree model from the Sites tree, to reduce notification changes to the
+            // Detach the siteTree model from the Sites tree, to reduce notification changes
+            // to the
             // UI while loading
             View.getSingleton().getSiteTreePanel().getTreeSite().setModel(new SiteMap(null, null));
         }
@@ -320,13 +333,12 @@ public class Session {
         }
 
         // update history reference
-        List<Integer> list =
-                model.getDb()
-                        .getTableHistory()
-                        .getHistoryIdsOfHistType(
-                                getSessionId(),
-                                HistoryReference.TYPE_PROXIED,
-                                HistoryReference.TYPE_ZAP_USER);
+        List<Integer> list = model.getDb()
+                .getTableHistory()
+                .getHistoryIdsOfHistType(
+                        getSessionId(),
+                        HistoryReference.TYPE_PROXIED,
+                        HistoryReference.TYPE_ZAP_USER);
 
         HistoryReference historyRef = null;
 
@@ -383,7 +395,8 @@ public class Session {
                 // ZAP: Load alerts from db
                 historyRef.loadAlerts();
 
-                if (i % 100 == 99) Thread.yield();
+                if (i % 100 == 99)
+                    Thread.yield();
             } catch (Exception e) {
                 // ZAP: Log exceptions
                 LOGGER.warn(e.getMessage(), e);
@@ -391,15 +404,14 @@ public class Session {
         }
 
         // update siteTree reference
-        list =
-                model.getDb()
-                        .getTableHistory()
-                        .getHistoryIdsOfHistType(
-                                getSessionId(),
-                                HistoryReference.TYPE_SPIDER,
-                                HistoryReference.TYPE_BRUTE_FORCE,
-                                HistoryReference.TYPE_SPIDER_AJAX,
-                                HistoryReference.TYPE_SCANNER);
+        list = model.getDb()
+                .getTableHistory()
+                .getHistoryIdsOfHistType(
+                        getSessionId(),
+                        HistoryReference.TYPE_SPIDER,
+                        HistoryReference.TYPE_BRUTE_FORCE,
+                        HistoryReference.TYPE_SPIDER_AJAX,
+                        HistoryReference.TYPE_SCANNER);
 
         for (int i = 0; i < list.size(); i++) {
             // ZAP: Removed unnecessary cast.
@@ -425,7 +437,8 @@ public class Session {
 
                 historyRef.loadAlerts();
 
-                if (i % 100 == 99) Thread.yield();
+                if (i % 100 == 99)
+                    Thread.yield();
 
             } catch (Exception e) {
                 // ZAP: Log exceptions
@@ -473,9 +486,8 @@ public class Session {
         for (Context ctx : contexts) {
             try {
                 // Set up the URL parameter parser
-                List<String> strs =
-                        this.getContextDataStrings(
-                                ctx.getId(), RecordContext.TYPE_URL_PARSER_CLASSNAME);
+                List<String> strs = this.getContextDataStrings(
+                        ctx.getId(), RecordContext.TYPE_URL_PARSER_CLASSNAME);
                 if (strs.size() == 1) {
                     Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
                     if (c == null) {
@@ -485,9 +497,8 @@ public class Session {
                                 strs.get(0));
                     } else {
                         ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
-                        strs =
-                                this.getContextDataStrings(
-                                        ctx.getId(), RecordContext.TYPE_URL_PARSER_CONFIG);
+                        strs = this.getContextDataStrings(
+                                ctx.getId(), RecordContext.TYPE_URL_PARSER_CONFIG);
                         if (strs.size() == 1) {
                             parser.init(strs.get(0));
                         }
@@ -500,9 +511,8 @@ public class Session {
             }
             try {
                 // Set up the URL parameter parser
-                List<String> strs =
-                        this.getContextDataStrings(
-                                ctx.getId(), RecordContext.TYPE_POST_PARSER_CLASSNAME);
+                List<String> strs = this.getContextDataStrings(
+                        ctx.getId(), RecordContext.TYPE_POST_PARSER_CLASSNAME);
                 if (strs.size() == 1) {
                     Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
                     if (c == null) {
@@ -512,9 +522,8 @@ public class Session {
                                 strs.get(0));
                     } else {
                         ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
-                        strs =
-                                this.getContextDataStrings(
-                                        ctx.getId(), RecordContext.TYPE_POST_PARSER_CONFIG);
+                        strs = this.getContextDataStrings(
+                                ctx.getId(), RecordContext.TYPE_POST_PARSER_CONFIG);
                         if (strs.size() == 1) {
                             parser.init(strs.get(0));
                         }
@@ -528,9 +537,8 @@ public class Session {
 
             try {
                 // Set up the Data Driven Nodes
-                List<String> strs =
-                        this.getContextDataStrings(
-                                ctx.getId(), RecordContext.TYPE_DATA_DRIVEN_NODES);
+                List<String> strs = this.getContextDataStrings(
+                        ctx.getId(), RecordContext.TYPE_DATA_DRIVEN_NODES);
                 for (String str : strs) {
                     ctx.addDataDrivenNodes(new StructuralNodeModifier(str));
                 }
@@ -552,10 +560,13 @@ public class Session {
     }
 
     /**
-     * Tells whether or not the session requires a clean up (for example, to remove temporary
+     * Tells whether or not the session requires a clean up (for example, to remove
+     * temporary
      * messages).
      *
-     * <p>The session requires a clean up if it's not a new session or, if it is, the database used
+     * <p>
+     * The session requires a clean up if it's not a new session or, if it is, the
+     * database used
      * is not HSQLDB (file based).
      *
      * @return {@code true} if a clean up is required, {@code false} otherwise.
@@ -587,24 +598,23 @@ public class Session {
      * @param callback
      */
     protected void save(final String fileName, final SessionListener callback) {
-        Thread t =
-                new Thread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                Exception thrownException = null;
-                                try {
-                                    save(fileName);
-                                } catch (Exception e) {
-                                    // ZAP: Log exceptions
-                                    LOGGER.warn(e.getMessage(), e);
-                                    thrownException = e;
-                                }
-                                if (callback != null) {
-                                    callback.sessionSaved(thrownException);
-                                }
-                            }
-                        });
+        Thread t = new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Exception thrownException = null;
+                        try {
+                            save(fileName);
+                        } catch (Exception e) {
+                            // ZAP: Log exceptions
+                            LOGGER.warn(e.getMessage(), e);
+                            thrownException = e;
+                        }
+                        if (callback != null) {
+                            callback.sessionSaved(thrownException);
+                        }
+                    }
+                });
         t.setPriority(Thread.NORM_PRIORITY - 2);
         t.start();
     }
@@ -639,7 +649,8 @@ public class Session {
     /**
      * Persists the properties (e.g. name, description) of the session.
      *
-     * <p>Should be called only by "core" classes.
+     * <p>
+     * Should be called only by "core" classes.
      *
      * @throws Exception if an error occurred while persisting the properties.
      * @since 2.7.0
@@ -664,24 +675,23 @@ public class Session {
      * @param callback
      */
     protected void snapshot(final String fileName, final SessionListener callback) {
-        Thread t =
-                new Thread(
-                        new Runnable() {
-                            @Override
-                            public void run() {
-                                Exception thrownException = null;
-                                try {
-                                    snapshot(fileName);
-                                } catch (Exception e) {
-                                    // ZAP: Log exceptions
-                                    LOGGER.warn(e.getMessage(), e);
-                                    thrownException = e;
-                                }
-                                if (callback != null) {
-                                    callback.sessionSnapshot(thrownException);
-                                }
-                            }
-                        });
+        Thread t = new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        Exception thrownException = null;
+                        try {
+                            snapshot(fileName);
+                        } catch (Exception e) {
+                            // ZAP: Log exceptions
+                            LOGGER.warn(e.getMessage(), e);
+                            thrownException = e;
+                        }
+                        if (callback != null) {
+                            callback.sessionSnapshot(thrownException);
+                        }
+                    }
+                });
         t.setPriority(Thread.NORM_PRIORITY - 2);
         t.start();
     }
@@ -697,19 +707,26 @@ public class Session {
         model.snapshotSessionDb(this.fileName, fileName);
     }
 
-    /** @param sessionDesc The sessionDesc to set. */
+    /**
+     * @param sessionDesc The sessionDesc to set.
+     */
     public void setSessionDesc(String sessionDesc) {
         this.sessionDesc = sessionDesc;
         configuration.setProperty(SESSION_DESC, sessionDesc);
     }
 
-    /** @param sessionId The sessionId to set. */
+    /**
+     * @param sessionId The sessionId to set.
+     */
     public void setSessionId(long sessionId) {
         this.sessionId = sessionId;
         // setText(SESSION_ID, Long.toString(sessionId));
         configuration.setProperty(SESSION_ID, Long.toString(sessionId));
     }
-    /** @param name The name to set. */
+
+    /**
+     * @param name The name to set.
+     */
     public void setSessionName(String name) {
         this.sessionName = name;
         // setText(SESSION_NAME, name);
@@ -747,7 +764,7 @@ public class Session {
     public String getSessionFolder() {
         String result = "";
         if (fileName.equals("")) {
-            //            result = Constant.FOLDER_SESSION;
+            // result = Constant.FOLDER_SESSION;
             result = Constant.getInstance().FOLDER_SESSION;
         } else {
             File file = new File(fileName);
@@ -900,8 +917,10 @@ public class Session {
     }
 
     /**
-     * Gets the nodes from the site tree which are "In Scope". Searches recursively starting from
-     * the root node. Should be used with care, as it is time-consuming, querying the database for
+     * Gets the nodes from the site tree which are "In Scope". Searches recursively
+     * starting from
+     * the root node. Should be used with care, as it is time-consuming, querying
+     * the database for
      * every node in the Site Tree.
      *
      * @return the nodes in scope from site tree
@@ -914,8 +933,10 @@ public class Session {
     }
 
     /**
-     * Gets the top nodes from the site tree which contain nodes that are "In Scope". Searches
-     * recursively starting from the root node. Should be used with care, as it is time-consuming,
+     * Gets the top nodes from the site tree which contain nodes that are "In
+     * Scope". Searches
+     * recursively starting from the root node. Should be used with care, as it is
+     * time-consuming,
      * querying the database for every node in the Site Tree.
      *
      * @return the nodes in scope from site tree
@@ -952,7 +973,7 @@ public class Session {
     /**
      * Fills a given list with nodes in scope, searching recursively.
      *
-     * @param rootNode the root node
+     * @param rootNode  the root node
      * @param nodesList the nodes list
      */
     private void fillNodesInScope(SiteNode rootNode, List<SiteNode> nodesList) {
@@ -960,14 +981,17 @@ public class Session {
         Enumeration<TreeNode> en = rootNode.children();
         while (en.hasMoreElements()) {
             SiteNode sn = (SiteNode) en.nextElement();
-            if (isInScope(sn)) nodesList.add(sn);
+            if (isInScope(sn))
+                nodesList.add(sn);
             fillNodesInScope(sn, nodesList);
         }
     }
 
     /**
-     * Gets the nodes from the site tree which are "In Scope" in a given context. Searches
-     * recursively starting from the root node. Should be used with care, as it is time-consuming,
+     * Gets the nodes from the site tree which are "In Scope" in a given context.
+     * Searches
+     * recursively starting from the root node. Should be used with care, as it is
+     * time-consuming,
      * querying the database for every node in the Site Tree.
      *
      * @param context the context
@@ -983,16 +1007,17 @@ public class Session {
     /**
      * Fills a given list with nodes in context, searching recursively.
      *
-     * @param rootNode the root node
+     * @param rootNode  the root node
      * @param nodesList the nodes list
-     * @param context the context
+     * @param context   the context
      */
     private void fillNodesInContext(SiteNode rootNode, List<SiteNode> nodesList, Context context) {
         @SuppressWarnings("unchecked")
         Enumeration<TreeNode> en = rootNode.children();
         while (en.hasMoreElements()) {
             SiteNode sn = (SiteNode) en.nextElement();
-            if (context.isInContext(sn)) nodesList.add(sn);
+            if (context.isInContext(sn))
+                nodesList.add(sn);
             fillNodesInContext(sn, nodesList, context);
         }
     }
@@ -1047,21 +1072,25 @@ public class Session {
     }
 
     /**
-     * Gets the regular expressions used to exclude URLs from the spiders (e.g. traditional, AJAX).
+     * Gets the regular expressions used to exclude URLs from the spiders (e.g.
+     * traditional, AJAX).
      *
-     * @return a {@code List} containing the regular expressions, never {@code null}.
+     * @return a {@code List} containing the regular expressions, never
+     *         {@code null}.
      */
     public List<String> getExcludeFromSpiderRegexs() {
         return excludeFromSpiderRegexs;
     }
 
     /**
-     * Adds the given regular expression to the list of regular expressions used to exclude URLs
+     * Adds the given regular expression to the list of regular expressions used to
+     * exclude URLs
      * from the spiders (e.g. traditional, AJAX).
      *
      * @param ignoredRegex the regular expression to be added
      * @throws IllegalArgumentException if the regular expression is not valid.
-     * @throws DatabaseException if an error occurred while persisting the list.
+     * @throws DatabaseException        if an error occurred while persisting the
+     *                                  list.
      */
     public void addExcludeFromSpiderRegex(String ignoredRegex) throws DatabaseException {
         // Validate its a valid regex first
@@ -1074,12 +1103,15 @@ public class Session {
     }
 
     /**
-     * Sets the given regular expressions as the list of regular expressions used to exclude URLs
+     * Sets the given regular expressions as the list of regular expressions used to
+     * exclude URLs
      * from the spiders (e.g. traditional, AJAX).
      *
      * @param ignoredRegexs the regular expressions to be set
-     * @throws IllegalArgumentException if any of the regular expressions is not valid.
-     * @throws DatabaseException if an error occurred while persisting the list.
+     * @throws IllegalArgumentException if any of the regular expressions is not
+     *                                  valid.
+     * @throws DatabaseException        if an error occurred while persisting the
+     *                                  list.
      */
     public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws DatabaseException {
         // Validate its a valid regex first
@@ -1096,21 +1128,27 @@ public class Session {
     /**
      * Resets the global exclude URLs of the Local Proxy.
      *
-     * <p>This should be considered an internal method, to be called only by core code.
+     * <p>
+     * This should be considered an internal method, to be called only by core code.
      *
      * @since 2.3.0
-     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future release.
+     * @deprecated (2.12.0) No longer used/needed. It will be removed in a future
+     *             release.
      */
     @Deprecated
-    public void forceGlobalExcludeURLRefresh() {}
+    public void forceGlobalExcludeURLRefresh() {
+    }
 
     /**
      * Gets the global exclude URLs.
      *
-     * <p><strong>Note:</strong> This method is only provided as a convenience, the global exclude
+     * <p>
+     * <strong>Note:</strong> This method is only provided as a convenience, the
+     * global exclude
      * URLs are not saved in the session.
      *
-     * @return an unmodifiable {@code List} containing the URLs that should be excluded globally.
+     * @return an unmodifiable {@code List} containing the URLs that should be
+     *         excluded globally.
      * @since 2.3.0
      */
     public List<String> getGlobalExcludeURLRegexs() {
@@ -1127,7 +1165,8 @@ public class Session {
     /**
      * Sets the supplier of global exclude URLs.
      *
-     * <p><strong>Note:</strong> Not part of the public API.
+     * <p>
+     * <strong>Note:</strong> Not part of the public API.
      *
      * @param supplier the supplier of global exclude URLs.
      * @since 2.13.0
@@ -1156,8 +1195,7 @@ public class Session {
     }
 
     public List<String> getContextDataStrings(int contextId, int type) throws DatabaseException {
-        List<RecordContext> dataList =
-                model.getDb().getTableContext().getDataForContextAndType(contextId, type);
+        List<RecordContext> dataList = model.getDb().getTableContext().getDataForContextAndType(contextId, type);
         List<String> list = new ArrayList<>();
         for (RecordContext data : dataList) {
             list.add(data.getData());
@@ -1166,11 +1204,12 @@ public class Session {
     }
 
     /**
-     * Returns a context data string of the given type and using the given default value if the
+     * Returns a context data string of the given type and using the given default
+     * value if the
      * value is not present
      *
-     * @param contextId the context Id
-     * @param type the data type required
+     * @param contextId    the context Id
+     * @param type         the data type required
      * @param defaultValue the default value to use if the type is not present
      * @return the context data string
      * @throws DatabaseException
@@ -1178,8 +1217,7 @@ public class Session {
      */
     public String getContextDataString(int contextId, int type, String defaultValue)
             throws DatabaseException {
-        List<RecordContext> dataList =
-                model.getDb().getTableContext().getDataForContextAndType(contextId, type);
+        List<RecordContext> dataList = model.getDb().getTableContext().getDataForContextAndType(contextId, type);
         if (dataList.size() > 0) {
             return dataList.get(0).getData();
         }
@@ -1187,11 +1225,12 @@ public class Session {
     }
 
     /**
-     * Returns a context data integer of the given type and using the given default value if the
+     * Returns a context data integer of the given type and using the given default
+     * value if the
      * value is not present
      *
-     * @param contextId the context Id
-     * @param type the data type required
+     * @param contextId    the context Id
+     * @param type         the data type required
      * @param defaultValue the default value to use if the type is not present
      * @return the context data integer
      * @throws DatabaseException
@@ -1199,8 +1238,7 @@ public class Session {
      */
     public int getContextDataInteger(int contextId, int type, int defaultValue)
             throws DatabaseException {
-        List<RecordContext> dataList =
-                model.getDb().getTableContext().getDataForContextAndType(contextId, type);
+        List<RecordContext> dataList = model.getDb().getTableContext().getDataForContextAndType(contextId, type);
         if (dataList.size() > 0) {
             try {
                 return Integer.parseInt(dataList.get(0).getData());
@@ -1306,12 +1344,15 @@ public class Session {
     /**
      * Gets a newly created context with the given name.
      *
-     * <p>The context is automatically added to the session.
+     * <p>
+     * The context is automatically added to the session.
      *
      * @param name the name of the context
      * @return the new {@code Context}.
-     * @throws IllegalContextNameException (since 2.6.0) if the given name is {@code null} or empty
-     *     or if a context with the given name already exists.
+     * @throws IllegalContextNameException (since 2.6.0) if the given name is
+     *                                     {@code null} or empty
+     *                                     or if a context with the given name
+     *                                     already exists.
      */
     public Context getNewContext(String name) {
         validateContextName(name);
@@ -1334,12 +1375,15 @@ public class Session {
     }
 
     /**
-     * Validates the given name is not {@code null} nor empty and that no context already exists
+     * Validates the given name is not {@code null} nor empty and that no context
+     * already exists
      * with the given name.
      *
      * @param name the name to be validated
-     * @throws IllegalContextNameException if the given name is {@code null} or empty or if a
-     *     context with the given name already exists.
+     * @throws IllegalContextNameException if the given name is {@code null} or
+     *                                     empty or if a
+     *                                     context with the given name already
+     *                                     exists.
      */
     private void validateContextName(String name) {
         if (name == null || name.isEmpty()) {
@@ -1359,9 +1403,12 @@ public class Session {
      * Adds the given context.
      *
      * @param c the context to be added
-     * @throws IllegalArgumentException (since 2.6.0) if the given context is {@code null}.
-     * @throws IllegalContextNameException (since 2.6.0) if context's name is {@code null} or empty
-     *     or if a context with the same name already exists.
+     * @throws IllegalArgumentException    (since 2.6.0) if the given context is
+     *                                     {@code null}.
+     * @throws IllegalContextNameException (since 2.6.0) if context's name is
+     *                                     {@code null} or empty
+     *                                     or if a context with the same name
+     *                                     already exists.
      */
     public void addContext(Context c) {
         if (c == null) {
@@ -1446,7 +1493,7 @@ public class Session {
      * Export the specified context to a file
      *
      * @param contextId the ID of the Context to be exported
-     * @param file the File to which the Context should be exported
+     * @param file      the File to which the Context should be exported
      * @throws ConfigurationException
      */
     public void exportContext(int contextId, File file) throws ConfigurationException {
@@ -1505,13 +1552,20 @@ public class Session {
      * @throws InvocationTargetException
      * @throws NoSuchMethodException
      * @throws SecurityException
-     * @throws IllegalContextNameException (since 2.6.0) if context's name is not provided or it's
-     *     empty or if a context with the same name already exists.
+     * @throws IllegalContextNameException (since 2.6.0) if context's name is not
+     *                                     provided or it's
+     *                                     empty or if a context with the same name
+     *                                     already exists.
      */
     public Context importContext(File file)
-            throws ConfigurationException, ClassNotFoundException, InstantiationException,
-                    IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-                    NoSuchMethodException, SecurityException {
+            throws ConfigurationException,
+            ClassNotFoundException,
+            InstantiationException,
+            IllegalAccessException,
+            IllegalArgumentException,
+            InvocationTargetException,
+            NoSuchMethodException,
+            SecurityException {
         return importContext(new ZapXmlConfiguration(file));
     }
 
@@ -1528,14 +1582,21 @@ public class Session {
      * @throws InvocationTargetException
      * @throws NoSuchMethodException
      * @throws SecurityException
-     * @throws IllegalContextNameException if context's name is not provided or it's empty or if a
-     *     context with the same name already exists.
+     * @throws IllegalContextNameException if context's name is not provided or it's
+     *                                     empty or if a
+     *                                     context with the same name already
+     *                                     exists.
      * @since 2.13.0
      */
     public Context importContext(ZapXmlConfiguration config)
-            throws ConfigurationException, ClassNotFoundException, InstantiationException,
-                    IllegalAccessException, IllegalArgumentException, InvocationTargetException,
-                    NoSuchMethodException, SecurityException {
+            throws ConfigurationException,
+            ClassNotFoundException,
+            InstantiationException,
+            IllegalAccessException,
+            IllegalArgumentException,
+            InvocationTargetException,
+            NoSuchMethodException,
+            SecurityException {
         String name = config.getString(Context.CONTEXT_CONFIG_NAME);
         validateContextName(name);
 
@@ -1612,7 +1673,8 @@ public class Session {
     }
 
     /**
-     * Returns the url parameter parser associated with the first context found that includes the
+     * Returns the url parameter parser associated with the first context found that
+     * includes the
      * URL, or the default parser if it is not in a context
      *
      * @param url
@@ -1627,7 +1689,8 @@ public class Session {
     }
 
     /**
-     * Returns the form parameter parser associated with the first context found that includes the
+     * Returns the form parameter parser associated with the first context found
+     * that includes the
      * URL, or the default parser if it is not in a context
      *
      * @param url
@@ -1642,15 +1705,18 @@ public class Session {
     }
 
     /**
-     * Returns the specified parameters for the given message based on the parser associated with
-     * the first context found that includes the URL for the message, or the default parser if it is
+     * Returns the specified parameters for the given message based on the parser
+     * associated with
+     * the first context found that includes the URL for the message, or the default
+     * parser if it is
      * not in a context
      *
      * @param msg
      * @param type
      * @return
-     * @deprecated 2.10.0 use #getParameters(String) This method will lose duplicated parameter
-     *     names
+     * @deprecated 2.10.0 use #getParameters(String) This method will lose
+     *             duplicated parameter
+     *             names
      */
     @Deprecated
     public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
@@ -1669,17 +1735,22 @@ public class Session {
     /**
      * Gets the parameters of the given {@code type} from the given {@code message}.
      *
-     * <p>Parameters' names and values are in decoded form.
+     * <p>
+     * Parameters' names and values are in decoded form.
      *
-     * @param msg the message whose parameters will be extracted from
+     * @param msg  the message whose parameters will be extracted from
      * @param type the type of parameters to extract
      * @return a {@code List} containing the parameters
-     * @throws IllegalArgumentException if any of the parameters is {@code null} or if the given
-     *     {@code type} is not {@link org.parosproxy.paros.network.HtmlParameter.Type#url url} or
-     *     {@link org.parosproxy.paros.network.HtmlParameter.Type#form form}.
+     * @throws IllegalArgumentException if any of the parameters is {@code null} or
+     *                                  if the given
+     *                                  {@code type} is not
+     *                                  {@link org.parosproxy.paros.network.HtmlParameter.Type#url
+     *                                  url} or
+     *                                  {@link org.parosproxy.paros.network.HtmlParameter.Type#form
+     *                                  form}.
      * @since 2.5.0
      * @see StandardParameterParser#getParameters(HttpMessage,
-     *     org.parosproxy.paros.network.HtmlParameter.Type)
+     *      org.parosproxy.paros.network.HtmlParameter.Type)
      */
     public List<NameValuePair> getParameters(HttpMessage msg, HtmlParameter.Type type) {
         if (msg == null) {
@@ -1702,8 +1773,10 @@ public class Session {
     }
 
     /**
-     * Returns the URL parameters for the given URL based on the parser associated with the first
-     * context found that includes the URL, or the default parser if it is not in a context
+     * Returns the URL parameters for the given URL based on the parser associated
+     * with the first
+     * context found that includes the URL, or the default parser if it is not in a
+     * context
      *
      * @param uri
      * @return
@@ -1713,8 +1786,7 @@ public class Session {
     @Deprecated
     public Map<String, String> getUrlParams(URI uri) throws URIException {
         Map<String, String> map = new HashMap<>();
-        for (NameValuePair parameter :
-                getUrlParamParser(uri.toString()).parseParameters(uri.getEscapedQuery())) {
+        for (NameValuePair parameter : getUrlParamParser(uri.toString()).parseParameters(uri.getEscapedQuery())) {
             String value = parameter.getValue();
             if (value == null) {
                 value = "";
@@ -1725,8 +1797,10 @@ public class Session {
     }
 
     /**
-     * Returns the URL parameters for the given URL based on the parser associated with the first
-     * context found that includes the URL, or the default parser if it is not in a context
+     * Returns the URL parameters for the given URL based on the parser associated
+     * with the first
+     * context found that includes the URL, or the default parser if it is not in a
+     * context
      *
      * @param uri
      * @return the URL parameters for the given URL
@@ -1738,8 +1812,10 @@ public class Session {
     }
 
     /**
-     * Returns the FORM parameters for the given URL based on the parser associated with the first
-     * context found that includes the URL, or the default parser if it is not in a context
+     * Returns the FORM parameters for the given URL based on the parser associated
+     * with the first
+     * context found that includes the URL, or the default parser if it is not in a
+     * context
      *
      * @param uri
      * @param formData
@@ -1753,8 +1829,10 @@ public class Session {
     }
 
     /**
-     * Returns the FORM parameters for the given URL based on the parser associated with the first
-     * context found that includes the URL, or the default parser if it is not in a context
+     * Returns the FORM parameters for the given URL based on the parser associated
+     * with the first
+     * context found that includes the URL, or the default parser if it is not in a
+     * context
      *
      * @param uri
      * @param formData
@@ -1766,20 +1844,25 @@ public class Session {
         return this.getFormParamParser(uri.toString()).parseParameters(formData);
     }
 
-    /** @deprecated use {@link SessionStructure#getTreePath(Model, URI)} */
+    /**
+     * @deprecated use {@link SessionStructure#getTreePath(Model, URI)}
+     */
     @Deprecated
     public List<String> getTreePath(URI uri) throws URIException {
         return SessionStructure.getTreePath(Model.getSingleton(), uri);
     }
 
-    /** @deprecated use {@link SessionStructure#getTreePath(Model, HttpMessage)} */
+    /**
+     * @deprecated use {@link SessionStructure#getTreePath(Model, HttpMessage)}
+     */
     @Deprecated
     public List<String> getTreePath(HttpMessage msg) throws URIException {
         return SessionStructure.getTreePath(Model.getSingleton(), msg);
     }
 
     // ZAP: Added listeners for contexts changed events.
-    // TODO: Might be better structured elsewhere, so maybe just a temporary solution.
+    // TODO: Might be better structured elsewhere, so maybe just a temporary
+    // solution.
     private static List<OnContextsChangedListener> contextsChangedListeners = new LinkedList<>();
 
     public void addOnContextsChangedListener(OnContextsChangedListener l) {

@@ -42,6 +42,7 @@
 // ZAP: 2022/06/08 Fix resizing issues.
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/08/23 Add tooltip and prompt to searchTextField (Issue 8019)
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
@@ -96,7 +97,8 @@ import org.zaproxy.zap.view.panelsearch.items.TreeUtils;
 public class AbstractParamContainerPanel extends JSplitPane {
 
     /**
-     * The default name used for the root node of the tree showing the option panel names.
+     * The default name used for the root node of the tree showing the option panel
+     * names.
      *
      * @since 2.7.0
      */
@@ -116,7 +118,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
     private JPanel panelParam = null;
     private JPanel panelHeadline = null;
     private ZapTextField txtHeadline = null;
-    private DefaultTreeModel treeModel = null; //  @jve:decl-index=0:parse,visual-constraint="14,12"
+    private DefaultTreeModel treeModel = null; // @jve:decl-index=0:parse,visual-constraint="14,12"
     private ParamTreeNode rootNode;
     private JScrollPane jScrollPane = null;
     private JScrollPane jScrollPane1 = null;
@@ -137,7 +139,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
     private static final Logger LOGGER = LogManager.getLogger(AbstractParamContainerPanel.class);
 
     /**
-     * Constructs an {@code AbstractParamContainerPanel} with a default root node's name ({@value
+     * Constructs an {@code AbstractParamContainerPanel} with a default root node's
+     * name ({@value
      * #DEFAULT_ROOT_NODE_NAME}).
      */
     public AbstractParamContainerPanel() {
@@ -146,7 +149,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
     }
 
     /**
-     * Constructs an {@code AbstractParamContainerPanel} with the given root node's name.
+     * Constructs an {@code AbstractParamContainerPanel} with the given root node's
+     * name.
      *
      * @param rootName the name of the root node
      */
@@ -236,8 +240,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
                         @Override
                         public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
 
-                            ParamTreeNode node =
-                                    (ParamTreeNode) getTreeParam().getLastSelectedPathComponent();
+                            ParamTreeNode node = (ParamTreeNode) getTreeParam().getLastSelectedPathComponent();
                             if (node == null) {
                                 return;
                             }
@@ -308,7 +311,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
     }
 
     /**
-     * Gets the headline panel, that shows the name of the (selected) panel and has the help button.
+     * Gets the headline panel, that shows the name of the (selected) panel and has
+     * the help button.
      *
      * @return the headline panel, never {@code null}.
      * @see #getTxtHeadline()
@@ -420,16 +424,20 @@ public class AbstractParamContainerPanel extends JSplitPane {
     }
 
     /**
-     * Adds the given panel with the given name positioned under the given parents (or root node if
+     * Adds the given panel with the given name positioned under the given parents
+     * (or root node if
      * none given).
      *
-     * <p>If not sorted the panel is appended to existing panels.
+     * <p>
+     * If not sorted the panel is appended to existing panels.
      *
-     * @param parentParams the name of the parent nodes of the panel, might be {@code null}.
-     * @param name the name of the panel, must not be {@code null}.
-     * @param panel the panel, must not be {@code null}.
-     * @param sort {@code true} if the panel should be added in alphabetic order, {@code false}
-     *     otherwise
+     * @param parentParams the name of the parent nodes of the panel, might be
+     *                     {@code null}.
+     * @param name         the name of the panel, must not be {@code null}.
+     * @param panel        the panel, must not be {@code null}.
+     * @param sort         {@code true} if the panel should be added in alphabetic
+     *                     order, {@code false}
+     *                     otherwise
      */
     // ZAP: Added sort option
     public void addParamPanel(
@@ -463,15 +471,19 @@ public class AbstractParamContainerPanel extends JSplitPane {
     }
 
     /**
-     * Adds the given panel, with its {@link java.awt.Component#getName() own name}, positioned
+     * Adds the given panel, with its {@link java.awt.Component#getName() own name},
+     * positioned
      * under the given parents (or root node if none given).
      *
-     * <p>If not sorted the panel is appended to existing panels.
+     * <p>
+     * If not sorted the panel is appended to existing panels.
      *
-     * @param parentParams the name of the parent nodes of the panel, might be {@code null}.
-     * @param panel the panel, must not be {@code null}.
-     * @param sort {@code true} if the panel should be added in alphabetic order, {@code false}
-     *     otherwise
+     * @param parentParams the name of the parent nodes of the panel, might be
+     *                     {@code null}.
+     * @param panel        the panel, must not be {@code null}.
+     * @param sort         {@code true} if the panel should be added in alphabetic
+     *                     order, {@code false}
+     *                     otherwise
      */
     public void addParamPanel(String[] parentParams, AbstractParamPanel panel, boolean sort) {
         addParamPanel(parentParams, panel.getName(), panel, sort);
@@ -557,10 +569,13 @@ public class AbstractParamContainerPanel extends JSplitPane {
     /**
      * Shows the panel with the given name.
      *
-     * <p>Nothing happens if there's no panel with the given name (or the name is empty or {@code
+     * <p>
+     * Nothing happens if there's no panel with the given name (or the name is empty
+     * or {@code
      * null}).
      *
-     * <p>The previously shown panel (if any) is notified that it will be hidden.
+     * <p>
+     * The previously shown panel (if any) is notified that it will be hidden.
      *
      * @param name the name of the panel to be shown
      */
@@ -585,10 +600,13 @@ public class AbstractParamContainerPanel extends JSplitPane {
     /**
      * Shows the panel with the given name.
      *
-     * <p>The previously shown panel (if any) is notified that it will be hidden.
+     * <p>
+     * The previously shown panel (if any) is notified that it will be hidden.
      *
-     * @param panel the panel that will be notified that is now shown, must not be {@code null}.
-     * @param name the name of the panel that will be shown, must not be {@code null}.
+     * @param panel the panel that will be notified that is now shown, must not be
+     *              {@code null}.
+     * @param name  the name of the panel that will be shown, must not be
+     *              {@code null}.
      * @see AbstractParamPanel#onHide()
      * @see AbstractParamPanel#onShow()
      */
@@ -636,7 +654,9 @@ public class AbstractParamContainerPanel extends JSplitPane {
     /**
      * Ensures the node of the panel is visible in the view port.
      *
-     * <p>The node is assumed to be already {@link JTree#isVisible(TreePath) visible in the tree}.
+     * <p>
+     * The node is assumed to be already {@link JTree#isVisible(TreePath) visible in
+     * the tree}.
      *
      * @param nodePath the path to the node of the panel.
      */
@@ -652,7 +672,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
     /**
      * Initialises all panels with the given object.
      *
-     * @param obj the object that contains the data to be shown in the panels and save them
+     * @param obj the object that contains the data to be shown in the panels and
+     *            save them
      * @see #validateParam()
      * @see #saveParam()
      */
@@ -664,7 +685,9 @@ public class AbstractParamContainerPanel extends JSplitPane {
     /**
      * Validates all panels, throwing an exception if there's any validation error.
      *
-     * <p>The message of the exception can be shown in GUI components (for example, an error
+     * <p>
+     * The message of the exception can be shown in GUI components (for example, an
+     * error
      * dialogue) callers can expect an internationalised message.
      *
      * @throws Exception if there's any validation error.
@@ -686,22 +709,23 @@ public class AbstractParamContainerPanel extends JSplitPane {
     }
 
     private static void showInternalError(Exception e) {
-        ErrorInfo errorInfo =
-                new ErrorInfo(
-                        Constant.messages.getString("generic.error.internal.title"),
-                        Constant.messages.getString("generic.error.internal.msg"),
-                        null,
-                        null,
-                        e,
-                        null,
-                        null);
+        ErrorInfo errorInfo = new ErrorInfo(
+                Constant.messages.getString("generic.error.internal.title"),
+                Constant.messages.getString("generic.error.internal.msg"),
+                null,
+                null,
+                e,
+                null,
+                null);
         JXErrorPane.showDialog(null, errorInfo);
     }
 
     /**
      * Saves the data of all panels, throwing an exception if there's any error.
      *
-     * <p>The message of the exception can be shown in GUI components (for example, an error
+     * <p>
+     * The message of the exception can be shown in GUI components (for example, an
+     * error
      * dialogue) callers can expect an internationalised message.
      *
      * @throws Exception if there's any error while saving the data.
@@ -726,8 +750,9 @@ public class AbstractParamContainerPanel extends JSplitPane {
     /**
      * Expands the node of the param panel with the given name.
      *
-     * @param panelName the name of the panel whose node should be expanded, should not be {@code
-     *     null}.
+     * @param panelName the name of the panel whose node should be expanded, should
+     *                  not be {@code
+     *     null}     .
      * @since 2.8.0
      */
     public void expandParamPanelNode(String panelName) {
@@ -740,8 +765,9 @@ public class AbstractParamContainerPanel extends JSplitPane {
     /**
      * Tells whether or not the given param panel is selected.
      *
-     * @param panelName the name of the panel to check if it is selected, should not be {@code
-     *     null}.
+     * @param panelName the name of the panel to check if it is selected, should not
+     *                  be {@code
+     *     null}     .
      * @return {@code true} if the panel is selected, {@code false} otherwise.
      * @since 2.8.0
      * @see #isParamPanelOrChildSelected(String)
@@ -755,11 +781,13 @@ public class AbstractParamContainerPanel extends JSplitPane {
     }
 
     /**
-     * Tells whether or not the given param panel, or one of its child panels, is selected.
+     * Tells whether or not the given param panel, or one of its child panels, is
+     * selected.
      *
      * @param panelName the name of the panel to check, should not be {@code null}.
-     * @return {@code true} if the panel or one of its child panels is selected, {@code false}
-     *     otherwise.
+     * @return {@code true} if the panel or one of its child panels is selected,
+     *         {@code false}
+     *         otherwise.
      * @since 2.8.0
      * @see #isParamPanelSelected(String)
      */
@@ -780,7 +808,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
         showDialog(showRoot, null);
     }
 
-    // ZAP: Added option to specify panel - note this only supports one level at the moment
+    // ZAP: Added option to specify panel - note this only supports one level at the
+    // moment
     // ZAP: show the last selected panel
     public void showDialog(boolean showRoot, String panel) {
         expandRoot();
@@ -934,6 +963,10 @@ public class AbstractParamContainerPanel extends JSplitPane {
         if (searchTextField == null) {
             searchTextField = new ZapTextField();
 
+            searchTextField.setPrompt(
+                    Constant.messages.getString("paramcontainer.panel.searchbar.prompt"));
+            searchTextField.setToolTipText(
+                    Constant.messages.getString("paramcontainer.panel.searchbar.tooltip"));
             searchTextField.addKeyListener(
                     new KeyAdapter() {
 
@@ -1048,7 +1081,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
     /**
      * Gets the action listener responsible to show the help page of the panel.
      *
-     * @return the action listener that shows the help page of the panel, never {@code null}.
+     * @return the action listener that shows the help page of the panel, never
+     *         {@code null}.
      * @see ShowHelpAction#setHelpIndex(String)
      */
     private ShowHelpAction getShowHelpAction() {
@@ -1074,7 +1108,8 @@ public class AbstractParamContainerPanel extends JSplitPane {
         /**
          * Sets the help index used to select and show the help page.
          *
-         * <p>If {@code null} no help page is shown.
+         * <p>
+         * If {@code null} no help page is shown.
          *
          * @param helpIndex the help index of the help page, might be {@code null}.
          */
@@ -1120,16 +1155,16 @@ public class AbstractParamContainerPanel extends JSplitPane {
         protected Object[] getComponentsInternal(AbstractParamContainerPanel component) {
 
             // The tree contains the nodes and there is a valueChanged listener on the tree.
-            // OnValueChanged the ParamPanel will be switched. So it behaves as a child component.
+            // OnValueChanged the ParamPanel will be switched. So it behaves as a child
+            // component.
             // But in the ObjectModel they have no parent/child relation.
-            // This class is for faking the parent/child relation between TreeNode and ParamPanel.
+            // This class is for faking the parent/child relation between TreeNode and
+            // ParamPanel.
             // The name of the panel is the name of the Node
 
-            ArrayList<TreeNodeElement> treeNodeElements =
-                    TreeUtils.getTreeNodeElement(component.getTreeParam());
+            ArrayList<TreeNodeElement> treeNodeElements = TreeUtils.getTreeNodeElement(component.getTreeParam());
             for (TreeNodeElement treeNodeElement : treeNodeElements) {
-                AbstractParamPanel panel =
-                        component.getParamPanel(treeNodeElement.getNode().toString());
+                AbstractParamPanel panel = component.getParamPanel(treeNodeElement.getNode().toString());
                 treeNodeElement.addFakeObjectModelChildren(panel);
             }
             return treeNodeElements.toArray();

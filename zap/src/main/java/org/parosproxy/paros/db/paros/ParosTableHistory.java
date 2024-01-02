@@ -48,6 +48,7 @@
 // ZAP: 2022/02/25 Remove code deprecated in 2.5.0
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2023/09/12 Implement setDatabaseOptions(DatabaseParam) and use those options.
 package org.parosproxy.paros.db.paros;
 
 import java.nio.charset.StandardCharsets;
@@ -60,14 +61,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Vector;
+import java.util.function.ToIntFunction;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hsqldb.types.Types;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DbUtils;
 import org.parosproxy.paros.db.RecordHistory;
@@ -106,7 +108,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     private PreparedStatement psDeleteTemp = null;
     private PreparedStatement psContainsURI = null;
     // private PreparedStatement psAlterTable = null;
-    //    private PreparedStatement psUpdateTag = null;
+    // private PreparedStatement psUpdateTag = null;
     private PreparedStatement psUpdateNote = null;
 
     private int lastInsertedIndex;
@@ -116,27 +118,25 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     // ZAP: Added logger
     private static final Logger LOGGER = LogManager.getLogger(ParosTableHistory.class);
 
+    private DatabaseParam options;
+
     private boolean bodiesAsBytes;
+    private int configuredrequestbodysize = -1;
+    private int configuredresponsebodysize = -1;
 
-    public ParosTableHistory() {}
+    public ParosTableHistory() {
+    }
 
-    // ZAP: Allow the request and response body sizes to be user-specifiable as far as possible
-    int configuredrequestbodysize = -1;
-    int configuredresponsebodysize = -1;
+    @Override
+    public void setDatabaseOptions(DatabaseParam options) {
+        this.options = Objects.requireNonNull(options);
+    }
 
     @Override
     protected void reconnect(Connection conn) throws DatabaseException {
         try {
-            // ZAP: Allow the request and response body sizes to be user-specifiable as far as
-            // possible
-            // re-load the configuration data from file, to get the configured length of the request
-            // and response bodies
-            // this will later be compared to the actual lengths of these fields in the database (in
-            // updateTable(Connection c))
-            DatabaseParam dbparams = new DatabaseParam();
-            dbparams.load(Constant.getInstance().FILE_CONFIG);
-            this.configuredrequestbodysize = dbparams.getRequestBodySize();
-            this.configuredresponsebodysize = dbparams.getResponseBodySize();
+            configuredrequestbodysize = getBodySizeOption(DatabaseParam::getRequestBodySize);
+            configuredresponsebodysize = getBodySizeOption(DatabaseParam::getResponseBodySize);
 
             bodiesAsBytes = true;
 
@@ -144,87 +144,82 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 
             isExistStatusCode = DbUtils.hasColumn(conn, TABLE_NAME, STATUSCODE);
 
-            psRead =
-                    conn.prepareStatement(
-                            "SELECT TOP 1 * FROM HISTORY WHERE " + HISTORYID + " = ?");
+            psRead = conn.prepareStatement(
+                    "SELECT TOP 1 * FROM HISTORY WHERE " + HISTORYID + " = ?");
             // updatable recordset does not work in hsqldb jdbc implementation!
             // psWrite = mConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
             // ResultSet.CONCUR_UPDATABLE);
             psDelete = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTORYID + " = ?");
-            psDeleteTemp =
-                    conn.prepareStatement(
-                            "DELETE FROM HISTORY WHERE " + HISTTYPE + " IN (?) LIMIT 1000");
-            psContainsURI =
-                    conn.prepareStatement(
-                            "SELECT TOP 1 HISTORYID FROM HISTORY WHERE URI = ? AND  METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND HISTTYPE = ?");
+            psDeleteTemp = conn.prepareStatement(
+                    "DELETE FROM HISTORY WHERE " + HISTTYPE + " IN (?) LIMIT 1000");
+            psContainsURI = conn.prepareStatement(
+                    "SELECT TOP 1 HISTORYID FROM HISTORY WHERE URI = ? AND  METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND HISTTYPE = ?");
 
             // ZAP: Added support for the tag when creating a history record
             if (isExistStatusCode) {
-                psInsert =
-                        conn.prepareStatement(
-                                "INSERT INTO HISTORY ("
-                                        + SESSIONID
-                                        + ","
-                                        + HISTTYPE
-                                        + ","
-                                        + TIMESENTMILLIS
-                                        + ","
-                                        + TIMEELAPSEDMILLIS
-                                        + ","
-                                        + METHOD
-                                        + ","
-                                        + URI
-                                        + ","
-                                        + REQHEADER
-                                        + ","
-                                        + REQBODY
-                                        + ","
-                                        + RESHEADER
-                                        + ","
-                                        + RESBODY
-                                        + ","
-                                        + TAG
-                                        + ", "
-                                        + STATUSCODE
-                                        + ","
-                                        + NOTE
-                                        + ", "
-                                        + RESPONSE_FROM_TARGET_HOST
-                                        + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ?, ?, ?, ?, ?)");
+                psInsert = conn.prepareStatement(
+                        "INSERT INTO HISTORY ("
+                                + SESSIONID
+                                + ","
+                                + HISTTYPE
+                                + ","
+                                + TIMESENTMILLIS
+                                + ","
+                                + TIMEELAPSEDMILLIS
+                                + ","
+                                + METHOD
+                                + ","
+                                + URI
+                                + ","
+                                + REQHEADER
+                                + ","
+                                + REQBODY
+                                + ","
+                                + RESHEADER
+                                + ","
+                                + RESBODY
+                                + ","
+                                + TAG
+                                + ", "
+                                + STATUSCODE
+                                + ","
+                                + NOTE
+                                + ", "
+                                + RESPONSE_FROM_TARGET_HOST
+                                + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ?, ?, ?, ?, ?)");
             } else {
-                psInsert =
-                        conn.prepareStatement(
-                                "INSERT INTO HISTORY ("
-                                        + SESSIONID
-                                        + ","
-                                        + HISTTYPE
-                                        + ","
-                                        + TIMESENTMILLIS
-                                        + ","
-                                        + TIMEELAPSEDMILLIS
-                                        + ","
-                                        + METHOD
-                                        + ","
-                                        + URI
-                                        + ","
-                                        + REQHEADER
-                                        + ","
-                                        + REQBODY
-                                        + ","
-                                        + RESHEADER
-                                        + ","
-                                        + RESBODY
-                                        + ","
-                                        + TAG
-                                        + ","
-                                        + NOTE
-                                        + ", "
-                                        + RESPONSE_FROM_TARGET_HOST
-                                        + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ? , ?, ?, ?)");
+                psInsert = conn.prepareStatement(
+                        "INSERT INTO HISTORY ("
+                                + SESSIONID
+                                + ","
+                                + HISTTYPE
+                                + ","
+                                + TIMESENTMILLIS
+                                + ","
+                                + TIMEELAPSEDMILLIS
+                                + ","
+                                + METHOD
+                                + ","
+                                + URI
+                                + ","
+                                + REQHEADER
+                                + ","
+                                + REQBODY
+                                + ","
+                                + RESHEADER
+                                + ","
+                                + RESBODY
+                                + ","
+                                + TAG
+                                + ","
+                                + NOTE
+                                + ", "
+                                + RESPONSE_FROM_TARGET_HOST
+                                + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ? , ?, ?, ?)");
             }
             psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
 
-            //        psUpdateTag = conn.prepareStatement("UPDATE HISTORY SET TAG = ? WHERE
+            // psUpdateTag = conn.prepareStatement("UPDATE HISTORY SET TAG = ? WHERE
             // HISTORYID = ?");
 
             psUpdateNote = conn.prepareStatement("UPDATE HISTORY SET NOTE = ? WHERE HISTORYID = ?");
@@ -232,9 +227,8 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
             int currentIndex = 0;
             PreparedStatement stmt = null;
             try {
-                stmt =
-                        conn.prepareStatement(
-                                "SELECT TOP 1 HISTORYID FROM HISTORY ORDER BY HISTORYID DESC");
+                stmt = conn.prepareStatement(
+                        "SELECT TOP 1 HISTORYID FROM HISTORY ORDER BY HISTORYID DESC");
                 try (ResultSet rs = stmt.executeQuery()) {
                     if (rs.next()) {
                         currentIndex = rs.getInt(1);
@@ -253,6 +247,10 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
         } catch (SQLException e) {
             throw new DatabaseException(e);
         }
+    }
+
+    private int getBodySizeOption(ToIntFunction<DatabaseParam> function) {
+        return options != null ? function.applyAsInt(options) : DatabaseParam.DEFAULT_BODY_SIZE;
     }
 
     // ZAP: Added the method.
@@ -411,7 +409,8 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
             }
 
             // return write(sessionId, histType, msg.getTimeSentMillis(),
-            // msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader,
+            // msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody,
+            // resHeader,
             // resBody, msg.getTag());
             return write(
                     sessionId,
@@ -450,7 +449,8 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
             boolean responseFromTargetHost)
             throws HttpMalformedHeaderException, SQLException, DatabaseException {
 
-        // ZAP: Allow the request and response body sizes to be user-specifiable as far as possible
+        // ZAP: Allow the request and response body sizes to be user-specifiable as far
+        // as possible
         if (reqBody.length > this.configuredrequestbodysize) {
             throw new SQLException(
                     "The actual Request Body length "
@@ -504,13 +504,14 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
         psInsert.executeUpdate();
 
         /*
-              String sql = "INSERT INTO HISTORY ("
-              		+ REQHEADER + "," + REQBODY + "," + RESHEADER + "," + RESBODY +
-        		") VALUES ('"+ reqHeader + "','" + reqBody + "','" + resHeader + "','" + resBody + "'); CALL IDENTITY();";
-        Statement stmt = mConn.createStatement();
-        stmt.executeQuery(sql);
-        ResultSet rs = stmt.getResultSet();
-        */
+         * String sql = "INSERT INTO HISTORY ("
+         * + REQHEADER + "," + REQBODY + "," + RESHEADER + "," + RESBODY +
+         * ") VALUES ('"+ reqHeader + "','" + reqBody + "','" + resHeader + "','" +
+         * resBody + "'); CALL IDENTITY();";
+         * Statement stmt = mConn.createStatement();
+         * stmt.executeQuery(sql);
+         * ResultSet rs = stmt.getResultSet();
+         */
 
         try (ResultSet rs = psGetIdLastInsert.executeQuery()) {
             rs.next();
@@ -535,20 +536,19 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
                     resBody = rs.getString(RESBODY).getBytes();
                 }
 
-                history =
-                        new RecordHistory(
-                                rs.getInt(HISTORYID),
-                                rs.getInt(HISTTYPE),
-                                rs.getLong(SESSIONID),
-                                rs.getLong(TIMESENTMILLIS),
-                                rs.getInt(TIMEELAPSEDMILLIS),
-                                rs.getString(REQHEADER),
-                                reqBody,
-                                rs.getString(RESHEADER),
-                                resBody,
-                                rs.getString(TAG),
-                                rs.getString(NOTE), // ZAP: Added note
-                                rs.getBoolean(RESPONSE_FROM_TARGET_HOST));
+                history = new RecordHistory(
+                        rs.getInt(HISTORYID),
+                        rs.getInt(HISTTYPE),
+                        rs.getLong(SESSIONID),
+                        rs.getLong(TIMESENTMILLIS),
+                        rs.getInt(TIMEELAPSEDMILLIS),
+                        rs.getString(REQHEADER),
+                        reqBody,
+                        rs.getString(RESHEADER),
+                        resBody,
+                        rs.getString(TAG),
+                        rs.getString(NOTE), // ZAP: Added note
+                        rs.getBoolean(RESPONSE_FROM_TARGET_HOST));
             }
         } finally {
             rs.close();
@@ -560,7 +560,8 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      * Gets all the history record IDs of the given session.
      *
      * @param sessionId the ID of session of the history records to be returned
-     * @return a {@code List} with all the history IDs of the given session, never {@code null}
+     * @return a {@code List} with all the history IDs of the given session, never
+     *         {@code null}
      * @throws DatabaseException if an error occurred while getting the history IDs
      * @since 2.3.0
      * @see #getHistoryIdsOfHistType(long, int...)
@@ -577,12 +578,15 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     }
 
     /**
-     * Gets all the history record IDs of the given session and with the given history types.
+     * Gets all the history record IDs of the given session and with the given
+     * history types.
      *
      * @param sessionId the ID of session of the history records
-     * @param histTypes the history types of the history records that should be returned
-     * @return a {@code List} with all the history IDs of the given session and history types, never
-     *     {@code null}
+     * @param histTypes the history types of the history records that should be
+     *                  returned
+     * @return a {@code List} with all the history IDs of the given session and
+     *         history types, never
+     *         {@code null}
      * @throws DatabaseException if an error occurred while getting the history IDs
      * @since 2.3.0
      * @see #getHistoryIds(long)
@@ -628,15 +632,13 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 
             strBuilder.append(" ORDER BY ").append(HISTORYID);
 
-            try (PreparedStatement psReadSession =
-                    getConnection().prepareStatement(strBuilder.toString())) {
+            try (PreparedStatement psReadSession = getConnection().prepareStatement(strBuilder.toString())) {
 
                 psReadSession.setLong(1, sessionId);
                 int parameterIndex = 2;
                 if (hasHistTypes) {
-                    Array arrayHistTypes =
-                            getConnection()
-                                    .createArrayOf("INTEGER", ArrayUtils.toObject(histTypes));
+                    Array arrayHistTypes = getConnection()
+                            .createArrayOf("INTEGER", ArrayUtils.toObject(histTypes));
                     psReadSession.setArray(parameterIndex++, arrayHistTypes);
                 }
                 if (startAtHistoryId > 0) {
@@ -659,13 +661,16 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     }
 
     /**
-     * Returns all the history record IDs of the given session except the ones with the given
+     * Returns all the history record IDs of the given session except the ones with
+     * the given
      * history types. *
      *
      * @param sessionId the ID of session of the history records
-     * @param histTypes the history types of the history records that should be excluded
-     * @return a {@code List} with all the history IDs of the given session and history types, never
-     *     {@code null}
+     * @param histTypes the history types of the history records that should be
+     *                  excluded
+     * @return a {@code List} with all the history IDs of the given session and
+     *         history types, never
+     *         {@code null}
      * @throws DatabaseException if an error occurred while getting the history IDs
      * @since 2.3.0
      * @see #getHistoryIdsOfHistType(long, int...)
@@ -687,21 +692,19 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
             long sessionId, int histType, String filter, boolean isRequest)
             throws DatabaseException {
         try {
-            PreparedStatement psReadSearch =
-                    getConnection()
-                            .prepareStatement(
-                                    "SELECT * FROM HISTORY WHERE "
-                                            + SESSIONID
-                                            + " = ? AND "
-                                            + HISTTYPE
-                                            + " = ? ORDER BY "
-                                            + HISTORYID);
+            PreparedStatement psReadSearch = getConnection()
+                    .prepareStatement(
+                            "SELECT * FROM HISTORY WHERE "
+                                    + SESSIONID
+                                    + " = ? AND "
+                                    + HISTTYPE
+                                    + " = ? ORDER BY "
+                                    + HISTORYID);
             ResultSet rs = null;
             Vector<Integer> v = new Vector<>();
             try {
 
-                Pattern pattern =
-                        Pattern.compile(filter, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
+                Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
                 Matcher matcher = null;
 
                 psReadSearch.setLong(1, sessionId);
@@ -794,12 +797,15 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     }
 
     /**
-     * Deletes from the database all the history records whose ID is in the list {@code ids}, in
+     * Deletes from the database all the history records whose ID is in the list
+     * {@code ids}, in
      * batches of 1000 records.
      *
-     * @param ids a {@code List} containing all the IDs of the history records to be deleted
+     * @param ids a {@code List} containing all the IDs of the history records to be
+     *            deleted
      * @throws IllegalArgumentException if {@code ids} is null
-     * @throws DatabaseException if an error occurred while deleting the history records
+     * @throws DatabaseException        if an error occurred while deleting the
+     *                                  history records
      * @since 2.0.0
      * @see #delete(List, int)
      */
@@ -810,14 +816,18 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     }
 
     /**
-     * Deletes from the database all the history records whose ID is in the list {@code ids}, in
+     * Deletes from the database all the history records whose ID is in the list
+     * {@code ids}, in
      * batches of given {@code batchSize}.
      *
-     * @param ids a {@code List} containing all the IDs of the history records to be deleted
+     * @param ids       a {@code List} containing all the IDs of the history records
+     *                  to be deleted
      * @param batchSize the maximum size of records to delete in a single batch
      * @throws IllegalArgumentException if {@code ids} is null
-     * @throws IllegalArgumentException if {@code batchSize} is not greater than zero
-     * @throws DatabaseException if an error occurred while deleting the history records
+     * @throws IllegalArgumentException if {@code batchSize} is not greater than
+     *                                  zero
+     * @throws DatabaseException        if an error occurred while deleting the
+     *                                  history records
      * @since 2.3.0
      */
     @Override
@@ -851,13 +861,17 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     }
 
     /**
-     * Deletes all records whose history type was marked as temporary (by calling {@code
+     * Deletes all records whose history type was marked as temporary (by calling
+     * {@code
      * setHistoryTypeTemporary(int)}).
      *
-     * <p>By default the only temporary history types are {@code HistoryReference#TYPE_TEMPORARY}
+     * <p>
+     * By default the only temporary history types are
+     * {@code HistoryReference#TYPE_TEMPORARY}
      * and {@code HistoryReference#TYPE_SCANNER_TEMPORARY}.
      *
-     * @throws DatabaseException if an error occurred while deleting the temporary history records
+     * @throws DatabaseException if an error occurred while deleting the temporary
+     *                           history records
      * @see HistoryReference#getTemporaryTypes()
      */
     @Override
@@ -908,44 +922,48 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     public RecordHistory getHistoryCache(HistoryReference ref, HttpMessage reqMsg)
             throws DatabaseException, HttpMalformedHeaderException {
         try {
-            //  get the cache from provided reference.
-            //  naturally, the obtained cache should be AFTER AND NEARBY to the given reference.
-            //  - historyId up to historyId+200
-            //  - match sessionId
-            //  - history type can be MANUEL or hidden (hidden is used by images not explicitly
+            // get the cache from provided reference.
+            // naturally, the obtained cache should be AFTER AND NEARBY to the given
+            // reference.
+            // - historyId up to historyId+200
+            // - match sessionId
+            // - history type can be MANUEL or hidden (hidden is used by images not
+            // explicitly
             // stored in history)
-            //  - match URI
+            // - match URI
             PreparedStatement psReadCache = null;
 
             if (isExistStatusCode) {
-                //          psReadCache = getConnection().prepareStatement("SELECT TOP 1 * FROM
-                // HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND " + HISTORYID + " >= ?
+                // psReadCache = getConnection().prepareStatement("SELECT TOP 1 * FROM
+                // HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND " + HISTORYID + " >=
+                // ?
                 // AND " + HISTORYID + " <= ? AND SESSIONID = ? AND (HISTTYPE = " +
-                // HistoryReference.TYPE_MANUAL + " OR HISTTYPE = " + HistoryReference.TYPE_HIDDEN +
+                // HistoryReference.TYPE_MANUAL + " OR HISTTYPE = " +
+                // HistoryReference.TYPE_HIDDEN +
                 // ") AND STATUSCODE != 304");
-                psReadCache =
-                        getConnection()
-                                .prepareStatement(
-                                        "SELECT TOP 1 * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND "
-                                                + HISTORYID
-                                                + " >= ? AND "
-                                                + HISTORYID
-                                                + " <= ? AND SESSIONID = ? AND STATUSCODE != 304");
+                psReadCache = getConnection()
+                        .prepareStatement(
+                                "SELECT TOP 1 * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND "
+                                        + HISTORYID
+                                        + " >= ? AND "
+                                        + HISTORYID
+                                        + " <= ? AND SESSIONID = ? AND STATUSCODE != 304");
 
             } else {
-                //          psReadCache = getConnection().prepareStatement("SELECT * FROM HISTORY
-                // WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND " + HISTORYID + " >= ? AND " +
+                // psReadCache = getConnection().prepareStatement("SELECT * FROM HISTORY
+                // WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND " + HISTORYID + " >= ? AND "
+                // +
                 // HISTORYID + " <= ? AND SESSIONID = ? AND (HISTTYPE = " +
-                // HistoryReference.TYPE_MANUAL + " OR HISTTYPE = " + HistoryReference.TYPE_HIDDEN +
+                // HistoryReference.TYPE_MANUAL + " OR HISTTYPE = " +
+                // HistoryReference.TYPE_HIDDEN +
                 // ")");
-                psReadCache =
-                        getConnection()
-                                .prepareStatement(
-                                        "SELECT * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND "
-                                                + HISTORYID
-                                                + " >= ? AND "
-                                                + HISTORYID
-                                                + " <= ? AND SESSIONID = ?)");
+                psReadCache = getConnection()
+                        .prepareStatement(
+                                "SELECT * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND "
+                                        + HISTORYID
+                                        + " >= ? AND "
+                                        + HISTORYID
+                                        + " <= ? AND SESSIONID = ?)");
             }
             psReadCache.setString(1, reqMsg.getRequestHeader().getURI().toString());
             psReadCache.setString(2, reqMsg.getRequestHeader().getMethod());
@@ -970,8 +988,8 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
                     // and the result should NOT be NOT_MODIFIED for rendering by browser
                     if (rec != null
                             && rec.getHttpMessage().equals(reqMsg)
-                            && rec.getHttpMessage().getResponseHeader().getStatusCode()
-                                    != HttpStatusCode.NOT_MODIFIED) {
+                            && rec.getHttpMessage().getResponseHeader()
+                                    .getStatusCode() != HttpStatusCode.NOT_MODIFIED) {
                         return rec;
                     }
 
@@ -991,24 +1009,24 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
             // lookup from cache BEFORE the given reference
 
             if (isExistStatusCode) {
-                //            psReadCache = getConnection().prepareStatement("SELECT TOP 1 * FROM
+                // psReadCache = getConnection().prepareStatement("SELECT TOP 1 * FROM
                 // HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND
                 // STATUSCODE != 304 AND (HISTTYPE = " + HistoryReference.TYPE_MANUAL + " OR
-                // HISTTYPE = " + HistoryReference.TYPE_HIDDEN  + ")");
-                psReadCache =
-                        getConnection()
-                                .prepareStatement(
-                                        "SELECT TOP 1 * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND STATUSCODE != 304");
+                // HISTTYPE = " + HistoryReference.TYPE_HIDDEN + ")");
+                psReadCache = getConnection()
+                        .prepareStatement(
+                                "SELECT TOP 1 * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND STATUSCODE != 304");
 
             } else {
-                //            psReadCache = getConnection().prepareStatement("SELECT * FROM HISTORY
-                // WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND (HISTTYPE = "
-                // + HistoryReference.TYPE_MANUAL + " OR HISTTYPE = " + HistoryReference.TYPE_HIDDEN
-                //  + ")");
-                psReadCache =
-                        getConnection()
-                                .prepareStatement(
-                                        "SELECT * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ?");
+                // psReadCache = getConnection().prepareStatement("SELECT * FROM HISTORY
+                // WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND (HISTTYPE
+                // = "
+                // + HistoryReference.TYPE_MANUAL + " OR HISTTYPE = " +
+                // HistoryReference.TYPE_HIDDEN
+                // + ")");
+                psReadCache = getConnection()
+                        .prepareStatement(
+                                "SELECT * FROM HISTORY WHERE URI = ? AND METHOD = ? AND REQBODY = ? AND SESSIONID = ?");
             }
             psReadCache.setString(1, reqMsg.getRequestHeader().getURI().toString());
             psReadCache.setString(2, reqMsg.getRequestHeader().getMethod());
@@ -1029,8 +1047,8 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
                     rec = build(rs);
                     if (rec != null
                             && rec.getHttpMessage().equals(reqMsg)
-                            && rec.getHttpMessage().getResponseHeader().getStatusCode()
-                                    != HttpStatusCode.NOT_MODIFIED) {
+                            && rec.getHttpMessage().getResponseHeader()
+                                    .getStatusCode() != HttpStatusCode.NOT_MODIFIED) {
                         return rec;
                     }
 

@@ -100,6 +100,7 @@
 // ZAP: 2022/11/23 Refresh tabs menu when tabs are removed.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2023/04/28 Deprecate Proxy and ProxyServer related methods.
+// ZAP: 2023/08/25 Set view to ExtensionAdaptor.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -248,11 +249,13 @@ public class ExtensionLoader {
     }
 
     /**
-     * Tells whether or not an {@code Extension} with the given {@code extensionName} is enabled.
+     * Tells whether or not an {@code Extension} with the given
+     * {@code extensionName} is enabled.
      *
      * @param extensionName the name of the extension
      * @return {@code true} if the extension is enabled, {@code false} otherwise.
-     * @throws IllegalArgumentException if the {@code extensionName} is {@code null}.
+     * @throws IllegalArgumentException if the {@code extensionName} is
+     *                                  {@code null}.
      * @see #getExtension(String)
      * @see Extension
      */
@@ -274,7 +277,8 @@ public class ExtensionLoader {
     }
 
     /**
-     * Adds the given proxy server, to be automatically updated with proxy related listeners.
+     * Adds the given proxy server, to be automatically updated with proxy related
+     * listeners.
      *
      * @param proxyServer the proxy server to add, must not be null.
      * @since 2.8.0
@@ -405,10 +409,13 @@ public class ExtensionLoader {
     }
 
     /**
-     * Hooks (adds) the {@code ConnectRequestProxyListener}s of the loaded extensions to the given
+     * Hooks (adds) the {@code ConnectRequestProxyListener}s of the loaded
+     * extensions to the given
      * {@code proxy}.
      *
-     * <p><strong>Note:</strong> even if public this method is expected to be called only by core
+     * <p>
+     * <strong>Note:</strong> even if public this method is expected to be called
+     * only by core
      * classes (for example, {@code Control}).
      *
      * @param proxy the local proxy
@@ -636,9 +643,11 @@ public class ExtensionLoader {
     }
 
     /**
-     * Notifies that the properties (e.g. name, description) of the current session were changed.
+     * Notifies that the properties (e.g. name, description) of the current session
+     * were changed.
      *
-     * <p>Should be called only by "core" classes.
+     * <p>
+     * Should be called only by "core" classes.
      *
      * @param session the session changed.
      * @since 2.7.0
@@ -688,7 +697,8 @@ public class ExtensionLoader {
     }
 
     /**
-     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that
+     * the given add-on
      * was installed.
      *
      * @param addOn the add-on that was installed, must not be {@code null}
@@ -696,8 +706,7 @@ public class ExtensionLoader {
      */
     public void addOnInstalled(AddOn addOn) {
         for (ExtensionHook hook : extensionHooks.values()) {
-            for (AddOnInstallationStatusListener listener :
-                    hook.getAddOnInstallationStatusListeners()) {
+            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
                 try {
                     listener.addOnInstalled(addOn);
                 } catch (Exception e) {
@@ -711,18 +720,20 @@ public class ExtensionLoader {
     }
 
     /**
-     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that
+     * the given add-on
      * was soft uninstalled.
      *
-     * @param addOn the add-on that was soft uninstalled, must not be {@code null}
-     * @param successfully if the soft uninstallation was successful, that is, no errors occurred
-     *     while uninstalling it
+     * @param addOn        the add-on that was soft uninstalled, must not be
+     *                     {@code null}
+     * @param successfully if the soft uninstallation was successful, that is, no
+     *                     errors occurred
+     *                     while uninstalling it
      * @since 2.5.0
      */
     public void addOnSoftUninstalled(AddOn addOn, boolean successfully) {
         for (ExtensionHook hook : extensionHooks.values()) {
-            for (AddOnInstallationStatusListener listener :
-                    hook.getAddOnInstallationStatusListeners()) {
+            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
                 try {
                     listener.addOnSoftUninstalled(addOn, successfully);
                 } catch (Exception e) {
@@ -736,18 +747,19 @@ public class ExtensionLoader {
     }
 
     /**
-     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that
+     * the given add-on
      * was uninstalled.
      *
-     * @param addOn the add-on that was uninstalled, must not be {@code null}
-     * @param successfully if the uninstallation was successful, that is, no errors occurred while
-     *     uninstalling it
+     * @param addOn        the add-on that was uninstalled, must not be {@code null}
+     * @param successfully if the uninstallation was successful, that is, no errors
+     *                     occurred while
+     *                     uninstalling it
      * @since 2.5.0
      */
     public void addOnUninstalled(AddOn addOn, boolean successfully) {
         for (ExtensionHook hook : extensionHooks.values()) {
-            for (AddOnInstallationStatusListener listener :
-                    hook.getAddOnInstallationStatusListeners()) {
+            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
                 try {
                     listener.addOnUninstalled(addOn, successfully);
                 } catch (Exception e) {
@@ -778,7 +790,8 @@ public class ExtensionLoader {
     }
 
     /**
-     * Initialize and start all Extensions This function loops for all getExtensionCount() exts
+     * Initialize and start all Extensions This function loops for all
+     * getExtensionCount() exts
      * launching each specific initialization element (model, xml, view, hook, etc.)
      */
     public void startLifeCycle() {
@@ -801,7 +814,8 @@ public class ExtensionLoader {
         // Step 8: start all extensions(quick)
         startAllExtension(10.0);
 
-        // Clear so that manually updated add-ons dont get called with cmdline args again
+        // Clear so that manually updated add-ons dont get called with cmdline args
+        // again
         this.cmdLine = null;
     }
 
@@ -814,6 +828,8 @@ public class ExtensionLoader {
      */
     public void startLifeCycle(Extension ext)
             throws DatabaseException, DatabaseUnsupportedException {
+        setExtensionAdaptorView(ext);
+
         ext.init();
         ext.databaseOpen(model.getDb());
         ext.initModel(model);
@@ -874,6 +890,12 @@ public class ExtensionLoader {
 
         if (hasView()) {
             hookSiteMapListeners(view.getSiteTreePanel(), extHook.getSiteMapListenerList());
+        }
+    }
+
+    private void setExtensionAdaptorView(Extension extension) {
+        if (hasView() && extension instanceof ExtensionAdaptor) {
+            ((ExtensionAdaptor) extension).setView(view);
         }
     }
 
@@ -1270,13 +1292,11 @@ public class ExtensionLoader {
         addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
 
-        for (DisplayedMessageChangedListener changedListener :
-                pv.getRequestPanelDisplayedMessageChangedListeners()) {
+        for (DisplayedMessageChangedListener changedListener : pv.getRequestPanelDisplayedMessageChangedListeners()) {
             view.getRequestPanel().addDisplayedMessageChangedListener(changedListener);
         }
 
-        for (DisplayedMessageChangedListener changedListener :
-                pv.getResponsePanelDisplayedMessageChangedListeners()) {
+        for (DisplayedMessageChangedListener changedListener : pv.getResponsePanelDisplayedMessageChangedListeners()) {
             view.getResponsePanel().addDisplayedMessageChangedListener(changedListener);
         }
     }
@@ -1327,13 +1347,11 @@ public class ExtensionLoader {
         removeParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         removeParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
 
-        for (DisplayedMessageChangedListener changedListener :
-                pv.getRequestPanelDisplayedMessageChangedListeners()) {
+        for (DisplayedMessageChangedListener changedListener : pv.getRequestPanelDisplayedMessageChangedListeners()) {
             view.getRequestPanel().removeDisplayedMessageChangedListener(changedListener);
         }
 
-        for (DisplayedMessageChangedListener changedListener :
-                pv.getResponsePanelDisplayedMessageChangedListeners()) {
+        for (DisplayedMessageChangedListener changedListener : pv.getResponsePanelDisplayedMessageChangedListeners()) {
             view.getResponsePanel().removeDisplayedMessageChangedListener(changedListener);
         }
     }
@@ -1429,6 +1447,8 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             Extension extension = getExtension(i);
             try {
+                setExtensionAdaptorView(extension);
+
                 extension.init();
                 extension.databaseOpen(Model.getSingleton().getDb());
                 if (hasView()) {
@@ -1508,12 +1528,17 @@ public class ExtensionLoader {
     }
 
     /**
-     * Removes the given extension and any components added through its extension hook.
+     * Removes the given extension and any components added through its extension
+     * hook.
      *
-     * <p>The extension is also {@link Extension#stop() stopped} and {@link Extension#destroy()
+     * <p>
+     * The extension is also {@link Extension#stop() stopped} and
+     * {@link Extension#destroy()
      * destroyed}.
      *
-     * <p><strong>Note:</strong> This method should be called only by bootstrap classes.
+     * <p>
+     * <strong>Note:</strong> This method should be called only by bootstrap
+     * classes.
      *
      * @param extension the extension to remove.
      * @since 2.8.0
@@ -1615,7 +1640,8 @@ public class ExtensionLoader {
     /**
      * Gets the names of all unsaved resources of all the extensions.
      *
-     * @return a {@code List} containing all the unsaved resources of all add-ons, never {@code
+     * @return a {@code List} containing all the unsaved resources of all add-ons,
+     *         never {@code
      *     null}
      * @see Extension#getActiveActions()
      */
@@ -1647,7 +1673,8 @@ public class ExtensionLoader {
     /**
      * Gets the names of all active actions of all the extensions.
      *
-     * @return a {@code List} containing all the active actions of all add-ons, never {@code null}
+     * @return a {@code List} containing all the active actions of all add-ons,
+     *         never {@code null}
      * @since 2.4.0
      * @see Extension#getActiveActions()
      */

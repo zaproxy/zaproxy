@@ -28,11 +28,13 @@ import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -46,7 +48,8 @@ public final class LocaleUtils {
 
     private static final String DEFAULT_LOCALE = "en_GB";
 
-    private LocaleUtils() {}
+    private LocaleUtils() {
+    }
 
     /**
      * Regular expression to match a language of a {@code Locale}.
@@ -65,22 +68,29 @@ public final class LocaleUtils {
     public static final String COUNTRY_LOCALE_REGEX = "[a-zA-Z]{2}|[0-9]{3}";
 
     /**
-     * Finds and returns a localised resource, using the given {@code function} to validate it.
+     * Finds and returns a localised resource, using the given {@code function} to
+     * validate it.
      *
-     * <p>The function is called for each resource until a non-{@code null} resource is returned or
-     * all resources are consumed. The resource name is built using the parameters {@code fileName},
-     * {@code fileExtension}, and the given {@code locale}. The candidates and fallback locale are
+     * <p>
+     * The function is called for each resource until a non-{@code null} resource is
+     * returned or
+     * all resources are consumed. The resource name is built using the parameters
+     * {@code fileName},
+     * {@code fileExtension}, and the given {@code locale}. The candidates and
+     * fallback locale are
      * obtained from a {@link ZapResourceBundleControl}.
      *
-     * <p>For example, with the following parameters:
+     * <p>
+     * For example, with the following parameters:
      *
      * <ul>
-     *   <li>{@code fileName} - {@code org.zaproxy.zap.file}
-     *   <li>{@code fileExtension} - {@code ext}
-     *   <li>{@code locale} - {@code es_ES}
+     * <li>{@code fileName} - {@code org.zaproxy.zap.file}
+     * <li>{@code fileExtension} - {@code ext}
+     * <li>{@code locale} - {@code es_ES}
      * </ul>
      *
-     * and "en_GB" as fallback locale returned by the control, it would produce the following
+     * and "en_GB" as fallback locale returned by the control, it would produce the
+     * following
      * resource names:
      *
      * <pre>{@code
@@ -91,14 +101,15 @@ public final class LocaleUtils {
      * org/zaproxy/zap/file_en.ext
      * }</pre>
      *
-     * <p>The {@code function} could be, for example, the instance method {@code
+     * <p>
+     * The {@code function} could be, for example, the instance method {@code
      * ClassLoader::getResource}.
      *
-     * @param <R> the type of the result.
-     * @param fileName the base file name.
+     * @param <R>           the type of the result.
+     * @param fileName      the base file name.
      * @param fileExtension the file extension.
-     * @param locale the target locale.
-     * @param function the function that validates and returns the resource.
+     * @param locale        the target locale.
+     * @param function      the function that validates and returns the resource.
      * @return the resource, or {@code null} if none found.
      * @since 2.8.0
      */
@@ -108,23 +119,30 @@ public final class LocaleUtils {
     }
 
     /**
-     * Finds and returns a localised resource, using the given {@code function} to validate it.
+     * Finds and returns a localised resource, using the given {@code function} to
+     * validate it.
      *
-     * <p>The function is called for each resource until a non-{@code null} resource is returned or
-     * all resources are consumed. The resource name is built using the parameters {@code fileName},
-     * {@code fileExtension}, and the given {@code locale}. The candidates and fallback locale are
+     * <p>
+     * The function is called for each resource until a non-{@code null} resource is
+     * returned or
+     * all resources are consumed. The resource name is built using the parameters
+     * {@code fileName},
+     * {@code fileExtension}, and the given {@code locale}. The candidates and
+     * fallback locale are
      * obtained from the given resource bundle control.
      *
-     * <p>For example, with the following parameters:
+     * <p>
+     * For example, with the following parameters:
      *
      * <ul>
-     *   <li>{@code control} - {@code new ZapResourceBundleControl()}
-     *   <li>{@code fileName} - {@code org.zaproxy.zap.file}
-     *   <li>{@code fileExtension} - {@code ext}
-     *   <li>{@code locale} - {@code es_ES}
+     * <li>{@code control} - {@code new ZapResourceBundleControl()}
+     * <li>{@code fileName} - {@code org.zaproxy.zap.file}
+     * <li>{@code fileExtension} - {@code ext}
+     * <li>{@code locale} - {@code es_ES}
      * </ul>
      *
-     * and "en_GB" as fallback locale returned by the {@code control}, it would produce the
+     * and "en_GB" as fallback locale returned by the {@code control}, it would
+     * produce the
      * following resource names:
      *
      * <pre>{@code
@@ -135,16 +153,18 @@ public final class LocaleUtils {
      * org/zaproxy/zap/file_en.ext
      * }</pre>
      *
-     * <p>The {@code function} could be, for example, the instance method {@code
+     * <p>
+     * The {@code function} could be, for example, the instance method {@code
      * ClassLoader::getResource}.
      *
-     * @param <R> the type of the result.
-     * @param control the resource bundle control to obtain the candidate and fallback locales and
-     *     build the resource names.
-     * @param fileName the base file name.
+     * @param <R>           the type of the result.
+     * @param control       the resource bundle control to obtain the candidate and
+     *                      fallback locales and
+     *                      build the resource names.
+     * @param fileName      the base file name.
      * @param fileExtension the file extension.
-     * @param locale the target locale.
-     * @param function the function that validates and returns the resource.
+     * @param locale        the target locale.
+     * @param function      the function that validates and returns the resource.
      * @return the resource, or {@code null} if none found.
      * @since 2.8.0
      */
@@ -158,24 +178,33 @@ public final class LocaleUtils {
     }
 
     /**
-     * Finds and returns a localised resource, using the given {@code function} to validate it.
+     * Finds and returns a localised resource, using the given {@code function} to
+     * validate it.
      *
-     * <p>The function is called for each resource until a non-{@code null} resource is returned or
-     * all resources are consumed. The resource name is built using the parameters {@code fileName},
-     * {@code fileExtension}, and the given {@code locale}. The {@code localeToken}, if non-{@code
-     * null} nor empty, is replaced in the {@code fileName} with the current candidate locale. The
-     * candidates and fallback locale are obtained from a {@link ZapResourceBundleControl}.
+     * <p>
+     * The function is called for each resource until a non-{@code null} resource is
+     * returned or
+     * all resources are consumed. The resource name is built using the parameters
+     * {@code fileName},
+     * {@code fileExtension}, and the given {@code locale}. The {@code localeToken},
+     * if non-{@code
+     * null} nor empty, is replaced in the {@code fileName} with the current
+     * candidate locale. The
+     * candidates and fallback locale are obtained from a
+     * {@link ZapResourceBundleControl}.
      *
-     * <p>For example, with the following parameters:
+     * <p>
+     * For example, with the following parameters:
      *
      * <ul>
-     *   <li>{@code fileName} - {@code org.zaproxy.zap.dir%LC%.file}
-     *   <li>{@code fileExtension} - {@code ext}
-     *   <li>{@code localeToken} - {@code %LC%}
-     *   <li>{@code locale} - {@code es_ES}
+     * <li>{@code fileName} - {@code org.zaproxy.zap.dir%LC%.file}
+     * <li>{@code fileExtension} - {@code ext}
+     * <li>{@code localeToken} - {@code %LC%}
+     * <li>{@code locale} - {@code es_ES}
      * </ul>
      *
-     * and "en_GB" as fallback locale returned by the control, it would produce the following
+     * and "en_GB" as fallback locale returned by the control, it would produce the
+     * following
      * resource names:
      *
      * <pre>{@code
@@ -186,16 +215,18 @@ public final class LocaleUtils {
      * org/zaproxy/zap/dir_en/file_en.ext
      * }</pre>
      *
-     * <p>The {@code function} could be, for example, the instance method {@code
+     * <p>
+     * The {@code function} could be, for example, the instance method {@code
      * ClassLoader::getResource}.
      *
-     * @param <R> the type of the result.
-     * @param fileName the base file name.
+     * @param <R>           the type of the result.
+     * @param fileName      the base file name.
      * @param fileExtension the file extension.
-     * @param localeToken the token that represents the locale, to be replaced in the {@code
-     *     fileName}. Might be {@code null}.
-     * @param locale the target locale.
-     * @param function the function that validates and returns the resource.
+     * @param localeToken   the token that represents the locale, to be replaced in
+     *                      the {@code
+     *     fileName}     . Might be {@code null}.
+     * @param locale        the target locale.
+     * @param function      the function that validates and returns the resource.
      * @return the resource, or {@code null} if none found.
      * @since 2.8.0
      */
@@ -215,25 +246,34 @@ public final class LocaleUtils {
     }
 
     /**
-     * Finds and returns a localised resource, using the given {@code function} to validate it.
+     * Finds and returns a localised resource, using the given {@code function} to
+     * validate it.
      *
-     * <p>The function is called for each resource until a non-{@code null} resource is returned or
-     * all resources are consumed. The resource name is built using the parameters {@code fileName},
-     * {@code fileExtension}, and the given {@code locale}. The {@code localeToken}, if non-{@code
-     * null} nor empty, is replaced in the {@code fileName} with the current candidate locale. The
-     * candidates and fallback locale are obtained from the given resource bundle control.
+     * <p>
+     * The function is called for each resource until a non-{@code null} resource is
+     * returned or
+     * all resources are consumed. The resource name is built using the parameters
+     * {@code fileName},
+     * {@code fileExtension}, and the given {@code locale}. The {@code localeToken},
+     * if non-{@code
+     * null} nor empty, is replaced in the {@code fileName} with the current
+     * candidate locale. The
+     * candidates and fallback locale are obtained from the given resource bundle
+     * control.
      *
-     * <p>For example, with the following parameters:
+     * <p>
+     * For example, with the following parameters:
      *
      * <ul>
-     *   <li>{@code control} - {@code new ZapResourceBundleControl()}
-     *   <li>{@code fileName} - {@code org.zaproxy.zap.dir%LC%.file}
-     *   <li>{@code fileExtension} - {@code ext}
-     *   <li>{@code localeToken} - {@code %LC%}
-     *   <li>{@code locale} - {@code es_ES}
+     * <li>{@code control} - {@code new ZapResourceBundleControl()}
+     * <li>{@code fileName} - {@code org.zaproxy.zap.dir%LC%.file}
+     * <li>{@code fileExtension} - {@code ext}
+     * <li>{@code localeToken} - {@code %LC%}
+     * <li>{@code locale} - {@code es_ES}
      * </ul>
      *
-     * and "en_GB" as fallback locale returned by the {@code control}, it would produce the
+     * and "en_GB" as fallback locale returned by the {@code control}, it would
+     * produce the
      * following resource names:
      *
      * <pre>{@code
@@ -244,18 +284,21 @@ public final class LocaleUtils {
      * org/zaproxy/zap/dir_en/file_en.ext
      * }</pre>
      *
-     * <p>The {@code function} could be, for example, the instance method {@code
+     * <p>
+     * The {@code function} could be, for example, the instance method {@code
      * ClassLoader::getResource}.
      *
-     * @param <R> the type of the result.
-     * @param control the resource bundle control to obtain the candidate and fallback locales and
-     *     build the resource names.
-     * @param fileName the base file name.
+     * @param <R>           the type of the result.
+     * @param control       the resource bundle control to obtain the candidate and
+     *                      fallback locales and
+     *                      build the resource names.
+     * @param fileName      the base file name.
      * @param fileExtension the file extension.
-     * @param localeToken the token that represents the locale, to be replaced in the {@code
-     *     fileName}. Might be {@code null}.
-     * @param locale the target locale.
-     * @param function the function that validates and returns the resource.
+     * @param localeToken   the token that represents the locale, to be replaced in
+     *                      the {@code
+     *     fileName}     . Might be {@code null}.
+     * @param locale        the target locale.
+     * @param function      the function that validates and returns the resource.
      * @return the resource, or {@code null} if none found.
      * @since 2.8.0
      */
@@ -276,9 +319,8 @@ public final class LocaleUtils {
             String strLocale = control.toBundleName("", candidateLocale);
             String prefix = fileName;
             if (localeToken != null && !localeToken.isEmpty()) {
-                prefix =
-                        prefix.replaceAll(
-                                Pattern.quote(localeToken), Matcher.quoteReplacement(strLocale));
+                prefix = prefix.replaceAll(
+                        Pattern.quote(localeToken), Matcher.quoteReplacement(strLocale));
             }
             R result = function.apply(control.toResourceName(prefix + strLocale, fileExtension));
             if (result != null) {
@@ -289,11 +331,14 @@ public final class LocaleUtils {
     }
 
     /**
-     * Convenience method that calls the method {@code #createResourceFilePattern(String, String)},
-     * with parameters {@code Constant.MESSAGES_PREFIX} and {@code Constant.MESSAGES_EXTENSION},
+     * Convenience method that calls the method
+     * {@code #createResourceFilePattern(String, String)},
+     * with parameters {@code Constant.MESSAGES_PREFIX} and
+     * {@code Constant.MESSAGES_EXTENSION},
      * respectively.
      *
-     * @return a {@code Pattern} that matches the Messages.properties files of different {@code
+     * @return a {@code Pattern} that matches the Messages.properties files of
+     *         different {@code
      *     Locale}s
      * @see #createResourceFilesPattern(String, String)
      * @see Constant#MESSAGES_PREFIX
@@ -305,23 +350,26 @@ public final class LocaleUtils {
     }
 
     /**
-     * Returns a regular expression to match source and translated resource filenames with the given
+     * Returns a regular expression to match source and translated resource
+     * filenames with the given
      * {@code fileName} and {@code fileExtension}.
      *
-     * <p>For example, with {@code fileName} as "Messages" and {@code fileExtension} as
+     * <p>
+     * For example, with {@code fileName} as "Messages" and {@code fileExtension} as
      * ".properties" the returned pattern would match:
      *
      * <ul>
-     *   <li>Messages.properties
-     *   <li>Messages_en.properties
-     *   <li>Messages_en_GB.properties
+     * <li>Messages.properties
+     * <li>Messages_en.properties
+     * <li>Messages_en_GB.properties
      * </ul>
      *
-     * @param fileName the name of the resource files
+     * @param fileName      the name of the resource files
      * @param fileExtension the extension of the resource files
      * @return the regular expression to match resource filenames
-     * @throws IllegalArgumentException if the given {@code fileName} or {@code fileExtension} is
-     *     {@code null}.
+     * @throws IllegalArgumentException if the given {@code fileName} or
+     *                                  {@code fileExtension} is
+     *                                  {@code null}.
      * @see #createResourceFilesPattern(String, String)
      * @see #LANGUAGE_LOCALE_REGEX
      * @see #COUNTRY_LOCALE_REGEX
@@ -335,13 +383,12 @@ public final class LocaleUtils {
             throw new IllegalArgumentException("Parameter fileExtension must not be null.");
         }
 
-        StringBuilder strBuilder =
-                new StringBuilder(
-                        fileName.length()
-                                + LANGUAGE_LOCALE_REGEX.length()
-                                + COUNTRY_LOCALE_REGEX.length()
-                                + fileExtension.length()
-                                + 13);
+        StringBuilder strBuilder = new StringBuilder(
+                fileName.length()
+                        + LANGUAGE_LOCALE_REGEX.length()
+                        + COUNTRY_LOCALE_REGEX.length()
+                        + fileExtension.length()
+                        + 13);
         strBuilder.append(Pattern.quote(fileName));
         strBuilder.append("(?:_").append(LANGUAGE_LOCALE_REGEX);
         strBuilder.append("(?:_").append(COUNTRY_LOCALE_REGEX).append(")?").append(")?");
@@ -351,25 +398,29 @@ public final class LocaleUtils {
     }
 
     /**
-     * Returns a {@code Pattern} to match source and translated resource filenames with the given
+     * Returns a {@code Pattern} to match source and translated resource filenames
+     * with the given
      * {@code fileName} and {@code fileExtension}.
      *
-     * <p>For example, with {@code fileName} as "Messages" and {@code fileExtension} as
+     * <p>
+     * For example, with {@code fileName} as "Messages" and {@code fileExtension} as
      * ".properties" the returned pattern would match:
      *
      * <ul>
-     *   <li>Messages.properties
-     *   <li>Messages_en.properties
-     *   <li>Messages_en_GB.properties
+     * <li>Messages.properties
+     * <li>Messages_en.properties
+     * <li>Messages_en_GB.properties
      * </ul>
      *
-     * <p>The pattern is case-sensitive.
+     * <p>
+     * The pattern is case-sensitive.
      *
-     * @param fileName the name of the resource files
+     * @param fileName      the name of the resource files
      * @param fileExtension the extension of the resource files
      * @return the {@code Pattern} to match resource filenames
-     * @throws IllegalArgumentException if the given {@code fileName} or {@code fileExtension} is
-     *     {@code null}.
+     * @throws IllegalArgumentException if the given {@code fileName} or
+     *                                  {@code fileExtension} is
+     *                                  {@code null}.
      * @see #createResourceFilesRegex(String, String)
      * @see #LANGUAGE_LOCALE_REGEX
      * @see #COUNTRY_LOCALE_REGEX
@@ -380,10 +431,13 @@ public final class LocaleUtils {
     }
 
     /**
-     * Returns a list of languages and countries of the {@code Locale}s (as {@code String}, for
+     * Returns a list of languages and countries of the {@code Locale}s (as
+     * {@code String}, for
      * example "en_GB"), of default language and available translations.
      *
-     * <p>The list is sorted by language/country codes with default locale, always, at first
+     * <p>
+     * The list is sorted by language/country codes with default locale, always, at
+     * first
      * position.
      *
      * @return The list of available translations, ZAP provides
@@ -427,8 +481,10 @@ public final class LocaleUtils {
     }
 
     /**
-     * Convenience method that creates a {@code ViewLocale} with the given {@code locale} and a
-     * display name created by calling {@code getLocalDisplayName(String)}, with the {@code locale}
+     * Convenience method that creates a {@code ViewLocale} with the given
+     * {@code locale} and a
+     * display name created by calling {@code getLocalDisplayName(String)}, with the
+     * {@code locale}
      * as argument.
      *
      * @param locale the locale that will used to create the {@code ViewLocale}
@@ -441,10 +497,12 @@ public final class LocaleUtils {
     }
 
     /**
-     * Returns a list of {@code ViewLocale}s, sorted by display name, of the default language and
+     * Returns a list of {@code ViewLocale}s, sorted by display name, of the default
+     * language and
      * available translations.
      *
-     * @return the {@code ViewLocale}s of the default language and available translations.
+     * @return the {@code ViewLocale}s of the default language and available
+     *         translations.
      * @see ViewLocale
      * @since 2.4.0
      */
@@ -453,8 +511,15 @@ public final class LocaleUtils {
 
         List<ViewLocale> localesUI = new ArrayList<>();
         if (!locales.isEmpty()) {
+            Map<String, Long> languageCount = locales.stream()
+                    .map(LocaleUtils::getLanguage)
+                    .collect(
+                            Collectors.groupingBy(
+                                    Function.identity(), Collectors.counting()));
             for (String locale : locales) {
-                localesUI.add(new ViewLocale(locale, getLocalDisplayName(locale)));
+                boolean duplicatedLanguage = languageCount.get(getLanguage(locale)) != 1;
+                localesUI.add(
+                        new ViewLocale(locale, getLocalDisplayName(locale, duplicatedLanguage)));
             }
 
             Collections.sort(
@@ -474,6 +539,10 @@ public final class LocaleUtils {
         return localesUI;
     }
 
+    private static String getLanguage(String locale) {
+        return locale.split("_", 2)[0];
+    }
+
     /**
      * Gets the name of the language of and for the given locale.
      *
@@ -481,6 +550,10 @@ public final class LocaleUtils {
      * @return the name of the language
      */
     public static String getLocalDisplayName(String locale) {
+        return getLocalDisplayName(locale, false);
+    }
+
+    private static String getLocalDisplayName(String locale, boolean useDisplayName) {
         String desc = "" + locale;
         if (locale != null) {
             String[] langArray = locale.split("_");
@@ -496,6 +569,9 @@ public final class LocaleUtils {
                 builder.setVariant(langArray[2]);
             }
             Locale loc = builder.build();
+            if (useDisplayName) {
+                return loc.getDisplayName(loc);
+            }
             desc = loc.getDisplayLanguage(loc);
         }
         return desc;

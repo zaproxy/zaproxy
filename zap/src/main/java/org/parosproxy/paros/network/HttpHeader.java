@@ -47,6 +47,7 @@
 // ZAP: 2022/09/12 Allow only major HTTP version.
 // ZAP: 2022/11/17 Add HTTP/2 constant.
 // ZAP: 2022/11/22 Lower case the HTTP field names for compatibility with HTTP/2.
+// ZAP: 2023/08/15 Add FORM_MULTIPART_CONTENT_TYPE.
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
@@ -98,6 +99,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String _KEEP_ALIVE = "Keep-Alive";
     public static final String _CHUNKED = "Chunked";
     public static final String FORM_URLENCODED_CONTENT_TYPE = "application/x-www-form-urlencoded";
+    public static final String FORM_MULTIPART_CONTENT_TYPE = "multipart/form-data";
     public static final String JSON_CONTENT_TYPE = "application/json";
     public static final String SCHEME_HTTP = "http://";
     public static final String SCHEME_HTTPS = "https://";
@@ -113,14 +115,13 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final Pattern patternCRLF = Pattern.compile("\\r\\n", Pattern.MULTILINE);
     public static final Pattern patternLF = Pattern.compile("\\n", Pattern.MULTILINE);
     // ZAP: Issue 410: charset wrapped in quotation marks
-    private static final Pattern patternCharset =
-            Pattern.compile(
-                    "charset *= *(?:(?:'([^';\\s]+))|(?:\"?([^\";\\s]+)\"?))",
-                    Pattern.CASE_INSENSITIVE);
+    private static final Pattern patternCharset = Pattern.compile(
+            "charset *= *(?:(?:'([^';\\s]+))|(?:\"?([^\";\\s]+)\"?))",
+            Pattern.CASE_INSENSITIVE);
     protected static final String p_TEXT = "[^\\x00-\\x1f\\r\\n]*";
     protected static final String p_METHOD = "(\\w+)";
     protected static final String p_SP = " +";
-    // protected static final String p_URI			= "(\\S+)";
+    // protected static final String p_URI = "(\\S+)";
     // allow space in URI for encoding to %20
     protected static final String p_URI = "([^\\r\\n]+)";
     protected static final String p_VERSION = "(HTTP/\\d+(?:\\.\\d+)?)";
@@ -201,7 +202,8 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Get the first header value using the name given. If there are multiple occurrence, only the
+     * Get the first header value using the name given. If there are multiple
+     * occurrence, only the
      * first one will be returned as String.
      *
      * @param name
@@ -254,7 +256,8 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Add a header with the name and value given. It will be appended to the header string.
+     * Add a header with the name and value given. It will be appended to the header
+     * string.
      *
      * @param name
      * @param val
@@ -265,15 +268,16 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Set a header name and value. If the name is not found, it will be added. If the value is
+     * Set a header name and value. If the name is not found, it will be added. If
+     * the value is
      * null, the header will be removed.
      *
      * @param name
      * @param value
      */
     public void setHeader(String name, String value) {
-        //		int pos = 0;
-        //		int crlfpos = 0;
+        // int pos = 0;
+        // int crlfpos = 0;
         Pattern pattern = null;
 
         if (getHeaderValues(name).isEmpty() && value != null) {
@@ -341,7 +345,8 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Check if this header expect connection to be closed. HTTP/1.0 default to close. HTTP/1.1
+     * Check if this header expect connection to be closed. HTTP/1.0 default to
+     * close. HTTP/1.1
      * default to keep-alive.
      *
      * @return
@@ -461,12 +466,12 @@ public abstract class HttpHeader implements java.io.Serializable {
             }
 
             /*
-            if (name.equalsIgnoreCase(PROXY_CONNECTION)) {
-            sb.append(name + ": " + _CLOSE + mLineDelimiter);
-            } else if (name.equalsIgnoreCase(CONNECTION)) {
-            sb.append(name + ": " + _CLOSE + mLineDelimiter);
-            } else {
-            */
+             * if (name.equalsIgnoreCase(PROXY_CONNECTION)) {
+             * sb.append(name + ": " + _CLOSE + mLineDelimiter);
+             * } else if (name.equalsIgnoreCase(CONNECTION)) {
+             * sb.append(name + ": " + _CLOSE + mLineDelimiter);
+             * } else {
+             */
             sb.append(name + ": " + value + mLineDelimiter);
             // }
 
@@ -521,9 +526,11 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Gets the header name normalised, to obtain the value(s) from {@link #mHeaderFields}.
+     * Gets the header name normalised, to obtain the value(s) from
+     * {@link #mHeaderFields}.
      *
-     * <p>The normalisation is done by changing all characters to upper case.
+     * <p>
+     * The normalisation is done by changing all characters to upper case.
      *
      * @param name the name of the header to normalise.
      * @return the normalised header name.
@@ -573,12 +580,15 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Tells whether or not the HTTP header contains any of the given {@code Content-Type} values.
+     * Tells whether or not the HTTP header contains any of the given
+     * {@code Content-Type} values.
      *
-     * <p>The values are expected to be in lower case.
+     * <p>
+     * The values are expected to be in lower case.
      *
      * @param contentTypes the values to check.
-     * @return {@code true} if any of the given values is contained in the (first) {@code
+     * @return {@code true} if any of the given values is contained in the (first)
+     *         {@code
      *     Content-Type} header, {@code false} otherwise.
      * @since 2.8.0
      * @see #getNormalisedContentTypeValue()
@@ -604,7 +614,8 @@ public abstract class HttpHeader implements java.io.Serializable {
     /**
      * Gets the normalised value of the (first) {@code Content-Type} header.
      *
-     * <p>The normalisation is done by changing all characters to lower case.
+     * <p>
+     * The normalisation is done by changing all characters to lower case.
      *
      * @return the value normalised, might be {@code null}.
      * @since 2.8.0
@@ -628,7 +639,8 @@ public abstract class HttpHeader implements java.io.Serializable {
     }
 
     /**
-     * Get the headers as string. All the headers name value pair is concatenated and delimited.
+     * Get the headers as string. All the headers name value pair is concatenated
+     * and delimited.
      *
      * @return Eg "Host: www.example.com\r\nUser-agent: some agent\r\n"
      */
@@ -639,7 +651,9 @@ public abstract class HttpHeader implements java.io.Serializable {
     /**
      * Tells whether or not the header is empty.
      *
-     * <p>A header is empty if it has no content (for example, no start line nor headers).
+     * <p>
+     * A header is empty if it has no content (for example, no start line nor
+     * headers).
      *
      * @return {@code true} if the header is empty, {@code false} otherwise.
      */

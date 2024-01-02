@@ -25,14 +25,12 @@
 // ZAP: 2018/10/05 Lazily initialise the lists and add JavaDoc.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
-// ZAP: 2023/11/14 Allow to hook AbstractParamPanel with parents.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.httppanel.DisplayedMessageChangedListener;
 import org.zaproxy.zap.view.ContextPanelFactory;
@@ -87,7 +85,7 @@ public class ExtensionHookView {
      * @see #addSessionPanel(AbstractParamPanel)
      * @see #getSessionPanel()
      */
-    private List<AbstractParamPanelEntry> sessionPanelList;
+    private List<AbstractParamPanel> sessionPanelList;
 
     /**
      * The options panels added to this extension hook.
@@ -97,7 +95,7 @@ public class ExtensionHookView {
      * @see #addOptionPanel(AbstractParamPanel)
      * @see #getOptionsPanel()
      */
-    private List<AbstractParamPanelEntry> optionPanelList;
+    private List<AbstractParamPanel> optionPanelList;
 
     /**
      * The {@link ContextPanelFactory}s added to this extension hook.
@@ -194,30 +192,13 @@ public class ExtensionHookView {
      * org.parosproxy.paros.view.SessionDialog Session Properties dialogue}.
      *
      * @param panel the {@code AbstractParamPanel} that will be added to the Options dialogue.
-     * @see #addSessionPanel(List, AbstractParamPanel)
      * @see org.parosproxy.paros.view.View#getSessionDialog()
      */
     public void addSessionPanel(AbstractParamPanel panel) {
-        addSessionPanel(List.of(), panel);
-    }
-
-    /**
-     * Adds the given {@link AbstractParamPanel} to the view hook, to be later added to the {@link
-     * org.parosproxy.paros.view.SessionDialog Session Properties dialogue} with the given parents.
-     *
-     * @param parents the parents of the panel, must not be {@code null}.
-     * @param panel the {@code AbstractParamPanel} that will be added to the Options dialogue.
-     * @throws NullPointerException if the given {@code parents} is {@code null}.
-     * @since 2.15.0
-     * @see #addSessionPanel(AbstractParamPanel)
-     * @see org.parosproxy.paros.view.View#getSessionDialog()
-     */
-    public void addSessionPanel(List<String> parents, AbstractParamPanel panel) {
-        Objects.requireNonNull(parents);
         if (sessionPanelList == null) {
             sessionPanelList = createList();
         }
-        sessionPanelList.add(new AbstractParamPanelEntry(parents, panel));
+        sessionPanelList.add(panel);
     }
 
     /**
@@ -225,30 +206,13 @@ public class ExtensionHookView {
      * org.parosproxy.paros.view.OptionsDialog Options dialogue}.
      *
      * @param panel the {@code AbstractParamPanel} that will be added to the Options dialogue.
-     * @see #addOptionPanel(List, AbstractParamPanel)
      * @see org.parosproxy.paros.view.View#getOptionsDialog(String)
      */
     public void addOptionPanel(AbstractParamPanel panel) {
-        addOptionPanel(List.of(), panel);
-    }
-
-    /**
-     * Adds the given {@link AbstractParamPanel} to the view hook, to be later added to the {@link
-     * org.parosproxy.paros.view.OptionsDialog Options dialogue} with the given parents.
-     *
-     * @param parents the parents of the panel, must not be {@code null}.
-     * @param panel the {@code AbstractParamPanel} that will be added to the Options dialogue.
-     * @throws NullPointerException if the given {@code parents} is {@code null}.
-     * @since 2.15.0
-     * @see #addOptionPanel(AbstractParamPanel)
-     * @see org.parosproxy.paros.view.View#getOptionsDialog(String)
-     */
-    public void addOptionPanel(List<String> parents, AbstractParamPanel panel) {
-        Objects.requireNonNull(parents);
         if (optionPanelList == null) {
             optionPanelList = createList();
         }
-        optionPanelList.add(new AbstractParamPanelEntry(parents, panel));
+        optionPanelList.add(panel);
     }
 
     List<AbstractPanel> getWorkPanel() {
@@ -263,11 +227,11 @@ public class ExtensionHookView {
         return unmodifiableList(statusPanelList);
     }
 
-    List<AbstractParamPanelEntry> getSessionPanel() {
+    List<AbstractParamPanel> getSessionPanel() {
         return unmodifiableList(sessionPanelList);
     }
 
-    List<AbstractParamPanelEntry> getOptionsPanel() {
+    List<AbstractParamPanel> getOptionsPanel() {
         return unmodifiableList(optionPanelList);
     }
 
@@ -351,7 +315,7 @@ public class ExtensionHookView {
 
     /**
      * Adds the given {@link DisplayedMessageChangedListener} to the view hook, to be later added to
-     * the {@link org.parosproxy.paros.view.View}s {@link
+     * the the {@link org.parosproxy.paros.view.View}s {@link
      * org.zaproxy.zap.extension.httppanel.HttpPanelRequest} ChangeListeners.
      *
      * @see
@@ -380,7 +344,7 @@ public class ExtensionHookView {
 
     /**
      * Adds the given {@link DisplayedMessageChangedListener} to the view hook, to be later added to
-     * the {@link org.parosproxy.paros.view.View}s {@link
+     * the the {@link org.parosproxy.paros.view.View}s {@link
      * org.zaproxy.zap.extension.httppanel.HttpPanelResponse} ChangeListeners.
      *
      * @see
@@ -405,27 +369,5 @@ public class ExtensionHookView {
      */
     List<DisplayedMessageChangedListener> getResponsePanelDisplayedMessageChangedListeners() {
         return unmodifiableList(responsePanelDisplayedMessageChangedListener);
-    }
-
-    static class AbstractParamPanelEntry {
-
-        private static final String[] EMPTY_ARRAY = {};
-
-        private final String[] parents;
-
-        private final AbstractParamPanel panel;
-
-        private AbstractParamPanelEntry(List<String> parents, AbstractParamPanel panel) {
-            this.parents = parents.toArray(EMPTY_ARRAY);
-            this.panel = panel;
-        }
-
-        String[] getParents() {
-            return parents;
-        }
-
-        AbstractParamPanel getPanel() {
-            return panel;
-        }
     }
 }
