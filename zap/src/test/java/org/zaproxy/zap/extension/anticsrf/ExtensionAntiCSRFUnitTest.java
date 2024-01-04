@@ -63,7 +63,7 @@ class ExtensionAntiCSRFUnitTest {
         private static final String NO_ID = null;
         private static final String NO_NAME = null;
         private static final String NO_VALUE = null;
-        private static final String UNKOWN_TOKEN = "UnkownToken";
+        private static final String UNKNOWN_TOKEN = "UnknownToken";
         private static final String KNOWN_TOKEN_1 = "AcsrfToken 1";
         private static final String KNOWN_TOKEN_2 = "AcsrfToken 2";
         private static final String KNOWN_TOKEN_3 = "AcsrfToken 3";
@@ -143,7 +143,7 @@ class ExtensionAntiCSRFUnitTest {
         @Test
         void shouldNotGetTokensFromInputFieldsIfIdIsNotAKnownToken() {
             // Given
-            String input = input(UNKOWN_TOKEN, NO_NAME, "value");
+            String input = input(UNKNOWN_TOKEN, NO_NAME, "value");
             Source source = createSource(form(input, input), form(input));
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
@@ -154,7 +154,7 @@ class ExtensionAntiCSRFUnitTest {
         @Test
         void shouldNotGetTokensFromInputFieldsIfNameIsNotAKnownToken() {
             // Given
-            String input = input(NO_ID, UNKOWN_TOKEN, "value");
+            String input = input(NO_ID, UNKNOWN_TOKEN, "value");
             Source source = createSource(form(input, input), form(input));
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
@@ -168,9 +168,9 @@ class ExtensionAntiCSRFUnitTest {
             Source source =
                     createSource(
                             form(
-                                    input(KNOWN_TOKEN_1, UNKOWN_TOKEN, "value1"),
-                                    input(KNOWN_TOKEN_2, UNKOWN_TOKEN, "value2")),
-                            form(input(KNOWN_TOKEN_3, UNKOWN_TOKEN, "value3")));
+                                    input(KNOWN_TOKEN_1, UNKNOWN_TOKEN, "value1"),
+                                    input(KNOWN_TOKEN_2, UNKNOWN_TOKEN, "value2")),
+                            form(input(KNOWN_TOKEN_3, UNKNOWN_TOKEN, "value3")));
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
@@ -186,9 +186,9 @@ class ExtensionAntiCSRFUnitTest {
             Source source =
                     createSource(
                             form(
-                                    input(UNKOWN_TOKEN, KNOWN_TOKEN_1, "value1"),
-                                    input(UNKOWN_TOKEN, KNOWN_TOKEN_2, "value2")),
-                            form(input(UNKOWN_TOKEN, KNOWN_TOKEN_3, "value3")));
+                                    input(UNKNOWN_TOKEN, KNOWN_TOKEN_1, "value1"),
+                                    input(UNKNOWN_TOKEN, KNOWN_TOKEN_2, "value2")),
+                            form(input(UNKNOWN_TOKEN, KNOWN_TOKEN_3, "value3")));
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
@@ -204,9 +204,9 @@ class ExtensionAntiCSRFUnitTest {
             Source source =
                     createSource(
                             form(
-                                    input(UNKOWN_TOKEN, KNOWN_TOKEN_1, "value1"),
-                                    input(KNOWN_TOKEN_2, UNKOWN_TOKEN, "value2")),
-                            form(input(UNKOWN_TOKEN, KNOWN_TOKEN_3, "value3")));
+                                    input(UNKNOWN_TOKEN, KNOWN_TOKEN_1, "value1"),
+                                    input(KNOWN_TOKEN_2, UNKNOWN_TOKEN, "value2")),
+                            form(input(UNKNOWN_TOKEN, KNOWN_TOKEN_3, "value3")));
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
@@ -234,12 +234,12 @@ class ExtensionAntiCSRFUnitTest {
                     createSource(
                             form(
                                     input(
-                                            UNKOWN_TOKEN,
+                                            UNKNOWN_TOKEN,
                                             KNOWN_TOKEN_1.toLowerCase(Locale.ROOT),
                                             "value1"),
                                     input(
                                             KNOWN_TOKEN_2.toLowerCase(Locale.ROOT),
-                                            UNKOWN_TOKEN,
+                                            UNKNOWN_TOKEN,
                                             "value2")));
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
@@ -262,9 +262,9 @@ class ExtensionAntiCSRFUnitTest {
             Source source =
                     createSource(
                             form(
-                                    input(UNKOWN_TOKEN, stringWithKnownToken1, "value1"),
-                                    input(stringWithKnownToken2, UNKOWN_TOKEN, "value2")),
-                            form(input(UNKOWN_TOKEN, stringWithKnownToken3, "value3")));
+                                    input(UNKNOWN_TOKEN, stringWithKnownToken1, "value1"),
+                                    input(stringWithKnownToken2, UNKNOWN_TOKEN, "value2")),
+                            form(input(UNKNOWN_TOKEN, stringWithKnownToken3, "value3")));
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
@@ -285,9 +285,9 @@ class ExtensionAntiCSRFUnitTest {
             Source source =
                     createSource(
                             form(
-                                    input(UNKOWN_TOKEN, stringWithKnownToken1, "value1"),
-                                    input(stringWithKnownToken2, UNKOWN_TOKEN, "value2")),
-                            form(input(UNKOWN_TOKEN, stringWithKnownToken3, "value3")));
+                                    input(UNKNOWN_TOKEN, stringWithKnownToken1, "value1"),
+                                    input(stringWithKnownToken2, UNKNOWN_TOKEN, "value2")),
+                            form(input(UNKNOWN_TOKEN, stringWithKnownToken3, "value3")));
             // When
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
