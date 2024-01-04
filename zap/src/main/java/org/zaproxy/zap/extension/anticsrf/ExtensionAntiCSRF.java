@@ -368,13 +368,13 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
                         String attId = inputElement.getAttributeValue("ID");
                         boolean found = false;
-                        if (isKnownAntiCsrfToken(attId)) {
+                        if (isAntiCsrfToken(attId)) {
                             list.add(new AntiCsrfToken(msg, attId, value, formIndex));
                             found = true;
                         }
                         if (!found) {
                             String name = inputElement.getAttributeValue("NAME");
-                            if (isKnownAntiCsrfToken(name)) {
+                            if (isAntiCsrfToken(name)) {
                                 list.add(new AntiCsrfToken(msg, name, value, formIndex));
                             }
                         }
@@ -384,20 +384,6 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
             }
         }
         return list;
-    }
-
-    private boolean isKnownAntiCsrfToken(String name) {
-        if (name == null) {
-            return false;
-        }
-        for (String tokenName : this.getAntiCsrfTokenNames()) {
-            if (this.getParam().isPartialMatchingEnabled()
-                            && StringUtils.containsIgnoreCase(name, tokenName)
-                    || tokenName.equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override
@@ -445,7 +431,14 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         if (name == null) {
             return false;
         }
-        return this.getParam().getTokensNames().contains(name.toLowerCase());
+        for (String tokenName : this.getAntiCsrfTokenNames()) {
+            if (this.getParam().isPartialMatchingEnabled()
+                            && StringUtils.containsIgnoreCase(name, tokenName)
+                    || tokenName.equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

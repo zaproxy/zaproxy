@@ -44,6 +44,8 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -290,6 +292,16 @@ class ExtensionAntiCSRFUnitTest {
             List<AntiCsrfToken> tokens = extensionAntiCSRF.getTokensFromResponse(message, source);
             // Then
             assertThat(tokens, hasSize(0));
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = {KNOWN_TOKEN_1, KNOWN_TOKEN_1 + "-abc123"})
+        void shouldIdentifyTokenAsKnownWhenPartialMatching(String token) {
+            // Given
+            String extendedToken = token;
+            given(antiCsrfParam.isPartialMatchingEnabled()).willReturn(true);
+            // When / Then
+            assertThat(extensionAntiCSRF.isAntiCsrfToken(extendedToken), is(equalTo(true)));
         }
     }
 
