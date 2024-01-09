@@ -1,20 +1,19 @@
 ---
 env:
   contexts:
-  - name: "password-added-json"
+  - name: "simple-json-bearer-js-cookie"
     urls:
-    - "http://localhost:9091/auth/password-added-json"
+    - "http://localhost:9091/auth/simple-json-bearer-js-cookie"
     includePaths:
-    - "http://localhost:9091/auth/password-added-json.*"
+    - "http://localhost:9091/auth/simple-json-bearer-js-cookie.*"
     excludePaths: []
     authentication:
       method: "browser"
       parameters:
-        loginPageUrl: "http://localhost:9091/auth/password-added-json/"
+        loginPageUrl: "http://localhost:9091/auth/simple-json-js-bearer-js-cookie/"
         loginPageWait: 5
         browserId: "firefox-headless"
       verification:
-        # Checking 2.13+ compatibility
         method: "autodetect"
     sessionManagement:
       method: "autodetect"
@@ -53,7 +52,7 @@ jobs:
 - parameters:
     user: "test"
   requests:
-  - url: "http://localhost:9091/auth/password-added-json/user"
+  - url: "http://localhost:9091/auth/simple-json-bearer-js-cookie/user"
     name: ""
     method: ""
     httpVersion: ""

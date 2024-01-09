@@ -10,7 +10,7 @@ env:
     authentication:
       method: "browser"
       parameters:
-        loginPageUrl: "http://localhost:9091/auth/simple-json/ "
+        loginPageUrl: "http://localhost:9091/auth/simple-json/"
         loginPageWait: 5
         browserId: "firefox-headless"
       verification:
