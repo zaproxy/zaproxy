@@ -117,6 +117,21 @@ class UserUnitTest {
     }
 
     @Test
+    void shouldEncodeAndDecodeProperlyWithNoCreds() {
+        // Given
+        User user = spy(new User(CONTEXT_ID, USER_NAME));
+        doReturn(mockedContext).when(user).getContext();
+        // When
+        String encoded = User.encode(user);
+        User result = User.decode(CONTEXT_ID, encoded, mockedExtension);
+        // Then
+        assertEquals(user.getName(), result.getName());
+        assertEquals(user.isEnabled(), result.isEnabled());
+        assertEquals(user.getId(), result.getId());
+        assertEquals(user.getContextId(), result.getContextId());
+    }
+
+    @Test
     void shouldGenerateUniqueIds() {
         // Given
         User u1 = new User(CONTEXT_ID, USER_NAME);
