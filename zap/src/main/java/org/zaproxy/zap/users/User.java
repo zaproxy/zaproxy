@@ -313,7 +313,11 @@ public class User extends Enableable {
         out.append(Base64.encodeBase64String(user.name.getBytes())).append(FIELD_SEPARATOR);
         out.append(user.getContext().getAuthenticationMethod().getType().getUniqueIdentifier())
                 .append(FIELD_SEPARATOR);
-        out.append(user.authenticationCredentials.encode(FIELD_SEPARATOR));
+        if (user.authenticationCredentials != null) {
+            out.append(user.authenticationCredentials.encode(FIELD_SEPARATOR));
+        } else {
+            out.append(FIELD_SEPARATOR);
+        }
         LOGGER.debug("Encoded user: {}", out);
         return out.toString();
     }
