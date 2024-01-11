@@ -35,8 +35,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.NameValuePair;
 import org.parosproxy.paros.core.scanner.Variant;
@@ -46,19 +48,23 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.WithConfigsTest;
 import org.zaproxy.zap.extension.ascan.VariantFactory;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StandardParameterParser;
+import org.zaproxy.zap.utils.I18N;
 
 class SessionUnitTest {
 
     private Session session;
     private VariantFactory factory;
+    private Model model;
 
     @BeforeEach
     void setUp() throws Exception {
         factory = new VariantFactory();
-        Model model = mock(Model.class);
+        model = mock(Model.class);
         given(model.getVariantFactory()).willReturn(factory);
         Control.initSingletonForTesting(model);
+        Constant.messages = new I18N(Locale.ENGLISH);
 
         session = new Session(model);
         given(model.getSession()).willReturn(session);
@@ -144,5 +150,77 @@ class SessionUnitTest {
                 HttpMessage msg, NameValuePair originalPair, String param, String value) {
             return null;
         }
+    }
+
+    @Test
+    void shouldIncludeDataDrivenNodesInScope() {
+        // Given
+        var context = new Context(session, 1);
+        session.addContext(context);
+        SiteMap siteMap = SiteMap.createTree(model);
+        var hostNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "https://example.com");
+        var ddn =
+                new SiteNode(
+                        siteMap,
+                        HistoryReference.TYPE_ZAP_USER,
+                        SessionStructure.DATA_DRIVEN_NODE_PREFIX
+                                + "id"
+                                + SessionStructure.DATA_DRIVEN_NODE_POSTFIX);
+        var endNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "endpoint");
+        siteMap.getRoot().add(hostNode);
+        hostNode.add(ddn);
+        ddn.add(endNode);
+        context.setIncludeInContextRegexs(List.of("https://example.com/[^/?]+/endpoint"));
+        // When / Then
+        assertThat(session.isIncludedInScope(endNode), is(true));
+        assertThat(session.isInScope(endNode), is(true));
+    }
+
+    @Test
+    void shouldExcludeDataDrivenNodesFromScope() {
+        // Given
+        var context = new Context(session, 1);
+        session.addContext(context);
+        SiteMap siteMap = SiteMap.createTree(model);
+        var hostNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "https://example.com");
+        var ddn =
+                new SiteNode(
+                        siteMap,
+                        HistoryReference.TYPE_ZAP_USER,
+                        SessionStructure.DATA_DRIVEN_NODE_PREFIX
+                                + "id"
+                                + SessionStructure.DATA_DRIVEN_NODE_POSTFIX);
+        var endNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "endpoint");
+        siteMap.getRoot().add(hostNode);
+        hostNode.add(ddn);
+        ddn.add(endNode);
+        context.setIncludeInContextRegexs(List.of("https://example.com.*"));
+        context.setExcludeFromContextRegexs(List.of("https://example.com/[^/?]+/endpoint"));
+        // When / Then
+        assertThat(session.isExcludedFromScope(endNode), is(true));
+        assertThat(session.isInScope(endNode), is(false));
+    }
+
+    @Test
+    void shouldGetContextsForDataDrivenNodes() {
+        // Given
+        var context = new Context(session, 1);
+        session.addContext(context);
+        SiteMap siteMap = SiteMap.createTree(model);
+        var hostNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "https://example.com");
+        var ddn =
+                new SiteNode(
+                        siteMap,
+                        HistoryReference.TYPE_ZAP_USER,
+                        SessionStructure.DATA_DRIVEN_NODE_PREFIX
+                                + "id"
+                                + SessionStructure.DATA_DRIVEN_NODE_POSTFIX);
+        var endNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "endpoint");
+        siteMap.getRoot().add(hostNode);
+        hostNode.add(ddn);
+        ddn.add(endNode);
+        context.setIncludeInContextRegexs(List.of("https://example.com/[^/?]+/endpoint"));
+        // When / Then
+        assertThat(session.getContextsForNode(endNode), is(List.of(context)));
     }
 }
