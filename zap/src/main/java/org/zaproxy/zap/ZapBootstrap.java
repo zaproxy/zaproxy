@@ -23,6 +23,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import org.apache.commons.io.FileUtils;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
@@ -78,11 +79,19 @@ abstract class ZapBootstrap {
             disableStdOutLog();
         }
 
+        setLogLevel(getArgs().getLogLevel());
+
         return 0;
     }
 
     protected static void disableStdOutLog() {
         LoggerContext.getContext().getConfiguration().getRootLogger().removeAppender("stdout");
+    }
+
+    private static void setLogLevel(Level level) {
+        var config = LoggerContext.getContext().getConfiguration();
+        config.getLoggerConfig("org.parosproxy.paros").setLevel(level);
+        config.getLoggerConfig("org.zaproxy").setLevel(level);
     }
 
     /**
