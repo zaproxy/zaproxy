@@ -149,9 +149,9 @@ import org.zaproxy.zap.extension.history.NotesAddDialog;
 import org.zaproxy.zap.extension.history.PopupMenuJumpTo;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
+import org.zaproxy.zap.extension.history.PopupMenuSiteNote;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
 import org.zaproxy.zap.extension.history.SiteNotesAddDialog;
-import org.zaproxy.zap.extension.history.PopupMenuSiteNote;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener {
@@ -607,7 +607,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      */
     @Deprecated
     public org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog
-    getResendDialog() {
+            getResendDialog() {
         org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog resendDialog =
                 new org.parosproxy.paros.extension.manualrequest.http.impl
                         .ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.manreq");
@@ -664,7 +664,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         dialogSiteNotesAdd.setVisible(true);
     }
 
-    public void showSiteNotesAddDialog(SiteNode siteNode){
+    public void showSiteNotesAddDialog(SiteNode siteNode) {
         if (dialogSiteNotesAdd == null) {
             dialogSiteNotesAdd = new SiteNotesAddDialog(getView().getMainFrame(), false);
             populateSiteNotesAddDialogAndSetVisible(siteNode);
@@ -961,9 +961,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                 JCheckBox removeWithoutConfirmationCheckBox =
                         new JCheckBox(Constant.messages.getString("history.purge.confirm.message"));
                 Object[] messages = {
-                        Constant.messages.getString("history.purge.warning"),
-                        " ",
-                        removeWithoutConfirmationCheckBox
+                    Constant.messages.getString("history.purge.warning"),
+                    " ",
+                    removeWithoutConfirmationCheckBox
                 };
                 int result =
                         JOptionPane.showOptionDialog(
@@ -974,8 +974,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                                 JOptionPane.QUESTION_MESSAGE,
                                 null,
                                 new String[] {
-                                        Constant.messages.getString("history.purge.confirm"),
-                                        Constant.messages.getString("history.purge.cancel")
+                                    Constant.messages.getString("history.purge.confirm"),
+                                    Constant.messages.getString("history.purge.cancel")
                                 },
                                 null);
                 if (result != JOptionPane.YES_OPTION) {
@@ -1028,9 +1028,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                         node.setHistoryReference(
                                 map.createReference(node, href, href.getHttpMessage()));
                     } catch (URIException
-                             | HttpMalformedHeaderException
-                             | NullPointerException
-                             | DatabaseException e) {
+                            | HttpMalformedHeaderException
+                            | NullPointerException
+                            | DatabaseException e) {
                         LOGGER.error("Failed to create temporary node:", e);
                     }
                 }

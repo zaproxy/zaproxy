@@ -1,5 +1,43 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ *
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ *
+ * Copyright 2024 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.zaproxy.zap.extension.history;
 
+import static org.apache.log4j.builders.appender.SocketAppenderBuilder.LOGGER;
+
+import java.awt.Component;
+import java.awt.Frame;
+import java.awt.HeadlessException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import javax.swing.Box;
+import javax.swing.DefaultListModel;
+import javax.swing.GroupLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.ListCellRenderer;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.border.EmptyBorder;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.AbstractDialog;
@@ -8,27 +46,6 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.utils.ZapTextArea;
-
-import java.awt.Component;
-import java.awt.Frame;
-import java.awt.HeadlessException;
-import javax.swing.Box;
-import javax.swing.GroupLayout;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.JList;
-import javax.swing.JLabel;
-import javax.swing.DefaultListModel;
-import javax.swing.ListCellRenderer;
-import javax.swing.border.EmptyBorder;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
-import static org.apache.log4j.builders.appender.SocketAppenderBuilder.LOGGER;
 
 public class SiteNotesAddDialog extends AbstractDialog {
 
@@ -65,9 +82,7 @@ public class SiteNotesAddDialog extends AbstractDialog {
         initialize();
     }
 
-    /**
-     * This method initializes this
-     */
+    /** This method initializes this */
     private void initialize() {
         this.setTitle(Constant.messages.getString("history.addnote.title"));
 
@@ -81,9 +96,18 @@ public class SiteNotesAddDialog extends AbstractDialog {
 
         layout.setHorizontalGroup(
                 layout.createParallelGroup()
-                        .addGroup(layout.createSequentialGroup()
-                                .addComponent(getHrefSelectorListPanel(), GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE, GroupLayout.PREFERRED_SIZE)
-                                .addComponent(getJScrollPane(), GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE, Short.MAX_VALUE))
+                        .addGroup(
+                                layout.createSequentialGroup()
+                                        .addComponent(
+                                                getHrefSelectorListPanel(),
+                                                GroupLayout.DEFAULT_SIZE,
+                                                GroupLayout.PREFERRED_SIZE,
+                                                GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(
+                                                getJScrollPane(),
+                                                GroupLayout.DEFAULT_SIZE,
+                                                GroupLayout.PREFERRED_SIZE,
+                                                Short.MAX_VALUE))
                         .addGroup(
                                 layout.createSequentialGroup()
                                         .addComponent(
@@ -96,9 +120,10 @@ public class SiteNotesAddDialog extends AbstractDialog {
 
         layout.setVerticalGroup(
                 layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup()
-                                .addComponent(getHrefSelectorListPanel())
-                                .addComponent(getJScrollPane()))
+                        .addGroup(
+                                layout.createParallelGroup()
+                                        .addComponent(getHrefSelectorListPanel())
+                                        .addComponent(getJScrollPane()))
                         .addGroup(
                                 layout.createParallelGroup()
                                         .addComponent(buttonsGlue)
@@ -158,25 +183,26 @@ public class SiteNotesAddDialog extends AbstractDialog {
         if (childSiteNodes == null) {
             childSiteNodes = new JList<>();
             childSiteNodes.setCellRenderer(new HistoryReferenceRenderer());
-            childSiteNodes.addListSelectionListener(e -> {
-                if (!e.getValueIsAdjusting()) {
-                    HistoryReference historyReference = childSiteNodes.getSelectedValue();
-                    if (historyReference != null) {
-                        try {
-                            setNote(historyReference.getHttpMessage().getNote());
-                        } catch (HttpMalformedHeaderException | DatabaseException ex) {
-                            LOGGER.error(ex.getMessage(), ex);
+            childSiteNodes.addListSelectionListener(
+                    e -> {
+                        if (!e.getValueIsAdjusting()) {
+                            HistoryReference historyReference = childSiteNodes.getSelectedValue();
+                            if (historyReference != null) {
+                                try {
+                                    setNote(historyReference.getHttpMessage().getNote());
+                                } catch (HttpMalformedHeaderException | DatabaseException ex) {
+                                    LOGGER.error(ex.getMessage(), ex);
+                                }
+                            }
                         }
-                    }
-                }
-            });
+                    });
         }
 
         return childSiteNodes;
     }
 
     private void updateHrefSelector() {
-        if(siteNode == null) {
+        if (siteNode == null) {
             return;
         }
         List<HistoryReference> historyReferencesList = new ArrayList<>();
@@ -250,8 +276,7 @@ public class SiteNotesAddDialog extends AbstractDialog {
      * @deprecated (2.7.0) No longer used/needed.
      */
     @Deprecated
-    public void setPlugin(ExtensionHistory plugin) {
-    }
+    public void setPlugin(ExtensionHistory plugin) {}
 
     /**
      * This method initializes jScrollPane
@@ -285,7 +310,8 @@ public class SiteNotesAddDialog extends AbstractDialog {
     }
 
     @SuppressWarnings("serial")
-    public static class HistoryReferenceRenderer extends JLabel implements ListCellRenderer<HistoryReference> {
+    public static class HistoryReferenceRenderer extends JLabel
+            implements ListCellRenderer<HistoryReference> {
 
         public HistoryReferenceRenderer() {
             setOpaque(true);
@@ -293,12 +319,14 @@ public class SiteNotesAddDialog extends AbstractDialog {
         }
 
         @Override
-        public Component getListCellRendererComponent(JList<? extends HistoryReference> list, HistoryReference historyReference, int index,
-                                                      boolean isSelected, boolean cellHasFocus) {
+        public Component getListCellRendererComponent(
+                JList<? extends HistoryReference> list,
+                HistoryReference historyReference,
+                int index,
+                boolean isSelected,
+                boolean cellHasFocus) {
 
-            setText(Integer.toString(
-                    historyReference.getHistoryId()
-            ));
+            setText(Integer.toString(historyReference.getHistoryId()));
 
             if (isSelected) {
                 setBackground(list.getSelectionBackground());
@@ -311,8 +339,4 @@ public class SiteNotesAddDialog extends AbstractDialog {
             return this;
         }
     }
-
-
 }
-
-
