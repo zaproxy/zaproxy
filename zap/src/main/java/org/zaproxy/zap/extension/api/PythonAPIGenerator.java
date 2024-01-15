@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
@@ -64,6 +65,9 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
                     + "\"\"\"\n"
                     + "This file was automatically generated.\n"
                     + "\"\"\"\n\n";
+
+    private static final Map<String, Set<String>> NON_WRAPPED_API_ELEMENTS =
+            Map.of("users", Set.of("getUserById"));
 
     /** Map any names which are reserved in python to something legal */
     private static final Map<String, String> nameMap;
@@ -171,11 +175,12 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
             }
         }
 
-        if (type.equals(OTHER_ENDPOINT)) {
-            out.write("        return (");
-        } else {
-            out.write("        return six.next(six.itervalues(");
+        boolean unwrap = !type.equals(OTHER_ENDPOINT) && isUnwrapRequired(component, element);
+        out.write("        return ");
+        if (unwrap) {
+            out.write("six.next(six.itervalues");
         }
+        out.write("(");
         out.write(
                 "self.zap."
                         + method
@@ -201,16 +206,19 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
             }
             out.write(reqParams.toString());
             out.write(")");
-            if (!type.equals(OTHER_ENDPOINT)) {
-                out.write("))");
-            } else {
+            if (unwrap) {
                 out.write(")");
             }
-        } else if (!type.equals(OTHER_ENDPOINT)) {
-            out.write(")))");
-        } else {
-            out.write(")");
+        } else if (unwrap) {
+            out.write("))");
         }
+        out.write(")");
+    }
+
+    private static boolean isUnwrapRequired(String component, ApiElement element) {
+        return !NON_WRAPPED_API_ELEMENTS
+                .getOrDefault(component, Set.of())
+                .contains(element.getName());
     }
 
     @Override
