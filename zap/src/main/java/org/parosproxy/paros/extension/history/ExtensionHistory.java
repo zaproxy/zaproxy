@@ -150,6 +150,8 @@ import org.zaproxy.zap.extension.history.PopupMenuJumpTo;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
+import org.zaproxy.zap.extension.history.SiteNotesAddDialog;
+import org.zaproxy.zap.extension.history.PopupMenuSiteNote;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener {
@@ -175,6 +177,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuNote popupMenuNote = null;
     private NotesAddDialog dialogNotesAdd = null;
     private ManageTagsDialog manageTags = null;
+
+    private PopupMenuSiteNote popupMenuSiteNote = null;
+    private SiteNotesAddDialog dialogSiteNotesAdd = null;
 
     private boolean showJustInScope = false;
     private boolean linkWithSitesTree;
@@ -269,6 +274,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuJumpTo());
             // ZAP: Added history notes
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSiteNote());
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPurgeHistory());
 
@@ -601,7 +607,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
      */
     @Deprecated
     public org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog
-            getResendDialog() {
+    getResendDialog() {
         org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog resendDialog =
                 new org.parosproxy.paros.extension.manualrequest.http.impl
                         .ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.manreq");
@@ -630,6 +636,14 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return popupMenuNote;
     }
 
+    private PopupMenuSiteNote getPopupMenuSiteNote() {
+
+        if (popupMenuSiteNote == null) {
+            popupMenuSiteNote = new PopupMenuSiteNote(this);
+        }
+        return popupMenuSiteNote;
+    }
+
     private void populateNotesAddDialogAndSetVisible(HistoryReference ref, String note) {
         dialogNotesAdd.setNote(note);
         dialogNotesAdd.setHistoryRef(ref);
@@ -642,6 +656,20 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             populateNotesAddDialogAndSetVisible(ref, note);
         } else if (!dialogNotesAdd.isVisible()) {
             populateNotesAddDialogAndSetVisible(ref, note);
+        }
+    }
+
+    private void populateSiteNotesAddDialogAndSetVisible(SiteNode siteNode) {
+        dialogSiteNotesAdd.setSiteNode(siteNode);
+        dialogSiteNotesAdd.setVisible(true);
+    }
+
+    public void showSiteNotesAddDialog(SiteNode siteNode){
+        if (dialogSiteNotesAdd == null) {
+            dialogSiteNotesAdd = new SiteNotesAddDialog(getView().getMainFrame(), false);
+            populateSiteNotesAddDialogAndSetVisible(siteNode);
+        } else if (!dialogSiteNotesAdd.isVisible()) {
+            populateSiteNotesAddDialogAndSetVisible(siteNode);
         }
     }
 
@@ -933,9 +961,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                 JCheckBox removeWithoutConfirmationCheckBox =
                         new JCheckBox(Constant.messages.getString("history.purge.confirm.message"));
                 Object[] messages = {
-                    Constant.messages.getString("history.purge.warning"),
-                    " ",
-                    removeWithoutConfirmationCheckBox
+                        Constant.messages.getString("history.purge.warning"),
+                        " ",
+                        removeWithoutConfirmationCheckBox
                 };
                 int result =
                         JOptionPane.showOptionDialog(
@@ -946,8 +974,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                                 JOptionPane.QUESTION_MESSAGE,
                                 null,
                                 new String[] {
-                                    Constant.messages.getString("history.purge.confirm"),
-                                    Constant.messages.getString("history.purge.cancel")
+                                        Constant.messages.getString("history.purge.confirm"),
+                                        Constant.messages.getString("history.purge.cancel")
                                 },
                                 null);
                 if (result != JOptionPane.YES_OPTION) {
@@ -1000,9 +1028,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                         node.setHistoryReference(
                                 map.createReference(node, href, href.getHttpMessage()));
                     } catch (URIException
-                            | HttpMalformedHeaderException
-                            | NullPointerException
-                            | DatabaseException e) {
+                             | HttpMalformedHeaderException
+                             | NullPointerException
+                             | DatabaseException e) {
                         LOGGER.error("Failed to create temporary node:", e);
                     }
                 }
