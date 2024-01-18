@@ -42,7 +42,6 @@ import javax.swing.border.EmptyBorder;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.AbstractDialog;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -73,11 +72,6 @@ public class SiteNotesAddDialog extends AbstractDialog {
         initialize();
     }
 
-    /**
-     * @param arg0
-     * @param arg1
-     * @throws HeadlessException
-     */
     public SiteNotesAddDialog(Frame arg0, boolean arg1) throws HeadlessException {
         super(arg0, arg1);
         initialize();
@@ -237,7 +231,7 @@ public class SiteNotesAddDialog extends AbstractDialog {
     }
 
     /**
-     * This method initializes btnStart
+     * This method initializes btnOk
      *
      * @return javax.swing.JButton
      */
@@ -264,7 +258,7 @@ public class SiteNotesAddDialog extends AbstractDialog {
     }
 
     /**
-     * This method initializes btnStop
+     * This method initializes btnCancel
      *
      * @return javax.swing.JButton
      */
@@ -276,13 +270,6 @@ public class SiteNotesAddDialog extends AbstractDialog {
         }
         return btnCancel;
     }
-
-    /**
-     * @param plugin unused.
-     * @deprecated (2.7.0) No longer used/needed.
-     */
-    @Deprecated
-    public void setPlugin(ExtensionHistory plugin) {}
 
     /**
      * This method initializes jScrollPane

@@ -32,7 +32,7 @@ public class PopupMenuSiteNote extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = -5692544221103745600L;
 
-    private static final Logger LOGGER = LogManager.getLogger(PopupMenuNote.class);
+    private static final Logger LOGGER = LogManager.getLogger(PopupMenuSiteNote.class);
 
     private final ExtensionHistory extension;
 
