@@ -24,9 +24,10 @@ import static org.apache.log4j.builders.appender.SocketAppenderBuilder.LOGGER;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.HeadlessException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.Comparator;
+import java.util.Set;
+import java.util.TreeSet;
 import javax.swing.Box;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
@@ -205,23 +206,24 @@ public class SiteNotesAddDialog extends AbstractDialog {
         if (siteNode == null) {
             return;
         }
-        List<HistoryReference> historyReferencesList = new ArrayList<>();
-        fillJList(historyReferencesList, siteNode);
+
+        Set<HistoryReference> historyReferencesSet =
+                new TreeSet<>(Comparator.comparingInt(HistoryReference::getHistoryId));
+        fillJSet(historyReferencesSet, siteNode);
+
         DefaultListModel<HistoryReference> listModel = new DefaultListModel<>();
-        for (HistoryReference historyReference : historyReferencesList) {
-            listModel.addElement(historyReference);
-        }
+        listModel.addAll(historyReferencesSet);
+
         childSiteNodes.setModel(listModel);
+        if (!historyReferencesSet.isEmpty()) childSiteNodes.setSelectedIndex(0);
     }
 
-    private void fillJList(List<HistoryReference> list, SiteNode curSiteNode) {
+    private void fillJSet(Set<HistoryReference> set, SiteNode curSiteNode) {
+        set.add(curSiteNode.getHistoryReference());
+        set.addAll(curSiteNode.getPastHistoryReference());
 
-        List<?> curSiteChildNodeList = Collections.list(curSiteNode.children());
-        list.add(curSiteNode.getHistoryReference());
-        list.addAll(curSiteNode.getPastHistoryReference());
-
-        for (Object o : curSiteChildNodeList) {
-            fillJList(list, (SiteNode) o);
+        for (Object o : Collections.list(curSiteNode.children())) {
+            fillJSet(set, (SiteNode) o);
         }
     }
 
@@ -244,7 +246,7 @@ public class SiteNotesAddDialog extends AbstractDialog {
             btnOk.addActionListener(
                     e -> {
                         HistoryReference historyRef = childSiteNodes.getSelectedValue();
-                        historyRef.setNote(getTxtDisplay().getText());
+                        if (historyRef != null) historyRef.setNote(getTxtDisplay().getText());
                         clearAndDispose();
                     });
         }

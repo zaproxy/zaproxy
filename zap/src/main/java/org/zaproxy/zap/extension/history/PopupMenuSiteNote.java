@@ -50,7 +50,6 @@ public class PopupMenuSiteNote extends PopupMenuItemSiteNodeContainer {
 
     @Override
     public void performAction(SiteNode siteNode) {
-        System.out.println(siteNode.getNodeName());
         try {
             extension.showSiteNotesAddDialog(siteNode);
 
