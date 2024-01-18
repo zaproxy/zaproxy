@@ -215,7 +215,9 @@ public class SiteNotesAddDialog extends AbstractDialog {
         listModel.addAll(historyReferencesSet);
 
         childSiteNodes.setModel(listModel);
-        if (!historyReferencesSet.isEmpty()) childSiteNodes.setSelectedIndex(0);
+        if (!historyReferencesSet.isEmpty()) {
+            childSiteNodes.setSelectedIndex(0);
+        }
     }
 
     private void fillJSet(Set<HistoryReference> set, SiteNode curSiteNode) {
@@ -246,7 +248,9 @@ public class SiteNotesAddDialog extends AbstractDialog {
             btnOk.addActionListener(
                     e -> {
                         HistoryReference historyRef = childSiteNodes.getSelectedValue();
-                        if (historyRef != null) historyRef.setNote(getTxtDisplay().getText());
+                        if (historyRef != null) {
+                            historyRef.setNote(getTxtDisplay().getText());
+                        }
                         clearAndDispose();
                     });
         }
