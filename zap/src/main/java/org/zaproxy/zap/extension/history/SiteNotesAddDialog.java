@@ -72,12 +72,11 @@ public class SiteNotesAddDialog extends AbstractDialog {
         initialize();
     }
 
-    public SiteNotesAddDialog(Frame arg0, boolean arg1) throws HeadlessException {
-        super(arg0, arg1);
+    public SiteNotesAddDialog(Frame frame, boolean isModel) throws HeadlessException {
+        super(frame, isModel);
         initialize();
     }
 
-    /** This method initializes this */
     private void initialize() {
         this.setTitle(Constant.messages.getString("history.addnote.title"));
 
@@ -230,11 +229,6 @@ public class SiteNotesAddDialog extends AbstractDialog {
         return txtDisplay;
     }
 
-    /**
-     * This method initializes btnOk
-     *
-     * @return javax.swing.JButton
-     */
     private JButton getBtnOk() {
         if (btnOk == null) {
             btnOk = new JButton();
@@ -257,11 +251,6 @@ public class SiteNotesAddDialog extends AbstractDialog {
         dispose();
     }
 
-    /**
-     * This method initializes btnCancel
-     *
-     * @return javax.swing.JButton
-     */
     private JButton getBtnCancel() {
         if (btnCancel == null) {
             btnCancel = new JButton();
@@ -271,11 +260,6 @@ public class SiteNotesAddDialog extends AbstractDialog {
         return btnCancel;
     }
 
-    /**
-     * This method initializes jScrollPane
-     *
-     * @return javax.swing.JScrollPane
-     */
     private JScrollPane getJScrollPane() {
         if (jScrollPane == null) {
             jScrollPane = new JScrollPane();
