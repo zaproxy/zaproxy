@@ -58,7 +58,8 @@ import subprocess
 import sys
 import time
 from datetime import datetime
-from six.moves.urllib.parse import urljoin
+
+from six.moves.urllib.parse import urljoin, urlparse
 from zapv2 import ZAPv2
 from zap_common import *
 
@@ -110,7 +111,7 @@ def usage():
     print('    -S                safe mode this will skip the active scan and perform a baseline scan')
     print('    -T                max time in minutes to wait for ZAP to start and the passive scan to run')
     print('    -U user           username to use for authenticated scans - must be defined in the given context file')
-    print('    -O                the hostname to override in the (remote) OpenAPI spec')
+    print('    -O                the hostname or URL to override in the (remote) OpenAPI spec')
     print('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
     print('    --hook            path to python file that define your custom hooks')
     print('    --schema          GraphQL schema location, URL or file, e.g. https://www.example.com/schema.graphqls')
@@ -418,9 +419,14 @@ def main(argv):
                 logging.debug('Import OpenAPI URL ' + target_url)
                 res = zap.openapi.import_url(target, host_override)
                 urls = zap.core.urls()
+
                 if host_override:
-                    target = urljoin(target_url, '//' + host_override)
-                    logging.info('Using host override, new target: {0}'.format(target))
+                    if urlparse(host_override).scheme:
+                        target = host_override
+                    else:
+                        target = urljoin(target_url, '//' + host_override)
+                    logging.info(
+                        'Using override, new target: {0}'.format(target))
             else:
                 logging.debug('Import OpenAPI File ' + target_file)
                 res = zap.openapi.import_file(target_file)
