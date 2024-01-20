@@ -19,8 +19,6 @@
  */
 package org.zaproxy.zap.extension.history;
 
-import static org.apache.log4j.builders.appender.SocketAppenderBuilder.LOGGER;
-
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.HeadlessException;
@@ -39,6 +37,8 @@ import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.border.EmptyBorder;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.AbstractDialog;
@@ -50,6 +50,8 @@ import org.zaproxy.zap.utils.ZapTextArea;
 public class SiteNotesAddDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = LogManager.getLogger(SiteNotesAddDialog.class);
     private ZapTextArea txtDisplay = null;
     private JButton btnOk = null;
     private JButton btnCancel = null;
@@ -64,9 +66,6 @@ public class SiteNotesAddDialog extends AbstractDialog {
 
     private JPanel hrefSelectorPanel = null;
 
-    /**
-     * @throws HeadlessException
-     */
     public SiteNotesAddDialog() throws HeadlessException {
         super();
         initialize();
