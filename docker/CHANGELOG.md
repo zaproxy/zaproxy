@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2024-01-23
+- Allow host_override to be a URL (Issue 8312)
+
 ### 2023-12-14
 - Updated to use Webswing 23.2.2 (Issue 8244).
 
