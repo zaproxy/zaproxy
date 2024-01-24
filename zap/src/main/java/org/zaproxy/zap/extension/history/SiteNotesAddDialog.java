@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.Vector;
 import javax.swing.Box;
 import javax.swing.DefaultListModel;
 import javax.swing.GroupLayout;
@@ -213,8 +214,17 @@ public class SiteNotesAddDialog extends AbstractDialog {
     }
 
     private void fillJSet(Set<HistoryReference> set, SiteNode curSiteNode) {
-        set.add(curSiteNode.getHistoryReference());
-        set.addAll(curSiteNode.getPastHistoryReference());
+        HistoryReference curHref = curSiteNode.getHistoryReference();
+        if (!HistoryReference.getTemporaryTypes().contains(curHref.getHistoryType())) {
+            set.add(curHref);
+        }
+
+        Vector<HistoryReference> pastHistoryReference = curSiteNode.getPastHistoryReference();
+        for (HistoryReference href : pastHistoryReference) {
+            if (!HistoryReference.getTemporaryTypes().contains(href.getHistoryType())) {
+                set.add(href);
+            }
+        }
 
         for (Object o : Collections.list(curSiteNode.children())) {
             fillJSet(set, (SiteNode) o);
