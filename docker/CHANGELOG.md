@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2024-09-13
+- Update the zap.sh script to use the cgroup memory limit when the IS_CONTAINERIZED environment variable is set to "true".
+
 ### 2024-08-30
 - Updated the API-Minimal scan policy.
 

@@ -44,5 +44,6 @@ ENV PATH=$JAVA_HOME/bin:/zap/:$PATH
 ENV ZAP_PATH=/zap/zap.sh
 ENV HOME=/home/zap/
 ENV ZAP_PORT=8080
+ENV IS_CONTAINERIZED=true
 
 HEALTHCHECK CMD curl --silent --output /dev/null --fail http://localhost:$ZAP_PORT/ || exit 1
