@@ -4,8 +4,6 @@ on:
     types: [opened,closed,synchronize]
   workflow_call:
     secrets:
-      GITHUB_TOKEN:
-        required: true
       ZAP_CLA_PAT:
         required: true
         
