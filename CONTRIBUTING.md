@@ -1,7 +1,7 @@
 # Contributing to ZAP
 ZAP is a community project, and we are always delighted to welcome new contributors!
 
-There are lots of ways you can contribute:
+There are lots of ways you can contribute for full details see the [Contributing Guide](https://www.zaproxy.org/docs/contribute/).
 
 ## Got a Question or Problem?
 If you have a question or problem relating to using ZAP then the first thing to do is to check the [Frequently Asked Questions](https://www.zaproxy.org/faq/).
@@ -70,6 +70,14 @@ The ZAP 'core' underpins all of the other ZAP features, and so ensuring it is as
 Fixing [issues](https://github.com/zaproxy/zaproxy/issues) is very valuable (ones flagged as [IdealFirstBug](https://github.com/zaproxy/zaproxy/issues?q=is%3Aopen+is%3Aissue+label%3AIdealFirstBug) are good ones to start on) and there are always many core improvements we want to make.
 
 #### Guidelines for Pull Request (PR) submission and processing:
+
+##### Contributor License Agreement
+
+You will need to sign the [Contributor Licensing Agreement](CLA.md). 
+If you have not yet done this then you will be prompted to sign it when you submit a PR. 
+The comment prompting you to sign it will explain how this can be done.
+If you would like to sign it for past PRs then just submit a dummy one to the [cla](https://github.com/zaproxy/cla) repo and follow the prompt. 
+The PR does not have to be merged so we can just close it.
 
 ##### Developer Certificate of Origin
 
