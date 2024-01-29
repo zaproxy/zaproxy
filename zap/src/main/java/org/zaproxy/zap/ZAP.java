@@ -157,6 +157,7 @@ public class ZAP {
         private boolean loggerConfigured = false;
 
         @Override
+        @SuppressWarnings("removal")
         public void uncaughtException(Thread t, Throwable e) {
             if (!(e instanceof ThreadDeath)) {
                 updateStats();

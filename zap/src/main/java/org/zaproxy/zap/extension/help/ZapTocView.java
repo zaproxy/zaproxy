@@ -59,6 +59,7 @@ public class ZapTocView extends TOCView {
     // Note: The implementation has been copied (verbatim) from the base method except for the use
     // of a custom TreeItemFactory.
     @Override
+    @SuppressWarnings("deprecation")
     public DefaultMutableTreeNode getDataAsTree() {
         HelpSet hs = getHelpSet();
         Hashtable<?, ?> params = getParameters();

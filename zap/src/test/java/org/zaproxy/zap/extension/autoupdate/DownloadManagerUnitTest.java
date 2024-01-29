@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.nullValue;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.List;
@@ -90,8 +90,8 @@ class DownloadManagerUnitTest extends WithConfigsTest {
                 });
     }
 
-    private static URL createDownloadUrl(int i) throws MalformedURLException {
-        return new URL("http://127.0.0.1:42/" + i);
+    private static URL createDownloadUrl(int i) throws Exception {
+        return new URI("http://127.0.0.1:42/" + i).toURL();
     }
 
     private static File createTargetFile(int i) throws IOException {

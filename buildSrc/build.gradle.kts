@@ -15,6 +15,12 @@ spotless {
     }
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    if (JavaVersion.current().getMajorVersion() >= "21") {
+       options.compilerArgs = options.compilerArgs + "-Xlint:-this-escape"
+    }
+}
+
 dependencies {
     implementation("com.github.javaparser:javaparser-core:3.15.21")
     implementation("com.github.zafarkhaja:java-semver:0.9.0")

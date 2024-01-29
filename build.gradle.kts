@@ -27,7 +27,6 @@ subprojects {
     }
 
     tasks.withType<JavaCompile>().configureEach {
-        options.compilerArgs = options.compilerArgs + "-parameters"
         options.errorprone {
             disableAllChecks.set(true)
             error(
