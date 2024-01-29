@@ -265,6 +265,7 @@ public class ByteBuilder {
 
     ///////// and now, appendSpecial() //////////
 
+    @SuppressWarnings("lossy-conversions")
     public ByteBuilder appendSpecial(long value, int length, boolean preserveNegative) {
         testAddition(length);
         {

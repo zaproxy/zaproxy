@@ -56,6 +56,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
+import org.mockito.Mock.Strictness;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
@@ -70,7 +71,7 @@ class CommandLineUnitTest {
     private static final Map<String, CommandLineListener> NO_SUPPORTED_FILE_EXTENSIONS =
             Collections.emptyMap();
 
-    @Mock(lenient = true)
+    @Mock(strictness = Strictness.LENIENT)
     private I18N i18n;
 
     private CommandLine cmdLine;

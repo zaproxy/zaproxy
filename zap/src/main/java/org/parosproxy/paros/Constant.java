@@ -130,6 +130,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.channels.FileChannel;
@@ -1534,7 +1535,7 @@ public final class Constant {
         String manifestPath =
                 classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
         try {
-            return new Manifest(new URL(manifestPath).openStream());
+            return new Manifest(new URI(manifestPath).toURL().openStream());
         } catch (Exception e) {
             // Ignore
             return null;

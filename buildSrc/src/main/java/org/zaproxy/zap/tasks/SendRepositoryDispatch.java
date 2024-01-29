@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.ProtocolException;
-import java.net.URL;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.LinkedHashMap;
@@ -93,8 +93,8 @@ public abstract class SendRepositoryDispatch extends DefaultTask {
                         getGitHubRepo().get().toString());
         HttpURLConnection connection;
         try {
-            connection = (HttpURLConnection) new URL(url).openConnection();
-        } catch (IOException e) {
+            connection = (HttpURLConnection) new URI(url).toURL().openConnection();
+        } catch (Exception e) {
             throw new BuildException("Failed to create the connection:", e);
         }
         connection.setDoOutput(true);

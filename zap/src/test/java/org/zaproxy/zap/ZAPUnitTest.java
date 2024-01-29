@@ -102,6 +102,7 @@ class ZAPUnitTest {
         }
 
         @Test
+        @SuppressWarnings("removal")
         void shouldNotPrintThreadDead() {
             // Given
             Thread thread = mockThread();
@@ -182,6 +183,7 @@ class ZAPUnitTest {
         }
 
         @Test
+        @SuppressWarnings("removal")
         void shouldNotLogThreadDead() {
             // Given
             Thread thread = mockThread();

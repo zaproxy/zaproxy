@@ -75,6 +75,13 @@ spotless {
     }
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    options.compilerArgs = options.compilerArgs + "-parameters"
+    if (JavaVersion.current().getMajorVersion() >= "21") {
+        options.compilerArgs = options.compilerArgs + "-Xlint:-this-escape"
+    }
+}
+
 dependencies {
     api("com.fifesoft:rsyntaxtextarea:3.3.4")
     api("com.github.zafarkhaja:java-semver:0.9.0")

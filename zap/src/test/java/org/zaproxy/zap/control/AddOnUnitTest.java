@@ -958,7 +958,7 @@ class AddOnUnitTest extends AddOnTestUtils {
     void shouldSetFileSystemUrlToAddOnLib() throws Exception {
         // Given
         AddOn.Lib lib = new AddOn.Lib("lib.jar");
-        URL fsUrl = new URL("file:///some/path");
+        URL fsUrl = new URI("file:///some/path").toURL();
         // When
         lib.setFileSystemUrl(fsUrl);
         // Then
@@ -969,7 +969,7 @@ class AddOnUnitTest extends AddOnTestUtils {
     void shouldSetNullFileSystemUrlToAddOnLib() throws Exception {
         // Given
         AddOn.Lib lib = new AddOn.Lib("lib.jar");
-        lib.setFileSystemUrl(new URL("file:///some/path"));
+        lib.setFileSystemUrl(new URI("file:///some/path").toURL());
         // When
         lib.setFileSystemUrl(null);
         // Then

@@ -20,6 +20,7 @@
 package org.zaproxy.zap.control;
 
 import java.io.File;
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -113,14 +114,14 @@ public class AddOnCollection {
                 String relUrlStr = config.getString("core.relnotes-url", null);
                 URL relUrl = null;
                 if (relUrlStr != null) {
-                    relUrl = new URL(relUrlStr);
+                    relUrl = new URI(relUrlStr).toURL();
                 }
 
                 String platformPrefix = "core." + platform.name() + ".";
                 this.zapRelease =
                         new ZapRelease(
                                 version,
-                                new URL(config.getString(platformPrefix + "url")),
+                                new URI(config.getString(platformPrefix + "url")).toURL(),
                                 config.getString(platformPrefix + "file"),
                                 config.getLong(platformPrefix + "size"),
                                 config.getString("core.relnotes"),

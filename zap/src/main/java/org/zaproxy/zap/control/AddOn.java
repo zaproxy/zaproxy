@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -579,7 +581,11 @@ public class AddOn {
         this.semVer = addOnData.getSemVer();
         this.status = AddOn.Status.valueOf(addOnData.getStatus());
         this.changes = addOnData.getChanges();
-        this.url = new URL(addOnData.getUrl());
+        try {
+            this.url = new URI(addOnData.getUrl()).toURL();
+        } catch (URISyntaxException e) {
+            throw new MalformedURLException(e.getMessage());
+        }
         this.file = new File(baseDir, addOnData.getFile());
         this.size = addOnData.getSize();
         this.notBeforeVersion = addOnData.getNotBeforeVersion();
@@ -595,7 +601,7 @@ public class AddOn {
     private URL createUrl(String url) {
         if (url != null && !url.isEmpty()) {
             try {
-                return new URL(url);
+                return new URI(url).toURL();
             } catch (Exception e) {
                 LOGGER.warn("Invalid URL for add-on \"{}\": {}", id, url, e);
             }
