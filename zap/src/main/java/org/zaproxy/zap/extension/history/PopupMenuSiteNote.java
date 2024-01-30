@@ -23,12 +23,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
-import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
 @SuppressWarnings("serial")
-public class PopupMenuSiteNote extends PopupMenuItemSiteNodeContainer {
+public class PopupMenuSiteNote extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = -5692544221103745600L;
 
@@ -49,9 +50,17 @@ public class PopupMenuSiteNote extends PopupMenuItemSiteNodeContainer {
     }
 
     @Override
-    public void performAction(SiteNode siteNode) {
+    protected boolean isButtonEnabledForHistoryReference(HistoryReference historyReference) {
+        return !HistoryReference.getTemporaryTypes().contains(historyReference.getHistoryType());
+    }
+
+    @Override
+    public void performAction(HistoryReference historyReference) {
         try {
-            extension.showSiteNotesAddDialog(siteNode);
+            SiteNode siteNode = historyReference.getSiteNode();
+            if (siteNode != null) {
+                extension.showSiteNotesAddDialog(siteNode);
+            }
 
         } catch (Error e) {
             LOGGER.error(e.getMessage(), e);

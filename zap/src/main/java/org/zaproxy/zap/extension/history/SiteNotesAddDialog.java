@@ -22,8 +22,8 @@ package org.zaproxy.zap.extension.history;
 import java.awt.Component;
 import java.awt.Frame;
 import java.awt.HeadlessException;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -33,6 +33,7 @@ import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListCellRenderer;
@@ -57,7 +58,7 @@ public class SiteNotesAddDialog extends AbstractDialog {
     private JButton btnOk = null;
     private JButton btnCancel = null;
 
-    private SiteNode siteNode;
+    private SiteNode siteNode = null;
 
     private JScrollPane jScrollPane = null;
 
@@ -66,6 +67,8 @@ public class SiteNotesAddDialog extends AbstractDialog {
     private JScrollPane jScrollPaneSelector = null;
 
     private JPanel hrefSelectorPanel = null;
+
+    private HistoryReference prevSelectedHistoryReference = null;
 
     public SiteNotesAddDialog() throws HeadlessException {
         super();
@@ -181,12 +184,23 @@ public class SiteNotesAddDialog extends AbstractDialog {
                     e -> {
                         if (!e.getValueIsAdjusting()) {
                             HistoryReference historyReference = childSiteNodes.getSelectedValue();
-                            if (historyReference != null) {
-                                try {
+                            try {
+                                if (prevSelectedHistoryReference != null
+                                        && prevSelectedHistoryReference != historyReference
+                                        && !Objects.equals(
+                                                prevSelectedHistoryReference
+                                                        .getHttpMessage()
+                                                        .getNote(),
+                                                getTxtDisplay().getText())) {
+                                    showUnsavedChangesAlert();
+                                    childSiteNodes.setSelectedValue(
+                                            prevSelectedHistoryReference, true);
+                                } else if (historyReference != prevSelectedHistoryReference) {
                                     setNote(historyReference.getHttpMessage().getNote());
-                                } catch (HttpMalformedHeaderException | DatabaseException ex) {
-                                    LOGGER.error(ex.getMessage(), ex);
+                                    prevSelectedHistoryReference = historyReference;
                                 }
+                            } catch (HttpMalformedHeaderException | DatabaseException ex) {
+                                LOGGER.error(ex.getMessage(), ex);
                             }
                         }
                     });
@@ -206,10 +220,10 @@ public class SiteNotesAddDialog extends AbstractDialog {
 
         DefaultListModel<HistoryReference> listModel = new DefaultListModel<>();
         listModel.addAll(historyReferencesSet);
-
         childSiteNodes.setModel(listModel);
         if (!historyReferencesSet.isEmpty()) {
             childSiteNodes.setSelectedIndex(0);
+            prevSelectedHistoryReference = childSiteNodes.getSelectedValue();
         }
     }
 
@@ -225,10 +239,11 @@ public class SiteNotesAddDialog extends AbstractDialog {
                 set.add(href);
             }
         }
+    }
 
-        for (Object o : Collections.list(curSiteNode.children())) {
-            fillJSet(set, (SiteNode) o);
-        }
+    public void showUnsavedChangesAlert() {
+        JOptionPane.showMessageDialog(
+                this, Constant.messages.getString("history.note.popup.unsave.warning"));
     }
 
     private ZapTextArea getTxtDisplay() {
@@ -248,7 +263,6 @@ public class SiteNotesAddDialog extends AbstractDialog {
                         if (historyRef != null) {
                             historyRef.setNote(getTxtDisplay().getText());
                         }
-                        clearAndDispose();
                     });
         }
         return btnOk;
@@ -257,6 +271,7 @@ public class SiteNotesAddDialog extends AbstractDialog {
     private void clearAndDispose() {
         setNote("");
         siteNode = null;
+        prevSelectedHistoryReference = null;
         dispose();
     }
 
