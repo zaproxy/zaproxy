@@ -123,7 +123,7 @@ public class Context {
         if (sn == null) {
             return false;
         }
-        return isIncluded(sn.getHierarchicNodeName());
+        return isIncluded(sn.getHierarchicNodeName(false));
     }
 
     /*
@@ -164,7 +164,7 @@ public class Context {
         if (sn == null) {
             return false;
         }
-        return isExcluded(sn.getHierarchicNodeName());
+        return isExcluded(sn.getHierarchicNodeName(false));
     }
 
     public boolean isExcluded(String url) {
@@ -202,7 +202,7 @@ public class Context {
         if (sn == null) {
             return false;
         }
-        return isInContext(sn.getHierarchicNodeName());
+        return isInContext(sn.getHierarchicNodeName(false));
     }
 
     public boolean isInContext(String url) {

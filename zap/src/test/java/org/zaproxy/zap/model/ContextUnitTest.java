@@ -23,13 +23,22 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
+import java.util.List;
+import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteMap;
+import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.utils.I18N;
 
 /** Unit test for {@link Context}. */
 @ExtendWith(MockitoExtension.class)
@@ -42,6 +51,7 @@ class ContextUnitTest {
     @BeforeEach
     void setUp() throws Exception {
         context = new Context(session, 1);
+        Constant.messages = new I18N(Locale.ENGLISH);
     }
 
     @Test
@@ -85,6 +95,87 @@ class ContextUnitTest {
         assertThat(context.getName(), is(equalTo(name)));
     }
 
-    // TODO Implement more tests
+    @Test
+    void shouldIncludeDataDrivenNodesInContext() {
+        // Given
+        SiteMap siteMap = SiteMap.createTree(mock(Model.class));
+        var hostNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "https://example.com");
+        var ddn =
+                new SiteNode(
+                        siteMap,
+                        HistoryReference.TYPE_ZAP_USER,
+                        SessionStructure.DATA_DRIVEN_NODE_PREFIX
+                                + "id"
+                                + SessionStructure.DATA_DRIVEN_NODE_POSTFIX);
+        var endNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "endpoint");
+        siteMap.getRoot().add(hostNode);
+        hostNode.add(ddn);
+        ddn.add(endNode);
+        context.setIncludeInContextRegexs(List.of("https://example.com/[^/?]+/endpoint"));
+        // When / Then
+        assertThat(context.isIncluded(endNode), is(true));
+        assertThat(context.isInContext(endNode), is(true));
+    }
 
+    @Test
+    void shouldExcludeDataDrivenNodesFromContext() {
+        // Given
+        SiteMap siteMap = SiteMap.createTree(mock(Model.class));
+        var hostNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "https://example.com");
+        var ddn =
+                new SiteNode(
+                        siteMap,
+                        HistoryReference.TYPE_ZAP_USER,
+                        SessionStructure.DATA_DRIVEN_NODE_PREFIX
+                                + "id"
+                                + SessionStructure.DATA_DRIVEN_NODE_POSTFIX);
+        var endNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "endpoint");
+        siteMap.getRoot().add(hostNode);
+        hostNode.add(ddn);
+        ddn.add(endNode);
+        context.setIncludeInContextRegexs(List.of("https://example.com.*"));
+        context.setExcludeFromContextRegexs(List.of("https://example.com/[^/?]+/endpoint"));
+        // When / Then
+        assertThat(context.isExcluded(endNode), is(true));
+        assertThat(context.isInContext(endNode), is(false));
+    }
+
+    @Test
+    void shouldIncludeNodesWithParamsInContext() {
+        // Given
+        SiteMap siteMap = SiteMap.createTree(mock(Model.class));
+        var hostNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "https://example.com");
+        var endNode =
+                new SiteNode(
+                        siteMap,
+                        HistoryReference.TYPE_ZAP_USER,
+                        "endpoint(param1)(param2)",
+                        "endpoint");
+        siteMap.getRoot().add(hostNode);
+        hostNode.add(endNode);
+        context.setIncludeInContextRegexs(List.of("https://example.com/endpoint"));
+        // When / Then
+        assertThat(context.isIncluded(endNode), is(true));
+        assertThat(context.isInContext(endNode), is(true));
+    }
+
+    @Test
+    void shouldExcludeNodesWithParamsFromContext() {
+        // Given
+        SiteMap siteMap = SiteMap.createTree(mock(Model.class));
+        var hostNode = new SiteNode(siteMap, HistoryReference.TYPE_ZAP_USER, "https://example.com");
+        var endNode =
+                new SiteNode(
+                        siteMap,
+                        HistoryReference.TYPE_ZAP_USER,
+                        "endpoint(param1)(param2)",
+                        "endpoint");
+        siteMap.getRoot().add(hostNode);
+        hostNode.add(endNode);
+        context.setIncludeInContextRegexs(List.of("https://example.com.*"));
+        context.setExcludeFromContextRegexs(List.of("https://example.com/endpoint"));
+        // When / Then
+        assertThat(context.isExcluded(endNode), is(true));
+        assertThat(context.isInContext(endNode), is(false));
+    }
 }
