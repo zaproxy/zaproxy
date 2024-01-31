@@ -31,9 +31,11 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
 
@@ -82,6 +84,8 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
             new ImageIcon(
                     SiteMapTreeCellRenderer.class.getResource(
                             "/resource/icon/fugue/lock-overlay.png"));
+    private static final ImageIcon NOTE_ICON =
+            new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/16/022.png"));
 
     private static final long serialVersionUID = -4278691012245035225L;
 
@@ -163,7 +167,6 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
                 }
 
                 component.add(wrap(DisplayUtils.getScaledIcon(icon)));
-
                 Alert alert = node.getHighestAlert();
                 if (alert != null) {
                     component.add(wrap(alert.getIcon()));
@@ -174,6 +177,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
                 }
             }
             setText(node.toString());
+            addNoteIcon(node, leaf);
             setIcon(null);
             component.add(this);
 
@@ -191,6 +195,18 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
         label.setOpaque(false);
         label.putClientProperty("html.disable", Boolean.TRUE);
         return label;
+    }
+
+    private void addNoteIcon(SiteNode node, boolean leaf) {
+        try {
+            if (leaf
+                    && !node.isRoot()
+                    && !node.getHistoryReference().getHttpMessage().getNote().isEmpty()) {
+                component.add(wrap(DisplayUtils.getScaledIcon(NOTE_ICON)));
+            }
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
+            LOGGER.error(e.getMessage(), e);
+        }
     }
 
     /**
