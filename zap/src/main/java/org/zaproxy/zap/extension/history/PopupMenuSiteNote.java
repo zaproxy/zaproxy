@@ -22,7 +22,7 @@ package org.zaproxy.zap.extension.history;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
@@ -35,12 +35,11 @@ public class PopupMenuSiteNote extends PopupMenuItemHistoryReferenceContainer {
 
     private static final Logger LOGGER = LogManager.getLogger(PopupMenuSiteNote.class);
 
-    private final ExtensionHistory extension;
+    private SiteNotesAddDialog siteNotesAddDialog;
 
-    public PopupMenuSiteNote(ExtensionHistory extension) {
+    public PopupMenuSiteNote(ViewDelegate view) {
         super(Constant.messages.getString("history.note.popup"));
-
-        this.extension = extension;
+        siteNotesAddDialog = new SiteNotesAddDialog(view.getMainFrame(), false);
     }
 
     @Override
@@ -54,12 +53,17 @@ public class PopupMenuSiteNote extends PopupMenuItemHistoryReferenceContainer {
         return !HistoryReference.getTemporaryTypes().contains(historyReference.getHistoryType());
     }
 
+    private void populateSiteNotesAddDialogAndSetVisible(SiteNode siteNode) {
+        siteNotesAddDialog.setSiteNode(siteNode);
+        siteNotesAddDialog.setVisible(true);
+    }
+
     @Override
     public void performAction(HistoryReference historyReference) {
         try {
             SiteNode siteNode = historyReference.getSiteNode();
             if (siteNode != null) {
-                extension.showSiteNotesAddDialog(siteNode);
+                populateSiteNotesAddDialogAndSetVisible(siteNode);
             }
 
         } catch (Error e) {

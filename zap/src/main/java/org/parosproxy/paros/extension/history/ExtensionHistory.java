@@ -152,7 +152,6 @@ import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuSiteNote;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
-import org.zaproxy.zap.extension.history.SiteNotesAddDialog;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener {
@@ -180,7 +179,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private ManageTagsDialog manageTags = null;
 
     private PopupMenuSiteNote popupMenuSiteNote = null;
-    private SiteNotesAddDialog dialogSiteNotesAdd = null;
 
     private boolean showJustInScope = false;
     private boolean linkWithSitesTree;
@@ -638,9 +636,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
 
     private PopupMenuSiteNote getPopupMenuSiteNote() {
-
         if (popupMenuSiteNote == null) {
-            popupMenuSiteNote = new PopupMenuSiteNote(this);
+            popupMenuSiteNote = new PopupMenuSiteNote(getView());
         }
         return popupMenuSiteNote;
     }
@@ -657,20 +654,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             populateNotesAddDialogAndSetVisible(ref, note);
         } else if (!dialogNotesAdd.isVisible()) {
             populateNotesAddDialogAndSetVisible(ref, note);
-        }
-    }
-
-    private void populateSiteNotesAddDialogAndSetVisible(SiteNode siteNode) {
-        dialogSiteNotesAdd.setSiteNode(siteNode);
-        dialogSiteNotesAdd.setVisible(true);
-    }
-
-    public void showSiteNotesAddDialog(SiteNode siteNode) {
-        if (dialogSiteNotesAdd == null) {
-            dialogSiteNotesAdd = new SiteNotesAddDialog(getView().getMainFrame(), false);
-            populateSiteNotesAddDialogAndSetVisible(siteNode);
-        } else if (!dialogSiteNotesAdd.isVisible()) {
-            populateSiteNotesAddDialogAndSetVisible(siteNode);
         }
     }
 
