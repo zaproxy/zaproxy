@@ -93,8 +93,7 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
             out.write("/**\n");
             out.write(" * " + desc + "\n");
             if (isOptional()) {
-                out.write(" * <p>\n");
-                out.write(" * " + OPTIONAL_MESSAGE + "\n");
+                out.write(OPTIONAL_MESSAGE + "\n");
             }
             out.write("*/\n");
             if (element.isDeprecated()) {
@@ -120,12 +119,12 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
             out.write("#[allow(clippy::too_many_arguments)]\n");
         }
 
-        out.write("pub fn " + getSafeName(element.getName()) + "(service: &ZapService");
+        out.write("pub async fn " + getSafeName(element.getName()) + "(service: &ZapService");
 
         for (ApiParameter parameter : element.getParameters()) {
             out.write(", ");
             out.write(getSafeName(parameter.getName().toLowerCase(Locale.ROOT)));
-            out.write(": String");
+            out.write(": &str");
         }
         out.write(") -> Result<Value, ZapApiError> {\n");
 
@@ -138,7 +137,13 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
         for (ApiParameter parameter : element.getParameters()) {
             String name = parameter.getName();
             String varName = getSafeName(name.toLowerCase(Locale.ROOT));
-            out.write("    params.insert(\"" + name + "\".to_string(), " + varName + ");\n");
+            out.write(
+                    "    params.insert(\""
+                            + name
+                            + "\".to_string(), "
+                            + varName
+                            + ".to_string()"
+                            + ");\n");
         }
 
         out.write(
@@ -148,7 +153,8 @@ public class RustAPIGenerator extends AbstractAPIGenerator {
                         + type
                         + "\", \""
                         + element.getName()
-                        + "\", params)\n");
+                        + "\", params)"
+                        + ".await\n");
         out.write("}\n\n");
     }
 
