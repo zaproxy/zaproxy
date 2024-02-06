@@ -273,7 +273,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuJumpTo());
             // ZAP: Added history notes
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
-            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSiteNote());
+            extensionHook.getHookMenu().addPopupMenuItem(new PopupMenuSiteNote(getView()));
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPurgeHistory());
 
@@ -633,13 +633,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             popupMenuNote = new PopupMenuNote(this);
         }
         return popupMenuNote;
-    }
-
-    private PopupMenuSiteNote getPopupMenuSiteNote() {
-        if (popupMenuSiteNote == null) {
-            popupMenuSiteNote = new PopupMenuSiteNote(getView());
-        }
-        return popupMenuSiteNote;
     }
 
     private void populateNotesAddDialogAndSetVisible(HistoryReference ref, String note) {
