@@ -178,8 +178,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private NotesAddDialog dialogNotesAdd = null;
     private ManageTagsDialog manageTags = null;
 
-    private PopupMenuSiteNote popupMenuSiteNote = null;
-
     private boolean showJustInScope = false;
     private boolean linkWithSitesTree;
     private String linkWithSitesTreeBaseUri;
