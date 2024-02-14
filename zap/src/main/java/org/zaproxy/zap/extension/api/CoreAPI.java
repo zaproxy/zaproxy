@@ -1711,6 +1711,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
                 addedUrls.add(uri);
             }
 
+            // Each SiteNode can correspond to multiple URLS because of different query parameter values.
+            // Hence we have to potentially multiple URLS to list of urls for each SiteNode.
+            // The list of urls that a SiteNode can represent can be obtained from its past Histoy Reference.
+            for (HistoryReference  aPastHistoryReference : child.getPastHistoryReference()) {
+                String otherUriOfChild = aPastHistoryReference.getURI().toString();
+                if (!addedUrls.contains(otherUriOfChild) && (baseUrl.isEmpty() || otherUriOfChild.startsWith(baseUrl))) {
+                    list.addItem(new ApiResponseElement("url", otherUriOfChild));
+                    addedUrls.add(otherUriOfChild);
+                }
+            }
+
             addUrlsToList(baseUrl, child, addedUrls, list);
         }
     }
