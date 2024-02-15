@@ -68,7 +68,7 @@ public class SiteNotesAddDialog extends AbstractDialog {
 
     private JPanel hrefSelectorPanel = null;
 
-    private HistoryReference prevSelectedHistoryReference = null;
+    private HistoryReference prevSelectedHistoryReference;
 
     public SiteNotesAddDialog() throws HeadlessException {
         super();
