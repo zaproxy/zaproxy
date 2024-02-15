@@ -105,7 +105,7 @@
 // ZAP: 2023/01/11 Prevent NPE in "showInHistory" when tab doesn't have focus.
 // ZAP: 2023/01/22 Add utility getHistoryIds() method.
 // ZAP: 2023/02/22 Correct delete consistency fix.
-// ZAP: 2024/01/25 Added PopupMenuSiteNote to popMenuItem (Issue 8240).
+// ZAP: 2024/01/25 Added PopupMenuSiteNote to PopupMenuItem (Issue 8240).
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
