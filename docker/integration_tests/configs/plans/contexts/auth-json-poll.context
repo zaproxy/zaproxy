@@ -13,6 +13,7 @@
             <include>Db.Firebird</include>
             <include>Db.HypersonicSQL</include>
             <include>Db.IBM DB2</include>
+            <include>Db.MariaDB</include>
             <include>Db.Microsoft Access</include>
             <include>Db.Microsoft SQL Server</include>
             <include>Db.MongoDB</include>
