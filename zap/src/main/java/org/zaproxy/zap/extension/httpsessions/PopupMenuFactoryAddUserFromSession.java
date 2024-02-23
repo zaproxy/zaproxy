@@ -154,11 +154,6 @@ public class PopupMenuFactoryAddUserFromSession extends PopupContextMenuItemFact
             return false;
         }
 
-        @Override
-        public int getParentMenuIndex() {
-            return 1;
-        }
-
         /**
          * Make sure the user acknowledges the Users corresponding to this context will be deleted.
          *

@@ -40,7 +40,6 @@ public class PopupMenuItemContextInclude extends PopupMenuItemSiteNodeContainer 
 
     private List<ExtensionPopupMenuItem> subMenus = new ArrayList<>();
 
-    /** This method initializes */
     public PopupMenuItemContextInclude() {
         super("IncludeInContextX", true);
     }
@@ -83,18 +82,21 @@ public class PopupMenuItemContextInclude extends PopupMenuItemSiteNodeContainer 
         List<Context> contexts = session.getContexts();
         for (Context context : contexts) {
             ExtensionPopupMenuItem piicm = createPopupIncludeInContextMenu(context);
-            piicm.setMenuIndex(this.getMenuIndex());
             mainPopupMenuItems.add(piicm);
             this.subMenus.add(piicm);
         }
         // Add the 'new context' menu
-        ExtensionPopupMenuItem piicm = createPopupIncludeInContextMenu();
+        ExtensionPopupMenuItem piicm = createPopupIncludeInContextMenu(this.getWeight());
         mainPopupMenuItems.add(piicm);
         this.subMenus.add(piicm);
     }
 
     protected ExtensionPopupMenuItem createPopupIncludeInContextMenu() {
         return new PopupMenuItemIncludeInContext();
+    }
+
+    protected ExtensionPopupMenuItem createPopupIncludeInContextMenu(int weight) {
+        return new PopupMenuItemIncludeInContext(weight);
     }
 
     protected ExtensionPopupMenuItem createPopupIncludeInContextMenu(Context context) {

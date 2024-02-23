@@ -104,11 +104,6 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageC
     }
 
     @Override
-    public int getParentMenuIndex() {
-        return 0;
-    }
-
-    @Override
     public boolean isSubMenu() {
         return true;
     }
@@ -161,7 +156,6 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageC
                     this.add(piicm);
                 } else {
                     piicm = getPopupUserMenu(context, user, this.parentName);
-                    piicm.setMenuIndex(this.getMenuIndex());
                     mainPopupMenuItems.add(piicm);
                     subMenuItems.add(piicm);
                 }

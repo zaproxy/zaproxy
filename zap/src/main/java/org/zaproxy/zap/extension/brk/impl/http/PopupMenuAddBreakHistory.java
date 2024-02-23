@@ -27,6 +27,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
 @SuppressWarnings("serial")
@@ -59,5 +60,10 @@ public class PopupMenuAddBreakHistory extends PopupMenuItemHistoryReferenceConta
                     .getView()
                     .showWarningDialog(Constant.messages.getString("brk.add.error.history"));
         }
+    }
+
+    @Override
+    public int getWeight() {
+        return MenuWeights.MENU_BREAK_WEIGHT;
     }
 }

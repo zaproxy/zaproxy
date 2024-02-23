@@ -24,6 +24,7 @@ import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.stdmenus.PopupContextTreeMenu;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.view.popup.MenuWeights;
 
 /**
  * A {@code PopupContextTreeMenu} that allows to show the Active Scan dialogue for a selected {@link
@@ -49,5 +50,6 @@ public class PopupMenuActiveScanCustomWithContext extends PopupContextTreeMenu {
                     Context context = Model.getSingleton().getSession().getContext(getContextId());
                     extension.showCustomScanDialog(new Target(context));
                 });
+        this.setWeight(MenuWeights.MENU_CONTEXT_ACTIVE_WEIGHT);
     }
 }

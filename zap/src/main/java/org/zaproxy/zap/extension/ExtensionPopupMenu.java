@@ -20,27 +20,17 @@
 package org.zaproxy.zap.extension;
 
 import java.awt.Component;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import javax.swing.JMenu;
 import org.parosproxy.paros.control.Control;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
+import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.popup.PopupMenuUtils;
 
 public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuComponent {
 
+    private int weight = MenuWeights.MENU_DEFAULT_WEIGHT;
     private static final long serialVersionUID = 1925623776527543421L;
-
-    /**
-     * Flag that indicates if the children should be ordered.
-     *
-     * @see #setOrderChildren(boolean)
-     * @see #processExtensionPopupChildren(PopupMenuUtils.PopupMenuInvokerWrapper)
-     */
-    private boolean orderChildren;
 
     /** Constructs an {@code ExtensionPopupMenu} with no text. */
     public ExtensionPopupMenu() {
@@ -57,39 +47,21 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
     }
 
     /**
-     * Sets whether or not the menu index of the child components, returned by the method {@code
-     * ExtensionPopupMenuComponent#getMenuIndex()}, should be honoured.
+     * Replaced by weights.
      *
-     * <p>Default is {@code false}.
-     *
-     * <p>The child components will be ordered from minor to greater index (starting at index 0 from
-     * top of the menu). If two or more child components have the same index, the index that those
-     * child components will have, between each other, is undefined.
-     *
-     * <p>Note: Separators added manually (with {@code ExtensionPopupMenu#addSeparator()} or {@code
-     * ExtensionPopupMenu#addSeparator(int)} are not preserved between reorderings.
-     *
-     * @param orderChildren {@code true} if the child components should ordered, {@code false}
-     *     otherwise.
-     * @see #isOrderChildren()
-     * @see #processExtensionPopupChildren(PopupMenuUtils.PopupMenuInvokerWrapper)
-     * @see ExtensionPopupMenuComponent#getMenuIndex()
-     * @see ExtensionPopupMenu#addSeparator()
-     * @see ExtensionPopupMenu#insertSeparator(int)
+     * @deprecated
      */
-    public void setOrderChildren(boolean orderChildren) {
-        this.orderChildren = orderChildren;
-    }
+    @Deprecated(since = "2.15.0")
+    public void setOrderChildren(boolean orderChildren) {}
 
     /**
-     * Tells whether or not the menu index of the child components, returned by the method {@code
-     * ExtensionPopupMenuComponent#getMenuIndex()}, should be honoured.
+     * Replaced by weights.
      *
-     * @return {@code true} if the child components will be ordered, {@code false} otherwise.
-     * @see #setOrderChildren(boolean)
+     * @deprecated
      */
+    @Deprecated(since = "2.15.0")
     public boolean isOrderChildren() {
-        return orderChildren;
+        return false;
     }
 
     /**
@@ -171,49 +143,6 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
      */
     protected boolean processExtensionPopupChildren(
             PopupMenuUtils.PopupMenuInvokerWrapper invokerWrapper) {
-        if (isOrderChildren()) {
-            PopupMenuUtils.removeAllSeparators(this);
-            List<ExtensionPopupMenuComponent> components = new ArrayList<>();
-            for (int i = 0; i < getMenuComponentCount(); i++) {
-                Component component = getMenuComponent(i);
-                if (PopupMenuUtils.isExtensionPopupMenuComponent(component)) {
-                    ExtensionPopupMenuComponent menuComponent =
-                            (ExtensionPopupMenuComponent) component;
-                    if (menuComponent.getMenuIndex() >= 0) {
-                        components.add(menuComponent);
-                        remove(i);
-                        i--;
-                    }
-                }
-            }
-            Collections.sort(
-                    components,
-                    new Comparator<ExtensionPopupMenuComponent>() {
-
-                        @Override
-                        public int compare(
-                                ExtensionPopupMenuComponent component,
-                                ExtensionPopupMenuComponent otherComponent) {
-                            if (component.getMenuIndex() > otherComponent.getMenuIndex()) {
-                                return 1;
-                            } else if (component.getMenuIndex() < otherComponent.getMenuIndex()) {
-                                return -1;
-                            }
-                            return 0;
-                        }
-                    });
-
-            for (int i = 0; i < components.size(); i++) {
-                ExtensionPopupMenuComponent component = components.get(i);
-                int index = Math.max(component.getMenuIndex(), i);
-                if (index >= getMenuComponentCount()) {
-                    add((Component) component);
-                } else {
-                    getPopupMenu().insert((Component) component, index);
-                }
-            }
-        }
-
         boolean childEnable = false;
         Control.Mode mode = Control.getSingleton().getMode();
         for (int i = 0; i < getMenuComponentCount(); ++i) {
@@ -230,18 +159,8 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
 
                 if (enable) {
                     childEnable = true;
-                    if (extensionMenuComponent.precedeWithSeparator()) {
-                        if (PopupMenuUtils.insertSeparatorIfNeeded(this, i)) {
-                            i++;
-                        }
-                    }
                 }
                 menuComponent.setVisible(enable);
-                if (enable && extensionMenuComponent.succeedWithSeparator()) {
-                    if (PopupMenuUtils.insertSeparatorIfNeeded(this, i + 1)) {
-                        i++;
-                    }
-                }
             }
         }
 
@@ -268,25 +187,55 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
         return null;
     }
 
+    /**
+     * Use getWeight instead.
+     *
+     * @see #getWeight()
+     * @deprecated
+     */
     @Override
+    @Deprecated(since = "2.15.0")
     public int getMenuIndex() {
         return -1;
     }
 
+    /**
+     * Use getParentWeight instead.
+     *
+     * @see #getParentWeight()
+     * @deprecated
+     */
+    @Deprecated(since = "2.15.0")
     public int getParentMenuIndex() {
         return -1;
+    }
+
+    public int getParentWeight() {
+        return MenuWeights.MENU_DEFAULT_WEIGHT;
     }
 
     public boolean isSubMenu() {
         return false;
     }
 
+    /**
+     * Replaced by weights.
+     *
+     * @deprecated
+     */
     @Override
+    @Deprecated(since = "2.15.0")
     public boolean precedeWithSeparator() {
         return false;
     }
 
+    /**
+     * Replaced by weights.
+     *
+     * @deprecated
+     */
     @Override
+    @Deprecated(since = "2.15.0")
     public boolean succeedWithSeparator() {
         return false;
     }
@@ -294,6 +243,20 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
     @Override
     public boolean isSafe() {
         return true;
+    }
+
+    @Override
+    public int getWeight() {
+        return weight;
+    }
+
+    /**
+     * Sets the weight of the component.
+     *
+     * @since 2.15.0
+     */
+    public void setWeight(int weight) {
+        this.weight = weight;
     }
 
     /**

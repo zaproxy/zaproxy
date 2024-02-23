@@ -1256,11 +1256,6 @@ public abstract class PostBasedAuthenticationMethodType extends AuthenticationMe
                             }
                         };
                     }
-
-                    @Override
-                    public int getParentMenuIndex() {
-                        return 3;
-                    }
                 };
         return popupFlagLoginRequestMenuFactory;
     }

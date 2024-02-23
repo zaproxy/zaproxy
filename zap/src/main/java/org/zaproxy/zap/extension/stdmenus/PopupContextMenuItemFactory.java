@@ -71,7 +71,6 @@ public abstract class PopupContextMenuItemFactory extends ExtensionPopupMenuItem
         List<Context> contexts = session.getContexts();
         for (Context context : contexts) {
             ExtensionPopupMenuItem piicm = getContextMenu(context, this.parentMenu);
-            piicm.setMenuIndex(this.getMenuIndex());
             mainPopupMenuItems.add(piicm);
             this.subMenus.add(piicm);
         }
