@@ -64,6 +64,7 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2023/01/10 Tidy up logger.
 // ZAP: 2024/01/19 Accept cleanName via constructor and cache non-regex hierarchic node name.
+// ZAP: 2024/02/23 Correct name of hosts without children.
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -277,7 +278,7 @@ public class SiteNode extends DefaultMutableTreeNode {
      */
     public String getName() {
         String name = this.getNodeName();
-        if (this.isLeaf()) {
+        if (this.isLeaf() && !isRootChild()) {
             int colonIndex = name.indexOf(":");
             if (colonIndex > 0) {
                 // Strip the GET/POST/etc. off
@@ -285,6 +286,10 @@ public class SiteNode extends DefaultMutableTreeNode {
             }
         }
         return name;
+    }
+
+    private boolean isRootChild() {
+        return getParent() != null && getParent().isRoot();
     }
 
     public String getCleanNodeName() {
