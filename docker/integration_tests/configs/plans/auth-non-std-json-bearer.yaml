@@ -14,8 +14,7 @@ env:
         loginPageWait: 5
         browserId: "firefox-headless"
       verification:
-        # Checking 2.12 compatibility
-        method: "poll"
+        method: "autodetect"
     sessionManagement:
       method: "autodetect"
       parameters: {}
