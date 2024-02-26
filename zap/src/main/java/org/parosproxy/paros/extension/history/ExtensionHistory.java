@@ -105,6 +105,7 @@
 // ZAP: 2023/01/11 Prevent NPE in "showInHistory" when tab doesn't have focus.
 // ZAP: 2023/01/22 Add utility getHistoryIds() method.
 // ZAP: 2023/02/22 Correct delete consistency fix.
+// ZAP: 2024/01/25 Added PopupMenuSiteNote to PopupMenuItem (Issue 8240).
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -149,6 +150,7 @@ import org.zaproxy.zap.extension.history.NotesAddDialog;
 import org.zaproxy.zap.extension.history.PopupMenuJumpTo;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
+import org.zaproxy.zap.extension.history.PopupMenuSiteNote;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
@@ -269,6 +271,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuJumpTo());
             // ZAP: Added history notes
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuNote());
+            extensionHook.getHookMenu().addPopupMenuItem(new PopupMenuSiteNote(getView()));
 
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPurgeHistory());
 
