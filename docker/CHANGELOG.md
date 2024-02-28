@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to the docker containers will be documented in this file.
 
+### 2024-03-19
+- Alert_on_Unexpected_Content_Types.js > Added Content-Type application/yaml to the list of expected types (Issue 8366).
+
 ### 2024-03-05
 - ZAP images no longer pushed to the OWASP Docker Hub.
 
