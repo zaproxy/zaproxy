@@ -50,9 +50,11 @@
 // ZAP: 2022/02/03 Removed deprecated prepareShow method
 // ZAP: 2022/08/05 Address warns with Java 18 (Issue 7389).
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2024/02/23 Added support for menu weights.
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -75,6 +77,7 @@ import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
+import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.popup.PopupMenuUtils;
 import org.zaproxy.zap.view.popup.PopupMenuUtils.PopupMenuInvokerWrapper;
 
@@ -86,7 +89,7 @@ public class MainPopupMenu extends JPopupMenu {
     private List<JMenuItem> itemList = null;
     private PopupMenuPurgeSites popupMenuPurgeSites = null;
     // ZAP: Added support for submenus
-    Map<String, JMenu> superMenus = new HashMap<>();
+    Map<String, ExtensionPopupMenu> superMenus = new HashMap<>();
     View view = null;
     private static final Logger LOGGER = LogManager.getLogger(MainPopupMenu.class);
 
@@ -128,16 +131,20 @@ public class MainPopupMenu extends JPopupMenu {
     public MainPopupMenu(List<JMenuItem> itemList, View view) {
         this(view);
         this.itemList = itemList;
+        Collections.sort(this.itemList, (o1, o2) -> Integer.compare(getWeight(o2), getWeight(o1)));
+    }
+
+    private static int getWeight(Component component) {
+        if (component instanceof ExtensionPopupMenuComponent) {
+            return ((ExtensionPopupMenuComponent) component).getWeight();
+        }
+        return MenuWeights.MENU_DEFAULT_WEIGHT;
     }
 
     /** This method initializes this */
     private void initialize() {
-        // this.setVisible(true);
-
-        // added pre-set popup menu here
-        //        this.add(getPopupFindMenu());
-        // this.add(getPopupDeleteMenu());
-        this.add(getPopupMenuPurgeSites());
+        // The Delete menu item
+        this.add(getPopupMenuPurgeSites(MenuWeights.MENU_DELETE_WEIGHT));
 
         this.menuSelectionChangeListener = new MenuSelectionChangeListener();
         addPopupMenuListener(new MenuSelectionListenerInstaller());
@@ -153,14 +160,11 @@ public class MainPopupMenu extends JPopupMenu {
     }
 
     private synchronized void showImpl(PopupMenuInvokerWrapper invoker, final int x, final int y) {
-
         for (int i = 0; i < getComponentCount(); i++) {
             final Component component = getComponent(i);
             try {
                 if (component != null && component instanceof ExtensionPopupMenuItem) {
                     ExtensionPopupMenuItem menuItem = (ExtensionPopupMenuItem) component;
-                    // ZAP: prevents a NullPointerException when the treeSite doesn't have a node
-                    // selected and a popup menu option (Delete/Purge) is selected
                     menuItem.setVisible(invoker.isEnable(menuItem));
 
                     if (Control.getSingleton().getMode().equals(Mode.safe) && !menuItem.isSafe()) {
@@ -180,6 +184,16 @@ public class MainPopupMenu extends JPopupMenu {
             } else if (menuItem instanceof ExtensionPopupMenu) {
                 ExtensionPopupMenu item = (ExtensionPopupMenu) menuItem;
                 handleMenu(invoker, item);
+            }
+        }
+        // Add separators on 100 weight boundaries
+        int lastWeight = 0;
+        for (int i = getComponentCount() - 1; i >= 1; i--) {
+            Component c = this.getComponent(i);
+            int thisWeight = getWeight(c) / 100;
+            if (lastWeight != thisWeight) {
+                add(new JPopupMenu.Separator(), i + 1);
+                lastWeight = thisWeight;
             }
         }
         PopupMenuUtils.removeTopAndBottomSeparators(this);
@@ -224,17 +238,13 @@ public class MainPopupMenu extends JPopupMenu {
             PopupMenuInvokerWrapper popupMenuInvoker, ExtensionPopupMenuItem menuItem) {
         try {
             if (menuItem == ExtensionHookMenu.POPUP_MENU_SEPARATOR) {
-                PopupMenuUtils.addSeparatorIfNeeded(this);
+                // Ignore - now add separators on 100 weight boundaries
             } else {
                 if (popupMenuInvoker.isEnable(menuItem)) {
                     if (menuItem.isSubMenu()) {
                         final JMenu superMenu =
                                 getSuperMenu(
-                                        menuItem.getParentMenuName(),
-                                        menuItem.getParentMenuIndex());
-                        if (menuItem.precedeWithSeparator()) {
-                            PopupMenuUtils.addSeparatorIfNeeded(superMenu.getPopupMenu());
-                        }
+                                        menuItem.getParentMenuName(), menuItem.getParentWeight());
                         if (menuItem.isDummyItem()) {
                             // This assumes the dummy item is the first of the children - non dummy
                             // children will enable this
@@ -243,18 +253,9 @@ public class MainPopupMenu extends JPopupMenu {
                             superMenu.add(menuItem);
                             superMenu.setEnabled(true);
                         }
-                        if (menuItem.succeedWithSeparator()) {
-                            superMenu.addSeparator();
-                        }
 
                     } else {
-                        if (menuItem.precedeWithSeparator()) {
-                            PopupMenuUtils.addSeparatorIfNeeded(this);
-                        }
-                        addMenuItem(menuItem, menuItem.getMenuIndex());
-                        if (menuItem.succeedWithSeparator()) {
-                            this.addSeparator();
-                        }
+                        addMenuItem(menuItem, menuItem.getWeight());
                     }
                 }
             }
@@ -273,24 +274,11 @@ public class MainPopupMenu extends JPopupMenu {
             if (popupMenuInvoker.isEnable(menu)) {
                 if (menu.isSubMenu()) {
                     final JMenu superMenu =
-                            getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex());
-                    if (menu.precedeWithSeparator()) {
-                        PopupMenuUtils.addSeparatorIfNeeded(superMenu.getPopupMenu());
-                    }
+                            getSuperMenu(menu.getParentMenuName(), menu.getParentWeight());
                     superMenu.add(menu);
-                    if (menu.succeedWithSeparator()) {
-                        superMenu.addSeparator();
-                    }
 
                 } else {
-                    if (menu.precedeWithSeparator()) {
-                        PopupMenuUtils.addSeparatorIfNeeded(this);
-                    }
-
-                    addMenuItem(menu, menu.getMenuIndex());
-                    if (menu.succeedWithSeparator()) {
-                        this.addSeparator();
-                    }
+                    addMenuItem(menu, menu.getWeight());
                 }
                 if (Control.getSingleton().getMode().equals(Mode.safe) && !menu.isSafe()) {
                     // Safe mode, disable all nor safe menus
@@ -303,8 +291,8 @@ public class MainPopupMenu extends JPopupMenu {
     }
 
     // ZAP: Added support for submenus
-    private JMenu getSuperMenu(String name, int index) {
-        JMenu superMenu = superMenus.get(name);
+    private ExtensionPopupMenu getSuperMenu(String name, int weight) {
+        ExtensionPopupMenu superMenu = superMenus.get(name);
         if (superMenu == null) {
             // Use an ExtensionPopupMenu so child menus are dismissed
             superMenu =
@@ -318,29 +306,33 @@ public class MainPopupMenu extends JPopupMenu {
                         }
                     };
             superMenus.put(name, superMenu);
-            addMenuItem(superMenu, index);
+            superMenu.setWeight(weight);
+            addMenuItem(superMenu, weight);
         }
         return superMenu;
     }
 
-    private void addMenuItem(JMenuItem menuItem, int index) {
-        int correctIndex;
-        if ((index < 0 && index != -1) || (index > getComponentCount())) {
-            correctIndex = -1;
-        } else {
-            correctIndex = index;
+    private void addMenuItem(JMenuItem menuItem, int weight) {
+        int newIndex = -1;
+        if (weight > 0) {
+            for (int i = 0; i < getComponentCount(); i++) {
+                Component c = this.getComponent(i);
+                if (weight > getWeight(c)) {
+                    newIndex = i;
+                    break;
+                }
+            }
         }
-        add(menuItem, correctIndex);
+        add(menuItem, newIndex);
     }
 
-    private PopupMenuPurgeSites getPopupMenuPurgeSites() {
+    private PopupMenuPurgeSites getPopupMenuPurgeSites(int weight) {
         if (popupMenuPurgeSites == null) {
             popupMenuPurgeSites = new PopupMenuPurgeSites();
+            popupMenuPurgeSites.setWeight(weight);
         }
         return popupMenuPurgeSites;
     }
-
-    // ZAP: added addMenu and removeMenu to support dynamic changing of menus
 
     public void addMenu(ExtensionPopupMenuItem menu) {
         itemList.add(menu);

@@ -37,7 +37,6 @@ public abstract class PopupMenuItemContext extends PopupMenuItemSiteNodeContaine
     public PopupMenuItemContext() {
         super(Constant.messages.getString("context.new.title"), true);
         this.context = null;
-        this.setPrecedeWithSeparator(true);
     }
 
     public PopupMenuItemContext(Context context, String parentMenu, String name) {

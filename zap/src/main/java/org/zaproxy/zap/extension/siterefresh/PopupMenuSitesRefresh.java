@@ -26,6 +26,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
+import org.zaproxy.zap.view.popup.MenuWeights;
 
 public class PopupMenuSitesRefresh extends ExtensionPopupMenuItem {
 
@@ -59,7 +60,7 @@ public class PopupMenuSitesRefresh extends ExtensionPopupMenuItem {
     }
 
     @Override
-    public boolean precedeWithSeparator() {
-        return true;
+    public int getWeight() {
+        return MenuWeights.MENU_SITE_REFRESH_WEIGHT;
     }
 }

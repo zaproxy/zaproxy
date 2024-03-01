@@ -30,6 +30,7 @@ import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.popup.MenuWeights;
 
 /** The Popup Menu item used for marking a text in the response panel as Logged out indicator. */
 public class PopupFlagLoggedOutIndicatorMenu extends ExtensionPopupMenuItem {
@@ -84,8 +85,8 @@ public class PopupFlagLoggedOutIndicatorMenu extends ExtensionPopupMenuItem {
     }
 
     @Override
-    public int getParentMenuIndex() {
-        return CONTEXT_FLAG_MENU_INDEX;
+    public int getParentWeight() {
+        return MenuWeights.MENU_FLAG_CONTEXT_WEIGHT;
     }
 
     @Override

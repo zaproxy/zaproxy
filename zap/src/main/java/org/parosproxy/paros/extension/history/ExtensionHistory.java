@@ -105,6 +105,7 @@
 // ZAP: 2023/01/11 Prevent NPE in "showInHistory" when tab doesn't have focus.
 // ZAP: 2023/01/22 Add utility getHistoryIds() method.
 // ZAP: 2023/02/22 Correct delete consistency fix.
+// ZAP: 2024/02/23 Added support for menu weights.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
@@ -150,6 +151,7 @@ import org.zaproxy.zap.extension.history.PopupMenuJumpTo;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
+import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener {
@@ -589,6 +591,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuPurgeHistory getPopupMenuPurgeHistory() {
         if (popupMenuPurgeHistory == null) {
             popupMenuPurgeHistory = new PopupMenuPurgeHistory(this);
+            popupMenuPurgeHistory.setWeight(MenuWeights.MENU_DELETE_WEIGHT);
         }
         return popupMenuPurgeHistory;
     }
@@ -612,6 +615,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuTag getPopupMenuTag() {
         if (popupMenuTag == null) {
             popupMenuTag = new PopupMenuTag(this);
+            popupMenuTag.setWeight(MenuWeights.MENU_HISTORY_TAGS_WEIGHT);
         }
         return popupMenuTag;
     }
@@ -619,6 +623,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     private PopupMenuJumpTo getPopupMenuJumpTo() {
         if (popupMenuJumpTo == null) {
             popupMenuJumpTo = new PopupMenuJumpTo(this);
+            popupMenuJumpTo.setWeight(MenuWeights.MENU_HISTORY_JUMP_WEIGHT);
         }
         return popupMenuJumpTo;
     }

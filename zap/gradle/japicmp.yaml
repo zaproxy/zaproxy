@@ -7,3 +7,4 @@ fieldExcludes: []
 classExcludes: []
 methodExcludes:
   - "org.zaproxy.zap.control.CoreFunctionality#getBuiltInActiveScanRules()"
+  - "org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent#getWeight()"

@@ -24,6 +24,7 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 @SuppressWarnings("serial")
@@ -51,5 +52,10 @@ public class PopupMenuAddBreakSites extends PopupMenuItemSiteNodeContainer {
         } catch (DatabaseException e) {
             // Ignore
         }
+    }
+
+    @Override
+    public int getWeight() {
+        return MenuWeights.MENU_BREAK_WEIGHT;
     }
 }

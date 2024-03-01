@@ -51,6 +51,11 @@ public class PopupMenuItemContextDataDrivenNode extends PopupMenuItemSiteNodeCon
     }
 
     @Override
+    public int getParentWeight() {
+        return MenuWeights.MENU_FLAG_CONTEXT_WEIGHT;
+    }
+
+    @Override
     public boolean isSubMenu() {
         return true;
     }

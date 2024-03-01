@@ -34,6 +34,7 @@
 // ZAP: 2017/06/01 Add more constructors.
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2024/02/23 Added support for menu weights.
 package org.parosproxy.paros.extension;
 
 import java.awt.Component;
@@ -42,20 +43,46 @@ import javax.swing.Icon;
 import javax.swing.JMenuItem;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
+import org.zaproxy.zap.view.popup.MenuWeights;
 
 public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupMenuComponent {
 
     private static final long serialVersionUID = -5454473736753550528L;
 
-    public static final int ATTACK_MENU_INDEX = 0;
-    public static final int EXCLUDE_MENU_INDEX = 1;
-    public static final int CONTEXT_FLAG_MENU_INDEX = 1; // This is just shown in the response tab
-    public static final int FLAG_MENU_INDEX = 2;
+    private int weight = MenuWeights.MENU_DEFAULT_WEIGHT;
+    private int parentWeight = MenuWeights.MENU_DEFAULT_WEIGHT;
 
-    private int menuIndex = -1;
-    private int parentMenuIndex = -1;
-    private boolean precedeWithSeparator = false;
-    private boolean succeedWithSeparator = false;
+    /**
+     * Use weights instead.
+     *
+     * @deprecated 2.15.0
+     */
+    @Deprecated(since = "2.15.0")
+    public static final int ATTACK_MENU_INDEX = 0;
+
+    /**
+     * Use weights instead.
+     *
+     * @deprecated 2.15.0
+     */
+    @Deprecated(since = "2.15.0")
+    public static final int EXCLUDE_MENU_INDEX = 1;
+
+    /**
+     * Use weights instead.
+     *
+     * @deprecated 2.15.0
+     */
+    @Deprecated(since = "2.15.0")
+    public static final int CONTEXT_FLAG_MENU_INDEX = 1;
+
+    /**
+     * Use weights instead.
+     *
+     * @deprecated 2.15.0
+     */
+    @Deprecated(since = "2.15.0")
+    public static final int FLAG_MENU_INDEX = 2;
 
     /** Constructs an {@code ExtensionPopupMenuItem} with no text nor icon. */
     public ExtensionPopupMenuItem() {
@@ -122,21 +149,73 @@ public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupM
     }
 
     @Override
+    @Deprecated(since = "2.15.0")
     public int getMenuIndex() {
-        return menuIndex;
+        return -1;
     }
 
-    public void setMenuIndex(int menuIndex) {
-        this.menuIndex = menuIndex;
+    /**
+     * This is no longer used. Use setWeight instead.
+     *
+     * @deprecated
+     */
+    @Deprecated(since = "2.15.0")
+    public void setMenuIndex(int menuIndex) {}
+
+    /**
+     * Gets the weight of the component.
+     *
+     * @since 2.15.0
+     */
+    @Override
+    public int getWeight() {
+        return weight;
     }
 
+    /**
+     * Sets the weight of the component.
+     *
+     * @since 2.15.0
+     */
+    public void setWeight(int weight) {
+        this.weight = weight;
+    }
+
+    /**
+     * Gets the weight of the parent component.
+     *
+     * @since 2.15.0
+     */
+    public int getParentWeight() {
+        return parentWeight;
+    }
+
+    /**
+     * Sets the weight of the parent component.
+     *
+     * @since 2.15.0
+     */
+    public void setParentWeight(int parentWeight) {
+        this.parentWeight = parentWeight;
+    }
+
+    /**
+     * This is no longer used. Use getParentWeight instead.
+     *
+     * @deprecated
+     */
+    @Deprecated(since = "2.15.0")
     public int getParentMenuIndex() {
-        return parentMenuIndex;
+        return -1;
     }
 
-    public void setParentMenuIndex(int parentMenuIndex) {
-        this.parentMenuIndex = parentMenuIndex;
-    }
+    @Deprecated(since = "2.15.0")
+    /**
+     * This is no longer used. Use setParentWeight instead.
+     *
+     * @deprecated
+     */
+    public void setParentMenuIndex(int parentMenuIndex) {}
 
     // ZAP: Support submenus
     public boolean isSubMenu() {
@@ -148,25 +227,23 @@ public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupM
         return false;
     }
 
-    // ZAP: Added precedeWithSeparator
     @Override
+    @Deprecated
     public boolean precedeWithSeparator() {
-        return precedeWithSeparator;
+        return false;
     }
 
-    public void setPrecedeWithSeparator(boolean precede) {
-        this.precedeWithSeparator = precede;
-    }
+    @Deprecated
+    public void setPrecedeWithSeparator(boolean precede) {}
 
-    // ZAP: Added succeedWithSeparator
     @Override
+    @Deprecated
     public boolean succeedWithSeparator() {
-        return succeedWithSeparator;
+        return false;
     }
 
-    public void setSucceedWithSeparator(boolean succeed) {
-        this.succeedWithSeparator = succeed;
-    }
+    @Deprecated
+    public void setSucceedWithSeparator(boolean succeed) {}
 
     // Override if the menuitem is safe!
     @Override

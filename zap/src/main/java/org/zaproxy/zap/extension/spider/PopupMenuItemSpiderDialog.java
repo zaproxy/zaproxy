@@ -57,11 +57,6 @@ public class PopupMenuItemSpiderDialog extends PopupMenuItemSiteNodeContainer {
     }
 
     @Override
-    public int getParentMenuIndex() {
-        return ATTACK_MENU_INDEX;
-    }
-
-    @Override
     public void performAction(SiteNode node) {
         extension.showSpiderDialog(node);
     }

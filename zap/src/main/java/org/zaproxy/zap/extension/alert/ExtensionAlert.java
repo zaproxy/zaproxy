@@ -68,6 +68,7 @@ import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.view.popup.MenuWeights;
 
 public class ExtensionAlert extends ExtensionAdaptor
         implements SessionChangedListener, XmlReporterExtension, OptionsChangedListener {
@@ -642,6 +643,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         if (popupMenuAlertAdd == null) {
             popupMenuAlertAdd =
                     new PopupMenuAlert(Constant.messages.getString("alert.add.popup"), this);
+            popupMenuAlertAdd.setWeight(MenuWeights.MENU_NEW_ALERT_WEIGHT);
         }
         return popupMenuAlertAdd;
     }
@@ -678,6 +680,7 @@ public class ExtensionAlert extends ExtensionAdaptor
         if (popupMenuShowAlerts == null) {
             popupMenuShowAlerts =
                     new PopupMenuShowAlerts(Constant.messages.getString("alerts.view.popup"), this);
+            popupMenuShowAlerts.setWeight(MenuWeights.MENU_ALERTS_NODE_WEIGHT);
         }
         return popupMenuShowAlerts;
     }

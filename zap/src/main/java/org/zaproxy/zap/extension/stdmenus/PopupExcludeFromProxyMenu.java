@@ -54,11 +54,6 @@ public class PopupExcludeFromProxyMenu extends PopupMenuItemSiteNodeContainer {
     }
 
     @Override
-    public int getParentMenuIndex() {
-        return EXCLUDE_MENU_INDEX;
-    }
-
-    @Override
     public void performAction(SiteNode sn) {
         try {
             Session session = Model.getSingleton().getSession();
