@@ -42,8 +42,6 @@ jobs:
           push: true
           provenance: false
           tags: |
-            owasp/zap2docker-weekly:w${{ env.REL_DATE }}
-            owasp/zap2docker-weekly:latest
             ghcr.io/zaproxy/zaproxy:${{ env.REL_DATE_SHORT }}-weekly
             ghcr.io/zaproxy/zaproxy:weekly
             softwaresecurityproject/zap-weekly:${{ env.REL_DATE_SHORT }}
