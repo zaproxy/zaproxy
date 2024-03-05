@@ -421,7 +421,8 @@ def main(argv):
                 urls = zap.core.urls()
 
                 if host_override:
-                    if urlparse(host_override).scheme:
+                    parsed_url = urlparse(host_override)
+                    if parsed_url.scheme and parsed_url.scheme != 'localhost':
                         target = host_override
                     else:
                         target = urljoin(target_url, '//' + host_override)
