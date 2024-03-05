@@ -40,7 +40,6 @@ jobs:
           push: true
           provenance: false
           tags: |
-            owasp/zap2docker-live:latest
             ghcr.io/zaproxy/zaproxy:nightly
             softwaresecurityproject/zap-nightly:latest
           secrets: |
