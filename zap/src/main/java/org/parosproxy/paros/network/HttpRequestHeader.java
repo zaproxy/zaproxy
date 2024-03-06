@@ -66,6 +66,7 @@
 // ZAP: 2022/09/21 Use format specifiers instead of concatenation when logging.
 // ZAP: 2022/11/22 Lower case the HTTP field names for compatibility with HTTP/2.
 // ZAP: 2023/01/10 Tidy up logger.
+// ZAP: 2024/03/05 Delegate URI unwise and delims handling to httpclient.URI.
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -462,7 +463,7 @@ public class HttpRequestHeader extends HttpHeader {
             mUri = URI.fromAuthority(sUri);
 
         } else {
-            mUri = parseURI(sUri);
+            mUri = new URI(sUri, false);
 
             if (mUri.getScheme() == null || mUri.getScheme().equals("")) {
                 mUri = new URI(HTTP + "://" + getHeader(HOST) + mUri.toString(), true);
@@ -601,76 +602,6 @@ public class HttpRequestHeader extends HttpHeader {
     @Override
     public String getPrimeHeader() {
         return getMethod() + " " + getURI().toString() + " " + getVersion();
-    }
-
-    /*
-     * private static final char[] DELIM_UNWISE_CHAR = { '<', '>', '#', '"', '
-     * ', '{', '}', '|', '\\', '^', '[', ']', '`' };
-     */
-    private static final String DELIM = "<>#\"";
-    private static final String UNWISE = "{}|\\^[]`";
-    private static final String DELIM_UNWISE = DELIM + UNWISE;
-
-    public static URI parseURI(String sUri) throws URIException {
-        URI uri;
-
-        int len = sUri.length();
-        StringBuilder sb = new StringBuilder(len);
-        char[] charray = new char[1];
-        String s;
-
-        for (int i = 0; i < len; i++) {
-            char ch = sUri.charAt(i);
-            // String ch = sUri.substring(i, i+1);
-            if (DELIM_UNWISE.indexOf(ch) >= 0) {
-                // check if unwise or delim in RFC.  If so, encode it.
-                charray[0] = ch;
-                s = new String(charray);
-                try {
-                    s = URLEncoder.encode(s, "UTF8");
-
-                } catch (UnsupportedEncodingException e1) {
-                }
-
-                sb.append(s);
-
-            } else if (ch == '%') {
-
-                // % is exception - no encoding to be done because some server may not handle
-                // correctly when % is invalid.
-                //
-
-                // sb.append(ch);
-
-                // if % followed by hex, no encode.
-
-                try {
-                    String hex = sUri.substring(i + 1, i + 3);
-                    Integer.parseInt(hex, 16);
-                    sb.append(ch);
-
-                } catch (Exception e) {
-                    charray[0] = ch;
-                    s = new String(charray);
-                    try {
-                        s = URLEncoder.encode(s, "UTF8");
-
-                    } catch (UnsupportedEncodingException e1) {
-                    }
-                    sb.append(s);
-                }
-
-            } else if (ch == ' ') {
-                // if URLencode, '+' will be appended.
-                sb.append("%20");
-
-            } else {
-                sb.append(ch);
-            }
-        }
-
-        uri = new URI(sb.toString(), true);
-        return uri;
     }
 
     // Construct new GET url of request
