@@ -81,7 +81,6 @@ public class PopupMenuItemContextExclude extends PopupMenuItemSiteNodeContainer 
         List<Context> contexts = session.getContexts();
         for (Context context : contexts) {
             ExtensionPopupMenuItem piicm = createPopupExcludeFromContextMenu(context);
-            piicm.setMenuIndex(this.getMenuIndex());
             mainPopupMenuItems.add(piicm);
             this.subMenus.add(piicm);
         }

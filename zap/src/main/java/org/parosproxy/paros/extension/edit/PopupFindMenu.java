@@ -30,6 +30,7 @@
 // JDialog).
 // ZAP: 2019/06/01 Normalise line endings.
 // ZAP: 2019/06/05 Normalise format/style.
+// ZAP: 2024/02/23 Added support for menu weights.
 package org.parosproxy.paros.extension.edit;
 
 import java.awt.Component;
@@ -38,6 +39,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
+import org.zaproxy.zap.view.popup.MenuWeights;
 
 public class PopupFindMenu extends ExtensionPopupMenuItem {
     private static final long serialVersionUID = 1L;
@@ -100,5 +102,10 @@ public class PopupFindMenu extends ExtensionPopupMenuItem {
      */
     public void setLastInvoker(JTextComponent lastInvoker) {
         this.lastInvoker = lastInvoker;
+    }
+
+    @Override
+    public int getWeight() {
+        return MenuWeights.MENU_FIND_WEIGHT;
     }
 }

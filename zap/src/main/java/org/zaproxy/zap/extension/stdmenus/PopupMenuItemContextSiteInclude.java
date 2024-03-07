@@ -22,15 +22,12 @@ package org.zaproxy.zap.extension.stdmenus;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextInclude;
 
 class PopupMenuItemContextSiteInclude extends PopupMenuItemContextInclude {
 
     private static final long serialVersionUID = 1L;
-
-    PopupMenuItemContextSiteInclude() {
-        super();
-    }
 
     @Override
     public String getParentMenuName() {
@@ -38,12 +35,19 @@ class PopupMenuItemContextSiteInclude extends PopupMenuItemContextInclude {
     }
 
     @Override
-    protected ExtensionPopupMenuItem createPopupIncludeInContextMenu() {
-        return new PopupMenuItemIncludeSiteInContext();
+    protected ExtensionPopupMenuItem createPopupIncludeInContextMenu(int weight) {
+        PopupMenuItemIncludeSiteInContext menu = new PopupMenuItemIncludeSiteInContext();
+        menu.setWeight(weight);
+        return menu;
     }
 
     @Override
     protected ExtensionPopupMenuItem createPopupIncludeInContextMenu(Context context) {
         return new PopupMenuItemIncludeSiteInContext(context);
+    }
+
+    @Override
+    public int getWeight() {
+        return MenuWeights.MENU_INC_CONTEXT_WEIGHT;
     }
 }

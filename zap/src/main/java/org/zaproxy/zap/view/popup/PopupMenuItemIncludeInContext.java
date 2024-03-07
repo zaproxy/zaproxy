@@ -40,12 +40,16 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
     private static final long serialVersionUID = 990419495607725846L;
 
     protected Context context;
+    private int weight = MenuWeights.MENU_INC_CONTEXT_WEIGHT;
 
-    /** This method initializes */
     public PopupMenuItemIncludeInContext() {
         super(Constant.messages.getString("context.new.title"), true);
         this.context = null;
-        this.setPrecedeWithSeparator(true);
+    }
+
+    public PopupMenuItemIncludeInContext(int weight) {
+        this();
+        this.weight = weight;
     }
 
     public PopupMenuItemIncludeInContext(Context context) {
@@ -127,5 +131,10 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
     @Override
     public boolean isSafe() {
         return true;
+    }
+
+    @Override
+    public int getWeight() {
+        return weight;
     }
 }

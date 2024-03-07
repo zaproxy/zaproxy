@@ -84,7 +84,6 @@ public class PopupMenuItemContextDataDriven extends PopupMenuItemSiteNodeContain
         for (Context context : contexts) {
             if (context.isIncluded(sn)) {
                 ExtensionPopupMenuItem piicm = createPopupDataDrivenNodeMenu(context);
-                piicm.setMenuIndex(this.getMenuIndex());
                 mainPopupMenuItems.add(piicm);
                 this.subMenus.add(piicm);
             }

@@ -37,6 +37,7 @@ import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.AutoDetectSyntaxHttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea.SyntaxStyle;
+import org.zaproxy.zap.view.popup.MenuWeights;
 
 @SuppressWarnings("serial")
 public class SyntaxMenu extends ExtensionPopupMenu {
@@ -90,8 +91,8 @@ public class SyntaxMenu extends ExtensionPopupMenu {
     }
 
     @Override
-    public boolean precedeWithSeparator() {
-        return true;
+    public int getWeight() {
+        return MenuWeights.MENU_SYNTAX_WEIGHT;
     }
 
     public void updateState(HttpPanelSyntaxHighlightTextArea httpPanelTextArea) {

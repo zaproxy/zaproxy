@@ -91,28 +91,27 @@ public interface ExtensionPopupMenuComponent {
     boolean isEnableForMessageContainer(MessageContainer<?> invoker);
 
     /**
-     * Returns the position that the pop up menu component should occupy in the pop up menu.
+     * Replaced by weights.
      *
-     * @return the position that the menu component should occupy in the pop up menu.
+     * @deprecated
      */
+    @Deprecated(since = "2.15.0")
     int getMenuIndex();
 
     /**
-     * Tells whether or not the pop up menu component should be preceded with a separator.
+     * Replaced by weights.
      *
-     * @return {@code true} if the menu component should be preceded with a separator, {@code false}
-     *     otherwise.
-     * @see javax.swing.JPopupMenu.Separator
+     * @deprecated
      */
+    @Deprecated(since = "2.15.0")
     boolean precedeWithSeparator();
 
     /**
-     * Tells whether or not the pop up menu component should be succeeded with a separator.
+     * Replaced by weights.
      *
-     * @return {@code true} if the menu component should be succeeded with a separator, {@code
-     *     false} otherwise.
-     * @see javax.swing.JPopupMenu.Separator
+     * @deprecated
      */
+    @Deprecated(since = "2.15.0")
     boolean succeedWithSeparator();
 
     /**
@@ -147,4 +146,15 @@ public interface ExtensionPopupMenuComponent {
      * @see #isEnableForMessageContainer(MessageContainer)
      */
     void dismissed(ExtensionPopupMenuComponent selectedMenuComponent);
+
+    /**
+     * Indicates the relative weight of the menu item - the higher the weight the higher in the
+     * menu.
+     *
+     * @return The weight of the menu item
+     * @since 2.15.0
+     */
+    default int getWeight() {
+        return MenuWeights.MENU_DEFAULT_WEIGHT;
+    }
 }

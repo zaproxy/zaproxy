@@ -25,6 +25,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 @SuppressWarnings("serial")
@@ -64,8 +65,13 @@ public class PopupMenuActiveScanCustom extends PopupMenuItemSiteNodeContainer {
     }
 
     @Override
-    public int getParentMenuIndex() {
-        return ATTACK_MENU_INDEX;
+    public int getWeight() {
+        return MenuWeights.MENU_ATTACK_ACTIVE_WEIGHT;
+    }
+
+    @Override
+    public int getParentWeight() {
+        return MenuWeights.MENU_ATTACK_WEIGHT;
     }
 
     @Override
