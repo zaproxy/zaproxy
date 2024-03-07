@@ -462,7 +462,22 @@ public class HttpRequestHeader extends HttpHeader {
             mUri = URI.fromAuthority(sUri);
 
         } else {
-            mUri = parseURI(sUri);
+
+            try {
+                mUri = new URI(sUri, false);
+                if (mUri != null && mUri.isIPv6reference()) {
+                    // do not apply encodeMalformedURI to ipv6reference
+                    String ipv6Ref = mUri.getHost();
+                    int toAvoid = sUri.indexOf(ipv6Ref);
+                    mUri = new URI(encodeMalformedURI(sUri.substring(0, toAvoid))
+                              + ipv6Ref + encodeMalformedURI(sUri.substring(toAvoid + ipv6Ref.length())), true);
+                }
+            } catch (URIException e) {
+            } finally {
+                if (mUri == null || !mUri.isIPv6reference()) {
+                    mUri = new URI(encodeMalformedURI(sUri), true);
+                }
+            }
 
             if (mUri.getScheme() == null || mUri.getScheme().equals("")) {
                 mUri = new URI(HTTP + "://" + getHeader(HOST) + mUri.toString(), true);
@@ -603,17 +618,7 @@ public class HttpRequestHeader extends HttpHeader {
         return getMethod() + " " + getURI().toString() + " " + getVersion();
     }
 
-    /*
-     * private static final char[] DELIM_UNWISE_CHAR = { '<', '>', '#', '"', '
-     * ', '{', '}', '|', '\\', '^', '[', ']', '`' };
-     */
-    private static final String DELIM = "<>#\"";
-    private static final String UNWISE = "{}|\\^[]`";
-    private static final String DELIM_UNWISE = DELIM + UNWISE;
-
-    public static URI parseURI(String sUri) throws URIException {
-        URI uri;
-
+    public static String encodeMalformedURI(String sUri) {
         int len = sUri.length();
         StringBuilder sb = new StringBuilder(len);
         char[] charray = new char[1];
@@ -622,8 +627,8 @@ public class HttpRequestHeader extends HttpHeader {
         for (int i = 0; i < len; i++) {
             char ch = sUri.charAt(i);
             // String ch = sUri.substring(i, i+1);
-            if (DELIM_UNWISE.indexOf(ch) >= 0) {
-                // check if unwise or delim in RFC.  If so, encode it.
+            if ("<>#\"{}|\\^`[]".indexOf(ch) >= 0) {
+                // Encode any of '<>#"{}|\^`[]'.
                 charray[0] = ch;
                 s = new String(charray);
                 try {
@@ -663,14 +668,12 @@ public class HttpRequestHeader extends HttpHeader {
             } else if (ch == ' ') {
                 // if URLencode, '+' will be appended.
                 sb.append("%20");
-
             } else {
                 sb.append(ch);
             }
         }
 
-        uri = new URI(sb.toString(), true);
-        return uri;
+        return sb.toString();
     }
 
     // Construct new GET url of request
