@@ -463,21 +463,19 @@ public class HttpRequestHeader extends HttpHeader {
 
         } else {
 
+            String repairedUri = encodeMalformedURI(sUri);
             try {
                 mUri = new URI(sUri, false);
                 if (mUri != null && mUri.isIPv6reference()) {
                     // do not apply encodeMalformedURI to ipv6reference
                     String ipv6Ref = mUri.getHost();
                     int toAvoid = sUri.indexOf(ipv6Ref);
-                    mUri = new URI(encodeMalformedURI(sUri.substring(0, toAvoid))
-                              + ipv6Ref + encodeMalformedURI(sUri.substring(toAvoid + ipv6Ref.length())), true);
+                    repairedUri = encodeMalformedURI(sUri.substring(0, toAvoid))
+                              + ipv6Ref + encodeMalformedURI(sUri.substring(toAvoid + ipv6Ref.length()));
                 }
             } catch (URIException e) {
-            } finally {
-                if (mUri == null || !mUri.isIPv6reference()) {
-                    mUri = new URI(encodeMalformedURI(sUri), true);
-                }
             }
+            mUri = new URI(repairedUri, true);
 
             if (mUri.getScheme() == null || mUri.getScheme().equals("")) {
                 mUri = new URI(HTTP + "://" + getHeader(HOST) + mUri.toString(), true);
