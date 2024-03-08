@@ -86,6 +86,7 @@ def usage():
     print('    -w report_md      file to write the full ZAP Wiki (Markdown) report')
     print('    -x report_xml     file to write the full ZAP XML report')
     print('    -J report_json    file to write the full ZAP JSON document')
+    print('    -S report_sarif   file to write the full ZAP sarif document')
     print('    -a                include the alpha passive scan rules as well')
     print('    -d                show debug messages')
     print('    -P                specify listen port')
@@ -164,6 +165,7 @@ def main(argv):
     report_md = ''
     report_xml = ''
     report_json = ''
+    report_sarif = ''
     target = ''
     zap_alpha = False
     info_unspecified = False
@@ -191,7 +193,7 @@ def main(argv):
     debug = False
 
     try:
-        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff"])
+        opts, args = getopt.getopt(argv, "t:c:u:g:m:n:r:J:S:w:x:l:hdaijp:sz:P:D:T:IU:", ["hook=", "auto", "autooff"])
     except getopt.GetoptError as exc:
         logging.warning('Invalid option ' + exc.opt + ' : ' + exc.msg)
         usage()
@@ -231,6 +233,8 @@ def main(argv):
             report_html = arg
         elif opt == '-J':
             report_json = arg
+        elif opt == '-S':
+            report_sarif = arg
         elif opt == '-w':
             report_md = arg
         elif opt == '-x':
@@ -394,6 +398,9 @@ def main(argv):
 
                 if report_json:
                     jobs.append(get_af_report('traditional-json', base_dir, report_json, 'ZAP Scanning Report', ''))
+
+                if report_sarif:
+                    jobs.append(get_sarif_report('sarif-json', base_dir, report_sarif, 'ZAP Scanning Report', ''))
 
                 yaml.dump({'jobs': jobs}, yf)
 

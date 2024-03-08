@@ -660,6 +660,21 @@ def get_af_report(template, dir, file, title, description):
             'reportDescription': description}
         }
 
+def get_sarif_report(template, dir, file, title, description):
+    return {
+        'type': 'report',
+        'name': 'sarif-report',
+        'sites': [],
+        'risks': ['info', 'low', 'medium', 'high'],
+        'confidence': ['falsepositive', 'low', 'medium', 'high', 'confirmed'],
+        'parameters': {
+            'template': template,
+            'reportDir': dir,
+            'reportFile': file,
+            'reportTitle': title,
+            'reportDescription': description}
+        }
+
 def get_af_output_summary(format, summaryFile, config_dict, config_msg):
     obj = {
         'type': 'outputSummary',
