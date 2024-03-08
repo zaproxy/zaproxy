@@ -470,8 +470,11 @@ public class HttpRequestHeader extends HttpHeader {
                     // do not apply encodeMalformedURI to ipv6reference
                     String ipv6Ref = mUri.getHost();
                     int toAvoid = sUri.indexOf(ipv6Ref);
-                    repairedUri = encodeMalformedURI(sUri.substring(0, toAvoid))
-                              + ipv6Ref + encodeMalformedURI(sUri.substring(toAvoid + ipv6Ref.length()));
+                    repairedUri =
+                            encodeMalformedURI(sUri.substring(0, toAvoid))
+                                    + ipv6Ref
+                                    + encodeMalformedURI(
+                                            sUri.substring(toAvoid + ipv6Ref.length()));
                 }
             } catch (URIException e) {
             }
