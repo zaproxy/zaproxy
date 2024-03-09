@@ -463,22 +463,7 @@ public class HttpRequestHeader extends HttpHeader {
 
         } else {
 
-            String repairedUri = encodeMalformedURI(sUri);
-            try {
-                mUri = new URI(sUri, false);
-                if (mUri != null && mUri.isIPv6reference()) {
-                    // do not apply encodeMalformedURI to ipv6reference
-                    String ipv6Ref = mUri.getHost();
-                    int toAvoid = sUri.indexOf(ipv6Ref);
-                    repairedUri =
-                            encodeMalformedURI(sUri.substring(0, toAvoid))
-                                    + ipv6Ref
-                                    + encodeMalformedURI(
-                                            sUri.substring(toAvoid + ipv6Ref.length()));
-                }
-            } catch (URIException e) {
-            }
-            mUri = new URI(repairedUri, true);
+            mUri = parseURI(sUri);
 
             if (mUri.getScheme() == null || mUri.getScheme().equals("")) {
                 mUri = new URI(HTTP + "://" + getHeader(HOST) + mUri.toString(), true);
@@ -619,7 +604,26 @@ public class HttpRequestHeader extends HttpHeader {
         return getMethod() + " " + getURI().toString() + " " + getVersion();
     }
 
-    public static String encodeMalformedURI(String sUri) {
+    public static URI parseURI(String sUri) throws URIException {
+        String repairedUri = encodeMalformedURI(sUri);
+        try {
+            URI mUri = new URI(sUri, false);
+            if (mUri != null && mUri.isIPv6reference()) {
+                // do not apply encodeMalformedURI to ipv6reference
+                String ipv6Ref = mUri.getHost();
+                int toAvoid = sUri.indexOf(ipv6Ref);
+                repairedUri =
+                        encodeMalformedURI(sUri.substring(0, toAvoid))
+                                + ipv6Ref
+                                + encodeMalformedURI(
+                                        sUri.substring(toAvoid + ipv6Ref.length()));
+            }
+        } catch (URIException e) {
+        }
+        return new URI(repairedUri, true);
+    }
+
+    private static String encodeMalformedURI(String sUri) {
         int len = sUri.length();
         StringBuilder sb = new StringBuilder(len);
         char[] charray = new char[1];
