@@ -615,8 +615,7 @@ public class HttpRequestHeader extends HttpHeader {
                 repairedUri =
                         encodeMalformedURI(sUri.substring(0, toAvoid))
                                 + ipv6Ref
-                                + encodeMalformedURI(
-                                        sUri.substring(toAvoid + ipv6Ref.length()));
+                                + encodeMalformedURI(sUri.substring(toAvoid + ipv6Ref.length()));
             }
         } catch (URIException e) {
         }
