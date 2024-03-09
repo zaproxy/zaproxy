@@ -9,6 +9,10 @@ jobs:
   publish:
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
     steps:
       - uses: actions/checkout@v4
       -
@@ -33,6 +37,7 @@ jobs:
       -
         name: Build and push Docker image
         uses: docker/build-push-action@v4
+        id: build-and-push
         with:
           context: docker
           file: docker/Dockerfile-live
@@ -48,3 +53,13 @@ jobs:
             annotation-index.org.opencontainers.image.source=https://github.com/zaproxy/zaproxy,\
             annotation-index.org.opencontainers.image.description=The nightly Docker image for the world’s most widely used web app scanner.,\
             annotation-index.org.opencontainers.image.licenses=Apache-2.0"
+      - 
+        name: Install Cosign
+        uses: sigstore/cosign-installer@v3
+        with:
+          cosign-release: 'v2.2.3'
+      - 
+        name: Sign image
+        env:
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+        run: cosign sign --yes ghcr.io/zaproxy/zaproxy@${DIGEST}
