@@ -352,12 +352,12 @@ class HttpRequestHeaderUnitTest {
     }
 
     private static Stream<Arguments> ipv6referenceUrlHostPairs() {
-        List<Arguments> urls = new ArrayList<>();
-        // repaired url
-        urls.add(arguments("http://[::1]/<blah>[ ]", "[::1]"));
-        // url with userinfo
-        urls.add(arguments("http://bob@[::ffff:127.0.0.1]:1234/", "[::ffff:127.0.0.1]"));
-        return urls.stream();
+        return Stream.of(
+                arguments("http://[::1]/<blah>[ ]", "[::1]"), // repaired url
+                arguments(
+                        "http://bob@[::ffff:127.0.0.1]:1234/",
+                        "[::ffff:127.0.0.1]") // url with userinfo
+                );
     }
 
     private static HttpRequestHeader createRequestHeader(String url) {
