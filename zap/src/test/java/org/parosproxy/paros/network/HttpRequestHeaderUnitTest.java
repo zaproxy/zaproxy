@@ -355,7 +355,7 @@ class HttpRequestHeaderUnitTest {
         return Stream.of(
                 arguments("http://[::1]/<blah>[ ]", "[::1]"), // repaired url
                 arguments(
-                        "http://bob@[::ffff:127.0.0.1]:1234/",
+                        "http://bob:[::1]@[::ffff:127.0.0.1]:1234/",
                         "[::ffff:127.0.0.1]") // url with userinfo
                 );
     }
