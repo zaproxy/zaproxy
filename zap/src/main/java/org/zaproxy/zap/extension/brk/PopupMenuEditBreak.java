@@ -23,7 +23,11 @@ import java.awt.Component;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "removal"})
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
 public class PopupMenuEditBreak extends ExtensionPopupMenuItem {
 
     private static final long serialVersionUID = 1L;

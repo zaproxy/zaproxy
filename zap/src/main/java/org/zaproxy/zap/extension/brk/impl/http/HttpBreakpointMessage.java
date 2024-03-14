@@ -26,10 +26,14 @@ import org.apache.logging.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.brk.AbstractBreakPointMessage;
 import org.zaproxy.zap.extension.httppanel.Message;
 
-public class HttpBreakpointMessage extends AbstractBreakPointMessage {
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
+public class HttpBreakpointMessage extends org.zaproxy.zap.extension.brk.AbstractBreakPointMessage {
 
     public enum Location {
         url,

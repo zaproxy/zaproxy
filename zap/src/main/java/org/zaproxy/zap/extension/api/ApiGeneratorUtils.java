@@ -30,7 +30,6 @@ import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.authorization.AuthorizationAPI;
 import org.zaproxy.zap.extension.autoupdate.AutoUpdateAPI;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
-import org.zaproxy.zap.extension.brk.BreakAPI;
 import org.zaproxy.zap.extension.forceduser.ForcedUserAPI;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionsAPI;
 import org.zaproxy.zap.extension.params.ParamsAPI;
@@ -86,8 +85,6 @@ public class ApiGeneratorUtils {
         imps.add(new ContextAPI());
 
         imps.add(new HttpSessionsAPI(null));
-
-        imps.add(new BreakAPI(null));
 
         imps.add(new AuthenticationAPI(null));
 

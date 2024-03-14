@@ -25,8 +25,12 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.brk.ExtensionBreak;
 
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
 public class ProxyListenerBreak implements ProxyListener {
 
     // Should be the last one before the listener that saves the HttpMessage to
@@ -35,9 +39,9 @@ public class ProxyListenerBreak implements ProxyListener {
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER - 1;
 
     private Model model = null;
-    private ExtensionBreak extension = null;
+    private org.zaproxy.zap.extension.brk.ExtensionBreak extension = null;
 
-    public ProxyListenerBreak(Model model, ExtensionBreak extension) {
+    public ProxyListenerBreak(Model model, org.zaproxy.zap.extension.brk.ExtensionBreak extension) {
         this.model = model;
         this.extension = extension;
     }

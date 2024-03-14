@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 The ZAP Development Team
+ * Copyright 2024 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,22 +19,6 @@
  */
 package org.zaproxy.zap.extension.brk;
 
-import org.zaproxy.zap.extension.httppanel.Message;
-
-/**
- * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
- */
-@Deprecated(since = "2.15.0", forRemoval = true)
-@SuppressWarnings("removal")
-public interface BreakpointMessageInterface {
-
-    String getType();
-
-    boolean match(Message aMessage, boolean isRequest, boolean onlyIfInScope);
-
-    void setEnabled(boolean enabled);
-
-    boolean isEnabled();
-
-    String getDisplayMessage();
+public interface BreakPointRegistration {
+    boolean isBreakPointRegistered();
 }

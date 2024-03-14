@@ -47,16 +47,15 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
-import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointManagementDaemonImpl;
-import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage;
-import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location;
-import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match;
-import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointsUiManagerInterface;
-import org.zaproxy.zap.extension.brk.impl.http.ProxyListenerBreak;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.view.ZapMenuItem;
 
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
 public class ExtensionBreak extends ExtensionAdaptor
         implements SessionChangedListener, OptionsChangedListener {
 
@@ -69,7 +68,7 @@ public class ExtensionBreak extends ExtensionAdaptor
     public static final String BREAK_POINT_DROP_STATS = "stats.break.drop";
 
     private BreakPanel breakPanel = null;
-    private ProxyListenerBreak proxyListener = null;
+    private org.zaproxy.zap.extension.brk.impl.http.ProxyListenerBreak proxyListener = null;
 
     private BreakpointsPanel breakpointsPanel = null;
 
@@ -90,7 +89,8 @@ public class ExtensionBreak extends ExtensionAdaptor
     private BreakpointsOptionsPanel breakpointsOptionsPanel;
 
     private BreakpointManagementInterface breakpointManagementInterface;
-    private HttpBreakpointsUiManagerInterface httpBreakpoints;
+    private org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointsUiManagerInterface
+            httpBreakpoints;
 
     private ZapMenuItem menuBreakOnRequests = null;
     private ZapMenuItem menuBreakOnResponses = null;
@@ -168,7 +168,8 @@ public class ExtensionBreak extends ExtensionAdaptor
             mapMessageUiManager = new HashMap<>();
 
             httpBreakpoints =
-                    new HttpBreakpointsUiManagerInterface(extensionHook.getHookMenu(), this);
+                    new org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointsUiManagerInterface(
+                            extensionHook.getHookMenu(), this);
 
             addBreakpointsUiManager(httpBreakpoints);
 
@@ -182,7 +183,9 @@ public class ExtensionBreak extends ExtensionAdaptor
             ExtensionHelp.enableHelpKey(breakPanel, "ui.tabs.break");
             ExtensionHelp.enableHelpKey(getBreakpointsPanel(), "ui.tabs.breakpoints");
         } else {
-            this.breakpointManagementInterface = new HttpBreakpointManagementDaemonImpl();
+            this.breakpointManagementInterface =
+                    new org.zaproxy.zap.extension.brk.impl.http
+                            .HttpBreakpointManagementDaemonImpl();
 
             breakpointMessageHandler = new BreakpointMessageHandler2(breakpointManagementInterface);
             breakpointMessageHandler.setEnabledBreakpoints(new ArrayList<>());
@@ -261,7 +264,7 @@ public class ExtensionBreak extends ExtensionAdaptor
     public void addHttpBreakpoint(
             String string, String location, String match, boolean inverse, boolean ignoreCase) {
         this.addBreakpoint(
-                new HttpBreakpointMessage(
+                new org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage(
                         string,
                         getLocationEnum(location),
                         getMatchEnum(match),
@@ -269,28 +272,38 @@ public class ExtensionBreak extends ExtensionAdaptor
                         ignoreCase));
     }
 
-    private static Location getLocationEnum(String location) {
+    private static org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location
+            getLocationEnum(String location) {
         try {
-            return Location.valueOf(location);
+            return org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location.valueOf(
+                    location);
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "location must be one of " + Arrays.toString(Location.values()));
+                    "location must be one of "
+                            + Arrays.toString(
+                                    org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage
+                                            .Location.values()));
         }
     }
 
-    private static Match getMatchEnum(String match) {
+    private static org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match getMatchEnum(
+            String match) {
         try {
-            return Match.valueOf(match);
+            return org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match.valueOf(
+                    match);
         } catch (Exception e) {
             throw new IllegalArgumentException(
-                    "match must be one of " + Arrays.toString(Match.values()));
+                    "match must be one of "
+                            + Arrays.toString(
+                                    org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage
+                                            .Match.values()));
         }
     }
 
     public void removeHttpBreakpoint(
             String string, String location, String match, boolean inverse, boolean ignoreCase) {
         this.removeBreakpoint(
-                new HttpBreakpointMessage(
+                new org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage(
                         string,
                         getLocationEnum(location),
                         getMatchEnum(match),
@@ -344,9 +357,11 @@ public class ExtensionBreak extends ExtensionAdaptor
         return (BreakpointsTableModel) this.getBreakpointsPanel().getBreakpoints().getModel();
     }
 
-    private ProxyListenerBreak getProxyListenerBreak() {
+    private org.zaproxy.zap.extension.brk.impl.http.ProxyListenerBreak getProxyListenerBreak() {
         if (proxyListener == null) {
-            proxyListener = new ProxyListenerBreak(getModel(), this);
+            proxyListener =
+                    new org.zaproxy.zap.extension.brk.impl.http.ProxyListenerBreak(
+                            getModel(), this);
         }
         return proxyListener;
     }

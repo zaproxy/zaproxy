@@ -34,7 +34,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.view.TabbedPanel2;
@@ -50,6 +49,11 @@ import org.zaproxy.zap.view.ZapToggleButton;
 // If BreakReq & Resp both selected Step and Continue buttons have same effect
 //
 
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
 public class BreakPanelToolbarFactory {
 
     private static final String ICON_RESOURCE_PATH = "/resource/icon/";
@@ -85,9 +89,12 @@ public class BreakPanelToolbarFactory {
     private int mode = 0;
 
     private List<BreakpointMessageInterface> ignoreRulesEnable;
-    private HttpBreakpointMessage ignoreJavascriptBreakpointMessage;
-    private HttpBreakpointMessage ignoreCssAndFontsBreakpointMessage;
-    private HttpBreakpointMessage ignoreMultimediaBreakpointMessage;
+    private org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage
+            ignoreJavascriptBreakpointMessage;
+    private org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage
+            ignoreCssAndFontsBreakpointMessage;
+    private org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage
+            ignoreMultimediaBreakpointMessage;
 
     /**
      * A counter to keep track of how many messages are currently caught, to disable the break
@@ -137,28 +144,28 @@ public class BreakPanelToolbarFactory {
         this.ignoreRulesEnable = new ArrayList<>(3);
 
         ignoreJavascriptBreakpointMessage =
-                new HttpBreakpointMessage(
+                new org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage(
                         breakpointsParams.getJavascriptUrlRegex(),
-                        HttpBreakpointMessage.Location.url,
-                        HttpBreakpointMessage.Match.regex,
+                        org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location.url,
+                        org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match.regex,
                         false,
                         true);
         ignoreRulesEnable.add(ignoreJavascriptBreakpointMessage);
 
         ignoreCssAndFontsBreakpointMessage =
-                new HttpBreakpointMessage(
+                new org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage(
                         breakpointsParams.getCssAndFontsUrlRegex(),
-                        HttpBreakpointMessage.Location.url,
-                        HttpBreakpointMessage.Match.regex,
+                        org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location.url,
+                        org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match.regex,
                         false,
                         true);
         ignoreRulesEnable.add(ignoreCssAndFontsBreakpointMessage);
 
         ignoreMultimediaBreakpointMessage =
-                new HttpBreakpointMessage(
+                new org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage(
                         breakpointsParams.getMultimediaUrlRegex(),
-                        HttpBreakpointMessage.Location.url,
-                        HttpBreakpointMessage.Match.regex,
+                        org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location.url,
+                        org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match.regex,
                         false,
                         true);
         ignoreRulesEnable.add(ignoreMultimediaBreakpointMessage);

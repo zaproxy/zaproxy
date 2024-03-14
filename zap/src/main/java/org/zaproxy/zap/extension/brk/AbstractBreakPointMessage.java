@@ -19,6 +19,11 @@
  */
 package org.zaproxy.zap.extension.brk;
 
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
 public abstract class AbstractBreakPointMessage implements BreakpointMessageInterface {
 
     private boolean isEnabled = true;

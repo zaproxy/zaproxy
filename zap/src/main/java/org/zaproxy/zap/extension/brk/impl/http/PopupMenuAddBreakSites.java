@@ -27,7 +27,11 @@ import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.MenuWeights;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "removal"})
+/**
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
+ */
+@Deprecated(since = "2.15.0", forRemoval = true)
 public class PopupMenuAddBreakSites extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = -7635703590177283587L;

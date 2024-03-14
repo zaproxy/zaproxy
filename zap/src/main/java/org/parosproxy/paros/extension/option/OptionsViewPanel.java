@@ -75,7 +75,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.WorkbenchPanel;
-import org.zaproxy.zap.extension.brk.BreakpointsParam;
+import org.zaproxy.zap.extension.brk.BreakPointRegistration;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.TimeStampUtils;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
@@ -83,7 +83,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 // ZAP: 2011: added more configuration options
 
-@SuppressWarnings("serial")
+@SuppressWarnings({"serial", "removal"})
 public class OptionsViewPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
@@ -157,6 +157,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
             new EnumMap<>(FontUtils.FontType.class);
     private ZapNumberSpinner iconSize;
     private JLabel exampleIcon;
+
+    private BreakPointRegistration breakPointRegistration;
 
     public OptionsViewPanel() {
         super();
@@ -826,6 +828,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
                 .setSelected(options.getViewParam().isAllowAppIntegrationInContainers());
     }
 
+    public void setBreakPointRegistration(BreakPointRegistration registration) {
+        breakPointRegistration = registration;
+    }
+
     private static <T> void selectItem(JComboBox<T> comboBox, Predicate<T> predicate) {
         for (int i = 0; i < comboBox.getItemCount(); i++) {
             T item = comboBox.getItemAt(i);
@@ -851,8 +857,11 @@ public class OptionsViewPanel extends AbstractParamPanel {
                 (ResponsePanelPositionUI) getResponsePanelPositionComboBox().getSelectedItem();
         options.getViewParam().setResponsePanelPosition(selectedItem.getPosition().name());
         options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());
-        if (brkPanelViewSelect.getSelectedIndex() == BreakLocation.TOOL_BAR_ONLY.getValue()) {
-            options.getParamSet(BreakpointsParam.class).setShowIgnoreFilesButtons(false);
+        if (breakPointRegistration.isBreakPointRegistered()
+                && brkPanelViewSelect.getSelectedIndex()
+                        == BreakLocation.TOOL_BAR_ONLY.getValue()) {
+            options.getParamSet(org.zaproxy.zap.extension.brk.BreakpointsParam.class)
+                    .setShowIgnoreFilesButtons(false);
         }
         options.getViewParam().setShowMainToolbar(getChkShowMainToolbar().isSelected());
         options.getViewParam().setAdvancedViewOption(getChkAdvancedView().isSelected() ? 1 : 0);

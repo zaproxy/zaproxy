@@ -44,7 +44,10 @@ import org.zaproxy.zap.view.LayoutHelper;
  * </ul>
  *
  * @see org.zaproxy.zap.extension.brk.BreakPanelToolbarFactory#getBtnDrop()
+ * @deprecated (2.15.0) See the break add-on in zap-extensions instead.
  */
+@Deprecated(since = "2.15.0", forRemoval = true)
+@SuppressWarnings("removal")
 public class BreakpointsOptionsPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 7483614036849207715L;
