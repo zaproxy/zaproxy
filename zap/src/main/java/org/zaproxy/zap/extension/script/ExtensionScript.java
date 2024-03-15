@@ -2091,6 +2091,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             // Only invoke if run from the command line
             // if the GUI is present then its up to the user to invoke it
             this.invokeScript(sw);
+
+            Exception e = sw.getLastException();
+            if (e != null) {
+                CommandLine.error(e.getMessage(), e);
+            }
         }
     }
 
