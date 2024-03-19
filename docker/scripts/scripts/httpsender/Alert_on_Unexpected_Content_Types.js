@@ -20,6 +20,7 @@ var expectedTypes = [
 		"application/xml",
 		"application/x-ndjson",
 		"application/x-yaml",
+		"application/yaml",
 		"text/x-json",
 		"text/json",
 		"text/yaml",
