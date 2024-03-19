@@ -42,7 +42,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.autoupdate.OptionsCheckForUpdatesPanel;
-import org.zaproxy.zap.extension.brk.BreakPointRegistration;
 import org.zaproxy.zap.extension.lang.OptionsLangPanel;
 
 public class ExtensionOption extends ExtensionAdaptor {

@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.extension.brk;
+package org.parosproxy.paros.extension.option;
 
 public interface BreakPointRegistration {
     boolean isBreakPointRegistered();

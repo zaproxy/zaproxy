@@ -75,7 +75,6 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.WorkbenchPanel;
-import org.zaproxy.zap.extension.brk.BreakPointRegistration;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.TimeStampUtils;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
