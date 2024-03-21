@@ -19,6 +19,7 @@
  */
 package org.parosproxy.paros.extension.option;
 
-public interface BreakPointRegistration {
-    boolean isBreakPointRegistered();
+public interface BreakOptionsHandler {
+
+    void setShowIgnoreFilesButtons(boolean showButtons);
 }

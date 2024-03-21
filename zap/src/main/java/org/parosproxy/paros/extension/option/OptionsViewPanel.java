@@ -157,7 +157,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
     private ZapNumberSpinner iconSize;
     private JLabel exampleIcon;
 
-    private BreakPointRegistration breakPointRegistration;
+    private BreakOptionsHandler breakOptionsHandler;
 
     public OptionsViewPanel() {
         super();
@@ -827,8 +827,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
                 .setSelected(options.getViewParam().isAllowAppIntegrationInContainers());
     }
 
-    public void setBreakPointRegistration(BreakPointRegistration registration) {
-        breakPointRegistration = registration;
+    public void setBreakPointRegistration(BreakOptionsHandler breakOptionsHandler) {
+        this.breakOptionsHandler = breakOptionsHandler;
     }
 
     private static <T> void selectItem(JComboBox<T> comboBox, Predicate<T> predicate) {
@@ -856,11 +856,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
                 (ResponsePanelPositionUI) getResponsePanelPositionComboBox().getSelectedItem();
         options.getViewParam().setResponsePanelPosition(selectedItem.getPosition().name());
         options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());
-        if (breakPointRegistration.isBreakPointRegistered()
+        if (breakOptionsHandler != null
                 && brkPanelViewSelect.getSelectedIndex()
                         == BreakLocation.TOOL_BAR_ONLY.getValue()) {
-            options.getParamSet(org.zaproxy.zap.extension.brk.BreakpointsParam.class)
-                    .setShowIgnoreFilesButtons(false);
+            breakOptionsHandler.setShowIgnoreFilesButtons(false);
         }
         options.getViewParam().setShowMainToolbar(getChkShowMainToolbar().isSelected());
         options.getViewParam().setAdvancedViewOption(getChkAdvancedView().isSelected() ? 1 : 0);
