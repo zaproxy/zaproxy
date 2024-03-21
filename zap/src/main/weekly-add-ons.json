@@ -28,7 +28,6 @@
       ":addOns:oast",
       ":addOns:onlineMenu",
       ":addOns:openapi",
-      ":addOns:portscan",
       ":addOns:postman",
       ":addOns:plugnhack",
       ":addOns:pscanrules",
