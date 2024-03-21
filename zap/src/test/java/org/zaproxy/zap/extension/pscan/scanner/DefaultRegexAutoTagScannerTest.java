@@ -19,18 +19,35 @@
  */
 package org.zaproxy.zap.extension.pscan.scanner;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 import java.io.InputStream;
 import java.util.stream.Stream;
 import net.htmlparser.jericho.Source;
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentCaptor;
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanParam;
+import org.zaproxy.zap.utils.Stats;
+import org.zaproxy.zap.utils.StatsListener;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 @Timeout(6)
@@ -41,6 +58,7 @@ class DefaultRegexAutoTagScannerTest {
     private static Source source;
     private static HttpMessage message;
     private static PassiveScanParam passiveScanParam;
+    private StatsListener listener;
 
     @BeforeAll
     static void beforeAll() throws Exception {
@@ -62,6 +80,12 @@ class DefaultRegexAutoTagScannerTest {
         message.setResponseBody(body);
     }
 
+    @BeforeEach
+    private void beforeEach() {
+        listener = spy(StatsListener.class);
+        Stats.addListener(listener);
+    }
+
     static Stream<Arguments> defaultRegexes() {
         return passiveScanParam.getAutoTagScanners().stream()
                 .map(e -> Arguments.of(e.getName(), e));
@@ -71,5 +95,44 @@ class DefaultRegexAutoTagScannerTest {
     @MethodSource("defaultRegexes")
     void shouldNotBeSlowWhenScanningBigBody(String name, RegexAutoTagScanner scanner) {
         assertDoesNotThrow(() -> scanner.scanHttpResponseReceive(message, -1, source));
+    }
+
+    private RegexAutoTagScanner getRegexRuleByName(String taggerName) {
+        for (RegexAutoTagScanner tagRule : passiveScanParam.getAutoTagScanners()) {
+            if (tagRule.getName().equals(taggerName)) {
+                return tagRule;
+            }
+        }
+        return null;
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(
+            strings = {
+                "application/JSON",
+                "application/jSon",
+                "application/json",
+                "aPPlication/json",
+                "application/json; charset=utf-8"
+            })
+    void shouldCountWhenHeaderContainsJsonMatch(String contentType)
+            throws URIException, HttpMalformedHeaderException, DatabaseException {
+        // Given
+        RegexAutoTagScanner rule = getRegexRuleByName("response_json");
+        HttpMessage msg = new HttpMessage(new URI("http://example.com/", true));
+        msg.setHistoryRef(mock(HistoryReference.class));
+        msg.getResponseHeader().setHeader(HttpHeader.CONTENT_TYPE, contentType);
+        // When
+        rule.scanHttpResponseReceive(msg, -1, new Source(msg.getResponseBody().toString()));
+        // Then
+        ArgumentCaptor<String> siteCaptor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<String> keyCaptor = ArgumentCaptor.forClass(String.class);
+
+        verify(listener).counterInc(siteCaptor.capture(), keyCaptor.capture());
+        assertThat(siteCaptor.getValue(), is(equalTo("http://example.com")));
+        assertThat(rule.getConf(), is(equalTo("JSON")));
+        assertThat(
+                keyCaptor.getValue(),
+                is(equalTo(RegexAutoTagScanner.TAG_STATS_PREFIX + rule.getConf())));
     }
 }
