@@ -82,7 +82,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 // ZAP: 2011: added more configuration options
 
-@SuppressWarnings({"serial", "removal"})
+@SuppressWarnings("serial")
 public class OptionsViewPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = 1L;
@@ -827,7 +827,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
                 .setSelected(options.getViewParam().isAllowAppIntegrationInContainers());
     }
 
-    public void setBreakPointRegistration(BreakOptionsHandler breakOptionsHandler) {
+    public void setBreakOptionsHandler(BreakOptionsHandler breakOptionsHandler) {
         this.breakOptionsHandler = breakOptionsHandler;
     }
 

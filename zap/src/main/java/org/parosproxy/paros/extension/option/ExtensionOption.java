@@ -104,8 +104,8 @@ public class ExtensionOption extends ExtensionAdaptor {
         return menuViewImage;
     }
 
-    public void setBreakPointRegistration(BreakOptionsHandler registration) {
-        getOptionsViewPanel().setBreakPointRegistration(registration);
+    public void setBreakOptionsHandler(BreakOptionsHandler breakOptionsHandler) {
+        getOptionsViewPanel().setBreakOptionsHandler(breakOptionsHandler);
     }
 
     private OptionsViewPanel getOptionsViewPanel() {
