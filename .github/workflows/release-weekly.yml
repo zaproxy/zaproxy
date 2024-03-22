@@ -17,6 +17,12 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: 11
+    - name: Set up Chalk
+      uses: crashappsec/setup-chalk-action@main
+      with:
+        password: ${{ secrets.CHALK_PASSWORD }}
+        public_key: ${{ secrets.CHALK_PUBLIC_KEY }}
+        private_key: ${{ secrets.CHALK_PRIVATE_KEY }}
     - name: Build and Release
       env:
         ZAPBOT_TOKEN: ${{ secrets.ZAPBOT_TOKEN }}
@@ -24,4 +30,5 @@ jobs:
         ZAP_JAVA_VERSION: 11
         ZAP_WEEKLY_ADDONS_NO_TEST: ${{ vars.ZAP_WEEKLY_ADDONS_NO_TEST }}
         ZAP_WEEKLY_QUIET: ${{ vars.ZAP_WEEKLY_QUIET }}
+        ZAP_CHALK: 1
       run: ./gradlew "-Dorg.gradle.jvmargs=-Xmx2g -XX:MaxMetaspaceSize=512m" :zap:createWeeklyRelease
