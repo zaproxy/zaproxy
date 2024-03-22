@@ -160,7 +160,7 @@ listOf("jar", "jarDaily", "jarWithBom").forEach {
                 exec {
                     workingDir(rootDir)
                     executable("chalk")
-                    args("--warn", "insert", archiveFile.get().asFile)
+                    args("insert", archiveFile.get().asFile)
                 }
             }
         }
