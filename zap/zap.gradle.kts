@@ -154,6 +154,16 @@ listOf("jar", "jarDaily", "jarWithBom").forEach {
         manifest {
             attributes(attrs)
         }
+
+        if (System.getenv("ZAP_CHALK") != null) {
+            doLast {
+                exec {
+                    workingDir(rootDir)
+                    executable("chalk")
+                    args("--warn", "insert", archiveFile.get().asFile)
+                }
+            }
+        }
     }
 }
 
