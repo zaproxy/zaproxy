@@ -351,7 +351,7 @@ public class ExtensionHookView {
 
     /**
      * Adds the given {@link DisplayedMessageChangedListener} to the view hook, to be later added to
-     * the the {@link org.parosproxy.paros.view.View}s {@link
+     * the {@link org.parosproxy.paros.view.View}s {@link
      * org.zaproxy.zap.extension.httppanel.HttpPanelRequest} ChangeListeners.
      *
      * @see
@@ -380,7 +380,7 @@ public class ExtensionHookView {
 
     /**
      * Adds the given {@link DisplayedMessageChangedListener} to the view hook, to be later added to
-     * the the {@link org.parosproxy.paros.view.View}s {@link
+     * the {@link org.parosproxy.paros.view.View}s {@link
      * org.zaproxy.zap.extension.httppanel.HttpPanelResponse} ChangeListeners.
      *
      * @see

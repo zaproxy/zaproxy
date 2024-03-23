@@ -2290,7 +2290,7 @@ public class AddOn {
         }
 
         /**
-         * Tells whether or not the the bundle data is empty.
+         * Tells whether or not the bundle data is empty.
          *
          * <p>An empty {@code BundleData} does not contain any information to load a {@link
          * ResourceBundle}.
@@ -2345,7 +2345,7 @@ public class AddOn {
         }
 
         /**
-         * Tells whether or not the the HelpSet data is empty.
+         * Tells whether or not the HelpSet data is empty.
          *
          * <p>An empty {@code HelpSetData} does not contain any information to load the help.
          *

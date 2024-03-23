@@ -457,7 +457,7 @@ public class HttpSender {
      * <p>Processes that reuse messages previously sent should consider setting this to {@code
      * true}, otherwise new authentication challenges might fail.
      *
-     * @param removeHeaders {@code true} if the the authentication headers already present should be
+     * @param removeHeaders {@code true} if the authentication headers already present should be
      *     removed when challenged, {@code false} otherwise
      */
     public void setRemoveUserDefinedAuthHeaders(boolean removeHeaders) {
